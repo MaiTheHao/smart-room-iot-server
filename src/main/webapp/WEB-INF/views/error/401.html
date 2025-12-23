@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title th:text="'SMRCIOT | ' + #{error.401.title}">SMRCIOT | 401 Unauthorized</title>
+
+		<link rel="stylesheet" th:href="@{/webjars/font-awesome/5.15.4/css/all.min.css}" />
+		<link rel="stylesheet" th:href="@{/webjars/AdminLTE/3.2.0/dist/css/adminlte.min.css}" />
+		<link rel="stylesheet" th:href="@{/styles/global.css}" />
+
+		<style>
+			body.error-page-bg {
+				background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+				height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+			}
+			.error-code {
+				font-size: 8rem; /* 128px */
+				font-weight: 700;
+				line-height: 1;
+				color: #ffc107; /* Warning Color */
+				text-shadow: 0 0.3125rem 0.625rem rgba(0, 0, 0, 0.1);
+			}
+			.error-heading {
+				font-size: 2rem;
+				font-weight: 300;
+				margin-bottom: 1rem;
+				color: #343a40;
+			}
+			.error-desc {
+				font-size: 1.125rem;
+				color: #6c757d;
+				margin-bottom: 2rem;
+				max-width: 30rem;
+				margin-left: auto;
+				margin-right: auto;
+			}
+		</style>
+	</head>
+	<body class="error-page-bg">
+		<div class="container">
+			<div class="mb-3">
+				<i class="fas fa-user-lock fa-4x text-warning"></i>
+			</div>
+
+			<h1 class="error-code">401</h1>
+
+			<h2 class="error-heading" th:text="#{error.401.heading}">Access Denied</h2>
+			<p class="error-desc" th:text="#{error.401.desc}">Stop right there! You don't have permission to access this area. Please sign in with an authorized account.</p>
+
+			<div>
+				<a th:href="@{/login}" class="btn btn-warning btn-lg px-4 font-weight-bold text-white shadow-sm">
+					<i class="fas fa-sign-in-alt mr-2"></i> <span th:text="#{error.401.login}">Login Now</span>
+				</a>
+			</div>
+
+			<!-- Language Switcher -->
+			<div class="text-center mt-4">
+				<div class="language-switcher-minimal">
+					<a th:href="@{/error/401?lang=en}" th:classappend="${#locale.language == 'en'} ? 'text-primary font-weight-bold' : 'text-muted'" class="lang-link">EN</a>
+					<span class="text-muted mx-2 text-xs">|</span>
+					<a th:href="@{/error/401?lang=vi}" th:classappend="${#locale.language == 'vi'} ? 'text-primary font-weight-bold' : 'text-muted'" class="lang-link">VN</a>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,29 @@
+:root {
+	/* --- BRANDING COLORS --- */
+	/* Accent: tím neon nhẹ, dùng cho các trạng thái active, hover, CTA */
+	--color-accent: #c084fc;
+	--color-accent-hover: #a855f7;
+
+	/* Primary: xanh biển pastel, cảm giác trẻ và sạch */
+	--color-primary: #60a5fa;
+
+	/* --- BASE COLORS (Light mode) --- */
+
+	/* General background: xám rất nhạt để highlight card */
+	--color-background: #fafafa;
+
+	/* Subtext/Container background: xám nhạt hơn 1 bậc cho vùng phụ */
+	--color-secondary: #f1f5f9;
+
+	/* Card/Section background: trắng tinh, tạo bố cục thoáng */
+	--color-tertiary: #ffffff;
+
+	/* Borders/Inactive Buttons: xám border nhẹ, mảnh */
+	--color-surface: #e2e8f0;
+
+	/* Text color: xám đậm mềm, đọc dễ trên nền trắng */
+	--color-text: #0f172a;
+
+	/* Font family */
+	--font-family: 'Rethink Sans', sans-serif;
+}

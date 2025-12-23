@@ -1,0 +1,269 @@
+package com.iviet.ivshs.util;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+
+@Slf4j
+public class HttpClientUtil {
+
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
+	private static final String CONTENT_TYPE_HEADER = "Content-Type";
+	private static final String ACCEPT_HEADER = "Accept";
+	private static final String APPLICATION_JSON = "application/json";
+	private static final int ERROR_STATUS_CODE = 500;
+
+	private static final HttpClient CLIENT = HttpClient.newBuilder()
+			.connectTimeout(DEFAULT_TIMEOUT)
+			.version(HttpClient.Version.HTTP_2)
+			.executor(Executors.newVirtualThreadPerTaskExecutor())
+			.build();
+
+	private static final ObjectMapper MAPPER = new ObjectMapper();
+
+	@Data
+	@Builder
+	public static class Response {
+		private int statusCode;
+		private String body;
+		private Map<String, String> headers;
+	}
+
+	@Data
+	@Builder
+	public static class Request {
+		private String url;
+		private String body;
+		@Builder.Default
+		private Map<String, String> headers = new HashMap<>();
+		@Builder.Default
+		private Duration timeout = DEFAULT_TIMEOUT;
+	}
+
+	// ===== JSON Utilities =====
+	public static String toJson(Object obj) {
+		if (obj == null) return null;
+		try {
+			return MAPPER.writeValueAsString(obj);
+		} catch (JsonProcessingException e) {
+			log.error("Failed to serialize object to JSON: {}", e.getMessage(), e);
+			throw new IllegalArgumentException("JSON serialization error", e);
+		}
+	}
+
+	public static <T> T fromJson(String json, Class<T> clazz) {
+		if (json == null || json.isEmpty()) return null;
+		
+		try {
+			return MAPPER.readValue(json, clazz);
+		} catch (Exception e) {
+			log.error("Failed to deserialize JSON to {}: {}", clazz.getSimpleName(), e.getMessage(), e);
+			throw new IllegalArgumentException("JSON deserialization error", e);
+		}
+	}
+
+	// ===== GET =====
+	public static Response get(String url) {
+		return get(Request.builder().url(url).build());
+	}
+
+	public static Response get(Request request) {
+		return execute("GET", request);
+	}
+
+	// ===== POST =====
+	public static Response post(String url, String body) {
+		return post(Request.builder().url(url).body(body).build());
+	}
+
+	public static Response post(String url, Object bodyObj) {
+		String json = toJson(bodyObj);
+		return post(Request.builder().url(url).body(json).build());
+	}
+
+	public static Response post(Request request) {
+		return execute("POST", request);
+	}
+
+	// ===== PUT =====
+	public static Response put(String url, String body) {
+		return put(Request.builder().url(url).body(body).build());
+	}
+
+	public static Response put(String url, Object bodyObj) {
+		String json = toJson(bodyObj);
+		return put(Request.builder().url(url).body(json).build());
+	}
+
+	public static Response put(Request request) {
+		return execute("PUT", request);
+	}
+
+	// ===== PATCH =====
+	public static Response patch(String url, String body) {
+		return patch(Request.builder().url(url).body(body).build());
+	}
+
+	public static Response patch(String url, Object bodyObj) {
+		String json = toJson(bodyObj);
+		return patch(Request.builder().url(url).body(json).build());
+	}
+
+	public static Response patch(Request request) {
+		return execute("PATCH", request);
+	}
+
+	// ===== DELETE =====
+	public static Response delete(String url) {
+		return delete(Request.builder().url(url).build());
+	}
+
+	public static Response delete(Request request) {
+		return execute("DELETE", request);
+	}
+
+	// ===== ASYNC GET =====
+	public static CompletableFuture<Response> getAsync(String url) {
+		return getAsync(Request.builder().url(url).build());
+	}
+
+	public static CompletableFuture<Response> getAsync(Request request) {
+		return executeAsync("GET", request);
+	}
+
+	// ===== ASYNC POST =====
+	public static CompletableFuture<Response> postAsync(String url, String body) {
+		return postAsync(Request.builder().url(url).body(body).build());
+	}
+
+	public static CompletableFuture<Response> postAsync(String url, Object bodyObj) {
+		String json = toJson(bodyObj);
+		return postAsync(Request.builder().url(url).body(json).build());
+	}
+
+	public static CompletableFuture<Response> postAsync(Request request) {
+		return executeAsync("POST", request);
+	}
+
+	// ===== ASYNC PUT =====
+	public static CompletableFuture<Response> putAsync(String url, String body) {
+		return putAsync(Request.builder().url(url).body(body).build());
+	}
+
+	public static CompletableFuture<Response> putAsync(String url, Object bodyObj) {
+		String json = toJson(bodyObj);
+		return putAsync(Request.builder().url(url).body(json).build());
+	}
+
+	public static CompletableFuture<Response> putAsync(Request request) {
+		return executeAsync("PUT", request);
+	}
+
+	// ===== ASYNC PATCH =====
+	public static CompletableFuture<Response> patchAsync(String url, String body) {
+		return patchAsync(Request.builder().url(url).body(body).build());
+	}
+
+	public static CompletableFuture<Response> patchAsync(String url, Object bodyObj) {
+		String json = toJson(bodyObj);
+		return patchAsync(Request.builder().url(url).body(json).build());
+	}
+
+	public static CompletableFuture<Response> patchAsync(Request request) {
+		return executeAsync("PATCH", request);
+	}
+
+	// ===== ASYNC DELETE =====
+	public static CompletableFuture<Response> deleteAsync(String url) {
+		return deleteAsync(Request.builder().url(url).build());
+	}
+
+	public static CompletableFuture<Response> deleteAsync(Request request) {
+		return executeAsync("DELETE", request);
+	}
+
+	// ===== Core Execution =====
+	private static Response execute(String method, Request request) {
+		try {
+			HttpRequest httpRequest = buildRequest(method, request);
+			HttpResponse<String> response = CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+			log.info("Executing HTTP {} on thread: name={}, isVirtual={}", method, Thread.currentThread().getName(), Thread.currentThread().isVirtual());
+			return mapResponse(response, method, request.getUrl());
+		} catch (Exception e) {
+			log.error("HTTP {} request to {} failed: {}", method, request.getUrl(), e.getMessage(), e);
+			return Response.builder()
+					.statusCode(ERROR_STATUS_CODE)
+					.body(e.getMessage())
+					.headers(new HashMap<>())
+					.build();
+		}
+	}
+
+	private static CompletableFuture<Response> executeAsync(String method, Request request) {
+		HttpRequest httpRequest = buildRequest(method, request);
+		return CLIENT.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
+				.thenApply(response -> mapResponse(response, method, request.getUrl()))
+				.exceptionally(ex -> {
+					log.error("Async HTTP {} request to {} failed: {}", method, request.getUrl(), ex.getMessage(), ex);
+					return Response.builder()
+							.statusCode(ERROR_STATUS_CODE)
+							.body(ex.getMessage())
+							.headers(new HashMap<>())
+							.build();
+				});
+	}
+
+	private static HttpRequest buildRequest(String method, Request request) {
+		HttpRequest.Builder builder = HttpRequest.newBuilder()
+				.uri(URI.create(request.getUrl()))
+				.timeout(request.getTimeout())
+				.header(CONTENT_TYPE_HEADER, APPLICATION_JSON)
+				.header(ACCEPT_HEADER, APPLICATION_JSON);
+
+		if (request.getHeaders() != null && !request.getHeaders().isEmpty()) {
+			request.getHeaders().forEach(builder::header);
+		}
+
+		HttpRequest.BodyPublisher bodyPublisher = request.getBody() != null && !request.getBody().isEmpty()
+				? HttpRequest.BodyPublishers.ofString(request.getBody())
+				: HttpRequest.BodyPublishers.noBody();
+
+		return switch (method) {
+			case "GET" -> builder.GET().build();
+			case "POST" -> builder.POST(bodyPublisher).build();
+			case "PUT" -> builder.PUT(bodyPublisher).build();
+			case "PATCH" -> builder.method("PATCH", bodyPublisher).build();
+			case "DELETE" -> builder.DELETE().build();
+			default -> throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+		};
+	}
+
+	private static Response mapResponse(HttpResponse<String> response, String method, String url) {
+		Map<String, String> responseHeaders = new HashMap<>();
+		response.headers().map().forEach((key, values) -> {
+			if (values != null && !values.isEmpty()) {
+				responseHeaders.put(key, values.get(0));
+			}
+		});
+
+		log.info("HTTP {} {} returned status code: {}", method, url, response.statusCode());
+
+		return Response.builder()
+				.statusCode(response.statusCode())
+				.body(response.body())
+				.headers(responseHeaders)
+				.build();
+	}
+}

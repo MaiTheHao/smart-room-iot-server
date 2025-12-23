@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title th:text="'SMRCIOT | ' + #{error.404.title}">SMRCIOT | 404 Not Found</title>
+
+		<link rel="stylesheet" th:href="@{/webjars/font-awesome/5.15.4/css/all.min.css}" />
+		<link rel="stylesheet" th:href="@{/webjars/AdminLTE/3.2.0/dist/css/adminlte.min.css}" />
+		<link rel="stylesheet" th:href="@{/styles/global.css}" />
+
+		<style>
+			body.error-page-bg {
+				background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* Cloud clean gradient */
+				height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+			}
+			.error-code {
+				font-size: 10rem; /* 160px - Super Big */
+				font-weight: 900;
+				line-height: 0.8;
+				color: #17a2b8; /* Info Color */
+				opacity: 0.15; /* Làm mờ số để không quá gắt */
+				position: absolute;
+				z-index: 0;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				white-space: nowrap;
+			}
+			.content-wrapper {
+				position: relative;
+				z-index: 1;
+			}
+			.error-heading {
+				font-size: 2.5rem;
+				font-weight: 700;
+				margin-bottom: 0.5rem;
+				color: #343a40;
+			}
+		</style>
+	</head>
+	<body class="error-page-bg">
+		<div class="container position-relative">
+			<div class="error-code">404</div>
+
+			<div class="content-wrapper">
+				<div class="mb-4">
+					<i class="fas fa-search-location fa-5x text-info"></i>
+				</div>
+
+				<h2 class="error-heading" th:text="#{error.404.heading}">Oops! Page not found.</h2>
+				<p class="text-muted mb-5 text-lg" th:text="#{error.404.desc}">We couldn't find the page you were looking for. It might have been removed or the link is broken.</p>
+
+				<a th:href="@{/}" class="btn btn-info btn-lg px-5 shadow-sm rounded-pill">
+					<i class="fas fa-home mr-2"></i> <span th:text="#{error.back.dashboard}">Go to Dashboard</span>
+				</a>
+
+				<!-- Language Switcher -->
+				<div class="text-center mt-4">
+					<div class="language-switcher-minimal">
+						<a th:href="@{/error/404?lang=en}" th:classappend="${#locale.language == 'en'} ? 'text-primary font-weight-bold' : 'text-muted'" class="lang-link">EN</a>
+						<span class="text-muted mx-2 text-xs">|</span>
+						<a th:href="@{/error/404?lang=vi}" th:classappend="${#locale.language == 'vi'} ? 'text-primary font-weight-bold' : 'text-muted'" class="lang-link">VN</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

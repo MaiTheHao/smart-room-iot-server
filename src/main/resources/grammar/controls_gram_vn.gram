@@ -1,0 +1,7 @@
+#JSGF V1.0;
+
+grammar controls_gram;
+public <command> = <control> <devices> <objects>;
+<control> = BAATJ | TAWTS;
+<devices> = DDENF;
+<objects> = PHONGFNGUR | PHONGFKHACHS;

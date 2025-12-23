@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>SMRCIOT | Sign In</title>
+
+		<link rel="stylesheet" th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" />
+		<link rel="stylesheet" th:href="@{/webjars/font-awesome/5.15.4/css/all.min.css}" />
+		<link rel="stylesheet" th:href="@{/styles/global.css}" />
+		<style>
+			body {
+				background-color: var(--bg-body);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				font-family: var(--font-family);
+			}
+
+			.login-container {
+				width: 100%;
+				max-width: 400px;
+				padding: 20px;
+			}
+
+			.login-card {
+				background-color: var(--bg-surface);
+				border: 1px solid var(--border-color);
+				border-radius: var(--radius-md);
+			}
+
+			.login-card .card-body {
+				padding: 2.5rem;
+			}
+
+			.login-logo {
+				text-align: center;
+				margin-bottom: 2rem;
+				font-size: 1.75rem;
+				color: var(--color-accent);
+			}
+
+			.login-logo i {
+				color: var(--color-accent);
+				margin-right: 0.5rem;
+			}
+
+			.login-logo b {
+				color: var(--color-accent);
+			}
+
+			.form-control {
+				background-color: var(--bg-body);
+				border: 1px solid var(--border-color);
+				border-radius: var(--radius-md);
+				color: var(--text-main);
+				padding: 0.75rem 1rem;
+				font-family: var(--font-family);
+				transition: border-color 0.2s;
+			}
+
+			.form-control:focus {
+				background-color: var(--bg-body);
+				border-color: var(--color-accent);
+				color: var(--text-main);
+				box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.15);
+			}
+
+			.form-control::placeholder {
+				color: var(--text-light);
+			}
+
+			.btn-login {
+				background-color: var(--color-accent);
+				border: none;
+				border-radius: var(--radius-md);
+				color: #fff;
+				font-weight: 600;
+				padding: 0.75rem;
+				width: 100%;
+				transition: all 0.3s ease;
+				margin-top: 0.5rem;
+				box-shadow: var(--shadow-accent);
+			}
+
+			.btn-login:hover {
+				background-color: var(--color-accent-hover);
+				transform: translateY(-2px);
+				box-shadow: 0 5px 20px rgba(139, 92, 246, 0.3);
+				color: #fff;
+			}
+
+			.btn-login:focus {
+				color: #fff;
+				box-shadow: none;
+			}
+
+			.form-check-input {
+				width: 1.25rem;
+				height: 1.25rem;
+				border-radius: 4px;
+				accent-color: var(--color-accent);
+				cursor: pointer;
+				border: 1px solid var(--border-color);
+			}
+
+			.form-check-label {
+				cursor: pointer;
+				margin-left: 0.5rem;
+				color: var(--text-main);
+			}
+
+			.forgot-link {
+				color: var(--color-accent);
+				text-decoration: none;
+				transition: color 0.2s;
+			}
+
+			.forgot-link:hover {
+				color: var(--color-accent-hover);
+				text-decoration: underline;
+			}
+
+			.language-switcher a {
+				color: var(--text-muted);
+				text-decoration: none;
+				margin: 0 0.5rem;
+				transition: color 0.2s;
+			}
+
+			.language-switcher a.active {
+				color: var(--color-accent);
+				font-weight: 600;
+			}
+
+			.language-switcher a:hover {
+				color: var(--color-accent-hover);
+			}
+
+			.login-footer {
+				color: var(--text-light);
+			}
+		</style>
+	</head>
+
+	<body>
+		<div th:if="${errorMessage}" class="position-absolute alert alert-danger alert-dismissible fade show mb-3" role="alert" style="right: 1rem; top: 1rem">
+			<i class="fas fa-exclamation-circle mr-2"></i>
+			<strong th:text="#{login.error.title}">Login Error</strong>
+			<span class="d-block" th:text="${errorMessage}">Invalid login information</span>
+			<button type="button" class="close alert-danger" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		<div class="login-container">
+			<div class="login-card card">
+				<div class="card-body">
+					<div class="login-logo">
+						<a href="#" class="text-decoration-none">
+							<i class="fas fa-cube"></i>
+							<b>SmartRoom</b>
+						</a>
+					</div>
+
+					<p class="paragraph text-center mb-4" th:text="#{login.welcome}">Welcome back! Please sign in.</p>
+
+					<form th:action="@{/loginAction}" method="POST" novalidate>
+						<div class="form-group">
+							<input type="text" class="form-control" th:placeholder="#{login.username}" id="j_username_id" name="username" required autocomplete="off" />
+						</div>
+
+						<div class="form-group">
+							<input type="password" class="form-control" th:placeholder="#{login.password}" id="j_password_id" name="password" required autocomplete="off" />
+						</div>
+
+						<div class="form-group d-flex justify-content-between align-items-center mb-4">
+							<div class="form-check">
+								<input type="checkbox" class="form-check-input" id="remember" name="remember-me" />
+								<label class="form-check-label paragraph" for="remember" th:text="#{login.rememberMe}">Remember Me</label>
+							</div>
+							<a href="#" class="paragraph forgot-link" style="font-size: 0.875rem" th:text="#{login.forgot.password}">Forgot Password?</a>
+						</div>
+
+						<button type="submit" class="btn btn-login button-text">
+							<span th:text="#{login.button}">Sign In</span>
+							<i class="fas fa-arrow-right ms-2"></i>
+						</button>
+					</form>
+
+					<div class="text-center mt-4">
+						<div class="language-switcher">
+							<a th:href="@{/login?lang=en}" th:classappend="${#locale.language == 'en'} ? 'active' : ''" class="paragraph">EN</a>
+							<span class="paragraph">|</span>
+							<a th:href="@{/login?lang=vi}" th:classappend="${#locale.language == 'vi'} ? 'active' : ''" class="paragraph">VN</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="text-center mt-4">
+				<small class="login-footer">Smart Room IoT Platform &copy; 2025</small>
+			</div>
+		</div>
+
+		<script th:src="@{/webjars/jquery/3.7.1/jquery.min.js}"></script>
+		<script th:src="@{/webjars/bootstrap/4.6.2/js/bootstrap.bundle.min.js}"></script>
+	</body>
+</html>

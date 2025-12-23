@@ -1,0 +1,7 @@
+#JSGF V1.0;
+
+grammar controls_gram;
+public <command> = <control> <objects> <devices>;
+<control> = TURNON | TURNOFF;
+<devices> = LIGHT;
+<objects> = BEDROOM | LIVINGROOM;

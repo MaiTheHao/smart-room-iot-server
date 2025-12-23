@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	lang="en"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{main_layout.html}"
+>
+	<head>
+		<title th:text="${room.name} + ' | Dashboard'">Room Dashboard</title>
+		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+		<style>
+			.room-avatar-icon {
+				width: 60px;
+				height: 60px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				font-size: 1.5rem;
+			}
+		</style>
+	</head>
+
+	<body>
+		<section class="content pt-3" layout:fragment="content">
+			<div class="container-fluid">
+				<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+					<i class="fas fa-exclamation-circle mr-2"></i>
+					<strong>Error!</strong> <span th:text="${errorMessage}">Error message</span>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+
+				<div class="card card-primary card-outline shadow-sm mb-4">
+					<div class="card-body">
+						<div class="row align-items-center">
+							<div class="col-md-8 d-flex align-items-center">
+								<div class="room-avatar-icon bg-primary text-white mr-3 shadow-sm">
+									<i class="fas fa-door-open"></i>
+								</div>
+								<div>
+									<h3 class="text-bold text-dark mb-1" th:text="${room.name}">Room Name</h3>
+									<div class="text-muted d-flex align-items-center">
+										<i class="fas fa-map-marker-alt mr-1 text-sm"></i>
+										<span th:text="${room.description != null ? room.description : 'Smart Room Area'}">Description</span>
+										<span class="mx-2">|</span>
+										<span class="badge badge-success">Online</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 text-md-right mt-3 mt-md-0">
+								<a th:href="@{/home}" class="btn btn-default shadow-sm mr-2"> <i class="fas fa-arrow-left mr-1"></i> Dashboard </a>
+								<button class="btn btn-primary shadow-sm"><i class="fas fa-cog mr-1"></i> Settings</button>
+							</div>
+						</div>
+					</div>
+					<input type="hidden" id="roomId" th:value="${room.id}" />
+				</div>
+
+				<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+					<h5 class="m-0 text-dark"><i class="fas fa-chart-line mr-1"></i> Sensor Analytics</h5>
+					<div class="form-inline mt-2 mt-md-0">
+						<div class="input-group">
+							<div class="input-group-prepend">
+								<span class="input-group-text bg-white"><i class="far fa-calendar-alt"></i></span>
+							</div>
+							<input type="text" class="form-control float-right" id="date-range-picker" style="width: 200px" />
+							<div class="input-group-append">
+								<button class="btn btn-default" id="btn-refresh-chart" title="Refresh Data">
+									<i class="fas fa-sync-alt"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-lg-6 col-12">
+						<div class="card card-danger card-outline shadow-sm">
+							<div class="card-header border-0">
+								<h3 class="card-title"><i class="fas fa-thermometer-half mr-1"></i> Temperature</h3>
+								<div class="card-tools">
+									<span class="badge badge-danger" th:text="'Current: ' + ${#numbers.formatDecimal(currentTemp, 1, 1)} + '°C'">--</span>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="chart" style="min-height: 250px; height: 250px; position: relative">
+									<canvas id="tempChart"></canvas>
+								</div>
+							</div>
+							<div class="overlay" id="tempChartLoading" style="display: none">
+								<i class="fas fa-2x fa-sync-alt fa-spin"></i>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-lg-6 col-12">
+						<div class="card card-warning card-outline shadow-sm">
+							<div class="card-header border-0">
+								<h3 class="card-title"><i class="fas fa-bolt mr-1"></i> Power Usage</h3>
+								<div class="card-tools">
+									<span class="badge badge-warning" th:text="'Current: ' + ${#numbers.formatDecimal(currentPower, 1, 1)} + ' Wh'">--</span>
+								</div>
+							</div>
+							<div class="card-body">
+								<div class="chart" style="min-height: 250px; height: 250px; position: relative">
+									<canvas id="powerChart"></canvas>
+								</div>
+							</div>
+							<div class="overlay" id="powerChartLoading" style="display: none">
+								<i class="fas fa-2x fa-sync-alt fa-spin"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row mb-4">
+					<div class="col-12">
+						<div class="card card-outline card-success shadow-sm">
+							<div class="card-header">
+								<h3 class="card-title"><i class="fas fa-gamepad mr-1"></i> Quick Controls</h3>
+							</div>
+							<div class="card-body">
+								<div id="lightsList">
+									<p class="text-muted small mb-2">LIGHTS</p>
+									<div th:each="light : ${lights}" class="list-group-item d-flex justify-content-between align-items-center mb-2">
+										<div class="flex-grow-1">
+											<h6 class="mb-0" th:text="${light.name}">Light Name</h6>
+											<small class="text-muted" th:text="${light.description}">Description</small>
+										</div>
+										<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success ml-3 light-toggle-button">
+											<input
+												type="checkbox"
+												class="custom-control-input light-toggle"
+												th:id="'lightSwitch' + ${light.id}"
+												th:data-light-id="${light.id}"
+												th:checked="${light.isActive}"
+											/>
+											<label class="custom-control-label" th:for="'lightSwitch' + ${light.id}"></label>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<th:block layout:fragment="optional">
+			<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+			<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+
+			<script th:src="@{/scripts/util/http_client.js}"></script>
+			<script th:src="@{/scripts/util/chart.js}"></script>
+			<script th:src="@{/scripts/pages/room_detail.js}"></script>
+
+			<script th:inline="javascript">
+				$(function () {
+					const httpClient = new HttpClient();
+
+					$('.light-toggle-button').on('change', '.light-toggle', function () {
+						const lightId = $(this).data('light-id');
+						const $button = $(this).closest('.light-toggle-button');
+						const $buttonClone = $button.clone();
+
+						// Visual feedback: Spinner
+						$button.html('<i class="fas fa-spinner fa-spin"></i>');
+
+						httpClient
+							.put('lights/' + lightId + '/toggle-state')
+							.then((response) => {
+								// Trả lại giao diện Switch sau khi API phản hồi
+								$button.replaceWith($buttonClone);
+								if (response.data && response.data.status === '500') {
+									alert('Error: ' + response.data.message);
+								}
+							})
+							.catch((error) => {
+								console.error('Error toggling light:', error);
+								$button.replaceWith($buttonClone);
+							});
+					});
+				});
+			</script>
+
+			<script th:inline="javascript">
+				$(function () {
+					// Thymeleaf inline sẽ tự động serialize Records sang JSON cực chuẩn
+					const roomId = $('#roomId').val();
+					const tempData = /*[[${tempChartData}]]*/ [];
+					const powerData = /*[[${powerChartData}]]*/ [];
+
+					if (typeof RoomDashboardSSR !== 'undefined') {
+						new RoomDashboardSSR(roomId, tempData, powerData);
+					}
+				});
+			</script>
+		</th:block>
+	</body>
+</html>

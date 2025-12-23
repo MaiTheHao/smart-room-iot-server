@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org"
+	layout:decorate="~{main-layout.html}">
+
+<title>SmartHome | Dashboard</title>
+</head>
+<body>
+	<!-- Main content -->
+	<section class="content" layout:fragment="content">
+		<div class="container-fluid">
+			<span th:utext="#{login.username}"></span>
+			- 
+		
+			Home Page : 
+			<span th:utext="${messagewelcome}"></span>
+			
+			- 
+			
+			<span th:utext="${currentlanguage}"></span>
+		</div>
+		<!-- /.container-fluid -->
+	</section>
+	<!-- /.content -->
+
+</body>
+</html>
