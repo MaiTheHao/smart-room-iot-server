@@ -6,10 +6,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Index;
 
@@ -29,15 +26,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TemperatureV1 extends BaseIoTDeviceV1 {
+public class TemperatureV1 extends BaseIoTDeviceV1<TemperatureLanV1> {
 
     private static final long serialVersionUID = 1L;
 
     @Column(name = "current_value")
     private Double currentValue;
-
-    @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<TemperatureLanV1> sensorLans = new HashSet<>();
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<TemperatureValueV1> temperatureValues = new HashSet<>();
