@@ -10,7 +10,7 @@ import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
 import jakarta.persistence.TypedQuery;
 
 @Repository
-public class DeviceControlDaoV1 extends BaseDao<DeviceControlV1, Long> {
+public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControlV1> {
     
     public DeviceControlDaoV1() {
         super(DeviceControlV1.class);
@@ -81,19 +81,27 @@ public class DeviceControlDaoV1 extends BaseDao<DeviceControlV1, Long> {
     }
 
     public boolean existsByClientId(Long clientId) {
-        return countByField("client.id", clientId) > 0;
+        return count(
+            root -> entityManager.getCriteriaBuilder().equal(root.get("client").get("id"), clientId)
+        ) > 0;
     }
 
     public boolean existsByRoomId(Long roomId) {
-        return countByField("room.id", roomId) > 0;
+        return count(
+            root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId)
+        ) > 0;
     }
 
     public Long countByClientId(Long clientId) {
-        return countByField("client.id", clientId);
+        return count(
+            root -> entityManager.getCriteriaBuilder().equal(root.get("client").get("id"), clientId)
+        );
     }
 
     public Long countByRoomId(Long roomId) {
-        return countByField("room.id", roomId);
+        return count(
+            root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId)
+        );
     }
 
     public DeviceControlV1 findByClientIdAndGpioPin(Long clientId, Integer gpioPin) {
