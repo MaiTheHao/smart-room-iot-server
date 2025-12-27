@@ -33,8 +33,11 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
 
     @Override
     public PaginatedResponseV1<ClientDtoV1> getAllClients(int page, int size) {
-        List<ClientDtoV1> clients = clientDao.findAll(page, size);
-        Long totalElements = clientDao.countAll();
+        List<ClientDtoV1> clients = clientDao.findAll(page, size).stream()
+            .map(clientMapper::toDto)
+            .toList();
+
+        Long totalElements = clientDao.count();
 
         return new PaginatedResponseV1<>(clients, page, size, totalElements);
     }
@@ -44,7 +47,10 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
         if (clientId == null || clientId <= 0) 
             throw new BadRequestException("Client ID is required and must be greater than 0");
 
-        ClientDtoV1 dto = clientDao.findDtoById(clientId);
+        ClientDtoV1 dto = clientMapper.toDto(clientDao.findById(clientId).orElseThrow(
+            () -> new NotFoundException("Client not found with ID: " + clientId)
+        ));
+
         if (dto == null) throw new NotFoundException("Client not found with ID: " + clientId);
 
         return dto;
@@ -117,7 +123,10 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
         if (roomId == null || roomId <= 0) 
             throw new BadRequestException("Room ID is required and must be greater than 0");
         
-        List<ClientDtoV1> gateways = clientDao.findGatewaysByRoomId(roomId, page, size);
+        List<ClientDtoV1> gateways = clientDao.findGatewaysByRoomId(roomId, page, size).stream()
+            .map(clientMapper::toDto)
+            .toList();
+            
         Long totalElements = clientDao.countGatewaysByRoomId(roomId);
         
         return new PaginatedResponseV1<>(gateways, page, size, totalElements);
