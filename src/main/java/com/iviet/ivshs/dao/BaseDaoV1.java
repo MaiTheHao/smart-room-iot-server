@@ -32,6 +32,23 @@ public abstract class BaseDaoV1<T> {
         return entity;
     }
 
+	@Transactional
+	public List<T> save(List<T> entities) {
+		if (entities == null || entities.isEmpty()) {
+			return entities;
+		}
+		int count = 0;
+		for (T entity : entities) {
+			entityManager.persist(entity);
+			count++;
+			if (count % 50 == 0) {
+				entityManager.flush();
+				entityManager.clear();
+			}
+		}
+		return entities;
+	}
+
     @Transactional
     public T update(T entity) {
         return entityManager.merge(entity);
