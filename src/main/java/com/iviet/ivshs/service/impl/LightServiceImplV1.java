@@ -83,9 +83,9 @@ public class LightServiceImplV1 implements LightServiceV1 {
         lightLan.setLangCode(langCode);
         lightLan.setName(dto.name() != null ? dto.name().trim() : "");
         lightLan.setDescription(dto.description());
-        lightLan.setLight(light);
+        lightLan.setOwner(light);
 
-        light.getLightLans().add(lightLan);
+        light.getTranslations().add(lightLan);
         lightDao.save(light);
 
         return lightMapper.toDto(light, lightLan);
@@ -113,14 +113,14 @@ public class LightServiceImplV1 implements LightServiceV1 {
         if (dto.isActive() != null) light.setIsActive(dto.isActive());
         if (dto.level() != null) light.setLevel(dto.level());
 
-        LightLanV1 lan = light.getLightLans().stream()
+        LightLanV1 lan = light.getTranslations().stream()
                 .filter(ll -> langCode.equals(ll.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
                     LightLanV1 newLan = new LightLanV1();
                     newLan.setLangCode(langCode);
-                    newLan.setLight(light);
-                    light.getLightLans().add(newLan);
+                    newLan.setOwner(light);
+                    light.getTranslations().add(newLan);
                     return newLan;
                 });
 
