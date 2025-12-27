@@ -57,9 +57,9 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
         floorLan.setLangCode(langCode);
         floorLan.setName(dto.name() != null ? dto.name().trim() : "");
         floorLan.setDescription(dto.description());
-        floorLan.setFloor(floor);
+        floorLan.setOwner(floor);
         
-        floor.getFloorLans().add(floorLan);
+        floor.getTranslations().add(floorLan);
         floorDao.save(floor);
 
         return floorMapper.toDto(floor, floorLan); 
@@ -80,14 +80,14 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
 
         if (dto.level() != null) floor.setLevel(dto.level());
 
-        FloorLanV1 floorLan = floor.getFloorLans().stream()
+        FloorLanV1 floorLan = floor.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
                     FloorLanV1 newLan = new FloorLanV1();
                     newLan.setLangCode(langCode);
-                    newLan.setFloor(floor);
-                    floor.getFloorLans().add(newLan);
+                    newLan.setOwner(floor);
+                    floor.getTranslations().add(newLan);
                     return newLan;
                 });
 

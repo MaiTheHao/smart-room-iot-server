@@ -66,9 +66,9 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
         roomLan.setLangCode(langCode);
         roomLan.setName(dto.name() != null ? dto.name().trim() : "");
         roomLan.setDescription(dto.description());
-        roomLan.setRoom(room);
+        roomLan.setOwner(room);
 
-        room.getRoomLans().add(roomLan);
+        room.getTranslations().add(roomLan);
         roomDao.save(room);
 
         return roomMapper.toDto(room, roomLan);
@@ -94,14 +94,14 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
             room.setFloor(newFloor);
         }
 
-        RoomLanV1 roomLan = room.getRoomLans().stream()
+        RoomLanV1 roomLan = room.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
                     RoomLanV1 newLan = new RoomLanV1();
                     newLan.setLangCode(langCode);
-                    newLan.setRoom(room);
-                    room.getRoomLans().add(newLan);
+                    newLan.setOwner(room);
+                    room.getTranslations().add(newLan);
                     return newLan;
                 });
 
