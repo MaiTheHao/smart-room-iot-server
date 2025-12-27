@@ -20,13 +20,13 @@ public interface FloorMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "floorLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "rooms", ignore = true)
     FloorV1 toEntity(FloorDtoV1 dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "floorLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "rooms", ignore = true)
     FloorV1 fromCreateDto(CreateFloorDtoV1 dto);
 }

@@ -21,7 +21,7 @@ public interface RoomMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "roomLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "lights", ignore = true)
     @Mapping(target = "temperatures", ignore = true)
     @Mapping(target = "powerConsumptions", ignore = true)
@@ -31,7 +31,7 @@ public interface RoomMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "roomLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "lights", ignore = true)
     @Mapping(target = "temperatures", ignore = true)
     @Mapping(target = "powerConsumptions", ignore = true)

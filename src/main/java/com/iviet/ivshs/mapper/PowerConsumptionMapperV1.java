@@ -23,7 +23,7 @@ public interface PowerConsumptionMapperV1 {
 
 	@IgnoreAuditFields
 	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "sensorLans", ignore = true)
+	@Mapping(target = "translations", ignore = true)
 	@Mapping(target = "consumptionValues", ignore = true)
 	@Mapping(target = "deviceControl", ignore = true)
 	@Mapping(target = "room", ignore = true)
@@ -31,7 +31,7 @@ public interface PowerConsumptionMapperV1 {
 
 	@IgnoreAuditFields
 	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "sensorLans", ignore = true)
+	@Mapping(target = "translations", ignore = true)
 	@Mapping(target = "currentWatt", ignore = true)
 	@Mapping(target = "currentWattHour", ignore = true)
 	@Mapping(target = "consumptionValues", ignore = true)
@@ -41,7 +41,7 @@ public interface PowerConsumptionMapperV1 {
 
 	@IgnoreAuditFields
 	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "sensorLans", ignore = true)
+	@Mapping(target = "translations", ignore = true)
 	@Mapping(target = "currentWatt", ignore = true)
 	@Mapping(target = "currentWattHour", ignore = true)
 	@Mapping(target = "consumptionValues", ignore = true)

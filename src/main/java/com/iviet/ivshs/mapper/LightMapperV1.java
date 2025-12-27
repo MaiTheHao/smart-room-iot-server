@@ -22,7 +22,7 @@ public interface LightMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "lightLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "naturalId", source = "dto.naturalId")
@@ -30,7 +30,7 @@ public interface LightMapperV1 {
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "lightLans", ignore = true)
+    @Mapping(target = "translations", ignore = true)
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "naturalId", source = "dto.naturalId")

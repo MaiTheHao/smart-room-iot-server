@@ -25,7 +25,7 @@ public class FloorDaoV1 extends BaseAuditEntityDaoV1<FloorV1> {
         String jpql = """
                 SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
                 FROM FloorV1 f
-                LEFT JOIN f.floorLans flan ON flan.langCode = :langCode
+                LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 WHERE f.code = :code
                 """.formatted(dtoClassPath);
 
@@ -44,7 +44,7 @@ public class FloorDaoV1 extends BaseAuditEntityDaoV1<FloorV1> {
         String jpql = """
                 SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
                 FROM FloorV1 f
-                LEFT JOIN f.floorLans flan ON flan.langCode = :langCode
+                LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 WHERE f.id = :floorId
                 """.formatted(dtoClassPath);
         
@@ -63,7 +63,7 @@ public class FloorDaoV1 extends BaseAuditEntityDaoV1<FloorV1> {
         String jpql = """
                 SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
                 FROM FloorV1 f
-                LEFT JOIN f.floorLans flan ON flan.langCode = :langCode
+                LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 """.formatted(dtoClassPath);
 
         List<FloorDtoV1> results = entityManager.createQuery(jpql, FloorDtoV1.class)

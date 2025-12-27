@@ -25,7 +25,7 @@ public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
                 FROM RoomV1 r
-                LEFT JOIN r.roomLans rlan ON rlan.langCode = :langCode
+                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.code = :code
                 """.formatted(dtoPath);
 
@@ -43,7 +43,7 @@ public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
                 FROM RoomV1 r
-                LEFT JOIN r.roomLans rlan ON rlan.langCode = :langCode
+                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.id = :roomId
                 """.formatted(dtoPath);
 
@@ -61,7 +61,7 @@ public class RoomDaoV1 extends BaseAuditEntityDaoV1<RoomV1> {
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
                 FROM RoomV1 r
-                LEFT JOIN r.roomLans rlan ON rlan.langCode = :langCode
+                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.floor.id = :floorId
                 """.formatted(dtoPath);
 

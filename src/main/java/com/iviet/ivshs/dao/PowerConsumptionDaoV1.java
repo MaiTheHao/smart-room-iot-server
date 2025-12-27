@@ -20,7 +20,7 @@ public class PowerConsumptionDaoV1 extends BaseEntityDaoV1<PowerConsumptionV1> {
 		String jpql = """
 				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
 				FROM PowerConsumptionV1 s 
-				LEFT JOIN s.sensorLans sl ON sl.langCode = :langCode 
+				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
 				WHERE s.id = :sensorId
 				""".formatted(dtoPath);
 
@@ -37,7 +37,7 @@ public class PowerConsumptionDaoV1 extends BaseEntityDaoV1<PowerConsumptionV1> {
 		String jpql = """
 				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
 				FROM PowerConsumptionV1 s 
-				LEFT JOIN s.sensorLans sl ON sl.langCode = :langCode 
+				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
 				WHERE s.room.id = :roomId 
 				ORDER BY s.createdAt DESC
 				""".formatted(dtoPath);

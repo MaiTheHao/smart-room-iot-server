@@ -21,7 +21,7 @@ public class LightDaoV1 extends BaseIoTDeviceDaoV1<LightV1> {
         String jpql = """
                 SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
                 FROM LightV1 l 
-                LEFT JOIN l.lightLans ll ON ll.langCode = :langCode 
+                LEFT JOIN l.translations ll ON ll.langCode = :langCode 
                 WHERE l.id = :lightId
                 """.formatted(dtoPath);
 
@@ -39,7 +39,7 @@ public class LightDaoV1 extends BaseIoTDeviceDaoV1<LightV1> {
         String jpql = """
                 SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
                 FROM LightV1 l 
-                LEFT JOIN l.lightLans ll ON ll.langCode = :langCode 
+                LEFT JOIN l.translations ll ON ll.langCode = :langCode 
                 ORDER BY l.id ASC
                 """.formatted(dtoPath);
 
@@ -56,7 +56,7 @@ public class LightDaoV1 extends BaseIoTDeviceDaoV1<LightV1> {
         String jpql = """
                 SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
                 FROM LightV1 l 
-                LEFT JOIN l.lightLans ll ON ll.langCode = :langCode 
+                LEFT JOIN l.translations ll ON ll.langCode = :langCode 
                 WHERE l.room.id = :roomId 
                 ORDER BY l.id ASC
                 """.formatted(dtoPath);

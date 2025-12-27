@@ -20,7 +20,7 @@ public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<TemperatureV1> {
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM TemperatureV1 t 
-                LEFT JOIN t.sensorLans tl ON tl.langCode = :langCode 
+                LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.id = :temperatureId
                 """.formatted(dtoPath);
 
@@ -37,7 +37,7 @@ public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<TemperatureV1> {
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM TemperatureV1 t 
-                LEFT JOIN t.sensorLans tl ON tl.langCode = :langCode 
+                LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.room.id = :roomId 
                 ORDER BY t.id ASC
                 """.formatted(dtoPath);
