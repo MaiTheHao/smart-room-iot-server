@@ -8,8 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.entities.ClientV1;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 
-import jakarta.persistence.criteria.JoinType;
-
 @Repository
 public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
 
@@ -80,66 +78,71 @@ public class ClientDaoV1 extends BaseAuditEntityDaoV1<ClientV1> {
 
     // ======= Find Gateways by Room ID =======
     public List<ClientV1> findGatewaysByRoomId(Long roomId, int page, int size) {
-        return findAll(
-            root -> this.getCB().and(
-                this.getCB().equal(root.get("room").get("id"), roomId),
-                this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
-            ),
-            (root, cq) -> {
-                root.fetch("deviceControls", JoinType.LEFT);
-                cq.orderBy(this.getCB().desc(root.get("createdAt")));
-            },
-            page,
-            size
-        );
+        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+                      "JOIN c.deviceControls dc " +
+                      "WHERE dc.room.id = :roomId " +
+                      "AND c.clientType = :clientType " +
+                      "ORDER BY c.createdAt DESC";
+        
+        return entityManager.createQuery(jpql, ClientV1.class)
+                .setParameter("roomId", roomId)
+                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
     }
 
     public List<ClientV1> findGatewaysByRoomId(Long roomId) {
-        return findAll(
-            root -> this.getCB().and(
-                this.getCB().equal(root.get("room").get("id"), roomId),
-                this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
-            ),
-            (root, cq) -> {
-                root.fetch("deviceControls", JoinType.LEFT);
-                cq.orderBy(this.getCB().desc(root.get("createdAt")));
-            }
-        );
+        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+                      "JOIN c.deviceControls dc " +
+                      "WHERE dc.room.id = :roomId " +
+                      "AND c.clientType = :clientType " +
+                      "ORDER BY c.createdAt DESC";
+
+        return entityManager.createQuery(jpql, ClientV1.class)
+                .setParameter("roomId", roomId)
+                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .getResultList();
     }
 
     public long countGatewaysByRoomId(Long roomId) {
-        return count(root -> this.getCB().and(
-            this.getCB().equal(root.get("room").get("id"), roomId),
-            this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
-        ));
+        String jpql = "SELECT COUNT(DISTINCT c) FROM ClientV1 c " +
+                      "JOIN c.deviceControls dc " +
+                      "WHERE dc.room.id = :roomId " +
+                      "AND c.clientType = :clientType";
+
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("roomId", roomId)
+                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .getSingleResult();
     }
 
     // ======= Find Gateways by Room Code =======
     public List<ClientV1> findGatewaysByRoomCode(String roomCode, int page, int size) {
-        return findAll(
-            root -> this.getCB().and(
-                this.getCB().equal(root.get("room").get("code"), roomCode),
-                this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
-            ),
-            (root, cq) -> {
-                root.fetch("deviceControls", JoinType.LEFT);
-                cq.orderBy(this.getCB().desc(root.get("createdAt")));
-            },
-            page,
-            size
-        );
+        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+                      "JOIN c.deviceControls dc " +
+                      "WHERE dc.room.code = :roomCode " +
+                      "AND c.clientType = :clientType " +
+                      "ORDER BY c.createdAt DESC";
+
+        return entityManager.createQuery(jpql, ClientV1.class)
+                .setParameter("roomCode", roomCode)
+                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
     }
 
     public List<ClientV1> findGatewaysByRoomCode(String roomCode) {
-        return findAll(
-            root -> this.getCB().and(
-                this.getCB().equal(root.get("room").get("code"), roomCode),
-                this.getCB().equal(root.get("clientType"), ClientTypeV1.HARDWARE_GATEWAY)
-            ),
-            (root, cq) -> {
-                root.fetch("deviceControls", JoinType.LEFT);
-                cq.orderBy(this.getCB().desc(root.get("createdAt")));
-            }
-        );
+        String jpql = "SELECT DISTINCT c FROM ClientV1 c " +
+                      "JOIN c.deviceControls dc " +
+                      "WHERE dc.room.code = :roomCode " +
+                      "AND c.clientType = :clientType " +
+                      "ORDER BY c.createdAt DESC";
+
+        return entityManager.createQuery(jpql, ClientV1.class)
+                .setParameter("roomCode", roomCode)
+                .setParameter("clientType", ClientTypeV1.HARDWARE_GATEWAY)
+                .getResultList();
     }
 }

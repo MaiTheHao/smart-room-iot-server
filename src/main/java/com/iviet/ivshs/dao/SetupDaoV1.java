@@ -2,7 +2,6 @@ package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dto.SetupRequestV1;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.exception.domain.NotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -53,20 +52,6 @@ public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
 		log.info("[SETUP] Completed device setup: total={}, processed={}, roomId={}, clientId={}", 
 			devices.size(), processedDevices, roomId, clientId);
 		return processedDevices;
-	}
-
-	public RoomV1 findRoomByCode(String roomCode) {
-		String jpql = """
-				SELECT r FROM RoomV1 r 
-				WHERE r.code = :code
-				""";
-		return entityManager.createQuery(jpql, RoomV1.class)
-				.setParameter("code", roomCode)
-				.setMaxResults(1)
-				.getResultStream()
-				.findFirst()
-				.orElseThrow(() -> new NotFoundException(
-					String.format("[SETUP_ERR_ROOM_NOT_FOUND] Room with code '%s' does not exist", roomCode)));
 	}
 
 	private void persistDevice(SetupRequestV1.DeviceConfig device, ClientV1 client, RoomV1 room) {

@@ -28,7 +28,6 @@ public class HttpClientUtil {
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String APPLICATION_JSON = "application/json";
-	private static final int ERROR_STATUS_CODE = 500;
 
 	private static final HttpClient CLIENT = HttpClient.newBuilder()
 			.connectTimeout(DEFAULT_TIMEOUT)
@@ -251,13 +250,15 @@ public class HttpClientUtil {
 			HttpResponse<String> response = CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 			log.info("Executing HTTP {} on thread: name={}, isVirtual={}", method, Thread.currentThread().getName(), Thread.currentThread().isVirtual());
 			return mapResponse(response, method, request.getUrl());
+		} catch (java.net.http.HttpTimeoutException e) {
+			log.error("HTTP {} request to {} timed out: {}", method, request.getUrl(), e.getMessage());
+			throw new NetworkTimeoutException("Connection timed out: " + e.getMessage());
+		} catch (java.net.ConnectException e) {
+			log.error("HTTP {} request to {} failed to connect: {}", method, request.getUrl(), e.getMessage());
+			throw new ExternalServiceException("Failed to connect to device: " + e.getMessage());
 		} catch (Exception e) {
 			log.error("HTTP {} request to {} failed: {}", method, request.getUrl(), e.getMessage(), e);
-			return Response.builder()
-					.statusCode(ERROR_STATUS_CODE)
-					.body(e.getMessage())
-					.headers(new HashMap<>())
-					.build();
+			throw new ExternalServiceException("Unexpected error during HTTP request: " + e.getMessage());
 		}
 	}
 
@@ -266,12 +267,15 @@ public class HttpClientUtil {
 		return CLIENT.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString())
 				.thenApply(response -> mapResponse(response, method, request.getUrl()))
 				.exceptionally(ex -> {
-					log.error("Async HTTP {} request to {} failed: {}", method, request.getUrl(), ex.getMessage(), ex);
-					return Response.builder()
-							.statusCode(ERROR_STATUS_CODE)
-							.body(ex.getMessage())
-							.headers(new HashMap<>())
-							.build();
+					Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+					log.error("Async HTTP {} request to {} failed: {}", method, request.getUrl(), cause.getMessage(), cause);
+					
+					if (cause instanceof java.net.http.HttpConnectTimeoutException || cause instanceof java.net.http.HttpTimeoutException) {
+						throw new NetworkTimeoutException("Connection timed out: " + cause.getMessage());
+					} else if (cause instanceof java.net.ConnectException) {
+						throw new ExternalServiceException("Failed to connect to device: " + cause.getMessage());
+					}
+					throw new ExternalServiceException("Unexpected error during async HTTP request: " + cause.getMessage());
 				});
 	}
 

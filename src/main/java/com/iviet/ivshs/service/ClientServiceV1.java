@@ -12,6 +12,8 @@ public interface ClientServiceV1 {
 
     ClientDtoV1 getById(Long clientId);
 
+    ClientV1 getEntityById(Long clientId);
+
     ClientDtoV1 getByUsername(String username);
 
     ClientV1 getEntityByUsername(String username);

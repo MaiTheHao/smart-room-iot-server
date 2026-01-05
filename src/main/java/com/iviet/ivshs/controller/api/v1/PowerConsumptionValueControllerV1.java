@@ -30,7 +30,7 @@ public class PowerConsumptionValueControllerV1 {
 		return ResponseEntity.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to));
 	}
 
-	@GetMapping("/room/{roomId}/power-consumption-values/sum")
+	@GetMapping("/rooms/{roomId}/power-consumption-values/sum")
 	public ResponseEntity<List<SumPowerConsumptionValueDtoV1>> getSumByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "from") Instant from,

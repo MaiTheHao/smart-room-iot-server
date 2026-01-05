@@ -5,15 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponseV1;
-import com.iviet.ivshs.dto.SetupRequestV1;
 import com.iviet.ivshs.service.SetupServiceV1;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,13 +22,8 @@ public class SetupControllerV1 {
 	private SetupServiceV1 setupService;
 	
 	@PostMapping("/{clientId}")
-	public ResponseEntity<ApiResponseV1<?>> setup(
-			@PathVariable Long clientId,
-			@Valid @RequestBody SetupRequestV1 req) {
-		
-		log.info("[SETUP_CTRL] Received setup request: clientId={}, roomCode={}, devices={}", 
-			clientId, req.getRoomCode(), req.getDevices() != null ? req.getDevices().size() : 0);
-		
+	public ResponseEntity<ApiResponseV1<?>> setup(@PathVariable(name = "clientId") Long clientId) {
+		log.info("[SETUP_CTRL_START] Starting setup for clientId={}", clientId);
 		setupService.setup(clientId);
 		
 		log.info("[SETUP_CTRL_SUCCESS] Setup completed for clientId={}", clientId);

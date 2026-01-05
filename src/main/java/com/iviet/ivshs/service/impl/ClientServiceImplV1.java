@@ -51,16 +51,24 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             throw new BadRequestException("Client ID is required and must be greater than 0");
         }
 
-        ClientDtoV1 dto = clientMapper.toDto(
-                clientDao.findById(clientId)
-                        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId))
-        );
-        if (dto == null) {
-            log.warn("Client not found with ID: {}", clientId);
-            throw new NotFoundException("Client not found with ID: " + clientId);
+        return clientMapper.toDto(clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId)));
+    }
+
+    @Override
+    public ClientV1 getEntityById(Long clientId) {
+        log.info("Fetching client entity by ID: {}", clientId);
+        if (clientId == null || clientId <= 0) {
+            log.warn("Invalid client ID: {}", clientId);
+            throw new BadRequestException("Client ID is required and must be greater than 0");
         }
 
-        return dto;
+        ClientV1 client = clientDao.findById(clientId)
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        
+        if (client.getGroups() != null) {
+            client.getGroups().size();
+        }
+        return client;
     }
 
     @Override

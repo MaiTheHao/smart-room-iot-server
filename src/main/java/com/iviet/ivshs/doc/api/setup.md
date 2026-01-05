@@ -1,64 +1,78 @@
 # Setup Module - API Documentation
 
-## Create Room Setup
+## Thiết lập cấu hình thiết bị phòng
 
 ### Endpoint
 
-`POST /api/v1/setup`
+`POST /api/v1/setup/{clientId}`
 
-Thiết lập cấu hình thiết bị cho một phòng.
+Thiết lập cấu hình thiết bị cho một phòng thông qua gateway phần cứng.
 
 ---
 
 ## Request
 
+### Path Parameter
+
+| Field    | Type | Required | Description              |
+| -------- | ---- | -------- | ------------------------ |
+| clientId | Long | Yes      | ID của gateway phần cứng |
+
 ### Body Fields
 
-| Field    | Type           | Required | Description                               |
-| -------- | -------------- | -------- | ----------------------------------------- |
-| roomId   | Long           | Yes      | ID phòng cần thiết lập                    |
-| langCode | string         | No       | Mã ngôn ngữ (default: "vi", max 10 chars) |
-| devices  | DeviceConfig[] | No       | Danh sách cấu hình thiết bị               |
+> **Lưu ý:** Body gửi lên sẽ bị bỏ qua, hệ thống sẽ lấy cấu hình từ gateway phần cứng tương ứng với `clientId`.
+
+---
+
+## Gateway Response Structure (SetupRequestV1)
+
+| Field    | Type           | Required | Description                 |
+| -------- | -------------- | -------- | --------------------------- |
+| roomCode | string         | Yes      | Mã phòng cần thiết lập      |
+| devices  | DeviceConfig[] | Yes      | Danh sách cấu hình thiết bị |
 
 ### DeviceConfig
 
-| Field       | Type                | Required | Description                               |
-| ----------- | ------------------- | -------- | ----------------------------------------- |
-| category    | SetupCategoryV1     | Yes      | LIGHT, TEMPERATURE, POWER_CONSUMPTION     |
-| name        | string              | Yes      | Tên thiết bị                              |
-| controlType | DeviceControlTypeV1 | Yes      | GPIO, BLUETOOTH, API                      |
-| gpioPin     | int                 | No       | Số chân GPIO (nếu controlType = GPIO)     |
-| bleMac      | string              | No       | Địa chỉ MAC (nếu controlType = BLUETOOTH) |
-| apiEndpoint | string              | No       | Endpoint API (nếu controlType = API)      |
-| isActive    | boolean             | No       | Trạng thái hoạt động (default: true)      |
+| Field        | Type                | Required | Description                               |
+| ------------ | ------------------- | -------- | ----------------------------------------- |
+| naturalId    | string              | No       | Mã tự nhiên của thiết bị                  |
+| category     | DeviceCategoryV1    | Yes      | LIGHT, TEMPERATURE, POWER_CONSUMPTION     |
+| controlType  | DeviceControlTypeV1 | Yes      | GPIO, BLUETOOTH, API                      |
+| gpioPin      | int                 | No       | Số chân GPIO (nếu controlType = GPIO)     |
+| bleMac       | string              | No       | Địa chỉ MAC (nếu controlType = BLUETOOTH) |
+| apiEndpoint  | string              | No       | Endpoint API (nếu controlType = API)      |
+| name         | string              | No       | Tên thiết bị                              |
+| translations | Map<string,object>  | No       | Thông tin đa ngôn ngữ                     |
+| isActive     | boolean             | No       | Trạng thái hoạt động (default: true)      |
 
-### Example Request
+#### TranslationDetail
+
+| Field       | Type   | Description    |
+| ----------- | ------ | -------------- |
+| name        | string | Tên thiết bị   |
+| description | string | Mô tả thiết bị |
+
+### Example Gateway Response
 
 ```json
 {
-	"roomId": 101,
-	"langCode": "vi",
+	"roomCode": "A101",
 	"devices": [
 		{
+			"naturalId": "dev-01",
 			"category": "LIGHT",
-			"name": "Đèn trần",
 			"controlType": "GPIO",
 			"gpioPin": 17,
+			"name": "Đèn trần",
 			"isActive": true
 		},
 		{
+			"naturalId": "dev-02",
 			"category": "TEMPERATURE",
-			"name": "Cảm biến nhiệt độ",
 			"controlType": "BLUETOOTH",
 			"bleMac": "AA:BB:CC:DD:EE:FF",
+			"name": "Cảm biến nhiệt độ",
 			"isActive": true
-		},
-		{
-			"category": "POWER_CONSUMPTION",
-			"name": "Thiết bị đo điện",
-			"controlType": "API",
-			"apiEndpoint": "https://api.example.com/power",
-			"isActive": false
 		}
 	]
 }
@@ -68,107 +82,30 @@ Thiết lập cấu hình thiết bị cho một phòng.
 
 ## Response
 
-### Status: 201 Created
-
-```json
-{
-	"status": 201,
-	"message": "Created successfully",
-	"data": {
-		"roomId": 101,
-		"createdDevices": [
-			{
-				"deviceControlId": 5,
-				"category": "LIGHT",
-				"targetId": 1,
-				"name": "Đèn trần",
-				"controlType": "GPIO",
-				"isActive": true,
-				"position": 0
-			},
-			{
-				"deviceControlId": 6,
-				"category": "TEMPERATURE",
-				"targetId": 2,
-				"name": "Cảm biến nhiệt độ",
-				"controlType": "BLUETOOTH",
-				"isActive": true,
-				"position": 1
-			},
-			{
-				"deviceControlId": 7,
-				"category": "POWER_CONSUMPTION",
-				"targetId": 3,
-				"name": "Thiết bị đo điện",
-				"controlType": "API",
-				"isActive": false,
-				"position": 2
-			}
-		]
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-### CreatedDevice Fields
-
-| Field           | Type                | Description                                 |
-| --------------- | ------------------- | ------------------------------------------- |
-| deviceControlId | Long                | ID của DeviceControl vừa tạo                |
-| category        | SetupCategoryV1     | LIGHT, TEMPERATURE, POWER_CONSUMPTION       |
-| targetId        | Long                | ID của sensor/thiết bị tương ứng            |
-| name            | string              | Tên thiết bị                                |
-| controlType     | DeviceControlTypeV1 | GPIO, BLUETOOTH, API                        |
-| isActive        | boolean             | Trạng thái hoạt động                        |
-| position        | int                 | Thứ tự trong request (0-based), dùng để map |
-
----
-
-## Get Device Details
-
-Sử dụng `targetId` từ response để lấy thông tin chi tiết:
-
-### Lights
-
-```
-GET /api/v1/lights/{targetId}
-```
-
-**Response:**
+### Status: 200 OK
 
 ```json
 {
 	"status": 200,
-	"message": "Success",
-	"data": {
-		"id": 1,
-		"name": "Đèn trần",
-		"description": null,
-		"isActive": true,
-		"level": 0,
-		"roomId": 101
-	},
-	"timestamp": "2025-11-29T09:00:00Z"
+	"message": "Device setup completed successfully",
+	"data": null,
+	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
 
-### Temperature
+---
 
-```
-GET /api/v1/temperatures/{targetId}
-```
+## Lưu ý
 
-### Power Consumption
-
-```
-GET /api/v1/power-consumptions/{targetId}
-```
+-   API này sẽ lấy thông tin cấu hình thiết bị từ gateway phần cứng qua địa chỉ IP của client (`clientId`).
+-   Nếu không tìm thấy client hoặc phòng, hoặc dữ liệu trả về từ gateway không hợp lệ, API sẽ trả về lỗi tương ứng.
+-   Không truyền trực tiếp cấu hình thiết bị trong body request.
 
 ---
 
 ## Enumerations
 
-### SetupCategoryV1
+### DeviceCategoryV1
 
 | Value             | Description           |
 | ----------------- | --------------------- |

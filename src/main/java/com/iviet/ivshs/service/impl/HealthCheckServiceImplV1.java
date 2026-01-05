@@ -6,7 +6,8 @@ import com.iviet.ivshs.dao.RoomDaoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1.DeviceDto;
 import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.InternalServerErrorException;
+import com.iviet.ivshs.exception.domain.ExternalServiceException;
+import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.service.HealthCheckServiceV1;
 import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
@@ -38,31 +39,29 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
 
     @Override
     public HealthCheckResponseDtoV1 checkByClient(String ipAddress) {
+        long start = System.currentTimeMillis();
         String url = UrlConstant.getHealthUrlV1(ipAddress);
-        log.debug("[HealthCheck] Pinging IP: {}", ipAddress);
+        log.info("[HEALTH-CHECK] Starting health check for IP: {}", ipAddress);
 
         try {
             var response = HttpClientUtil.get(url);
 
             if (!response.isSuccess()) {
-                log.warn("[HealthCheck] Failed IP [{}] with status {}", ipAddress, response.getStatusCode());
-                throw new InternalServerErrorException("Health check failed with status " + response.getStatusCode());
+                log.warn("[HEALTH-CHECK] Failed IP [{}] with status {}. Body: {}", ipAddress, response.getStatusCode(), response.getBody());
+                throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
             }
 
-            var responseDto = HttpClientUtil.fromJson(response.getBody(), HealthCheckResponseDtoV1.class);
-            return responseDto;
-        } catch (BadRequestException e) {
-            log.warn("[HealthCheck] Bad request for IP [{}]: {}", ipAddress, e.getMessage());
-            throw e;
-        } catch (InternalServerErrorException e) {
-            log.error("[HealthCheck] Infrastructure error for IP [{}]: {}", ipAddress, e.getMessage());
+            HealthCheckResponseDtoV1 result = HttpClientUtil.fromJson(response.getBody(), HealthCheckResponseDtoV1.class);
+            log.info("[HEALTH-CHECK] Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
+            return result;
+        } catch (NetworkTimeoutException | ExternalServiceException e) {
             throw e;
         } catch (IllegalArgumentException e) {
-            log.error("[HealthCheck] Response deserialization error for IP [{}]: {}", ipAddress, e.getMessage());
-            throw new InternalServerErrorException("Invalid response format from " + ipAddress, e);
+            log.error("[HEALTH-CHECK] Response deserialization error for IP [{}]: {}", ipAddress, e.getMessage());
+            throw new ExternalServiceException("Dữ liệu từ gateway không hợp lệ: " + ipAddress);
         } catch (Exception e) {
-            log.error("[HealthCheck] Connection error for IP [{}]: {}", ipAddress, e.getMessage());
-            throw new InternalServerErrorException("Connection failed to " + ipAddress, e);
+            log.error("[HEALTH-CHECK] Unexpected error for IP [{}]: {}", ipAddress, e.getMessage());
+            throw new ExternalServiceException("Lỗi kết nối tới gateway: " + ipAddress);
         }
     }
 
@@ -85,7 +84,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
         }
 
         long start = System.currentTimeMillis();
-        log.info("[HealthCheck] Batch start room [{}] - {} gateways", roomCode, ipAddresses.size());
+        log.info("[HEALTH-CHECK] Starting batch health check for room [{}] - {} gateways", roomCode, ipAddresses.size());
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             var results = ipAddresses.stream()
@@ -94,7 +93,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
                             return Map.entry(ip, checkByClient(ip));
                         } catch (Exception e) {
                             String domainMessage = mapExceptionToMessage(e);
-                            log.warn("[HealthCheck] Gateway [{}] error: {}", ip, domainMessage, e);
+                            log.warn("[HEALTH-CHECK] Gateway [{}] error: {}", ip, domainMessage, e);
                             return Map.entry(ip, HealthCheckResponseDtoV1.builder()
                                     .status(500)
                                     .message(domainMessage)
@@ -105,42 +104,21 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
                     .map(CompletableFuture::join)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-            log.info("[HealthCheck] Batch finish room [{}] in {}ms", roomCode, System.currentTimeMillis() - start);
+            log.info("[HEALTH-CHECK] Finished batch health check for room [{}] in {}ms", roomCode, System.currentTimeMillis() - start);
             return results;
         }
     }
 
     private String mapExceptionToMessage(Exception e) {
-        if (e == null) {
-            return "Unknown error";
-        }
-
-        String message = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
-        String exceptionType = e.getClass().getSimpleName();
-
-        if (e instanceof java.net.ConnectException || 
-            message.contains("connection refused") || 
-            message.contains("unreachable")) {
-            return "Gateway unreachable";
-        }
-
-        if (e instanceof java.net.SocketTimeoutException || 
-            e instanceof java.util.concurrent.TimeoutException ||
-            message.contains("timeout")) {
+        if (e instanceof NetworkTimeoutException) {
             return "Gateway timeout";
         }
-
-        if (e instanceof IllegalArgumentException ||
-            message.contains("json") || 
-            message.contains("deserialization") ||
-            message.contains("invalid response")) {
+        if (e instanceof ExternalServiceException) {
+            return e.getMessage();
+        }
+        if (e instanceof IllegalArgumentException) {
             return "Invalid response from gateway";
         }
-
-        if (exceptionType.contains("InternalServerError")) {
-            return "Gateway service error";
-        }
-
         return "Gateway communication failed";
     }
 
@@ -150,7 +128,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
             HealthCheckResponseDtoV1 result = checkByClient(clientId);
             return calculateScore(result);
         } catch (Exception e) {
-            log.warn("[HealthScore] Client [{}] calculation failed: {}", clientId, e.getMessage());
+            log.warn("[HEALTH-SCORE] Client [{}] calculation failed: {}", clientId, e.getMessage());
             return 0;
         }
     }
@@ -171,35 +149,35 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
 
     private int calculateScore(HealthCheckResponseDtoV1 dto) {
         if (dto == null) {
-            log.debug("[HealthScore] Response is null - gateway error");
+            log.debug("[HEALTH-SCORE] Response is null - gateway error");
             return 0;
         }
 
         if (dto.getStatus() != 200) {
-            log.debug("[HealthScore] Response status {} != 200: {}", dto.getStatus(), dto.getMessage());
+            log.debug("[HEALTH-SCORE] Response status {} != 200: {}", dto.getStatus(), dto.getMessage());
             return 0;
         }
 
         if (dto.getData() == null) {
-            log.debug("[HealthScore] Response data is null - invalid response format");
+            log.debug("[HEALTH-SCORE] Response data is null - invalid response format");
             return 0;
         }
 
         List<DeviceDto> devices = dto.getData().getDevices();
         
         if (devices == null) {
-            log.debug("[HealthScore] Devices list is null - response format issue");
+            log.debug("[HEALTH-SCORE] Devices list is null - response format issue");
             return 0;
         }
 
         if (devices.isEmpty()) {
-            log.debug("[HealthScore] Room has no devices - empty room");
+            log.debug("[HEALTH-SCORE] Room has no devices - empty room");
             return 100;
         }
 
         long activeCount = devices.stream().filter(DeviceDto::isActive).count();
         int score = (int) (((double) activeCount / devices.size()) * 100);
-        log.debug("[HealthScore] Calculated score: {}/{} devices active = {}%", 
+        log.debug("[HEALTH-SCORE] Calculated score: {}/{} devices active = {}%", 
                 activeCount, devices.size(), score);
         return score;
     }

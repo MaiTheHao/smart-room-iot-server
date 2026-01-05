@@ -2,18 +2,19 @@ package com.iviet.ivshs.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.dao.ClientDaoV1;
 import com.iviet.ivshs.dao.SetupDaoV1;
 import com.iviet.ivshs.dto.SetupRequestV1;
 import com.iviet.ivshs.entities.ClientV1;
 import com.iviet.ivshs.entities.RoomV1;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.InternalServerErrorException;
+import com.iviet.ivshs.exception.domain.ExternalServiceException;
+import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.service.ClientServiceV1;
+import com.iviet.ivshs.service.RoomServiceV1;
 import com.iviet.ivshs.service.SetupServiceV1;
 import com.iviet.ivshs.util.HttpClientUtil;
 
@@ -24,71 +25,87 @@ import lombok.extern.slf4j.Slf4j;
 public class SetupServiceImplV1 implements SetupServiceV1 {
 
     @Autowired
-    private ClientDaoV1 clientDao;
-    
+    private ClientServiceV1 clientService;
+
+    @Autowired
+    private RoomServiceV1 roomService;
+
     @Autowired
     private SetupDaoV1 setupDaoV1;
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void setup(Long clientId) {
-        log.info("[SETUP_SERVICE_START_FETCHING] clientId={}", clientId);
+        long start = System.currentTimeMillis();
+        log.info("[SETUP] Starting setup process for clientId: {}", clientId);
 
-        ClientV1 client = clientDao.findById(clientId)
-            .filter(c -> c.getClientType() == ClientTypeV1.HARDWARE_GATEWAY)
-            .orElseThrow(() -> {
-                log.error("[SETUP_ERR_001] Client not found: id={}", clientId);
-                return new NotFoundException("Client not found: id=" + clientId);
-            });
+        ClientV1 client = validateAndGetGateway(clientId);
 
-        SetupRequestV1 req;
-        try {
-            var res = HttpClientUtil.get(UrlConstant.getSetupUrlV1(client.getIpAddress()));
-            req = HttpClientUtil.fromJson(res.getBody(), SetupRequestV1.class);
-        } catch (Exception e) {
-            log.error("[SETUP_ERR_002] Failed to fetch setup from clientId={}: {}", clientId, e.getMessage());
-            throw new InternalServerErrorException("Failed to fetch setup data from client ID: " + clientId, e);
+        SetupRequestV1 setupRequest = fetchSetupData(client);
+
+        executeDatabasePersistence(client, setupRequest);
+
+        log.info("[SETUP] Finished setup process for clientId: {} in {}ms", clientId, System.currentTimeMillis() - start);
+    }
+
+    private ClientV1 validateAndGetGateway(Long clientId) {
+        ClientV1 client = clientService.getEntityById(clientId); 
+        
+        if (client.getClientType() != ClientTypeV1.HARDWARE_GATEWAY) {
+            log.error("[SETUP] Client is not a gateway: id={}", clientId);
+            throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
         }
+        return client;
+    }
 
-        log.info("[SETUP_SERVICE_START_PERSISTANCE] totalDevices={}, roomCode={}", req.getDevices() != null ? req.getDevices().size() : 0, req.getRoomCode());
-
+    private SetupRequestV1 fetchSetupData(ClientV1 client) {
+        String url = UrlConstant.getSetupUrlV1(client.getIpAddress());
         try {
-            if (req == null || req.getRoomCode() == null || req.getRoomCode().isBlank()) {
-                log.error("[SETUP_ERR_003] Room code is required");
-                throw new BadRequestException("Room code is required");
+            var res = HttpClientUtil.get(url);
+            
+            if (!res.isSuccess()) {
+                throw new ExternalServiceException("Gateway rejected request. Status: " + res.getStatusCode());
             }
 
-            if (req.getDevices() == null || req.getDevices().isEmpty()) {
-                log.warn("[SETUP_WARN] No devices to setup for room: {}", req.getRoomCode());
-                throw new BadRequestException("No devices to setup");
-            }
+            SetupRequestV1 req = HttpClientUtil.fromJson(res.getBody(), SetupRequestV1.class);
+            validateData(req);
+            return req;
 
-            RoomV1 room = setupDaoV1.findRoomByCode(req.getRoomCode());
-            log.debug("[SETUP_ROOM_FOUND] roomId={}, code={}", room.getId(), room.getCode());
+        } catch (NetworkTimeoutException e) {
+            log.error("[SETUP] Timeout connecting to gateway: {}", client.getIpAddress());
+            throw new NetworkTimeoutException("Gateway connection timed out.");
+        } catch (Exception e) {
+            log.error("[SETUP] Error fetching setup data: {}", e.getMessage());
+            throw new ExternalServiceException("Failed to fetch setup: " + e.getMessage());
+        }
+    }
 
-            int processedDevices = setupDaoV1.persistDeviceSetup(
+    private void validateData(SetupRequestV1 req) {
+        if (req == null || req.getRoomCode() == null || req.getRoomCode().isBlank()) {
+            throw new BadRequestException("Invalid setup data: Missing room code");
+        }
+        if (req.getDevices() == null || req.getDevices().isEmpty()) {
+            throw new BadRequestException("No devices found in setup data");
+        }
+    }
+
+    protected void executeDatabasePersistence(ClientV1 client, SetupRequestV1 req) {
+        try {
+            RoomV1 room = roomService.getEntityByCode(req.getRoomCode());
+            
+            int processed = setupDaoV1.persistDeviceSetup(
                 req.getDevices(), 
-                client.getId(),
+                client.getId(), 
                 room.getId()
             );
 
-            log.info("[SETUP_SERVICE_SUCCESS] clientId={}, roomCode={}, createdDevices={}", 
-                client.getId(), req.getRoomCode(), processedDevices);
+            log.info("[SETUP] Persisted {} devices for room {}", processed, req.getRoomCode());
 
-        } catch (BadRequestException e) {
-            log.error("[SETUP:VALIDATION_ERR] {}", e.getMessage());
-            throw e;
         } catch (NotFoundException e) {
-            log.error("[SETUP:NOT_FOUND_ERR] {}", e.getMessage());
+            log.error("[SETUP] Room not found in system: {}", req.getRoomCode());
             throw e;
-        } catch (jakarta.persistence.PersistenceException e) {
-            log.error("[SETUP:DB_ERR] DB constraint violation: {}", e.getMessage(), e);
-            throw new InternalServerErrorException(
-                String.format("[SETUP_FAILED] Database constraint violation: %s", e.getMessage()), e);
         } catch (Exception e) {
-            log.error("[SETUP:UNEXPECTED_ERR] Unexpected failure: {}", e.getMessage(), e);
-            throw new InternalServerErrorException(
-                String.format("[SETUP_FAILED] Unexpected error: %s", e.getMessage()), e);
+            log.error("[SETUP] Critical error during persistence: {}", e.getMessage());
+            throw new ExternalServiceException("Persistence failed: " + e.getMessage());
         }
     }
 }
