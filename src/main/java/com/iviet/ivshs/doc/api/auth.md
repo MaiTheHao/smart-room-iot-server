@@ -34,7 +34,7 @@
 		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
 		"type": "Bearer",
 		"username": "client01",
-		"roles": ["ROLE_CLIENT"]
+		"groups": ["G_ADMIN", "G_USER"]
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }

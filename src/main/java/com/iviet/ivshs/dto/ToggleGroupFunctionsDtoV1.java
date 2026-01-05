@@ -23,5 +23,5 @@ public class ToggleGroupFunctionsDtoV1 {
     private Long groupId;
 
     @NotNull(message = "Function toggles map is required")
-    private Map<String, Boolean> functionToggles;
+    private Map<String, Boolean> functionToggles; 
 }

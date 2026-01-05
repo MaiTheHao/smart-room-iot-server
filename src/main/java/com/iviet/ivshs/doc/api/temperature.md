@@ -210,7 +210,7 @@
 
 ---
 
-### GET /api/v1/room/{roomId}/temperature-values/average
+### GET /api/v1/rooms/{roomId}/temperature-values/average
 
 > Lấy giá trị nhiệt độ trung bình theo phòng trong khoảng thời gian.
 

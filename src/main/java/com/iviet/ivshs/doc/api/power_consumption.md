@@ -214,7 +214,7 @@
 
 ---
 
-### GET /api/v1/room/{roomId}/power-consumption-values/sum
+### GET /api/v1/rooms/{roomId}/power-consumption-values/sum
 
 > Lấy tổng giá trị tiêu thụ điện năng theo phòng trong khoảng thời gian.
 

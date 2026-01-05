@@ -297,49 +297,6 @@
 
 ---
 
-## GET /api/v1/groups/{groupId}/functions/paginated
-
-> Lấy danh sách Functions của một Group với phân trang.
-
-### Path Parameters
-
-| Tên     | Loại | Mô tả        | Bắt buộc |
-| :------ | :--- | :----------- | :------- |
-| groupId | Long | ID của Group | Có       |
-
-### Query Parameters
-
-| Tên  | Loại | Mô tả                         | Mặc định |
-| :--- | :--- | :---------------------------- | :------- |
-| page | int  | Trang hiện tại (bắt đầu từ 0) | 0        |
-| size | int  | Số lượng phần tử/trang        | 10       |
-
-### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"content": [
-			{
-				"id": 1,
-				"functionCode": "VIEW_DASHBOARD",
-				"name": "Xem dashboard",
-				"description": "Quyền xem trang dashboard"
-			}
-		],
-		"page": 0,
-		"size": 10,
-		"totalElements": 5,
-		"totalPages": 1
-	},
-	"timestamp": "2026-01-05T10:00:00Z"
-}
-```
-
----
-
 ## GET /api/v1/groups/{groupId}/clients
 
 > Lấy danh sách Clients (Users) thuộc một Group.
@@ -367,52 +324,6 @@
 			"lastLoginAt": "2026-01-05T09:30:00Z"
 		}
 	],
-	"timestamp": "2026-01-05T10:00:00Z"
-}
-```
-
----
-
-## GET /api/v1/groups/{groupId}/clients/paginated
-
-> Lấy danh sách Clients của một Group với phân trang.
-
-### Path Parameters
-
-| Tên     | Loại | Mô tả        | Bắt buộc |
-| :------ | :--- | :----------- | :------- |
-| groupId | Long | ID của Group | Có       |
-
-### Query Parameters
-
-| Tên  | Loại | Mô tả                         | Mặc định |
-| :--- | :--- | :---------------------------- | :------- |
-| page | int  | Trang hiện tại (bắt đầu từ 0) | 0        |
-| size | int  | Số lượng phần tử/trang        | 10       |
-
-### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"content": [
-			{
-				"id": 1,
-				"username": "admin",
-				"clientType": "USER",
-				"ipAddress": "192.168.1.100",
-				"macAddress": "00:11:22:33:44:55",
-				"avatarUrl": "/images/avatar1.jpg",
-				"lastLoginAt": "2026-01-05T09:30:00Z"
-			}
-		],
-		"page": 0,
-		"size": 10,
-		"totalElements": 3,
-		"totalPages": 1
-	},
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```
@@ -467,51 +378,3 @@
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```
-
----
-
-## Flow Diagram
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Group Management                      │
-└─────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-              ┌───────────────────────────┐
-              │   SysGroupControllerV1    │
-              └───────────────┬───────────┘
-                              │
-                              ▼
-              ┌───────────────────────────┐
-              │   SysGroupServiceImplV1   │
-              └───────────────┬───────────┘
-                              │
-                              ▼
-              ┌───────────────────────────┐
-              │      SysGroupDaoV1        │
-              └───────────────┬───────────┘
-                              │
-                              ▼
-              ┌───────────────────────────┐
-              │    JPA EntityManager      │
-              │    + JPQL Queries         │
-              └───────────────┬───────────┘
-                              │
-                              ▼
-              ┌───────────────────────────┐
-              │   sys_group_v1 (Table)    │
-              │   sys_group_lan_v1        │
-              │   sys_role_v1             │
-              └───────────────────────────┘
-```
-
----
-
-## Business Rules
-
-1. **Unique Group Code**: `groupCode` phải unique trong toàn hệ thống
-2. **Immutable Code**: Sau khi tạo, `groupCode` không thể thay đổi
-3. **Multi-language Support**: Name và description support nhiều ngôn ngữ
-4. **Soft Delete Protection**: Không xóa group nếu còn clients
-5. **Cascade Relationships**: Xóa group sẽ xóa tất cả roles liên quan

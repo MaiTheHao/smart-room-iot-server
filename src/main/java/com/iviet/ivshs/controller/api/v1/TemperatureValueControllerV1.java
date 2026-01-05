@@ -21,8 +21,16 @@ import lombok.RequiredArgsConstructor;
 public class TemperatureValueControllerV1 {
 
 	private final TemperatureValueServiceV1 temperatureValueService;
+	
+	@GetMapping("rooms/{roomId}/temperatures/average-history")
+	public ResponseEntity<List<AverageTemperatureValueDtoV1>> oldGetAverageByRoom(
+			@PathVariable(name = "roomId") Long roomId,
+			@RequestParam(name = "startedAt") Instant from,
+			@RequestParam(name = "endedAt") Instant to) {
+		return ResponseEntity.ok(temperatureValueService.getAverageTemperatureByRoom(roomId, from, to));
+	}
 
-	@GetMapping("/room/{roomId}/temperature-values/average")
+	@GetMapping("/rooms/{roomId}/temperature-values/average")
 	public ResponseEntity<List<AverageTemperatureValueDtoV1>> getAverageByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "from") Instant from,

@@ -22,6 +22,14 @@ public class PowerConsumptionValueControllerV1 {
 
 	private final PowerConsumptionValueServiceV1 powerConsumptionValueService;
 
+	@GetMapping("/rooms/{roomId}/power-consumptions/sum-history")
+	public ResponseEntity<List<SumPowerConsumptionValueDtoV1>> oldGetSumByRoom(
+			@PathVariable(name = "roomId") Long roomId,
+			@RequestParam(name = "startedAt") Instant from,
+			@RequestParam(name = "endedAt") Instant to) {
+		return ResponseEntity.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to));
+	}
+
 	@GetMapping("/room/{roomId}/power-consumption-values/sum")
 	public ResponseEntity<List<SumPowerConsumptionValueDtoV1>> getSumByRoom(
 			@PathVariable(name = "roomId") Long roomId,

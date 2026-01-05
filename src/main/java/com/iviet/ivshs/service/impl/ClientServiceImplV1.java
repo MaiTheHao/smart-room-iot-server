@@ -83,9 +83,14 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
             log.warn("Username is required");
             throw new BadRequestException("Username is required");
         }
-
-        return clientDao.findByUsername(username.trim())
+        
+        ClientV1 client = clientDao.findByUsername(username.trim())
                 .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
+
+        if (client.getGroups() != null) {
+            client.getGroups().size(); 
+        }
+        return client;
     }
 
     @Override
