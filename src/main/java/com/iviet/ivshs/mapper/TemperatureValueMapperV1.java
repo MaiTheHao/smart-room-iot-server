@@ -14,7 +14,5 @@ public interface TemperatureValueMapperV1 {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "sensor", ignore = true)
-    @Mapping(target = "tempC", source = "dto.tempC")
-    @Mapping(target = "timestamp", source = "dto.timestamp")
     TemperatureValueV1 fromCreateDto(CreateTemperatureValueDtoV1 dto);
 }
