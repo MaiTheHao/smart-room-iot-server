@@ -5,6 +5,7 @@ import com.iviet.ivshs.dao.ClientDaoV1;
 import com.iviet.ivshs.dao.RoomDaoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1.DeviceDto;
+import com.iviet.ivshs.entities.ClientV1;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
@@ -76,7 +77,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     @Override
     public Map<String, HealthCheckResponseDtoV1> checkByRoom(String roomCode) {
         List<String> ipAddresses = clientDao.findGatewaysByRoomCode(roomCode).stream()
-                .map(client -> client.getIpAddress())
+                .map(ClientV1::getIpAddress)
                 .toList();
 
         if (ipAddresses.isEmpty()) {
@@ -87,13 +88,12 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
         log.info("[HEALTH-CHECK] Starting batch health check for room [{}] - {} gateways", roomCode, ipAddresses.size());
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            var results = ipAddresses.stream()
+            List<CompletableFuture<Map.Entry<String, HealthCheckResponseDtoV1>>> futures = ipAddresses.stream()
                     .map(ip -> CompletableFuture.supplyAsync(() -> {
                         try {
                             return Map.entry(ip, checkByClient(ip));
                         } catch (Exception e) {
                             String domainMessage = mapExceptionToMessage(e);
-                            log.warn("[HEALTH-CHECK] Gateway [{}] error: {}", ip, domainMessage, e);
                             return Map.entry(ip, HealthCheckResponseDtoV1.builder()
                                     .status(500)
                                     .message(domainMessage)
@@ -101,6 +101,9 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
                                     .build());
                         }
                     }, executor))
+                    .toList();
+
+            Map<String, HealthCheckResponseDtoV1> results = futures.stream()
                     .map(CompletableFuture::join)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 

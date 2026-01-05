@@ -18,37 +18,37 @@ public class HealthCheckControllerV1 {
 
     @GetMapping("/clients/{clientId}/health")
     public ResponseEntity<ApiResponseV1<HealthCheckResponseDtoV1>> getClientHealth(
-            @PathVariable Long clientId) {
+            @PathVariable(name = "clientId") Long clientId) {
         return ResponseEntity.ok(ApiResponseV1.ok(healthCheckService.checkByClient(clientId)));
     }
 
     @GetMapping("/clients/health")
     public ResponseEntity<ApiResponseV1<HealthCheckResponseDtoV1>> getClientHealthByIp(
-            @RequestParam String ip) {
+            @RequestParam(name = "ip") String ip) {
         return ResponseEntity.ok(ApiResponseV1.ok(healthCheckService.checkByClient(ip)));
     }
 
     @GetMapping("/clients/{clientId}/health-score")
     public ResponseEntity<ApiResponseV1<Integer>> getClientHealthScore(
-            @PathVariable Long clientId) {
+            @PathVariable(name = "clientId") Long clientId) {
         return ResponseEntity.ok(ApiResponseV1.ok(healthCheckService.getHealthScoreByClient(clientId)));
     }
 
     @GetMapping("/rooms/{roomId}/health")
     public ResponseEntity<ApiResponseV1<Map<String, HealthCheckResponseDtoV1>>> getRoomHealth(
-            @PathVariable Long roomId) {
+            @PathVariable(name = "roomId") Long roomId) {
         return ResponseEntity.ok(ApiResponseV1.ok(healthCheckService.checkByRoom(roomId)));
     }
 
     @GetMapping("/rooms/health")
     public ResponseEntity<ApiResponseV1<Map<String, HealthCheckResponseDtoV1>>> getRoomHealthByCode(
-            @RequestParam String code) {
+            @RequestParam(name = "code") String code) {
         return ResponseEntity.ok(ApiResponseV1.ok(healthCheckService.checkByRoom(code)));
     }
 
     @GetMapping("/rooms/{roomId}/health-score")
     public ResponseEntity<ApiResponseV1<Integer>> getRoomHealthScore(
-            @PathVariable Long roomId) {
+            @PathVariable(name = "roomId") Long roomId) {
         return ResponseEntity.ok(ApiResponseV1.ok(healthCheckService.getHealthScoreByRoom(roomId)));
     }
 }

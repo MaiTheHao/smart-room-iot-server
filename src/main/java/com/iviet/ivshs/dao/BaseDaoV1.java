@@ -118,11 +118,12 @@ public abstract class BaseDaoV1<T> {
         Root<T> root = cq.from(clazz);
 
         if(specification != null) cq.where(specification.apply(root));
-
-        return entityManager.createQuery(cq)
-                .getResultStream()
-                .findFirst();
-    }
+		
+		List<T> results = entityManager.createQuery(cq)
+				.setMaxResults(1)
+				.getResultList();
+		return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+	}
 
 	public Optional<T> findOne(Function<Root<T>, Predicate> specification, BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer) {
 		CriteriaBuilder cb = this.getCB();
@@ -135,9 +136,11 @@ public abstract class BaseDaoV1<T> {
 			queryCustomizer.accept(root, cq);
 		}
 
-		return entityManager.createQuery(cq)
-				.getResultStream()
-				.findFirst();
+		List<T> results = entityManager.createQuery(cq)
+				.setMaxResults(1)
+				.getResultList();
+
+		return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
 	}
 
 	public boolean exists(Function<Root<T>, Predicate> specification) {
