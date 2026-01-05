@@ -14,13 +14,13 @@ import com.iviet.ivshs.entities.ClientV1;
 import com.iviet.ivshs.entities.SysClientFunctionCacheV1;
 import com.iviet.ivshs.entities.SysGroupV1;
 import com.iviet.ivshs.entities.SysRoleV1;
-import com.iviet.ivshs.service.SysClientFunctionCacheServiceV1;
+import com.iviet.ivshs.service.ClientFunctionCacheServiceV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Service
 @Transactional
-public class SysClientFunctionServiceImplV1 implements SysClientFunctionCacheServiceV1 {
+public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1 {
 
 	@PersistenceContext
 	private EntityManager entityManager;

@@ -1,5 +1,6 @@
 package com.iviet.ivshs.service;
 
+import com.iviet.ivshs.entities.ClientV1;
 import com.iviet.ivshs.dto.ClientDtoV1;
 import com.iviet.ivshs.dto.CreateClientDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
@@ -12,6 +13,8 @@ public interface ClientServiceV1 {
     ClientDtoV1 getById(Long clientId);
 
     ClientDtoV1 getByUsername(String username);
+
+    ClientV1 getEntityByUsername(String username);
 
     ClientDtoV1 getUserById(Long userId);
 

@@ -18,8 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * SysClientFunctionCacheV1 - Cache phân quyền ATOMIC (Flatten Permissions Cache)
- * 
  * Mục đích:
  * - Tối ưu tốc độ kiểm tra quyền (Authorization Check) - Không cần JOIN
  * - Đảm bảo tính nguyên tử (Atomic) - Biết rõ quyền từ Group nào

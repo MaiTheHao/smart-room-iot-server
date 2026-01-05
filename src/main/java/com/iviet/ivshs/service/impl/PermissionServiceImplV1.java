@@ -1,6 +1,7 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.SysClientFunctionCacheDaoV1;
+import com.iviet.ivshs.enumeration.SysFunctionEnumV1;
 import com.iviet.ivshs.service.PermissionServiceV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -25,7 +26,20 @@ public class PermissionServiceImplV1 implements PermissionServiceV1 {
 	@Override
 	@Transactional(readOnly = true)
 	public boolean hasPermission(Long clientId, String functionCode) {
+		if (functionCode == null || functionCode.isBlank()) return false;
 		return cacheDao.hasPermission(clientId, functionCode);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public boolean hasPermissions(Long clientId, List<String> functionCodes) {
+		if (functionCodes == null || functionCodes.isEmpty()) return false;
+		for (String functionCode : functionCodes) {
+			if (!hasPermission(clientId, functionCode)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

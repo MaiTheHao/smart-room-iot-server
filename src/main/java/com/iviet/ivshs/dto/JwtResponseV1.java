@@ -16,14 +16,14 @@ public class JwtResponseV1 {
     private String token;
     private String type;
     private String username;
-    private List<String> roles;
+    private List<String> groups;
 
-    public static JwtResponseV1 of(String token, String username, List<String> roles) {
+    public static JwtResponseV1 of(String token, String username, List<String> groups) {
         return JwtResponseV1.builder()
                 .token(token)
                 .type("Bearer")
                 .username(username)
-                .roles(roles)
+                .groups(groups)
                 .build();
     }
 }

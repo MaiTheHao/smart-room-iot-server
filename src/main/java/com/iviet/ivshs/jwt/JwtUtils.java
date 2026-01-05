@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private static final long DEFAULT_EXPIRATION_MS = 172800000L; // 48 hours
+    private static final long DEFAULT_EXPIRATION_MS = 172800000L;
 
     @Value("${iviet.app.jwtSecret:}")
     private String jwtSecret;

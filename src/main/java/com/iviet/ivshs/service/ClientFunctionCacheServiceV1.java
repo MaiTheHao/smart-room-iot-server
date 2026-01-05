@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service;
 
-public interface SysClientFunctionCacheServiceV1 {
+public interface ClientFunctionCacheServiceV1 {
 
     int rebuildCacheForClient(Long clientId);
 

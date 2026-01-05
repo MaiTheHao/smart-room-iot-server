@@ -77,6 +77,18 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
+    public ClientV1 getEntityByUsername(String username) {
+        log.info("Fetching client entity by username: {}", username);
+        if (username == null || username.trim().isEmpty()) {
+            log.warn("Username is required");
+            throw new BadRequestException("Username is required");
+        }
+
+        return clientDao.findByUsername(username.trim())
+                .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
+    }
+
+    @Override
     public ClientDtoV1 getUserById(Long userId) {
         log.info("Fetching user by ID: {}", userId);
         if (userId == null || userId <= 0) {

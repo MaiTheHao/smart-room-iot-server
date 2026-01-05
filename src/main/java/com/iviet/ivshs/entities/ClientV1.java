@@ -66,8 +66,6 @@ public class ClientV1 extends BaseAuditEntityV1 {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<DeviceControlV1> deviceControls = new HashSet<>();
 
-    // Many-to-Many với SysGroupV1
-    // Client chọn Group mình muốn để lấy quyền
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
         name = "client_group_v1",

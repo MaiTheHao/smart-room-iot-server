@@ -8,7 +8,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.service.SysClientFunctionCacheServiceV1;
+import com.iviet.ivshs.service.ClientFunctionCacheServiceV1;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PermissionCacheInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
-    private SysClientFunctionCacheServiceV1 sysClientFunctionCacheService;
+    private ClientFunctionCacheServiceV1 sysClientFunctionCacheService;
 
 	@Autowired
 	private Environment env;
