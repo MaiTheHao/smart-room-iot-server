@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
-public class TemperatureControllerV1 {
+public class TemperatureController {
 
     private final TemperatureService temperatureService;
 

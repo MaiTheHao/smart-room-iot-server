@@ -1,8 +1,5 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import java.time.Instant;
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,31 +7,34 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.dto.AverageTemperatureValueDto;
-import com.iviet.ivshs.service.TemperatureValueService;
+import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
+import com.iviet.ivshs.service.PowerConsumptionValueService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class TemperatureValueControllerV1 {
+public class PowerConsumptionValueController {
 
-	private final TemperatureValueService temperatureValueService;
-	
-	@GetMapping("rooms/{roomId}/temperatures/average-history")
-	public ResponseEntity<List<AverageTemperatureValueDto>> oldGetAverageByRoom(
+	private final PowerConsumptionValueService powerConsumptionValueService;
+
+	@GetMapping("/rooms/{roomId}/power-consumptions/sum-history")
+	public ResponseEntity<List<SumPowerConsumptionValueDto>> oldGetSumByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "startedAt") Instant from,
 			@RequestParam(name = "endedAt") Instant to) {
-		return ResponseEntity.ok(temperatureValueService.getAverageTemperatureByRoom(roomId, from, to));
+		return ResponseEntity.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to));
 	}
 
-	@GetMapping("/rooms/{roomId}/temperature-values/average")
-	public ResponseEntity<List<AverageTemperatureValueDto>> getAverageByRoom(
+	@GetMapping("/rooms/{roomId}/power-consumption-values/sum")
+	public ResponseEntity<List<SumPowerConsumptionValueDto>> getSumByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "from") Instant from,
 			@RequestParam(name = "to") Instant to) {
-		return ResponseEntity.ok(temperatureValueService.getAverageTemperatureByRoom(roomId, from, to));
+		return ResponseEntity.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to));
 	}
 }

@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/setup")
-public class SetupControllerV1 {
+public class SetupController {
 	
 	@Autowired
 	private SetupService setupService;

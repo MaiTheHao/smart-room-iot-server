@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
-public class PowerConsumptionControllerV1 {
+public class PowerConsumptionController {
 
     @Autowired
     private PowerConsumptionService powerConsumptionService;

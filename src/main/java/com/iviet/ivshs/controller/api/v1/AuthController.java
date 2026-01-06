@@ -30,7 +30,7 @@ import com.iviet.ivshs.service.ClientService;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/v1/auth")
-public class AuthControllerV1 {
+public class AuthController {
     
     @Autowired
     private AuthenticationManager authenticationManager;

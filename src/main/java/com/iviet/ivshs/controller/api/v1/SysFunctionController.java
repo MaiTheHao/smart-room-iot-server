@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/functions")
-public class SysFunctionControllerV1 {
+public class SysFunctionController {
 
     private final SysFunctionService functionService;
 

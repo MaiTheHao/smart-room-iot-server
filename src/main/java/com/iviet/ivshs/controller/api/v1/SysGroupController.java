@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/groups")
-public class SysGroupControllerV1 {
+public class SysGroupController {
 
     private final SysGroupService groupService;
 

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
-public class MainControllerV1 {
+public class MainController {
 
     private final FloorService floorService;
     private final RoomService roomService;
