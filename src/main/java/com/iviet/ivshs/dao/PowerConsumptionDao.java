@@ -9,9 +9,9 @@ import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
 import com.iviet.ivshs.entities.PowerConsumption;
 
 @Repository
-public class PowerConsumptionDaoV1 extends BaseIoTDeviceDaoV1<PowerConsumption> {
+public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 
-	public PowerConsumptionDaoV1() {
+	public PowerConsumptionDao() {
 		super(PowerConsumption.class);
 	}
 

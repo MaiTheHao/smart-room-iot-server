@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.dao.ClientDaoV1;
-import com.iviet.ivshs.dao.DeviceControlDaoV1;
-import com.iviet.ivshs.dao.RoomDaoV1;
+import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.CreateDeviceControlDtoV1;
 import com.iviet.ivshs.dto.DeviceControlDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
@@ -26,16 +26,16 @@ import java.util.List;
 public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
 
     @Autowired
-    private DeviceControlDaoV1 deviceControlDao;
+    private DeviceControlDao deviceControlDao;
     
     @Autowired
     private DeviceControlMapperV1 deviceControlMapper;
     
     @Autowired
-    private ClientDaoV1 clientDao;
+    private ClientDao clientDao;
     
     @Autowired
-    private RoomDaoV1 RoomDaoV1;
+    private RoomDao RoomDaoV1;
 
     @Override
     public DeviceControlDtoV1 getById(Long deviceControlId) {

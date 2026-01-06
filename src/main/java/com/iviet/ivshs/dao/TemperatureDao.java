@@ -9,9 +9,9 @@ import com.iviet.ivshs.dto.TemperatureDtoV1;
 import com.iviet.ivshs.entities.Temperature;
 
 @Repository
-public class TemperatureDaoV1 extends BaseIoTDeviceDaoV1<Temperature> {
+public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
 
-    public TemperatureDaoV1() {
+    public TemperatureDao() {
         super(Temperature.class);
     }
 

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.dao.SetupDaoV1;
+import com.iviet.ivshs.dao.SetupDao;
 import com.iviet.ivshs.dto.SetupRequestV1;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
@@ -31,7 +31,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
     private RoomServiceV1 roomService;
 
     @Autowired
-    private SetupDaoV1 setupDaoV1;
+    private SetupDao setupDaoV1;
 
     @Override
     public void setup(Long clientId) {

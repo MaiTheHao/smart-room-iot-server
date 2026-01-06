@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.iviet.ivshs.dao.DeviceControlDaoV1;
-import com.iviet.ivshs.dao.LanguageDaoV1;
-import com.iviet.ivshs.dao.PowerConsumptionDaoV1;
-import com.iviet.ivshs.dao.RoomDaoV1;
+import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.LanguageDao;
+import com.iviet.ivshs.dao.PowerConsumptionDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.CreatePowerConsumptionDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
 import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
@@ -29,10 +29,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PowerConsumptionServiceImplV1 implements PowerConsumptionServiceV1 {
 
-	private final PowerConsumptionDaoV1 powerConsumptionDao;
-	private final LanguageDaoV1 languageDao;
-	private final RoomDaoV1 RoomDaoV1;
-	private final DeviceControlDaoV1 deviceControlDao;
+	private final PowerConsumptionDao powerConsumptionDao;
+	private final LanguageDao languageDao;
+	private final RoomDao RoomDaoV1;
+	private final DeviceControlDao deviceControlDao;
 	private final PowerConsumptionMapperV1 powerConsumptionMapper;
 
 	@Override

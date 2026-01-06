@@ -1,8 +1,8 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.FloorDaoV1;
-import com.iviet.ivshs.dao.LanguageDaoV1;
-import com.iviet.ivshs.dao.RoomDaoV1;
+import com.iviet.ivshs.dao.FloorDao;
+import com.iviet.ivshs.dao.LanguageDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.entities.RoomLan;
@@ -24,9 +24,9 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class RoomServiceImplV1 implements RoomServiceV1 {
 
-    private final RoomDaoV1 roomDao;
-    private final FloorDaoV1 floorDao;
-    private final LanguageDaoV1 languageDao;
+    private final RoomDao roomDao;
+    private final FloorDao floorDao;
+    private final LanguageDao languageDao;
     private final RoomMapperV1 roomMapper;
 
     @Override

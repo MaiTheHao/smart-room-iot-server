@@ -10,12 +10,12 @@ import java.util.Map;
 
 @Slf4j
 @Repository
-public class SetupDaoV1 extends BaseDaoV1<SetupDaoV1> {
+public class SetupDao extends BaseDao<SetupDao> {
 
 	private static final int BATCH_SIZE = 50;
 
-	public SetupDaoV1() {
-		super(SetupDaoV1.class);
+	public SetupDao() {
+		super(SetupDao.class);
 	}
 
 	public int persistDeviceSetup(java.util.List<SetupRequestV1.DeviceConfig> devices, Long clientId, Long roomId) {

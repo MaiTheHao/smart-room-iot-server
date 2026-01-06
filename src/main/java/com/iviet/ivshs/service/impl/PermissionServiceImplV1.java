@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.SysClientFunctionCacheDaoV1;
+import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
 import com.iviet.ivshs.service.PermissionServiceV1;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -20,7 +20,7 @@ public class PermissionServiceImplV1 implements PermissionServiceV1 {
 	private EntityManager entityManager;
 
 	@Autowired
-	private SysClientFunctionCacheDaoV1 cacheDao;
+	private SysClientFunctionCacheDao cacheDao;
 
 	@Override
 	@Transactional(readOnly = true)

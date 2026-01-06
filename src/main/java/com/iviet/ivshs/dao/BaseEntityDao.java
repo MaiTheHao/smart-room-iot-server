@@ -4,9 +4,9 @@ import com.iviet.ivshs.entities.BaseEntity;
 
 import java.util.Optional;
 
-public abstract class BaseEntityDaoV1<T extends BaseEntity> extends BaseDaoV1<T> {
+public abstract class BaseEntityDao<T extends BaseEntity> extends BaseDao<T> {
 
-    protected BaseEntityDaoV1(Class<T> clazz) {
+    protected BaseEntityDao(Class<T> clazz) {
         super(clazz);
     }
 

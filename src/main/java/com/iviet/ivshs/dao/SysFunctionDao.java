@@ -10,9 +10,9 @@ import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDtoV1;
 import com.iviet.ivshs.entities.SysFunction;
 
 @Repository
-public class SysFunctionDaoV1 extends BaseTranslatableEntityDaoV1<SysFunction> {
+public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
     
-    public SysFunctionDaoV1() {
+    public SysFunctionDao() {
         super(SysFunction.class);
     }
 

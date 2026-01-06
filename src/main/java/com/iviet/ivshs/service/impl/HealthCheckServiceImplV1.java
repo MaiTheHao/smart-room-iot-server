@@ -1,8 +1,8 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.dao.ClientDaoV1;
-import com.iviet.ivshs.dao.RoomDaoV1;
+import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
 import com.iviet.ivshs.dto.HealthCheckResponseDtoV1.DeviceDto;
 import com.iviet.ivshs.entities.Client;
@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
 
-    private final ClientDaoV1 clientDao;
-    private final RoomDaoV1 roomDao;
+    private final ClientDao clientDao;
+    private final RoomDao roomDao;
 
     @Override
     public HealthCheckResponseDtoV1 checkByClient(Long clientId) {

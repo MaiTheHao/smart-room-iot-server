@@ -9,9 +9,9 @@ import com.iviet.ivshs.dto.FloorDtoV1;
 import com.iviet.ivshs.entities.Floor;
 
 @Repository
-public class FloorDaoV1 extends BaseAuditEntityDaoV1<Floor> {
+public class FloorDao extends BaseAuditEntityDao<Floor> {
     
-    public FloorDaoV1() {
+    public FloorDao() {
         super(Floor.class);
     }
 

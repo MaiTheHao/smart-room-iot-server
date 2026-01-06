@@ -3,9 +3,9 @@ package com.iviet.ivshs.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.dao.PowerConsumptionDaoV1;
-import com.iviet.ivshs.dao.PowerConsumptionValueDaoV1;
-import com.iviet.ivshs.dao.RoomDaoV1;
+import com.iviet.ivshs.dao.PowerConsumptionDao;
+import com.iviet.ivshs.dao.PowerConsumptionValueDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.CreatePowerConsumptionValueDtoV1;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1;
 import com.iviet.ivshs.entities.PowerConsumption;
@@ -24,9 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PowerConsumptionValueServiceImplV1 implements PowerConsumptionValueServiceV1 {
 
-    private final RoomDaoV1 roomDao;
-    private final PowerConsumptionDaoV1 powerConsumptionDao;
-    private final PowerConsumptionValueDaoV1 powerConsumptionValueDao;
+    private final RoomDao roomDao;
+    private final PowerConsumptionDao powerConsumptionDao;
+    private final PowerConsumptionValueDao powerConsumptionValueDao;
     private final PowerConsumptionValueMapperV1 powerConsumptionValueMapper;
 
     @Override

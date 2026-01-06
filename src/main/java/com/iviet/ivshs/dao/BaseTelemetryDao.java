@@ -5,9 +5,9 @@ import java.util.Optional;
 
 import com.iviet.ivshs.entities.BaseTelemetryValue;
 
-public abstract class BaseTelemetryDaoV1<T extends BaseTelemetryValue<?>> extends BaseEntityDaoV1<T> {
+public abstract class BaseTelemetryDao<T extends BaseTelemetryValue<?>> extends BaseEntityDao<T> {
 	
-	protected BaseTelemetryDaoV1(Class<T> entityClass) {
+	protected BaseTelemetryDao(Class<T> entityClass) {
 		super(entityClass);
 	}
 

@@ -9,9 +9,9 @@ import com.iviet.ivshs.dto.RoomDtoV1;
 import com.iviet.ivshs.entities.Room;
 
 @Repository
-public class RoomDaoV1 extends BaseAuditEntityDaoV1<Room> {
+public class RoomDao extends BaseAuditEntityDao<Room> {
     
-    public RoomDaoV1() {
+    public RoomDao() {
         super(Room.class);
     }
 

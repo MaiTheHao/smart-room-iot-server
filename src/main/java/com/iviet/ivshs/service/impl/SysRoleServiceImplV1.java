@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.ClientDaoV1;
-import com.iviet.ivshs.dao.SysFunctionDaoV1;
-import com.iviet.ivshs.dao.SysGroupDaoV1;
-import com.iviet.ivshs.dao.SysRoleDaoV1;
+import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dao.SysFunctionDao;
+import com.iviet.ivshs.dao.SysGroupDao;
+import com.iviet.ivshs.dao.SysRoleDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysFunction;
@@ -28,10 +28,10 @@ import java.util.Map;
 @Transactional
 public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
 
-    private final SysRoleDaoV1 roleDao;
-    private final SysGroupDaoV1 groupDao;
-    private final SysFunctionDaoV1 functionDao;
-    private final ClientDaoV1 clientDao;
+    private final SysRoleDao roleDao;
+    private final SysGroupDao groupDao;
+    private final SysFunctionDao functionDao;
+    private final ClientDao clientDao;
     private final ClientFunctionCacheServiceV1 cacheService;
 
     @Override

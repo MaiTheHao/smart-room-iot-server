@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.entities.Language;
 
 @Repository
-public class LanguageDaoV1 extends BaseAuditEntityDaoV1<Language> {
+public class LanguageDao extends BaseAuditEntityDao<Language> {
     
-    public LanguageDaoV1() {
+    public LanguageDao() {
         super(Language.class);
     }
 

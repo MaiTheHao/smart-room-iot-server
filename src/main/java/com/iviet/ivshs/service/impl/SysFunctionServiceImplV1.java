@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.LanguageDaoV1;
-import com.iviet.ivshs.dao.SysFunctionDaoV1;
+import com.iviet.ivshs.dao.LanguageDao;
+import com.iviet.ivshs.dao.SysFunctionDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.SysFunctionLan;
 import com.iviet.ivshs.entities.SysFunction;
@@ -23,8 +23,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
 
-    private final SysFunctionDaoV1 functionDao;
-    private final LanguageDaoV1 languageDao;
+    private final SysFunctionDao functionDao;
+    private final LanguageDao languageDao;
     private final SysFunctionMapperV1 functionMapper;
     private final ClientFunctionCacheServiceV1 cacheService;
 

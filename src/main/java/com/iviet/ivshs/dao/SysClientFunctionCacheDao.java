@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.entities.SysClientFunctionCache;
 
 @Repository
-public class SysClientFunctionCacheDaoV1 extends BaseDaoV1<SysClientFunctionCache> {
+public class SysClientFunctionCacheDao extends BaseDao<SysClientFunctionCache> {
     
-    public SysClientFunctionCacheDaoV1() {
+    public SysClientFunctionCacheDao() {
         super(SysClientFunctionCache.class);
     }
 

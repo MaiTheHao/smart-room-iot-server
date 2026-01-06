@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.dao.ClientDaoV1;
+import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 import com.iviet.ivshs.exception.domain.InvalidClientTypeException;
@@ -22,7 +22,7 @@ public class UserDetailsServiceImplV1 implements UserDetailsService {
     private static final String DEFAULT_ROLE = "USER";
 
     @Autowired
-    private ClientDaoV1 clientDao;
+    private ClientDao clientDao;
 
     @Transactional(readOnly = true)
     @Override

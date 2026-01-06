@@ -6,9 +6,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
 import java.util.List;
 
-public abstract class BaseAuditEntityDaoV1<T extends BaseAuditEntity> extends BaseEntityDaoV1<T> {
+public abstract class BaseAuditEntityDao<T extends BaseAuditEntity> extends BaseEntityDao<T> {
 
-    protected BaseAuditEntityDaoV1(Class<T> clazz) {
+    protected BaseAuditEntityDao(Class<T> clazz) {
         super(clazz);
     }
 

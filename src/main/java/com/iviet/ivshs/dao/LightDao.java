@@ -9,9 +9,9 @@ import com.iviet.ivshs.dto.LightDtoV1;
 import com.iviet.ivshs.entities.Light;
 
 @Repository
-public class LightDaoV1 extends BaseIoTDeviceDaoV1<Light> {
+public class LightDao extends BaseIoTDeviceDao<Light> {
     
-    public LightDaoV1() {
+    public LightDao() {
         super(Light.class);
     }
 

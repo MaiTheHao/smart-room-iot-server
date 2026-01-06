@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.ClientDaoV1;
+import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dto.ClientDtoV1;
 import com.iviet.ivshs.dto.CreateClientDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
@@ -25,7 +25,7 @@ import java.util.List;
 public class ClientServiceImplV1 implements ClientServiceV1 {
 
     @Autowired
-    private ClientDaoV1 clientDao;
+    private ClientDao clientDao;
 
     @Autowired
     private ClientMapperV1 clientMapper;

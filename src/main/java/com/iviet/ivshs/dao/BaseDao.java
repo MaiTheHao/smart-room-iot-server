@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-public abstract class BaseDaoV1<T> {
+public abstract class BaseDao<T> {
 
     @PersistenceContext
     protected EntityManager entityManager;
@@ -34,7 +34,7 @@ public abstract class BaseDaoV1<T> {
     protected final Class<T> clazz;
 	protected final int BATCH_SIZE = 50;
 
-    protected BaseDaoV1(Class<T> clazz) {
+    protected BaseDao(Class<T> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Entity class must not be null");
     }
 

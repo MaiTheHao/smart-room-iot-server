@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.LanguageDaoV1;
+import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dto.CreateLanguageDtoV1;
 import com.iviet.ivshs.dto.LanguageDtoV1;
 import com.iviet.ivshs.dto.PaginatedResponseV1;
@@ -22,7 +22,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class LanguageServiceImplV1 implements LanguageServiceV1 {
 
-    private final LanguageDaoV1 languageDao;
+    private final LanguageDao languageDao;
     private final LanguageMapperV1 languageMapper;
 
     @Override

@@ -9,9 +9,9 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 
 @Repository
-public class ClientDaoV1 extends BaseAuditEntityDaoV1<Client> {
+public class ClientDao extends BaseAuditEntityDao<Client> {
 
-    public ClientDaoV1() {
+    public ClientDao() {
         super(Client.class);
     }
 

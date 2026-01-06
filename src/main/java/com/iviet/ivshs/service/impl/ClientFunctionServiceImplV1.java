@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.iviet.ivshs.dao.ClientDaoV1;
-import com.iviet.ivshs.dao.SysClientFunctionCacheDaoV1;
-import com.iviet.ivshs.dao.SysGroupDaoV1;
+import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
+import com.iviet.ivshs.dao.SysGroupDao;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysClientFunctionCache;
 import com.iviet.ivshs.entities.SysGroup;
@@ -26,13 +26,13 @@ public class ClientFunctionServiceImplV1 implements ClientFunctionCacheServiceV1
 	private EntityManager entityManager;
 
 	@Autowired
-	private SysClientFunctionCacheDaoV1 cacheDao;
+	private SysClientFunctionCacheDao cacheDao;
 
 	@Autowired
-	private ClientDaoV1 clientDao;
+	private ClientDao clientDao;
 
 	@Autowired
-	private SysGroupDaoV1 groupDao;
+	private SysGroupDao groupDao;
 
 	@Override
 	public int rebuildCacheForClient(Long clientId) {

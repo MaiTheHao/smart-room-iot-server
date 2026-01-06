@@ -9,9 +9,9 @@ import com.iviet.ivshs.entities.SysRole;
 import jakarta.persistence.NoResultException;
 
 @Repository
-public class SysRoleDaoV1 extends BaseTranslatableEntityDaoV1<SysRole> {
+public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     
-    public SysRoleDaoV1() {
+    public SysRoleDao() {
         super(SysRole.class);
     }
 

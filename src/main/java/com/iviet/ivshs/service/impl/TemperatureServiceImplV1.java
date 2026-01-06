@@ -20,10 +20,10 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class TemperatureServiceImplV1 implements TemperatureServiceV1 {
 
-    private final TemperatureDaoV1 temperatureDao;
-    private final RoomDaoV1 roomDao;
-    private final DeviceControlDaoV1 deviceControlDao;
-    private final LanguageDaoV1 languageDao;
+    private final TemperatureDao temperatureDao;
+    private final RoomDao roomDao;
+    private final DeviceControlDao deviceControlDao;
+    private final LanguageDao languageDao;
     private final TemperatureMapperV1 temperatureMapper;
 
     // --- CRUD SENSOR ---

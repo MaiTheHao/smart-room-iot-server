@@ -11,12 +11,12 @@ import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 
 @Repository
-public class TemperatureValueDaoV1 extends BaseTelemetryDaoV1<TemperatureValue> {
+public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	private static final String INSERT_SQL = "INSERT INTO temperature_value_v1 (sensor_id, timestamp, temp_c) VALUES (?, ?, ?)";
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
 	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', v.timestamp, '" + DATE_FORMAT + "') AS string)";
 
-	public TemperatureValueDaoV1() {
+	public TemperatureValueDao() {
 		super(TemperatureValue.class);
 	}
 

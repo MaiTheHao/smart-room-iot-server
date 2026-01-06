@@ -10,9 +10,9 @@ import com.iviet.ivshs.enumeration.DeviceControlTypeV1;
 import jakarta.persistence.TypedQuery;
 
 @Repository
-public class DeviceControlDaoV1 extends BaseEntityDaoV1<DeviceControl> {
+public class DeviceControlDao extends BaseEntityDao<DeviceControl> {
     
-    public DeviceControlDaoV1() {
+    public DeviceControlDao() {
         super(DeviceControl.class);
     }
 

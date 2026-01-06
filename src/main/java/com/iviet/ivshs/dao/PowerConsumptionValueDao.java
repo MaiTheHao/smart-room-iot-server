@@ -12,13 +12,13 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import jakarta.persistence.TypedQuery;
 
 @Repository
-public class PowerConsumptionValueDaoV1 extends BaseTelemetryDaoV1<PowerConsumptionValue> {
+public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionValue> {
 
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
 	private static final String DATE_FORMAT_FUNCTION = "CAST(FUNCTION('DATE_FORMAT', p.timestamp, '" + DATE_FORMAT + "') AS string)";
 	private static final String INSERT_SQL = "INSERT INTO power_consumption_value_v1 (sensor_id, timestamp, watt) VALUES (?, ?, ?, ?)";
 
-	public PowerConsumptionValueDaoV1() {
+	public PowerConsumptionValueDao() {
 		super(PowerConsumptionValue.class);
 	}
 

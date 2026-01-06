@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.LanguageDaoV1;
-import com.iviet.ivshs.dao.SysGroupDaoV1;
+import com.iviet.ivshs.dao.LanguageDao;
+import com.iviet.ivshs.dao.SysGroupDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.SysGroupLan;
 import com.iviet.ivshs.entities.SysGroup;
@@ -22,8 +22,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
 
-    private final SysGroupDaoV1 groupDao;
-    private final LanguageDaoV1 languageDao;
+    private final SysGroupDao groupDao;
+    private final LanguageDao languageDao;
     private final SysGroupMapperV1 groupMapper;
 
     @Override

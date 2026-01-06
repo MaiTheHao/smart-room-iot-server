@@ -25,10 +25,10 @@ import org.springframework.util.StringUtils;
 @Transactional(readOnly = true)
 public class LightServiceImplV1 implements LightServiceV1 {
 
-    private final LightDaoV1 lightDao;
-    private final RoomDaoV1 roomDao;
-    private final LanguageDaoV1 languageDao;
-    private final DeviceControlDaoV1 deviceControlDao;
+    private final LightDao lightDao;
+    private final RoomDao roomDao;
+    private final LanguageDao languageDao;
+    private final DeviceControlDao deviceControlDao;
     private final LightMapperV1 lightMapper;
     private final ControlServiceV1 controlService;
 

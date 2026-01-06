@@ -1,8 +1,8 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.RoomDaoV1;
-import com.iviet.ivshs.dao.TemperatureDaoV1;
-import com.iviet.ivshs.dao.TemperatureValueDaoV1;
+import com.iviet.ivshs.dao.RoomDao;
+import com.iviet.ivshs.dao.TemperatureDao;
+import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.AverageTemperatureValueDtoV1;
 import com.iviet.ivshs.dto.CreateTemperatureValueDtoV1;
 import com.iviet.ivshs.entities.Temperature;
@@ -23,9 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TemperatureValueServiceImplV1 implements TemperatureValueServiceV1 {
 
-    private final RoomDaoV1 roomDao;
-    private final TemperatureDaoV1 temperatureDao;
-    private final TemperatureValueDaoV1 temperatureValueDao;
+    private final RoomDao roomDao;
+    private final TemperatureDao temperatureDao;
+    private final TemperatureValueDao temperatureValueDao;
     private final TemperatureValueMapperV1 temperatureValueMapper;
 
     @Override

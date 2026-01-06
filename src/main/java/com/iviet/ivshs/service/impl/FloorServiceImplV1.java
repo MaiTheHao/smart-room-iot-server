@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.FloorDaoV1;
-import com.iviet.ivshs.dao.LanguageDaoV1;
+import com.iviet.ivshs.dao.FloorDao;
+import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.FloorLan;
 import com.iviet.ivshs.entities.Floor;
@@ -20,8 +20,8 @@ import org.springframework.util.StringUtils;
 @Transactional(readOnly = true)
 public class FloorServiceImplV1 implements FloorServiceV1 {
 
-    private final FloorDaoV1 floorDao;
-    private final LanguageDaoV1 languageDao;
+    private final FloorDao floorDao;
+    private final LanguageDao languageDao;
     private final FloorMapperV1 floorMapper;
 
     @Override

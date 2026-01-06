@@ -5,9 +5,9 @@ import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class BaseIoTDeviceDaoV1<T extends BaseIoTDevice<?>> extends BaseTranslatableEntityDaoV1<T> {
+public abstract class BaseIoTDeviceDao<T extends BaseIoTDevice<?>> extends BaseTranslatableEntityDao<T> {
 
-    protected BaseIoTDeviceDaoV1(Class<T> clazz) {
+    protected BaseIoTDeviceDao(Class<T> clazz) {
         super(clazz);
 	}
 

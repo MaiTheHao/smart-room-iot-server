@@ -12,9 +12,9 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
 
 @Repository
-public class SysGroupDaoV1 extends BaseTranslatableEntityDaoV1<SysGroup> {
+public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
     
-    public SysGroupDaoV1() {
+    public SysGroupDao() {
         super(SysGroup.class);
     }
 
