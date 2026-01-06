@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysFunctionV1 extends BaseTranslatableEntityV1<SysFunctionLanV1> {
+public class SysFunctionV1 extends BaseTranslatableEntity<SysFunctionLanV1> {
 
 	private static final long serialVersionUID = 1L;
 

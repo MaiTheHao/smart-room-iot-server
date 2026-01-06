@@ -25,7 +25,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FloorV1 extends BaseTranslatableEntityV1<FloorLanV1> {
+public class FloorV1 extends BaseTranslatableEntity<FloorLanV1> {
 
     private static final long serialVersionUID = 1L;
 

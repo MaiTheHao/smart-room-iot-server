@@ -1,10 +1,10 @@
 package com.iviet.ivshs.dao;
 
-import com.iviet.ivshs.entities.BaseEntityV1;
+import com.iviet.ivshs.entities.BaseEntity;
 
 import java.util.Optional;
 
-public abstract class BaseEntityDaoV1<T extends BaseEntityV1> extends BaseDaoV1<T> {
+public abstract class BaseEntityDaoV1<T extends BaseEntity> extends BaseDaoV1<T> {
 
     protected BaseEntityDaoV1(Class<T> clazz) {
         super(clazz);

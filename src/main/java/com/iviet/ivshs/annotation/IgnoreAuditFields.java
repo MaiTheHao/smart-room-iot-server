@@ -12,7 +12,7 @@ import org.mapstruct.Mappings;
  * Annotation này được sử dụng để đánh dấu các phương thức Mapper trong MapStruct 
  * nhằm bỏ qua (ignore) các trường thông tin kiểm toán (audit fields).
  * <p>
- * Các trường bị bỏ qua bao gồm các thuộc tính kế thừa từ {@code BaseAuditEntityV1}:
+ * Các trường bị bỏ qua bao gồm các thuộc tính kế thừa từ {@code BaseAuditEntity}:
  * <ul>
  * <li>{@code createdAt}</li>
  * <li>{@code createdBy}</li>
@@ -29,7 +29,7 @@ import org.mapstruct.Mappings;
  * }
  * </pre>
  *
- * @see com.iviet.ivshs.entities.BaseAuditEntityV1
+ * @see com.iviet.ivshs.entities.BaseAuditEntity
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD})

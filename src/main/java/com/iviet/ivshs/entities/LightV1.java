@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class LightV1 extends BaseIoTDeviceV1<LightLanV1> {
+public class LightV1 extends BaseIoTDevice<LightLanV1> {
 
     private static final long serialVersionUID = 1L;
 

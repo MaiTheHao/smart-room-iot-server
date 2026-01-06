@@ -11,7 +11,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseTranslationV1<T extends BaseTranslatableEntityV1<?>> extends BaseAuditEntityV1 {
+public abstract class BaseTranslation<T extends BaseTranslatableEntity<?>> extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 

@@ -10,7 +10,7 @@ import jakarta.persistence.Table;
         @Index(name = "idx_sys_role_lan_owner_lang", columnList = "owner_id, lang_code", unique = true)
     }
 )
-public class SysRoleLanV1 extends BaseTranslationV1<SysRoleV1> {
+public class SysRoleLanV1 extends BaseTranslation<SysRoleV1> {
     
     private static final long serialVersionUID = 1L;
 }

@@ -10,5 +10,5 @@ import jakarta.persistence.Table;
         @Index(name = "idx_light_lan_owner_id_lang_code", columnList = "owner_id, lang_code", unique = true)
     }
 )
-public class LightLanV1 extends BaseTranslationV1<LightV1> {
+public class LightLanV1 extends BaseTranslation<LightV1> {
 }

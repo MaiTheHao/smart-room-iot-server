@@ -10,7 +10,7 @@ import java.util.Objects;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseEntityV1 implements Serializable {
+public abstract class BaseEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
@@ -20,8 +20,8 @@ public abstract class BaseEntityV1 implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BaseEntityV1)) return false;
-        BaseEntityV1 that = (BaseEntityV1) o;
+        if (!(o instanceof BaseEntity)) return false;
+        BaseEntity that = (BaseEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

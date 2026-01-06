@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomV1 extends BaseTranslatableEntityV1<RoomLanV1> {
+public class RoomV1 extends BaseTranslatableEntity<RoomLanV1> {
 
     private static final long serialVersionUID = 1L;
 

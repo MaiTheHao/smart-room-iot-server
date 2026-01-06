@@ -10,5 +10,5 @@ import jakarta.persistence.Table;
         @Index(name = "idx_power_consumption_lan_owner_id_lang_code", columnList = "owner_id, lang_code", unique = true)
     }
 )
-public class PowerConsumptionLanV1 extends BaseTranslationV1<PowerConsumptionV1> {
+public class PowerConsumptionLanV1 extends BaseTranslation<PowerConsumptionV1> {
 }

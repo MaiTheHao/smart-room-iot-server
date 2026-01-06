@@ -3,9 +3,9 @@ package com.iviet.ivshs.dao;
 import java.util.List;
 import java.util.Optional;
 
-import com.iviet.ivshs.entities.BaseTelemetryValueV1;
+import com.iviet.ivshs.entities.BaseTelemetryValue;
 
-public abstract class BaseTelemetryDaoV1<T extends BaseTelemetryValueV1<?>> extends BaseEntityDaoV1<T> {
+public abstract class BaseTelemetryDaoV1<T extends BaseTelemetryValue<?>> extends BaseEntityDaoV1<T> {
 	
 	protected BaseTelemetryDaoV1(Class<T> entityClass) {
 		super(entityClass);

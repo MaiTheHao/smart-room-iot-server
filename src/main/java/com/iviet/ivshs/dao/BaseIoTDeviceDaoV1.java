@@ -1,11 +1,11 @@
 package com.iviet.ivshs.dao;
 
-import com.iviet.ivshs.entities.BaseIoTDeviceV1;
+import com.iviet.ivshs.entities.BaseIoTDevice;
 import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class BaseIoTDeviceDaoV1<T extends BaseIoTDeviceV1<?>> extends BaseTranslatableEntityDaoV1<T> {
+public abstract class BaseIoTDeviceDaoV1<T extends BaseIoTDevice<?>> extends BaseTranslatableEntityDaoV1<T> {
 
     protected BaseIoTDeviceDaoV1(Class<T> clazz) {
         super(clazz);

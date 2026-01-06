@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PowerConsumptionValueV1 extends BaseTelemetryValueV1<PowerConsumptionV1> {
+public class PowerConsumptionValueV1 extends BaseTelemetryValue<PowerConsumptionV1> {
 
     private static final long serialVersionUID = 1L;
 

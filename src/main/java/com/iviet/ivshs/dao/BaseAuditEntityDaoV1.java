@@ -1,12 +1,12 @@
 package com.iviet.ivshs.dao;
 
-import com.iviet.ivshs.entities.BaseAuditEntityV1;
+import com.iviet.ivshs.entities.BaseAuditEntity;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
 import java.util.List;
 
-public abstract class BaseAuditEntityDaoV1<T extends BaseAuditEntityV1> extends BaseEntityDaoV1<T> {
+public abstract class BaseAuditEntityDaoV1<T extends BaseAuditEntity> extends BaseEntityDaoV1<T> {
 
     protected BaseAuditEntityDaoV1(Class<T> clazz) {
         super(clazz);

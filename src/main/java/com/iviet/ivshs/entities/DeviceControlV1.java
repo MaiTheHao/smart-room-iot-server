@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceControlV1 extends BaseAuditEntityV1 {
+public class DeviceControlV1 extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 

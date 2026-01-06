@@ -36,7 +36,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientV1 extends BaseAuditEntityV1 {
+public class ClientV1 extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 
