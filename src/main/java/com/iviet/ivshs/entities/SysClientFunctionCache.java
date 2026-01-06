@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "sys_client_function_cache_v1",
+@Table(name = "sys_client_function_cache",
     indexes = {
         @Index(name = "idx_cache_client_function", columnList = "client_id, function_code"),
         @Index(name = "idx_cache_client", columnList = "client_id"),

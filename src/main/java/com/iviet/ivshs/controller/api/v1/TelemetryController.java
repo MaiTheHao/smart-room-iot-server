@@ -17,28 +17,28 @@ public class TelemetryController {
 	private final TelemetryService telemetryService;
 
 	@PostMapping("/gateway/{gatewayUsername}")
-	public ResponseEntity<ApiResponse<?>> fetchByGateway(@PathVariable String gatewayUsername) {
+	public ResponseEntity<ApiResponse<?>> fetchByGateway(@PathVariable(name = "gatewayUsername") String gatewayUsername) {
 		log.info("Fetching telemetry for gateway: {}", gatewayUsername);
 		telemetryService.takeByGateway(gatewayUsername);
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}
 
 	@PostMapping("/room/{roomCode}")
-	public ResponseEntity<ApiResponse<?>> fetchByRoom(@PathVariable String roomCode) {
+	public ResponseEntity<ApiResponse<?>> fetchByRoom(@PathVariable(name = "roomCode") String roomCode) {
 		log.info("Fetching telemetry for room: {}", roomCode);
 		telemetryService.takeByRoom(roomCode);
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}
 
 	@PostMapping("/temperature/{naturalId}")
-	public ResponseEntity<ApiResponse<?>> fetchTemperature(@PathVariable String naturalId) {
+	public ResponseEntity<ApiResponse<?>> fetchTemperature(@PathVariable(name = "naturalId") String naturalId) {
 		log.info("Fetching temperature data for sensor: {}", naturalId);
 		telemetryService.takeTemperatureData(naturalId);
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}
 
 	@PostMapping("/power-consumption/{naturalId}")
-	public ResponseEntity<ApiResponse<?>> fetchPowerConsumption(@PathVariable String naturalId) {
+	public ResponseEntity<ApiResponse<?>> fetchPowerConsumption(@PathVariable(name = "naturalId") String naturalId) {
 		log.info("Fetching power consumption data for sensor: {}", naturalId);
 		telemetryService.takePowerConsumptionData(naturalId);
 		return ResponseEntity.ok(ApiResponse.ok(null));

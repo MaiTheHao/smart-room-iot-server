@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "sys_role_v1",
+@Table(name = "sys_role",
     indexes = {
         @Index(name = "idx_sys_role_group_function", columnList = "group_id, function_id", unique = true),
         @Index(name = "idx_sys_role_is_active", columnList = "is_active")

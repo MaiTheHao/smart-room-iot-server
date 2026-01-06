@@ -23,7 +23,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public Optional<SysRole> findByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT r
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
                 """;
 
@@ -44,7 +44,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public Optional<SysRole> findActiveByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT r
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.group.id = :groupId 
                   AND r.function.id = :functionId 
                   AND r.isActive = true
@@ -67,7 +67,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public boolean existsByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT COUNT(r) > 0
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
                 """;
 
@@ -83,7 +83,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public boolean existsActiveByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
                 SELECT COUNT(r) > 0
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.group.id = :groupId 
                   AND r.function.id = :functionId 
                   AND r.isActive = true
@@ -103,7 +103,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
      */
     public int deleteByGroupAndFunction(Long groupId, Long functionId) {
         String jpql = """
-                DELETE FROM SysRoler
+                DELETE FROM SysRole r
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
                 """;
 
@@ -119,7 +119,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
      */
     public int deleteByGroupId(Long groupId) {
         String jpql = """
-                DELETE FROM SysRoler
+                DELETE FROM SysRole r
                 WHERE r.group.id = :groupId
                 """;
 
@@ -134,7 +134,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
      */
     public int deleteByFunctionId(Long functionId) {
         String jpql = """
-                DELETE FROM SysRoler
+                DELETE FROM SysRole r
                 WHERE r.function.id = :functionId
                 """;
 
@@ -151,7 +151,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public long countByGroupId(Long groupId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.group.id = :groupId
                 """;
         
@@ -166,7 +166,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public long countActiveByGroupId(Long groupId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.group.id = :groupId AND r.isActive = true
                 """;
         
@@ -181,7 +181,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public long countByFunctionId(Long functionId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.function.id = :functionId
                 """;
         
@@ -196,7 +196,7 @@ public class SysRoleDao extends BaseTranslatableEntityDao<SysRole> {
     public long countActiveByFunctionId(Long functionId) {
         String jpql = """
                 SELECT COUNT(r)
-                FROM SysRoler
+                FROM SysRole r
                 WHERE r.function.id = :functionId AND r.isActive = true
                 """;
         

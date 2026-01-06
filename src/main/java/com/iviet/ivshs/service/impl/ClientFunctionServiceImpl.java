@@ -14,13 +14,13 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysClientFunctionCache;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.entities.SysRole;
-import com.iviet.ivshs.service.ClientFunctionCacheService;
+import com.iviet.ivshs.service.ClientFunctionService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @Service
 @Transactional
-public class ClientFunctionServiceImpl implements ClientFunctionCacheService {
+public class ClientFunctionServiceImpl implements ClientFunctionService {
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -77,7 +77,7 @@ public class ClientFunctionServiceImpl implements ClientFunctionCacheService {
 
 	@Override
 	public int rebuildAllCache() {
-		entityManager.createNativeQuery("DELETE FROM sys_client_function_cache_v1").executeUpdate();
+		entityManager.createNativeQuery("DELETE FROM sys_client_function_cache").executeUpdate();
 		
 		var cb = entityManager.getCriteriaBuilder();
 		var query = cb.createQuery(Client.class);

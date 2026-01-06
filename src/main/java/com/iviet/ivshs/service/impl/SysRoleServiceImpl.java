@@ -11,7 +11,7 @@ import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.entities.SysRole;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.service.ClientFunctionCacheService;
+import com.iviet.ivshs.service.ClientFunctionService;
 import com.iviet.ivshs.service.SysRoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class SysRoleServiceImpl implements SysRoleService {
     private final SysGroupDao groupDao;
     private final SysFunctionDao functionDao;
     private final ClientDao clientDao;
-    private final ClientFunctionCacheService cacheService;
+    private final ClientFunctionService cacheService;
 
     @Override
     public BatchOperationResultDto addFunctionsToGroup(BatchAddFunctionsToGroupDto dto) {

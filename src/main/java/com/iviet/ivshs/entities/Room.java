@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "room_v1",
+@Table(name = "room",
     indexes = {
         @Index(name = "idx_room_code", columnList = "code", unique = true)
     }

@@ -5,7 +5,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "sys_function_lan_v1", 
+@Table(name = "sys_function_lan", 
     indexes = {
         @Index(name = "idx_sys_function_lan_owner_lang", columnList = "owner_id, lang_code", unique = true)
     }

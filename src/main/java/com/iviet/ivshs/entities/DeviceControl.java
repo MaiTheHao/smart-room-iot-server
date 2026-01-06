@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "device_control_v1", uniqueConstraints = {
+@Table(name = "device_control", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"client_id", "gpio_pin", "ble_mac_address"}),
 })
 @Getter

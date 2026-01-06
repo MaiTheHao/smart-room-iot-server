@@ -8,7 +8,7 @@ import com.iviet.ivshs.entities.SysFunction;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.SysFunctionMapperV1;
-import com.iviet.ivshs.service.ClientFunctionCacheService;
+import com.iviet.ivshs.service.ClientFunctionService;
 import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class SysFunctionServiceImpl implements SysFunctionService {
     private final SysFunctionDao functionDao;
     private final LanguageDao languageDao;
     private final SysFunctionMapperV1 functionMapper;
-    private final ClientFunctionCacheService cacheService;
+    private final ClientFunctionService cacheService;
 
     @Override
     public PaginatedResponse<SysFunctionDto> getList(int page, int size) {

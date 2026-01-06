@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "sys_function_v1",
+@Table(name = "sys_function",
     indexes = {
         @Index(name = "idx_sys_function_code", columnList = "function_code", unique = true)
     }

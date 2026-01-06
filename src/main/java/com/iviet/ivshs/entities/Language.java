@@ -12,7 +12,7 @@ import lombok.Setter;
 
 @Entity
 @Table(
-    name = "language_v1",
+    name = "language",
     indexes = {
         @Index(name = "idx_language_code", columnList = "code", unique = true)
     }

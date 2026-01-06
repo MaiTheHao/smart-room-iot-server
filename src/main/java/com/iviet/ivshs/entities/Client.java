@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "client_v1",
+@Table(name = "client",
     indexes = {
         @Index(name = "idx_username", columnList = "username", unique = true),
         @Index(name = "idx_client_type_client_ip_address", columnList = "client_type, ip_address", unique = true),
@@ -68,7 +68,7 @@ public class Client extends BaseAuditEntity {
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
-        name = "client_group_v1",
+        name = "client_group",
         joinColumns = @JoinColumn(name = "client_id", nullable = false),
         inverseJoinColumns = @JoinColumn(name = "group_id", nullable = false),
         indexes = {

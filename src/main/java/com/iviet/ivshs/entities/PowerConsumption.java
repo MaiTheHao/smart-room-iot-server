@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "power_consumption_v1",
+@Table(name = "power_consumption",
     indexes = {
         @Index(name = "idx_power_consumption_room_id", columnList = "room_id", unique = false),
         @Index(name = "idx_power_consumption_natural_id", columnList = "natural_id", unique = true)
