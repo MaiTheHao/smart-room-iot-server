@@ -35,7 +35,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
     private final ClientFunctionCacheServiceV1 cacheService;
 
     @Override
-    public BatchOperationResultDtoV1 addFunctionsToGroup(BatchAddFunctionsToGroupDtoV1 dto) {
+    public BatchOperationResultDto addFunctionsToGroup(BatchAddFunctionsToGroupDto dto) {
         if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
@@ -90,7 +90,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             message += ". Errors: " + String.join("; ", errors);
         }
 
-        return BatchOperationResultDtoV1.builder()
+        return BatchOperationResultDto.builder()
                 .successCount(successCount)
                 .skippedCount(skippedCount)
                 .failedCount(errors.size())
@@ -99,7 +99,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
     }
 
     @Override
-    public BatchOperationResultDtoV1 removeFunctionsFromGroup(BatchRemoveFunctionsFromGroupDtoV1 dto) {
+    public BatchOperationResultDto removeFunctionsFromGroup(BatchRemoveFunctionsFromGroupDto dto) {
         if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
@@ -154,7 +154,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             message += ". Errors: " + String.join("; ", errors);
         }
 
-        return BatchOperationResultDtoV1.builder()
+        return BatchOperationResultDto.builder()
                 .successCount(successCount)
                 .skippedCount(skippedCount)
                 .failedCount(errors.size())
@@ -163,7 +163,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
     }
 
     @Override
-    public BatchOperationResultDtoV1 toggleGroupFunctions(ToggleGroupFunctionsDtoV1 dto) {
+    public BatchOperationResultDto toggleGroupFunctions(ToggleGroupFunctionsDto dto) {
         if (dto == null || dto.getGroupId() == null || dto.getFunctionToggles() == null || dto.getFunctionToggles().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
@@ -232,7 +232,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             message += ". Errors: " + String.join("; ", errors);
         }
 
-        return BatchOperationResultDtoV1.builder()
+        return BatchOperationResultDto.builder()
                 .successCount(addedCount + removedCount)
                 .skippedCount(skippedCount)
                 .failedCount(errors.size())
@@ -291,7 +291,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
     }
 
     @Override
-    public BatchOperationResultDtoV1 assignGroupsToClient(AssignGroupsToClientDtoV1 dto) {
+    public BatchOperationResultDto assignGroupsToClient(AssignGroupsToClientDto dto) {
         if (dto == null || dto.getClientId() == null || dto.getGroupIds() == null || dto.getGroupIds().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
@@ -339,7 +339,7 @@ public class SysRoleServiceImplV1 implements SysRoleServiceV1 {
             message += ". Errors: " + String.join("; ", errors);
         }
 
-        return BatchOperationResultDtoV1.builder()
+        return BatchOperationResultDto.builder()
                 .successCount(successCount)
                 .skippedCount(skippedCount)
                 .failedCount(errors.size())

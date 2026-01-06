@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
-import com.iviet.ivshs.dto.CreateRoomDtoV1;
-import com.iviet.ivshs.dto.RoomDtoV1;
+import com.iviet.ivshs.dto.CreateRoomDto;
+import com.iviet.ivshs.dto.RoomDto;
 import com.iviet.ivshs.entities.RoomLan;
 import com.iviet.ivshs.entities.Room;
 
@@ -17,7 +17,7 @@ public interface RoomMapperV1 {
     @Mapping(target = "name", source = "roomLan.name")
     @Mapping(target = "description", source = "roomLan.description")
     @Mapping(target = "floorId", source = "entity.floor.id")
-    RoomDtoV1 toDto(Room entity, RoomLan roomLan);
+    RoomDto toDto(Room entity, RoomLan roomLan);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -27,7 +27,7 @@ public interface RoomMapperV1 {
     @Mapping(target = "powerConsumptions", ignore = true)
     @Mapping(target = "deviceControls", ignore = true)
     @Mapping(target = "floor", ignore = true)
-    Room toEntity(RoomDtoV1 dto);
+    Room toEntity(RoomDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -37,5 +37,5 @@ public interface RoomMapperV1 {
     @Mapping(target = "powerConsumptions", ignore = true)
     @Mapping(target = "deviceControls", ignore = true)
     @Mapping(target = "floor", ignore = true)
-    Room fromCreateDto(CreateRoomDtoV1 dto);
+    Room fromCreateDto(CreateRoomDto dto);
 }

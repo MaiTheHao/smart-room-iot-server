@@ -1,10 +1,10 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.ClientDao;
-import com.iviet.ivshs.dto.ClientDtoV1;
-import com.iviet.ivshs.dto.CreateClientDtoV1;
-import com.iviet.ivshs.dto.PaginatedResponseV1;
-import com.iviet.ivshs.dto.UpdateClientDtoV1;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.CreateClientDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateClientDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
 import com.iviet.ivshs.exception.domain.BadRequestException;
@@ -34,17 +34,17 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Override
-    public PaginatedResponseV1<ClientDtoV1> getAll(int page, int size) {
+    public PaginatedResponse<ClientDto> getAll(int page, int size) {
         log.info("Fetching all clients, page: {}, size: {}", page, size);
-        List<ClientDtoV1> clients = clientDao.findAll(page, size).stream()
+        List<ClientDto> clients = clientDao.findAll(page, size).stream()
                 .map(clientMapper::toDto)
                 .toList();
         Long totalElements = clientDao.count();
-        return new PaginatedResponseV1<>(clients, page, size, totalElements);
+        return new PaginatedResponse<>(clients, page, size, totalElements);
     }
 
     @Override
-    public ClientDtoV1 getById(Long clientId) {
+    public ClientDto getById(Long clientId) {
         log.info("Fetching client by ID: {}", clientId);
         if (clientId == null || clientId <= 0) {
             log.warn("Invalid client ID: {}", clientId);
@@ -72,7 +72,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getByUsername(String username) {
+    public ClientDto getByUsername(String username) {
         log.info("Fetching client by username: {}", username);
         if (username == null || username.trim().isEmpty()) {
             log.warn("Username is required");
@@ -102,7 +102,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getUserById(Long userId) {
+    public ClientDto getUserById(Long userId) {
         log.info("Fetching user by ID: {}", userId);
         if (userId == null || userId <= 0) {
             log.warn("Invalid user ID: {}", userId);
@@ -115,7 +115,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getGatewayById(Long gatewayId) {
+    public ClientDto getGatewayById(Long gatewayId) {
         log.info("Fetching gateway by ID: {}", gatewayId);
         if (gatewayId == null || gatewayId <= 0) {
             log.warn("Invalid gateway ID: {}", gatewayId);
@@ -128,7 +128,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getUserByUsername(String username) {
+    public ClientDto getUserByUsername(String username) {
         log.info("Fetching user by username: {}", username);
         if (username == null || username.trim().isEmpty()) {
             log.warn("Username is required");
@@ -141,7 +141,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getUserByIpAddress(String ipAddress) {
+    public ClientDto getUserByIpAddress(String ipAddress) {
         log.info("Fetching user by IP address: {}", ipAddress);
         if (ipAddress == null || ipAddress.isBlank()) {
             log.warn("IP Address is required");
@@ -155,7 +155,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getGatewayByUsername(String username) {
+    public ClientDto getGatewayByUsername(String username) {
         log.info("Fetching gateway by username: {}", username);
         if (username == null || username.trim().isEmpty()) {
             log.warn("Username is required");
@@ -168,7 +168,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public ClientDtoV1 getGatewayByIpAddress(String ipAddress) {
+    public ClientDto getGatewayByIpAddress(String ipAddress) {
         log.info("Fetching gateway by IP address: {}", ipAddress);
         if (ipAddress == null || ipAddress.isBlank()) {
             log.warn("IP Address is required");
@@ -183,7 +183,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
 
     @Override
     @Transactional
-    public ClientDtoV1 create(CreateClientDtoV1 createDto) {
+    public ClientDto create(CreateClientDto createDto) {
         log.info("Creating new client: {}", createDto);
         if (createDto == null) {
             log.warn("Client data is required");
@@ -227,7 +227,7 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
 
     @Override
     @Transactional
-    public ClientDtoV1 update(Long clientId, UpdateClientDtoV1 updateDto) {
+    public ClientDto update(Long clientId, UpdateClientDto updateDto) {
         log.info("Updating client ID: {}", clientId);
         if (clientId == null) {
             log.warn("Client ID is required");
@@ -288,19 +288,19 @@ public class ClientServiceImplV1 implements ClientServiceV1 {
     }
 
     @Override
-    public PaginatedResponseV1<ClientDtoV1> getAllGatewaysByRoomId(Long roomId, int page, int size) {
+    public PaginatedResponse<ClientDto> getAllGatewaysByRoomId(Long roomId, int page, int size) {
         log.info("Fetching all gateways by room ID: {}, page: {}, size: {}", roomId, page, size);
         if (roomId == null || roomId <= 0) {
             log.warn("Room ID is required and must be greater than 0");
             throw new BadRequestException("Room ID is required and must be greater than 0");
         }
 
-        List<ClientDtoV1> gateways = clientDao.findGatewaysByRoomId(roomId, page, size).stream()
+        List<ClientDto> gateways = clientDao.findGatewaysByRoomId(roomId, page, size).stream()
                 .map(clientMapper::toDto)
                 .toList();
         Long totalElements = clientDao.countGatewaysByRoomId(roomId);
 
-        return new PaginatedResponseV1<>(gateways, page, size, totalElements);
+        return new PaginatedResponse<>(gateways, page, size, totalElements);
     }
 
     @Override

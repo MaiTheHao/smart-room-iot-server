@@ -18,58 +18,58 @@ public class DeviceControlControllerV1 {
     // --- CRUD DEVICE CONTROL ---
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<DeviceControlDtoV1>> getById(
+    public ResponseEntity<ApiResponse<DeviceControlDto>> getById(
             @PathVariable(name = "id") Long id) {
-        DeviceControlDtoV1 dto = deviceControlService.getById(id);
-        return ResponseEntity.ok(ApiResponseV1.ok(dto));
+        DeviceControlDto dto = deviceControlService.getById(id);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseV1<DeviceControlDtoV1>> create(
-            @RequestBody @Valid CreateDeviceControlDtoV1 dto) {
-        DeviceControlDtoV1 created = deviceControlService.create(dto);
+    public ResponseEntity<ApiResponse<DeviceControlDto>> create(
+            @RequestBody @Valid CreateDeviceControlDto dto) {
+        DeviceControlDto created = deviceControlService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponseV1.created(created));
+            .body(ApiResponse.created(created));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<DeviceControlDtoV1>> update(
+    public ResponseEntity<ApiResponse<DeviceControlDto>> update(
             @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateDeviceControlDtoV1 dto) {
-        DeviceControlDtoV1 updated = deviceControlService.update(id, dto);
-        return ResponseEntity.ok(ApiResponseV1.ok(updated));
+            @RequestBody @Valid UpdateDeviceControlDto dto) {
+        DeviceControlDto updated = deviceControlService.update(id, dto);
+        return ResponseEntity.ok(ApiResponse.ok(updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<Void>> delete(
+    public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable(name = "id") Long id) {
         deviceControlService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
+            .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
                 "Deleted successfully"));
     }
 
     // --- LIST BY RELATIONSHIP ---
 
     @GetMapping("client/{clientId}")
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<DeviceControlDtoV1>>> 
+    public ResponseEntity<ApiResponse<PaginatedResponse<DeviceControlDto>>> 
             getListByClient(
                 @PathVariable(name = "clientId") Long clientId,
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseV1<DeviceControlDtoV1> paginated = 
+        PaginatedResponse<DeviceControlDto> paginated = 
             deviceControlService.getListByClientId(clientId, page, size);
-        return ResponseEntity.ok(ApiResponseV1.ok(paginated));
+        return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 
     @GetMapping("room/{roomId}")
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<DeviceControlDtoV1>>> 
+    public ResponseEntity<ApiResponse<PaginatedResponse<DeviceControlDto>>> 
             getListByRoom(
                 @PathVariable(name = "roomId") Long roomId,
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseV1<DeviceControlDtoV1> paginated = 
+        PaginatedResponse<DeviceControlDto> paginated = 
             deviceControlService.getListByRoomId(roomId, page, size);
-        return ResponseEntity.ok(ApiResponseV1.ok(paginated));
+        return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 }

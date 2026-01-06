@@ -7,10 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.DeviceControlDao;
 import com.iviet.ivshs.dao.RoomDao;
-import com.iviet.ivshs.dto.CreateDeviceControlDtoV1;
-import com.iviet.ivshs.dto.DeviceControlDtoV1;
-import com.iviet.ivshs.dto.PaginatedResponseV1;
-import com.iviet.ivshs.dto.UpdateDeviceControlDtoV1;
+import com.iviet.ivshs.dto.CreateDeviceControlDto;
+import com.iviet.ivshs.dto.DeviceControlDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateDeviceControlDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Room;
@@ -38,7 +38,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
     private RoomDao RoomDaoV1;
 
     @Override
-    public DeviceControlDtoV1 getById(Long deviceControlId) {
+    public DeviceControlDto getById(Long deviceControlId) {
         if (deviceControlId == null) 
             throw new BadRequestException("Device Control ID is required");
         
@@ -49,7 +49,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
 
     @Override
     @Transactional
-    public DeviceControlDtoV1 create(CreateDeviceControlDtoV1 dto) {
+    public DeviceControlDto create(CreateDeviceControlDto dto) {
         if (dto == null) throw new BadRequestException("Device control data is required");
         if (dto.getClientId() == null) throw new BadRequestException("Client ID is required");
         if (dto.getRoomId() == null) throw new BadRequestException("Room ID is required");
@@ -69,7 +69,7 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
 
     @Override
     @Transactional
-    public DeviceControlDtoV1 update(Long deviceControlId, UpdateDeviceControlDtoV1 dto) {
+    public DeviceControlDto update(Long deviceControlId, UpdateDeviceControlDto dto) {
         if (deviceControlId == null) throw new BadRequestException("Device Control ID is required");
         if (dto == null) throw new BadRequestException("Update data is required");
 
@@ -105,25 +105,25 @@ public class DeviceControlServiceImplV1 implements DeviceControlServiceV1 {
     }
 
     @Override
-    public PaginatedResponseV1<DeviceControlDtoV1> getListByClientId(Long clientId, int page, int size) {
+    public PaginatedResponse<DeviceControlDto> getListByClientId(Long clientId, int page, int size) {
         if (clientId == null) throw new BadRequestException("Client ID is required");
         
         List<DeviceControl> deviceControls = deviceControlDao.findByClientId(clientId, page, size);
-        List<DeviceControlDtoV1> content = deviceControlMapper.toListDto(deviceControls);
+        List<DeviceControlDto> content = deviceControlMapper.toListDto(deviceControls);
         Long totalElements = deviceControlDao.countByClientId(clientId);
         
-        return new PaginatedResponseV1<>(content, page, size, totalElements);
+        return new PaginatedResponse<>(content, page, size, totalElements);
     }
 
     @Override
-    public PaginatedResponseV1<DeviceControlDtoV1> getListByRoomId(Long roomId, int page, int size) {
+    public PaginatedResponse<DeviceControlDto> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
         
         List<DeviceControl> deviceControls = deviceControlDao.findByRoomId(roomId, page, size);
-        List<DeviceControlDtoV1> content = deviceControlMapper.toListDto(deviceControls);
+        List<DeviceControlDto> content = deviceControlMapper.toListDto(deviceControls);
         Long totalElements = deviceControlDao.countByRoomId(roomId);
         
-        return new PaginatedResponseV1<>(content, page, size, totalElements);
+        return new PaginatedResponse<>(content, page, size, totalElements);
     }
 
     @Override

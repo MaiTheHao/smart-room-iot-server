@@ -1,18 +1,18 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.dto.CreateRoomDtoV1;
-import com.iviet.ivshs.dto.RoomDtoV1;
-import com.iviet.ivshs.dto.PaginatedResponseV1;
-import com.iviet.ivshs.dto.UpdateRoomDtoV1;
+import com.iviet.ivshs.dto.CreateRoomDto;
+import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateRoomDto;
 import com.iviet.ivshs.entities.Room;
 
 public interface RoomServiceV1 {
-    PaginatedResponseV1<RoomDtoV1> getListByFloor(Long floorId, int page, int size);
-    RoomDtoV1 getById(Long roomId);
+    PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size);
+    RoomDto getById(Long roomId);
     Room getEntityById(Long roomId);
-    RoomDtoV1 getByCode(String roomCode);
+    RoomDto getByCode(String roomCode);
     Room getEntityByCode(String roomCode);
-    RoomDtoV1 create(Long floorId, CreateRoomDtoV1 dto);
-    RoomDtoV1 update(Long roomId, UpdateRoomDtoV1 dto);
+    RoomDto create(Long floorId, CreateRoomDto dto);
+    RoomDto update(Long roomId, UpdateRoomDto dto);
     void delete(Long roomId);
 }

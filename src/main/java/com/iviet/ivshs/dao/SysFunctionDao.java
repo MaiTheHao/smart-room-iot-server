@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.SysFunctionDtoV1;
-import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDtoV1;
+import com.iviet.ivshs.dto.SysFunctionDto;
+import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDto;
 import com.iviet.ivshs.entities.SysFunction;
 
 @Repository
@@ -29,8 +29,8 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
     /**
      * Tìm SysFunction DTO theo functionCode với translation
      */
-    public Optional<SysFunctionDtoV1> findByCode(String functionCode, String langCode) {
-        String dtoClassPath = SysFunctionDtoV1.class.getName();
+    public Optional<SysFunctionDto> findByCode(String functionCode, String langCode) {
+        String dtoClassPath = SysFunctionDto.class.getName();
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
@@ -39,7 +39,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 WHERE f.functionCode = :functionCode
                 """.formatted(dtoClassPath);
 
-        List<SysFunctionDtoV1> results = entityManager.createQuery(jpql, SysFunctionDtoV1.class)
+        List<SysFunctionDto> results = entityManager.createQuery(jpql, SysFunctionDto.class)
                 .setParameter("functionCode", functionCode)
                 .setParameter("langCode", langCode)
                 .setMaxResults(1)
@@ -61,8 +61,8 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
     /**
      * Tìm SysFunction DTO theo ID với translation
      */
-    public Optional<SysFunctionDtoV1> findById(Long functionId, String langCode) {
-        String dtoClassPath = SysFunctionDtoV1.class.getName();
+    public Optional<SysFunctionDto> findById(Long functionId, String langCode) {
+        String dtoClassPath = SysFunctionDto.class.getName();
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
@@ -71,7 +71,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 WHERE f.id = :functionId
                 """.formatted(dtoClassPath);
         
-        List<SysFunctionDtoV1> results = entityManager.createQuery(jpql, SysFunctionDtoV1.class)
+        List<SysFunctionDto> results = entityManager.createQuery(jpql, SysFunctionDto.class)
                 .setParameter("functionId", functionId)
                 .setParameter("langCode", langCode)
                 .setMaxResults(1)
@@ -85,8 +85,8 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
     /**
      * Lấy danh sách tất cả Functions với phân trang và translation
      */
-    public List<SysFunctionDtoV1> findAll(int page, int size, String langCode) {
-        String dtoClassPath = SysFunctionDtoV1.class.getName();
+    public List<SysFunctionDto> findAll(int page, int size, String langCode) {
+        String dtoClassPath = SysFunctionDto.class.getName();
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
@@ -95,7 +95,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
 
-        return entityManager.createQuery(jpql, SysFunctionDtoV1.class)
+        return entityManager.createQuery(jpql, SysFunctionDto.class)
                 .setParameter("langCode", langCode)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
@@ -105,8 +105,8 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
     /**
      * Lấy tất cả Functions (không phân trang) với translation
      */
-    public List<SysFunctionDtoV1> findAll(String langCode) {
-        String dtoClassPath = SysFunctionDtoV1.class.getName();
+    public List<SysFunctionDto> findAll(String langCode) {
+        String dtoClassPath = SysFunctionDto.class.getName();
 
         String jpql = """
                 SELECT new %s(f.id, f.functionCode, flan.name, flan.description)
@@ -115,7 +115,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
 
-        return entityManager.createQuery(jpql, SysFunctionDtoV1.class)
+        return entityManager.createQuery(jpql, SysFunctionDto.class)
                 .setParameter("langCode", langCode)
                 .getResultList();
     }
@@ -130,8 +130,8 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
      * @param langCode Mã ngôn ngữ
      * @return Danh sách Functions với trạng thái isAssignedToGroup
      */
-    public List<SysFunctionWithGroupStatusDtoV1> findAllWithGroupStatus(Long groupId, String langCode) {
-        String dtoClassPath = SysFunctionWithGroupStatusDtoV1.class.getName();
+    public List<SysFunctionWithGroupStatusDto> findAllWithGroupStatus(Long groupId, String langCode) {
+        String dtoClassPath = SysFunctionWithGroupStatusDto.class.getName();
 
         String jpql = """
                 SELECT new %s(
@@ -148,7 +148,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
 
-        return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDtoV1.class)
+        return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDto.class)
                 .setParameter("groupId", groupId)
                 .setParameter("langCode", langCode)
                 .getResultList();
@@ -157,9 +157,9 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
     /**
      * Lấy tất cả Functions với trạng thái và phân trang
      */
-    public List<SysFunctionWithGroupStatusDtoV1> findAllWithGroupStatus(
+    public List<SysFunctionWithGroupStatusDto> findAllWithGroupStatus(
             Long groupId, String langCode, int page, int size) {
-        String dtoClassPath = SysFunctionWithGroupStatusDtoV1.class.getName();
+        String dtoClassPath = SysFunctionWithGroupStatusDto.class.getName();
 
         String jpql = """
                 SELECT new %s(
@@ -176,7 +176,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
 
-        return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDtoV1.class)
+        return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDto.class)
                 .setParameter("groupId", groupId)
                 .setParameter("langCode", langCode)
                 .setFirstResult(page * size)

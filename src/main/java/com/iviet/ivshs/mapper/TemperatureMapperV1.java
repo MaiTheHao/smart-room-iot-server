@@ -2,9 +2,9 @@ package com.iviet.ivshs.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import com.iviet.ivshs.dto.CreateTemperatureDtoV1;
-import com.iviet.ivshs.dto.UpdateTemperatureDtoV1;
-import com.iviet.ivshs.dto.TemperatureDtoV1;
+import com.iviet.ivshs.dto.CreateTemperatureDto;
+import com.iviet.ivshs.dto.UpdateTemperatureDto;
+import com.iviet.ivshs.dto.TemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.entities.TemperatureLan;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
@@ -19,7 +19,7 @@ public interface TemperatureMapperV1 {
     @Mapping(target = "currentValue", source = "entity.currentValue")
     @Mapping(target = "naturalId", source = "entity.naturalId")
     @Mapping(target = "roomId", source = "entity.room.id")
-    TemperatureDtoV1 toDto(Temperature entity, TemperatureLan sensorLan);
+    TemperatureDto toDto(Temperature entity, TemperatureLan sensorLan);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -28,7 +28,7 @@ public interface TemperatureMapperV1 {
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "naturalId", source = "dto.naturalId")
-    Temperature toEntity(TemperatureDtoV1 dto);
+    Temperature toEntity(TemperatureDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -38,7 +38,7 @@ public interface TemperatureMapperV1 {
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "naturalId", source = "dto.naturalId")
-    Temperature fromCreateDto(CreateTemperatureDtoV1 dto);
+    Temperature fromCreateDto(CreateTemperatureDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -48,5 +48,5 @@ public interface TemperatureMapperV1 {
     @Mapping(target = "temperatureValues", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "room", ignore = true)
-    Temperature fromUpdateDto(UpdateTemperatureDtoV1 dto);
+    Temperature fromUpdateDto(UpdateTemperatureDto dto);
 }

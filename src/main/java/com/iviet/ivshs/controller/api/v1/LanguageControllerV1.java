@@ -16,49 +16,49 @@ public class LanguageControllerV1 {
     private final LanguageServiceV1 languageService;
 
     @GetMapping
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<LanguageDtoV1>>> getLanguages(
+    public ResponseEntity<ApiResponse<PaginatedResponse<LanguageDto>>> getLanguages(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(languageService.getList(page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(languageService.getList(page, size)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<LanguageDtoV1>> getLanguageById(
+    public ResponseEntity<ApiResponse<LanguageDto>> getLanguageById(
             @PathVariable(name = "id") Long id) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(languageService.getById(id)));
+        return ResponseEntity.ok(ApiResponse.ok(languageService.getById(id)));
     }
 
     @GetMapping("/code/{code}")
-    public ResponseEntity<ApiResponseV1<LanguageDtoV1>> getLanguageByCode(
+    public ResponseEntity<ApiResponse<LanguageDto>> getLanguageByCode(
             @PathVariable(name = "code") String code) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(languageService.getByCode(code)));
+        return ResponseEntity.ok(ApiResponse.ok(languageService.getByCode(code)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseV1<LanguageDtoV1>> createLanguage(
-            @RequestBody @Valid CreateLanguageDtoV1 request) {
+    public ResponseEntity<ApiResponse<LanguageDto>> createLanguage(
+            @RequestBody @Valid CreateLanguageDto request) {
         
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseV1.created(languageService.create(request)));
+                .body(ApiResponse.created(languageService.create(request)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<LanguageDtoV1>> updateLanguage(
+    public ResponseEntity<ApiResponse<LanguageDto>> updateLanguage(
             @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateLanguageDtoV1 request) {
+            @RequestBody @Valid UpdateLanguageDto request) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(languageService.update(id, request)));
+        return ResponseEntity.ok(ApiResponse.ok(languageService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<Void>> deleteLanguage(
+    public ResponseEntity<ApiResponse<Void>> deleteLanguage(
             @PathVariable(name = "id") Long id) {
         
         languageService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
 }

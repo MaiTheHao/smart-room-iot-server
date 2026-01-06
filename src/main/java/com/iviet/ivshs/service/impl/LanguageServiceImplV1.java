@@ -1,10 +1,10 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.LanguageDao;
-import com.iviet.ivshs.dto.CreateLanguageDtoV1;
-import com.iviet.ivshs.dto.LanguageDtoV1;
-import com.iviet.ivshs.dto.PaginatedResponseV1;
-import com.iviet.ivshs.dto.UpdateLanguageDtoV1;
+import com.iviet.ivshs.dto.CreateLanguageDto;
+import com.iviet.ivshs.dto.LanguageDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
@@ -26,21 +26,21 @@ public class LanguageServiceImplV1 implements LanguageServiceV1 {
     private final LanguageMapperV1 languageMapper;
 
     @Override
-    public PaginatedResponseV1<LanguageDtoV1> getList(int page, int size) {
-        List<LanguageDtoV1> content = languageDao.findAll(page, size).stream()
+    public PaginatedResponse<LanguageDto> getList(int page, int size) {
+        List<LanguageDto> content = languageDao.findAll(page, size).stream()
                 .map(languageMapper::toDto)
                 .toList();
 
-        return new PaginatedResponseV1<>(content, page, size, languageDao.count());
+        return new PaginatedResponse<>(content, page, size, languageDao.count());
     }
 
     @Override
-    public LanguageDtoV1 getById(Long langId) {
+    public LanguageDto getById(Long langId) {
         return languageMapper.toDto(languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId)));
     }
 
     @Override
-    public LanguageDtoV1 getByCode(String code) {
+    public LanguageDto getByCode(String code) {
         if (!StringUtils.hasText(code)) throw new BadRequestException("Language code is required");
 
         return languageDao.findByCode(code.trim())
@@ -50,7 +50,7 @@ public class LanguageServiceImplV1 implements LanguageServiceV1 {
 
     @Override
     @Transactional
-    public LanguageDtoV1 create(CreateLanguageDtoV1 dto) {
+    public LanguageDto create(CreateLanguageDto dto) {
         if (dto == null || !StringUtils.hasText(dto.code())) {
             throw new BadRequestException("Language data and code are required");
         }
@@ -66,7 +66,7 @@ public class LanguageServiceImplV1 implements LanguageServiceV1 {
 
     @Override
     @Transactional
-    public LanguageDtoV1 update(Long langId, UpdateLanguageDtoV1 dto) {
+    public LanguageDto update(Long langId, UpdateLanguageDto dto) {
         if (dto == null) throw new BadRequestException("Update data is required");
 
         Language entity = languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));

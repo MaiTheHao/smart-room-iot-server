@@ -3,8 +3,8 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.RoomDao;
-import com.iviet.ivshs.dto.HealthCheckResponseDtoV1;
-import com.iviet.ivshs.dto.HealthCheckResponseDtoV1.DeviceDto;
+import com.iviet.ivshs.dto.HealthCheckResponseDto;
+import com.iviet.ivshs.dto.HealthCheckResponseDto.DeviceDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
@@ -31,7 +31,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     private final RoomDao roomDao;
 
     @Override
-    public HealthCheckResponseDtoV1 checkByClient(Long clientId) {
+    public HealthCheckResponseDto checkByClient(Long clientId) {
         String ipAddress = clientDao.findGatewayById(clientId)
                 .orElseThrow(() -> new BadRequestException("Client not found ID: " + clientId))
                 .getIpAddress();
@@ -39,7 +39,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     }
 
     @Override
-    public HealthCheckResponseDtoV1 checkByClient(String ipAddress) {
+    public HealthCheckResponseDto checkByClient(String ipAddress) {
         long start = System.currentTimeMillis();
         String url = UrlConstant.getHealthUrlV1(ipAddress);
         log.info("[HEALTH-CHECK] Starting health check for IP: {}", ipAddress);
@@ -52,7 +52,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
                 throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
             }
 
-            HealthCheckResponseDtoV1 result = HttpClientUtil.fromJson(response.getBody(), HealthCheckResponseDtoV1.class);
+            HealthCheckResponseDto result = HttpClientUtil.fromJson(response.getBody(), HealthCheckResponseDto.class);
             log.info("[HEALTH-CHECK] Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
             return result;
         } catch (NetworkTimeoutException | ExternalServiceException e) {
@@ -67,7 +67,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     }
 
     @Override
-    public Map<String, HealthCheckResponseDtoV1> checkByRoom(Long roomId) {
+    public Map<String, HealthCheckResponseDto> checkByRoom(Long roomId) {
         String roomCode = roomDao.findById(roomId)
                 .orElseThrow(() -> new BadRequestException("Room not found ID: " + roomId))
                 .getCode();
@@ -75,7 +75,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     }
 
     @Override
-    public Map<String, HealthCheckResponseDtoV1> checkByRoom(String roomCode) {
+    public Map<String, HealthCheckResponseDto> checkByRoom(String roomCode) {
         List<String> ipAddresses = clientDao.findGatewaysByRoomCode(roomCode).stream()
                 .map(Client::getIpAddress)
                 .toList();
@@ -88,13 +88,13 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
         log.info("[HEALTH-CHECK] Starting batch health check for room [{}] - {} gateways", roomCode, ipAddresses.size());
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<CompletableFuture<Map.Entry<String, HealthCheckResponseDtoV1>>> futures = ipAddresses.stream()
+            List<CompletableFuture<Map.Entry<String, HealthCheckResponseDto>>> futures = ipAddresses.stream()
                     .map(ip -> CompletableFuture.supplyAsync(() -> {
                         try {
                             return Map.entry(ip, checkByClient(ip));
                         } catch (Exception e) {
                             String domainMessage = mapExceptionToMessage(e);
-                            return Map.entry(ip, HealthCheckResponseDtoV1.builder()
+                            return Map.entry(ip, HealthCheckResponseDto.builder()
                                     .status(500)
                                     .message(domainMessage)
                                     .timestamp(Instant.now().toString())
@@ -103,7 +103,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
                     }, executor))
                     .toList();
 
-            Map<String, HealthCheckResponseDtoV1> results = futures.stream()
+            Map<String, HealthCheckResponseDto> results = futures.stream()
                     .map(CompletableFuture::join)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
@@ -128,7 +128,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
     @Override
     public int getHealthScoreByClient(Long clientId) {
         try {
-            HealthCheckResponseDtoV1 result = checkByClient(clientId);
+            HealthCheckResponseDto result = checkByClient(clientId);
             return calculateScore(result);
         } catch (Exception e) {
             log.warn("[HEALTH-SCORE] Client [{}] calculation failed: {}", clientId, e.getMessage());
@@ -138,7 +138,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
 
     @Override
     public int getHealthScoreByRoom(Long roomId) {
-        Map<String, HealthCheckResponseDtoV1> roomResults = checkByRoom(roomId);
+        Map<String, HealthCheckResponseDto> roomResults = checkByRoom(roomId);
 
         if (roomResults.isEmpty()) return 0;
 
@@ -150,7 +150,7 @@ public class HealthCheckServiceImplV1 implements HealthCheckServiceV1 {
         return (int) Math.round(averageScore);
     }
 
-    private int calculateScore(HealthCheckResponseDtoV1 dto) {
+    private int calculateScore(HealthCheckResponseDto dto) {
         if (dto == null) {
             log.debug("[HEALTH-SCORE] Response is null - gateway error");
             return 0;

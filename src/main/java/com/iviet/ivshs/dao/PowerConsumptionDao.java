@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.PowerConsumptionDtoV1;
+import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
 @Repository
@@ -16,15 +16,15 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 	}
 
 	@Override
-	public Optional<PowerConsumptionDtoV1> findByNaturalId(String naturalId, String langCode) {
-		String dtoPath = PowerConsumptionDtoV1.class.getName();
+	public Optional<PowerConsumptionDto> findByNaturalId(String naturalId, String langCode) {
+		String dtoPath = PowerConsumptionDto.class.getName();
 		String jpql = """
 				SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentWatt, t.currentWattHour, t.naturalId, t.room.id)
 				FROM PowerConsumption t
 				LEFT JOIN t.translations tl ON tl.langCode = :langCode
 				WHERE t.naturalId = :naturalId
 				""".formatted(dtoPath);
-		return entityManager.createQuery(jpql, PowerConsumptionDtoV1.class)
+		return entityManager.createQuery(jpql, PowerConsumptionDto.class)
 				.setParameter("naturalId", naturalId)
 				.setParameter("langCode", langCode)
 				.setMaxResults(1)
@@ -32,8 +32,8 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 				.findFirst();
 	}
 
-	public Optional<PowerConsumptionDtoV1> findById(Long sensorId, String langCode) {
-		String dtoPath = PowerConsumptionDtoV1.class.getName();
+	public Optional<PowerConsumptionDto> findById(Long sensorId, String langCode) {
+		String dtoPath = PowerConsumptionDto.class.getName();
 		String jpql = """
 				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
 				FROM PowerConsumption s 
@@ -41,7 +41,7 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 				WHERE s.id = :sensorId
 				""".formatted(dtoPath);
 
-		return entityManager.createQuery(jpql, PowerConsumptionDtoV1.class)
+		return entityManager.createQuery(jpql, PowerConsumptionDto.class)
 				.setParameter("sensorId", sensorId)
 				.setParameter("langCode", langCode)
 				.setMaxResults(1)
@@ -49,8 +49,8 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 				.findFirst();
 	}
 
-	public List<PowerConsumptionDtoV1> findAllByRoomId(Long roomId, int page, int size, String langCode) {
-		String dtoPath = PowerConsumptionDtoV1.class.getName();
+	public List<PowerConsumptionDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
+		String dtoPath = PowerConsumptionDto.class.getName();
 		String jpql = """
 				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
 				FROM PowerConsumption s 
@@ -59,7 +59,7 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 				ORDER BY s.createdAt DESC
 				""".formatted(dtoPath);
 
-		return entityManager.createQuery(jpql, PowerConsumptionDtoV1.class)
+		return entityManager.createQuery(jpql, PowerConsumptionDto.class)
 				.setParameter("roomId", roomId)
 				.setParameter("langCode", langCode)
 				.setFirstResult(page * size)

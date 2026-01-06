@@ -16,42 +16,42 @@ public class FloorControllerV1 {
     private final FloorServiceV1 floorService;
 
     @GetMapping
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<FloorDtoV1>>> getFloors(
+    public ResponseEntity<ApiResponse<PaginatedResponse<FloorDto>>> getFloors(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(floorService.getList(page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(floorService.getList(page, size)));
     }
 
     @GetMapping("/{floorId}")
-    public ResponseEntity<ApiResponseV1<FloorDtoV1>> getFloorById(
+    public ResponseEntity<ApiResponse<FloorDto>> getFloorById(
             @PathVariable(name = "floorId") Long floorId) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(floorService.getById(floorId)));
+        return ResponseEntity.ok(ApiResponse.ok(floorService.getById(floorId)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseV1<FloorDtoV1>> createFloor(
-            @RequestBody @Valid CreateFloorDtoV1 request) {
+    public ResponseEntity<ApiResponse<FloorDto>> createFloor(
+            @RequestBody @Valid CreateFloorDto request) {
         
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseV1.created(floorService.create(request)));
+                .body(ApiResponse.created(floorService.create(request)));
     }
 
     @PutMapping("/{floorId}")
-    public ResponseEntity<ApiResponseV1<FloorDtoV1>> updateFloor(
+    public ResponseEntity<ApiResponse<FloorDto>> updateFloor(
             @PathVariable(name = "floorId") Long floorId,
-            @RequestBody @Valid UpdateFloorDtoV1 request) {
+            @RequestBody @Valid UpdateFloorDto request) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(floorService.update(floorId, request)));
+        return ResponseEntity.ok(ApiResponse.ok(floorService.update(floorId, request)));
     }
 
     @DeleteMapping("/{floorId}")
-    public ResponseEntity<ApiResponseV1<Void>> deleteFloor(
+    public ResponseEntity<ApiResponse<Void>> deleteFloor(
             @PathVariable(name = "floorId") Long floorId) {
         
         floorService.delete(floorId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
 }

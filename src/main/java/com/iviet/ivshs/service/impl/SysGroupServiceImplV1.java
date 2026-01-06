@@ -27,28 +27,28 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
     private final SysGroupMapperV1 groupMapper;
 
     @Override
-    public PaginatedResponseV1<SysGroupDtoV1> getList(int page, int size) {
+    public PaginatedResponse<SysGroupDto> getList(int page, int size) {
         String langCode = LocalContextUtil.getCurrentLangCode();
-        return new PaginatedResponseV1<>(
+        return new PaginatedResponse<>(
                 groupDao.findAll(page, size, langCode),
                 page, size, groupDao.countAll()
         );
     }
 
     @Override
-    public List<SysGroupDtoV1> getAll() {
+    public List<SysGroupDto> getAll() {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return groupDao.findAll(langCode);
     }
 
     @Override
-    public SysGroupDtoV1 getById(Long id) {
+    public SysGroupDto getById(Long id) {
         return groupDao.findById(id, LocalContextUtil.getCurrentLangCode())
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
     }
 
     @Override
-    public SysGroupDtoV1 getByCode(String groupCode) {
+    public SysGroupDto getByCode(String groupCode) {
         if (!StringUtils.hasText(groupCode)) {
             throw new BadRequestException("Group code is required");
         }
@@ -58,7 +58,7 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
 
     @Override
     @Transactional
-    public SysGroupDtoV1 create(CreateSysGroupDtoV1 dto) {
+    public SysGroupDto create(CreateSysGroupDto dto) {
         if (dto == null || !StringUtils.hasText(dto.getGroupCode())) {
             throw new BadRequestException("Data and Group code are required");
         }
@@ -88,7 +88,7 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
 
     @Override
     @Transactional
-    public SysGroupDtoV1 update(Long id, UpdateSysGroupDtoV1 dto) {
+    public SysGroupDto update(Long id, UpdateSysGroupDto dto) {
         SysGroup group = groupDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
         
@@ -142,7 +142,7 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
     }
 
     @Override
-    public List<SysFunctionDtoV1> getFunctionsByGroupId(Long groupId) {
+    public List<SysFunctionDto> getFunctionsByGroupId(Long groupId) {
         if (groupId == null) {
             throw new BadRequestException("Group ID is required");
         }
@@ -151,18 +151,18 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
     }
 
     @Override
-    public PaginatedResponseV1<SysFunctionDtoV1> getFunctionsByGroupId(Long groupId, int page, int size) {
+    public PaginatedResponse<SysFunctionDto> getFunctionsByGroupId(Long groupId, int page, int size) {
         if (groupId == null) {
             throw new BadRequestException("Group ID is required");
         }
         String langCode = LocalContextUtil.getCurrentLangCode();
-        List<SysFunctionDtoV1> functions = groupDao.findFunctionsByGroupId(groupId, langCode, page, size);
+        List<SysFunctionDto> functions = groupDao.findFunctionsByGroupId(groupId, langCode, page, size);
         long total = groupDao.countFunctionsByGroupId(groupId);
-        return new PaginatedResponseV1<>(functions, page, size, total);
+        return new PaginatedResponse<>(functions, page, size, total);
     }
 
     @Override
-    public List<ClientDtoV1> getClientsByGroupId(Long groupId) {
+    public List<ClientDto> getClientsByGroupId(Long groupId) {
         if (groupId == null) {
             throw new BadRequestException("Group ID is required");
         }
@@ -170,13 +170,13 @@ public class SysGroupServiceImplV1 implements SysGroupServiceV1 {
     }
 
     @Override
-    public PaginatedResponseV1<ClientDtoV1> getClientsByGroupId(Long groupId, int page, int size) {
+    public PaginatedResponse<ClientDto> getClientsByGroupId(Long groupId, int page, int size) {
         if (groupId == null) {
             throw new BadRequestException("Group ID is required");
         }
-        List<ClientDtoV1> clients = groupDao.findClientsByGroupId(groupId, page, size);
+        List<ClientDto> clients = groupDao.findClientsByGroupId(groupId, page, size);
         long total = groupDao.countClientsByGroupId(groupId);
-        return new PaginatedResponseV1<>(clients, page, size, total);
+        return new PaginatedResponse<>(clients, page, size, total);
     }
 
     @Override

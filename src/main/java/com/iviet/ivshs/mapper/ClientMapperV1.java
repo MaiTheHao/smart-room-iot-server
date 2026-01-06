@@ -5,9 +5,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.iviet.ivshs.dto.ClientDtoV1;
-import com.iviet.ivshs.dto.CreateClientDtoV1;
-import com.iviet.ivshs.dto.UpdateClientDtoV1;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.CreateClientDto;
+import com.iviet.ivshs.dto.UpdateClientDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
@@ -21,19 +21,19 @@ public interface ClientMapperV1 {
     @Mapping(target = "macAddress", source = "entity.macAddress")
     @Mapping(target = "avatarUrl", source = "entity.avatarUrl")
     @Mapping(target = "lastLoginAt", source = "entity.lastLoginAt")
-    ClientDtoV1 toDto(Client entity);
+    ClientDto toDto(Client entity);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "deviceControls", ignore = true)
     @Mapping(target = "lastLoginAt", ignore = true)
-    Client toEntity(CreateClientDtoV1 dto);
+    Client toEntity(CreateClientDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "deviceControls", ignore = true)
     @Mapping(target = "lastLoginAt", ignore = true)
-    void updateEntityFromDto(UpdateClientDtoV1 dto, @MappingTarget Client entity);
+    void updateEntityFromDto(UpdateClientDto dto, @MappingTarget Client entity);
 }

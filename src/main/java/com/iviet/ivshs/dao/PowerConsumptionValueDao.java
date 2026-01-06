@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.stereotype.Repository;
-import com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1;
-import com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1;
+import com.iviet.ivshs.dto.AveragePowerConsumptionValueDto;
+import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumptionValue;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 
@@ -45,21 +45,21 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 		});
 	}
 
-	public List<AveragePowerConsumptionValueDtoV1> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
+	public List<AveragePowerConsumptionValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
 				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
 				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<AveragePowerConsumptionValueDtoV1> query = entityManager.createQuery(jpql, AveragePowerConsumptionValueDtoV1.class);
+		TypedQuery<AveragePowerConsumptionValueDto> query = entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class);
 		query.setParameter("roomId", roomId);
 		query.setParameter("startedAt", startedAt);
 		query.setParameter("endedAt", endedAt);
 		return query.getResultList();
 	}
 
-	public List<AveragePowerConsumptionValueDtoV1> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
+	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
 				"FROM PowerConsumptionValue p " +
@@ -67,14 +67,14 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				"AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
 				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<AveragePowerConsumptionValueDtoV1> query = entityManager.createQuery(jpql, AveragePowerConsumptionValueDtoV1.class);
+		TypedQuery<AveragePowerConsumptionValueDto> query = entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class);
 		query.setParameter("clientId", clientId);
 		query.setParameter("startedAt", startedAt);
 		query.setParameter("endedAt", endedAt);
 		return query.getResultList();
 	}
 
-	public List<SumPowerConsumptionValueDtoV1> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
+	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
 				"FROM PowerConsumptionValue p " +
@@ -82,21 +82,21 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				"AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
 				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<SumPowerConsumptionValueDtoV1> query = entityManager.createQuery(jpql, SumPowerConsumptionValueDtoV1.class);
+		TypedQuery<SumPowerConsumptionValueDto> query = entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class);
 		query.setParameter("clientId", clientId);
 		query.setParameter("startedAt", startedAt);
 		query.setParameter("endedAt", endedAt);
 		return query.getResultList();
 	}
 
-	public List<SumPowerConsumptionValueDtoV1> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
+	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
 		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1(" +
 				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
 				"FROM PowerConsumptionValue p " +
 				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
 				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
 				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<SumPowerConsumptionValueDtoV1> query = entityManager.createQuery(jpql, SumPowerConsumptionValueDtoV1.class);
+		TypedQuery<SumPowerConsumptionValueDto> query = entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class);
 		query.setParameter("roomId", roomId);
 		query.setParameter("startedAt", startedAt);
 		query.setParameter("endedAt", endedAt);

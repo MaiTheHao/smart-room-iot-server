@@ -16,41 +16,41 @@ public class TemperatureControllerV1 {
     private final TemperatureServiceV1 temperatureService;
 
     @GetMapping("/rooms/{roomId}/temperatures")
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<TemperatureDtoV1>>> getListByRoom(
+    public ResponseEntity<ApiResponse<PaginatedResponse<TemperatureDto>>> getListByRoom(
             @PathVariable(name = "roomId") Long roomId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.getListByRoom(roomId, page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getListByRoom(roomId, page, size)));
     }
 
     @GetMapping("/temperatures/{id}")
-    public ResponseEntity<ApiResponseV1<TemperatureDtoV1>> getById(
+    public ResponseEntity<ApiResponse<TemperatureDto>> getById(
             @PathVariable(name = "id") Long id) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.getById(id)));
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getById(id)));
     }
 
     @PostMapping("/temperatures")
-    public ResponseEntity<ApiResponseV1<TemperatureDtoV1>> create(
-            @RequestBody @Valid CreateTemperatureDtoV1 dto) {
+    public ResponseEntity<ApiResponse<TemperatureDto>> create(
+            @RequestBody @Valid CreateTemperatureDto dto) {
         
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseV1.created(temperatureService.create(dto)));
+                .body(ApiResponse.created(temperatureService.create(dto)));
     }
 
     @PutMapping("/temperatures/{id}")
-    public ResponseEntity<ApiResponseV1<TemperatureDtoV1>> update(
+    public ResponseEntity<ApiResponse<TemperatureDto>> update(
             @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateTemperatureDtoV1 dto) {
+            @RequestBody @Valid UpdateTemperatureDto dto) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(temperatureService.update(id, dto)));
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.update(id, dto)));
     }
 
     @DeleteMapping("/temperatures/{id}")
-    public ResponseEntity<ApiResponseV1<Void>> delete(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id") Long id) {
         temperatureService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
 }

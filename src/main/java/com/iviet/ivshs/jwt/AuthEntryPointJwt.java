@@ -13,7 +13,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.iviet.ivshs.dto.ApiResponseV1;
+import com.iviet.ivshs.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 
 @Component
@@ -28,7 +28,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-		ApiResponseV1<Object> apiResponse = ApiResponseV1.error(HttpStatus.UNAUTHORIZED, authException.getMessage());
+		ApiResponse<Object> apiResponse = ApiResponse.error(HttpStatus.UNAUTHORIZED, authException.getMessage());
 		
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());

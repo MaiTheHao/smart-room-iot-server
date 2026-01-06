@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.AverageTemperatureValueDtoV1;
+import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 
@@ -43,8 +43,8 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 		});
 	}
 
-	public List<AverageTemperatureValueDtoV1> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String dtoPath = AverageTemperatureValueDtoV1.class.getName();
+	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
+		String dtoPath = AverageTemperatureValueDto.class.getName();
 		String jpql = """
 						SELECT new %s(%s, AVG(v.tempC))
 						FROM TemperatureValue v
@@ -54,15 +54,15 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 						ORDER BY %s ASC
 						""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 
-		return entityManager.createQuery(jpql, AverageTemperatureValueDtoV1.class)
+		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 						.setParameter("roomId", roomId)
 						.setParameter("startedAt", startedAt)
 						.setParameter("endedAt", endedAt)
 						.getResultList();
 	}
 
-	public List<AverageTemperatureValueDtoV1> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String dtoPath = AverageTemperatureValueDtoV1.class.getName();
+	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
+		String dtoPath = AverageTemperatureValueDto.class.getName();
 		String jpql = """
 						SELECT new %s(%s, AVG(v.tempC))
 						FROM TemperatureValue v
@@ -72,7 +72,7 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 						ORDER BY %s ASC
 						""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 
-		return entityManager.createQuery(jpql, AverageTemperatureValueDtoV1.class)
+		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 						.setParameter("clientId", clientId)
 						.setParameter("startedAt", startedAt)
 						.setParameter("endedAt", endedAt)

@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
-import com.iviet.ivshs.dto.CreateSysFunctionDtoV1;
-import com.iviet.ivshs.dto.SysFunctionDtoV1;
-import com.iviet.ivshs.dto.UpdateSysFunctionDtoV1;
+import com.iviet.ivshs.dto.CreateSysFunctionDto;
+import com.iviet.ivshs.dto.SysFunctionDto;
+import com.iviet.ivshs.dto.UpdateSysFunctionDto;
 import com.iviet.ivshs.entities.SysFunctionLan;
 import com.iviet.ivshs.entities.SysFunction;
 
@@ -17,24 +17,24 @@ public interface SysFunctionMapperV1 {
     @Mapping(target = "functionCode", source = "entity.functionCode")
     @Mapping(target = "name", source = "functionLan.name")
     @Mapping(target = "description", source = "functionLan.description")
-    SysFunctionDtoV1 toDto(SysFunction entity, SysFunctionLan functionLan);
+    SysFunctionDto toDto(SysFunction entity, SysFunctionLan functionLan);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "translations", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    SysFunction toEntity(SysFunctionDtoV1 dto);
+    SysFunction toEntity(SysFunctionDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "translations", ignore = true)
     @Mapping(target = "roles", ignore = true)
-    SysFunction fromCreateDto(CreateSysFunctionDtoV1 dto);
+    SysFunction fromCreateDto(CreateSysFunctionDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "translations", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "functionCode", ignore = true)
-    SysFunction fromUpdateDto(UpdateSysFunctionDtoV1 dto);
+    SysFunction fromUpdateDto(UpdateSysFunctionDto dto);
 }

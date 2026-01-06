@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.dto.ApiResponseV1;
-import com.iviet.ivshs.dto.ClientDtoV1;
-import com.iviet.ivshs.dto.CreateClientDtoV1;
-import com.iviet.ivshs.dto.JwtResponseV1;
-import com.iviet.ivshs.dto.LoginDtoV1;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.CreateClientDto;
+import com.iviet.ivshs.dto.JwtResponse;
+import com.iviet.ivshs.dto.LoginDto;
 import com.iviet.ivshs.jwt.JwtUtils;
 import com.iviet.ivshs.service.ClientServiceV1;
 
@@ -42,8 +42,8 @@ public class AuthControllerV1 {
     private ClientServiceV1 clientService;
 
     @PostMapping("/signin")
-    public ResponseEntity<ApiResponseV1<JwtResponseV1>> signin(
-            @RequestBody @Valid LoginDtoV1 loginDto) {
+    public ResponseEntity<ApiResponse<JwtResponse>> signin(
+            @RequestBody @Valid LoginDto loginDto) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginDto.getUsername(), 
@@ -59,21 +59,21 @@ public class AuthControllerV1 {
             .map(g -> g.getGroupCode())
             .collect(Collectors.toList());
         
-        JwtResponseV1 jwtResponse = JwtResponseV1.of(
+        JwtResponse jwtResponse = JwtResponse.of(
             jwt,
             userDetails.getUsername(),
             groupCodes
         );
 
-        return ResponseEntity.ok(ApiResponseV1.ok(jwtResponse));
+        return ResponseEntity.ok(ApiResponse.ok(jwtResponse));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> signup(
-            @RequestBody @Valid CreateClientDtoV1 createDto) {
-        ClientDtoV1 createdClient = clientService.create(createDto);
+    public ResponseEntity<ApiResponse<ClientDto>> signup(
+            @RequestBody @Valid CreateClientDto createDto) {
+        ClientDto createdClient = clientService.create(createDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponseV1.created(createdClient));
+            .body(ApiResponse.created(createdClient));
     }
 }
 

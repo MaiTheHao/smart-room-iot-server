@@ -16,44 +16,44 @@ public class RoomControllerV1 {
     private final RoomServiceV1 roomService;
 
     @GetMapping("/floors/{floorId}/rooms")
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<RoomDtoV1>>> getRoomsByFloor(
+    public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRoomsByFloor(
             @PathVariable(name = "floorId") Long floorId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(roomService.getListByFloor(floorId, page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getListByFloor(floorId, page, size)));
     }
 
     @GetMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponseV1<RoomDtoV1>> getRoomById(
+    public ResponseEntity<ApiResponse<RoomDto>> getRoomById(
             @PathVariable(name = "roomId") Long roomId) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(roomService.getById(roomId)));
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getById(roomId)));
     }
 
     @PostMapping("/floors/{floorId}/rooms")
-    public ResponseEntity<ApiResponseV1<RoomDtoV1>> createRoom(
+    public ResponseEntity<ApiResponse<RoomDto>> createRoom(
             @PathVariable(name = "floorId") Long floorId,
-            @RequestBody @Valid CreateRoomDtoV1 request) {
+            @RequestBody @Valid CreateRoomDto request) {
         
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseV1.created(roomService.create(floorId, request)));
+                .body(ApiResponse.created(roomService.create(floorId, request)));
     }
 
     @PutMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponseV1<RoomDtoV1>> updateRoom(
+    public ResponseEntity<ApiResponse<RoomDto>> updateRoom(
             @PathVariable(name = "roomId") Long roomId,
-            @RequestBody @Valid UpdateRoomDtoV1 request) {
+            @RequestBody @Valid UpdateRoomDto request) {
         
-        return ResponseEntity.ok(ApiResponseV1.ok(roomService.update(roomId, request)));
+        return ResponseEntity.ok(ApiResponse.ok(roomService.update(roomId, request)));
     }
 
     @DeleteMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponseV1<Void>> deleteRoom(
+    public ResponseEntity<ApiResponse<Void>> deleteRoom(
             @PathVariable(name = "roomId") Long roomId) {
         
         roomService.delete(roomId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
 }

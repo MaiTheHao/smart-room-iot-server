@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.TemperatureDtoV1;
+import com.iviet.ivshs.dto.TemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
 
 @Repository
@@ -15,8 +15,8 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
         super(Temperature.class);
     }
 
-    public Optional<TemperatureDtoV1> findById(Long temperatureId, String langCode) {
-        String dtoPath = TemperatureDtoV1.class.getName();
+    public Optional<TemperatureDto> findById(Long temperatureId, String langCode) {
+        String dtoPath = TemperatureDto.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM Temperature t 
@@ -24,7 +24,7 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
                 WHERE t.id = :temperatureId
                 """.formatted(dtoPath);
 
-        return entityManager.createQuery(jpql, TemperatureDtoV1.class)
+        return entityManager.createQuery(jpql, TemperatureDto.class)
                 .setParameter("temperatureId", temperatureId)
                 .setParameter("langCode", langCode)
                 .setMaxResults(1)
@@ -32,8 +32,8 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
                 .findFirst();
     }
 
-    public List<TemperatureDtoV1> findAllByRoomId(Long roomId, int page, int size, String langCode) {
-        String dtoPath = TemperatureDtoV1.class.getName();
+    public List<TemperatureDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
+        String dtoPath = TemperatureDto.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM Temperature t 
@@ -42,7 +42,7 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
                 ORDER BY t.id ASC
                 """.formatted(dtoPath);
 
-        return entityManager.createQuery(jpql, TemperatureDtoV1.class)
+        return entityManager.createQuery(jpql, TemperatureDto.class)
                 .setParameter("roomId", roomId)
                 .setParameter("langCode", langCode)
                 .setFirstResult(page * size)
@@ -51,15 +51,15 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
     }
 
     @Override
-    public Optional<TemperatureDtoV1> findByNaturalId(String naturalId, String langCode) {
-        String dtoPath = TemperatureDtoV1.class.getName();
+    public Optional<TemperatureDto> findByNaturalId(String naturalId, String langCode) {
+        String dtoPath = TemperatureDto.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.naturalId = :naturalId
                 """.formatted(dtoPath);
-        return entityManager.createQuery(jpql, TemperatureDtoV1.class)
+        return entityManager.createQuery(jpql, TemperatureDto.class)
                 .setParameter("naturalId", naturalId)
                 .setParameter("langCode", langCode)
                 .setMaxResults(1)

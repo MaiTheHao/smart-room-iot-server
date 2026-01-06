@@ -43,9 +43,9 @@ public class MainControllerV1 {
         model.addAttribute("messagewelcome", i18nMessageUtil.getMessage(I18nMessageConstant.MSG_WELCOME));
         model.addAttribute(LANGUAGE_ATTR, LocalContextUtil.getCurrentLocale());
 
-        List<FloorDtoV1> floors = floorService.getList(0, 1000).content();
+        List<FloorDto> floors = floorService.getList(0, 1000).content();
         
-        Map<FloorDtoV1, List<RoomDtoV1>> floorRoomsMap = floors.stream()
+        Map<FloorDto, List<RoomDto>> floorRoomsMap = floors.stream()
                 .collect(Collectors.toMap(
                         f -> f,
                         f -> roomService.getListByFloor(f.id(), 0, 1000).content(),
@@ -56,7 +56,7 @@ public class MainControllerV1 {
         Instant endedAt = Instant.now();
         Instant startedAt = endedAt.minus(15, ChronoUnit.MINUTES);
 
-        List<RoomDtoV1> allRooms = floorRoomsMap.values().stream()
+        List<RoomDto> allRooms = floorRoomsMap.values().stream()
                 .flatMap(List::stream)
                 .toList();
 
@@ -90,7 +90,7 @@ public class MainControllerV1 {
             @RequestParam(name = "endedAt", required = false) String endedAtStr,
             Model model) {
         try {
-            RoomDtoV1 room = roomService.getById(roomId);
+            RoomDto room = roomService.getById(roomId);
             model.addAttribute("room", room);
             model.addAttribute("pageTitle", room.name());
 

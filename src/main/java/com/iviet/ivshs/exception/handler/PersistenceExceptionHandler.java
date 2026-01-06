@@ -1,6 +1,6 @@
 package com.iviet.ivshs.exception.handler;
 
-import com.iviet.ivshs.dto.ApiResponseV1;
+import com.iviet.ivshs.dto.ApiResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.annotation.Order;
@@ -18,16 +18,16 @@ public class PersistenceExceptionHandler {
     private static final Logger log = LogManager.getLogger(PersistenceExceptionHandler.class);
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponseV1<Void>> handleConflict(DataIntegrityViolationException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleConflict(DataIntegrityViolationException ex) {
         log.error("Database conflict: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponseV1.error(HttpStatus.CONFLICT, "Data conflict occurred in the database."));
+                .body(ApiResponse.error(HttpStatus.CONFLICT, "Data conflict occurred in the database."));
     }
 
     @ExceptionHandler(TransactionSystemException.class)
-    public ResponseEntity<ApiResponseV1<Void>> handleTransactionError(TransactionSystemException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleTransactionError(TransactionSystemException ex) {
         log.error("Transaction error: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponseV1.error(HttpStatus.INTERNAL_SERVER_ERROR, "Data storage system error."));
+                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Data storage system error."));
     }
 }

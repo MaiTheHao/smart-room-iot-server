@@ -1,15 +1,15 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.dto.CreateLanguageDtoV1;
-import com.iviet.ivshs.dto.LanguageDtoV1;
-import com.iviet.ivshs.dto.PaginatedResponseV1;
-import com.iviet.ivshs.dto.UpdateLanguageDtoV1;
+import com.iviet.ivshs.dto.CreateLanguageDto;
+import com.iviet.ivshs.dto.LanguageDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateLanguageDto;
 
 public interface LanguageServiceV1 {
-    PaginatedResponseV1<LanguageDtoV1> getList(int page, int size);
-    LanguageDtoV1 getById(Long langId);
-    LanguageDtoV1 getByCode(String code);
-    LanguageDtoV1 create(CreateLanguageDtoV1 language);
-    LanguageDtoV1 update(Long langId, UpdateLanguageDtoV1 language);
+    PaginatedResponse<LanguageDto> getList(int page, int size);
+    LanguageDto getById(Long langId);
+    LanguageDto getByCode(String code);
+    LanguageDto create(CreateLanguageDto language);
+    LanguageDto update(Long langId, UpdateLanguageDto language);
     void delete(Long langId);
 }

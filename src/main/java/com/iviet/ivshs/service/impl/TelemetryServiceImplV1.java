@@ -6,12 +6,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.dto.ClientDtoV1;
-import com.iviet.ivshs.dto.CreatePowerConsumptionValueDtoV1;
-import com.iviet.ivshs.dto.CreateTemperatureValueDtoV1;
-import com.iviet.ivshs.dto.FetchPowerConsumpValueResponseDtoV1;
-import com.iviet.ivshs.dto.FetchTelemetryByGatewayResponseDtoV1;
-import com.iviet.ivshs.dto.FetchTempValueResponseDtoV1;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.CreatePowerConsumptionValueDto;
+import com.iviet.ivshs.dto.CreateTemperatureValueDto;
+import com.iviet.ivshs.dto.FetchPowerConsumpValueResponseDto;
+import com.iviet.ivshs.dto.FetchTelemetryByGatewayResponseDto;
+import com.iviet.ivshs.dto.FetchTempValueResponseDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Temperature;
@@ -49,28 +49,28 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
 
     @Override 
     public void takeByGateway(String gatewayUsername) {
-        ClientDtoV1 gateway = clientService.getGatewayByUsername(gatewayUsername);
+        ClientDto gateway = clientService.getGatewayByUsername(gatewayUsername);
         processTakeByGateway(gateway);
     }
 
     @Override
     public void takeByGateway(Long gatewayId) {
-        ClientDtoV1 gateway = clientService.getGatewayById(gatewayId);
+        ClientDto gateway = clientService.getGatewayById(gatewayId);
         processTakeByGateway(gateway);
     }
 
     @Override
     public void takeByIpAddress(String gatewayIpAddress) {
-        ClientDtoV1 gateway = clientService.getGatewayByIpAddress(gatewayIpAddress);
+        ClientDto gateway = clientService.getGatewayByIpAddress(gatewayIpAddress);
         processTakeByGateway(gateway);
     }
 
     @Override
     public void takeByRoom(Long roomId) {
-        List<ClientDtoV1> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
+        List<ClientDto> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
         if (gateways == null || gateways.size() == 0) return;
 
-        for(ClientDtoV1 gateway : gateways) {
+        for(ClientDto gateway : gateways) {
             processTakeByGateway(gateway);
         }
     }
@@ -79,10 +79,10 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
     public void takeByRoom(String roomCode) {
         if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
         Long roomId = roomService.getEntityByCode(roomCode).getId();
-        List<ClientDtoV1> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
+        List<ClientDto> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
         if (gateways == null || gateways.size() == 0) return;
 
-        for(ClientDtoV1 gateway : gateways) {
+        for(ClientDto gateway : gateways) {
             processTakeByGateway(gateway);
         }
     }
@@ -101,8 +101,8 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
         HttpClientUtil.handleThrowException(response);
 
         // Stage 3: PROCESS & SAVE
-        FetchTempValueResponseDtoV1 responseBody = HttpClientUtil.fromJson(response.getBody(), FetchTempValueResponseDtoV1.class);
-        CreateTemperatureValueDtoV1 createDto = CreateTemperatureValueDtoV1.builder()
+        FetchTempValueResponseDto responseBody = HttpClientUtil.fromJson(response.getBody(), FetchTempValueResponseDto.class);
+        CreateTemperatureValueDto createDto = CreateTemperatureValueDto.builder()
             .sensorNaturalId(naturalId)
             .tempC(responseBody.getData().getTempC())
             .timestamp(responseBody.getTimestamp())
@@ -125,8 +125,8 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
         HttpClientUtil.handleThrowException(response);
 
         // Stage 3: PROCESS & SAVE
-        var responseBody = HttpClientUtil.fromJson(response.getBody(), FetchPowerConsumpValueResponseDtoV1.class);
-        var createDto = CreatePowerConsumptionValueDtoV1.builder()
+        var responseBody = HttpClientUtil.fromJson(response.getBody(), FetchPowerConsumpValueResponseDto.class);
+        var createDto = CreatePowerConsumptionValueDto.builder()
             .sensorNaturalId(naturalId)
             .watt(responseBody.getData().getWatt())
             .timestamp(responseBody.getTimestamp())
@@ -135,14 +135,14 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
         powerConsumptionValueService.createWithSensor(sensor, createDto);
     }
 
-    private void processTakeByGateway(ClientDtoV1 gateway) {
+    private void processTakeByGateway(ClientDto gateway) {
         String url = UrlConstant.getTelemetryByGatewayV1(gateway.getIpAddress());
         var response = HttpClientUtil.get(url);
         HttpClientUtil.handleThrowException(response);
 
-        var responseBody = HttpClientUtil.fromJson(response.getBody(), FetchTelemetryByGatewayResponseDtoV1.class);
+        var responseBody = HttpClientUtil.fromJson(response.getBody(), FetchTelemetryByGatewayResponseDto.class);
         Instant timestamp = responseBody.getTimestamp();
-        List<FetchTelemetryByGatewayResponseDtoV1.Data> telemetryData = responseBody.getData();
+        List<FetchTelemetryByGatewayResponseDto.Data> telemetryData = responseBody.getData();
 
         int processedCount = 0;
         for (var data : telemetryData) {
@@ -150,7 +150,7 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
             try {
                 switch (data.getCategory()) {
                     case TEMPERATURE -> {
-                        var createDto = CreateTemperatureValueDtoV1.builder()
+                        var createDto = CreateTemperatureValueDto.builder()
                                 .sensorNaturalId(naturalId)
                                 .tempC(data.getData().get("tempC").asDouble())
                                 .timestamp(timestamp)
@@ -159,7 +159,7 @@ public class TelemetryServiceImplV1 implements TelemetryServiceV1 {
                             temperatureService.getEntityByNaturalId(naturalId), createDto);
                     }
                     case POWER_CONSUMPTION -> {
-                        var createDto = CreatePowerConsumptionValueDtoV1.builder()
+                        var createDto = CreatePowerConsumptionValueDto.builder()
                                 .sensorNaturalId(naturalId)
                                 .watt(data.getData().get("watt").asDouble())
                                 .timestamp(timestamp)

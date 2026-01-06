@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.dto.AverageTemperatureValueDtoV1;
+import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.service.TemperatureValueServiceV1;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class TemperatureValueControllerV1 {
 	private final TemperatureValueServiceV1 temperatureValueService;
 	
 	@GetMapping("rooms/{roomId}/temperatures/average-history")
-	public ResponseEntity<List<AverageTemperatureValueDtoV1>> oldGetAverageByRoom(
+	public ResponseEntity<List<AverageTemperatureValueDto>> oldGetAverageByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "startedAt") Instant from,
 			@RequestParam(name = "endedAt") Instant to) {
@@ -31,7 +31,7 @@ public class TemperatureValueControllerV1 {
 	}
 
 	@GetMapping("/rooms/{roomId}/temperature-values/average")
-	public ResponseEntity<List<AverageTemperatureValueDtoV1>> getAverageByRoom(
+	public ResponseEntity<List<AverageTemperatureValueDto>> getAverageByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "from") Instant from,
 			@RequestParam(name = "to") Instant to) {

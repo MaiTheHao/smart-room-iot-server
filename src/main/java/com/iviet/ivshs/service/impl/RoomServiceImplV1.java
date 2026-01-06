@@ -30,24 +30,24 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     private final RoomMapperV1 roomMapper;
 
     @Override
-    public PaginatedResponseV1<RoomDtoV1> getListByFloor(Long floorId, int page, int size) {
+    public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {
         if (floorId == null) {
             throw new BadRequestException("Floor ID is required");
         }
         String langCode = LocalContextUtil.getCurrentLangCode();
-        List<RoomDtoV1> content = roomDao.findAllByFloorId(floorId, page, size, langCode);
-        return new PaginatedResponseV1<>(content, page, size, roomDao.countByFloorId(floorId));
+        List<RoomDto> content = roomDao.findAllByFloorId(floorId, page, size, langCode);
+        return new PaginatedResponse<>(content, page, size, roomDao.countByFloorId(floorId));
     }
 
     @Override
-    public RoomDtoV1 getById(Long roomId) {
+    public RoomDto getById(Long roomId) {
         return roomDao.findById(roomId, LocalContextUtil.getCurrentLangCode())
                 .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
     }
 
     @Override
     @Transactional
-    public RoomDtoV1 create(Long floorId, CreateRoomDtoV1 dto) {
+    public RoomDto create(Long floorId, CreateRoomDto dto) {
         if (dto == null || !StringUtils.hasText(dto.code())) {
             throw new BadRequestException("Room data and code are required");
         }
@@ -80,7 +80,7 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
 
     @Override
     @Transactional
-    public RoomDtoV1 update(Long roomId, UpdateRoomDtoV1 dto) {
+    public RoomDto update(Long roomId, UpdateRoomDto dto) {
         Room room = roomDao.findById(roomId)
                 .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
 
@@ -146,7 +146,7 @@ public class RoomServiceImplV1 implements RoomServiceV1 {
     }
 
     @Override
-    public RoomDtoV1 getByCode(String roomCode) {
+    public RoomDto getByCode(String roomCode) {
         if (roomCode == null || roomCode.isBlank()) {
             throw new BadRequestException("Room code is required");
         }

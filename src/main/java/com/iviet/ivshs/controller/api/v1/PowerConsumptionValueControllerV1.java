@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.dto.SumPowerConsumptionValueDtoV1;
+import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.service.PowerConsumptionValueServiceV1;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class PowerConsumptionValueControllerV1 {
 	private final PowerConsumptionValueServiceV1 powerConsumptionValueService;
 
 	@GetMapping("/rooms/{roomId}/power-consumptions/sum-history")
-	public ResponseEntity<List<SumPowerConsumptionValueDtoV1>> oldGetSumByRoom(
+	public ResponseEntity<List<SumPowerConsumptionValueDto>> oldGetSumByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "startedAt") Instant from,
 			@RequestParam(name = "endedAt") Instant to) {
@@ -31,7 +31,7 @@ public class PowerConsumptionValueControllerV1 {
 	}
 
 	@GetMapping("/rooms/{roomId}/power-consumption-values/sum")
-	public ResponseEntity<List<SumPowerConsumptionValueDtoV1>> getSumByRoom(
+	public ResponseEntity<List<SumPowerConsumptionValueDto>> getSumByRoom(
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "from") Instant from,
 			@RequestParam(name = "to") Instant to) {

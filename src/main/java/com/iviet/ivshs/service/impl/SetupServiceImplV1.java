@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.SetupDao;
-import com.iviet.ivshs.dto.SetupRequestV1;
+import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.ClientTypeV1;
@@ -40,7 +40,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
 
         Client client = validateAndGetGateway(clientId);
 
-        SetupRequestV1 setupRequest = fetchSetupData(client);
+        SetupRequest setupRequest = fetchSetupData(client);
 
         executeDatabasePersistence(client, setupRequest);
 
@@ -57,7 +57,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         return client;
     }
 
-    private SetupRequestV1 fetchSetupData(Client client) {
+    private SetupRequest fetchSetupData(Client client) {
         String url = UrlConstant.getSetupUrlV1(client.getIpAddress());
         try {
             var res = HttpClientUtil.get(url);
@@ -66,7 +66,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
                 throw new ExternalServiceException("Gateway rejected request. Status: " + res.getStatusCode());
             }
 
-            SetupRequestV1 req = HttpClientUtil.fromJson(res.getBody(), SetupRequestV1.class);
+            SetupRequest req = HttpClientUtil.fromJson(res.getBody(), SetupRequest.class);
             validateData(req);
             return req;
 
@@ -79,7 +79,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         }
     }
 
-    private void validateData(SetupRequestV1 req) {
+    private void validateData(SetupRequest req) {
         if (req == null || req.getRoomCode() == null || req.getRoomCode().isBlank()) {
             throw new BadRequestException("Invalid setup data: Missing room code");
         }
@@ -88,7 +88,7 @@ public class SetupServiceImplV1 implements SetupServiceV1 {
         }
     }
 
-    protected void executeDatabasePersistence(Client client, SetupRequestV1 req) {
+    protected void executeDatabasePersistence(Client client, SetupRequest req) {
         try {
             Room room = roomService.getEntityByCode(req.getRoomCode());
             

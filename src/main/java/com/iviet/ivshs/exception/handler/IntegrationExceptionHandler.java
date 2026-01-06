@@ -1,6 +1,6 @@
 package com.iviet.ivshs.exception.handler;
 
-import com.iviet.ivshs.dto.ApiResponseV1;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.exception.domain.RemoteResourceNotFoundException;
@@ -22,24 +22,24 @@ public class IntegrationExceptionHandler {
     private static final Logger log = LogManager.getLogger(IntegrationExceptionHandler.class);
 
     @ExceptionHandler({HttpConnectTimeoutException.class, NetworkTimeoutException.class})
-    public ResponseEntity<ApiResponseV1<Void>> handleNetworkTimeout(Exception ex) {
+    public ResponseEntity<ApiResponse<Void>> handleNetworkTimeout(Exception ex) {
         log.error("Network timeout: {}", ex.getMessage());
         String message = ex instanceof NetworkTimeoutException ? ex.getMessage() : "Network timeout while connecting to external device or service.";
         return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT)
-                .body(ApiResponseV1.error(HttpStatus.GATEWAY_TIMEOUT, message));
+                .body(ApiResponse.error(HttpStatus.GATEWAY_TIMEOUT, message));
     }
 
     @ExceptionHandler(ExternalServiceException.class)
-    public ResponseEntity<ApiResponseV1<Void>> handleExternalCall(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleExternalCall(RuntimeException ex) {
         log.error("External service error: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                .body(ApiResponseV1.error(HttpStatus.BAD_GATEWAY, ex.getMessage()));
+                .body(ApiResponse.error(HttpStatus.BAD_GATEWAY, ex.getMessage()));
     }
 
     @ExceptionHandler(RemoteResourceNotFoundException.class)
-    public ResponseEntity<ApiResponseV1<Void>> handleRemoteNotFound(RemoteResourceNotFoundException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleRemoteNotFound(RemoteResourceNotFoundException ex) {
         log.error("Remote resource not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponseV1.error(HttpStatus.NOT_FOUND, "Requested resource does not exist on the partner system."));
+                .body(ApiResponse.error(HttpStatus.NOT_FOUND, "Requested resource does not exist on the partner system."));
     }
 }

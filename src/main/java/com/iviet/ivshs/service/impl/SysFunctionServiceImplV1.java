@@ -29,28 +29,28 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
     private final ClientFunctionCacheServiceV1 cacheService;
 
     @Override
-    public PaginatedResponseV1<SysFunctionDtoV1> getList(int page, int size) {
+    public PaginatedResponse<SysFunctionDto> getList(int page, int size) {
         String langCode = LocalContextUtil.getCurrentLangCode();
-        return new PaginatedResponseV1<>(
+        return new PaginatedResponse<>(
                 functionDao.findAll(page, size, langCode),
                 page, size, functionDao.countAll()
         );
     }
 
     @Override
-    public List<SysFunctionDtoV1> getAll() {
+    public List<SysFunctionDto> getAll() {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return functionDao.findAll(langCode);
     }
 
     @Override
-    public SysFunctionDtoV1 getById(Long id) {
+    public SysFunctionDto getById(Long id) {
         return functionDao.findById(id, LocalContextUtil.getCurrentLangCode())
                 .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
     }
 
     @Override
-    public SysFunctionDtoV1 getByCode(String functionCode) {
+    public SysFunctionDto getByCode(String functionCode) {
         if (!StringUtils.hasText(functionCode)) {
             throw new BadRequestException("Function code is required");
         }
@@ -59,7 +59,7 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
     }
 
     @Override
-    public List<SysFunctionWithGroupStatusDtoV1> getAllWithGroupStatus(Long groupId) {
+    public List<SysFunctionWithGroupStatusDto> getAllWithGroupStatus(Long groupId) {
         if (groupId == null) {
             throw new BadRequestException("Group ID is required");
         }
@@ -69,7 +69,7 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
 
     @Override
     @Transactional
-    public SysFunctionDtoV1 create(CreateSysFunctionDtoV1 dto) {
+    public SysFunctionDto create(CreateSysFunctionDto dto) {
         if (dto == null || !StringUtils.hasText(dto.getFunctionCode())) {
             throw new BadRequestException("Data and Function code are required");
         }
@@ -99,7 +99,7 @@ public class SysFunctionServiceImplV1 implements SysFunctionServiceV1 {
 
     @Override
     @Transactional
-    public SysFunctionDtoV1 update(Long id, UpdateSysFunctionDtoV1 dto) {
+    public SysFunctionDto update(Long id, UpdateSysFunctionDto dto) {
         SysFunction function = functionDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
         

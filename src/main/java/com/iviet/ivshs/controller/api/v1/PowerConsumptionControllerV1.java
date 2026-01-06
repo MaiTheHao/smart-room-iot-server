@@ -16,45 +16,45 @@ public class PowerConsumptionControllerV1 {
     private PowerConsumptionServiceV1 powerConsumptionService;
 
     @GetMapping("/rooms/{roomId}/power-consumptions")
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<PowerConsumptionDtoV1>>> 
+    public ResponseEntity<ApiResponse<PaginatedResponse<PowerConsumptionDto>>> 
             getListByRoom(
                 @PathVariable(name = "roomId") Long roomId,
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "20") int size) {
-        PaginatedResponseV1<PowerConsumptionDtoV1> paginated = 
+        PaginatedResponse<PowerConsumptionDto> paginated = 
             powerConsumptionService.getListByRoom(roomId, page, size);
-        return ResponseEntity.ok(ApiResponseV1.ok(paginated));
+        return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 
     @GetMapping("/power-consumptions/{id}")
-    public ResponseEntity<ApiResponseV1<PowerConsumptionDtoV1>> getById(
+    public ResponseEntity<ApiResponse<PowerConsumptionDto>> getById(
             @PathVariable(name = "id") Long id) {
-        PowerConsumptionDtoV1 dto = powerConsumptionService.getById(id);
-        return ResponseEntity.ok(ApiResponseV1.ok(dto));
+        PowerConsumptionDto dto = powerConsumptionService.getById(id);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
     }
 
     @PostMapping("/power-consumptions")
-    public ResponseEntity<ApiResponseV1<PowerConsumptionDtoV1>> create(
-            @RequestBody @Valid CreatePowerConsumptionDtoV1 dto) {
-        PowerConsumptionDtoV1 created = powerConsumptionService.create(dto);
+    public ResponseEntity<ApiResponse<PowerConsumptionDto>> create(
+            @RequestBody @Valid CreatePowerConsumptionDto dto) {
+        PowerConsumptionDto created = powerConsumptionService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponseV1.created(created));
+            .body(ApiResponse.created(created));
     }
 
     @PutMapping("/power-consumptions/{id}")
-    public ResponseEntity<ApiResponseV1<PowerConsumptionDtoV1>> update(
+    public ResponseEntity<ApiResponse<PowerConsumptionDto>> update(
             @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdatePowerConsumptionDtoV1 dto) {
-        PowerConsumptionDtoV1 updated = powerConsumptionService.update(id, dto);
-        return ResponseEntity.ok(ApiResponseV1.ok(updated));
+            @RequestBody @Valid UpdatePowerConsumptionDto dto) {
+        PowerConsumptionDto updated = powerConsumptionService.update(id, dto);
+        return ResponseEntity.ok(ApiResponse.ok(updated));
     }
 
     @DeleteMapping("/power-consumptions/{id}")
-    public ResponseEntity<ApiResponseV1<Void>> delete(
+    public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable(name = "id") Long id) {
         powerConsumptionService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
+            .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
                 "Deleted successfully"));
     }
 }

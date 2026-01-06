@@ -2,8 +2,8 @@ package com.iviet.ivshs.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import com.iviet.ivshs.dto.CreateLightDtoV1;
-import com.iviet.ivshs.dto.LightDtoV1;
+import com.iviet.ivshs.dto.CreateLightDto;
+import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.entities.LightLan;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
@@ -18,7 +18,7 @@ public interface LightMapperV1 {
     @Mapping(target = "isActive", source = "entity.isActive")
     @Mapping(target = "level", source = "entity.level")
     @Mapping(target = "roomId", source = "entity.room.id")
-    LightDtoV1 toDto(Light entity, LightLan lightLan);
+    LightDto toDto(Light entity, LightLan lightLan);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -26,7 +26,7 @@ public interface LightMapperV1 {
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "naturalId", source = "dto.naturalId")
-    Light toEntity(LightDtoV1 dto);
+    Light toEntity(LightDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -34,5 +34,5 @@ public interface LightMapperV1 {
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "deviceControl", ignore = true)
     @Mapping(target = "naturalId", source = "dto.naturalId")
-    Light fromCreateDto(CreateLightDtoV1 dto);
+    Light fromCreateDto(CreateLightDto dto);
 }

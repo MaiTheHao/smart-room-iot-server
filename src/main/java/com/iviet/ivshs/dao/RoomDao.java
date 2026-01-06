@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.RoomDtoV1;
+import com.iviet.ivshs.dto.RoomDto;
 import com.iviet.ivshs.entities.Room;
 
 @Repository
@@ -19,8 +19,8 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("code"), code));
     }
 
-    public Optional<RoomDtoV1> findByCode(String code, String langCode) {
-        String dtoPath = RoomDtoV1.class.getName();
+    public Optional<RoomDto> findByCode(String code, String langCode) {
+        String dtoPath = RoomDto.class.getName();
 
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
@@ -29,7 +29,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 WHERE r.code = :code
                 """.formatted(dtoPath);
 
-        return entityManager.createQuery(jpql, RoomDtoV1.class)
+        return entityManager.createQuery(jpql, RoomDto.class)
                 .setParameter("code", code)
                 .setParameter("langCode", langCode)
                 .setMaxResults(1)
@@ -37,8 +37,8 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 .findFirst();
     }
 
-    public Optional<RoomDtoV1> findById(Long roomId, String langCode) {
-        String dtoPath = RoomDtoV1.class.getName();
+    public Optional<RoomDto> findById(Long roomId, String langCode) {
+        String dtoPath = RoomDto.class.getName();
 
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
@@ -47,7 +47,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 WHERE r.id = :roomId
                 """.formatted(dtoPath);
 
-        return entityManager.createQuery(jpql, RoomDtoV1.class)
+        return entityManager.createQuery(jpql, RoomDto.class)
                 .setParameter("roomId", roomId)
                 .setParameter("langCode", langCode)
                 .setMaxResults(1)
@@ -55,8 +55,8 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 .findFirst();
     }
 
-    public List<RoomDtoV1> findAllByFloorId(Long floorId, int page, int size, String langCode) {
-        String dtoPath = RoomDtoV1.class.getName();
+    public List<RoomDto> findAllByFloorId(Long floorId, int page, int size, String langCode) {
+        String dtoPath = RoomDto.class.getName();
 
         String jpql = """
                 SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
@@ -65,7 +65,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 WHERE r.floor.id = :floorId
                 """.formatted(dtoPath);
 
-        return entityManager.createQuery(jpql, RoomDtoV1.class)
+        return entityManager.createQuery(jpql, RoomDto.class)
                 .setParameter("floorId", floorId)
                 .setParameter("langCode", langCode)
                 .setFirstResult(page * size)

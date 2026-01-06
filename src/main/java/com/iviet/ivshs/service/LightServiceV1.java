@@ -1,21 +1,21 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.dto.CreateLightDtoV1;
-import com.iviet.ivshs.dto.LightDtoV1;
-import com.iviet.ivshs.dto.PaginatedResponseV1;
-import com.iviet.ivshs.dto.UpdateLightDtoV1;
+import com.iviet.ivshs.dto.CreateLightDto;
+import com.iviet.ivshs.dto.LightDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateLightDto;
 
 public interface LightServiceV1 {
 
-    PaginatedResponseV1<LightDtoV1> getList(int page, int size);
+    PaginatedResponse<LightDto> getList(int page, int size);
 
-    PaginatedResponseV1<LightDtoV1> getListByRoomId(Long roomId, int page, int size);
+    PaginatedResponse<LightDto> getListByRoomId(Long roomId, int page, int size);
 
-    LightDtoV1 getById(Long lightId);
+    LightDto getById(Long lightId);
 
-    LightDtoV1 create(CreateLightDtoV1 createDto);
+    LightDto create(CreateLightDto createDto);
 
-    LightDtoV1 update(Long lightId, UpdateLightDtoV1 updateDto);
+    LightDto update(Long lightId, UpdateLightDto updateDto);
 
     void delete(Long lightId);
 

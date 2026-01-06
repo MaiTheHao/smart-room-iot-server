@@ -6,27 +6,27 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.iviet.ivshs.dto.CreateLanguageDtoV1;
-import com.iviet.ivshs.dto.LanguageDtoV1;
-import com.iviet.ivshs.dto.UpdateLanguageDtoV1;
+import com.iviet.ivshs.dto.CreateLanguageDto;
+import com.iviet.ivshs.dto.LanguageDto;
+import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
 public interface LanguageMapperV1 {
     
-    LanguageDtoV1 toDto(Language entity);
+    LanguageDto toDto(Language entity);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    Language toEntity(LanguageDtoV1 dto);
+    Language toEntity(LanguageDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
-    Language fromCreateDto(CreateLanguageDtoV1 dto);
+    Language fromCreateDto(CreateLanguageDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateFromDto(@MappingTarget Language entity, UpdateLanguageDtoV1 dto);
+    void updateFromDto(@MappingTarget Language entity, UpdateLanguageDto dto);
 }

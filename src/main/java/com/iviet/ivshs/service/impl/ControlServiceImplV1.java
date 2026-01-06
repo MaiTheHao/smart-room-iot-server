@@ -1,8 +1,8 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.dto.ControlDeviceRequestV1;
-import com.iviet.ivshs.dto.ControlDeviceResponseV1;
+import com.iviet.ivshs.dto.ControlDeviceRequest;
+import com.iviet.ivshs.dto.ControlDeviceResponse;
 import com.iviet.ivshs.enumeration.GatewayCommandV1;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class ControlServiceImplV1 implements ControlServiceV1 {
 	
 	@Override
-	public ControlDeviceResponseV1 sendCommand(String gatewayIp, String targetNaturalId, GatewayCommandV1 command) {
+	public ControlDeviceResponse sendCommand(String gatewayIp, String targetNaturalId, GatewayCommandV1 command) {
 		if (gatewayIp == null || gatewayIp.isEmpty()) throw new BadRequestException("Gateway IP is required");
 		
 		if (targetNaturalId == null || targetNaturalId.isEmpty()) throw new BadRequestException("Target Natural ID is required");
@@ -28,7 +28,7 @@ public class ControlServiceImplV1 implements ControlServiceV1 {
 
 		long start = System.currentTimeMillis();
 		String url = UrlConstant.getControlUrlV1(gatewayIp, targetNaturalId);
-		ControlDeviceRequestV1 requestBody = ControlDeviceRequestV1.builder()
+		ControlDeviceRequest requestBody = ControlDeviceRequest.builder()
 				.command(command)
 				.build();
 		
@@ -49,7 +49,7 @@ public class ControlServiceImplV1 implements ControlServiceV1 {
 				throw new ExternalServiceException("Device returned invalid data.");
 			}
 
-			ControlDeviceResponseV1 result = HttpClientUtil.fromJson(body, ControlDeviceResponseV1.class);
+			ControlDeviceResponse result = HttpClientUtil.fromJson(body, ControlDeviceResponse.class);
 			log.info("[CONTROL] Finished command [{}] to device [{}] at IP [{}] in {}ms", command, targetNaturalId, gatewayIp, System.currentTimeMillis() - start);
 			return result;
 

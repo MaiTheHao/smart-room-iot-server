@@ -25,23 +25,23 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
     private final FloorMapperV1 floorMapper;
 
     @Override
-    public PaginatedResponseV1<FloorDtoV1> getList(int page, int size) {
+    public PaginatedResponse<FloorDto> getList(int page, int size) {
         String langCode = LocalContextUtil.getCurrentLangCode();
-        return new PaginatedResponseV1<>(
+        return new PaginatedResponse<>(
                 floorDao.findAll(page, size, langCode),
                 page, size, floorDao.count()
         );
     }
 
     @Override
-    public FloorDtoV1 getById(Long id) {
+    public FloorDto getById(Long id) {
         return floorDao.findById(id, LocalContextUtil.getCurrentLangCode())
                 .orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
     }
 
     @Override
     @Transactional
-    public FloorDtoV1 create(CreateFloorDtoV1 dto) {
+    public FloorDto create(CreateFloorDto dto) {
         if (dto == null || !StringUtils.hasText(dto.code())) throw new BadRequestException("Data and Floor code are required");
 
         String code = dto.code().trim();
@@ -67,7 +67,7 @@ public class FloorServiceImplV1 implements FloorServiceV1 {
 
     @Override
     @Transactional
-    public FloorDtoV1 update(Long id, UpdateFloorDtoV1 dto) {
+    public FloorDto update(Long id, UpdateFloorDto dto) {
         Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);

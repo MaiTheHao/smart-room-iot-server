@@ -18,59 +18,59 @@ public class SysFunctionControllerV1 {
     private final SysFunctionServiceV1 functionService;
 
     @GetMapping
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<SysFunctionDtoV1>>> getFunctions(
+    public ResponseEntity<ApiResponse<PaginatedResponse<SysFunctionDto>>> getFunctions(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.getList(page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(functionService.getList(page, size)));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponseV1<List<SysFunctionDtoV1>>> getAllFunctions() {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.getAll()));
+    public ResponseEntity<ApiResponse<List<SysFunctionDto>>> getAllFunctions() {
+        return ResponseEntity.ok(ApiResponse.ok(functionService.getAll()));
     }
 
     @GetMapping("/{functionId}")
-    public ResponseEntity<ApiResponseV1<SysFunctionDtoV1>> getFunctionById(
+    public ResponseEntity<ApiResponse<SysFunctionDto>> getFunctionById(
             @PathVariable(name = "functionId") Long functionId) {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.getById(functionId)));
+        return ResponseEntity.ok(ApiResponse.ok(functionService.getById(functionId)));
     }
 
     @GetMapping("/code/{functionCode}")
-    public ResponseEntity<ApiResponseV1<SysFunctionDtoV1>> getFunctionByCode(
+    public ResponseEntity<ApiResponse<SysFunctionDto>> getFunctionByCode(
             @PathVariable(name = "functionCode") String functionCode) {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.getByCode(functionCode)));
+        return ResponseEntity.ok(ApiResponse.ok(functionService.getByCode(functionCode)));
     }
 
     @GetMapping("/with-group-status/{groupId}")
-    public ResponseEntity<ApiResponseV1<List<SysFunctionWithGroupStatusDtoV1>>> getFunctionsWithGroupStatus(
+    public ResponseEntity<ApiResponse<List<SysFunctionWithGroupStatusDto>>> getFunctionsWithGroupStatus(
             @PathVariable(name = "groupId") Long groupId) {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.getAllWithGroupStatus(groupId)));
+        return ResponseEntity.ok(ApiResponse.ok(functionService.getAllWithGroupStatus(groupId)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseV1<SysFunctionDtoV1>> createFunction(
-            @RequestBody @Valid CreateSysFunctionDtoV1 request) {
+    public ResponseEntity<ApiResponse<SysFunctionDto>> createFunction(
+            @RequestBody @Valid CreateSysFunctionDto request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponseV1.created(functionService.create(request)));
+                .body(ApiResponse.created(functionService.create(request)));
     }
 
     @PutMapping("/{functionId}")
-    public ResponseEntity<ApiResponseV1<SysFunctionDtoV1>> updateFunction(
+    public ResponseEntity<ApiResponse<SysFunctionDto>> updateFunction(
             @PathVariable(name = "functionId") Long functionId,
-            @RequestBody @Valid UpdateSysFunctionDtoV1 request) {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.update(functionId, request)));
+            @RequestBody @Valid UpdateSysFunctionDto request) {
+        return ResponseEntity.ok(ApiResponse.ok(functionService.update(functionId, request)));
     }
 
     @DeleteMapping("/{functionId}")
-    public ResponseEntity<ApiResponseV1<Void>> deleteFunction(
+    public ResponseEntity<ApiResponse<Void>> deleteFunction(
             @PathVariable(name = "functionId") Long functionId) {
         functionService.delete(functionId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, "Function deleted successfully"));
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function deleted successfully"));
     }
 
     @GetMapping("/count")
-    public ResponseEntity<ApiResponseV1<Long>> countFunctions() {
-        return ResponseEntity.ok(ApiResponseV1.ok(functionService.count()));
+    public ResponseEntity<ApiResponse<Long>> countFunctions() {
+        return ResponseEntity.ok(ApiResponse.ok(functionService.count()));
     }
 }

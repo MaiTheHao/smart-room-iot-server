@@ -20,55 +20,55 @@ public class ClientControllerV1 {
     // --- CRUD CLIENT ---
 
     @GetMapping
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<ClientDtoV1>>> 
+    public ResponseEntity<ApiResponse<PaginatedResponse<ClientDto>>> 
             getClients(
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseV1<ClientDtoV1> paginated = 
+        PaginatedResponse<ClientDto> paginated = 
             clientService.getAll(page, size);
-        return ResponseEntity.ok(ApiResponseV1.ok(paginated));
+        return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> getById(
+    public ResponseEntity<ApiResponse<ClientDto>> getById(
             @PathVariable(name = "id") Long id) {
-        ClientDtoV1 dto = clientService.getById(id);
-        return ResponseEntity.ok(ApiResponseV1.ok(dto));
+        ClientDto dto = clientService.getById(id);
+        return ResponseEntity.ok(ApiResponse.ok(dto));
     }
 
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<ApiResponseV1<PaginatedResponseV1<ClientDtoV1>>> 
+    public ResponseEntity<ApiResponse<PaginatedResponse<ClientDto>>> 
             getAllByRoomId(
                 @PathVariable(name = "roomId") Long roomId,
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseV1<ClientDtoV1> paginated = 
+        PaginatedResponse<ClientDto> paginated = 
             clientService.getAllGatewaysByRoomId(roomId, page, size);
-        return ResponseEntity.ok(ApiResponseV1.ok(paginated));
+        return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> create(
-            @RequestBody @Valid CreateClientDtoV1 request) {
-        ClientDtoV1 created = clientService.create(request);
+    public ResponseEntity<ApiResponse<ClientDto>> create(
+            @RequestBody @Valid CreateClientDto request) {
+        ClientDto created = clientService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponseV1.created(created));
+            .body(ApiResponse.created(created));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<ClientDtoV1>> update(
+    public ResponseEntity<ApiResponse<ClientDto>> update(
             @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateClientDtoV1 request) {
-        ClientDtoV1 updated = clientService.update(id, request);
-        return ResponseEntity.ok(ApiResponseV1.ok(updated));
+            @RequestBody @Valid UpdateClientDto request) {
+        ClientDto updated = clientService.update(id, request);
+        return ResponseEntity.ok(ApiResponse.ok(updated));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponseV1<Void>> delete(
+    public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable(name = "id") Long id) {
         clientService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(ApiResponseV1.success(HttpStatus.NO_CONTENT, null, 
+            .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
                 "Deleted successfully"));
     }
 }

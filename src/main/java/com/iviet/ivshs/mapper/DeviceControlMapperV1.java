@@ -7,9 +7,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import com.iviet.ivshs.dto.CreateDeviceControlDtoV1;
-import com.iviet.ivshs.dto.DeviceControlDtoV1;
-import com.iviet.ivshs.dto.UpdateDeviceControlDtoV1;
+import com.iviet.ivshs.dto.CreateDeviceControlDto;
+import com.iviet.ivshs.dto.DeviceControlDto;
+import com.iviet.ivshs.dto.UpdateDeviceControlDto;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
@@ -18,7 +18,7 @@ public interface DeviceControlMapperV1 {
 
     @Mapping(target = "clientId", source = "entity.client.id")
     @Mapping(target = "roomId", source = "entity.room.id")
-    DeviceControlDtoV1 toDto(DeviceControl entity);
+    DeviceControlDto toDto(DeviceControl entity);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -27,7 +27,7 @@ public interface DeviceControlMapperV1 {
     @Mapping(target = "light", ignore = true)
     @Mapping(target = "temperature", ignore = true)
     @Mapping(target = "powerConsumption", ignore = true)
-    DeviceControl toEntity(CreateDeviceControlDtoV1 dto);
+    DeviceControl toEntity(CreateDeviceControlDto dto);
 
     @IgnoreAuditFields
     @Mapping(target = "id", ignore = true)
@@ -36,7 +36,7 @@ public interface DeviceControlMapperV1 {
     @Mapping(target = "light", ignore = true)
     @Mapping(target = "temperature", ignore = true)
     @Mapping(target = "powerConsumption", ignore = true)
-    void updateEntityFromDto(UpdateDeviceControlDtoV1 dto, @MappingTarget DeviceControl entity);
+    void updateEntityFromDto(UpdateDeviceControlDto dto, @MappingTarget DeviceControl entity);
 
-    List<DeviceControlDtoV1> toListDto(List<DeviceControl> entities);
+    List<DeviceControlDto> toListDto(List<DeviceControl> entities);
 }

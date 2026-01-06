@@ -33,33 +33,33 @@ public class LightServiceImplV1 implements LightServiceV1 {
     private final ControlServiceV1 controlService;
 
     @Override
-    public PaginatedResponseV1<LightDtoV1> getList(int page, int size) {
+    public PaginatedResponse<LightDto> getList(int page, int size) {
         String langCode = LocalContextUtil.getCurrentLangCode();
-        return new PaginatedResponseV1<>(
+        return new PaginatedResponse<>(
                 lightDao.findAll(page, size, langCode),
                 page, size, lightDao.count()
         );
     }
 
     @Override
-    public PaginatedResponseV1<LightDtoV1> getListByRoomId(Long roomId, int page, int size) {
+    public PaginatedResponse<LightDto> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
         String langCode = LocalContextUtil.getCurrentLangCode();
-        return new PaginatedResponseV1<>(
+        return new PaginatedResponse<>(
                 lightDao.findAllByRoomId(roomId, page, size, langCode),
                 page, size, lightDao.countByRoomId(roomId)
         );
     }
 
     @Override
-    public LightDtoV1 getById(Long lightId) {
+    public LightDto getById(Long lightId) {
         return lightDao.findById(lightId, LocalContextUtil.getCurrentLangCode())
                 .orElseThrow(() -> new NotFoundException("Light not found with ID: " + lightId));
     }
 
     @Override
     @Transactional
-    public LightDtoV1 create(CreateLightDtoV1 dto) {
+    public LightDto create(CreateLightDto dto) {
         if (dto == null || !StringUtils.hasText(dto.naturalId())) 
             throw new BadRequestException("Light data and naturalId are required");
 
@@ -93,7 +93,7 @@ public class LightServiceImplV1 implements LightServiceV1 {
 
     @Override
     @Transactional
-    public LightDtoV1 update(Long lightId, UpdateLightDtoV1 dto) {
+    public LightDto update(Long lightId, UpdateLightDto dto) {
         Light light = lightDao.findById(lightId)
                 .orElseThrow(() -> new NotFoundException("Light not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
@@ -149,7 +149,7 @@ public class LightServiceImplV1 implements LightServiceV1 {
 
         Boolean currentState = light.getIsActive();
         GatewayCommandV1 command = currentState ? GatewayCommandV1.OFF : GatewayCommandV1.ON;
-        ControlDeviceResponseV1 resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
+        ControlDeviceResponse resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
 
         if (200 == resp.status()) {
             light.setIsActive(!currentState);
