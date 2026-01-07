@@ -17,7 +17,7 @@ public class SysGroupController {
 
     private final SysGroupService groupService;
 
-    @GetMapping
+    @GetMapping("/groups")
     public ResponseEntity<ApiResponse<PaginatedResponse<SysGroupDto>>> getGroups(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
