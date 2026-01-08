@@ -1,6 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
+import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,7 @@ public class RoomController {
     }
 
     @GetMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponse<RoomDto>> getRoomById(
-            @PathVariable(name = "roomId") Long roomId) {
-        
+    public ResponseEntity<ApiResponse<RoomDto>> getRoomById(@PathVariable(name = "roomId") Long roomId) {
         return ResponseEntity.ok(ApiResponse.ok(roomService.getById(roomId)));
     }
 

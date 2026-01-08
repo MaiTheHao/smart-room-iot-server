@@ -6,9 +6,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Builder
+@Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FetchPowerConsumpValueResponseDto {
 	private int status;
@@ -18,6 +20,7 @@ public class FetchPowerConsumpValueResponseDto {
 
 	@Getter
 	@Builder
+	@Jacksonized
 	public static class Data {
 		private double watt;
 	}

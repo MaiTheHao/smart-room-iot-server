@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class HttpClientUtil {
 
-	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
+	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
 	private static final String ACCEPT_HEADER = "Accept";
 	private static final String APPLICATION_JSON = "application/json";

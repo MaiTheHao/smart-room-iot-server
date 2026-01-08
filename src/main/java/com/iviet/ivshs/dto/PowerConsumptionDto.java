@@ -16,7 +16,6 @@ public class PowerConsumptionDto {
     private String description;
     private Boolean isActive;
     private Double currentWatt;
-    private Double currentWattHour;
     private String naturalId;
     private Long roomId;
 }

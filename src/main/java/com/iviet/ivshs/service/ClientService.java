@@ -10,6 +10,8 @@ public interface ClientService {
 
     PaginatedResponse<ClientDto> getAll(int page, int size);
 
+    Client getFromSecurityContext();
+
     ClientDto getById(Long clientId);
 
     Client getEntityById(Long clientId);

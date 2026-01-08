@@ -9,9 +9,11 @@ import com.iviet.ivshs.enumeration.DeviceCategory;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
 @Getter
 @Builder
+@Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FetchTelemetryByGatewayResponseDto {
 	private int status;
@@ -21,6 +23,7 @@ public class FetchTelemetryByGatewayResponseDto {
 
 	@Getter
 	@Builder
+	@Jacksonized
 	public static class Data {
 		private String naturalId;
 		private DeviceCategory category;

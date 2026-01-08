@@ -11,6 +11,8 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.ClientMapperV1;
 import com.iviet.ivshs.service.ClientService;
+import com.iviet.ivshs.util.SecurityContextUtil;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,6 +34,12 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Override
+    public Client getFromSecurityContext() {
+        Long clientId = SecurityContextUtil.getCurrentClientId();
+        return getEntityById(clientId);
+    }
 
     @Override
     public PaginatedResponse<ClientDto> getAll(int page, int size) {

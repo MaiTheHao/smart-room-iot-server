@@ -1,9 +1,10 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
+import com.iviet.ivshs.enumeration.SysFunctionEnum;
+import com.iviet.ivshs.exception.domain.ForbiddenException;
 import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.util.FunctionCodeHelper;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,21 +59,67 @@ public class PermissionServiceImpl implements PermissionService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public boolean canAccessFloor(Long clientId, String floorCode) {
+	public void checkAccessToFloor(Long clientId, String floorCode) {
 		Set<String> permissions = getPermissions(clientId);
-		if (permissions.contains(FunctionCodeHelper.buildFloorAccessCode("ALL_FLOORS"))) return true;
-
+		if (permissions.contains(SysFunctionEnum.F_ACCESS_FLOOR_ALL.getCode())) return;
 		String specificFunc = FunctionCodeHelper.buildFloorAccessCode(floorCode);
-		return permissions.contains(specificFunc);
+		if (!permissions.contains(specificFunc)) {
+			throw new ForbiddenException("Access to floor " + floorCode + " is denied");
+		}
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public void checkAccessToRoom(Long clientId, String roomCode) {
+		Set<String> permissions = getPermissions(clientId);
+		if (permissions.contains(SysFunctionEnum.F_ACCESS_ROOM_ALL.getCode())) return;
+		String specificFunc = FunctionCodeHelper.buildRoomAccessCode(roomCode);
+		if (!permissions.contains(specificFunc)) {
+			throw new ForbiddenException("Access to room " + roomCode + " is denied");
+		}
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public boolean canAccessRoom(Long clientId, String roomCode) {
+	public Set<String> getAccessFloorCodes(Long clientId) {
 		Set<String> permissions = getPermissions(clientId);
-		if (permissions.contains(FunctionCodeHelper.buildRoomAccessCode("ALL_ROOMS"))) return true;
+		Set<String> floorCodes = new HashSet<>();
 
-		String specificFunc = FunctionCodeHelper.buildRoomAccessCode(roomCode);
-		return permissions.contains(specificFunc);
+		if (permissions.contains(SysFunctionEnum.F_ACCESS_FLOOR_ALL.getCode())) {
+			floorCodes.add(PermissionService.ACCESS_ALL);
+			return floorCodes;
+		}
+
+		for (String funcCode : permissions) {
+			if (FunctionCodeHelper.isFloorAccessCode(funcCode)) {
+				String floorCode = FunctionCodeHelper.extractFloorCode(funcCode);
+				if (floorCode != null) {
+					floorCodes.add(floorCode);
+				}
+			}
+		}
+		return floorCodes;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Set<String> getAccessRoomCodes(Long clientId) {
+		Set<String> permissions = getPermissions(clientId);
+		Set<String> roomCodes = new HashSet<>();
+
+		if (permissions.contains(SysFunctionEnum.F_ACCESS_ROOM_ALL.getCode())) {
+			roomCodes.add(PermissionService.ACCESS_ALL);
+			return roomCodes;
+		}
+
+		for (String funcCode : permissions) {
+			if (FunctionCodeHelper.isRoomAccessCode(funcCode)) {
+				String roomCode = FunctionCodeHelper.extractRoomCode(funcCode);
+				if (roomCode != null) {
+					roomCodes.add(roomCode);
+				}
+			}
+		}
+		return roomCodes;
 	}
 }

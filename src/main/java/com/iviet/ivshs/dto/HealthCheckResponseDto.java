@@ -4,14 +4,12 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.extern.jackson.Jacksonized;
 
 @Builder
 @lombok.Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HealthCheckResponseDto {
     private int status;
@@ -21,8 +19,7 @@ public class HealthCheckResponseDto {
 
     @Builder
     @lombok.Data
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Jacksonized
     public static class Data {
         private String roomCode;
         // private String ipAddress;
@@ -31,8 +28,7 @@ public class HealthCheckResponseDto {
 
     @Builder
     @lombok.Data
-    @AllArgsConstructor
-    @NoArgsConstructor
+    @Jacksonized
     public static class DeviceDto {
         private String naturalId;
         private String category;

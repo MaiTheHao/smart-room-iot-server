@@ -1,6 +1,7 @@
 package com.iviet.ivshs.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
@@ -17,7 +18,7 @@ public record CreateRoomDto(
     @Size(max = 255, message = "Description must not exceed 255 characters")
     String description,
 
-    @NotBlank(message = "Floor ID is required")
+    @NotNull(message = "Floor ID is required")
     Long floorId,
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")

@@ -6,10 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * DTO đại diện cho payload của JWT token.
- * Chứa các thông tin cơ bản về người dùng và quyền hạn được gán.
- */
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -3,7 +3,9 @@ package com.iviet.ivshs.exception.handler;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.BaseException;
+import com.iviet.ivshs.exception.domain.ForbiddenException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.exception.domain.UnauthorizedException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +58,27 @@ public class ApiGlobalExceptionHandler {
         log.error("Unsupported operation: ", ex);
         ApiResponse<Object> apiResponse = ApiResponse.error(HttpStatus.BAD_REQUEST, "Operation not supported: " + ex.getMessage());
         return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(
+        org.springframework.web.HttpRequestMethodNotSupportedException ex, WebRequest request) {
+        log.error("HTTP method not supported: ", ex);
+        String msg = "Request method '" + ex.getMethod() + "' not supported.";
+        ApiResponse<Object> apiResponse = ApiResponse.error(HttpStatus.METHOD_NOT_ALLOWED, msg);
+        return new ResponseEntity<>(apiResponse, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(HttpStatus.FORBIDDEN, ex.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedException(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, ex.getMessage()));
     }
 
     @ExceptionHandler(BaseException.class)

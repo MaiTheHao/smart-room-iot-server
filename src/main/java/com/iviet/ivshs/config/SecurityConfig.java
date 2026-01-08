@@ -104,7 +104,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).authenticated()
             )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -12,20 +12,10 @@ public class TimeUtil {
 	private TimeUtil() {
 	}
 
-	/**
-	 * Get current date time
-	 * @return String
-	 */
 	public static String getCurrentDateTimeNow() {
 		return LocalDateTime.now().format(DATE_TIME_FORMATTER);
 	}
 
-	/**
-	 * Parse formatted timestamp string to Instant with custom formatter
-	 * @param formattedTimestamp the formatted timestamp string
-	 * @param formatter the DateTimeFormatter to use
-	 * @return Instant, or null if formattedTimestamp is null or invalid
-	 */
 	public static Instant parseToInstant(String formattedTimestamp, DateTimeFormatter formatter) {
 		if (formattedTimestamp == null || formattedTimestamp.trim().isEmpty()) {
 			return null;
@@ -39,11 +29,6 @@ public class TimeUtil {
 		}
 	}
 
-	/**
-	 * Format Instant to string using default formatter
-	 * @param instant Instant to format
-	 * @return formatted string
-	 */
 	public static String format(Instant instant) {
 		return LocalDateTime.ofInstant(instant, ZoneOffset.UTC).format(DATE_TIME_FORMATTER);
 	}

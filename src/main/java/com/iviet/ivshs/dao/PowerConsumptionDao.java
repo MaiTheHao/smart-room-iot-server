@@ -19,7 +19,7 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 	public Optional<PowerConsumptionDto> findByNaturalId(String naturalId, String langCode) {
 		String dtoPath = PowerConsumptionDto.class.getName();
 		String jpql = """
-				SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentWatt, t.currentWattHour, t.naturalId, t.room.id)
+			SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentWatt, t.naturalId, t.room.id)
 				FROM PowerConsumption t
 				LEFT JOIN t.translations tl ON tl.langCode = :langCode
 				WHERE t.naturalId = :naturalId
@@ -35,7 +35,7 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 	public Optional<PowerConsumptionDto> findById(Long sensorId, String langCode) {
 		String dtoPath = PowerConsumptionDto.class.getName();
 		String jpql = """
-				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
+			SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.naturalId, s.room.id)
 				FROM PowerConsumption s 
 				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
 				WHERE s.id = :sensorId
@@ -50,9 +50,9 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 	}
 
 	public List<PowerConsumptionDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
-		String dtoPath = PowerConsumptionDto.class.getName();
+		String dtoPath = PowerConsumptionDto.class.getName();	
 		String jpql = """
-				SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.currentWattHour, s.naturalId, s.room.id)
+			SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.naturalId, s.room.id)
 				FROM PowerConsumption s 
 				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
 				WHERE s.room.id = :roomId 

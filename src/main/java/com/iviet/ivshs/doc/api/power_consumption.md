@@ -35,7 +35,6 @@
 				"description": "Cảm biến phòng khách",
 				"isActive": true,
 				"currentWatt": 120.5,
-				"currentWattHour": 350.0,
 				"naturalId": "P001",
 				"roomId": 10
 			}
@@ -73,7 +72,6 @@
 		"description": "Cảm biến phòng khách",
 		"isActive": true,
 		"currentWatt": 120.5,
-		"currentWattHour": 350.0,
 		"naturalId": "P001",
 		"roomId": 10
 	},
@@ -125,7 +123,6 @@
 		"description": "Cảm biến phòng khách",
 		"isActive": true,
 		"currentWatt": null,
-		"currentWattHour": null,
 		"naturalId": "P001",
 		"roomId": 10
 	},
@@ -181,7 +178,6 @@
 		"description": "Cập nhật mô tả",
 		"isActive": false,
 		"currentWatt": 120.5,
-		"currentWattHour": 350.0,
 		"naturalId": "P001U",
 		"roomId": 10
 	},
