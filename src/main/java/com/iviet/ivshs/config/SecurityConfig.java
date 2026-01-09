@@ -101,7 +101,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).authenticated()
@@ -117,7 +117,7 @@ public class SecurityConfig {
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(AbstractHttpConfigurer::disable)
-        .csrf(AbstractHttpConfigurer::disable)
+            .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/")).hasAnyRole("ADMIN", "USER")
                 .anyRequest().authenticated()

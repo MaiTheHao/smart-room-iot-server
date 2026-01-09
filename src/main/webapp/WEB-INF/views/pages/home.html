@@ -1,132 +1,66 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main_layout.html}">
-    <head>
-        <title>Home Dashboard</title>
-        <style>
-            .room-card-img {
-                height: 180px;
-                width: 100%;
-                object-fit: cover;
-                transition: transform 0.3s ease;
-                border-top-left-radius: 0.25rem;
-                border-top-right-radius: 0.25rem;
-            }
-            .card:hover .room-card-img {
-                transform: scale(1.05);
-            }
-            .room-image-wrapper {
-                overflow: hidden;
-                border-top-left-radius: 0.25rem;
-                border-top-right-radius: 0.25rem;
-            }
-            .floor-divider {
-                border-bottom: 2px solid #e2e8f0;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                color: #495057;
-            }
-            .max-line-3 {
-                display: -webkit-box;
-                -webkit-line-clamp: 3;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-        </style>
-    </head>
-    <body>
-        <div layout:fragment="content">
-            <h5 class="mb-2 mt-4">Home Status</h5>
-            <div class="row">
-                </div>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
+	<head>
+		<title>Home Dashboard</title>
+		<style>
+			.floor-divider {
+				border-bottom: 2px solid #e2e8f0;
+				margin-bottom: 20px;
+				padding-bottom: 10px;
+				color: #495057;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="content pt-3" layout:fragment="content">
+			<div class="container-fluid">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="text-bold text-dark m-0">Dashboard</h3>
+					<form action="/home/refresh" method="post">
+						<button type="submit" class="btn btn-info shadow-sm"><i class="fas fa-sync-alt mr-1"></i> Refresh</button>
+					</form>
+				</div>
 
-            <h5 class="mb-2 mt-4">Smart Scenes</h5>
-            <div class="card card-default">
-                <div class="card-body">
-                    <p class="text-muted mb-2">Quickly activate smart home modes:</p>
-                    <a class="btn btn-app bg-primary"> <i class="fas fa-home"></i> In Home </a>
-                    <a class="btn btn-app bg-secondary"> <i class="fas fa-walking"></i> Out Home </a>
-                    <a class="btn btn-app bg-navy"> <i class="fas fa-moon"></i> Sleep </a>
-                    <a class="btn btn-app bg-orange"> <i class="fas fa-sun"></i> Morning </a>
-                </div>
-            </div>
+				<h5 class="mb-3 text-dark"><i class="fas fa-bolt mr-1"></i> Smart Scenes</h5>
+				<div class="card card-default shadow-sm mb-4">
+					<div class="card-body">
+						<p class="text-muted small mb-3">Quickly activate smart home modes:</p>
+						<div class="d-flex flex-wrap">
+							<a class="btn btn-app bg-primary shadow-sm"> <i class="fas fa-home"></i> In Home </a>
+							<a class="btn btn-app bg-secondary shadow-sm"> <i class="fas fa-walking"></i> Out Home </a>
+							<a class="btn btn-app bg-navy shadow-sm"> <i class="fas fa-moon"></i> Sleep </a>
+							<a class="btn btn-app bg-orange shadow-sm"> <i class="fas fa-sun"></i> Morning </a>
+						</div>
+					</div>
+				</div>
 
-            <div th:each="entry : ${floorRoomsMap}">
-                <div class="floor-divider d-flex align-items-center justify-content-between mt-4">
-                    <h4 class="m-0 text-bold text-dark">
-                        <i class="fas fa-layer-group text-muted mr-2"></i>
-                        <span th:text="${entry.key.name}">Floor Name</span>
-                    </h4>
-                    <span class="badge badge-secondary" th:text="${'Level ' + entry.key.level}">Level 1</span>
-                </div>
+				<div th:each="entry : ${floorRoomsMap}">
+					<div class="floor-divider d-flex align-items-center justify-content-between mt-4">
+						<h4 class="m-0 text-bold text-dark">
+							<i class="fas fa-layer-group text-muted mr-2"></i>
+							<span th:text="${floorsMap.get(entry.key).name}">Floor Name</span>
+						</h4>
+						<span class="badge badge-secondary" th:text="${'Level ' + floorsMap.get(entry.key).level}">Level 1</span>
+					</div>
 
-                <div class="row gap-2">
-                    <div class="col-12" th:if="${#lists.isEmpty(entry.value)}">
-                        <div class="alert alert-light text-center">No rooms available on this floor.</div>
-                    </div>
+					<div class="row">
+						<div class="col-12" th:if="${#lists.isEmpty(entry.value)}">
+							<div class="alert alert-light text-center border shadow-sm">No rooms available on this floor.</div>
+						</div>
 
-                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3" th:each="room : ${entry.value}">
-                        <a class="card card-outline card-primary h-100 shadow-sm transition-card" th:href="@{'/room/' + ${room.id}}">
-                            <div class="room-image-wrapper position-relative">
-                                <img class="card-img-top room-card-img"
-                                     src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop"
-                                     alt="Room Image"/>
-                                <div class="card-img-overlay d-flex flex-column justify-content-start align-items-end p-2">
-                                    <span class="badge badge-light shadow-sm opacity-90">Online</span>
-                                </div>
-                            </div>
-
-                            <div class="card-body pt-3 pb-2">
-                                <h5 class="card-title font-weight-bold text-dark w-100 mb-1" th:text="${room.name}">Living Room</h5>
-                                <p class="card-text text-muted small max-line-3"
-                                   th:text="${room.description != null ? room.description : 'Smart Room System'}">
-                                    Description
-                                </p>
-                            </div>
-
-                            <div class="card-footer p-0 bg-white">
-                                <div class="row no-gutters">
-                                    <div class="col-4 border-right">
-                                        <div class="description-block pt-3 pb-2">
-                                            <span class="description-percentage text-info">
-                                                <i class="fas fa-microchip fa-lg mb-1"></i>
-                                            </span>
-                                            <h5 class="description-header mt-1" 
-                                                th:text="${roomGatewayCountMap.get(room.id) != null ? roomGatewayCountMap.get(room.id) : 0}">0</h5>
-                                            <span class="description-text text-xs text-muted">DEVICES</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4 border-right">
-                                        <div class="description-block pt-3 pb-2">
-                                            <span class="description-percentage text-warning">
-                                                <i class="fas fa-thermometer-half fa-lg mb-1"></i>
-                                            </span>
-                                            <h5 class="description-header mt-1"
-                                                th:text="${roomCurrentTempMap.get(room.id) != null && roomCurrentTempMap.get(room.id) > 0 ? #numbers.formatDecimal(roomCurrentTempMap.get(room.id), 1, 1) + '°C' : '--'}">
-                                                --
-                                            </h5>
-                                            <span class="description-text text-xs text-muted">TEMP</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-4">
-                                        <div class="description-block pt-3 pb-2">
-                                            <span class="description-percentage text-success">
-                                                <i class="fas fa-bolt fa-lg mb-1"></i>
-                                            </span>
-                                            <h5 class="description-header mt-1"
-                                                th:text="${roomCurrentPowerMap.get(room.id) != null && roomCurrentPowerMap.get(room.id) > 0 ? #numbers.formatDecimal(roomCurrentPowerMap.get(room.id), 1, 1) + 'Wh' : '--'}">
-                                                --
-                                            </h5>
-                                            <span class="description-text text-xs text-muted">POWER</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
+						<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3" th:each="room : ${entry.value}">
+							<div
+								th:insert="~{fragments/room_card.html :: room_card(
+								room=${room},
+								roomDeviceControlCount=${roomGatewayCountMap.get(room.id)},
+								roomCurrentTemp=${roomLastestAvgTempMap.get(room.id)},
+								roomCurrentPower=${roomLastestSumWattMap.get(room.id)}
+							)}"
+							></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+	</body>
 </html>

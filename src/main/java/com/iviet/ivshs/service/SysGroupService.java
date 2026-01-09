@@ -44,4 +44,11 @@ public interface SysGroupService {
     long countClientsByGroupId(Long groupId);
 
     long countByClient(Long clientId);
+
+    /**
+     * Lấy tất cả Groups với trạng thái đã assign cho Client hay chưa
+     * @param clientId ID của Client
+     * @return List các Groups với status
+     */
+    List<SysGroupWithClientStatusDto> getAllWithClientStatus(Long clientId);
 }

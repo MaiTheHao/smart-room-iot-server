@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{main_layout.html}"
+>
+	<head>
+		<title>Manage Functions</title>
+		<link rel="stylesheet" th:href="@{/webjars/datatables/1.13.4/css/dataTables.bootstrap4.min.css}" />
+		<style>
+			.action-btn {
+				margin: 2px;
+			}
+			.table td {
+				vertical-align: middle;
+			}
+			.badge-code {
+				font-family: 'Consolas', 'Monaco', monospace;
+				font-size: 0.95em;
+				background-color: #e8eaed;
+				color: #3c4043;
+				border: 1px solid #dadce0;
+			}
+			/* Style cho phần Builder trong Modal */
+			.code-builder-area {
+				background-color: #f8f9fa;
+				border: 1px dashed #ced4da;
+				border-radius: 5px;
+				padding: 15px;
+				margin-bottom: 15px;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="content pt-3" layout:fragment="content">
+			<div class="container-fluid">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="text-bold text-dark m-0"><i class="fas fa-shield-alt mr-2"></i><span>Function Management</span></h3>
+					<button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#createFunctionModal">
+						<i class="fas fa-plus mr-1"></i> <span>Add Function</span>
+					</button>
+				</div>
+
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<table id="functionsTable" class="table table-bordered table-hover table-striped w-100">
+							<thead class="thead-light">
+								<tr>
+									<th style="width: 5%">ID</th>
+									<th style="width: 25%">Function Code</th>
+									<th style="width: 20%">Name</th>
+									<th>Description</th>
+									<th style="width: 10%">Actions</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="modal fade" id="createFunctionModal" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header bg-success text-white">
+								<h5 class="modal-title"><i class="fas fa-plus-circle mr-2"></i>Create New Function</h5>
+								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+							</div>
+							<div class="modal-body">
+								<form id="createFunctionForm">
+									<div class="code-builder-area">
+										<label class="text-primary small font-weight-bold text-uppercase mb-2">Code Generator</label>
+										<div class="form-row">
+											<div class="col-md-5">
+												<select class="form-control form-control-sm" id="builderType">
+													<option value="MANAGE">F_MANAGE_</option>
+													<option value="ACCESS_FLOOR">F_ACCESS_FLOOR_</option>
+													<option value="ACCESS_ROOM">F_ACCESS_ROOM_</option>
+												</select>
+												<small class="text-muted">Type Prefix</small>
+											</div>
+											<div class="col-md-7">
+												<div class="input-group input-group-sm">
+													<input type="text" class="form-control" id="builderScope" placeholder="ALL, CLIENT..." style="text-transform: uppercase" />
+													<div class="input-group-append">
+														<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">Pick</button>
+														<div class="dropdown-menu dropdown-menu-right">
+															<a class="dropdown-item builder-suggestion" href="#">ALL</a>
+															<div role="separator" class="dropdown-divider"></div>
+															<a class="dropdown-item builder-suggestion" href="#">CLIENT</a>
+															<a class="dropdown-item builder-suggestion" href="#">DEVICE</a>
+															<a class="dropdown-item builder-suggestion" href="#">GROUP</a>
+															<a class="dropdown-item builder-suggestion" href="#">USER</a>
+														</div>
+													</div>
+												</div>
+												<small class="text-muted">Scope / Code (e.g. H101)</small>
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group">
+										<label for="createFunctionCode">Function Code <span class="text-danger">*</span></label>
+										<input
+											type="text"
+											class="form-control font-weight-bold"
+											id="createFunctionCode"
+											required
+											minlength="5"
+											maxlength="100"
+											placeholder="Generated code will appear here..."
+											style="text-transform: uppercase"
+										/>
+										<small class="form-text text-muted">Must start with <code>F_</code>. Format: <code>F_{TYPE}_{SCOPE}</code></small>
+									</div>
+
+									<div class="form-group">
+										<label for="createName">Name <span class="text-danger">*</span></label>
+										<input type="text" class="form-control" id="createName" required minlength="1" maxlength="100" placeholder="e.g. Quản lý thiết bị" />
+									</div>
+									<div class="form-group">
+										<label for="createDescription">Description</label>
+										<textarea class="form-control" id="createDescription" rows="2" maxlength="255" placeholder="Description of this permission..."></textarea>
+									</div>
+									<div class="form-group">
+										<label for="createLangCode">Language</label>
+										<select class="form-control" id="createLangCode">
+											<option value="vi">Vietnamese (vi)</option>
+											<option value="en">English (en)</option>
+										</select>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+								<button type="button" class="btn btn-success" id="btnSaveCreate">Create</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="editFunctionModal" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header bg-primary text-white">
+								<h5 class="modal-title"><i class="fas fa-edit mr-2"></i>Edit Function</h5>
+								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+							</div>
+							<div class="modal-body">
+								<form id="editFunctionForm">
+									<input type="hidden" id="editFunctionId" />
+									<div class="form-group">
+										<label>Function Code</label>
+										<input type="text" class="form-control" id="editFunctionCode" disabled />
+									</div>
+									<div class="form-group">
+										<label for="editName">Name <span class="text-danger">*</span></label>
+										<input type="text" class="form-control" id="editName" required minlength="1" maxlength="100" />
+									</div>
+									<div class="form-group">
+										<label for="editDescription">Description</label>
+										<textarea class="form-control" id="editDescription" rows="2" maxlength="255"></textarea>
+									</div>
+									<div class="form-group">
+										<label for="editLangCode">Language</label>
+										<select class="form-control" id="editLangCode">
+											<option value="vi">Vietnamese (vi)</option>
+											<option value="en">English (en)</option>
+										</select>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+								<button type="button" class="btn btn-primary" id="btnSaveEdit">Save Changes</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<th:block layout:fragment="optional">
+			<script th:src="@{/webjars/datatables/1.13.4/js/jquery.dataTables.min.js}"></script>
+			<script th:src="@{/webjars/datatables/1.13.4/js/dataTables.bootstrap4.min.js}"></script>
+			<script th:src="@{/scripts/util/http_client.js}"></script>
+			<script th:src="@{/scripts/util/notify.js}"></script>
+			<script th:src="@{/scripts/pages/function_management.js}"></script>
+
+			<script th:inline="javascript">
+				/*<![CDATA[*/
+				$(document).ready(function () {
+					const contextPath = /*[[@{/}]]*/ '/';
+					FunctionManager.init(contextPath);
+				});
+				/*]]>*/
+			</script>
+		</th:block>
+	</body>
+</html>

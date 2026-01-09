@@ -14,6 +14,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import com.iviet.ivshs.exception.domain.ForbiddenException;
+import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.exception.domain.UnauthorizedException;
 import com.iviet.ivshs.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +34,7 @@ public class WebGlobalExceptionHandler {
         return uri != null && uri.contains("/api/");
     }
 
-    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class, NotFoundException.class})
     public ModelAndView handleNotFound(Exception ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             return null;
@@ -45,8 +48,8 @@ public class WebGlobalExceptionHandler {
         return mav;
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ModelAndView handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+    @ExceptionHandler({AccessDeniedException.class, ForbiddenException.class})
+    public ModelAndView handleAccessDenied(Exception ex, HttpServletRequest request) {
         if (isApiRequest(request)) {
             return null;
         }
@@ -56,6 +59,19 @@ public class WebGlobalExceptionHandler {
         
         ModelAndView mav = new ModelAndView("error/403.html");
         mav.setStatus(HttpStatus.FORBIDDEN);
+        return mav;
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ModelAndView handleUnauthorized(Exception ex, HttpServletRequest request) {
+        if (isApiRequest(request)) {
+            return null;
+        }
+        log.warn("Web 401 - Unauthorized: {}", request.getRequestURI());
+        
+        LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
+        
+        ModelAndView mav = new ModelAndView("redirect:/login");
         return mav;
     }
 

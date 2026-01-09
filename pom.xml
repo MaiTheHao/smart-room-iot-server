@@ -59,9 +59,19 @@
 			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
 			<version>${spring.data.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.1.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -216,6 +226,16 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery-ui</artifactId>
 			<version>1.13.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>datatables</artifactId>
+			<version>1.13.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>sweetalert2</artifactId>
+			<version>11.7.12</version>
 		</dependency>
 	</dependencies>
 

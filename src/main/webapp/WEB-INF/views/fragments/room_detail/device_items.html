@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+	<body>
+		<div th:fragment="light_switch(name, description, id, isActive)" class="list-group-item d-flex justify-content-between align-items-center mb-2">
+			<div class="flex-grow-1">
+				<h6 class="mb-0" th:text="${name != null and !name.isEmpty() ? name : '...'}">Light Name</h6>
+				<small class="text-muted" th:text="${description != null and !description.isEmpty() ? description : '...'}">Description</small>
+			</div>
+			<div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success ml-3 light-toggle-button">
+				<input type="checkbox" class="custom-control-input light-toggle" th:id="'lightSwitch' + ${id}" th:data-light-id="${id}" th:checked="${isActive}" />
+				<label class="custom-control-label" th:for="'lightSwitch' + ${id}"></label>
+			</div>
+		</div>
+	</body>
+</html>

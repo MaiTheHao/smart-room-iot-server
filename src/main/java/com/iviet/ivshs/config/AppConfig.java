@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@Import({ SecurityConfig.class, WebConfig.class })
+@Import({ SecurityConfig.class, WebConfig.class, CacheConfig.class })
 @PropertySource("classpath:application.properties")
 @EnableAspectJAutoProxy
 @EnableTransactionManagement

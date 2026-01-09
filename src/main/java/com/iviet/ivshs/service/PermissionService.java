@@ -25,6 +25,18 @@ public interface PermissionService {
 
     void requireManageClient();
 
+    boolean canManageSome();
+
+    void requireManageSome();
+
+    boolean canManageFunction();
+
+    void requireManageFunction();
+
+    boolean canManageGroup();
+
+    void requireManageGroup();
+
     boolean canAccessFloor(String floorCode);
 
     void requireAccessFloor(String floorCode);

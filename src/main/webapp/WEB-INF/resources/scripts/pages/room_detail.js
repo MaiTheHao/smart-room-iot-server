@@ -1,82 +1,109 @@
 class RoomDashboardSSR {
+	CONFIG = {
+		DATE_FORMAT: 'HH:mm DD/MM/YYYY',
+		DEFAULT_RANGE_MONTHS: 1,
+		ENDPOINTS: {
+			ROOM_DETAIL: (id) => `/room/${id}`,
+		},
+	};
+
 	constructor(roomId, initialTempData, initialPowerData) {
 		this.roomId = roomId;
 		this.initialTempData = initialTempData || [];
 		this.initialPowerData = initialPowerData || [];
+
+		this.state = this._parseUrlParams();
+
+		if (this._shouldRedirect()) {
+			this._navigateToCurrentRange();
+			return;
+		}
 
 		this.charts = {
 			temp: ChartFactory.createTemperatureChart('tempChart'),
 			power: ChartFactory.createPowerChart('powerChart'),
 		};
 
-		this.dateRange = {
-			start: moment().subtract(15, 'minutes'),
-			end: moment(),
-		};
-
 		this.init();
 	}
 
 	init() {
-		this.initDateRangePicker();
-		this.renderInitialData();
-		this.bindEvents();
+		try {
+			this.initDateRangePicker();
+			this.renderInitialData();
+			this.bindEvents();
+			console.log(`[Dashboard] Initialized for Room: ${this.roomId}`);
+		} catch (error) {
+			console.error('[Dashboard] Init failed:', error);
+		}
+	}
+
+	_parseUrlParams() {
+		const params = new URLSearchParams(window.location.search);
+		const startedAt = params.get('startedAt');
+		const endedAt = params.get('endedAt');
+
+		return {
+			isMissingParams: !startedAt || !endedAt,
+			start: startedAt ? moment(startedAt) : moment().subtract(this.CONFIG.DEFAULT_RANGE_MONTHS, 'months'),
+			end: endedAt ? moment(endedAt) : moment(),
+		};
+	}
+
+	_shouldRedirect() {
+		return this.state.isMissingParams;
+	}
+
+	_navigateToCurrentRange() {
+		const query = new URLSearchParams({
+			startedAt: this.state.start.toISOString(),
+			endedAt: this.state.end.toISOString(),
+		});
+		window.location.href = `${this.CONFIG.ENDPOINTS.ROOM_DETAIL(this.roomId)}?${query.toString()}`;
 	}
 
 	renderInitialData() {
-		try {
-			// --- Temperature Chart (Dữ liệu từ Record) ---
-			if (this.initialTempData && this.initialTempData.length > 0) {
-				this.charts.temp.render(this.initialTempData, 'avgTempC');
-			}
+		const { temp, power } = this.charts;
 
-			// --- Power Chart (Dữ liệu từ Class) ---
-			if (this.initialPowerData && this.initialPowerData.length > 0) {
-				this.charts.power.render(this.initialPowerData, 'sumWatt');
-			}
-		} catch (error) {
-			console.error('[SSR] Error rendering initial data:', error);
+		if (this.initialTempData.length) {
+			temp.render(this.initialTempData, 'avgTempC');
+		}
+
+		if (this.initialPowerData.length) {
+			power.render(this.initialPowerData, 'sumWatt');
 		}
 	}
 
 	bindEvents() {
-		$('#btn-refresh-chart').on('click', () => {
-			this.handleRefresh();
+		$('#btn-refresh-chart').on('click', (e) => {
+			$(e.currentTarget).find('i').addClass('fa-spin');
+			this._navigateToCurrentRange();
 		});
-		this.bindQuickControls();
-	}
 
-	bindQuickControls() {
 		$('.light-toggle').on('change', function () {
-			const lightId = $(this).data('light-id');
-			const isOn = $(this).is(':checked');
-			console.log('Light ID:', lightId, 'is now:', isOn);
+			const data = {
+				id: $(this).data('light-id'),
+				status: $(this).is(':checked'),
+			};
+			console.log('[Control] Light Update:', data);
 		});
-	}
-
-	handleRefresh() {
-		const $refreshIcon = $('#btn-refresh-chart i');
-		$refreshIcon.addClass('fa-spin');
-
-		const startedAtIso = this.dateRange.start.toISOString();
-		const endedAtIso = this.dateRange.end.toISOString();
-
-		window.location.href = `/room/${this.roomId}?startedAt=${encodeURIComponent(startedAtIso)}&endedAt=${encodeURIComponent(endedAtIso)}`;
 	}
 
 	initDateRangePicker() {
-		$('#date-range-picker').daterangepicker(
+		const $picker = $('#date-range-picker');
+
+		$picker.daterangepicker(
 			{
 				timePicker: true,
 				timePicker24Hour: true,
-				startDate: this.dateRange.start,
-				endDate: this.dateRange.end,
-				locale: { format: 'HH:mm DD/MM/YYYY' },
+				startDate: this.state.start,
+				endDate: this.state.end,
+				locale: { format: this.CONFIG.DATE_FORMAT },
 			},
 			(start, end) => {
-				this.dateRange.start = start;
-				this.dateRange.end = end;
-				this.handleRefresh();
+				this.state.start = start;
+				this.state.end = end;
+				this._navigateToCurrentRange();
 			},
 		);
 	}

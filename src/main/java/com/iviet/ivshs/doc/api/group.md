@@ -135,6 +135,53 @@
 
 ---
 
+## GET /api/v1/groups/with-client-status/{clientId}
+
+> Lấy tất cả Groups với trạng thái đã assigned cho Client hay chưa.
+>
+> **Use case:** Hiển thị checkbox list cho UI khi quản lý groups của user/client.
+
+### Path Parameters
+
+| Tên      | Loại | Mô tả                      | Bắt buộc |
+| :------- | :--- | :------------------------- | :------- |
+| clientId | Long | ID của Client cần kiểm tra | Có       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"id": 1,
+			"groupCode": "ADMIN",
+			"name": "Quản trị viên",
+			"description": "Nhóm quản trị hệ thống",
+			"isAssignedToClient": true
+		},
+		{
+			"id": 2,
+			"groupCode": "USER",
+			"name": "Người dùng",
+			"description": "Nhóm người dùng thông thường",
+			"isAssignedToClient": false
+		},
+		{
+			"id": 3,
+			"groupCode": "MANAGER",
+			"name": "Quản lý",
+			"description": "Nhóm quản lý cấp trung",
+			"isAssignedToClient": true
+		}
+	],
+	"timestamp": "2026-01-05T10:00:00Z"
+}
+```
+
+---
+
 ## POST /api/v1/groups
 
 > Tạo mới một Group.

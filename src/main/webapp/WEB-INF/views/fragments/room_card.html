@@ -1,4 +1,26 @@
-<!-- filepath: /d:/WorkSpace/Project/Web/java/smartroom_workspace/iuhsmrc/src/main/webapp/WEB-INF/views/components/card.html -->
+<style th:inline="none">
+	.room-card-img {
+		height: 180px;
+		width: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+	.room-image-wrapper {
+		overflow: hidden;
+		border-top-left-radius: 0.25rem;
+		border-top-right-radius: 0.25rem;
+	}
+	.card:hover .room-card-img {
+		transform: scale(1.05);
+	}
+	.transition-card {
+		transition: all 0.3s ease;
+	}
+	.transition-card:hover {
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12) !important;
+	}
+</style>
+
 <div th:fragment="room_card(room, roomDeviceControlCount, roomCurrentTemp, roomCurrentPower)">
 	<a class="card card-outline card-primary h-100 shadow-sm transition-card" th:href="@{'/room/' + ${room.id}}">
 		<div class="room-image-wrapper position-relative">
@@ -13,7 +35,7 @@
 		</div>
 		<div class="card-body pt-3 pb-2">
 			<h5 class="card-title font-weight-bold text-dark w-100 mb-1" th:text="${room.name}">Living Room</h5>
-			<p class="card-text text-muted small max-line-3" th:text="${room.description != null ? room.description : 'Smart Room System'}" style="height: 20px">Description</p>
+			<p class="card-text text-muted small" th:text="${room.description != null ? room.description : 'Smart Room System'}">Description</p>
 		</div>
 		<div class="card-footer p-0 bg-white">
 			<div class="row no-gutters">

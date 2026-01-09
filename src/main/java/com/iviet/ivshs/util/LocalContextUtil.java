@@ -1,6 +1,8 @@
 package com.iviet.ivshs.util;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.Locale;
 import java.util.Optional;
 
+@Slf4j
 @UtilityClass
 public class LocalContextUtil {
 
@@ -31,6 +34,18 @@ public class LocalContextUtil {
                 .filter(StringUtils::hasText)
                 .map(String::toLowerCase)
                 .orElse(DEFAULT_LANG_CODE);
+    }
+
+    public String getCurrentLangCodeFromRequest() {
+        HttpServletRequest req = RequestContextUtil.getCurrentRequest();
+        if (req != null) {
+            String langParam = req.getParameter("lang");
+            if (StringUtils.hasText(langParam)) {
+                return langParam.trim().toLowerCase();
+            }
+        }
+        log.warn("Could not determine lang code from request, falling back to default.");
+        return DEFAULT_LANG_CODE;
     }
 
     public String resolveLangCode(String langCode) {

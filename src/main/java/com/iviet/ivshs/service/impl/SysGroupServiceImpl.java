@@ -243,4 +243,11 @@ public class SysGroupServiceImpl implements SysGroupService {
         long total = groupDao.countAllByClientId(clientId);
         return new PaginatedResponse<>(groups, page, size, total);
     }
+
+    @Override
+    public List<SysGroupWithClientStatusDto> getAllWithClientStatus(Long clientId) {
+        if (clientId == null) throw new BadRequestException("Client ID is required");
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return groupDao.findAllWithClientStatus(clientId, langCode);
+    }
 }

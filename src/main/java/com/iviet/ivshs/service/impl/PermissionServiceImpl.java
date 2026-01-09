@@ -91,6 +91,60 @@ public class PermissionServiceImpl implements PermissionService {
         log.debug("User {} granted permission to manage clients", SecurityContextUtil.getCurrentUsername());
     }
 
+    @Override
+    public boolean canManageSome() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_SOME.getCode());
+    }
+
+    @Override
+    public void requireManageSome() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageSome()) {
+            throw new ForbiddenException("Insufficient permissions to manage some resources");
+        }
+        log.debug("User {} granted permission to manage some resources", SecurityContextUtil.getCurrentUsername());
+    }
+
+    @Override
+    public boolean canManageFunction() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_FUNCTION.getCode());
+    }
+
+    @Override
+    public void requireManageFunction() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageFunction()) {
+            throw new ForbiddenException("Insufficient permissions to manage functions");
+        }
+        log.debug("User {} granted permission to manage functions", SecurityContextUtil.getCurrentUsername());
+    }
+
+    @Override
+    public boolean canManageGroup() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_GROUP.getCode());
+    }
+
+    @Override
+    public void requireManageGroup() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageGroup()) {
+            throw new ForbiddenException("Insufficient permissions to manage groups");
+        }
+        log.debug("User {} granted permission to manage groups", SecurityContextUtil.getCurrentUsername());
+    }
+
 	@Override
     public boolean canAccessFloor(String floorCode) {
         if (!RequestContextUtil.isHttpRequest()) return true;

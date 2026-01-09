@@ -145,7 +145,12 @@
 	</head>
 
 	<body>
-		<div th:if="${errorMessage}" class="position-absolute alert alert-danger alert-dismissible fade show mb-3" role="alert" style="right: 1rem; top: 1rem">
+		<div
+			th:if="${errorMessage != null and errorMessage.trim().length() > 0}"
+			class="position-absolute alert alert-danger alert-dismissible fade show mb-3"
+			role="alert"
+			style="right: 1rem; top: 1rem"
+		>
 			<i class="fas fa-exclamation-circle mr-2"></i>
 			<strong th:text="#{login.error.title}">Login Error</strong>
 			<span class="d-block" th:text="${errorMessage}">Invalid login information</span>

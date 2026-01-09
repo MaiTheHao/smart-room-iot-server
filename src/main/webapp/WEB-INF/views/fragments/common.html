@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+	<body>
+		<!-- Alert Error Fragment -->
+		<div th:fragment="alert_error(message)" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<i class="fas fa-exclamation-circle mr-2"></i>
+			<strong>Error!</strong> <span th:text="${message}">Error message</span>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		<!-- Alert Success Fragment -->
+		<div th:fragment="alert_success(message)" class="alert alert-success alert-dismissible fade show" role="alert">
+			<i class="fas fa-check-circle mr-2"></i>
+			<strong>Success!</strong> <span th:text="${message}">Success message</span>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		<!-- Alert Info Fragment -->
+		<div th:fragment="alert_info(message)" class="alert alert-info alert-dismissible fade show" role="alert">
+			<i class="fas fa-info-circle mr-2"></i>
+			<strong>Info!</strong> <span th:text="${message}">Info message</span>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+
+		<!-- Alert Warning Fragment -->
+		<div th:fragment="alert_warning(message)" class="alert alert-warning alert-dismissible fade show" role="alert">
+			<i class="fas fa-exclamation-triangle mr-2"></i>
+			<strong>Warning!</strong> <span th:text="${message}">Warning message</span>
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	</body>
+</html>

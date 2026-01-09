@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.SysFunctionDto;
 import com.iviet.ivshs.dto.SysGroupDto;
+import com.iviet.ivshs.dto.SysGroupWithClientStatusDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
 
@@ -151,5 +152,28 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
 	public Long countAllByClientId(Long clientId) {
 		String jpql = "SELECT COUNT(g) FROM Client c JOIN c.groups g WHERE c.id = :clientId";
 		return entityManager.createQuery(jpql, Long.class).setParameter("clientId", clientId).getSingleResult();
+	}
+
+	public List<com.iviet.ivshs.dto.SysGroupWithClientStatusDto> findAllWithClientStatus(Long clientId, String langCode) {
+		String dtoPath = SysGroupWithClientStatusDto.class.getName();
+
+		String jpql = """
+			SELECT new %s(
+				g.id,
+				g.groupCode,
+				glan.name,
+				glan.description,
+				CASE WHEN cg.id IS NOT NULL THEN true ELSE false END
+			)
+			FROM SysGroup g
+			LEFT JOIN g.translations glan ON glan.langCode = :langCode
+			LEFT JOIN g.clients cg ON cg.id = :clientId
+			ORDER BY g.groupCode ASC
+		""".formatted(dtoPath);
+		
+		return entityManager.createQuery(jpql, com.iviet.ivshs.dto.SysGroupWithClientStatusDto.class)
+				.setParameter("clientId", clientId)
+				.setParameter("langCode", langCode)
+				.getResultList();
 	}
 }

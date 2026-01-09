@@ -148,4 +148,11 @@ public class SysGroupController {
             groupService.getAllByClientId(clientId, page, size)
         ));
     }
+
+    @GetMapping("/groups/with-client-status/{clientId}")
+    public ResponseEntity<ApiResponse<List<SysGroupWithClientStatusDto>>> getGroupsWithClientStatus(
+            @PathVariable(name = "clientId") Long clientId) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllWithClientStatus(clientId)));
+    }
 }

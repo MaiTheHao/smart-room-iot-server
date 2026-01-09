@@ -5,7 +5,7 @@ public final class I18nMessageConstant {
     private I18nMessageConstant() {}
 
     // --- Welcome & Login ---
-    public static final String MSG_WELCOME = "msg.welcome";
+    public static final String WELCOME_MSG = "msg.welcome";
     public static final String LOGIN_WELCOME = "login.welcome";
     public static final String LOGIN_USERNAME = "login.username";
     public static final String LOGIN_PASSWORD = "login.password";
@@ -59,6 +59,79 @@ public final class I18nMessageConstant {
     public static final String DASHBOARD_PANEL_RIGHT_SOON = "dashboard.panel.right.soon";
     public static final String DASHBOARD_FLOOR_PREFIX = "dashboard.floor.prefix";
     public static final String DASHBOARD_ROOM_PREFIX = "dashboard.room.prefix";
+
+    // --- User Management ---
+    public static final String USER_MANAGEMENT_TITLE = "user.management.title";
+    public static final String USER_MANAGEMENT_ADD_USER = "user.management.add.user";
+    public static final String USER_MANAGEMENT_FILTER_TYPE = "user.management.filter.type";
+    public static final String USER_MANAGEMENT_ALL_TYPES = "user.management.all.types";
+    public static final String USER_MANAGEMENT_TYPE_USER = "user.management.type.user";
+    public static final String USER_MANAGEMENT_TYPE_GATEWAY = "user.management.type.gateway";
+    public static final String USER_MANAGEMENT_SEARCH_INFO = "user.management.search.info";
+    
+    public static final String USER_TABLE_ID = "user.table.id";
+    public static final String USER_TABLE_USERNAME = "user.table.username";
+    public static final String USER_TABLE_TYPE = "user.table.type";
+    public static final String USER_TABLE_IP = "user.table.ip";
+    public static final String USER_TABLE_MAC = "user.table.mac";
+    public static final String USER_TABLE_LAST_LOGIN = "user.table.last.login";
+    public static final String USER_TABLE_ACTIONS = "user.table.actions";
+    
+    public static final String USER_MODAL_CREATE_TITLE = "user.modal.create.title";
+    public static final String USER_MODAL_EDIT_TITLE = "user.modal.edit.title";
+    public static final String USER_MODAL_USERNAME = "user.modal.username";
+    public static final String USER_MODAL_PASSWORD = "user.modal.password";
+    public static final String USER_MODAL_TYPE = "user.modal.type";
+    public static final String USER_MODAL_IP = "user.modal.ip";
+    public static final String USER_MODAL_MAC = "user.modal.mac";
+    public static final String USER_MODAL_AVATAR = "user.modal.avatar";
+    public static final String USER_MODAL_REQUIRED = "user.modal.required";
+    public static final String USER_MODAL_CANCEL = "user.modal.cancel";
+    public static final String USER_MODAL_CREATE_BTN = "user.modal.create.btn";
+    public static final String USER_MODAL_SAVE_BTN = "user.modal.save.btn";
+    
+    public static final String USER_GROUPS_MODAL_TITLE = "user.groups.modal.title";
+    public static final String USER_GROUPS_MODAL_INFO = "user.groups.modal.info";
+    public static final String USER_GROUPS_MODAL_CANCEL = "user.groups.modal.cancel";
+    public static final String USER_GROUPS_MODAL_SAVE = "user.groups.modal.save";
+    
+    public static final String USER_ACTION_GROUPS = "user.action.groups";
+    public static final String USER_ACTION_EDIT = "user.action.edit";
+    public static final String USER_ACTION_RESET_PASSWORD = "user.action.reset.password";
+    public static final String USER_ACTION_DELETE = "user.action.delete";
+
+    // --- Group Management ---
+    public static final String GROUP_MANAGEMENT_TITLE = "group.management.title";
+    public static final String GROUP_MANAGEMENT_ADD_GROUP = "group.management.add.group";
+    
+    public static final String GROUP_TABLE_ID = "group.table.id";
+    public static final String GROUP_TABLE_CODE = "group.table.code";
+    public static final String GROUP_TABLE_NAME = "group.table.name";
+    public static final String GROUP_TABLE_DESCRIPTION = "group.table.description";
+    public static final String GROUP_TABLE_ACTIONS = "group.table.actions";
+    
+    public static final String GROUP_MODAL_CREATE_TITLE = "group.modal.create.title";
+    public static final String GROUP_MODAL_EDIT_TITLE = "group.modal.edit.title";
+    public static final String GROUP_MODAL_CODE = "group.modal.code";
+    public static final String GROUP_MODAL_CODE_HINT = "group.modal.code.hint";
+    public static final String GROUP_MODAL_NAME = "group.modal.name";
+    public static final String GROUP_MODAL_DESCRIPTION = "group.modal.description";
+    public static final String GROUP_MODAL_LANGUAGE = "group.modal.language";
+    public static final String GROUP_MODAL_LANG_VI = "group.modal.lang.vi";
+    public static final String GROUP_MODAL_LANG_EN = "group.modal.lang.en";
+    public static final String GROUP_MODAL_CANCEL = "group.modal.cancel";
+    public static final String GROUP_MODAL_CREATE_BTN = "group.modal.create.btn";
+    public static final String GROUP_MODAL_SAVE_BTN = "group.modal.save.btn";
+    
+    public static final String GROUP_FUNCTIONS_MODAL_TITLE = "group.functions.modal.title";
+    public static final String GROUP_FUNCTIONS_MODAL_INFO_TITLE = "group.functions.modal.info.title";
+    public static final String GROUP_FUNCTIONS_MODAL_INFO_DESC = "group.functions.modal.info.desc";
+    public static final String GROUP_FUNCTIONS_MODAL_NO_FUNCTIONS = "group.functions.modal.no.functions";
+    public static final String GROUP_FUNCTIONS_MODAL_SAVE_BTN = "group.functions.modal.save.btn";
+    
+    public static final String GROUP_ACTION_FUNCTIONS = "group.action.functions";
+    public static final String GROUP_ACTION_EDIT = "group.action.edit";
+    public static final String GROUP_ACTION_DELETE = "group.action.delete";
 
     // --- Error Pages (4xx, 5xx) ---
     public static final String ERROR_BACK_HOME = "error.back.home";

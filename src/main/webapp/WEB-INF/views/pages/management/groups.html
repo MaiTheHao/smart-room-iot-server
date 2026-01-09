@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
+	<head>
+		<title>Manage Groups</title>
+		<link rel="stylesheet" th:href="@{/webjars/datatables/1.13.4/css/dataTables.bootstrap4.min.css}" />
+		<style>
+			.action-btn {
+				margin: 2px;
+			}
+			.table td {
+				vertical-align: middle;
+			}
+			.function-checkbox {
+				transform: scale(1.2);
+				margin-right: 8px;
+			}
+			.function-list-item {
+				padding: 10px;
+				border-bottom: 1px solid #e9ecef;
+				transition: background-color 0.2s;
+			}
+			.function-list-item:hover {
+				background-color: #f8f9fa;
+			}
+			.function-list-item:last-child {
+				border-bottom: none;
+			}
+			.modal-body {
+				max-height: 550px;
+				overflow-y: auto;
+			}
+			.badge-code {
+				font-family: monospace;
+				font-size: 0.9em;
+			}
+		</style>
+	</head>
+	<body>
+		<section class="content pt-3" layout:fragment="content">
+			<div class="container-fluid">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h3 class="text-bold text-dark m-0">
+						<i class="fas fa-layer-group mr-2"></i>
+						<span th:text="#{group.management.title}">Group Management</span>
+					</h3>
+					<button type="button" class="btn btn-primary shadow-sm" data-toggle="modal" data-target="#createGroupModal">
+						<i class="fas fa-plus mr-1"></i>
+						<span th:text="#{group.management.add.group}">Add Group</span>
+					</button>
+				</div>
+
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<table id="groupsTable" class="table table-bordered table-hover table-striped w-100">
+							<thead class="thead-light">
+								<tr>
+									<th style="width: 5%" th:text="#{group.table.id}">ID</th>
+									<th style="width: 15%" th:text="#{group.table.code}">Group Code</th>
+									<th style="width: 20%" th:text="#{group.table.name}">Name</th>
+									<th th:text="#{group.table.description}">Description</th>
+									<th style="width: 15%" th:text="#{group.table.actions}">Actions</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header bg-success text-white">
+								<h5 class="modal-title">
+									<i class="fas fa-plus-circle mr-2"></i>
+									<span th:text="#{group.modal.create.title}">Create New Group</span>
+								</h5>
+								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+							</div>
+							<div class="modal-body">
+								<form id="createGroupForm">
+									<div class="form-group">
+										<label for="createGroupCode">
+											<span th:text="#{group.modal.code}">Group Code</span>
+											<span class="text-danger">*</span>
+										</label>
+										<input
+											type="text"
+											class="form-control"
+											id="createGroupCode"
+											required
+											minlength="2"
+											maxlength="100"
+											placeholder="e.g. MANAGER"
+											style="text-transform: uppercase"
+										/>
+										<small class="form-text text-muted" th:text="#{group.modal.code.hint}">Unique identifier, cannot be changed later.</small>
+									</div>
+									<div class="form-group">
+										<label for="createName">
+											<span th:text="#{group.modal.name}">Name</span>
+											<span class="text-danger">*</span>
+										</label>
+										<input type="text" class="form-control" id="createName" required minlength="1" maxlength="100" placeholder="e.g. Quản lý" />
+									</div>
+									<div class="form-group">
+										<label for="createDescription" th:text="#{group.modal.description}">Description</label>
+										<textarea class="form-control" id="createDescription" rows="2" maxlength="255" placeholder="Short description..."></textarea>
+									</div>
+									<div class="form-group">
+										<label for="createLangCode" th:text="#{group.modal.language}">Language</label>
+										<select class="form-control" id="createLangCode">
+											<option value="vi" th:text="#{group.modal.lang.vi}">Vietnamese (vi)</option>
+											<option value="en" th:text="#{group.modal.lang.en}">English (en)</option>
+										</select>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{group.modal.cancel}">Cancel</button>
+								<button type="button" class="btn btn-success" id="btnSaveCreate" th:text="#{group.modal.create.btn}">Create</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header bg-primary text-white">
+								<h5 class="modal-title">
+									<i class="fas fa-edit mr-2"></i>
+									<span th:text="#{group.modal.edit.title}">Edit Group</span>
+								</h5>
+								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+							</div>
+							<div class="modal-body">
+								<form id="editGroupForm">
+									<input type="hidden" id="editGroupId" />
+									<div class="form-group">
+										<label th:text="#{group.modal.code}">Group Code</label>
+										<input type="text" class="form-control" id="editGroupCode" disabled />
+									</div>
+									<div class="form-group">
+										<label for="editName">
+											<span th:text="#{group.modal.name}">Name</span>
+											<span class="text-danger">*</span>
+										</label>
+										<input type="text" class="form-control" id="editName" required minlength="1" maxlength="100" />
+									</div>
+									<div class="form-group">
+										<label for="editDescription" th:text="#{group.modal.description}">Description</label>
+										<textarea class="form-control" id="editDescription" rows="2" maxlength="255"></textarea>
+									</div>
+									<div class="form-group">
+										<label for="editLangCode" th:text="#{group.modal.language}">Language</label>
+										<select class="form-control" id="editLangCode">
+											<option value="vi" th:text="#{group.modal.lang.vi}">Vietnamese (vi)</option>
+											<option value="en" th:text="#{group.modal.lang.en}">English (en)</option>
+										</select>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{group.modal.cancel}">Cancel</button>
+								<button type="button" class="btn btn-primary" id="btnSaveEdit" th:text="#{group.modal.save.btn}">Save Changes</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="manageFunctionsModal" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header bg-info text-white">
+								<h5 class="modal-title">
+									<i class="fas fa-tasks mr-2"></i>
+									<span th:text="#{group.functions.modal.title}">Manage Functions for</span>
+									<span id="funcModalGroupCode" class="font-weight-bold badge badge-light ml-1"></span>
+								</h5>
+								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+							</div>
+							<div class="modal-body">
+								<input type="hidden" id="funcGroupId" />
+								<div class="alert alert-info py-2 mb-3">
+									<div class="d-flex align-items-center">
+										<i class="fas fa-info-circle fa-2x mr-3"></i>
+										<div>
+											<strong th:text="#{group.functions.modal.info.title}">Permission Assignment</strong><br />
+											<small th:text="#{group.functions.modal.info.desc}"
+												>Toggle checkboxes to Add (Grant) or Remove (Revoke) permissions. Click "Save Changes" to apply.</small
+											>
+										</div>
+									</div>
+								</div>
+								<div id="functionsListLoader" class="text-center py-4 d-none">
+									<div class="spinner-border text-info" role="status"></div>
+								</div>
+								<div id="functionsList" class="list-group"></div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{group.modal.cancel}">Cancel</button>
+								<button type="button" class="btn btn-info" id="btnSaveFunctions" th:text="#{group.functions.modal.save.btn}">Save Changes</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<th:block layout:fragment="optional">
+			<script th:src="@{/webjars/datatables/1.13.4/js/jquery.dataTables.min.js}"></script>
+			<script th:src="@{/webjars/datatables/1.13.4/js/dataTables.bootstrap4.min.js}"></script>
+			<script th:src="@{/scripts/util/http_client.js}"></script>
+			<script th:src="@{/scripts/util/notify.js}"></script>
+			<script th:src="@{/scripts/pages/group_management.js}"></script>
+
+			<script th:inline="javascript">
+				/*<![CDATA[*/
+				$(document).ready(function () {
+					const contextPath = /*[[@{/}]]*/ '/';
+					GroupManager.init(contextPath);
+				});
+				/*]]>*/
+			</script>
+		</th:block>
+	</body>
+</html>
