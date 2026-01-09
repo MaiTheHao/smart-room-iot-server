@@ -7,7 +7,7 @@ import com.iviet.ivshs.entities.SysGroupLan;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.SysGroupMapperV1;
+import com.iviet.ivshs.mapper.SysGroupMapper;
 import com.iviet.ivshs.service.SysGroupService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class SysGroupServiceImpl implements SysGroupService {
 
     private final SysGroupDao groupDao;
     private final LanguageDao languageDao;
-    private final SysGroupMapperV1 groupMapper;
+    private final SysGroupMapper groupMapper;
 
     @Override
     public PaginatedResponse<SysGroupDto> getList(int page, int size) {

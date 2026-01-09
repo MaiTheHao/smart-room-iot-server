@@ -12,12 +12,15 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 
 @Repository
 public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
-	private static final String INSERT_SQL = "INSERT INTO temperature_value_v1 (sensor_id, timestamp, temp_c) VALUES (?, ?, ?)";
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
-	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', v.timestamp, '" + DATE_FORMAT + "') AS string)";
+	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', tv.timestamp, '" + DATE_FORMAT + "') AS string)";
 
 	public TemperatureValueDao() {
 		super(TemperatureValue.class);
+	}
+
+	private String getInsertSql() {
+		return "INSERT INTO %s (sensor_id, timestamp, temp_c) VALUES (?, ?, ?)".formatted(getTableName());
 	}
 
 	@Override
@@ -29,7 +32,8 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	public void saveAndForget(Long sensorId, List<TemperatureValue> entities) {
 		if (entities == null || entities.isEmpty()) return;
 
-		jdbcTemplate.batchUpdate(INSERT_SQL, entities, BATCH_SIZE, (ps, entity) -> {
+		String insertSql = getInsertSql();
+		jdbcTemplate.batchUpdate(insertSql, entities, BATCH_SIZE, (ps, entity) -> {
 			if (sensorId != null) {
 				ps.setLong(1, sensorId);
 			} else throw new BadRequestException("Sensor ID cannot be null");
@@ -46,10 +50,10 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
 		String dtoPath = AverageTemperatureValueDto.class.getName();
 		String jpql = """
-						SELECT new %s(%s, AVG(v.tempC))
-						FROM TemperatureValue v
-						WHERE v.sensor.room.id = :roomId 
-						AND v.timestamp BETWEEN :startedAt AND :endedAt
+						SELECT new %s(%s, AVG(tv.tempC))
+						FROM TemperatureValue tv
+						WHERE tv.sensor.room.id = :roomId 
+						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY %s
 						ORDER BY %s ASC
 						""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
@@ -64,10 +68,10 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String dtoPath = AverageTemperatureValueDto.class.getName();
 		String jpql = """
-						SELECT new %s(%s, AVG(v.tempC))
-						FROM TemperatureValue v
-						WHERE v.sensor.deviceControl.client.id = :clientId
-						AND v.timestamp BETWEEN :startedAt AND :endedAt
+						SELECT new %s(%s, AVG(tv.tempC))
+						FROM TemperatureValue tv
+						WHERE tv.sensor.deviceControl.client.id = :clientId
+						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY %s
 						ORDER BY %s ASC
 						""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
@@ -81,9 +85,9 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-						DELETE FROM TemperatureValue v
-						WHERE v.sensor.id = :sensorId
-						AND v.timestamp BETWEEN :startedAt AND :endedAt
+						DELETE FROM TemperatureValue tv
+						WHERE tv.sensor.id = :sensorId
+						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						""";
 
 		entityManager.createQuery(jpql)
@@ -95,9 +99,9 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 
 	public void deleteBySensorNaturalIdAndTimestampBetween(String sensorNaturalId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-						DELETE FROM TemperatureValue v
-						WHERE v.sensor.naturalId = :sensorNaturalId
-						AND v.timestamp BETWEEN :startedAt AND :endedAt
+						DELETE FROM TemperatureValue tv
+						WHERE tv.sensor.naturalId = :sensorNaturalId
+						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						""";
 
 		entityManager.createQuery(jpql)

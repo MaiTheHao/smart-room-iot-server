@@ -9,7 +9,7 @@ import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
-public interface LightMapperV1 {
+public interface LightMapper {
     
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "naturalId", source = "entity.naturalId")

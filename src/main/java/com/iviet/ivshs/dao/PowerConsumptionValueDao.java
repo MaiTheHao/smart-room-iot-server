@@ -9,17 +9,18 @@ import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumptionValue;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 
-import jakarta.persistence.TypedQuery;
-
 @Repository
 public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionValue> {
 
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
-	private static final String DATE_FORMAT_FUNCTION = "CAST(FUNCTION('DATE_FORMAT', p.timestamp, '" + DATE_FORMAT + "') AS string)";
-	private static final String INSERT_SQL = "INSERT INTO power_consumption_value_v1 (sensor_id, timestamp, watt) VALUES (?, ?, ?, ?)";
+	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', pcv.timestamp, '" + DATE_FORMAT + "') AS string)";
 
 	public PowerConsumptionValueDao() {
 		super(PowerConsumptionValue.class);
+	}
+
+	private String getInsertSql() {
+		return "INSERT INTO %s (sensor_id, timestamp, watt) VALUES (?, ?, ?)".formatted(getTableName());
 	}
 
 	@Override
@@ -31,7 +32,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	public void saveAndForget(Long sensorId, List<PowerConsumptionValue> entities) {
 		if (entities == null || entities.isEmpty()) return;
 
-		jdbcTemplate.batchUpdate(INSERT_SQL, entities, BATCH_SIZE, (ps, entity) -> {
+		String insertSql = getInsertSql();
+		jdbcTemplate.batchUpdate(insertSql, entities, BATCH_SIZE, (ps, entity) -> {
 			if (sensorId != null) {
 				ps.setLong(1,  sensorId);
 			} else throw new BadRequestException("Sensor ID cannot be null");
@@ -46,88 +48,100 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDto(" +
-				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
-				"FROM PowerConsumptionValue p " +
-				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
-				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
-				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<AveragePowerConsumptionValueDto> query = entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class);
-		query.setParameter("roomId", roomId);
-		query.setParameter("startedAt", startedAt);
-		query.setParameter("endedAt", endedAt);
-		return query.getResultList();
+		String dtoPath = AveragePowerConsumptionValueDto.class.getName();
+		String jpql = """
+				SELECT new %s(%s, AVG(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.room.id = :roomId AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY %s
+				ORDER BY %s ASC
+				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		
+		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
+				.setParameter("roomId", roomId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.getResultList();
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.AveragePowerConsumptionValueDto(" +
-				DATE_FORMAT_FUNCTION + ", AVG(p.watt), AVG(p.wattHour)) " +
-				"FROM PowerConsumptionValue p " +
-				"WHERE p.sensor.deviceControl.client.id = :clientId " +
-				"AND p.timestamp BETWEEN :startedAt AND :endedAt " +
-				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
-				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<AveragePowerConsumptionValueDto> query = entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class);
-		query.setParameter("clientId", clientId);
-		query.setParameter("startedAt", startedAt);
-		query.setParameter("endedAt", endedAt);
-		return query.getResultList();
+		String dtoPath = AveragePowerConsumptionValueDto.class.getName();
+		String jpql = """
+				SELECT new %s(%s, AVG(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.deviceControl.client.id = :clientId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY %s
+				ORDER BY %s ASC
+				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		
+		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
+				.setParameter("clientId", clientId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.getResultList();
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDto(" +
-				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
-				"FROM PowerConsumptionValue p " +
-				"WHERE p.sensor.deviceControl.client.id = :clientId " +
-				"AND p.timestamp BETWEEN :startedAt AND :endedAt " +
-				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
-				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<SumPowerConsumptionValueDto> query = entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class);
-		query.setParameter("clientId", clientId);
-		query.setParameter("startedAt", startedAt);
-		query.setParameter("endedAt", endedAt);
-		return query.getResultList();
+		String dtoPath = SumPowerConsumptionValueDto.class.getName();
+		String jpql = """
+				SELECT new %s(%s, SUM(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.deviceControl.client.id = :clientId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY %s
+				ORDER BY %s ASC
+				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		
+		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
+				.setParameter("clientId", clientId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.getResultList();
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = "SELECT new com.iviet.ivshs.dto.SumPowerConsumptionValueDto(" +
-				DATE_FORMAT_FUNCTION + ", SUM(p.watt)) " +
-				"FROM PowerConsumptionValue p " +
-				"WHERE p.sensor.room.id = :roomId AND p.timestamp BETWEEN :startedAt AND :endedAt " +
-				"GROUP BY " + DATE_FORMAT_FUNCTION + " " +
-				"ORDER BY " + DATE_FORMAT_FUNCTION + " ASC";
-		TypedQuery<SumPowerConsumptionValueDto> query = entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class);
-		query.setParameter("roomId", roomId);
-		query.setParameter("startedAt", startedAt);
-		query.setParameter("endedAt", endedAt);
-		return query.getResultList();
+		String dtoPath = SumPowerConsumptionValueDto.class.getName();
+		String jpql = """
+				SELECT new %s(%s, SUM(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.room.id = :roomId AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY %s
+				ORDER BY %s ASC
+				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		
+		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
+				.setParameter("roomId", roomId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.getResultList();
 	}
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {
-			String jpql = """
-							DELETE FROM PowerConsumptionValue v
-							WHERE v.sensor.id = :sensorId
-							AND v.timestamp BETWEEN :startedAt AND :endedAt
-							""";
+		String jpql = """
+				DELETE FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.id = :sensorId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				""";
 
-			entityManager.createQuery(jpql)
-							.setParameter("sensorId", sensorId)
-							.setParameter("startedAt", startedAt)
-							.setParameter("endedAt", endedAt)
-							.executeUpdate();
+		entityManager.createQuery(jpql)
+				.setParameter("sensorId", sensorId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.executeUpdate();
 	}
 
 	public void deleteBySensorNaturalIdAndTimestampBetween(String sensorNaturalId, Instant startedAt, Instant endedAt) {
-			String jpql = """
-							DELETE FROM PowerConsumptionValue v
-							WHERE v.sensor.naturalId = :sensorNaturalId
-							AND v.timestamp BETWEEN :startedAt AND :endedAt
-							""";
+		String jpql = """
+				DELETE FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.naturalId = :sensorNaturalId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				""";
 
-			entityManager.createQuery(jpql)
-							.setParameter("sensorNaturalId", sensorNaturalId)
-							.setParameter("startedAt", startedAt)
-							.setParameter("endedAt", endedAt)
-							.executeUpdate();
+		entityManager.createQuery(jpql)
+				.setParameter("sensorNaturalId", sensorNaturalId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.executeUpdate();
 	}
 }

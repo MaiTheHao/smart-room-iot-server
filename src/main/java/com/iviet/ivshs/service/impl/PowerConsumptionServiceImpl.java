@@ -19,7 +19,7 @@ import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.PowerConsumptionMapperV1;
+import com.iviet.ivshs.mapper.PowerConsumptionMapper;
 import com.iviet.ivshs.service.PowerConsumptionService;
 import com.iviet.ivshs.util.LocalContextUtil;
 
@@ -33,7 +33,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	private final LanguageDao languageDao;
 	private final RoomDao roomDao;
 	private final DeviceControlDao deviceControlDao;
-	private final PowerConsumptionMapperV1 powerConsumptionMapper;
+	private final PowerConsumptionMapper powerConsumptionMapper;
 
 	@Override
 	@Transactional(readOnly = true)

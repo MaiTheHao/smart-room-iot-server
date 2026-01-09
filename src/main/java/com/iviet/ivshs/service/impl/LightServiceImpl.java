@@ -8,7 +8,7 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.LightMapperV1;
+import com.iviet.ivshs.mapper.LightMapper;
 import com.iviet.ivshs.service.ControlService;
 import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.util.LocalContextUtil;
@@ -29,7 +29,7 @@ public class LightServiceImpl implements LightService {
     private final RoomDao roomDao;
     private final LanguageDao languageDao;
     private final DeviceControlDao deviceControlDao;
-    private final LightMapperV1 lightMapper;
+    private final LightMapper lightMapper;
     private final ControlService controlService;
 
     @Override

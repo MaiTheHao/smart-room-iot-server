@@ -12,7 +12,7 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface ClientMapperV1 {
+public interface ClientMapper {
 
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "username", source = "entity.username")
@@ -28,6 +28,7 @@ public interface ClientMapperV1 {
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "deviceControls", ignore = true)
     @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "groups", ignore = true)
     Client toEntity(CreateClientDto dto);
 
     @IgnoreAuditFields
@@ -35,5 +36,6 @@ public interface ClientMapperV1 {
     @Mapping(target = "passwordHash", ignore = true)
     @Mapping(target = "deviceControls", ignore = true)
     @Mapping(target = "lastLoginAt", ignore = true)
+    @Mapping(target = "groups", ignore = true)
     void updateEntityFromDto(UpdateClientDto dto, @MappingTarget Client entity);
 }

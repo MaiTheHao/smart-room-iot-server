@@ -16,6 +16,5 @@ public class PowerConsumptionValueDto {
     private Long id;
     private Long sensorId;
     private Double watt;
-    private Double wattHour;
     private Instant timestamp;
 }

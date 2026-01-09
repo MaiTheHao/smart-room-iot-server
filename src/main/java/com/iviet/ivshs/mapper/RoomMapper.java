@@ -10,7 +10,7 @@ import com.iviet.ivshs.entities.RoomLan;
 import com.iviet.ivshs.entities.Room;
 
 @Mapper(componentModel = "spring")
-public interface RoomMapperV1 {
+public interface RoomMapper {
 
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "code", source = "entity.code")

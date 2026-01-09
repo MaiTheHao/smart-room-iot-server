@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class HttpClientUtil {
 
+	// Hiện tại 30s là timeout mặc định, do phía thiết bị IoT có độ trễ cao, chưa có giải pháp tối ưu hơn.
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
 	private static final String ACCEPT_HEADER = "Accept";

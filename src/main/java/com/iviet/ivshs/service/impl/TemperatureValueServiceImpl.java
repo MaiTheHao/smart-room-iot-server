@@ -8,7 +8,7 @@ import com.iviet.ivshs.dto.CreateTemperatureValueDto;
 import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.TemperatureValueMapperV1;
+import com.iviet.ivshs.mapper.TemperatureValueMapper;
 import com.iviet.ivshs.service.TemperatureValueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     private final RoomDao roomDao;
     private final TemperatureDao temperatureDao;
     private final TemperatureValueDao temperatureValueDao;
-    private final TemperatureValueMapperV1 temperatureValueMapper;
+    private final TemperatureValueMapper temperatureValueMapper;
 
     @Override
     @Transactional(readOnly = true)

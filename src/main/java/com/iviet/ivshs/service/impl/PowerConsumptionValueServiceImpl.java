@@ -11,7 +11,7 @@ import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.entities.PowerConsumptionValue;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.PowerConsumptionValueMapperV1;
+import com.iviet.ivshs.mapper.PowerConsumptionValueMapper;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
     private final RoomDao roomDao;
     private final PowerConsumptionDao powerConsumptionDao;
     private final PowerConsumptionValueDao powerConsumptionValueDao;
-    private final PowerConsumptionValueMapperV1 powerConsumptionValueMapper;
+    private final PowerConsumptionValueMapper powerConsumptionValueMapper;
 
     @Override
     public List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {

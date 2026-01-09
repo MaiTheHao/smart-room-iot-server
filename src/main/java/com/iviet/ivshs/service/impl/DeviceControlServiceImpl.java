@@ -16,7 +16,7 @@ import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.DeviceControlMapperV1;
+import com.iviet.ivshs.mapper.DeviceControlMapper;
 import com.iviet.ivshs.service.DeviceControlService;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class DeviceControlServiceImpl implements DeviceControlService {
     private DeviceControlDao deviceControlDao;
     
     @Autowired
-    private DeviceControlMapperV1 deviceControlMapper;
+    private DeviceControlMapper deviceControlMapper;
     
     @Autowired
     private ClientDao clientDao;

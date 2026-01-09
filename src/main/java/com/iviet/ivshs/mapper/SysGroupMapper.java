@@ -11,7 +11,7 @@ import com.iviet.ivshs.entities.SysGroupLan;
 import com.iviet.ivshs.entities.SysGroup;
 
 @Mapper(componentModel = "spring")
-public interface SysGroupMapperV1 {
+public interface SysGroupMapper {
 
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "groupCode", source = "entity.groupCode")

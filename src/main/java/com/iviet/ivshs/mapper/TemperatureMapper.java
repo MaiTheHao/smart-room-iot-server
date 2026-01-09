@@ -10,7 +10,7 @@ import com.iviet.ivshs.entities.TemperatureLan;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
-public interface TemperatureMapperV1 {
+public interface TemperatureMapper {
     
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "name", source = "sensorLan.name")

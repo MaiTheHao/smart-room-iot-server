@@ -1,7 +1,6 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

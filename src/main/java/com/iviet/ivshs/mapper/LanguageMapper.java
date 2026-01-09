@@ -13,7 +13,7 @@ import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
-public interface LanguageMapperV1 {
+public interface LanguageMapper {
     
     LanguageDto toDto(Language entity);
 

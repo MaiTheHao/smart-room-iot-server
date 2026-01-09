@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.CreatePowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumptionValue;
 
 @Mapper(componentModel = "spring")
-public interface PowerConsumptionValueMapperV1 {
+public interface PowerConsumptionValueMapper {
 
     @Mapping(target = "sensorId", source = "sensor.id")
     PowerConsumptionValueDto toDto(PowerConsumptionValue entity);

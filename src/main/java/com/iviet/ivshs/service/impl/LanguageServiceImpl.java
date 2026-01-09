@@ -8,7 +8,7 @@ import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.LanguageMapperV1;
+import com.iviet.ivshs.mapper.LanguageMapper;
 import com.iviet.ivshs.service.LanguageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.List;
 public class LanguageServiceImpl implements LanguageService {
 
     private final LanguageDao languageDao;
-    private final LanguageMapperV1 languageMapper;
+    private final LanguageMapper languageMapper;
 
     @Override
     public PaginatedResponse<LanguageDto> getList(int page, int size) {

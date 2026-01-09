@@ -8,7 +8,7 @@ import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.FloorMapperV1;
+import com.iviet.ivshs.mapper.FloorMapper;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import com.iviet.ivshs.util.RequestContextUtil;
@@ -30,7 +30,7 @@ public class FloorServiceImpl implements FloorService {
 
     private final FloorDao floorDao;
     private final LanguageDao languageDao;
-    private final FloorMapperV1 floorMapper;
+    private final FloorMapper floorMapper;
 
     @Override
     public PaginatedResponse<FloorDto> getList(int page, int size) {

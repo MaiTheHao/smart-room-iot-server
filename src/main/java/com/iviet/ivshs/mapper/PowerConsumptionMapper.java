@@ -10,7 +10,7 @@ import com.iviet.ivshs.entities.PowerConsumptionLan;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
-public interface PowerConsumptionMapperV1 {
+public interface PowerConsumptionMapper {
 
 	@Mapping(target = "id", source = "entity.id")
 	@Mapping(target = "name", source = "sensorLan.name")

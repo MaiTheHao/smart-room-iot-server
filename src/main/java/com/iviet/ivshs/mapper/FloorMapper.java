@@ -9,7 +9,7 @@ import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring")
-public interface FloorMapperV1 {
+public interface FloorMapper {
 
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "code", source = "entity.code")

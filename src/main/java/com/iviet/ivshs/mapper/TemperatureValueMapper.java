@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface TemperatureValueMapperV1 {
+public interface TemperatureValueMapper {
 
     @Mapping(target = "sensorId", source = "entity.sensor.id")
     TemperatureValueDto toDto(TemperatureValue entity);

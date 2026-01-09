@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "StartupLogger")
+@Slf4j(topic = "Startup")
 @Component
 @Order(1)
 public class ApplicationStartupLogger implements ApplicationListener<ContextRefreshedEvent> {
@@ -21,15 +21,18 @@ public class ApplicationStartupLogger implements ApplicationListener<ContextRefr
             return;
         }
 
-        log.info("🚀 SMART ROOM IOT SYSTEM :: STARTING UP");
-        log.info("────────────────────────────────────────────────────────────");
-        log.info("📋 System Configuration:");
-        log.info("   🏗️  Context  : {}", event.getApplicationContext().getDisplayName());
-        log.info("   🔧  Profiles : {}", String.join(", ", event.getApplicationContext().getEnvironment().getActiveProfiles()));
-        log.info("   📦  Beans    : {} definitions loaded", event.getApplicationContext().getBeanDefinitionCount());
-        log.info("────────────────────────────────────────────────────────────");
-        log.info("⚙️  Initializing startup sequences...");
-        log.info("");
+        String[] activeProfiles = event.getApplicationContext().getEnvironment().getActiveProfiles();
+        String profiles = activeProfiles.length > 0 ? String.join(", ", activeProfiles) : "default";
+        int beanCount = event.getApplicationContext().getBeanDefinitionCount();
+
+        log.info("============================================================");
+        log.info("SYSTEM STARTUP :: SMART ROOM IOT SYSTEM");
+        log.info("------------------------------------------------------------");
+        log.info("Context      : {}", event.getApplicationContext().getDisplayName());
+        log.info("Profiles     : [{}]", profiles);
+        log.info("Components   : {} beans loaded", beanCount);
+        log.info("Status       : INITIALIZING...");
+        log.info("------------------------------------------------------------");
 
         isLogged = true;
     }

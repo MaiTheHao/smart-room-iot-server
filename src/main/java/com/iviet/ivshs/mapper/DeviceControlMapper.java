@@ -14,7 +14,7 @@ import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.annotation.IgnoreAuditFields;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface DeviceControlMapperV1 {
+public interface DeviceControlMapper {
 
     @Mapping(target = "clientId", source = "entity.client.id")
     @Mapping(target = "roomId", source = "entity.room.id")

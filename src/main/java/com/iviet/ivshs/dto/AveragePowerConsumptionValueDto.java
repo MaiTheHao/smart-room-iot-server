@@ -19,11 +19,9 @@ public class AveragePowerConsumptionValueDto {
 	
 	private Instant timestamp;
 	private Double avgWatt;
-	private Double avgWattHour;
 
-	public AveragePowerConsumptionValueDto(String formattedTimestamp, Double avgWatt, Double avgWattHour) {
+	public AveragePowerConsumptionValueDto(String formattedTimestamp, Double avgWatt) {
 		this.timestamp = TimeUtil.parseToInstant(formattedTimestamp, FORMATTER);
 		this.avgWatt = avgWatt;
-		this.avgWattHour = avgWattHour;
 	}
 }

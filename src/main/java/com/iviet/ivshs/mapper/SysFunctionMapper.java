@@ -11,7 +11,7 @@ import com.iviet.ivshs.entities.SysFunctionLan;
 import com.iviet.ivshs.entities.SysFunction;
 
 @Mapper(componentModel = "spring")
-public interface SysFunctionMapperV1 {
+public interface SysFunctionMapper {
 
     @Mapping(target = "id", source = "entity.id")
     @Mapping(target = "functionCode", source = "entity.functionCode")

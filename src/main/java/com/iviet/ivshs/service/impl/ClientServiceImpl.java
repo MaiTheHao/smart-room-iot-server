@@ -9,7 +9,7 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.ClientMapperV1;
+import com.iviet.ivshs.mapper.ClientMapper;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.util.SecurityContextUtil;
 
@@ -30,7 +30,7 @@ public class ClientServiceImpl implements ClientService {
     private ClientDao clientDao;
 
     @Autowired
-    private ClientMapperV1 clientMapper;
+    private ClientMapper clientMapper;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;

@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.TemperatureMapperV1;
+import com.iviet.ivshs.mapper.TemperatureMapper;
 import com.iviet.ivshs.service.TemperatureService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class TemperatureServiceImpl implements TemperatureService {
     private final RoomDao roomDao;
     private final DeviceControlDao deviceControlDao;
     private final LanguageDao languageDao;
-    private final TemperatureMapperV1 temperatureMapper;
+    private final TemperatureMapper temperatureMapper;
 
     // --- CRUD SENSOR ---
 

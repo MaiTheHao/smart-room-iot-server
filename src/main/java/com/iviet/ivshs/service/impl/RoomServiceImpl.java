@@ -10,7 +10,7 @@ import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.RoomMapperV1;
+import com.iviet.ivshs.mapper.RoomMapper;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.util.LocalContextUtil;
@@ -37,7 +37,7 @@ public class RoomServiceImpl implements RoomService {
     private final FloorDao floorDao;
     private final FloorService floorService;
     private final LanguageDao languageDao;
-    private final RoomMapperV1 roomMapper;
+    private final RoomMapper roomMapper;
 
     @Override
     public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {

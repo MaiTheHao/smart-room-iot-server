@@ -12,7 +12,7 @@ import com.iviet.ivshs.service.ClientFunctionService;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "StartupLogger")
+@Slf4j(topic = "Startup")
 @Component
 @Order(10)
 public class PermissionCacheInitializer implements ApplicationListener<ContextRefreshedEvent> {
@@ -28,39 +28,35 @@ public class PermissionCacheInitializer implements ApplicationListener<ContextRe
     @Override
     public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
         if (isInitialized) {
-            log.debug("Permission cache already initialized. Skipping...");
             return;
         }
 
-		if (!env.getProperty("startup.permissionCache.enabled", Boolean.class, false)) {
-			log.info("Permission cache initialization is disabled via configuration. Skipping...");
+		boolean enabled = env.getProperty("startup.permissionCache.enabled", Boolean.class, false);
+		if (!enabled) {
+			log.info("Module       : [Permission Cache] -> [SKIP]");
 			return;
 		}
 
         try {
-            log.info("⚡ [Permission Cache] Rebuild sequence initiated...");
+            log.info("Module       : [Permission Cache] -> [RUNNING]");
             
             long startTime = System.currentTimeMillis();
-
             int totalEntries = sysClientFunctionCacheService.rebuildAllCache();
-
             long duration = System.currentTimeMillis() - startTime;
 
-            log.info("✅ [Permission Cache] Rebuild successful");
-            log.info("   ├─ 📊 Status   : COMPLETED");
-            log.info("   ├─ 📥 Entries  : {} items", totalEntries);
-            log.info("   └─ ⏱️  Duration : {} ms", duration);
+            log.info("Module       : [Permission Cache] -> [OK]");
+            log.info("  - Entries    : {} items", totalEntries);
+            log.info("  - Duration   : {} ms", duration);
 
             isInitialized = true;
 
         } catch (Exception e) {
-            log.error("❌ [Permission Cache] Critical failure");
-            log.error("   ├─ ⚠️  Error    : {}", e.getMessage());
-            log.error("   └─ 🛠️  Action   : Manual rebuild required");
-            log.error("────────────────────────────────────────────────────────────");
+            log.error("Module       : [Permission Cache] -> [FAILED]");
+            log.error("  - Reason     : {}", e.getMessage());
+            log.error("------------------------------------------------------------");
             log.error("Stack trace:", e);
-            log.warn("⚠️  Server proceeding without permission cache!");
-            log.warn("💡 Tip: Rebuild manually via API or scheduled task.");
+            log.warn("WARNING: Server proceeding without permission cache");
+            log.warn("ACTION: Rebuild manually via API or scheduled task");
         }
     }
 }
