@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+// import org.springframework.cache.annotation.CacheEvict;
+// import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.FloorDto;
 import com.iviet.ivshs.dto.RoomDto;
-import com.iviet.ivshs.enumeration.CacheDefinition;
+// import com.iviet.ivshs.enumeration.CacheDefinition;
 import com.iviet.ivshs.service.DeviceControlService;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.HomeViewProcessService;
@@ -37,10 +37,10 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	private static final long DEFAULT_MINUS_MINUTES = 15;
 	
 	@Override
-	@Cacheable(
-		value = CacheDefinition._HOME_VIEW_FLOOR_ROOMS_MAP,
-		key = "'all' + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
-	)
+	// @Cacheable(
+	// 	value = CacheDefinition._HOME_VIEW_FLOOR_ROOMS_MAP,
+	// 	key = "'all' + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
+	// )
 	public Map<Long, List<RoomDto>> getFloorRoomsMap() {
 		List<FloorDto> floors = floorService.getList(0, 1000).content();
 		
@@ -54,10 +54,10 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	}
 	
 	@Override
-	@Cacheable(
-		value = CacheDefinition._HOME_VIEW_FLOORS_MAP,
-		key = "'all' + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
-	)
+	// @Cacheable(
+	// 	value = CacheDefinition._HOME_VIEW_FLOORS_MAP,
+	// 	key = "'all' + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
+	// )
 	public Map<Long, FloorDto> getFloorsMap() {
 		List<FloorDto> floors = floorService.getList(0, 1000).content();
 		
@@ -72,19 +72,19 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	
 
 	@Override
-	@Cacheable(
-		value = CacheDefinition._HOME_VIEW_ROOM_GATEWAY_COUNT,
-		key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
-	)
+	// @Cacheable(
+	// 	value = CacheDefinition._HOME_VIEW_ROOM_GATEWAY_COUNT,
+	// 	key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
+	// )
 	public Long getGatewayCountForRoom(Long roomId) {
 		return deviceControlService.countByRoomId(roomId);
 	}
 	
 	@Override
-	@Cacheable(
-		value = CacheDefinition._HOME_VIEW_ROOM_LASTEST_TEMP,
-		key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
-	)
+	// @Cacheable(
+	// 	value = CacheDefinition._HOME_VIEW_ROOM_LASTEST_TEMP,
+	// 	key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
+	// )
 	public Double getLatestTemperatureForRoom(Long roomId) {
 		Instant endedAt = Instant.now();
 		Instant startedAt = endedAt.minus(DEFAULT_MINUS_MINUTES, ChronoUnit.MINUTES);
@@ -98,10 +98,10 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	}
 	
 	@Override
-	@Cacheable(
-		value = CacheDefinition._HOME_VIEW_ROOM_LASTEST_POWER,
-		key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest()"
-	)
+	// @Cacheable(
+	// 	value = CacheDefinition._HOME_VIEW_ROOM_LASTEST_POWER,
+	// 	key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest()"
+	// )
 	public Double getLatestPowerConsumptionForRoom(Long roomId) {
 		Instant endedAt = Instant.now();
 		Instant startedAt = endedAt.minus(DEFAULT_MINUS_MINUTES, ChronoUnit.MINUTES);
@@ -115,12 +115,12 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	}
 
 	@Override
-	@CacheEvict(allEntries = true, value = {
-		CacheDefinition._HOME_VIEW_FLOOR_ROOMS_MAP,
-		CacheDefinition._HOME_VIEW_FLOORS_MAP,
-		CacheDefinition._HOME_VIEW_ROOM_GATEWAY_COUNT,
-		CacheDefinition._HOME_VIEW_ROOM_LASTEST_TEMP,
-		CacheDefinition._HOME_VIEW_ROOM_LASTEST_POWER
-	})
+	// @CacheEvict(allEntries = true, value = {
+	// 	CacheDefinition._HOME_VIEW_FLOOR_ROOMS_MAP,
+	// 	CacheDefinition._HOME_VIEW_FLOORS_MAP,
+	// 	CacheDefinition._HOME_VIEW_ROOM_GATEWAY_COUNT,
+	// 	CacheDefinition._HOME_VIEW_ROOM_LASTEST_TEMP,
+	// 	CacheDefinition._HOME_VIEW_ROOM_LASTEST_POWER
+	// })
 	public void evictAllCaches() {}
 }

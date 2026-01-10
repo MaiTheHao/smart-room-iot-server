@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @AllArgsConstructor
+@Deprecated
 public enum CacheDefinition {
 
 	HOME_VIEW_FLOOR_ROOMS_MAP(CacheDefinition._HOME_VIEW_FLOOR_ROOMS_MAP, 5, TimeUnit.MINUTES, 100),

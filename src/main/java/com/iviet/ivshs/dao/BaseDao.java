@@ -66,6 +66,15 @@ public abstract class BaseDao<T> {
         entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
     }
 
+	public List<T> findAll() {
+		var cb = this.getCB();
+		var cq = cb.createQuery(clazz);
+		var root = cq.from(clazz);
+		cq.select(root);
+		TypedQuery<T> query = entityManager.createQuery(cq);
+		return query.getResultList();
+	}
+
 	public List<T> findAll(
 		Function<Root<T>, Predicate> specification,
 		BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer,

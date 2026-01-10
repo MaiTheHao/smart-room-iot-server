@@ -53,49 +53,31 @@ public class SysRoleServiceImpl implements SysRoleService {
                 SysFunction function = functionDao.findByCode(functionCode)
                         .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
-                // Kiểm tra đã tồn tại chưa
                 if (roleDao.existsByGroupAndFunction(group.getId(), function.getId())) {
                     skippedCount++;
-                    log.debug("Role already exists for group {} and function {}", group.getId(), functionCode);
                     continue;
                 }
 
-                // Tạo role mới
                 SysRole role = new SysRole();
                 role.setGroup(group);
                 role.setFunction(function);
-                role.setIsActive(true);
                 
                 roleDao.save(role);
                 successCount++;
                 hasChanges = true;
 
             } catch (Exception e) {
-                errors.add("Failed to add function " + functionCode + ": " + e.getMessage());
+                String errorMsg = String.format("Failed to add function %s: %s", functionCode, e.getMessage());
+                errors.add(errorMsg);
                 log.error("Error adding function {} to group {}", functionCode, group.getId(), e);
             }
         }
 
-        // Rebuild cache 1 lần duy nhất sau khi hoàn tất tất cả DB operations
         if (hasChanges) {
             cacheService.rebuildCacheForGroup(group.getId());
         }
 
-        String message = String.format(
-            "Added %d function(s), skipped %d (already exists)",
-            successCount, skippedCount
-        );
-        
-        if (!errors.isEmpty()) {
-            message += ". Errors: " + String.join("; ", errors);
-        }
-
-        return BatchOperationResultDto.builder()
-                .successCount(successCount)
-                .skippedCount(skippedCount)
-                .failedCount(errors.size())
-                .message(message)
-                .build();
+        return buildBatchResult(successCount, skippedCount, errors, "added");
     }
 
     @Override
@@ -104,7 +86,6 @@ public class SysRoleServiceImpl implements SysRoleService {
             throw new BadRequestException("Invalid request data");
         }
 
-        // Verify group exists
         if (!groupDao.existsById(dto.getGroupId())) {
             throw new NotFoundException("Group not found with ID: " + dto.getGroupId());
         }
@@ -119,22 +100,18 @@ public class SysRoleServiceImpl implements SysRoleService {
                 SysFunction function = functionDao.findByCode(functionCode)
                         .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
-                // Kiểm tra role có tồn tại không
-                if (!roleDao.existsByGroupAndFunction(dto.getGroupId(), function.getId())) {
-                    skippedCount++;
-                    log.debug("Role not found for group {} and function {}", dto.getGroupId(), functionCode);
-                    continue;
-                }
-
-                // Xóa role
                 int deleted = roleDao.deleteByGroupAndFunction(dto.getGroupId(), function.getId());
+                
                 if (deleted > 0) {
                     successCount++;
                     hasChanges = true;
+                } else {
+                    skippedCount++;
                 }
 
             } catch (Exception e) {
-                errors.add("Failed to remove function " + functionCode + ": " + e.getMessage());
+                String errorMsg = String.format("Failed to remove function %s: %s", functionCode, e.getMessage());
+                errors.add(errorMsg);
                 log.error("Error removing function {} from group {}", functionCode, dto.getGroupId(), e);
             }
         }
@@ -144,21 +121,7 @@ public class SysRoleServiceImpl implements SysRoleService {
             cacheService.rebuildCacheForGroup(dto.getGroupId());
         }
 
-        String message = String.format(
-            "Removed %d function(s), skipped %d (not found)",
-            successCount, skippedCount
-        );
-        
-        if (!errors.isEmpty()) {
-            message += ". Errors: " + String.join("; ", errors);
-        }
-
-        return BatchOperationResultDto.builder()
-                .successCount(successCount)
-                .skippedCount(skippedCount)
-                .failedCount(errors.size())
-                .message(message)
-                .build();
+        return buildBatchResult(successCount, skippedCount, errors, "removed");
     }
 
     @Override
@@ -170,8 +133,7 @@ public class SysRoleServiceImpl implements SysRoleService {
         SysGroup group = groupDao.findById(dto.getGroupId())
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
 
-        int addedCount = 0;
-        int removedCount = 0;
+        int processedCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
         boolean hasChanges = false;
@@ -187,31 +149,29 @@ public class SysRoleServiceImpl implements SysRoleService {
                 boolean exists = roleDao.existsByGroupAndFunction(group.getId(), function.getId());
 
                 if (Boolean.TRUE.equals(shouldAdd)) {
-                    // Add function to group
-                    if (exists) {
-                        skippedCount++;
-                    } else {
+                    if (!exists) {
                         SysRole role = new SysRole();
                         role.setGroup(group);
                         role.setFunction(function);
-                        role.setIsActive(true);
                         roleDao.save(role);
-                        addedCount++;
                         hasChanges = true;
+                        processedCount++;
+                    } else {
+                        skippedCount++;
                     }
                 } else {
-                    // Remove function from group
-                    if (!exists) {
-                        skippedCount++;
-                    } else {
+                    if (exists) {
                         roleDao.deleteByGroupAndFunction(group.getId(), function.getId());
-                        removedCount++;
                         hasChanges = true;
+                        processedCount++;
+                    } else {
+                        skippedCount++;
                     }
                 }
 
             } catch (Exception e) {
-                errors.add("Failed to toggle function " + functionCode + ": " + e.getMessage());
+                String errorMsg = String.format("Failed to toggle function %s: %s", functionCode, e.getMessage());
+                errors.add(errorMsg);
                 log.error("Error toggling function {} for group {}", functionCode, group.getId(), e);
             }
         }
@@ -221,17 +181,13 @@ public class SysRoleServiceImpl implements SysRoleService {
             cacheService.rebuildCacheForGroup(group.getId());
         }
 
-        String message = String.format(
-            "Added %d, removed %d, skipped %d function(s)",
-            addedCount, removedCount, skippedCount
-        );
-        
+        String message = String.format("Processed %d, skipped %d function(s)", processedCount, skippedCount);
         if (!errors.isEmpty()) {
             message += ". Errors: " + String.join("; ", errors);
         }
 
         return BatchOperationResultDto.builder()
-                .successCount(addedCount + removedCount)
+                .successCount(processedCount)
                 .skippedCount(skippedCount)
                 .failedCount(errors.size())
                 .message(message)
@@ -250,20 +206,16 @@ public class SysRoleServiceImpl implements SysRoleService {
         SysFunction function = functionDao.findByCode(functionCode)
                 .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
-        // Kiểm tra đã tồn tại chưa
         if (roleDao.existsByGroupAndFunction(groupId, function.getId())) {
             throw new BadRequestException("Function already exists in group");
         }
 
-        // Tạo role mới
         SysRole role = new SysRole();
         role.setGroup(group);
         role.setFunction(function);
-        role.setIsActive(true);
         
         roleDao.save(role);
 
-        // Rebuild cache sau khi DB operation hoàn tất
         cacheService.rebuildCacheForGroup(groupId);
     }
 
@@ -276,15 +228,12 @@ public class SysRoleServiceImpl implements SysRoleService {
         SysFunction function = functionDao.findByCode(functionCode)
                 .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
-        // Kiểm tra role có tồn tại không
         if (!roleDao.existsByGroupAndFunction(groupId, function.getId())) {
             throw new NotFoundException("Function not found in group");
         }
 
-        // Xóa role
         roleDao.deleteByGroupAndFunction(groupId, function.getId());
 
-        // Rebuild cache cho group
         cacheService.rebuildCacheForGroup(groupId);
     }
 
@@ -300,48 +249,35 @@ public class SysRoleServiceImpl implements SysRoleService {
         int successCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
+        boolean hasChanges = false;
 
         for (Long groupId : dto.getGroupIds()) {
             try {
                 SysGroup group = groupDao.findById(groupId)
                         .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-                // Kiểm tra client đã có group chưa
                 if (client.getGroups().contains(group)) {
                     skippedCount++;
-                    log.debug("Client {} already has group {}", client.getId(), groupId);
                     continue;
                 }
 
-                // Thêm group vào client
                 client.getGroups().add(group);
                 successCount++;
+                hasChanges = true;
 
             } catch (Exception e) {
-                errors.add("Failed to assign group " + groupId + ": " + e.getMessage());
+                String errorMsg = String.format("Failed to assign group %d: %s", groupId, e.getMessage());
+                errors.add(errorMsg);
                 log.error("Error assigning group {} to client {}", groupId, client.getId(), e);
             }
         }
 
-        clientDao.save(client);
-
-        cacheService.rebuildCacheForClient(client.getId());
-
-        String message = String.format(
-            "Assigned %d group(s), skipped %d (already assigned)",
-            successCount, skippedCount
-        );
-        
-        if (!errors.isEmpty()) {
-            message += ". Errors: " + String.join("; ", errors);
+        if (hasChanges) {
+            clientDao.save(client);
+            cacheService.rebuildCacheForClient(client.getId());
         }
 
-        return BatchOperationResultDto.builder()
-                .successCount(successCount)
-                .skippedCount(skippedCount)
-                .failedCount(errors.size())
-                .message(message)
-                .build();
+        return buildBatchResult(successCount, skippedCount, errors, "assigned");
     }
 
     @Override
@@ -373,7 +309,8 @@ public class SysRoleServiceImpl implements SysRoleService {
             throw new BadRequestException("Invalid request data");
         }
 
-        Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+        Client client = clientDao.findById(dto.getClientId())
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
 
         boolean hasChanges = false;
 
@@ -382,15 +319,10 @@ public class SysRoleServiceImpl implements SysRoleService {
                 SysGroup group = groupDao.findById(groupId)
                         .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-                // Kiểm tra client có group không
-                if (!client.getGroups().contains(group)) {
-                    log.debug("Client {} does not have group {}", client.getId(), groupId);
-                    continue;
+                if (client.getGroups().remove(group)) {
+                    hasChanges = true;
+                    cacheService.clearCacheForClientGroup(client.getId(), groupId);
                 }
-
-                // Remove group khỏi client
-                client.getGroups().remove(group);
-                hasChanges = true;
 
             } catch (Exception e) {
                 log.error("Error unassigning group {} from client {}", groupId, client.getId(), e);
@@ -399,9 +331,6 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         if (hasChanges) {
             clientDao.save(client);
-            for (Long groupId : dto.getGroupIds()) {
-                cacheService.clearCacheForClientGroup(client.getId(), groupId);
-            }
             cacheService.rebuildCacheForClient(client.getId());
         }
     }
@@ -413,11 +342,23 @@ public class SysRoleServiceImpl implements SysRoleService {
             return false;
         }
 
-        SysFunction function = functionDao.findByCode(functionCode).orElse(null);
-        if (function == null) {
-            return false;
+        return functionDao.findByCode(functionCode)
+                .map(function -> roleDao.existsByGroupAndFunction(groupId, function.getId()))
+                .orElse(false);
+    }
+
+    private BatchOperationResultDto buildBatchResult(int success, int skipped, List<String> errors, String action) {
+        String message = String.format("Successfully %s %d item(s), skipped %d", action, success, skipped);
+        
+        if (!errors.isEmpty()) {
+            message += ". Errors: " + String.join("; ", errors);
         }
 
-        return roleDao.existsActiveByGroupAndFunction(groupId, function.getId());
+        return BatchOperationResultDto.builder()
+                .successCount(success)
+                .skippedCount(skipped)
+                .failedCount(errors.size())
+                .message(message)
+                .build();
     }
 }

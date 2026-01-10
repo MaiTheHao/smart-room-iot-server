@@ -71,7 +71,7 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
 
 	public List<SysFunctionDto> findFunctionsByGroupId(Long groupId, String langCode, int page, int size) {
 		String jpql = "SELECT new %s(f.id, f.functionCode, flan.name, flan.description) FROM SysGroup g " +
-					  "JOIN g.roles r ON r.isActive = true JOIN r.function f " +
+					  "JOIN g.roles r JOIN r.function f " +
 					  "LEFT JOIN f.translations flan ON flan.langCode = :langCode " +
 					  "WHERE g.id = :groupId ORDER BY f.functionCode ASC";
 		return entityManager.createQuery(String.format(jpql, FUNC_DTO), SysFunctionDto.class)
@@ -140,7 +140,7 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
 	}
 
 	public long countFunctionsByGroupId(Long groupId) {
-		String jpql = "SELECT COUNT(f) FROM SysGroup g JOIN g.roles r ON r.isActive = true JOIN r.function f WHERE g.id = :groupId";
+		String jpql = "SELECT COUNT(f) FROM SysGroup g JOIN g.roles r JOIN r.function f WHERE g.id = :groupId";
 		return entityManager.createQuery(jpql, Long.class).setParameter("groupId", groupId).getSingleResult();
 	}
 

@@ -2,8 +2,6 @@ package com.iviet.ivshs.entities;
 
 import java.io.Serializable;
 
-import org.hibernate.annotations.OnDelete;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

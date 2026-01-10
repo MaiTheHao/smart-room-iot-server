@@ -1,6 +1,9 @@
 package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.entities.Client;
+
+import java.util.List;
+
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -9,6 +12,10 @@ import com.iviet.ivshs.dto.UpdateClientDto;
 public interface ClientService {
 
     PaginatedResponse<ClientDto> getAll(int page, int size);
+
+    List<ClientDto> getAll();
+
+    List<Client> getAllEntities();
 
     Client getFromSecurityContext();
 

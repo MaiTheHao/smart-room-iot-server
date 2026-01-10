@@ -28,6 +28,7 @@ import com.iviet.ivshs.jwt.AuthEntryPointJwt;
 import com.iviet.ivshs.jwt.AuthTokenFilter;
 import com.iviet.ivshs.jwt.JwtUtils;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -106,6 +107,18 @@ public class SecurityConfig {
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).authenticated()
             )
+            .logout(logout -> logout
+            .logoutUrl("/api/v1/auth/logout")
+            .addLogoutHandler((request, response, authentication) -> {
+            })
+            .invalidateHttpSession(true) 
+            .clearAuthentication(true)    
+            .deleteCookies("JSESSIONID") 
+            .logoutSuccessHandler((request, response, authentication) -> {
+                response.setStatus(HttpServletResponse.SC_OK); 
+                response.getWriter().flush();
+            })
+        )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
@@ -133,8 +146,11 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                .deleteCookies("JSESSIONID")
-                .logoutSuccessUrl("/login")
+                .logoutUrl("/logout") 
+                .deleteCookies("JSESSIONID", "remember-me") 
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )
             .rememberMe(remember -> remember

@@ -112,3 +112,46 @@
 ```
 
 ---
+
+### POST /api/v1/auth/logout
+
+> Đăng xuất client khỏi hệ thống, hủy JWT token phía backend (nếu có) và xóa session phía client.
+
+#### Request
+
+-   Header:
+    -   `Authorization: Bearer <JWT token>`
+
+#### Ví dụ Request
+
+```http
+POST /api/v1/auth/logout HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+#### Ví dụ Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Logout successful",
+	"data": null,
+	"timestamp": "2024-06-07T09:05:00Z"
+}
+```
+
+#### Gợi ý xử lý phía client (JavaScript)
+
+```js
+async function logoutApi() {
+	await fetch('/api/v1/auth/logout', {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+		},
+	});
+	localStorage.removeItem('accessToken');
+	sessionStorage.clear();
+	window.location.href = '/login';
+}
+```

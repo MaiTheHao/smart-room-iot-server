@@ -17,6 +17,7 @@ import com.iviet.ivshs.enumeration.CacheDefinition;
 
 @Configuration
 @EnableCaching
+@Deprecated
 public class CacheConfig {
 
 	@Bean

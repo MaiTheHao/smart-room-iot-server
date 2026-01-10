@@ -1,6 +1,5 @@
 package com.iviet.ivshs.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
@@ -16,7 +15,6 @@ import lombok.Setter;
 @Table(name = "sys_role",
     indexes = {
         @Index(name = "idx_sys_role_group_function", columnList = "group_id, function_id", unique = true),
-        @Index(name = "idx_sys_role_is_active", columnList = "is_active")
     }
 )
 @Getter
@@ -34,7 +32,4 @@ public class SysRole extends BaseAuditEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "function_id", nullable = false)
 	private SysFunction function;
-
-	@Column(name = "is_active", nullable = false)
-	private Boolean isActive = true;
 }

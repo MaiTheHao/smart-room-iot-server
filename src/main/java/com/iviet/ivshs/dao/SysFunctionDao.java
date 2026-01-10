@@ -144,7 +144,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 )
                 FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
-                LEFT JOIN f.roles r ON r.group.id = :groupId AND r.isActive = true
+                LEFT JOIN f.roles r ON r.group.id = :groupId
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
 
@@ -172,7 +172,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
                 )
                 FROM SysFunction f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
-                LEFT JOIN f.roles r ON r.group.id = :groupId AND r.isActive = true
+                LEFT JOIN f.roles r ON r.group.id = :groupId
                 ORDER BY f.functionCode ASC
                 """.formatted(dtoClassPath);
 

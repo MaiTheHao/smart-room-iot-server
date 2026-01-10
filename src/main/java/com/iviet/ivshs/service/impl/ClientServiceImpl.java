@@ -52,6 +52,20 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public List<ClientDto> getAll() {
+        log.info("Fetching all client DTOs");
+        return clientDao.findAll().stream()
+                .map(clientMapper::toDto)
+                .toList();
+    }
+
+    @Override
+    public List<Client> getAllEntities() {
+        log.info("Fetching all client entities");
+        return clientDao.findAll();
+    }
+
+    @Override
     public ClientDto getById(Long clientId) {
         log.info("Fetching client by ID: {}", clientId);
         if (clientId == null || clientId <= 0) {

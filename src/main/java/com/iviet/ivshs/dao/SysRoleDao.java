@@ -39,29 +39,6 @@ public class SysRoleDao extends BaseAuditEntityDao<SysRole> {
     }
 
     /**
-     * Tìm Active Role theo Group ID và Function ID
-     */
-    public Optional<SysRole> findActiveByGroupAndFunction(Long groupId, Long functionId) {
-        String jpql = """
-                SELECT r
-                FROM SysRole r
-                WHERE r.group.id = :groupId 
-                  AND r.function.id = :functionId 
-                  AND r.isActive = true
-                """;
-
-        try {
-            SysRole result = entityManager.createQuery(jpql, SysRole.class)
-                    .setParameter("groupId", groupId)
-                    .setParameter("functionId", functionId)
-                    .getSingleResult();
-            return Optional.of(result);
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
-    }
-
-    /**
      * Kiểm tra Role có tồn tại hay không
      */
     public boolean existsByGroupAndFunction(Long groupId, Long functionId) {
@@ -69,24 +46,6 @@ public class SysRoleDao extends BaseAuditEntityDao<SysRole> {
                 SELECT COUNT(r) > 0
                 FROM SysRole r
                 WHERE r.group.id = :groupId AND r.function.id = :functionId
-                """;
-
-        return entityManager.createQuery(jpql, Boolean.class)
-                .setParameter("groupId", groupId)
-                .setParameter("functionId", functionId)
-                .getSingleResult();
-    }
-
-    /**
-     * Kiểm tra Active Role có tồn tại hay không
-     */
-    public boolean existsActiveByGroupAndFunction(Long groupId, Long functionId) {
-        String jpql = """
-                SELECT COUNT(r) > 0
-                FROM SysRole r
-                WHERE r.group.id = :groupId 
-                  AND r.function.id = :functionId 
-                  AND r.isActive = true
                 """;
 
         return entityManager.createQuery(jpql, Boolean.class)
@@ -161,21 +120,6 @@ public class SysRoleDao extends BaseAuditEntityDao<SysRole> {
     }
 
     /**
-     * Đếm số Active Roles của một Group
-     */
-    public long countActiveByGroupId(Long groupId) {
-        String jpql = """
-                SELECT COUNT(r)
-                FROM SysRole r
-                WHERE r.group.id = :groupId AND r.isActive = true
-                """;
-        
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("groupId", groupId)
-                .getSingleResult();
-    }
-
-    /**
      * Đếm số Roles của một Function
      */
     public long countByFunctionId(Long functionId) {
@@ -183,21 +127,6 @@ public class SysRoleDao extends BaseAuditEntityDao<SysRole> {
                 SELECT COUNT(r)
                 FROM SysRole r
                 WHERE r.function.id = :functionId
-                """;
-        
-        return entityManager.createQuery(jpql, Long.class)
-                .setParameter("functionId", functionId)
-                .getSingleResult();
-    }
-
-    /**
-     * Đếm số Active Roles của một Function
-     */
-    public long countActiveByFunctionId(Long functionId) {
-        String jpql = """
-                SELECT COUNT(r)
-                FROM SysRole r
-                WHERE r.function.id = :functionId AND r.isActive = true
                 """;
         
         return entityManager.createQuery(jpql, Long.class)
