@@ -1,9 +1,10 @@
-class RoomDashboardSSR {
+class RoomDetailPage {
 	CONFIG = {
 		DATE_FORMAT: 'HH:mm DD/MM/YYYY',
 		DEFAULT_RANGE_MONTHS: 1,
 		ENDPOINTS: {
 			ROOM_DETAIL: (id) => `/room/${id}`,
+			TOGGLE_LIGHT: (id) => `lights/${id}/toggle-state`,
 		},
 	};
 
@@ -11,6 +12,9 @@ class RoomDashboardSSR {
 		this.roomId = roomId;
 		this.initialTempData = initialTempData || [];
 		this.initialPowerData = initialPowerData || [];
+
+		this.httpClient = new HttpClient();
+		this.healthApiService = new HealthCheckApiV1Service(this.httpClient);
 
 		this.state = this._parseUrlParams();
 
@@ -31,10 +35,82 @@ class RoomDashboardSSR {
 		try {
 			this.initDateRangePicker();
 			this.renderInitialData();
+			this.loadHealthScore();
 			this.bindEvents();
 			console.log(`[Dashboard] Initialized for Room: ${this.roomId}`);
 		} catch (error) {
 			console.error('[Dashboard] Init failed:', error);
+			window.notify.error('Failed to initialize dashboard');
+		}
+	}
+
+	renderInitialData() {
+		const { temp, power } = this.charts;
+		if (this.initialTempData.length) temp.render(this.initialTempData, 'avgTempC');
+		if (this.initialPowerData.length) power.render(this.initialPowerData, 'sumWatt');
+	}
+
+	async loadHealthScore() {
+		const $badge = $('#healthScoreBadge');
+		const $text = $('#healthScoreValue');
+		const $icon = $('#healthIcon');
+
+		try {
+			const uiConfig = await this.healthApiService.getRoomHealthUiConfig(this.roomId);
+			$badge.removeClass('badge-secondary badge-success badge-warning badge-danger badge-info').addClass(uiConfig.className);
+			$text.text(`${uiConfig.score}%`);
+			$icon.attr('class', `fas ${uiConfig.icon} mr-1`);
+			$badge.css('opacity', 1);
+		} catch (error) {
+			console.error('[Dashboard] Load health failed:', error);
+			$badge.addClass('badge-secondary').css('opacity', 1);
+			$text.text('N/A');
+		}
+	}
+
+	bindEvents() {
+		$('#btn-refresh-chart').on('click', (e) => {
+			const $btn = $(e.currentTarget);
+			$btn.find('i').addClass('fa-spin');
+			this._navigateToCurrentRange();
+		});
+
+		$('#btn-refresh-all').on('click', async (e) => {
+			const $btn = $(e.currentTarget);
+			const $icon = $btn.find('i');
+
+			$icon.addClass('fa-spin');
+
+			await this.loadHealthScore();
+
+			window.notify.success('Health data refreshed');
+
+			this._navigateToCurrentRange();
+		});
+
+		$('#lightsList').on('change', '.light-toggle', (e) => this.handleLightToggle(e));
+	}
+
+	async handleLightToggle(e) {
+		const $input = $(e.currentTarget);
+		const lightId = $input.data('light-id');
+		const isChecked = $input.is(':checked');
+		const lightName = $input.closest('.device-item').find('.device-name').text() || 'Light';
+
+		$input.prop('disabled', true);
+
+		try {
+			await this.httpClient.put(this.CONFIG.ENDPOINTS.TOGGLE_LIGHT(lightId));
+
+			window.notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
+
+			setTimeout(() => this.loadHealthScore(), 500);
+		} catch (error) {
+			console.error('[Dashboard] Light toggle failed:', error);
+			window.notify.error(error.message || `Failed to toggle ${lightName}`);
+			$input.prop('checked', !isChecked);
+		} finally {
+			$input.prop('disabled', false);
 		}
 	}
 
@@ -62,36 +138,8 @@ class RoomDashboardSSR {
 		window.location.href = `${this.CONFIG.ENDPOINTS.ROOM_DETAIL(this.roomId)}?${query.toString()}`;
 	}
 
-	renderInitialData() {
-		const { temp, power } = this.charts;
-
-		if (this.initialTempData.length) {
-			temp.render(this.initialTempData, 'avgTempC');
-		}
-
-		if (this.initialPowerData.length) {
-			power.render(this.initialPowerData, 'sumWatt');
-		}
-	}
-
-	bindEvents() {
-		$('#btn-refresh-chart').on('click', (e) => {
-			$(e.currentTarget).find('i').addClass('fa-spin');
-			this._navigateToCurrentRange();
-		});
-
-		$('.light-toggle').on('change', function () {
-			const data = {
-				id: $(this).data('light-id'),
-				status: $(this).is(':checked'),
-			};
-			console.log('[Control] Light Update:', data);
-		});
-	}
-
 	initDateRangePicker() {
 		const $picker = $('#date-range-picker');
-
 		$picker.daterangepicker(
 			{
 				timePicker: true,
@@ -109,4 +157,4 @@ class RoomDashboardSSR {
 	}
 }
 
-window.RoomDashboardSSR = RoomDashboardSSR;
+window.RoomDetailPage = RoomDetailPage;

@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 // import org.springframework.cache.annotation.CacheEvict;
@@ -85,7 +86,7 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	// 	value = CacheDefinition._HOME_VIEW_ROOM_LASTEST_TEMP,
 	// 	key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
 	// )
-	public Double getLatestTemperatureForRoom(Long roomId) {
+	public Optional<Double> getLatestTemperatureForRoom(Long roomId) {
 		Instant endedAt = Instant.now();
 		Instant startedAt = endedAt.minus(DEFAULT_MINUS_MINUTES, ChronoUnit.MINUTES);
 		
@@ -93,8 +94,8 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 			.getAverageTemperatureByRoom(roomId, startedAt, endedAt);
 		
 		return temperatureHistory.isEmpty() 
-			? 0.0 
-			: temperatureHistory.getLast().avgTempC();
+			? Optional.empty() 
+			: Optional.of(temperatureHistory.getLast().avgTempC());
 	}
 	
 	@Override
@@ -102,7 +103,7 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	// 	value = CacheDefinition._HOME_VIEW_ROOM_LASTEST_POWER,
 	// 	key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest()"
 	// )
-	public Double getLatestPowerConsumptionForRoom(Long roomId) {
+	public Optional<Double> getLatestPowerConsumptionForRoom(Long roomId) {
 		Instant endedAt = Instant.now();
 		Instant startedAt = endedAt.minus(DEFAULT_MINUS_MINUTES, ChronoUnit.MINUTES);
 		
@@ -110,8 +111,8 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 			.getSumPowerConsumptionByRoom(roomId, startedAt, endedAt);
 		
 		return powerHistory.isEmpty() 
-			? 0.0 
-			: powerHistory.getLast().getSumWatt();
+			? Optional.empty()
+			: Optional.of(powerHistory.getLast().getSumWatt());
 	}
 
 	@Override

@@ -5,7 +5,9 @@
 			<div class="card-header border-0">
 				<h3 class="card-title"><i class="fas fa-thermometer-half mr-1"></i> Temperature</h3>
 				<div class="card-tools">
-					<span class="badge badge-danger" th:text="'Current Avg Temp: ' + ${#numbers.formatDecimal(currentTemp, 1, 1)} + '°C'">--</span>
+					<span class="badge badge-danger" th:text="'Current Avg Temp: ' + (${currentTemp != null} ? ${#numbers.formatDecimal(currentTemp, 1, 1)} + '°C' : '--')"
+						>--</span
+					>
 				</div>
 			</div>
 			<div class="card-body">
@@ -22,7 +24,9 @@
 			<div class="card-header border-0">
 				<h3 class="card-title"><i class="fas fa-bolt mr-1"></i> Power Usage</h3>
 				<div class="card-tools">
-					<span class="badge badge-warning" th:text="'Current Sum Watt: ' + ${#numbers.formatDecimal(currentPower, 1, 1)} + ' Wh'">--</span>
+					<span class="badge badge-warning" th:text="'Current Sum Watt: ' + (${currentPower != null} ? ${#numbers.formatDecimal(currentPower, 1, 1)} + ' Wh' : '--')"
+						>--</span
+					>
 				</div>
 			</div>
 			<div class="card-body">

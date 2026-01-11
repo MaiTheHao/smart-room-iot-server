@@ -3,6 +3,7 @@ package com.iviet.ivshs.service.impl;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -45,9 +46,11 @@ public class RoomViewServiceImpl implements RoomViewService {
 
 			var tempChartData = temperatureValueService.getAverageTemperatureByRoom(roomId, chartStart, chartEnd);
 			var powerChartData = powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, chartStart, chartEnd);
+			var currentTempData = temperatureValueService.getAverageTemperatureByRoom(roomId, defaultStart, now);
+			var currentPowerData = powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, defaultStart, now);
 
-			double currentTemp = tempChartData.isEmpty() ? 0.0 : tempChartData.getLast().avgTempC();
-			double currentPower = powerChartData.isEmpty() ? 0.0 : powerChartData.getLast().getSumWatt();
+			Optional<Double> currentTemp = currentTempData.isEmpty() ? Optional.empty() : Optional.of(currentTempData.getLast().avgTempC());
+			Optional<Double> currentPower = currentPowerData.isEmpty() ? Optional.empty() : Optional.of(currentPowerData.getLast().getSumWatt());
 			
 			var lights = roomViewProcessService.getLightsForRoom(roomId);
 
@@ -68,8 +71,8 @@ public class RoomViewServiceImpl implements RoomViewService {
 					.errorMessage("Error: " + e.getMessage())
 					.room(room)
 					.pageTitle("")
-					.currentTemp(0.0)
-					.currentPower(0.0)
+					.currentTemp(Optional.empty())
+					.currentPower(Optional.empty())
 					.tempChartData(Collections.emptyList())
 					.powerChartData(Collections.emptyList())
 					.lights(Collections.emptyList())

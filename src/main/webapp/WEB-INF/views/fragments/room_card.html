@@ -53,12 +53,7 @@
 						<span class="description-percentage text-warning">
 							<i class="fas fa-thermometer-half fa-lg mb-1"></i>
 						</span>
-						<h5
-							class="description-header mt-1"
-							th:text="${roomCurrentTemp != null && roomCurrentTemp > 0 ? #numbers.formatDecimal(roomCurrentTemp, 1, 1) + '°C' : '--'}"
-						>
-							--
-						</h5>
+						<h5 class="description-header mt-1" th:text="${roomCurrentTemp != null ? #numbers.formatDecimal(roomCurrentTemp, 1, 1) + '°C' : '--'}">--</h5>
 						<span class="description-text text-xs text-muted">TEMP</span>
 					</div>
 				</div>
@@ -67,12 +62,7 @@
 						<span class="description-percentage text-success">
 							<i class="fas fa-bolt fa-lg mb-1"></i>
 						</span>
-						<h5
-							class="description-header mt-1"
-							th:text="${roomCurrentPower != null && roomCurrentPower > 0 ? #numbers.formatDecimal(roomCurrentPower, 1, 1) + 'Wh' : '--'}"
-						>
-							--
-						</h5>
+						<h5 class="description-header mt-1" th:text="${roomCurrentPower != null ? #numbers.formatDecimal(roomCurrentPower, 1, 1) + 'Wh' : '--'}">--</h5>
 						<span class="description-text text-xs text-muted">POWER</span>
 					</div>
 				</div>

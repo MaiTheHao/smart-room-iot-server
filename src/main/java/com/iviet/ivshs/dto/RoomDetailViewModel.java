@@ -2,6 +2,7 @@ package com.iviet.ivshs.dto;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Collections;
 
 import lombok.Builder;
@@ -10,8 +11,8 @@ import lombok.Builder;
 public record RoomDetailViewModel(
 	RoomDto room,
 	String pageTitle,
-	Double currentTemp,
-	Double currentPower,
+	Optional<Double> currentTemp,
+	Optional<Double> currentPower,
 	List<?> tempChartData,
 	List<?> powerChartData,
 	List<LightDto> lights,
@@ -21,8 +22,8 @@ public record RoomDetailViewModel(
 		return Map.of(
 			"room", room,
 			"pageTitle", pageTitle != null ? pageTitle : "",
-			"currentTemp", currentTemp != null ? currentTemp : 0.0,
-			"currentPower", currentPower != null ? currentPower : 0.0,
+			"currentTemp", currentTemp != null ? currentTemp : Optional.empty(),
+			"currentPower", currentPower != null ? currentPower : Optional.empty(),
 			"tempChartData", tempChartData != null ? tempChartData : Collections.emptyList(),
 			"powerChartData", powerChartData != null ? powerChartData : Collections.emptyList(),
 			"lights", lights != null ? lights : Collections.emptyList(),

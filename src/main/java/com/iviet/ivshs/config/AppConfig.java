@@ -26,12 +26,14 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import jakarta.persistence.EntityManagerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
+@EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @Import({ SecurityConfig.class, WebConfig.class, CacheConfig.class })
 @PropertySource("classpath:application.properties")
 @EnableAspectJAutoProxy

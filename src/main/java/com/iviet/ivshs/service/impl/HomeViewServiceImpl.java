@@ -3,6 +3,7 @@ package com.iviet.ivshs.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -36,8 +37,8 @@ public class HomeViewServiceImpl implements HomeViewService {
 			.toList();
 
 		Map<Long, Long> gatewayCountMap = getGatewayCountsForRooms(allRoomIds);
-		Map<Long, Double> avgTempMap = getLatestTemperaturesForRooms(allRoomIds);
-		Map<Long, Double> sumWattMap = getLatestPowerConsumptionsForRooms(allRoomIds);
+		Map<Long, Optional<Double>> avgTempMap = getLatestTemperaturesForRooms(allRoomIds);
+		Map<Long, Optional<Double>> sumWattMap = getLatestPowerConsumptionsForRooms(allRoomIds);
 
 		return HomeViewModel.builder()
 			.welcomeMessage(i18nMessageService.getMessage(I18nMessageConstant.WELCOME_MSG))
@@ -61,16 +62,16 @@ public class HomeViewServiceImpl implements HomeViewService {
 		return result;
 	}
 	
-	private Map<Long, Double> getLatestTemperaturesForRooms(List<Long> roomIds) {
-		Map<Long, Double> result = new HashMap<>();
+	private Map<Long, Optional<Double>> getLatestTemperaturesForRooms(List<Long> roomIds) {
+		Map<Long, Optional<Double>> result = new HashMap<>();
 		for (Long roomId : roomIds) {
 			result.put(roomId, cacheService.getLatestTemperatureForRoom(roomId));
 		}
 		return result;
 	}
 	
-	private Map<Long, Double> getLatestPowerConsumptionsForRooms(List<Long> roomIds) {
-		Map<Long, Double> result = new HashMap<>();
+	private Map<Long, Optional<Double>> getLatestPowerConsumptionsForRooms(List<Long> roomIds) {
+		Map<Long, Optional<Double>> result = new HashMap<>();
 		for (Long roomId : roomIds) {
 			result.put(roomId, cacheService.getLatestPowerConsumptionForRoom(roomId));
 		}

@@ -1,37 +1,23 @@
 <!DOCTYPE html>
-<html
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	lang="en"
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org"
-	layout:decorate="~{main_layout.html}"
->
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main_layout.html}">
 	<head>
 		<title th:text="${room.name} + ' | Dashboard'">Room Dashboard</title>
 		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-		<style>
-			.room-avatar-icon {
-				width: 60px;
-				height: 60px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				border-radius: 50%;
-				font-size: 1.5rem;
-			}
-		</style>
 	</head>
 
 	<body>
 		<section class="content pt-3" layout:fragment="content">
 			<div class="container-fluid">
-				<div th:if="${errorMessage != null and errorMessage.trim().length() > 0}" th:insert="~{fragments/common.html :: alert_error(${errorMessage})}"></div>
+				<div th:if="${errorMessage != null and !errorMessage.isEmpty()}" th:insert="~{fragments/common.html :: alert_error(${errorMessage})}"></div>
 
 				<div class="card card-primary card-outline shadow-sm mb-4">
 					<div class="card-body">
 						<div class="row align-items-center">
 							<div class="col-md-8 d-flex align-items-center">
-								<div class="room-avatar-icon bg-primary text-white mr-3 shadow-sm">
+								<div
+									class="elevation-2 rounded-circle bg-primary d-flex justify-content-center align-items-center mr-3"
+									style="width: 60px; height: 60px; font-size: 1.5rem"
+								>
 									<i class="fas fa-door-open"></i>
 								</div>
 								<div>
@@ -39,8 +25,15 @@
 									<div class="text-muted d-flex align-items-center">
 										<i class="fas fa-map-marker-alt mr-1 text-sm"></i>
 										<span th:text="${room?.description() ?: 'Smart Room Area'}">Description</span>
+
 										<span class="mx-2">|</span>
 										<span class="badge badge-success">Online</span>
+
+										<span class="mx-2">|</span>
+										<span id="healthScoreBadge" class="badge badge-secondary fade" style="opacity: 0">
+											<i id="healthIcon" class="fas fa-heartbeat mr-1"></i>
+											<span id="healthScoreValue">--%</span>
+										</span>
 									</div>
 								</div>
 							</div>
@@ -62,20 +55,18 @@
 							</div>
 							<input type="text" class="form-control float-right" id="date-range-picker" style="width: 34ch" />
 							<div class="input-group-append">
-								<button class="btn btn-default" id="btn-refresh-chart" title="Refresh Data">
+								<button class="btn btn-default" id="btn-refresh-chart" title="Refresh Charts">
 									<i class="fas fa-sync-alt"></i>
 								</button>
-								<form th:action="@{/room/{id}/refresh(id=${room.id()})}" method="post">
-									<button class="btn btn-info" id="btn-refresh-page" title="Refresh All Data"><i class="fas fa-redo"></i> Refresh All</button>
-								</form>
+								<button class="btn btn-info" id="btn-refresh-all" title="Refresh All Data"><i class="fas fa-redo"></i> Refresh All</button>
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<div class="row">
-					<div class="col-lg-6 col-12" th:insert="~{fragments/room_detail/chart_cards.html :: temp_card(${currentTemp})}"></div>
-					<div class="col-lg-6 col-12" th:insert="~{fragments/room_detail/chart_cards.html :: power_card(${currentPower})}"></div>
+					<div class="col-lg-6 col-12" th:insert="~{fragments/room_detail/chart_cards.html :: temp_card(${currentTemp.orElse(null)})}"></div>
+					<div class="col-lg-6 col-12" th:insert="~{fragments/room_detail/chart_cards.html :: power_card(${currentPower.orElse(null)})}"></div>
 				</div>
 
 				<div class="row mb-4">
@@ -85,16 +76,16 @@
 								<h3 class="card-title"><i class="fas fa-gamepad mr-1"></i> Quick Controls</h3>
 							</div>
 							<div class="card-body">
-								<p class="text-muted small mb-2">LIGHTS</p>
+								<p class="text-muted small mb-2 text-uppercase font-weight-bold">Lights</p>
 								<div id="lightsList">
 									<div th:each="light : ${lights}" th:if="${light != null}">
 										<div
 											th:replace="~{fragments/room_detail/device_items.html :: light_switch(
-																												name=${light.name}, 
-																												description=${light.description}, 
-																												id=${light.id}, 
-																												isActive=${light.isActive}
-																											)}"
+                                        name=${light.name}, 
+                                        description=${light.description}, 
+                                        id=${light.id}, 
+                                        isActive=${light.isActive}
+                                    )}"
 										></div>
 									</div>
 								</div>
@@ -106,51 +97,21 @@
 		</section>
 
 		<th:block layout:fragment="optional">
-			<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-			<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-			<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+			<script defer src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+			<script defer th:src="@{/scripts/service/api/v1/health_check_api_v1.js}"></script>
+			<script defer th:src="@{/scripts/pages/room_detail.js}"></script>
 
-			<script th:src="@{/scripts/util/http_client.js}"></script>
-			<script th:src="@{/scripts/util/chart.js}"></script>
-			<script th:src="@{/scripts/pages/room_detail.js}"></script>
-
-			<script th:inline="javascript">
+			<script defer th:inline="javascript">
 				$(function () {
-					// Khởi tạo dashboard với dữ liệu từ server
 					const roomId = $('#roomId').val();
 					const tempData = /*[[${tempChartData}]]*/ [];
 					const powerData = /*[[${powerChartData}]]*/ [];
 
-					if (typeof RoomDashboardSSR !== 'undefined') {
-						new RoomDashboardSSR(roomId, tempData, powerData);
+					if (typeof RoomDetailPage !== 'undefined') {
+						new RoomDetailPage(roomId, tempData, powerData);
 					}
-
-					const httpClient = new HttpClient();
-					$('#lightsList').on('change', '.light-toggle', async function () {
-						const $input = $(this);
-						const lightId = $input.data('light-id');
-
-						const isChecked = $input.is(':checked');
-
-						$input.prop('disabled', true);
-
-						try {
-							await httpClient.put(`lights/${lightId}/toggle-state`);
-							notify.success('Light toggled successfully');
-						} catch (error) {
-							console.error('Error toggling light:', error);
-
-							if (typeof notify !== 'undefined') {
-								notify.error(error.message || 'Failed to toggle light');
-							} else {
-								alert('Error: ' + (error.message || 'Unknown error'));
-							}
-
-							$input.prop('checked', !isChecked);
-						} finally {
-							$input.prop('disabled', false);
-						}
-					});
 				});
 			</script>
 		</th:block>

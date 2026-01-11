@@ -53,8 +53,8 @@
 								th:insert="~{fragments/room_card.html :: room_card(
 								room=${room},
 								roomDeviceControlCount=${roomGatewayCountMap.get(room.id)},
-								roomCurrentTemp=${roomLastestAvgTempMap.get(room.id)},
-								roomCurrentPower=${roomLastestSumWattMap.get(room.id)}
+								roomCurrentTemp=${roomLatestAvgTempMap?.get(room.id)?.orElse(null)},
+								roomCurrentPower=${roomLatestSumWattMap?.get(room.id)?.orElse(null)}
 							)}"
 							></div>
 						</div>

@@ -2,6 +2,7 @@ package com.iviet.ivshs.dto;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.Builder;
 
@@ -11,8 +12,8 @@ public record HomeViewModel (
 	Map<Long, FloorDto> floorsMap,             
 	Map<Long, List<RoomDto>> floorRoomsMap,     
 	Map<Long, Long> roomGatewayCountMap,        
-	Map<Long, Double> roomLatestAvgTempMap,     
-	Map<Long, Double> roomLatestSumWattMap      
+	Map<Long, Optional<Double>> roomLatestAvgTempMap,     
+	Map<Long, Optional<Double>> roomLatestSumWattMap      
 ) {
 	public Map<String, Object> toModelAttributes() {
 		return Map.of(
