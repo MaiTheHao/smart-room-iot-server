@@ -2,6 +2,7 @@ class GroupManager {
 	static init(contextPath) {
 		this.contextPath = contextPath;
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
+		this.groupService = new GroupApiV1Service(this.apiClient);
 		this.table = null;
 
 		this.initDataTable();
@@ -12,10 +13,14 @@ class GroupManager {
 		this.table = $('#groupsTable').DataTable({
 			processing: true,
 			serverSide: false,
-			ajax: {
-				url: `${this.contextPath}api/v1/groups/all`,
-				dataSrc: 'data',
-				error: (xhr) => notify.error('Failed to load groups data'),
+			ajax: async (data, callback, settings) => {
+				try {
+					const res = await this.groupService.getAll();
+					callback({ data: res.data });
+				} catch (error) {
+					notify.error('Failed to load groups data');
+					callback({ data: [] });
+				}
 			},
 			columns: [
 				{ data: 'id' },
@@ -80,8 +85,8 @@ class GroupManager {
 			const $el = $(el);
 			const id = $el.data('id');
 			try {
-				const res = await this.apiClient.get(`groups/${id}/clients/count`);
-				$el.text(res.data || 0);
+				const count = await this.groupService.getClientCount(id);
+				$el.text(count || 0);
 				$el.addClass('badge-pill');
 			} catch (error) {
 				$el.text('-');
@@ -104,7 +109,7 @@ class GroupManager {
 		};
 
 		try {
-			await this.apiClient.post('groups', data);
+			await this.groupService.create(data);
 			notify.success('Group created successfully');
 			$('#createGroupModal').modal('hide');
 			form.reset();
@@ -116,7 +121,7 @@ class GroupManager {
 
 	static async openEditModal(id) {
 		try {
-			const res = await this.apiClient.get(`groups/${id}`);
+			const res = await this.groupService.getById(id);
 			const group = res.data;
 
 			$('#editGroupId').val(group.id);
@@ -146,7 +151,7 @@ class GroupManager {
 		};
 
 		try {
-			await this.apiClient.put(`groups/${id}`, data);
+			await this.groupService.update(id, data);
 			notify.success('Group updated successfully');
 			$('#editGroupModal').modal('hide');
 			this.table.ajax.reload();
@@ -163,7 +168,7 @@ class GroupManager {
 		if (!confirmed) return;
 
 		try {
-			await this.apiClient.delete(`groups/${id}`);
+			await this.groupService.delete(id);
 			notify.success('Group deleted successfully');
 			this.table.ajax.reload();
 		} catch (error) {
@@ -190,7 +195,7 @@ class GroupManager {
 		$loader.removeClass('d-none');
 
 		try {
-			const res = await this.apiClient.get(`groups/${groupId}/clients/all`);
+			const res = await this.groupService.getClients(groupId);
 			const clients = res.data;
 
 			if (!clients || clients.length === 0) {
@@ -250,7 +255,7 @@ class GroupManager {
 		if (!confirmed) return;
 
 		try {
-			await this.apiClient.delete(`roles/clients/${clientId}/groups/${groupId}`);
+			await this.groupService.removeClient(clientId, groupId);
 			notify.success(`Removed ${username} from group`);
 			this.loadClientsInGroup(groupId);
 			this.table.ajax.reload(null, false);

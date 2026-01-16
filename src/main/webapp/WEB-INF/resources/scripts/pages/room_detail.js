@@ -4,7 +4,6 @@ class RoomDetailPage {
 		DEFAULT_RANGE_MONTHS: 1,
 		ENDPOINTS: {
 			ROOM_DETAIL: (id) => `/room/${id}`,
-			TOGGLE_LIGHT: (id) => `lights/${id}/toggle-state`,
 		},
 	};
 
@@ -14,7 +13,7 @@ class RoomDetailPage {
 		this.initialPowerData = initialPowerData || [];
 
 		this.httpClient = new HttpClient();
-		this.healthApiService = new HealthCheckApiV1Service(this.httpClient);
+		this.roomService = new RoomApiV1Service(this.httpClient);
 
 		this.state = this._parseUrlParams();
 
@@ -56,7 +55,7 @@ class RoomDetailPage {
 		const $icon = $('#healthIcon');
 
 		try {
-			const uiConfig = await this.healthApiService.getRoomHealthUiConfig(this.roomId);
+			const uiConfig = await this.roomService.getHealthUiConfig(this.roomId);
 			$badge.removeClass('badge-secondary badge-success badge-warning badge-danger badge-info').addClass(uiConfig.className);
 			$text.text(`${uiConfig.score}%`);
 			$icon.attr('class', `fas ${uiConfig.icon} mr-1`);
@@ -100,7 +99,7 @@ class RoomDetailPage {
 		$input.prop('disabled', true);
 
 		try {
-			await this.httpClient.put(this.CONFIG.ENDPOINTS.TOGGLE_LIGHT(lightId));
+			await this.roomService.toggleLight(lightId);
 
 			window.notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
 

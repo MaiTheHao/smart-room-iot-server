@@ -2,6 +2,7 @@ class FunctionManager {
 	static init(contextPath) {
 		this.contextPath = contextPath;
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
+		this.functionService = new FunctionApiV1Service(this.apiClient);
 		this.table = null;
 
 		this.initDataTable();
@@ -13,10 +14,14 @@ class FunctionManager {
 		this.table = $('#functionsTable').DataTable({
 			processing: true,
 			serverSide: false,
-			ajax: {
-				url: `${this.contextPath}api/v1/functions/all`,
-				dataSrc: 'data',
-				error: (xhr) => notify.error('Failed to load functions data'),
+			ajax: async (data, callback, settings) => {
+				try {
+					const res = await this.functionService.getAll();
+					callback({ data: res.data });
+				} catch (error) {
+					notify.error('Failed to load functions data');
+					callback({ data: [] });
+				}
 			},
 			columns: [
 				{ data: 'id' },
@@ -115,7 +120,7 @@ class FunctionManager {
 		};
 
 		try {
-			await this.apiClient.post('functions', data);
+			await this.functionService.create(data);
 			notify.success('Function created successfully');
 			$('#createFunctionModal').modal('hide');
 			form.reset();
@@ -127,7 +132,7 @@ class FunctionManager {
 
 	static async openEditModal(id) {
 		try {
-			const res = await this.apiClient.get(`functions/${id}`);
+			const res = await this.functionService.getById(id);
 			const func = res.data;
 
 			$('#editFunctionId').val(func.id);
@@ -157,7 +162,7 @@ class FunctionManager {
 		};
 
 		try {
-			await this.apiClient.put(`functions/${id}`, data);
+			await this.functionService.update(id, data);
 			notify.success('Function updated successfully');
 			$('#editFunctionModal').modal('hide');
 			this.table.ajax.reload();
@@ -175,7 +180,7 @@ class FunctionManager {
 		if (!confirmed) return;
 
 		try {
-			await this.apiClient.delete(`functions/${id}`);
+			await this.functionService.delete(id);
 			notify.success('Function deleted successfully');
 			this.table.ajax.reload();
 		} catch (error) {

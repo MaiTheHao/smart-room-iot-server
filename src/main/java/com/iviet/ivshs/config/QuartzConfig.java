@@ -70,17 +70,16 @@ public class QuartzConfig {
 	private Properties createQuartzProperties() {
 		Properties props = new Properties();
 
-		// Cấu hình JobStore
-		props.put("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
-		props.put("org.quartz.jobStore.driverDelegateClass", env.getProperty("quartz.delegate", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate"));
-		props.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
-		props.put("org.quartz.jobStore.isClustered", env.getProperty("quartz.isClustered", "true"));
+		props.put("org.quartz.jobStore.dataSource", "ds"); 
+		props.put("org.quartz.jobStore.class", "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
 		
-		// Cấu hình định danh Instance
+		props.put("org.quartz.jobStore.isClustered", "false"); 
+		
+		props.put("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+		props.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
+		
 		props.put("org.quartz.scheduler.instanceName", "IVSHS_Quartz_Scheduler");
 		props.put("org.quartz.scheduler.instanceId", "AUTO");
-		
-		// Cấu hình xử lý misfire
 		props.put("org.quartz.jobStore.misfireThreshold", "60000");
 
 		return props;

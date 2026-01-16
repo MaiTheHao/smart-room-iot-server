@@ -2,6 +2,8 @@ class RoleManager {
 	static init(contextPath) {
 		this.contextPath = contextPath;
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
+		this.roleService = new RoleApiV1Service(this.apiClient);
+		this.groupService = new GroupApiV1Service(this.apiClient);
 		this.table = null;
 		this.functionChanges = {};
 
@@ -13,10 +15,14 @@ class RoleManager {
 		this.table = $('#groupsTable').DataTable({
 			processing: true,
 			serverSide: false,
-			ajax: {
-				url: `${this.contextPath}api/v1/groups/all`,
-				dataSrc: 'data',
-				error: (xhr) => notify.error('Failed to load groups data'),
+			ajax: async (data, callback, settings) => {
+				try {
+					const res = await this.groupService.getAll();
+					callback({ data: res.data });
+				} catch (error) {
+					notify.error('Failed to load groups data');
+					callback({ data: [] });
+				}
 			},
 			columns: [
 				{ data: 'id' },
@@ -50,8 +56,6 @@ class RoleManager {
 		$('#btnSaveFunctions').on('click', () => this.handleSaveFunctions());
 	}
 
-	// --- PERMISSION MANAGEMENT (Functions Assignment) ---
-
 	static openFunctionsModal($btn) {
 		const groupId = $btn.data('id');
 		const groupCode = $btn.data('code');
@@ -73,7 +77,7 @@ class RoleManager {
 		$list.hide();
 
 		try {
-			const res = await this.apiClient.get(`functions/with-group-status/${groupId}`);
+			const res = await this.roleService.getGroupFunctionsStatus(groupId);
 			const functions = res.data;
 
 			if (!functions || functions.length === 0) {
@@ -149,9 +153,8 @@ class RoleManager {
 		};
 
 		try {
-			const res = await this.apiClient.post('roles/groups/functions/toggle', payload);
+			const res = await this.roleService.toggleFunctions(payload);
 
-			const { addedCount, removedCount } = res.data || {};
 			notify.success(res.data?.message || 'Permissions updated successfully');
 
 			$('#manageFunctionsModal').modal('hide');

@@ -71,6 +71,8 @@
 		</section>
 
 		<th:block layout:fragment="optional">
+			<script th:src="@{/scripts/service/api/v1/role_api_v1.js}"></script>
+			<script th:src="@{/scripts/service/api/v1/group_api_v1.js}"></script>
 			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/role_management.js})}"></th:block>
 			<script defer th:inline="javascript">
 				/*<![CDATA[*/
