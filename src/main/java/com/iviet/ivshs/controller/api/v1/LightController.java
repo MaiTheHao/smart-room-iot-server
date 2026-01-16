@@ -65,9 +65,9 @@ public class LightController {
     }
     
     @PutMapping("/{id}/toggle-state")
-    public ResponseEntity<ApiResponse<ControlDeviceResponse>> toggleState(
+    public ResponseEntity<ApiResponse<ControlDeviceResponse>> handleToggleStateControl(
             @PathVariable(name = "id") Long id) {
-        lightService.toggleState(id);
+        lightService.handleToggleStateControl(id);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Toggled successfully"));
     }
 

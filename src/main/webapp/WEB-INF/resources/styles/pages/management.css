@@ -1,0 +1,99 @@
+/* =========================================
+   CORE TABLE STYLES
+   ========================================= */
+.table td {
+	vertical-align: middle !important;
+}
+
+.action-btn {
+	margin: 0 2px;
+}
+
+/* DataTables Overrides - Pagination & Length */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+	padding: 0;
+}
+
+.dataTables_wrapper .dataTables_length select {
+	width: 5em !important;
+	padding: 0 1ch;
+}
+
+/* =========================================
+   MODAL & FORM UTILITIES
+   ========================================= */
+/* Scrollable Modal Body (Used in Groups & Users) */
+.modal-body-scrollable {
+	max-height: 550px;
+	overflow-y: auto;
+}
+
+/* Scaled Checkbox (Used in Function/Group assignment) */
+.scale-checkbox {
+	transform: scale(1.2);
+	margin-right: 8px;
+}
+
+/* Selection List Items (Used in assignment lists) */
+.selection-list-item {
+	padding: 10px;
+	border-bottom: 1px solid #e9ecef;
+	transition: background-color 0.2s;
+}
+
+.selection-list-item:hover {
+	background-color: #f8f9fa;
+}
+
+.selection-list-item:last-child {
+	border-bottom: none;
+}
+
+/* Code Builder Area (Specific to Functions) */
+.code-builder-area {
+	background-color: #f8f9fa;
+	border: 1px dashed #ced4da;
+	border-radius: 5px;
+	padding: 15px;
+	margin-bottom: 15px;
+}
+
+/* =========================================
+   BADGES & STATUS
+   ========================================= */
+/* Monospace Code Badge */
+.badge-code {
+	font-family: 'Consolas', 'Monaco', monospace;
+	font-size: 0.95em;
+	background-color: #f4f6f9;
+	color: #d63384;
+	border: 1px solid #dee2e6;
+	padding: 2px 4px;
+	border-radius: 3px;
+}
+
+/* User Type Badges */
+.badge-user {
+	background-color: #007bff;
+	color: white;
+}
+
+.badge-gateway {
+	background-color: #6c757d;
+	color: white;
+}
+
+/* Online/Offline Status */
+.status-online {
+	color: #28a745;
+	font-weight: bold;
+}
+
+.status-offline {
+	color: #dc3545;
+}
+
+/* Cursor pointer for clickable labels */
+.cursor-pointer {
+	cursor: pointer;
+}

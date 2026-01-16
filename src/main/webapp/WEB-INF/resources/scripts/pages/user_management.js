@@ -3,7 +3,7 @@ class UserManager {
 		this.contextPath = contextPath;
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
 		this.table = null;
-		this.groupChanges = {};
+		this.roleChanges = {};
 		this.init();
 	}
 
@@ -61,7 +61,7 @@ class UserManager {
 
 	renderActions(data, type, row) {
 		return `<div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-info action-btn btn-manage-groups" data-id="${row.id}" data-username="${row.username}" title="Manage Groups">
+                    <button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
                         <i class="fas fa-users"></i>
                     </button>
                     <button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
@@ -80,10 +80,10 @@ class UserManager {
 		$('#filterClientType').on('change', (e) => this.table.column(2).search(e.target.value).draw());
 		$('#createUserBtn').on('click', () => this.handleCreateUser());
 		$('#saveEditBtn').on('click', () => this.handleUpdateUser());
-		$('#saveGroupsBtn').on('click', () => this.handleSaveGroups());
+		$('#saveGroupsBtn').on('click', () => this.handleSaveRoles());
 
 		$('#usersTable tbody')
-			.on('click', '.btn-manage-groups', (e) => this.openGroupsModal($(e.currentTarget)))
+			.on('click', '.btn-manage-roles', (e) => this.openRolesModal($(e.currentTarget)))
 			.on('click', '.btn-edit-user', (e) => this.openEditModal($(e.currentTarget).data('id')))
 			.on('click', '.btn-reset-password', (e) => this.handleResetPassword($(e.currentTarget)))
 			.on('click', '.btn-delete-user', (e) => this.handleDeleteUser($(e.currentTarget)));
@@ -192,18 +192,18 @@ class UserManager {
 		}
 	}
 
-	openGroupsModal($btn) {
+	openRolesModal($btn) {
 		const clientId = $btn.data('id');
 		const username = $btn.data('username');
 
-		this.groupChanges = {};
+		this.roleChanges = {};
 		$('#groupClientId').val(clientId);
 		$('#groupModalUsername').text(username);
 		$('#manageGroupsModal').modal('show');
-		this.loadGroupsForClient(clientId);
+		this.loadRolesForClient(clientId);
 	}
 
-	async loadGroupsForClient(clientId) {
+	async loadRolesForClient(clientId) {
 		const $list = $('#groupsList');
 		$list.html('<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>');
 
@@ -212,16 +212,16 @@ class UserManager {
 			const groups = res.data;
 
 			if (!groups.length) {
-				$list.html('<div class="alert alert-warning m-0">No groups available</div>');
+				$list.html('<div class="alert alert-warning m-0">No roles available</div>');
 				return;
 			}
 
 			const html = groups
 				.map(
 					(group) => `
-                <div class="group-list-item">
+                <div class="selection-list-item">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input group-checkbox" 
+                        <input type="checkbox" class="custom-control-input role-checkbox scale-checkbox" 
                             id="group_${group.id}" 
                             data-group-id="${group.id}" 
                             data-initial-state="${group.isAssignedToClient}"
@@ -237,33 +237,33 @@ class UserManager {
 				.join('');
 
 			$list.html(html);
-			this.bindGroupCheckboxEvents($list);
+			this.bindRoleCheckboxEvents($list);
 		} catch (error) {
-			$list.html('<div class="alert alert-danger m-0">Failed to load groups</div>');
-			notify.error(error.message || 'Failed to load groups');
+			$list.html('<div class="alert alert-danger m-0">Failed to load roles</div>');
+			notify.error(error.message || 'Failed to load roles');
 		}
 	}
 
-	bindGroupCheckboxEvents($container) {
-		$container.off('change', '.group-checkbox').on('change', '.group-checkbox', (e) => {
+	bindRoleCheckboxEvents($container) {
+		$container.off('change', '.role-checkbox').on('change', '.role-checkbox', (e) => {
 			const $cb = $(e.currentTarget);
 			const groupId = $cb.data('group-id');
 			const isChecked = $cb.is(':checked');
 			const initialState = $cb.data('initial-state') === true;
 
 			if (isChecked !== initialState) {
-				this.groupChanges[groupId] = isChecked;
+				this.roleChanges[groupId] = isChecked;
 			} else {
-				delete this.groupChanges[groupId];
+				delete this.roleChanges[groupId];
 			}
 		});
 	}
 
-	async handleSaveGroups() {
+	async handleSaveRoles() {
 		const clientId = parseInt($('#groupClientId').val());
 		if (!clientId) return notify.error('Client ID is missing');
 
-		const changes = Object.keys(this.groupChanges);
+		const changes = Object.keys(this.roleChanges);
 		if (!changes.length) {
 			notify.info('No changes to save');
 			$('#manageGroupsModal').modal('hide');
@@ -275,7 +275,7 @@ class UserManager {
 
 		changes.forEach((groupId) => {
 			const id = parseInt(groupId);
-			this.groupChanges[groupId] ? toAssign.push(id) : toUnassign.push(id);
+			this.roleChanges[groupId] ? toAssign.push(id) : toUnassign.push(id);
 		});
 
 		const promises = [];
@@ -284,11 +284,11 @@ class UserManager {
 
 		try {
 			await Promise.all(promises);
-			notify.success('Group assignments updated successfully');
+			notify.success('Role assignments updated successfully');
 			$('#manageGroupsModal').modal('hide');
-			this.groupChanges = {};
+			this.roleChanges = {};
 		} catch (error) {
-			notify.error(error.message || 'Failed to update group assignments');
+			notify.error(error.message || 'Failed to update role assignments');
 		}
 	}
 }

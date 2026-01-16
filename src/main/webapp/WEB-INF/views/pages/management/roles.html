@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
+	<head>
+		<title th:text="#{permission.management.title}">Group Permissions</title>
+		<th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
+	</head>
+	<body>
+		<th:block layout:fragment="header">
+			<th:block th:replace="~{fragments/management.html :: page_header(#{permission.management.title})}"></th:block>
+		</th:block>
+
+		<section class="content" layout:fragment="content">
+			<div class="container-fluid">
+				<div class="card card-outline card-info shadow-sm">
+					<div class="card-header">
+						<h3 class="card-title">
+							<i class="fas fa-shield-alt mr-1"></i>
+							<span th:text="#{permission.table.list.title}">Permission Matrix</span>
+						</h3>
+						<div class="card-tools">
+							<small class="text-muted" th:text="#{permission.table.subtitle}">Assign functions to groups</small>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="alert alert-info">
+							<i class="fas fa-info-circle mr-2"></i>
+							<span th:text="#{permission.table.info}">Select a group to manage its function permissions. To create or edit groups, use the Groups page.</span>
+						</div>
+						<table id="groupsTable" class="table table-bordered table-striped table-hover w-100">
+							<thead class="thead-light">
+								<tr>
+									<th style="width: 50px" th:text="#{permission.table.id}">ID</th>
+									<th style="width: 15%" th:text="#{permission.table.code}">Code</th>
+									<th style="width: 20%" th:text="#{permission.table.name}">Name</th>
+									<th th:text="#{permission.table.description}">Description</th>
+									<th style="width: 100px" class="text-center" th:text="#{permission.table.actions}">Actions</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="modal fade" id="manageFunctionsModal" tabindex="-1" role="dialog" aria-hidden="true">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header bg-info text-white">
+								<h5 class="modal-title">
+									<i class="fas fa-tasks mr-2"></i>
+									<span th:text="#{role.functions.modal.title}">Manage Functions</span>:
+									<span id="funcModalGroupCode" class="font-weight-bold ml-1"></span>
+								</h5>
+								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+							</div>
+							<div class="modal-body modal-body-scrollable">
+								<input type="hidden" id="funcGroupId" />
+								<div class="alert alert-light border">
+									<i class="fas fa-info-circle mr-2 text-info"></i>
+									<span th:text="#{permission.functions.modal.info}">Toggle checkboxes to grant or revoke permissions for this group.</span>
+								</div>
+								<div id="functionsListLoader" class="text-center py-4 d-none">
+									<div class="spinner-border text-info" role="status"></div>
+								</div>
+								<div id="functionsList" class="list-group"></div>
+							</div>
+							<th:block th:replace="~{fragments/management.html :: modal_footer('btnSaveFunctions', #{permission.functions.modal.save.btn}, 'btn-info')}"></th:block>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<th:block layout:fragment="optional">
+			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/role_management.js})}"></th:block>
+			<script defer th:inline="javascript">
+				/*<![CDATA[*/
+				$(document).ready(function () {
+					const contextPath = /*[[@{/}]]*/ '/';
+					RoleManager.init(contextPath);
+				});
+				/*]]>*/
+			</script>
+		</th:block>
+	</body>
+</html>

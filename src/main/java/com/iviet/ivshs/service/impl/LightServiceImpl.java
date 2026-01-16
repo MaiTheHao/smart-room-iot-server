@@ -140,22 +140,21 @@ public class LightServiceImpl implements LightService {
 
     @Override
     @Transactional
-    public void toggleState(Long lightId) {
+    public void handleStateControl(Long lightId, boolean newState) {
         Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
         
         DeviceControl dc = light.getDeviceControl();
         if (dc == null) throw new BadRequestException("No control associated");
         Client gateway = dc.getClient();
 
-        Boolean currentState = light.getIsActive();
-        GatewayCommand command = currentState ? GatewayCommand.OFF : GatewayCommand.ON;
+        GatewayCommand command = newState ? GatewayCommand.ON : GatewayCommand.OFF;
         ControlDeviceResponse resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
 
         if (200 == resp.status()) {
-            light.setIsActive(!currentState);
+            light.setIsActive(newState);
             lightDao.save(light);
         } else {
-            log.error("Failed to toggle light state. Response status: {}, message: {}", resp.status(), resp.message());
+            log.error("Failed to set light state. Response status: {}, message: {}", resp.status(), resp.message());
             switch (resp.status()) {
                 case 400 -> throw new BadRequestException(resp.message());
                 case 404 -> throw new NotFoundException(resp.message());
@@ -168,7 +167,15 @@ public class LightServiceImpl implements LightService {
 
     @Override
     @Transactional
-    public void setLevel(Long lightId, int newLevel) {
+    public void handleToggleStateControl(Long lightId) {
+        Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        boolean newState = !light.getIsActive();
+        handleStateControl(lightId, newState);
+    }
+
+    @Override
+    @Transactional
+    public void handleSetLevelControl(Long lightId, int newLevel) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

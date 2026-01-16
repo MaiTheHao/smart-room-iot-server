@@ -81,6 +81,12 @@
 								<p>Manage Groups</p>
 							</a>
 						</li>
+						<li class="nav-item" sec:authorize="hasAuthority('F_MANAGE_GROUP') && hasAuthority('F_MANAGE_FUNCTION') || hasAuthority('F_MANAGE_ALL')">
+							<a th:href="@{/management/roles}" class="nav-link" th:classappend="${request.requestURI.contains('/management/roles') ? 'active' : ''}">
+								<i class="nav-icon far" th:classappend="${request.requestURI.contains('/management/roles') ? 'fa-dot-circle' : 'fa-circle'}"></i>
+								<p>Manage Roles</p>
+							</a>
+						</li>
 						<li class="nav-item" sec:authorize="hasAuthority('F_MANAGE_FUNCTION') || hasAuthority('F_MANAGE_ALL')">
 							<a th:href="@{/management/functions}" class="nav-link" th:classappend="${request.requestURI.contains('/management/functions') ? 'active' : ''}">
 								<i class="nav-icon far" th:classappend="${request.requestURI.contains('/management/functions') ? 'fa-dot-circle' : 'fa-circle'}"></i>

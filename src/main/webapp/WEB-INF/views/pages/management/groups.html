@@ -1,73 +1,26 @@
 <!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
 	<head>
-		<title>Manage Groups</title>
-		<link rel="stylesheet" th:href="@{/webjars/datatables/1.13.4/css/dataTables.bootstrap4.min.css}" />
-		<style>
-			/* Unified Table Styles */
-			.table td {
-				vertical-align: middle !important;
-			}
-			.action-btn {
-				margin: 0 2px;
-			}
-
-			/* Specific Styles */
-			.function-checkbox {
-				transform: scale(1.2);
-				margin-right: 8px;
-			}
-			.function-list-item {
-				padding: 10px;
-				border-bottom: 1px solid #e9ecef;
-				transition: background-color 0.2s;
-			}
-			.function-list-item:hover {
-				background-color: #f8f9fa;
-			}
-			.function-list-item:last-child {
-				border-bottom: none;
-			}
-			.modal-body {
-				max-height: 550px;
-				overflow-y: auto;
-			}
-			.badge-code {
-				font-family: monospace;
-				font-size: 0.9em;
-			}
-			.dataTables_wrapper .dataTables_paginate .paginate_button {
-				padding: 0;
-			}
-			.dataTables_wrapper .dataTables_length select {
-				width: 5em !important;
-				padding: 0 1ch;
-			}
-		</style>
+		<title th:text="#{group.management.title}">Manage Groups</title>
+		<th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
 	</head>
 	<body>
-		<section class="content-header" layout:fragment="header">
-			<div class="container-fluid">
-				<div class="row mb-2">
-					<div class="col-sm-6">
-						<h1 th:text="#{group.management.title}">Group Management</h1>
-					</div>
-				</div>
-			</div>
-		</section>
+		<th:block layout:fragment="header">
+			<th:block th:replace="~{fragments/management.html :: page_header(#{group.management.title})}"></th:block>
+		</th:block>
 
 		<section class="content" layout:fragment="content">
 			<div class="container-fluid">
 				<div class="card card-outline card-primary shadow-sm">
 					<div class="card-header">
 						<h3 class="card-title">
-							<i class="fas fa-layer-group mr-1"></i>
-							<span th:text="#{group.table.list.title}">Groups List</span>
+							<i class="fas fa-users-cog mr-1"></i>
+							<span th:text="#{group.table.list.title}">Group List</span>
 						</h3>
 						<div class="card-tools">
 							<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createGroupModal">
 								<i class="fas fa-plus mr-1"></i>
-								<span th:text="#{group.management.add.group}">Add Group</span>
+								<span th:text="#{group.management.add}">Add Group</span>
 							</button>
 						</div>
 					</div>
@@ -79,7 +32,8 @@
 									<th style="width: 15%" th:text="#{group.table.code}">Code</th>
 									<th style="width: 20%" th:text="#{group.table.name}">Name</th>
 									<th th:text="#{group.table.description}">Description</th>
-									<th style="width: 120px" class="text-center" th:text="#{group.table.actions}">Actions</th>
+									<th style="width: 100px" class="text-center">Members</th>
+									<th style="width: 140px" class="text-center" th:text="#{group.table.actions}">Actions</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -90,32 +44,23 @@
 				<div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog" role="document">
 						<div class="modal-content">
-							<div class="modal-header bg-success text-white">
-								<h5 class="modal-title">
-									<i class="fas fa-plus-circle mr-2"></i>
-									<span th:text="#{group.modal.create.title}">Create New Group</span>
-								</h5>
-								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-							</div>
-							<div class="modal-body">
+							<th:block th:replace="~{fragments/management.html :: modal_header(#{group.modal.create.title}, 'bg-success', 'fas fa-plus-circle')}"></th:block>
+							<div class="modal-body modal-body-scrollable">
 								<form id="createGroupForm">
 									<div class="form-group">
-										<label for="createGroupCode"> <span th:text="#{group.modal.code}">Group Code</span> <span class="text-danger">*</span> </label>
-										<input
-											type="text"
-											class="form-control"
-											id="createGroupCode"
-											required
-											minlength="2"
-											maxlength="100"
-											placeholder="e.g. MANAGER"
-											style="text-transform: uppercase"
-										/>
-										<small class="form-text text-muted" th:text="#{group.modal.code.hint}">Unique identifier, cannot be changed later.</small>
+										<label for="createGroupCode">
+											<span th:text="#{group.modal.code}">Group Code</span>
+											<span class="text-danger">*</span>
+										</label>
+										<input type="text" class="form-control" id="createGroupCode" required style="text-transform: uppercase" />
+										<small class="form-text text-muted" th:text="#{group.modal.code.hint}">Unique identifier, cannot be changed.</small>
 									</div>
 									<div class="form-group">
-										<label for="createName"> <span th:text="#{group.modal.name}">Name</span> <span class="text-danger">*</span> </label>
-										<input type="text" class="form-control" id="createName" required minlength="1" maxlength="100" placeholder="e.g. Quản lý" />
+										<label for="createName">
+											<span th:text="#{group.modal.name}">Name</span>
+											<span class="text-danger">*</span>
+										</label>
+										<input type="text" class="form-control" id="createName" required minlength="1" maxlength="100" />
 									</div>
 									<div class="form-group">
 										<label for="createDescription" th:text="#{group.modal.description}">Description</label>
@@ -130,10 +75,7 @@
 									</div>
 								</form>
 							</div>
-							<div class="modal-footer justify-content-between">
-								<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{group.modal.cancel}">Cancel</button>
-								<button type="button" class="btn btn-success" id="btnSaveCreate" th:text="#{group.modal.create.btn}">Create</button>
-							</div>
+							<th:block th:replace="~{fragments/management.html :: modal_footer('btnSaveCreate', #{group.modal.create.btn}, 'btn-success')}"></th:block>
 						</div>
 					</div>
 				</div>
@@ -141,14 +83,8 @@
 				<div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog" role="document">
 						<div class="modal-content">
-							<div class="modal-header bg-primary text-white">
-								<h5 class="modal-title">
-									<i class="fas fa-edit mr-2"></i>
-									<span th:text="#{group.modal.edit.title}">Edit Group</span>
-								</h5>
-								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-							</div>
-							<div class="modal-body">
+							<th:block th:replace="~{fragments/management.html :: modal_header(#{group.modal.edit.title}, 'bg-primary', 'fas fa-edit')}"></th:block>
+							<div class="modal-body modal-body-scrollable">
 								<form id="editGroupForm">
 									<input type="hidden" id="editGroupId" />
 									<div class="form-group">
@@ -156,7 +92,10 @@
 										<input type="text" class="form-control" id="editGroupCode" disabled />
 									</div>
 									<div class="form-group">
-										<label for="editName"> <span th:text="#{group.modal.name}">Name</span> <span class="text-danger">*</span> </label>
+										<label for="editName">
+											<span th:text="#{group.modal.name}">Name</span>
+											<span class="text-danger">*</span>
+										</label>
 										<input type="text" class="form-control" id="editName" required minlength="1" maxlength="100" />
 									</div>
 									<div class="form-group">
@@ -172,39 +111,47 @@
 									</div>
 								</form>
 							</div>
-							<div class="modal-footer justify-content-between">
-								<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{group.modal.cancel}">Cancel</button>
-								<button type="button" class="btn btn-primary" id="btnSaveEdit" th:text="#{group.modal.save.btn}">Save Changes</button>
-							</div>
+							<th:block th:replace="~{fragments/management.html :: modal_footer('btnSaveEdit', #{group.modal.save.btn}, 'btn-primary')}"></th:block>
 						</div>
 					</div>
 				</div>
 
-				<div class="modal fade" id="manageFunctionsModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal fade" id="manageClientsModal" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog modal-lg" role="document">
 						<div class="modal-content">
 							<div class="modal-header bg-info text-white">
 								<h5 class="modal-title">
-									<i class="fas fa-tasks mr-2"></i>
-									<span th:text="#{group.functions.modal.title}">Manage Functions</span>:
-									<span id="funcModalGroupCode" class="font-weight-bold ml-1"></span>
+									<i class="fas fa-users mr-2"></i>
+									<span th:text="#{group.clients.modal.title}">Group Members</span>:
+									<span id="clientModalGroupName" class="font-weight-bold ml-1"></span>
 								</h5>
 								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
 							</div>
-							<div class="modal-body">
-								<input type="hidden" id="funcGroupId" />
-								<div class="callout callout-info">
-									<h5 th:text="#{group.functions.modal.info.title}">Permission Assignment</h5>
-									<p th:text="#{group.functions.modal.info.desc}">Toggle checkboxes to Add (Grant) or Remove (Revoke) permissions.</p>
+							<div class="modal-body modal-body-scrollable">
+								<input type="hidden" id="clientGroupId" />
+								<div class="alert alert-light border">
+									<i class="fas fa-info-circle mr-2 text-info"></i>
+									<span th:text="#{group.clients.modal.info}">List of clients currently assigned to this group.</span>
 								</div>
-								<div id="functionsListLoader" class="text-center py-4 d-none">
+
+								<div id="clientsLoader" class="text-center py-3 d-none">
 									<div class="spinner-border text-info" role="status"></div>
 								</div>
-								<div id="functionsList" class="list-group"></div>
+
+								<table id="groupClientsTable" class="table table-sm table-hover table-bordered w-100">
+									<thead class="thead-light">
+										<tr>
+											<th>Username</th>
+											<th>Type</th>
+											<th>IP Address</th>
+											<th class="text-center" style="width: 80px">Remove</th>
+										</tr>
+									</thead>
+									<tbody></tbody>
+								</table>
 							</div>
-							<div class="modal-footer justify-content-between">
-								<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{group.modal.cancel}">Cancel</button>
-								<button type="button" class="btn btn-info" id="btnSaveFunctions" th:text="#{group.functions.modal.save.btn}">Save Changes</button>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{common.btn.close}">Close</button>
 							</div>
 						</div>
 					</div>
@@ -213,9 +160,7 @@
 		</section>
 
 		<th:block layout:fragment="optional">
-			<script defer th:src="@{/webjars/datatables/1.13.4/js/jquery.dataTables.min.js}"></script>
-			<script defer th:src="@{/webjars/datatables/1.13.4/js/dataTables.bootstrap4.min.js}"></script>
-			<script defer th:src="@{/scripts/pages/group_management.js}"></script>
+			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/group_management.js})}"></th:block>
 			<script defer th:inline="javascript">
 				/*<![CDATA[*/
 				$(document).ready(function () {

@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
-@Import({ SecurityConfig.class, WebConfig.class, CacheConfig.class })
+@Import({ SecurityConfig.class, WebConfig.class, CacheConfig.class, QuartzConfig.class })
 @PropertySource("classpath:application.properties")
 @EnableAspectJAutoProxy
 @EnableTransactionManagement

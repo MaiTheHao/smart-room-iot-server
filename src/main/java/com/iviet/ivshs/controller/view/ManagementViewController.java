@@ -38,6 +38,15 @@ public class ManagementViewController {
         return "pages/management/groups.html";
     }
 
+    @GetMapping("/roles")
+    public String manageRoles(Model model) {
+        permissionService.requireManageGroup();
+        permissionService.requireManageFunction();
+        model.addAttribute("pageTitle", "Manage Roles");
+        model.addAttribute("activeTab", "roles");
+        return "pages/management/roles.html";
+    }
+
     @GetMapping("/functions")
     public String manageFunctions(Model model) {
         permissionService.requireManageFunction();

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<th:block th:fragment="css_resources">
+			<link rel="stylesheet" th:href="@{/webjars/datatables/1.13.4/css/dataTables.bootstrap4.min.css}" />
+			<link rel="stylesheet" th:href="@{/styles/pages/management.css}" />
+		</th:block>
+
+		<section class="content-header" th:fragment="page_header(titleKey)">
+			<div class="container-fluid">
+				<div class="row mb-2">
+					<div class="col-sm-6">
+						<h1 th:text="${titleKey.startsWith('#') ? #messages.msg(titleKey.substring(1)) : titleKey}">Management Title</h1>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<div class="modal-header text-white" th:classappend="${bgClass}" th:fragment="modal_header(title, bgClass, iconClass)">
+			<h5 class="modal-title">
+				<i th:class="${iconClass} + ' mr-2'"></i>
+				<span th:text="${title}">Modal Title</span>
+			</h5>
+			<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+		</div>
+
+		<div class="modal-footer justify-content-between" th:fragment="modal_footer(confirmId, confirmText, btnClass)">
+			<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{common.cancel}">Cancel</button>
+			<button type="button" class="btn" th:id="${confirmId}" th:classappend="${btnClass}" th:text="${confirmText}">Save</button>
+		</div>
+
+		<th:block th:fragment="data_table_scripts(pageScript)">
+			<script defer th:src="@{/webjars/datatables/1.13.4/js/jquery.dataTables.min.js}"></script>
+			<script defer th:src="@{/webjars/datatables/1.13.4/js/dataTables.bootstrap4.min.js}"></script>
+			<script defer th:src="${pageScript}"></script>
+		</th:block>
+	</body>
+</html>

@@ -63,7 +63,9 @@ public final class I18nMessageConstant {
     // --- User Management ---
     public static final String USER_MANAGEMENT_TITLE = "user.management.title";
     public static final String USER_MANAGEMENT_ADD_USER = "user.management.add.user";
+    public static final String USER_MANAGEMENT_FILTER_TITLE = "user.management.filter.title";
     public static final String USER_MANAGEMENT_FILTER_TYPE = "user.management.filter.type";
+    public static final String USER_MANAGEMENT_TABLE_LIST_TITLE = "user.management.table.list.title";
     public static final String USER_MANAGEMENT_ALL_TYPES = "user.management.all.types";
     public static final String USER_MANAGEMENT_TYPE_USER = "user.management.type.user";
     public static final String USER_MANAGEMENT_TYPE_GATEWAY = "user.management.type.gateway";
@@ -84,54 +86,78 @@ public final class I18nMessageConstant {
     public static final String USER_MODAL_TYPE = "user.modal.type";
     public static final String USER_MODAL_IP = "user.modal.ip";
     public static final String USER_MODAL_MAC = "user.modal.mac";
+    public static final String USER_MODAL_PLACEHOLDER_IP = "user.modal.placeholder.ip";
+    public static final String USER_MODAL_PLACEHOLDER_MAC = "user.modal.placeholder.mac";
     public static final String USER_MODAL_AVATAR = "user.modal.avatar";
     public static final String USER_MODAL_REQUIRED = "user.modal.required";
     public static final String USER_MODAL_CANCEL = "user.modal.cancel";
     public static final String USER_MODAL_CREATE_BTN = "user.modal.create.btn";
     public static final String USER_MODAL_SAVE_BTN = "user.modal.save.btn";
     
-    public static final String USER_GROUPS_MODAL_TITLE = "user.groups.modal.title";
-    public static final String USER_GROUPS_MODAL_INFO = "user.groups.modal.info";
-    public static final String USER_GROUPS_MODAL_CANCEL = "user.groups.modal.cancel";
-    public static final String USER_GROUPS_MODAL_SAVE = "user.groups.modal.save";
+    public static final String USER_ROLES_MODAL_TITLE = "user.roles.modal.title";
+    public static final String USER_ROLES_MODAL_INFO = "user.roles.modal.info";
+    public static final String USER_ROLES_MODAL_CANCEL = "user.roles.modal.cancel";
+    public static final String USER_ROLES_MODAL_SAVE = "user.roles.modal.save";
     
-    public static final String USER_ACTION_GROUPS = "user.action.groups";
+    public static final String USER_ACTION_ROLES = "user.action.roles";
     public static final String USER_ACTION_EDIT = "user.action.edit";
     public static final String USER_ACTION_RESET_PASSWORD = "user.action.reset.password";
     public static final String USER_ACTION_DELETE = "user.action.delete";
 
-    // --- Group Management ---
-    public static final String GROUP_MANAGEMENT_TITLE = "group.management.title";
-    public static final String GROUP_MANAGEMENT_ADD_GROUP = "group.management.add.group";
+    // --- Role Management ---
+    public static final String ROLE_MANAGEMENT_TITLE = "role.management.title";
+    public static final String ROLE_MANAGEMENT_ADD_ROLE = "role.management.add.role";
+    public static final String ROLE_TABLE_LIST_TITLE = "role.table.list.title";
     
-    public static final String GROUP_TABLE_ID = "group.table.id";
-    public static final String GROUP_TABLE_CODE = "group.table.code";
-    public static final String GROUP_TABLE_NAME = "group.table.name";
-    public static final String GROUP_TABLE_DESCRIPTION = "group.table.description";
-    public static final String GROUP_TABLE_ACTIONS = "group.table.actions";
+    public static final String ROLE_TABLE_ID = "role.table.id";
+    public static final String ROLE_TABLE_CODE = "role.table.code";
+    public static final String ROLE_TABLE_NAME = "role.table.name";
+    public static final String ROLE_TABLE_DESCRIPTION = "role.table.description";
+    public static final String ROLE_TABLE_ACTIONS = "role.table.actions";
     
-    public static final String GROUP_MODAL_CREATE_TITLE = "group.modal.create.title";
-    public static final String GROUP_MODAL_EDIT_TITLE = "group.modal.edit.title";
-    public static final String GROUP_MODAL_CODE = "group.modal.code";
-    public static final String GROUP_MODAL_CODE_HINT = "group.modal.code.hint";
-    public static final String GROUP_MODAL_NAME = "group.modal.name";
-    public static final String GROUP_MODAL_DESCRIPTION = "group.modal.description";
-    public static final String GROUP_MODAL_LANGUAGE = "group.modal.language";
-    public static final String GROUP_MODAL_LANG_VI = "group.modal.lang.vi";
-    public static final String GROUP_MODAL_LANG_EN = "group.modal.lang.en";
-    public static final String GROUP_MODAL_CANCEL = "group.modal.cancel";
-    public static final String GROUP_MODAL_CREATE_BTN = "group.modal.create.btn";
-    public static final String GROUP_MODAL_SAVE_BTN = "group.modal.save.btn";
+    public static final String ROLE_MODAL_CREATE_TITLE = "role.modal.create.title";
+    public static final String ROLE_MODAL_EDIT_TITLE = "role.modal.edit.title";
+    public static final String ROLE_MODAL_CODE = "role.modal.code";
+    public static final String ROLE_MODAL_CODE_HINT = "role.modal.code.hint";
+    public static final String ROLE_MODAL_NAME = "role.modal.name";
+    public static final String ROLE_MODAL_DESCRIPTION = "role.modal.description";
+    public static final String ROLE_MODAL_LANGUAGE = "role.modal.language";
+    public static final String ROLE_MODAL_LANG_VI = "role.modal.lang.vi";
+    public static final String ROLE_MODAL_LANG_EN = "role.modal.lang.en";
+    public static final String ROLE_MODAL_CANCEL = "role.modal.cancel";
+    public static final String ROLE_MODAL_CREATE_BTN = "role.modal.create.btn";
+    public static final String ROLE_MODAL_SAVE_BTN = "role.modal.save.btn";
     
-    public static final String GROUP_FUNCTIONS_MODAL_TITLE = "group.functions.modal.title";
-    public static final String GROUP_FUNCTIONS_MODAL_INFO_TITLE = "group.functions.modal.info.title";
-    public static final String GROUP_FUNCTIONS_MODAL_INFO_DESC = "group.functions.modal.info.desc";
-    public static final String GROUP_FUNCTIONS_MODAL_NO_FUNCTIONS = "group.functions.modal.no.functions";
-    public static final String GROUP_FUNCTIONS_MODAL_SAVE_BTN = "group.functions.modal.save.btn";
+    public static final String ROLE_FUNCTIONS_MODAL_TITLE = "role.functions.modal.title";
+    public static final String ROLE_FUNCTIONS_MODAL_INFO_TITLE = "role.functions.modal.info.title";
+    public static final String ROLE_FUNCTIONS_MODAL_INFO_DESC = "role.functions.modal.info.desc";
+    public static final String ROLE_FUNCTIONS_MODAL_NO_FUNCTIONS = "role.functions.modal.no.functions";
+    public static final String ROLE_FUNCTIONS_MODAL_SAVE_BTN = "role.functions.modal.save.btn";
     
-    public static final String GROUP_ACTION_FUNCTIONS = "group.action.functions";
-    public static final String GROUP_ACTION_EDIT = "group.action.edit";
-    public static final String GROUP_ACTION_DELETE = "group.action.delete";
+    public static final String ROLE_ACTION_FUNCTIONS = "role.action.functions";
+    public static final String ROLE_ACTION_EDIT = "role.action.edit";
+    public static final String ROLE_ACTION_DELETE = "role.action.delete";
+
+    // --- Function Management ---
+    public static final String FUNCTION_MANAGEMENT_TITLE = "function.management.title";
+    public static final String FUNCTION_MANAGEMENT_ADD_FUNCTION = "function.management.add.function";
+    public static final String FUNCTION_TABLE_LIST_TITLE = "function.table.list.title";
+    public static final String FUNCTION_TABLE_ID = "function.table.id";
+    public static final String FUNCTION_TABLE_CODE = "function.table.code";
+    public static final String FUNCTION_TABLE_NAME = "function.table.name";
+    public static final String FUNCTION_TABLE_DESCRIPTION = "function.table.description";
+    public static final String FUNCTION_TABLE_ACTIONS = "function.table.actions";
+    public static final String FUNCTION_MODAL_CREATE_TITLE = "function.modal.create.title";
+    public static final String FUNCTION_MODAL_EDIT_TITLE = "function.modal.edit.title";
+    public static final String FUNCTION_MODAL_CODE = "function.modal.code";
+    public static final String FUNCTION_MODAL_CODE_GENERATOR = "function.modal.code.generator";
+    public static final String FUNCTION_MODAL_TYPE_PREFIX = "function.modal.type.prefix";
+    public static final String FUNCTION_MODAL_PICK = "function.modal.pick";
+    public static final String FUNCTION_MODAL_SCOPE_HINT = "function.modal.scope.hint";
+    public static final String FUNCTION_MODAL_CODE_HINT = "function.modal.code.hint";
+    public static final String FUNCTION_MODAL_NAME = "function.modal.name";
+    public static final String FUNCTION_MODAL_DESCRIPTION = "function.modal.description";
+    public static final String FUNCTION_MODAL_LANGUAGE = "function.modal.language";
 
     // --- Error Pages (4xx, 5xx) ---
     public static final String ERROR_BACK_HOME = "error.back.home";

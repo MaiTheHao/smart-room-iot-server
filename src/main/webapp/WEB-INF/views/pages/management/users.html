@@ -1,75 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
 	<head>
-		<title>Manage Users</title>
-		<link rel="stylesheet" th:href="@{/webjars/datatables/1.13.4/css/dataTables.bootstrap4.min.css}" />
-		<style>
-			/* Unified Table Styles */
-			.table td {
-				vertical-align: middle !important;
-			}
-			.action-btn {
-				margin: 0 2px;
-			}
-
-			/* Specific Styles */
-			.badge-user {
-				background-color: #007bff;
-			}
-			.badge-gateway {
-				background-color: #6c757d;
-			}
-			.status-online {
-				color: #28a745;
-				font-weight: bold;
-			}
-			.status-offline {
-				color: #dc3545;
-			}
-			.group-checkbox {
-				transform: scale(1.2);
-				margin-right: 8px;
-			}
-			.group-list-item {
-				padding: 8px;
-				border-bottom: 1px solid #e9ecef;
-				transition: background-color 0.2s;
-			}
-			.group-list-item:hover {
-				background-color: #f8f9fa;
-			}
-			.group-list-item:last-child {
-				border-bottom: none;
-			}
-			.modal-body {
-				max-height: 500px;
-				overflow-y: auto;
-			}
-			.dataTables_wrapper .dataTables_paginate .paginate_button {
-				padding: 0;
-			}
-			.dataTables_wrapper .dataTables_length select {
-				width: 5em !important;
-				padding: 0 1ch;
-			}
-		</style>
+		<title th:text="#{user.management.title}">Manage Users</title>
+		<th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
 	</head>
 	<body>
-		<section class="content-header" layout:fragment="header">
-			<div class="container-fluid">
-				<div class="row mb-2">
-					<div class="col-sm-6">
-						<h1 th:text="#{user.management.title}">Manage Users & Clients</h1>
-					</div>
-				</div>
-			</div>
-		</section>
+		<th:block layout:fragment="header">
+			<th:block th:replace="~{fragments/management.html :: page_header(#{user.management.title})}"></th:block>
+		</th:block>
 
 		<section class="content" layout:fragment="content">
 			<div class="container-fluid">
 				<div class="card card-outline card-secondary mb-3 collapsed-card">
 					<div class="card-header">
-						<h3 class="card-title"><i class="fas fa-filter mr-1"></i>Filters</h3>
+						<h3 class="card-title">
+							<i class="fas fa-filter mr-1"></i>
+							<span th:text="#{user.management.filter.title}">Filters</span>
+						</h3>
 						<div class="card-tools">
 							<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
 						</div>
@@ -98,7 +45,7 @@
 					<div class="card-header">
 						<h3 class="card-title">
 							<i class="fas fa-users mr-1"></i>
-							<span th:text="#{user.management.title}">User List</span>
+							<span th:text="#{user.management.table.list.title}">User List</span>
 						</h3>
 						<div class="card-tools">
 							<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createUserModal">
@@ -128,14 +75,8 @@
 				<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog modal-lg" role="document">
 						<div class="modal-content">
-							<div class="modal-header bg-success text-white">
-								<h5 class="modal-title">
-									<i class="fas fa-user-plus mr-2"></i>
-									<span th:text="#{user.modal.create.title}">Create New User</span>
-								</h5>
-								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-							</div>
-							<div class="modal-body">
+							<th:block th:replace="~{fragments/management.html :: modal_header(#{user.modal.create.title}, 'bg-success', 'fas fa-user-plus')}"></th:block>
+							<div class="modal-body modal-body-scrollable">
 								<form id="createUserForm">
 									<div class="row">
 										<div class="col-md-6">
@@ -164,7 +105,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="createIpAddress" th:text="#{user.modal.ip}">IP Address</label>
-												<input type="text" class="form-control" id="createIpAddress" maxlength="45" placeholder="192.168.1.1" />
+												<input type="text" class="form-control" id="createIpAddress" maxlength="45" th:placeholder="#{user.modal.placeholder.ip}" />
 											</div>
 										</div>
 									</div>
@@ -172,7 +113,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="createMacAddress" th:text="#{user.modal.mac}">MAC Address</label>
-												<input type="text" class="form-control" id="createMacAddress" maxlength="100" placeholder="AA:BB:CC:DD:EE:FF" />
+												<input type="text" class="form-control" id="createMacAddress" maxlength="100" th:placeholder="#{user.modal.placeholder.mac}" />
 											</div>
 										</div>
 										<div class="col-md-6">
@@ -184,12 +125,7 @@
 									</div>
 								</form>
 							</div>
-							<div class="modal-footer justify-content-between">
-								<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{user.modal.cancel}">Cancel</button>
-								<button type="button" class="btn btn-success" id="createUserBtn">
-									<i class="fas fa-check mr-1"></i><span th:text="#{user.modal.create.btn}">Create</span>
-								</button>
-							</div>
+							<th:block th:replace="~{fragments/management.html :: modal_footer('createUserBtn', #{user.modal.create.btn}, 'btn-success')}"></th:block>
 						</div>
 					</div>
 				</div>
@@ -197,14 +133,8 @@
 				<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
 					<div class="modal-dialog modal-lg" role="document">
 						<div class="modal-content">
-							<div class="modal-header bg-primary text-white">
-								<h5 class="modal-title">
-									<i class="fas fa-user-edit mr-2"></i>
-									<span id="editModalTitle" th:text="#{user.modal.edit.title}">Edit User</span>
-								</h5>
-								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-							</div>
-							<div class="modal-body">
+							<th:block th:replace="~{fragments/management.html :: modal_header(#{user.modal.edit.title}, 'bg-primary', 'fas fa-user-edit')}"></th:block>
+							<div class="modal-body modal-body-scrollable">
 								<form id="editUserForm">
 									<input type="hidden" id="editUserId" />
 									<div class="row">
@@ -240,12 +170,7 @@
 									</div>
 								</form>
 							</div>
-							<div class="modal-footer justify-content-between">
-								<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{user.modal.cancel}">Cancel</button>
-								<button type="button" class="btn btn-primary" id="saveEditBtn">
-									<i class="fas fa-save mr-1"></i><span th:text="#{user.modal.save.btn}">Save Changes</span>
-								</button>
-							</div>
+							<th:block th:replace="~{fragments/management.html :: modal_footer('saveEditBtn', #{user.modal.save.btn}, 'btn-primary')}"></th:block>
 						</div>
 					</div>
 				</div>
@@ -256,25 +181,20 @@
 							<div class="modal-header bg-info text-white">
 								<h5 class="modal-title">
 									<i class="fas fa-users-cog mr-2"></i>
-									<span th:text="#{user.groups.modal.title}">Manage Groups</span>:
+									<span th:text="#{user.roles.modal.title}">Manage Roles</span>:
 									<span id="groupModalUsername" class="font-weight-bold ml-1"></span>
 								</h5>
 								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
 							</div>
-							<div class="modal-body">
+							<div class="modal-body modal-body-scrollable">
 								<input type="hidden" id="groupClientId" />
 								<div class="alert alert-info">
 									<i class="fas fa-info-circle mr-2"></i>
-									<span th:text="#{user.groups.modal.info}">Check or uncheck groups.</span>
+									<span th:text="#{user.roles.modal.info}">Check or uncheck roles.</span>
 								</div>
 								<div id="groupsList" class="list-group"></div>
 							</div>
-							<div class="modal-footer justify-content-between">
-								<button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{user.modal.cancel}">Cancel</button>
-								<button type="button" class="btn btn-info" id="saveGroupsBtn">
-									<i class="fas fa-save mr-1"></i><span th:text="#{user.groups.modal.save}">Save Changes</span>
-								</button>
-							</div>
+							<th:block th:replace="~{fragments/management.html :: modal_footer('saveGroupsBtn', #{user.roles.modal.save}, 'btn-info')}"></th:block>
 						</div>
 					</div>
 				</div>
@@ -282,9 +202,7 @@
 		</section>
 
 		<th:block layout:fragment="optional">
-			<script defer th:src="@{/webjars/datatables/1.13.4/js/jquery.dataTables.min.js}"></script>
-			<script defer th:src="@{/webjars/datatables/1.13.4/js/dataTables.bootstrap4.min.js}"></script>
-			<script defer th:src="@{/scripts/pages/user_management.js}"></script>
+			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/user_management.js})}"></th:block>
 			<script defer th:inline="javascript">
 				/*<![CDATA[*/
 				$(document).ready(function () {

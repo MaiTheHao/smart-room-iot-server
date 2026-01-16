@@ -26,6 +26,7 @@
 		<log4j.version>2.22.1</log4j.version>
 		<jjwt.version>0.11.5</jjwt.version>
 		<commons.version>3.14.0</commons.version>
+		<quartz.version>2.3.2</quartz.version>
 	</properties>
 
 	<dependencies>
@@ -129,6 +130,11 @@
 			<groupId>jakarta.validation</groupId>
 			<artifactId>jakarta.validation-api</artifactId>
 			<version>3.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${quartz.version}</version>
 		</dependency>
 
 		<dependency>

@@ -19,7 +19,9 @@ public interface LightService {
 
     void delete(Long lightId);
 
-    void toggleState(Long lightId);
+    void handleStateControl(Long lightId, boolean newState);
 
-    void setLevel(Long lightId, int newLevel);
+    void handleToggleStateControl(Long lightId);
+
+    void handleSetLevelControl(Long lightId, int newLevel);
 }
