@@ -163,6 +163,7 @@
 		</section>
 
 		<th:block layout:fragment="optional">
+			<script th:src="@{/scripts/service/api/v1/function_api_v1.js}"></script>
 			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/function_management.js})}"></th:block>
 			<script defer th:inline="javascript">
 				/*<![CDATA[*/

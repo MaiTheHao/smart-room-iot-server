@@ -2,6 +2,8 @@ class UserManager {
 	constructor(contextPath) {
 		this.contextPath = contextPath;
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
+		this.clientService = new ClientApiV1Service(this.apiClient);
+		this.roleService = new RoleApiV1Service(this.apiClient);
 		this.table = null;
 		this.roleChanges = {};
 		this.init();
@@ -16,10 +18,14 @@ class UserManager {
 		this.table = $('#usersTable').DataTable({
 			processing: true,
 			serverSide: false,
-			ajax: {
-				url: `${this.contextPath}api/v1/clients`,
-				dataSrc: 'data.content',
-				error: (xhr) => notify.error('Failed to load users data'),
+			ajax: async (data, callback, settings) => {
+				try {
+					const res = await this.clientService.getAll();
+					callback({ data: res.data.content });
+				} catch (error) {
+					notify.error('Failed to load users data');
+					callback({ data: [] });
+				}
 			},
 			columns: [
 				{ data: 'id' },
@@ -106,7 +112,7 @@ class UserManager {
 		};
 
 		try {
-			const res = await this.apiClient.post('clients', data);
+			const res = await this.clientService.create(data);
 			notify.success(res.message || 'User created successfully');
 			$('#createUserModal').modal('hide');
 			form.reset();
@@ -118,7 +124,7 @@ class UserManager {
 
 	async openEditModal(id) {
 		try {
-			const res = await this.apiClient.get(`clients/${id}`);
+			const res = await this.clientService.getById(id);
 			const user = res.data;
 
 			$('#editUserId').val(user.id);
@@ -151,7 +157,7 @@ class UserManager {
 		};
 
 		try {
-			const res = await this.apiClient.put(`clients/${userId}`, data);
+			const res = await this.clientService.update(userId, data);
 			notify.success(res.message || 'User updated successfully');
 			$('#editUserModal').modal('hide');
 			this.table.ajax.reload();
@@ -169,7 +175,7 @@ class UserManager {
 		if (newPassword.length < 6) return notify.error('Password must be at least 6 characters');
 
 		try {
-			await this.apiClient.put(`clients/${id}`, { password: newPassword });
+			await this.clientService.update(id, { password: newPassword });
 			notify.success('Password reset successfully');
 		} catch (error) {
 			notify.error(error.message || 'Failed to reset password');
@@ -184,7 +190,7 @@ class UserManager {
 		if (!confirmed) return;
 
 		try {
-			await this.apiClient.delete(`clients/${id}`);
+			await this.clientService.delete(id);
 			notify.success('User deleted successfully');
 			this.table.ajax.reload();
 		} catch (error) {
@@ -208,7 +214,7 @@ class UserManager {
 		$list.html('<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>');
 
 		try {
-			const res = await this.apiClient.get(`groups/with-client-status/${clientId}`);
+			const res = await this.clientService.getGroupsStatus(clientId);
 			const groups = res.data;
 
 			if (!groups.length) {
@@ -278,12 +284,8 @@ class UserManager {
 			this.roleChanges[groupId] ? toAssign.push(id) : toUnassign.push(id);
 		});
 
-		const promises = [];
-		if (toAssign.length) promises.push(this.apiClient.post('roles/clients/groups/assign', { clientId, groupIds: toAssign }));
-		if (toUnassign.length) promises.push(this.apiClient.post('roles/clients/groups/unassign', { clientId, groupIds: toUnassign }));
-
 		try {
-			await Promise.all(promises);
+			await this.roleService.batchUpdateClientGroups(clientId, toAssign, toUnassign);
 			notify.success('Role assignments updated successfully');
 			$('#manageGroupsModal').modal('hide');
 			this.roleChanges = {};
