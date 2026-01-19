@@ -1,0 +1,171 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<!-- Fragment Definition -->
+		<div th:fragment="modal_content" class="modal fade" id="automationModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+				<div class="modal-content border-0 shadow-lg">
+					<!-- Header -->
+					<div class="modal-header bg-primary text-white py-3">
+						<h5 class="modal-title font-weight-bold" id="modalTitle"><i class="fas fa-calendar-alt mr-2"></i> Scheduler Config</h5>
+						<button type="button" class="close text-white opacity-1" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<!-- Body -->
+					<div class="modal-body bg-light">
+						<form id="automationForm">
+							<input type="hidden" id="autoId" />
+
+							<!-- Section 1: Task Info -->
+							<div class="card shadow-sm border-0 mb-3">
+								<div class="card-body p-3">
+									<div class="form-group mb-0">
+										<label class="small text-muted text-uppercase font-weight-bold">Task Name <span class="text-danger">*</span></label>
+										<input type="text" class="form-control font-weight-bold text-primary" id="autoName" required placeholder="Ex: Database Backup" />
+									</div>
+								</div>
+							</div>
+
+							<!-- Section 2: Timeline & Frequency (COMPACT ROW) -->
+							<div class="card shadow-sm border-0 mb-3">
+								<div class="card-body p-3">
+									<div class="row">
+										<!-- Cột 1: Start Time (Mốc thời gian) -->
+										<div class="col-md-6 border-right">
+											<label class="small text-muted text-uppercase font-weight-bold"><i class="far fa-clock mr-1"></i> Start Time</label>
+											<input type="text" class="form-control font-weight-bold datetime-input" id="startTimePicker" />
+											<small class="text-muted d-block mt-1">First run / Anchor time</small>
+										</div>
+
+										<!-- Cột 2: Pattern (Kiểu lặp) -->
+										<div class="col-md-6">
+											<label class="small text-muted text-uppercase font-weight-bold"><i class="fas fa-sync-alt mr-1"></i> Repeat Pattern</label>
+											<select class="form-control custom-select font-weight-bold" id="scheduleType">
+												<option value="ONCE">Run Once (Một lần)</option>
+												<option value="DAILY">Daily (Hằng ngày)</option>
+												<option value="WEEKLY">Weekly (Hàng tuần)</option>
+												<option value="MONTHLY">Monthly (Hàng tháng)</option>
+											</select>
+											<small class="text-muted d-block mt-1" id="patternDesc">Run exactly once at Start Time</small>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Section 3: Dynamic Options (Advanced) -->
+							<div class="card shadow-sm border-0 bg-white mb-3" id="dynamicScheduleArea">
+								<div class="card-body p-3">
+									<!-- CASE: ONCE / DAILY (Simple Message) -->
+									<div class="schedule-option d-none" id="opt-simple">
+										<div class="alert alert-light border-0 mb-0 text-center text-muted">
+											<i class="fas fa-info-circle text-primary mr-2"></i>
+											<span id="simpleMessage">No additional configuration needed.</span>
+										</div>
+									</div>
+
+									<!-- CASE: WEEKLY -->
+									<div class="schedule-option d-none" id="opt-weekly">
+										<label class="small text-muted text-uppercase font-weight-bold mb-2">Select Days of Week</label>
+										<div class="d-flex justify-content-between flex-wrap btn-group-toggle" data-toggle="buttons">
+											<label class="btn btn-outline-secondary btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="MON" /> Mon
+											</label>
+											<label class="btn btn-outline-secondary btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="TUE" /> Tue
+											</label>
+											<label class="btn btn-outline-secondary btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="WED" /> Wed
+											</label>
+											<label class="btn btn-outline-secondary btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="THU" /> Thu
+											</label>
+											<label class="btn btn-outline-secondary btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="FRI" /> Fri
+											</label>
+											<label class="btn btn-outline-secondary btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="SAT" /> Sat
+											</label>
+											<label class="btn btn-outline-danger btn-sm flex-fill m-1 rounded border-0 shadow-sm">
+												<input type="checkbox" name="weekDays" value="SUN" /> Sun
+											</label>
+										</div>
+									</div>
+
+									<!-- CASE: MONTHLY (GRID) -->
+									<div class="schedule-option d-none" id="opt-monthly">
+										<div class="d-flex justify-content-between align-items-center mb-2">
+											<label class="small text-muted text-uppercase font-weight-bold mb-0">Select Days of Month</label>
+											<small class="text-primary cursor-pointer" id="btnResetMonth">Reset</small>
+										</div>
+
+										<div class="d-flex flex-wrap justify-content-center" id="monthGrid">
+											<!-- Grid 1-31 -->
+											<th:block th:each="i : ${#numbers.sequence(1, 31)}">
+												<button
+													type="button"
+													class="btn btn-outline-light text-dark border day-cell m-1 p-0 shadow-sm"
+													style="width: 32px; height: 32px; font-size: 0.8rem"
+													th:data-val="${i}"
+													th:text="${i}"
+												>
+													1
+												</button>
+											</th:block>
+										</div>
+										<input type="hidden" id="selectedMonthDays" />
+									</div>
+								</div>
+							</div>
+
+							<!-- Section 4: Limit & Status (Footer Settings) -->
+							<div class="row">
+								<div class="col-md-full">
+									<div class="card shadow-none border bg-light">
+										<div class="card-body p-2 d-flex align-items-center justify-content-between">
+											<!-- Limit Toggle -->
+											<div class="custom-control custom-switch">
+												<input type="checkbox" class="custom-control-input" id="chkEnableLimit" />
+												<label class="custom-control-label small font-weight-bold" for="chkEnableLimit">Limit Repeats?</label>
+											</div>
+
+											<!-- Limit Input (Hidden by default) -->
+											<div id="limitInputArea" class="d-none d-flex align-items-center ml-3">
+												<span class="small text-muted mr-2">Stop after:</span>
+												<input
+													type="number"
+													class="form-control form-control-sm text-center font-weight-bold text-primary"
+													id="maxExecutions"
+													value="10"
+													min="1"
+													style="width: 70px"
+												/>
+												<span class="small text-muted ml-2">times</span>
+											</div>
+
+											<div id="limitInfiniteText" class="ml-3 small text-success font-weight-bold"><i class="fas fa-infinity"></i> Infinite</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Description -->
+							<div class="form-group mt-3 mb-0">
+								<textarea class="form-control bg-light text-muted small" id="autoDescription" rows="1" placeholder="Optional description..."></textarea>
+							</div>
+						</form>
+					</div>
+
+					<!-- Footer -->
+					<div class="modal-footer bg-light border-top-0 py-2">
+						<button type="button" class="btn btn-sm btn-light font-weight-bold" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-sm btn-primary px-4 shadow-sm font-weight-bold" id="btnSaveAutomation">
+							<i class="fas fa-check mr-1"></i> Apply Schedule
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

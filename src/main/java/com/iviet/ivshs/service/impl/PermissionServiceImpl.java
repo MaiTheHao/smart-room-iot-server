@@ -145,6 +145,24 @@ public class PermissionServiceImpl implements PermissionService {
         log.debug("User {} granted permission to manage groups", SecurityContextUtil.getCurrentUsername());
     }
 
+    @Override
+    public boolean canManageAutomation() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_AUTOMATION.getCode());
+    }
+
+    @Override
+    public void requireManageAutomation() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageAutomation()) {
+            throw new ForbiddenException("Insufficient permissions to manage automation");
+        }
+        log.debug("User {} granted permission to manage automation", SecurityContextUtil.getCurrentUsername());
+    }
+
 	@Override
     public boolean canAccessFloor(String floorCode) {
         if (!RequestContextUtil.isHttpRequest()) return true;

@@ -34,6 +34,6 @@ public class AutomationDto {
         private JobActionType actionType;
         private String parameterValue;
         private Integer executionOrder;
-        private String targetName; // Tên thiết bị (Light, Temperature...)
+        private String targetName;
     }
 }

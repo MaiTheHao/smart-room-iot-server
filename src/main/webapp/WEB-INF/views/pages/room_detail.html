@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{main_layout.html}">
 	<head>
 		<title th:text="${room.name} + ' | Dashboard'">Room Dashboard</title>
-		<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+		<link rel="stylesheet" th:href="@{/webjars/bootstrap-daterangepicker/css/bootstrap-daterangepicker.css}" />
 	</head>
 
 	<body>
@@ -97,9 +97,12 @@
 		</section>
 
 		<th:block layout:fragment="optional">
-			<script defer src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-			<script defer src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-			<script defer src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+			<script defer th:src="@{/webjars/momentjs/min/moment.min.js}"></script>
+
+			<script defer th:src="@{/webjars/bootstrap-daterangepicker/js/bootstrap-daterangepicker.js}"></script>
+
+			<script defer th:src="@{/webjars/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js}"></script>
+			<script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/service/api/v1/health_check_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/pages/room_detail.js}"></script>
 

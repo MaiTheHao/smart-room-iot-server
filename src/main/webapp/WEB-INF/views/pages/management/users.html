@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
 	<head>
 		<title th:text="#{user.management.title}">Manage Users</title>
@@ -202,6 +202,7 @@
 		</section>
 
 		<th:block layout:fragment="optional">
+			<script th:src="@{/scripts/service/api/v1/role_api_v1.js}"></script>
 			<script th:src="@{/scripts/service/api/v1/client_api_v1.js}"></script>
 			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/user_management.js})}"></th:block>
 			<script defer th:inline="javascript">

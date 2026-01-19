@@ -95,6 +95,34 @@
 						</li>
 					</ul>
 				</li>
+
+				<li
+					class="nav-item"
+					sec:authorize="hasAuthority('F_MANAGE_AUTOMATION') || hasAuthority('F_MANAGE_ALL')"
+					th:classappend="${request.requestURI.contains('/automation') ? 'menu-open' : ''}"
+				>
+					<a href="#" class="nav-link" th:classappend="${request.requestURI.contains('/automation') ? 'active' : ''}">
+						<i class="nav-icon fas fa-robot"></i>
+						<p>
+							Automation
+							<i class="right fas fa-angle-left"></i>
+						</p>
+					</a>
+					<ul class="nav nav-treeview">
+						<li class="nav-item">
+							<a th:href="@{/automation/jobs}" class="nav-link" th:classappend="${request.requestURI.contains('/automation/jobs') ? 'active' : ''}">
+								<i class="nav-icon far" th:classappend="${request.requestURI.contains('/automation/jobs') ? 'fa-dot-circle' : 'fa-circle'}"></i>
+								<p>Jobs</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a th:href="@{/automation/equipments}" class="nav-link" th:classappend="${request.requestURI.contains('/automation/equipments') ? 'active' : ''}">
+								<i class="nav-icon far" th:classappend="${request.requestURI.contains('/automation/equipments') ? 'fa-dot-circle' : 'fa-circle'}"></i>
+								<p>Equipments</p>
+							</a>
+						</li>
+					</ul>
+				</li>
 			</ul>
 		</nav>
 	</div>

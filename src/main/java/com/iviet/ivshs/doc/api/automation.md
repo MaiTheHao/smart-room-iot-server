@@ -34,7 +34,7 @@
 				"actions": [
 					{
 						"id": 1,
-						"targetType": "DEVICE",
+						"targetType": "LIGHT",
 						"targetId": 5,
 						"actionType": "OFF",
 						"parameterValue": null,
@@ -82,7 +82,7 @@
 		"actions": [
 			{
 				"id": 1,
-				"targetType": "DEVICE",
+				"targetType": "LIGHT",
 				"targetId": 5,
 				"actionType": "OFF",
 				"parameterValue": null,
@@ -115,7 +115,7 @@
 
 | Tên trường     | Loại   | Bắt buộc | Mô tả                                          |
 | :------------- | :----- | :------- | :--------------------------------------------- |
-| targetType     | enum   | Có       | Loại mục tiêu: DEVICE, ROOM, FLOOR, BUILDING   |
+| targetType     | enum   | Có       | Loại mục tiêu: LIGHT                           |
 | targetId       | Long   | Có       | ID của mục tiêu                                |
 | actionType     | enum   | Có       | Loại hành động: ON, OFF, SET_VALUE, etc.       |
 | parameterValue | string | Không    | Giá trị tham số (dùng cho hành động SET_VALUE) |
@@ -131,14 +131,14 @@
 	"description": "Tự động tắt đèn vào lúc 18h hàng ngày",
 	"actions": [
 		{
-			"targetType": "DEVICE",
+			"targetType": "LIGHT",
 			"targetId": 5,
 			"actionType": "OFF",
 			"parameterValue": null,
 			"executionOrder": 0
 		},
 		{
-			"targetType": "DEVICE",
+			"targetType": "LIGHT",
 			"targetId": 6,
 			"actionType": "OFF",
 			"parameterValue": null,
@@ -165,7 +165,7 @@
 		"actions": [
 			{
 				"id": 1,
-				"targetType": "DEVICE",
+				"targetType": "LIGHT",
 				"targetId": 5,
 				"actionType": "OFF",
 				"parameterValue": null,
@@ -174,7 +174,7 @@
 			},
 			{
 				"id": 2,
-				"targetType": "DEVICE",
+				"targetType": "LIGHT",
 				"targetId": 6,
 				"actionType": "OFF",
 				"parameterValue": null,
@@ -219,7 +219,7 @@
 	"description": "Tự động tắt đèn vào lúc 19h hàng ngày",
 	"actions": [
 		{
-			"targetType": "DEVICE",
+			"targetType": "LIGHT",
 			"targetId": 5,
 			"actionType": "OFF",
 			"parameterValue": null,
@@ -246,7 +246,7 @@
 		"actions": [
 			{
 				"id": 1,
-				"targetType": "DEVICE",
+				"targetType": "LIGHT",
 				"targetId": 5,
 				"actionType": "OFF",
 				"parameterValue": null,
@@ -306,7 +306,7 @@
 			"actions": [
 				{
 					"id": 1,
-					"targetType": "DEVICE",
+					"targetType": "LIGHT",
 					"targetId": 5,
 					"actionType": "OFF",
 					"parameterValue": null,
@@ -409,7 +409,7 @@
 	"actions": [
 		{
 			"id": 1,
-			"targetType": "DEVICE",
+			"targetType": "LIGHT",
 			"targetId": 5,
 			"actionType": "OFF",
 			"parameterValue": null,
@@ -467,10 +467,7 @@ Cấu trúc phản hồi chung cho tất cả các API.
 ### JobTargetType
 
 ```
-- DEVICE: Thiết bị
-- ROOM: Phòng
-- FLOOR: Tầng
-- BUILDING: Tòa nhà
+- LIGHT: Thiết bị đèn
 ```
 
 ### JobActionType
@@ -478,9 +475,6 @@ Cấu trúc phản hồi chung cho tất cả các API.
 ```
 - ON: Bật thiết bị
 - OFF: Tắt thiết bị
-- SET_VALUE: Đặt giá trị
-- INCREASE: Tăng giá trị
-- DECREASE: Giảm giá trị
 ```
 
 ---

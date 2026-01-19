@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 	<body>
 		<th:block th:fragment="css_resources">
-			<link rel="stylesheet" th:href="@{/webjars/datatables/1.13.4/css/dataTables.bootstrap4.min.css}" />
+			<link rel="stylesheet" th:href="@{/webjars/datatables/css/dataTables.bootstrap4.min.css}" />
 			<link rel="stylesheet" th:href="@{/styles/pages/management.css}" />
 		</th:block>
 
@@ -30,8 +30,8 @@
 		</div>
 
 		<th:block th:fragment="data_table_scripts(pageScript)">
-			<script defer th:src="@{/webjars/datatables/1.13.4/js/jquery.dataTables.min.js}"></script>
-			<script defer th:src="@{/webjars/datatables/1.13.4/js/dataTables.bootstrap4.min.js}"></script>
+			<script defer th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+			<script defer th:src="@{/webjars/datatables/js/dataTables.bootstrap4.min.js}"></script>
 			<script defer th:src="${pageScript}"></script>
 		</th:block>
 	</body>

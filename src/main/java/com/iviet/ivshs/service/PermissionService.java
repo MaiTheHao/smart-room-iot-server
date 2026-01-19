@@ -37,6 +37,10 @@ public interface PermissionService {
 
     void requireManageGroup();
 
+    boolean canManageAutomation();
+
+    void requireManageAutomation();
+
     boolean canAccessFloor(String floorCode);
 
     void requireAccessFloor(String floorCode);

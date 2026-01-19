@@ -89,10 +89,7 @@ class FunctionManager {
 		const typePrefix = $('#builderType').val();
 		let scope = $('#builderScope').val() || 'ALL';
 
-		scope = scope
-			.trim()
-			.toUpperCase()
-			.replace(/[^A-Z0-9_]/g, '');
+		scope = scope.trim();
 
 		const finalCode = `F_${typePrefix}_${scope}`;
 		$('#createFunctionCode').val(finalCode);

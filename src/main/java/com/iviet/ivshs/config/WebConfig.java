@@ -24,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.servlet.resource.WebJarsResourceResolver;
 import org.springframework.context.MessageSource;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -31,6 +32,7 @@ import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
+import org.webjars.WebJarAssetLocator;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -181,8 +183,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/resources/fonts/").setCachePeriod(31556926);
         registry.addResourceHandler("/files/**").addResourceLocations("/WEB-INF/resources/file/").setCachePeriod(31556926);
         registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/")
-                .setCachePeriod(31556926);
+                    .addResourceLocations("classpath:/META-INF/resources/webjars/")
+                    .setCachePeriod(31556926)
+                    .resourceChain(false)
+                    .addResolver(new WebJarsResourceResolver(new WebJarAssetLocator()));
     }
 
     @Override

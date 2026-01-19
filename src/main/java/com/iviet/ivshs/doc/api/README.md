@@ -31,3 +31,7 @@
 
 -   [Language (Ngôn ngữ)](language.md)
 -   [Health Check (Kiểm tra trạng thái hệ thống)](health_check.md)
+
+## Automation
+
+-   [Automation (Kịch bản tự động hóa)](automation.md)
