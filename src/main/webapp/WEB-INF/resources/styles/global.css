@@ -1,109 +1,67 @@
-@import url('/styles/fonts.css');
+@import url('font.css');
 
 :root {
-	/* =========================================
-       1. 60% - NEUTRAL (NỀN TẢNG)
-       Thêm trạng thái tương tác cho các vùng xám/trắng
-       ========================================= */
-	--bg-body: #f8fafc; /* Slate-50 */
-	--bg-surface: #ffffff; /* White */
-
-	/* Dùng cho Hover vào Card hoặc Table row */
-	--bg-surface-hover: #f1f5f9; /* Slate-100 */
-	--bg-surface-active: #e2e8f0; /* Slate-200 */
-
-	/* Border & Separator */
+	--bg-body: #f8fafc;
+	--bg-surface: #ffffff;
+	--bg-surface-hover: #f1f5f9;
+	--bg-surface-active: #e2e8f0;
 	--border-color: #e2e8f0;
-	--border-color-hover: #cbd5e1; /* Đậm hơn khi hover vào input/card */
-
-	/* Typography */
-	--text-main: #0f172a; /* Slate-900 */
-	--text-muted: #64748b; /* Slate-500 */
-	--text-light: #94a3b8; /* Slate-400 (Dùng cho placeholder/disabled) */
-
-	/* =========================================
-       2. 30% - BRAND / PRIMARY (MÀU CẤP 2)
-       Dùng cho: Links, Ghost buttons, Icons
-       ========================================= */
-	/* Base: Xanh biển Pastel */
-	--color-brand: #60a5fa; /* Blue-400 */
-
-	/* Hover: Đậm hơn 1 chút để rõ chữ/icon */
-	--color-brand-hover: #3b82f6; /* Blue-500 */
-
-	/* Active: Đậm nhất, cảm giác chắc chắn */
-	--color-brand-active: #2563eb; /* Blue-600 */
-
-	/* Background nhẹ của Brand (dùng cho badge/tag) */
-	--color-brand-bg-subtle: #eff6ff; /* Blue-50 */
-
-	/* =========================================
-       3. 10% - ACCENT / CTA (MÀU NHẤN)
-       Dùng cho: Primary Button (Mua ngay, Submit)
-       ========================================= */
-	/* Base: Tím Neon nhẹ */
-	--color-accent: #8b5cf6; /* Violet-500 */
-
-	/* Hover: Tím đậm hơn, thu hút sự chú ý */
-	--color-accent-hover: #7c3aed; /* Violet-600 */
-
-	/* Active: Tím tối, tạo lực nhấn */
-	--color-accent-active: #6d28d9; /* Violet-700 */
-
-	/* Shadow cho nút CTA để nổi bật (tùy chọn) */
+	--border-color-hover: #cbd5e1;
+	--text-main: #0f172a;
+	--text-muted: #64748b;
+	--text-light: #94a3b8;
+	--color-brand: #60a5fa;
+	--color-brand-hover: #3b82f6;
+	--color-brand-active: #2563eb;
+	--color-brand-bg-subtle: #eff6ff;
+	--color-accent: #8b5cf6;
+	--color-accent-hover: #7c3aed;
+	--color-accent-active: #6d28d9;
 	--shadow-accent: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
-
-	/* =========================================
-       SYSTEM SETTINGS
-       ========================================= */
 	--font-family: 'Rethink Sans', sans-serif;
-	--radius-md: 8px; /* Bo góc chuẩn hiện đại */
+	--radius-md: 8px;
 }
 
-/* Heading styles */
 h1 {
 	font-family: var(--font-family);
 	font-size: 1.5em;
 	font-weight: bold;
-	color: var(--color-text);
+	color: var(--text-main);
 }
 
 h2 {
 	font-family: var(--font-family);
 	font-size: 1.25em;
 	font-weight: bold;
-	color: var(--color-text);
+	color: var(--text-main);
 }
 
 h3 {
 	font-family: var(--font-family);
 	font-size: 1.125em;
 	font-weight: bold;
-	color: var(--color-text);
+	color: var(--text-main);
 }
 
-/* Button text */
 .button-text {
 	font-family: var(--font-family);
 	font-size: 1em;
-	font-weight: 600; /* semibold */
-	color: var(--color-text);
+	font-weight: 600;
+	color: var(--text-main);
 }
 
-/* Title text */
 .title-text {
 	font-family: var(--font-family);
 	font-size: 1em;
-	font-weight: 600; /* semi bold */
-	color: var(--color-text);
+	font-weight: 600;
+	color: var(--text-main);
 }
 
-/* Paragraph */
 .paragraph {
 	font-family: var(--font-family);
 	font-size: 0.875em;
-	font-weight: 400; /* regular */
-	color: var(--color-text);
+	font-weight: 400;
+	color: var(--text-main);
 }
 
 .max-line-1 {
@@ -130,18 +88,17 @@ h3 {
 	text-overflow: ellipsis;
 }
 
-/* Custom scrollbar styles */
 ::-webkit-scrollbar {
 	width: 8px;
 	height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-	background: var(--color-secondary);
+	background: var(--bg-body);
 }
 
 ::-webkit-scrollbar-thumb {
-	background: var(--color-surface);
+	background: var(--bg-surface-active);
 	border-radius: 4px;
 }
 
@@ -149,9 +106,8 @@ h3 {
 	background: var(--color-accent);
 }
 
-/* Firefox scrollbar */
 * {
-	scrollbar-color: var(--color-surface) var(--color-secondary);
+	scrollbar-color: var(--bg-surface-active) var(--bg-body);
 	scrollbar-width: thin;
 }
 

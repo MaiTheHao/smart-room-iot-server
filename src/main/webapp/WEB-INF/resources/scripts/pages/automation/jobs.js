@@ -1,11 +1,8 @@
 class JobManager {
 	static init(contextPath) {
 		this.contextPath = contextPath;
-		// Khởi tạo HttpClient với base path api/v1/
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
 
-		// SỬ DỤNG SERVICE MỚI (AutomationApiService)
-		// Lưu ý: Đảm bảo file automation_api_v1.js đã chứa class AutomationApiService
 		this.automationService = new AutomationApiService(this.apiClient);
 		this.table = null;
 
@@ -15,21 +12,24 @@ class JobManager {
 	}
 
 	static initPickers() {
-		if ($('#startTimePicker').length === 0) {
+		if ($('#timeOnlyPicker').length === 0) {
 			console.warn('⚠️ UI Elements missing.');
 			return;
 		}
 
-		$('#startTimePicker').daterangepicker({
-			singleDatePicker: true,
-			timePicker: true,
-			timePicker24Hour: true,
-			timePickerSeconds: false,
-			autoApply: true,
-			locale: { format: 'DD/MM/YYYY HH:mm' },
-			opens: 'right',
-			drops: 'auto',
-		});
+		$('#timeOnlyPicker')
+			.daterangepicker({
+				singleDatePicker: true,
+				timePicker: true,
+				timePicker24Hour: true,
+				timePickerSeconds: true,
+				locale: { format: 'HH:mm:ss' },
+				opens: 'right',
+				drops: 'auto',
+			})
+			.on('show.daterangepicker', function (ev, picker) {
+				picker.container.find('.calendar-table').hide();
+			});
 	}
 
 	static bindEvents() {
@@ -39,21 +39,10 @@ class JobManager {
 
 		$('#scheduleType').on('change', (e) => this.updateFormUI(e.target.value));
 
-		$(document).on('click', '.day-cell', function () {
-			$(this).toggleClass('active btn-primary text-white btn-outline-light text-dark');
-		});
-
-		// Reset Month Grid
-		$('#btnResetMonth').on('click', () => {
-			$('.day-cell').removeClass('active btn-primary text-white').addClass('btn-outline-light text-dark');
-		});
-
-		// Table Actions
 		const tbody = $('#automationsTable tbody');
 		tbody.on('click', '.btn-edit', (e) => this.handleEdit($(e.currentTarget).data('id')));
 		tbody.on('click', '.btn-delete', (e) => this.handleDelete($(e.currentTarget).data('id')));
 
-		// Toggle Switch Status
 		tbody.on('change', '.toggle-status', (e) => {
 			const $chk = $(e.currentTarget);
 			this.handleToggleStatus($chk.data('id'), $chk.is(':checked'), $chk);
@@ -61,23 +50,14 @@ class JobManager {
 	}
 
 	static updateFormUI(type) {
-		$('.schedule-option').addClass('d-none');
-		const $desc = $('#patternDesc');
+		$('#group-daily, #group-weekly, #group-monthly').addClass('d-none');
 
-		if (type === 'ONCE') {
-			$('#opt-simple').removeClass('d-none');
-			$('#simpleMessage').text('Task runs once at the Start Time.');
-			$desc.text('Single execution');
-		} else if (type === 'DAILY') {
-			$('#opt-simple').removeClass('d-none');
-			$('#simpleMessage').text('Task repeats every day at the time specified.');
-			$desc.text('Repeats every day');
+		if (type === 'DAILY') {
+			$('#group-daily').removeClass('d-none');
 		} else if (type === 'WEEKLY') {
-			$('#opt-weekly').removeClass('d-none');
-			$desc.text('Repeats on specific weekdays');
+			$('#group-weekly').removeClass('d-none');
 		} else if (type === 'MONTHLY') {
-			$('#opt-monthly').removeClass('d-none');
-			$desc.text('Repeats on specific days of the month');
+			$('#group-monthly').removeClass('d-none');
 		}
 	}
 
@@ -87,44 +67,30 @@ class JobManager {
 		$form[0].reset();
 		$('#autoId').val('');
 
-		$('input[name="weekDays"]').parent().removeClass('active');
-		$('.day-cell').removeClass('active btn-primary text-white').addClass('btn-outline-light text-dark');
-
-		// Mặc định Active = true khi tạo mới
-		$('#autoIsActive').prop('checked', true);
-
 		const now = moment().add(5, 'minutes');
 
 		if (!isEdit) {
 			$('#modalTitle').html('<i class="fas fa-plus-circle mr-2"></i> New Schedule');
 			$('#scheduleType').val('DAILY').trigger('change');
-			$('#startTimePicker').data('daterangepicker').setStartDate(now);
-			$('#startTimePicker').data('daterangepicker').setEndDate(now);
+			$('#timeOnlyPicker').data('daterangepicker').setStartDate(now);
+			$('#timeOnlyPicker').data('daterangepicker').setEndDate(now);
 		} else {
 			$('#modalTitle').html(`<i class="fas fa-edit mr-2"></i> Edit Schedule #${data.id}`);
 			$('#autoId').val(data.id);
 			$('#autoName').val(data.name);
 			$('#autoDescription').val(data.description);
-			$('#autoIsActive').prop('checked', data.isActive);
 
-			// Logic parse Cron để hiển thị ngược lại lên UI
-			// Yêu cầu CronUtils phải có function fromCron
 			const parsed = CronUtils.fromCron(data.cronExpression);
 			$('#scheduleType').val(parsed.type).trigger('change');
 
-			// Set thời gian cho Picker (lấy giờ phút từ cron)
-			$('#startTimePicker').data('daterangepicker').setStartDate(parsed.moment);
-			$('#startTimePicker').data('daterangepicker').setEndDate(parsed.moment);
+			$('#timeOnlyPicker').data('daterangepicker').setStartDate(parsed.timeMoment);
+			$('#timeOnlyPicker').data('daterangepicker').setEndDate(parsed.timeMoment);
 
-			if (parsed.type === 'WEEKLY' && parsed.daysOfWeek) {
-				parsed.daysOfWeek.forEach((day) => {
-					$(`input[name="weekDays"][value="${day}"]`).prop('checked', true).parent().addClass('active');
-				});
+			if (parsed.type === 'WEEKLY' && parsed.daysOfWeek && parsed.daysOfWeek.length > 0) {
+				$('#weeklySelect').val(parsed.daysOfWeek[0]);
 			} else if (parsed.type === 'MONTHLY' && parsed.dayOfMonth) {
-				const days = parsed.dayOfMonth.split(',');
-				days.forEach((d) => {
-					$(`.day-cell[data-val="${d}"]`).removeClass('btn-outline-light text-dark').addClass('active btn-primary text-white');
-				});
+				const dom = parsed.dayOfMonth.includes(',') ? parsed.dayOfMonth.split(',')[0] : parsed.dayOfMonth;
+				$('#monthlySelect').val(dom);
 			}
 		}
 		$('#automationModal').modal('show');
@@ -137,48 +103,22 @@ class JobManager {
 		}
 
 		const type = $('#scheduleType').val();
-		const picker = $('#startTimePicker').data('daterangepicker');
+		const picker = $('#timeOnlyPicker').data('daterangepicker');
 		if (!picker) return;
 
-		const startMoment = picker.startDate;
-		let daysOfWeek = [];
-		let dayOfMonthStr = '';
-
-		if (type === 'WEEKLY') {
-			$('input[name="weekDays"]:checked').each(function () {
-				daysOfWeek.push($(this).val());
-			});
-			if (daysOfWeek.length === 0) {
-				notify.warning('Select at least one weekday.');
-				return;
-			}
-		} else if (type === 'MONTHLY') {
-			const selectedDays = [];
-			$('.day-cell.active').each(function () {
-				selectedDays.push($(this).data('val'));
-			});
-			if (selectedDays.length === 0) {
-				notify.warning('Select at least one day of the month.');
-				return;
-			}
-			dayOfMonthStr = selectedDays.join(',');
-		}
-
-		// Sinh chuỗi Cron từ cấu hình UI
 		const cronConfig = {
 			type: type,
-			moment: startMoment,
-			daysOfWeek: daysOfWeek,
-			dayOfMonth: dayOfMonthStr,
+			timeMoment: picker.startDate,
+			daysOfWeek: type === 'WEEKLY' ? [$('#weeklySelect').val()] : [],
+			dayOfMonth: type === 'MONTHLY' ? $('#monthlySelect').val() : '',
 		};
 		const cronString = CronUtils.toCron(cronConfig);
 
-		// Payload chuẩn theo CreateAutomationDto/UpdateAutomationDto
 		const payload = {
 			name: $('#autoName').val(),
-			cronExpression: cronString, // Backend chỉ cần cron string
+			cronExpression: cronString,
 			description: $('#autoDescription').val(),
-			isActive: $('#autoIsActive').is(':checked'),
+			isActive: true,
 		};
 
 		const id = $('#autoId').val();
@@ -194,7 +134,6 @@ class JobManager {
 			$('#automationModal').modal('hide');
 			this.table.ajax.reload();
 		} catch (error) {
-			// Xử lý lỗi từ ApiResponse nếu có
 			const msg = error.responseJSON?.message || error.message || 'Unknown error';
 			notify.error('Error: ' + msg);
 		}
@@ -219,7 +158,6 @@ class JobManager {
 					const size = data.length;
 					const res = await this.automationService.getAll(page, size);
 
-					// Mapping response từ PaginatedResponse
 					callback({
 						recordsTotal: res.data.totalElements,
 						recordsFiltered: res.data.totalElements,
@@ -237,7 +175,6 @@ class JobManager {
 					data: 'cronExpression',
 					className: 'align-middle',
 					render: (cron) => {
-						// Hiển thị cron đẹp hơn nếu có CronUtils
 						return CronUtils.formatDisplay ? CronUtils.formatDisplay(cron) : cron;
 					},
 				},
@@ -258,7 +195,7 @@ class JobManager {
                             <button class="btn btn-sm btn-default btn-edit" title="Edit Info" data-id="${row.id}">
                                 <i class="fas fa-pen text-primary"></i>
                             </button>
-                            <a href="automations/${row.id}/design" class="btn btn-sm btn-default" title="Design Actions">
+                            <a href="/automation/jobs/${row.id}/equipments" class="btn btn-sm btn-default" title="Equipment Actions">
                                 <i class="fas fa-cogs text-warning"></i>
                             </a>
                             <button class="btn btn-sm btn-default btn-delete" title="Delete" data-id="${row.id}">
@@ -273,12 +210,15 @@ class JobManager {
 		});
 	}
 
-	static handleDelete(id) {
-		if (confirm('Are you sure you want to delete this automation? All actions will be removed.')) {
-			this.automationService.delete(id).then(() => {
-				notify.success('Deleted successfully');
-				this.table.ajax.reload();
-			});
+	static async handleDelete(id) {
+		if (await notify.confirmDelete(`Automation #${id}`)) {
+			this.automationService
+				.delete(id)
+				.then(() => {
+					notify.success('Deleted successfully');
+					this.table.ajax.reload();
+				})
+				.catch(() => notify.error('Failed to delete automation'));
 		}
 	}
 
@@ -287,13 +227,13 @@ class JobManager {
 			.toggleStatus(id, isActive)
 			.then(() => notify.success(`Automation ${isActive ? 'enabled' : 'disabled'}`))
 			.catch(() => {
-				$chk.prop('checked', !isActive); // Revert UI on error
+				$chk.prop('checked', !isActive);
 				notify.error('Failed to update status');
 			});
 	}
 
-	static handleReloadSystem() {
-		if (confirm('Reload quartz scheduler system?')) {
+	static async handleReloadSystem() {
+		if (await notify.confirm('Reload scheduler system?')) {
 			this.automationService
 				.reloadSystem()
 				.then(() => notify.success('System reloaded'))

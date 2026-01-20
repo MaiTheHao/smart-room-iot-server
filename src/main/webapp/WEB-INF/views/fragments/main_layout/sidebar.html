@@ -11,7 +11,10 @@
 					src="https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg"
 					class="img-circle elevation-2"
 					alt="User Image"
-					onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=No+Image&background=random'"
+					onerror="
+						this.onerror = null;
+						this.src = 'https://ui-avatars.com/api/?name=No+Image&background=random';
+					"
 				/>
 			</div>
 			<div class="info">
@@ -115,10 +118,10 @@
 								<p>Jobs</p>
 							</a>
 						</li>
-						<li class="nav-item">
-							<a th:href="@{/automation/equipments}" class="nav-link" th:classappend="${request.requestURI.contains('/automation/equipments') ? 'active' : ''}">
-								<i class="nav-icon far" th:classappend="${request.requestURI.contains('/automation/equipments') ? 'fa-dot-circle' : 'fa-circle'}"></i>
-								<p>Equipments</p>
+						<li class="nav-item" th:if="${request.requestURI.contains('/equipments')}">
+							<a href="#" class="nav-link active">
+								<i class="far fa-dot-circle nav-icon"></i>
+								<p>Job Equipments</p>
 							</a>
 						</li>
 					</ul>

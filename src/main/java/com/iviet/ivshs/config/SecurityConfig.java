@@ -105,7 +105,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
             )
             .logout(logout -> logout
             .logoutUrl("/api/v1/auth/logout")

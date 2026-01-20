@@ -10,7 +10,7 @@ import com.iviet.ivshs.service.AutomationService;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "AUTOMATION-JOB")
 @Component
 public class AutomationJob implements Job {
     
@@ -22,14 +22,14 @@ public class AutomationJob implements Job {
         Long automationId = context.getJobDetail().getJobDataMap().getLong("id");
         long start = System.currentTimeMillis();
         
-        log.info("[AUTOMATION-JOB] Starting execution for ID: {}", automationId);
+        log.info("Starting execution for ID: {}", automationId);
         
         try {
             automationService.executeAutomationLogic(automationId);
-            log.info("[AUTOMATION-JOB] Finished execution for ID: {} in {}ms", 
+            log.info("Finished execution for ID: {} in {}ms", 
                     automationId, System.currentTimeMillis() - start);
         } catch (Exception e) {
-            log.error("[AUTOMATION-JOB] Execution failed for ID {}: {}", automationId, e.getMessage());
+            log.error("Execution failed for ID {}: {}", automationId, e.getMessage());
             throw new JobExecutionException(e.getMessage(), e);
         }
     }

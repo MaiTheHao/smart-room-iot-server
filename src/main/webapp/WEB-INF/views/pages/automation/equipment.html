@@ -1,0 +1,116 @@
+<!doctype html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
+	<head>
+		<title th:text="#{automation.equipment.title}">Automation Equipment</title>
+		<th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
+	</head>
+	<body>
+		<th:block layout:fragment="header">
+			<th:block th:replace="~{fragments/management.html :: page_header(#{automation.equipment.header})}"></th:block>
+		</th:block>
+
+		<section class="content" layout:fragment="content">
+			<div class="container-fluid">
+				<div class="card card-outline card-info shadow-sm border-0">
+					<div class="card-header border-0 pb-0">
+						<div class="d-flex justify-content-between align-items-center">
+							<h3 class="card-title font-weight-bold text-dark">
+								<i class="fas fa-tasks mr-2 text-info"></i>
+								<span th:text="${automation.name}">Automation Name</span>
+								<span class="badge badge-pill badge-primary ml-2" th:text="${automation.isActive} ? #{common.status.active} : #{common.status.inactive}"
+									>Status</span
+								>
+							</h3>
+							<div class="card-tools">
+								<a th:href="@{/automation/jobs}" class="btn btn-default btn-sm mr-2">
+									<i class="fas fa-arrow-left mr-1"></i> <span th:text="#{common.btn.back}">Back</span>
+								</a>
+								<button type="button" class="btn btn-info btn-sm font-weight-bold shadow-sm" id="btnCreateAction">
+									<i class="fas fa-plus mr-1"></i> <span th:text="#{automation.equipment.btn.add}">Add Action</span>
+								</button>
+							</div>
+						</div>
+						<p class="text-muted small mt-1 mb-2">
+							<i class="far fa-clock mr-1"></i>
+							<span th:text="#{automation.equipment.cron}">Cron:</span> <span class="font-italic" th:text="${automation.cronExpression}"></span>
+						</p>
+					</div>
+
+					<div class="card-body">
+						<table id="actionsTable" class="table table-hover table-borderless text-nowrap w-100">
+							<thead class="bg-light text-muted small text-uppercase">
+								<tr>
+									<th th:text="#{automation.equipment.table.order}">Order</th>
+									<th th:text="#{automation.equipment.table.target}">Target Device</th>
+									<th th:text="#{automation.equipment.table.type}">Type</th>
+									<th th:text="#{automation.equipment.table.action}">Action</th>
+									<th th:text="#{automation.equipment.table.parameter}">Parameter</th>
+									<th class="text-right" th:text="#{automation.equipment.table.actions}">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="action : ${actions}">
+									<td>
+										<span class="badge badge-light border" th:text="${action.executionOrder}">1</span>
+									</td>
+									<td>
+										<strong th:text="${action.targetName}">Device Name</strong>
+									</td>
+									<td>
+										<span class="badge badge-secondary" th:text="${action.targetType}">LIGHT</span>
+									</td>
+									<td>
+										<span
+											class="badge"
+											th:classappend="${action.actionType == T(com.iviet.ivshs.enumeration.JobActionType).ON} ? 'badge-success' : 'badge-danger'"
+											th:text="${action.actionType}"
+											>ON</span
+										>
+									</td>
+									<td th:text="${action.parameterValue}">-</td>
+									<td class="text-right">
+										<button
+											class="btn btn-sm btn-outline-info btn-edit"
+											th:data-id="${action.id}"
+											th:data-target-id="${action.targetId}"
+											th:data-target-name="${action.targetName}"
+											th:data-target-type="${action.targetType}"
+											th:data-action-type="${action.actionType}"
+											th:data-parameter="${action.parameterValue}"
+											th:data-order="${action.executionOrder}"
+										>
+											<i class="fas fa-pen"></i>
+										</button>
+										<button class="btn btn-sm btn-outline-danger btn-delete" th:data-id="${action.id}">
+											<i class="fas fa-trash"></i>
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<th:block th:replace="~{fragments/automation/equipment_model.html :: modal_content}"></th:block>
+			</div>
+		</section>
+
+		<th:block layout:fragment="optional">
+			<script defer th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+			<script defer th:src="@{/webjars/datatables/js/dataTables.bootstrap4.min.js}"></script>
+
+			<script defer th:src="@{/scripts/service/api/v1/automation_api_v1.js}"></script>
+			<script defer th:src="@{/scripts/service/api/v1/floor_api_v1.js}"></script>
+			<script defer th:src="@{/scripts/pages/automation/equipment.js}"></script>
+
+			<script defer th:inline="javascript">
+				/*<![CDATA[*/
+				$(document).ready(function () {
+					var contextPath = /*[[@{/}]]*/ '/';
+					EquipmentManager.init(contextPath);
+				});
+				/*]]>*/
+			</script>
+		</th:block>
+	</body>
+</html>

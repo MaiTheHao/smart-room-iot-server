@@ -11,7 +11,7 @@ import com.iviet.ivshs.service.LightService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "ACTION-LIGHT")
 @Component
 @RequiredArgsConstructor
 public class LightAutomationActionHandler implements AutomationActionHandler {
@@ -25,15 +25,13 @@ public class LightAutomationActionHandler implements AutomationActionHandler {
 
     @Override
     public void handle(AutomationAction action) throws Exception {
-        log.info("Processing LIGHT action: ID={}, Action={}", action.getTargetId(), action.getActionType());
-
         boolean newState = (action.getActionType() == JobActionType.ON);
-
+        
         try {
             lightService.handleStateControl(action.getTargetId(), newState);
-            log.info("Light {} -> {}", action.getTargetId(), newState ? "ON" : "OFF");
+            log.info("Success: TargetId={}, State={}", action.getTargetId(), newState ? "ON" : "OFF");
         } catch (Exception e) {
-            log.error("Failed to execute light command [DeviceID: {}]. Error: {}", action.getTargetId(), e.getMessage());
+            log.warn("Failed: TargetId={}, Reason={}", action.getTargetId(), e.getMessage());
             throw e;
         }
     }

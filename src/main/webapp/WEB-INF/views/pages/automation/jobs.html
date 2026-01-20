@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
 	<head>
-		<title>Automation Management</title>
+		<title th:text="#{automation.management.title}">Automation Management</title>
 		<th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
 		<link rel="stylesheet" th:href="@{/webjars/bootstrap-daterangepicker/css/bootstrap-daterangepicker.css}" />
 		<style>
@@ -29,7 +29,7 @@
 	</head>
 	<body>
 		<th:block layout:fragment="header">
-			<th:block th:replace="~{fragments/management.html :: page_header('Automation Scheduler')}"></th:block>
+			<th:block th:replace="~{fragments/management.html :: page_header(#{automation.management.header})}"></th:block>
 		</th:block>
 
 		<section class="content" layout:fragment="content">
@@ -38,14 +38,16 @@
 					<div class="card-header bg-white border-bottom-0 pt-4">
 						<h3 class="card-title font-weight-bold text-dark">
 							<i class="fas fa-robot mr-2 text-primary"></i>
-							Automation Scripts
+							<span th:text="#{automation.table.list.title}">Automation Scripts</span>
 						</h3>
 						<div class="card-tools">
 							<button type="button" class="btn btn-primary shadow-sm btn-sm font-weight-bold px-3" id="btnCreateAutomation">
-								<i class="fas fa-plus mr-1"></i> New Script
+								<i class="fas fa-plus mr-1"></i>
+								<span th:text="#{automation.management.add}">New Script</span>
 							</button>
-							<button type="button" class="btn btn-light text-muted btn-sm ml-1" id="btnReloadAll" title="Reload System Scheduler">
-								<i class="fas fa-sync-alt"></i> Reload Jobs
+							<button type="button" class="btn btn-light text-muted btn-sm ml-1" id="btnReloadAll" th:title="#{automation.management.reload.tooltip}">
+								<i class="fas fa-sync-alt mr-1"></i>
+								<span th:text="#{automation.management.reload}">Reload Jobs</span>
 							</button>
 						</div>
 					</div>
@@ -53,11 +55,11 @@
 						<table id="automationsTable" class="table table-hover w-100 border-top-0">
 							<thead class="bg-light text-muted text-uppercase small">
 								<tr>
-									<th style="width: 50px" class="border-top-0">ID</th>
-									<th class="border-top-0">Name</th>
-									<th class="border-top-0">Schedule (Cron)</th>
-									<th class="border-top-0 text-center">Status</th>
-									<th style="width: 150px" class="text-center border-top-0">Actions</th>
+									<th style="width: 50px" class="border-top-0" th:text="#{automation.table.id}">ID</th>
+									<th class="border-top-0" th:text="#{automation.table.name}">Name</th>
+									<th class="border-top-0" th:text="#{automation.table.cron}">Schedule (Cron)</th>
+									<th class="border-top-0 text-center" th:text="#{automation.table.status}">Status</th>
+									<th style="width: 150px" class="text-center border-top-0" th:text="#{automation.table.actions}">Actions</th>
 								</tr>
 							</thead>
 							<tbody></tbody>
@@ -65,25 +67,18 @@
 					</div>
 				</div>
 
-				<!-- Import Modal Fragment -->
 				<th:block th:replace="~{fragments/automation/job_scheduler_modal.html :: modal_content}"></th:block>
 			</div>
 		</section>
 
 		<th:block layout:fragment="optional">
-			<!-- Libraries -->
 			<script defer th:src="@{/webjars/momentjs/min/moment.min.js}"></script>
 			<script defer th:src="@{/webjars/bootstrap-daterangepicker/js/bootstrap-daterangepicker.js}"></script>
 			<script defer th:src="@{/webjars/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js}"></script>
-
-			<!-- Utilities -->
-			<script th:src="@{/scripts/util/cron_util.js}"></script>
-
-			<!-- Services: Giữ nguyên đường dẫn file này nhưng nội dung bên trong phải là class AutomationApiService -->
-			<script th:src="@{/scripts/service/api/v1/automation_api_v1.js}"></script>
-
-			<!-- Page Logic -->
-			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/automation/jobs.js})}"></th:block>
+			<script defer th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+			<script defer th:src="@{/webjars/datatables/js/dataTables.bootstrap4.min.js}"></script>
+			<script defer th:src="@{/scripts/service/api/v1/automation_api_v1.js}"></script>
+			<script defer th:src="@{/scripts/pages/automation/jobs.js}"></script>
 
 			<script defer th:inline="javascript">
 				/*<![CDATA[*/

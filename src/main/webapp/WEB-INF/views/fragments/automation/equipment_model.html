@@ -1,0 +1,128 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div th:fragment="modal_content" class="modal fade" id="equipmentModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered" role="document">
+				<div class="modal-content border-0 shadow-lg">
+					<div class="modal-header bg-info text-white">
+						<h5 class="modal-title font-weight-bold" id="equipmentModalTitle">
+							<i class="fas fa-microchip mr-2"></i>
+							<span th:text="#{automation.equipment.modal.title}">Manage Action</span>
+						</h5>
+						<button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+
+					<div class="modal-body bg-light">
+						<form id="equipmentForm">
+							<input type="hidden" id="actionId" />
+							<input type="hidden" id="automationId" th:value="${automation.id}" />
+
+							<div class="card shadow-sm border-0 mb-3">
+								<div class="card-body p-3">
+									<div class="form-group" id="group-target-selection">
+										<label class="small font-weight-bold text-muted text-uppercase" th:text="#{automation.equipment.modal.section.target}"
+											>Target Device Selection</label
+										>
+
+										<!-- Floor Select -->
+										<div class="input-group mb-2">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="fas fa-layer-group"></i></span>
+											</div>
+											<select class="form-control" id="floorSelect">
+												<option value="" disabled selected th:text="#{automation.equipment.modal.select.floor}">Select Floor</option>
+											</select>
+										</div>
+
+										<!-- Room Select -->
+										<div class="input-group mb-2">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="fas fa-door-open"></i></span>
+											</div>
+											<select class="form-control" id="roomSelect" disabled>
+												<option value="" disabled selected th:text="#{automation.equipment.modal.select.room}">Select Room</option>
+											</select>
+										</div>
+
+										<!-- Target Type (Hidden or Fixed for now as LIGHT) -->
+										<input type="hidden" id="targetType" value="LIGHT" />
+
+										<!-- Device Select -->
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="fas fa-lightbulb"></i></span>
+											</div>
+											<select class="form-control" id="targetId" name="targetId" disabled required>
+												<option value="" disabled selected th:text="#{automation.equipment.modal.select.device}">Select Device</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="form-group" id="group-target-display" style="display: none">
+										<label class="small font-weight-bold text-muted text-uppercase" th:text="#{automation.equipment.modal.target.label}">Target Device</label>
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<span class="input-group-text"><i class="fas fa-bullseye"></i></span>
+											</div>
+											<input type="text" class="form-control" id="targetNameDisplay" readonly />
+										</div>
+										<small class="form-text text-muted" th:text="#{automation.equipment.modal.target.hint}"
+											>To change device, please delete and create new action.</small
+										>
+									</div>
+								</div>
+							</div>
+
+							<div class="card shadow-sm border-0">
+								<div class="card-body p-3">
+									<label class="small font-weight-bold text-muted text-uppercase" th:text="#{automation.equipment.modal.section.config}"
+										>Action Configuration</label
+									>
+
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="actionType" th:text="#{automation.equipment.modal.action.label}">Action</label>
+												<select class="form-control" id="actionType" name="actionType" required>
+													<option value="ON">ON</option>
+													<option value="OFF">OFF</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="executionOrder" th:text="#{automation.equipment.modal.order.label}">Order</label>
+												<input type="number" class="form-control" id="executionOrder" name="executionOrder" value="1" min="1" required />
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group mb-0">
+										<label for="parameterValue" th:text="#{automation.equipment.modal.parameter.label}">Parameter (Optional)</label>
+										<input
+											type="text"
+											class="form-control"
+											id="parameterValue"
+											name="parameterValue"
+											th:placeholder="#{automation.equipment.modal.parameter.placeholder}"
+										/>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+
+					<div class="modal-footer bg-light border-top-0">
+						<button type="button" class="btn btn-light text-muted font-weight-bold" data-dismiss="modal" th:text="#{common.btn.cancel}">Close</button>
+						<button type="button" class="btn btn-info px-4 font-weight-bold shadow-sm" id="btnSaveEquipment">
+							<i class="fas fa-save mr-1"></i>
+							<span th:text="#{common.btn.save}">Save Changes</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -7,16 +7,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.automation.handler.AutomationActionHandler;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.JobTargetType;
+import com.iviet.ivshs.exception.domain.BaseException;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "AUTOMATION-PROCESSOR")
 @Component
 public class AutomationProcessor {
 
@@ -26,44 +26,38 @@ public class AutomationProcessor {
         this.actionHandlerMap = actionHandlers.stream()
                 .collect(Collectors.toMap(AutomationActionHandler::getTargetType, Function.identity()));
         
-        log.info("[AUTOMATION] Processor initialized with {} handlers: {}", 
-                actionHandlerMap.size(), actionHandlerMap.keySet());
+        log.info("Processor initialized with {} handlers", actionHandlerMap.size());
     }
 
-    @Transactional
     public void process(Automation automation) {
-        long start = System.currentTimeMillis();
-        log.info("[AUTOMATION] Starting process: {} [ID: {}]", automation.getName(), automation.getId());
-
         if (automation.getActions() == null || automation.getActions().isEmpty()) {
-            log.warn("[AUTOMATION] Automation [ID: {}] has no actions defined", automation.getId());
             return;
         }
+
+        log.info("Executing: {} [ID: {}]", automation.getName(), automation.getId());
+        long start = System.currentTimeMillis();
 
         automation.getActions().stream()
                 .sorted(Comparator.comparingInt(AutomationAction::getExecutionOrder))
                 .forEach(this::dispatchAction);
 
-        log.info("[AUTOMATION] Finished process: {} [ID: {}] in {}ms", 
-                automation.getName(), automation.getId(), System.currentTimeMillis() - start);
+        log.info("Completed: {} in {}ms", automation.getName(), System.currentTimeMillis() - start);
     }
 
     private void dispatchAction(AutomationAction action) {
-        long actionStart = System.currentTimeMillis();
         JobTargetType type = action.getTargetType();
         AutomationActionHandler handler = actionHandlerMap.get(type);
 
         if (handler == null) {
-            log.error("[ACTION] No handler registered for TargetType: {}. Action [ID: {}] skipped", type, action.getId());
+            log.warn("Skip: No handler for type {}", type);
             return;
         }
 
         try {
-            log.info("[ACTION] Executing action [ID: {}, Type: {}]", action.getId(), type);
             handler.handle(action);
-            log.info("[ACTION] Success: [ID: {}, Type: {}] in {}ms", action.getId(), type, System.currentTimeMillis() - actionStart);
         } catch (Exception e) {
-            log.error("[ACTION] Execution failed [ID: {}, Type: {}]: {}", action.getId(), type, e.getMessage());
+            String errorMsg = (e instanceof BaseException) ? e.getMessage() : "Unexpected error occurred";
+            log.warn("Failed [ID: {}, Type: {}]: {}", action.getId(), type, errorMsg);
         }
     }
 }
