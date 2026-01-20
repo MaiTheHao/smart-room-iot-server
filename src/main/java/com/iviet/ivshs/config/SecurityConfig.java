@@ -105,7 +105,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).authenticated()
             )
             .logout(logout -> logout
             .logoutUrl("/api/v1/auth/logout")
@@ -132,11 +132,10 @@ public class SecurityConfig {
             .cors(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher("/")).hasAnyRole("ADMIN", "USER")
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exception -> exception
-                .accessDeniedPage("/error/401")
+                .accessDeniedPage("/error/403")
             )
             .formLogin(form -> form
                 .loginPage("/login")
