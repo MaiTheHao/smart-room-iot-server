@@ -7,31 +7,28 @@ class RoomDetailPage {
 		},
 	};
 
-	constructor(roomId, initialTempData, initialPowerData) {
+	constructor(contextPath, roomId, initialTempData, initialPowerData) {
+		this.contextPath = contextPath;
 		this.roomId = roomId;
 		this.initialTempData = initialTempData || [];
 		this.initialPowerData = initialPowerData || [];
 
-		this.httpClient = new HttpClient();
-		this.roomService = new RoomApiV1Service(this.httpClient);
+		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
+		this.roomService = new RoomApiV1Service(this.apiClient);
 
 		this.state = this._parseUrlParams();
+		this.charts = {};
 
 		if (this._shouldRedirect()) {
 			this._navigateToCurrentRange();
-			return;
+		} else {
+			this.init();
 		}
-
-		this.charts = {
-			temp: ChartFactory.createTemperatureChart('tempChart'),
-			power: ChartFactory.createPowerChart('powerChart'),
-		};
-
-		this.init();
 	}
 
 	init() {
 		try {
+			this.initCharts();
 			this.initDateRangePicker();
 			this.renderInitialData();
 			this.loadHealthScore();
@@ -39,8 +36,15 @@ class RoomDetailPage {
 			console.log(`[Dashboard] Initialized for Room: ${this.roomId}`);
 		} catch (error) {
 			console.error('[Dashboard] Init failed:', error);
-			window.notify.error('Failed to initialize dashboard');
+			notify.error('Failed to initialize dashboard');
 		}
+	}
+
+	initCharts() {
+		this.charts = {
+			temp: ChartFactory.createTemperatureChart('tempChart'),
+			power: ChartFactory.createPowerChart('powerChart'),
+		};
 	}
 
 	renderInitialData() {
@@ -56,12 +60,11 @@ class RoomDetailPage {
 
 		try {
 			const uiConfig = await this.roomService.getHealthUiConfig(this.roomId);
-			$badge.removeClass('badge-secondary badge-success badge-warning badge-danger badge-info').addClass(uiConfig.className);
+
+			$badge.removeClass('badge-secondary badge-success badge-warning badge-danger badge-info').addClass(uiConfig.className).css('opacity', 1);
 			$text.text(`${uiConfig.score}%`);
 			$icon.attr('class', `fas ${uiConfig.icon} mr-1`);
-			$badge.css('opacity', 1);
 		} catch (error) {
-			console.error('[Dashboard] Load health failed:', error);
 			$badge.addClass('badge-secondary').css('opacity', 1);
 			$text.text('N/A');
 		}
@@ -69,29 +72,22 @@ class RoomDetailPage {
 
 	bindEvents() {
 		$('#btn-refresh-chart').on('click', (e) => {
-			const $btn = $(e.currentTarget);
-			$btn.find('i').addClass('fa-spin');
+			$(e.currentTarget).find('i').addClass('fa-spin');
 			this._navigateToCurrentRange();
 		});
 
 		$('#btn-refresh-all').on('click', async (e) => {
-			const $btn = $(e.currentTarget);
-			const $icon = $btn.find('i');
-
+			const $icon = $(e.currentTarget).find('i');
 			$icon.addClass('fa-spin');
-
 			await this.loadHealthScore();
-
-			window.notify.success('Health data refreshed');
-
+			notify.success('Health data refreshed');
 			this._navigateToCurrentRange();
 		});
 
-		$('#lightsList').on('change', '.light-toggle', (e) => this.handleLightToggle(e));
+		$('#lightsList').on('change', '.light-toggle', (e) => this.handleLightToggle($(e.currentTarget)));
 	}
 
-	async handleLightToggle(e) {
-		const $input = $(e.currentTarget);
+	async handleLightToggle($input) {
 		const lightId = $input.data('light-id');
 		const isChecked = $input.is(':checked');
 		const lightName = $input.closest('.device-item').find('.device-name').text() || 'Light';
@@ -100,13 +96,10 @@ class RoomDetailPage {
 
 		try {
 			await this.roomService.toggleLight(lightId);
-
-			window.notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
-
+			notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
 			setTimeout(() => this.loadHealthScore(), 500);
 		} catch (error) {
-			console.error('[Dashboard] Light toggle failed:', error);
-			window.notify.error(error.message || `Failed to toggle ${lightName}`);
+			notify.error(error.message || `Failed to toggle ${lightName}`);
 			$input.prop('checked', !isChecked);
 		} finally {
 			$input.prop('disabled', false);
@@ -134,12 +127,11 @@ class RoomDetailPage {
 			startedAt: this.state.start.toISOString(),
 			endedAt: this.state.end.toISOString(),
 		});
-		window.location.href = `${this.CONFIG.ENDPOINTS.ROOM_DETAIL(this.roomId)}?${query.toString()}`;
+		window.location.href = `${this.contextPath}?${query.toString()}`;
 	}
 
 	initDateRangePicker() {
-		const $picker = $('#date-range-picker');
-		$picker.daterangepicker(
+		$('#date-range-picker').daterangepicker(
 			{
 				timePicker: true,
 				timePicker24Hour: true,

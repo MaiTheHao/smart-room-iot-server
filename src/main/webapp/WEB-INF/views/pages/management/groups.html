@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
 	<head>
 		<title th:text="#{group.management.title}">Manage Groups</title>
@@ -161,7 +161,8 @@
 
 		<th:block layout:fragment="optional">
 			<script th:src="@{/scripts/service/api/v1/group_api_v1.js}"></script>
-			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/group_management.js})}"></th:block>
+			<script th:src="@{/scripts/service/api/v1/role_api_v1.js}"></script>
+			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/management/group_management.js})}"></th:block>
 			<script defer th:inline="javascript">
 				/*<![CDATA[*/
 				$(document).ready(function () {

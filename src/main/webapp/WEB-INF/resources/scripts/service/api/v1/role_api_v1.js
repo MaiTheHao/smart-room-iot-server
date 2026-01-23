@@ -1,76 +1,91 @@
 class RoleApiV1Service {
 	constructor(httpClient) {
 		this.client = httpClient || new HttpClient();
+		this.api = SMRC_API_V1.ROLE;
 	}
 
-	async getClientGroupsStatus(clientId) {
+	async batchAddFunctionsToGroup(groupId, functionCodes) {
 		try {
-			return await this.client.get(`groups/with-client-status/${clientId}`);
+			return await this.client.post(this.api.GROUPS.BATCH_ADD, { groupId, functionCodes });
 		} catch (error) {
-			console.error(`[RoleService] Failed to fetch groups status for client ${clientId}`, error);
+			this._handleError('batch add functions to group', error);
+		}
+	}
+
+	async batchRemoveFunctionsFromGroup(groupId, functionCodes) {
+		try {
+			return await this.client.post(this.api.GROUPS.BATCH_REMOVE, { groupId, functionCodes });
+		} catch (error) {
+			console.error('[RoleService] Failed to batch remove functions from group', error);
 			throw error;
 		}
 	}
 
-	async assignClient(clientId, groupId) {
+	async toggleGroupFunctions(groupId, functionToggles) {
 		try {
-			return await this.client.post(`roles/clients/${clientId}/groups`, {
-				groupId: groupId,
-			});
-		} catch (error) {
-			console.error(`[RoleService] Failed to assign client ${clientId} to group ${groupId}`, error);
-			throw error;
-		}
-	}
-
-	async unassignClient(clientId, groupId) {
-		try {
-			return await this.client.delete(`roles/clients/${clientId}/groups/${groupId}`);
-		} catch (error) {
-			console.error(`[RoleService] Failed to unassign client ${clientId} from group ${groupId}`, error);
-			throw error;
-		}
-	}
-
-	async getGroupFunctionsStatus(groupId) {
-		try {
-			return await this.client.get(`functions/with-group-status/${groupId}`);
-		} catch (error) {
-			console.error(`[RoleService] Failed to fetch functions status for group ${groupId}`, error);
-			throw error;
-		}
-	}
-
-	async toggleFunctions(payload) {
-		try {
-			return await this.client.post('roles/groups/functions/toggle', payload);
+			return await this.client.post(this.api.GROUPS.TOGGLE, { groupId, functionToggles });
 		} catch (error) {
 			console.error('[RoleService] Failed to toggle group functions', error);
 			throw error;
 		}
 	}
 
-	async batchUpdateClientGroups(clientId, groupIds = [], removeGroupIds = []) {
+	async addFunctionToGroup(groupId, functionCode) {
 		try {
-			const promises = [];
-
-			if (groupIds && groupIds.length > 0) {
-				groupIds.forEach((groupId) => {
-					promises.push(this.assignClient(clientId, groupId));
-				});
-			}
-
-			if (removeGroupIds && removeGroupIds.length > 0) {
-				removeGroupIds.forEach((groupId) => {
-					promises.push(this.unassignClient(clientId, groupId));
-				});
-			}
-
-			return await Promise.all(promises);
+			return await this.client.post(this.api.GROUPS.ASSIGN(groupId, functionCode));
 		} catch (error) {
-			console.error(`[RoleService] Failed to batch update client ${clientId} groups`, error);
+			console.error(`[RoleService] Failed to add function ${functionCode} to group ${groupId}`, error);
 			throw error;
 		}
+	}
+
+	async removeFunctionFromGroup(groupId, functionCode) {
+		try {
+			return await this.client.delete(this.api.GROUPS.ASSIGN(groupId, functionCode));
+		} catch (error) {
+			console.error(`[RoleService] Failed to remove function ${functionCode} from group ${groupId}`, error);
+			throw error;
+		}
+	}
+
+	async assignGroupsToClient(clientId, groupIds) {
+		try {
+			return await this.client.post(this.api.CLIENTS.ASSIGN, { clientId, groupIds });
+		} catch (error) {
+			console.error(`[RoleService] Failed to assign groups to client ${clientId}`, error);
+			throw error;
+		}
+	}
+
+	async unassignGroupsFromClient(clientId, groupIds) {
+		try {
+			return await this.client.post(this.api.CLIENTS.UNASSIGN, { clientId, groupIds });
+		} catch (error) {
+			console.error(`[RoleService] Failed to unassign groups from client ${clientId}`, error);
+			throw error;
+		}
+	}
+
+	async unassignGroupFromClient(clientId, groupId) {
+		try {
+			return await this.client.delete(this.api.CLIENTS.MAPPING(clientId, groupId));
+		} catch (error) {
+			console.error(`[RoleService] Failed to unassign group ${groupId} from client ${clientId}`, error);
+			throw error;
+		}
+	}
+
+	async checkGroupFunction(groupId, functionCode) {
+		try {
+			return await this.client.get(this.api.GROUPS.CHECK(groupId, functionCode));
+		} catch (error) {
+			this._handleError(`check function ${functionCode} for group ${groupId}`, error);
+		}
+	}
+
+	_handleError(action, error) {
+		console.error(`[RoleApiV1Service] Failed to ${action}:`, error);
+		throw error;
 	}
 }
 

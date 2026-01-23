@@ -3,7 +3,7 @@ class JobManager {
 		this.contextPath = contextPath;
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
 
-		this.automationService = new AutomationApiService(this.apiClient);
+		this.automationService = new AutomationApiV1Service(this.apiClient);
 		this.table = null;
 
 		this.initDataTable();
@@ -233,7 +233,7 @@ class JobManager {
 	}
 
 	static async handleReloadSystem() {
-		if (await notify.confirm('Reload scheduler system?')) {
+		if (await notify.confirm('Reload Scheduler System', 'Are you sure you want to reload the scheduler system?', 'warning')) {
 			this.automationService
 				.reloadSystem()
 				.then(() => notify.success('System reloaded'))

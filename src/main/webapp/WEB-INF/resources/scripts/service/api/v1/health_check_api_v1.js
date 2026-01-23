@@ -5,33 +5,45 @@ class HealthCheckApiV1Service {
 
 	async getRoomHealthScore(roomId) {
 		try {
-			const response = await this.client.get(`rooms/${roomId}/health-score`);
+			const response = await this.client.get(SMRC_API_V1.ROOM.HEALTH_SCORE(roomId));
 			return response.data;
 		} catch (error) {
-			console.error(`[HealthService] Failed to get room score for ID: ${roomId}`, error);
-			throw error;
+			this._handleError(`get room score for ID: ${roomId}`, error);
 		}
 	}
 
 	async getRoomHealthDetails(roomId) {
-		const response = await this.client.get(`rooms/${roomId}/health`);
-		return response.data;
+		try {
+			const response = await this.client.get(SMRC_API_V1.ROOM.HEALTH(roomId));
+			return response.data;
+		} catch (error) {
+			this._handleError(`get room health details for ID: ${roomId}`, error);
+		}
 	}
 
 	async getClientHealthScore(clientId) {
-		const response = await this.client.get(`clients/${clientId}/health-score`);
-		return response.data;
+		try {
+			const response = await this.client.get(SMRC_API_V1.CLIENT.HEALTH_SCORE(clientId));
+			return response.data;
+		} catch (error) {
+			this._handleError(`get client health score for ID: ${clientId}`, error);
+		}
 	}
 
 	async getClientHealth(clientId) {
-		const response = await this.client.get(`clients/${clientId}/health`);
-		return response.data;
+		try {
+			const response = await this.client.get(SMRC_API_V1.CLIENT.HEALTH(clientId));
+			return response.data;
+		} catch (error) {
+			this._handleError(`get client health for ID: ${clientId}`, error);
+		}
 	}
 
 	static evaluateStatus(score) {
+		const types = SMRC_TYPES.HEALTH_STATUS;
 		if (score === null || score === undefined || isNaN(score)) {
 			return {
-				level: 'UNKNOWN',
+				level: types.UNKNOWN,
 				className: 'badge-secondary',
 				label: 'N/A',
 				color: '#6c757d',
@@ -41,7 +53,7 @@ class HealthCheckApiV1Service {
 
 		if (score >= 80) {
 			return {
-				level: 'GOOD',
+				level: types.GOOD,
 				className: 'badge-success',
 				label: 'Healthy',
 				color: '#28a745',
@@ -49,7 +61,7 @@ class HealthCheckApiV1Service {
 			};
 		} else if (score >= 50) {
 			return {
-				level: 'WARNING',
+				level: types.WARNING,
 				className: 'badge-warning',
 				label: 'Unstable',
 				color: '#ffc107',
@@ -57,7 +69,7 @@ class HealthCheckApiV1Service {
 			};
 		} else {
 			return {
-				level: 'CRITICAL',
+				level: types.CRITICAL,
 				className: 'badge-danger',
 				label: 'Critical',
 				color: '#dc3545',
@@ -69,17 +81,16 @@ class HealthCheckApiV1Service {
 	async getRoomHealthUiConfig(roomId) {
 		try {
 			const score = await this.getRoomHealthScore(roomId);
-			const statusConfig = HealthCheckService.evaluateStatus(score);
-			return {
-				score: score,
-				...statusConfig,
-			};
+			const statusConfig = HealthCheckApiV1Service.evaluateStatus(score);
+			return { score, ...statusConfig };
 		} catch (e) {
-			return {
-				score: 0,
-				...HealthCheckService.evaluateStatus(null),
-			};
+			return { score: 0, ...HealthCheckApiV1Service.evaluateStatus(null) };
 		}
+	}
+
+	_handleError(action, error) {
+		console.error(`[HealthCheckApiV1Service] Failed to ${action}:`, error);
+		throw error;
 	}
 }
 

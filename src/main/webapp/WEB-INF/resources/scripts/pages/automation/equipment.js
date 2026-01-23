@@ -3,32 +3,13 @@ class EquipmentManager {
 		this.contextPath = contextPath;
 		this.httpClient = new HttpClient(`${contextPath}api/v1/`);
 
-		this.automationService = new AutomationApiService(this.httpClient);
+		this.automationService = new AutomationApiV1Service(this.httpClient);
 		this.floorService = new FloorApiV1Service(this.httpClient);
+		this.roomApiService = new RoomApiV1Service(this.httpClient);
+		this.lightService = new LightApiV1Service(this.httpClient);
 
-		// Initialize services
-		this.initServices();
 		this.initDataTable();
 		this.bindEvents();
-	}
-
-	static initServices() {
-		// Temporary simple services for Room and Light if not existing in separate files
-		this.roomService = {
-			client: this.httpClient,
-			getByFloor: async (floorId) => {
-				const response = await this.httpClient.get(`floors/${floorId}/rooms?size=1000`);
-				return (response && response?.data?.content) || [];
-			},
-		};
-
-		this.lightService = {
-			client: this.httpClient,
-			getByRoom: async (roomId) => {
-				const response = await this.httpClient.get(`lights/room/${roomId}?size=1000`);
-				return (response && response?.data?.content) || [];
-			},
-		};
 	}
 
 	static initDataTable() {
@@ -40,10 +21,8 @@ class EquipmentManager {
 			info: true,
 			autoWidth: false,
 			responsive: true,
-			order: [[0, 'asc']], // Order by 'Order' column
-			columnDefs: [
-				{ orderable: false, targets: 5 }, // Disable sorting on Actions column
-			],
+			order: [[0, 'asc']],
+			columnDefs: [{ orderable: false, targets: 5 }],
 			language: {
 				emptyTable: 'No actions configured for this job',
 			},
@@ -54,7 +33,6 @@ class EquipmentManager {
 		$('#btnCreateAction').on('click', () => this.openModal());
 		$('#btnSaveEquipment').on('click', () => this.handleSave());
 
-		// Data Table Action Buttons
 		$('#actionsTable tbody').on('click', '.btn-edit', (e) => {
 			const $btn = $(e.currentTarget);
 			const data = {
@@ -90,22 +68,10 @@ class EquipmentManager {
 			$('#executionOrder').val(data.executionOrder);
 			$('#parameterValue').val(data.parameterValue || '');
 
-			// In edit mode, we can't easily change the target hierarchies
-			// without complex logic (pre-fetching everything).
-			// So we display readonly target info.
 			$('#group-target-selection').hide();
 			$('#group-target-display').show();
 			$('#targetNameDisplay').val(data.targetName);
 
-			// Populate hidden fields if needed or just use current values
-			// Note: The backend DTO for update might need targetId too?
-			// Check UpdateAutomationActionDto: targetType, targetId, actionType, parameterValue, executionOrder
-			// We need to keep targetId in a way that we can submit it.
-			// But wait, UpdateDto allows changing targetId?
-			// The UI design says "To change device, please delete and create new"
-
-			// We need to store targetId somewhere so update picks it up
-			// Or create a hidden input for it that persists the old value
 			if ($('#hiddenTargetId').length === 0) {
 				$form.append(`<input type="hidden" id="hiddenTargetId" value="${data.targetId}">`);
 			} else {
@@ -117,7 +83,6 @@ class EquipmentManager {
 			$('#group-target-display').hide();
 			$('#hiddenTargetId').remove();
 
-			// Load floors if empty
 			if ($('#floorSelect option').length <= 1) {
 				await this.loadFloors();
 			}
@@ -134,7 +99,6 @@ class EquipmentManager {
 			const response = await this.floorService.getAll();
 			const $select = $('#floorSelect');
 			$select.empty().append('<option value="" disabled selected>Select Floor</option>');
-			// response is the body. The list is in response.data.content based on API structure
 			const floors = (response && response.content) || [];
 
 			if (floors && floors.length > 0) {
@@ -144,7 +108,7 @@ class EquipmentManager {
 			}
 		} catch (error) {
 			console.error(error);
-			toastr.error('Failed to load floors');
+			notify.error('Failed to load floors');
 		}
 	}
 
@@ -154,7 +118,8 @@ class EquipmentManager {
 			const $select = $('#roomSelect');
 			$select.prop('disabled', true).html('<option>Loading...</option>');
 
-			const rooms = await this.roomService.getByFloor(floorId);
+			const response = await this.roomApiService.getByFloor(floorId, 0, 1000);
+			const rooms = (response && response.content) || [];
 			$select.empty().append('<option value="" disabled selected>Select Room</option>');
 
 			if (rooms) {
@@ -164,10 +129,9 @@ class EquipmentManager {
 			}
 			$select.prop('disabled', false);
 
-			// Reset devices
 			$('#targetId').html('<option value="" disabled selected>Select Device</option>').prop('disabled', true);
 		} catch (error) {
-			toastr.error('Failed to load rooms');
+			notify.error('Failed to load rooms');
 			$('#roomSelect').prop('disabled', false).html('<option value="" disabled selected>Select Room</option>');
 		}
 	}
@@ -178,11 +142,8 @@ class EquipmentManager {
 			const $select = $('#targetId');
 			$select.prop('disabled', true).html('<option>Loading...</option>');
 
-			// Currently only supporting LIGHT as per requirement
-			// If target type requires switching, we'd need logic here.
-			// Assuming TargetType is LIGHT fixed in hidden input
-
-			const lights = await this.lightService.getByRoom(roomId);
+			const response = await this.lightService.getByRoom(roomId, 0, 1000);
+			const lights = (response && response.content) || [];
 			$select.empty().append('<option value="" disabled selected>Select Device</option>');
 
 			if (lights) {
@@ -192,7 +153,7 @@ class EquipmentManager {
 			}
 			$select.prop('disabled', false);
 		} catch (error) {
-			toastr.error('Failed to load devices');
+			notify.error('Failed to load devices');
 			$('#targetId').prop('disabled', false).html('<option value="" disabled selected>Select Device</option>');
 		}
 	}
@@ -201,7 +162,6 @@ class EquipmentManager {
 		const actionId = $('#actionId').val();
 		const automationId = $('#automationId').val();
 
-		// If Edit mode, we might use hiddenTargetId, else use select value
 		const targetId = actionId ? $('#hiddenTargetId').val() : $('#targetId').val();
 
 		const dto = {
@@ -209,13 +169,12 @@ class EquipmentManager {
 			targetType: $('#targetType').val(),
 			targetId: parseInt(targetId),
 			actionType: $('#actionType').val(),
-			parameterValue: $('#parameterValue').val() || ' ', // Handle empty string if backend requires not blank
+			parameterValue: $('#parameterValue').val() || ' ',
 			executionOrder: parseInt($('#executionOrder').val()),
 		};
 
-		// Simple Validation
 		if (!dto.targetId || isNaN(dto.targetId)) {
-			toastr.warning('Please select a target device');
+			notify.warning('Please select a target device');
 			return;
 		}
 
@@ -224,20 +183,17 @@ class EquipmentManager {
 			$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
 
 			if (actionId) {
-				// Update
-				// The backend update DTO might not contain automationId, but it's safe to send
 				await this.automationService.updateAction(actionId, dto);
-				toastr.success('Action updated successfully');
+				notify.success('Action updated successfully');
 			} else {
-				// Create
 				await this.automationService.addAction(automationId, dto);
-				toastr.success('Action added successfully');
+				notify.success('Action added successfully');
 			}
 
 			$('#equipmentModal').modal('hide');
-			setTimeout(() => window.location.reload(), 500); // Reload to refresh table (SSR)
+			setTimeout(() => window.location.reload(), 500);
 		} catch (error) {
-			toastr.error('Failed to save action');
+			notify.error('Failed to save action');
 			console.error(error);
 		} finally {
 			$('#btnSaveEquipment').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Changes');
@@ -245,15 +201,14 @@ class EquipmentManager {
 	}
 
 	static async handleDelete(id) {
-		if (!confirm('Are you sure you want to delete this action?')) return;
+		if (!(await notify.confirm('Delete Action', 'Are you sure you want to delete this action?'))) return;
 
 		try {
 			await this.automationService.removeAction(id);
-			toastr.success('Action deleted successfully');
-			// Remove row from table for better UX or reload
+			notify.success('Action deleted successfully');
 			window.location.reload();
 		} catch (error) {
-			toastr.error('Failed to delete action');
+			notify.error('Failed to delete action');
 		}
 	}
 }

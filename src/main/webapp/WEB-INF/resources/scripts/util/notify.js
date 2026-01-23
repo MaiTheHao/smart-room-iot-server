@@ -43,11 +43,11 @@ window.notify = {
 		});
 	},
 
-	confirm: async function (message, title = 'Are you sure?') {
+	confirm: async function (title = 'Are you sure?', message = '', icon = 'warning') {
 		const result = await Swal.fire({
 			title: title,
 			text: message,
-			icon: 'warning',
+			icon: icon,
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
 			cancelButtonColor: '#d33',

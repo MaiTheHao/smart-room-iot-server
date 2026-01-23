@@ -1,6 +1,7 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -34,6 +35,9 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SysClientFunctionCacheDao cacheDao;
 
     @Override
     public Client getFromSecurityContext() {
@@ -295,6 +299,14 @@ public class ClientServiceImpl implements ClientService {
 
         Client client = clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+
+        log.info("Deleting function cache for client ID: {}", clientId);
+        int deletedCacheRecords = cacheDao.deleteByClient(clientId);
+        log.info("Deleted {} cache records for client ID: {}", deletedCacheRecords, clientId);
+        if (client.getGroups() != null && !client.getGroups().isEmpty()) {
+            log.info("Client has {} group(s). Clearing group associations...", client.getGroups().size());
+            client.getGroups().clear();
+        }
 
         clientDao.delete(client);
         log.info("Client deleted successfully: {}", clientId);

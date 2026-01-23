@@ -4,6 +4,7 @@ class UserManager {
 		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
 		this.clientService = new ClientApiV1Service(this.apiClient);
 		this.roleService = new RoleApiV1Service(this.apiClient);
+		this.groupService = new GroupApiV1Service(this.apiClient);
 		this.table = null;
 		this.roleChanges = {};
 		this.init();
@@ -18,14 +19,16 @@ class UserManager {
 		this.table = $('#usersTable').DataTable({
 			processing: true,
 			serverSide: false,
-			ajax: async (data, callback, settings) => {
-				try {
-					const res = await this.clientService.getAll();
-					callback({ data: res.data.content });
-				} catch (error) {
-					notify.error('Failed to load users data');
-					callback({ data: [] });
-				}
+			ajax: (data, callback, settings) => {
+				(async () => {
+					try {
+						const res = await this.clientService.getAll(0, 1000);
+						callback({ data: res.data.content || [] });
+					} catch (error) {
+						notify.error('Failed to load users data');
+						callback({ data: [] });
+					}
+				})();
 			},
 			columns: [
 				{ data: 'id' },
@@ -53,10 +56,10 @@ class UserManager {
 	renderAvatar(data, type, row) {
 		const avatar = row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data)}`;
 		return `<div class="d-flex align-items-center">
-                    <img src="${avatar}" class="img-circle elevation-1 mr-2" width="35" height="35" 
-                        onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data)}'">
-                    <strong>${data}</strong>
-                </div>`;
+					<img src="${avatar}" class="img-circle elevation-1 mr-2" width="35" height="35" 
+						onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data)}'">
+					<strong>${data}</strong>
+				</div>`;
 	}
 
 	renderStatus(data) {
@@ -67,19 +70,19 @@ class UserManager {
 
 	renderActions(data, type, row) {
 		return `<div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
-                        <i class="fas fa-users"></i>
-                    </button>
-                    <button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-secondary action-btn btn-reset-password" data-id="${row.id}" data-username="${row.username}" title="Reset Password">
-                        <i class="fas fa-key"></i>
-                    </button>
-                    <button class="btn btn-danger action-btn btn-delete-user" data-id="${row.id}" data-username="${row.username}" title="Delete User">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>`;
+					<button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
+						<i class="fas fa-users"></i>
+					</button>
+					<button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
+						<i class="fas fa-edit"></i>
+					</button>
+					<button class="btn btn-secondary action-btn btn-reset-password" data-id="${row.id}" data-username="${row.username}" title="Reset Password">
+						<i class="fas fa-key"></i>
+					</button>
+					<button class="btn btn-danger action-btn btn-delete-user" data-id="${row.id}" data-username="${row.username}" title="Delete User">
+						<i class="fas fa-trash"></i>
+					</button>
+				</div>`;
 	}
 
 	bindEvents() {
@@ -214,10 +217,10 @@ class UserManager {
 		$list.html('<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>');
 
 		try {
-			const res = await this.clientService.getGroupsStatus(clientId);
+			const res = await this.groupService.getWithClientStatus(clientId);
 			const groups = res.data;
 
-			if (!groups.length) {
+			if (!groups || !groups.length) {
 				$list.html('<div class="alert alert-warning m-0">No roles available</div>');
 				return;
 			}
@@ -225,20 +228,20 @@ class UserManager {
 			const html = groups
 				.map(
 					(group) => `
-                <div class="selection-list-item">
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input role-checkbox scale-checkbox" 
-                            id="group_${group.id}" 
-                            data-group-id="${group.id}" 
-                            data-initial-state="${group.isAssignedToClient}"
-                            ${group.isAssignedToClient ? 'checked' : ''}>
-                        <label class="custom-control-label" for="group_${group.id}">
-                            <strong>${group.name}</strong> <span class="badge badge-secondary">${group.groupCode}</span>
-                            ${group.description ? `<br><small class="text-muted">${group.description}</small>` : ''}
-                        </label>
-                    </div>
-                </div>
-            `,
+				<div class="selection-list-item">
+					<div class="custom-control custom-checkbox">
+						<input type="checkbox" class="custom-control-input role-checkbox scale-checkbox" 
+							id="group_${group.id}" 
+							data-group-id="${group.id}" 
+							data-initial-state="${group.isAssignedToClient}"
+							${group.isAssignedToClient ? 'checked' : ''}>
+						<label class="custom-control-label" for="group_${group.id}">
+							<strong>${group.name}</strong> <span class="badge badge-secondary">${group.groupCode}</span>
+							${group.description ? `<br><small class="text-muted">${group.description}</small>` : ''}
+						</label>
+					</div>
+				</div>
+			`,
 				)
 				.join('');
 
@@ -285,7 +288,16 @@ class UserManager {
 		});
 
 		try {
-			await this.roleService.batchUpdateClientGroups(clientId, toAssign, toUnassign);
+			const tasks = [];
+			if (toAssign.length > 0) {
+				tasks.push(this.roleService.assignGroupsToClient(clientId, toAssign));
+			}
+			if (toUnassign.length > 0) {
+				tasks.push(this.roleService.unassignGroupsFromClient(clientId, toUnassign));
+			}
+
+			await Promise.all(tasks);
+
 			notify.success('Role assignments updated successfully');
 			$('#manageGroupsModal').modal('hide');
 			this.roleChanges = {};

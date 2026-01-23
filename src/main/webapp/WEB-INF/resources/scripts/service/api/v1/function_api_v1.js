@@ -1,60 +1,84 @@
 class FunctionApiV1Service {
 	constructor(httpClient) {
 		this.client = httpClient || new HttpClient();
+		this.api = SMRC_API_V1.FUNCTION;
 	}
 
-	async getAll() {
+	async getAll(page = 0, size = 10) {
 		try {
-			return await this.client.get('functions/all');
+			return await this.client.get(this.api.PATH, { page, size });
 		} catch (error) {
-			console.error('[FunctionService] Failed to fetch all functions', error);
-			throw error;
+			this._handleError('fetch functions', error);
+		}
+	}
+
+	async getAllWithoutPagination() {
+		try {
+			return await this.client.get(this.api.ALL);
+		} catch (error) {
+			this._handleError('fetch all functions', error);
 		}
 	}
 
 	async getById(functionId) {
 		try {
-			return await this.client.get(`functions/${functionId}`);
+			return await this.client.get(this.api.DETAIL(functionId));
 		} catch (error) {
-			console.error(`[FunctionService] Failed to fetch function ${functionId}`, error);
-			throw error;
+			this._handleError(`fetch function ${functionId}`, error);
 		}
 	}
 
-	async create(functionData) {
+	async getByCode(functionCode) {
 		try {
-			return await this.client.post('functions', functionData);
+			return await this.client.get(this.api.BY_CODE(functionCode));
 		} catch (error) {
-			console.error('[FunctionService] Failed to create function', error);
-			throw error;
-		}
-	}
-
-	async update(functionId, updateData) {
-		try {
-			return await this.client.put(`functions/${functionId}`, updateData);
-		} catch (error) {
-			console.error(`[FunctionService] Failed to update function ${functionId}`, error);
-			throw error;
-		}
-	}
-
-	async delete(functionId) {
-		try {
-			return await this.client.delete(`functions/${functionId}`);
-		} catch (error) {
-			console.error(`[FunctionService] Failed to delete function ${functionId}`, error);
-			throw error;
+			this._handleError(`fetch function by code ${functionCode}`, error);
 		}
 	}
 
 	async getByGroupStatus(groupId) {
 		try {
-			return await this.client.get(`functions/with-group-status/${groupId}`);
+			return await this.client.get(this.api.WITH_GROUP_STATUS(groupId));
 		} catch (error) {
-			console.error(`[FunctionService] Failed to fetch functions status for group ${groupId}`, error);
-			throw error;
+			this._handleError(`fetch functions status for group ${groupId}`, error);
 		}
+	}
+
+	async create(functionData) {
+		try {
+			return await this.client.post(this.api.PATH, functionData);
+		} catch (error) {
+			this._handleError('create function', error);
+		}
+	}
+
+	async update(functionId, updateData) {
+		try {
+			return await this.client.put(this.api.DETAIL(functionId), updateData);
+		} catch (error) {
+			this._handleError(`update function ${functionId}`, error);
+		}
+	}
+
+	async delete(functionId) {
+		try {
+			return await this.client.delete(this.api.DETAIL(functionId));
+		} catch (error) {
+			this._handleError(`delete function ${functionId}`, error);
+		}
+	}
+
+	async getCount() {
+		try {
+			return await this.client.get(this.api.COUNT);
+		} catch (error) {
+			this._handleError('fetch function count', error);
+		}
+	}
+
+	_handleError(action, error) {
+		console.error(`[FunctionApiV1Service] Failed to ${action}:`, error);
+		throw error;
 	}
 }
 

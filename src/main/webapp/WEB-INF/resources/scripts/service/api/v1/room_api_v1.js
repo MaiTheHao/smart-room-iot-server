@@ -1,103 +1,52 @@
 class RoomApiV1Service {
 	constructor(httpClient) {
 		this.client = httpClient || new HttpClient();
+		this.api = SMRC_API_V1.ROOM;
 	}
 
-	async getHealthScore(roomId) {
+	async getByFloor(floorId, page = 0, size = 10) {
 		try {
-			const response = await this.client.get(`rooms/${roomId}/health-score`);
-			return response.data;
+			return await this.client.get(SMRC_API_V1.FLOOR.ROOMS(floorId), { page, size });
 		} catch (error) {
-			console.error(`[RoomService] Failed to get room health score ${roomId}`, error);
-			throw error;
+			this._handleError(`get rooms for floor ${floorId}`, error);
 		}
 	}
 
-	async getHealth(roomId) {
+	async getById(roomId) {
 		try {
-			return await this.client.get(`rooms/${roomId}/health`);
+			return await this.client.get(this.api.DETAIL(roomId));
 		} catch (error) {
-			console.error(`[RoomService] Failed to get room health ${roomId}`, error);
-			throw error;
+			this._handleError(`get room ${roomId}`, error);
 		}
 	}
 
-	async getHealthUiConfig(roomId) {
+	async create(floorId, roomData) {
 		try {
-			const score = await this.getHealthScore(roomId);
-			const statusConfig = this.evaluateStatus(score);
-			return {
-				score: score,
-				...statusConfig,
-			};
+			return await this.client.post(SMRC_API_V1.FLOOR.ROOMS(floorId), roomData);
 		} catch (error) {
-			console.error(`[RoomService] Failed to get room health UI config ${roomId}`, error);
-			return {
-				score: 0,
-				...this.evaluateStatus(null),
-			};
+			this._handleError(`create room on floor ${floorId}`, error);
 		}
 	}
 
-	evaluateStatus(score) {
-		if (score === null || score === undefined || isNaN(score)) {
-			return {
-				level: 'UNKNOWN',
-				className: 'badge-secondary',
-				label: 'N/A',
-				color: '#6c757d',
-				icon: 'fa-question-circle',
-			};
-		}
-
-		if (score >= 80) {
-			return {
-				level: 'GOOD',
-				className: 'badge-success',
-				label: 'Healthy',
-				color: '#28a745',
-				icon: 'fa-check-circle',
-			};
-		} else if (score >= 50) {
-			return {
-				level: 'WARNING',
-				className: 'badge-warning',
-				label: 'Unstable',
-				color: '#ffc107',
-				icon: 'fa-exclamation-triangle',
-			};
-		} else {
-			return {
-				level: 'CRITICAL',
-				className: 'badge-danger',
-				label: 'Critical',
-				color: '#dc3545',
-				icon: 'fa-times-circle',
-			};
-		}
-	}
-
-	async toggleLight(lightId) {
+	async update(roomId, roomData) {
 		try {
-			return await this.client.put(`lights/${lightId}/toggle-state`);
+			return await this.client.put(this.api.DETAIL(roomId), roomData);
 		} catch (error) {
-			console.error(`[RoomService] Failed to toggle light ${lightId}`, error);
-			throw error;
+			this._handleError(`update room ${roomId}`, error);
 		}
 	}
 
-	async toggleLightAndRefreshHealth(lightId, roomId) {
+	async delete(roomId) {
 		try {
-			const lightResponse = await this.toggleLight(lightId);
-			const health = await this.getHealthScore(roomId);
-			return {
-				light: lightResponse.data,
-				health: health,
-			};
+			return await this.client.delete(this.api.DETAIL(roomId));
 		} catch (error) {
-			console.error(`[RoomService] Failed to toggle light with health update ${lightId}`, error);
-			throw error;
+			this._handleError(`delete room ${roomId}`, error);
 		}
+	}
+
+	_handleError(action, error) {
+		console.error(`[RoomApiV1Service] Failed to ${action}:`, error);
+		throw error;
 	}
 }
 
