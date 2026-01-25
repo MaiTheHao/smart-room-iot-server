@@ -234,7 +234,7 @@ class JobManager {
 	static async handleReloadSystem() {
 		if (await notify.confirm('Reload Scheduler System', 'Are you sure you want to reload the scheduler system?', 'warning')) {
 			this.automationService
-				.reloadSystem()
+				.reloadJob()
 				.then(() => notify.success('System reloaded'))
 				.catch((err) => notify.error('Reload failed'));
 		}

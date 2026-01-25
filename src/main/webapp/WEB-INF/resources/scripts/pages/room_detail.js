@@ -1,20 +1,22 @@
 class RoomDetailPage {
+	static instance;
+
 	CONFIG = {
 		DATE_FORMAT: 'HH:mm DD/MM/YYYY',
 		DEFAULT_RANGE_MONTHS: 1,
-		ENDPOINTS: {
-			ROOM_DETAIL: (id) => `/room/${id}`,
-		},
 	};
 
-	constructor(contextPath, roomId, initialTempData, initialPowerData) {
-		this.contextPath = contextPath;
+	constructor(roomId, initialTempData, initialPowerData) {
+		if (RoomDetailPage.instance) return RoomDetailPage.instance;
+		RoomDetailPage.instance = this;
+
 		this.roomId = roomId;
 		this.initialTempData = initialTempData || [];
 		this.initialPowerData = initialPowerData || [];
 
-		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
-		this.roomService = new RoomApiV1Service(this.apiClient);
+		this.roomService = window.roomApiV1Service;
+		this.healthService = window.healthCheckApiV1Service;
+		this.lightService = window.lightApiV1Service;
 
 		this.state = this._parseUrlParams();
 		this.charts = {};
@@ -33,9 +35,8 @@ class RoomDetailPage {
 			this.renderInitialData();
 			this.loadHealthScore();
 			this.bindEvents();
-			console.log(`[Dashboard] Initialized for Room: ${this.roomId}`);
 		} catch (error) {
-			console.error('[Dashboard] Init failed:', error);
+			console.error('[RoomDetailPage] Init failed:', error);
 			notify.error('Failed to initialize dashboard');
 		}
 	}
@@ -59,7 +60,7 @@ class RoomDetailPage {
 		const $icon = $('#healthIcon');
 
 		try {
-			const uiConfig = await this.roomService.getHealthUiConfig(this.roomId);
+			const uiConfig = await this.healthService.getRoomHealthUiConfig(this.roomId);
 
 			$badge.removeClass('badge-secondary badge-success badge-warning badge-danger badge-info').addClass(uiConfig.className).css('opacity', 1);
 			$text.text(`${uiConfig.score}%`);
@@ -95,9 +96,9 @@ class RoomDetailPage {
 		$input.prop('disabled', true);
 
 		try {
-			await this.roomService.toggleLight(lightId);
+			await this.lightService.toggleState(lightId);
 			notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
-			setTimeout(() => this.loadHealthScore(), 500);
+			// setTimeout(() => this.loadHealthScore(), 500); Hiện không cần load lại điểm sức khỏe khi bật/tắt đèn
 		} catch (error) {
 			notify.error(error.message || `Failed to toggle ${lightName}`);
 			$input.prop('checked', !isChecked);
@@ -127,7 +128,7 @@ class RoomDetailPage {
 			startedAt: this.state.start.toISOString(),
 			endedAt: this.state.end.toISOString(),
 		});
-		window.location.href = `${this.contextPath}?${query.toString()}`;
+		window.location.href = `${window.location.pathname}?${query.toString()}`;
 	}
 
 	initDateRangePicker() {
