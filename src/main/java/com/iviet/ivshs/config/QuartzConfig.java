@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -24,9 +23,6 @@ public class QuartzConfig {
 
 	@Autowired
 	private ApplicationContext applicationContext;
-
-	@Autowired
-	private Environment env;
 
 	@Autowired
 	private DataSource dataSource;
@@ -70,13 +66,13 @@ public class QuartzConfig {
 	private Properties createQuartzProperties() {
 		Properties props = new Properties();
 
-		props.put("org.quartz.jobStore.dataSource", "ds"); 
+		// props.put("org.quartz.jobStore.dataSource", "ds"); Bởi vì ta chỉ định DataSource trực tiếp trong SchedulerFactoryBean
 		props.put("org.quartz.jobStore.class", "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
 		
 		props.put("org.quartz.jobStore.isClustered", "false"); 
 		
 		props.put("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
-		props.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
+		props.put("org.quartz.jobStore.tablePrefix", "qrtz_");
 		
 		props.put("org.quartz.scheduler.instanceName", "IVSHS_Quartz_Scheduler");
 		props.put("org.quartz.scheduler.instanceId", "AUTO");

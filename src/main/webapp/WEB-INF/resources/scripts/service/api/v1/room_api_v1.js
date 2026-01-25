@@ -1,14 +1,27 @@
 class RoomApiV1Service {
-	constructor(httpClient) {
-		this.client = httpClient || new HttpClient();
+	static instance;
+
+	constructor() {
+		if (RoomApiV1Service.instance) return RoomApiV1Service.instance;
+		RoomApiV1Service.instance = this;
+
+		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.ROOM;
 	}
 
 	async getByFloor(floorId, page = 0, size = 10) {
 		try {
-			return await this.client.get(SMRC_API_V1.FLOOR.ROOMS(floorId), { page, size });
+			return await this.client.get(SMRC_API_V1.ROOM.BY_FLOOR(floorId), { page, size });
 		} catch (error) {
-			this._handleError(`get rooms for floor ${floorId}`, error);
+			this.#handleError(`get rooms for floor ${floorId}`, error);
+		}
+	}
+
+	async getAllByFloor(floorId) {
+		try {
+			return await this.client.get(SMRC_API_V1.ROOM.BY_FLOOR_ALL(floorId));
+		} catch (error) {
+			this.#handleError(`get all rooms for floor ${floorId}`, error);
 		}
 	}
 
@@ -16,15 +29,15 @@ class RoomApiV1Service {
 		try {
 			return await this.client.get(this.api.DETAIL(roomId));
 		} catch (error) {
-			this._handleError(`get room ${roomId}`, error);
+			this.#handleError(`get room ${roomId}`, error);
 		}
 	}
 
 	async create(floorId, roomData) {
 		try {
-			return await this.client.post(SMRC_API_V1.FLOOR.ROOMS(floorId), roomData);
+			return await this.client.post(SMRC_API_V1.ROOM.BY_FLOOR(floorId), roomData);
 		} catch (error) {
-			this._handleError(`create room on floor ${floorId}`, error);
+			this.#handleError(`create room on floor ${floorId}`, error);
 		}
 	}
 
@@ -32,7 +45,7 @@ class RoomApiV1Service {
 		try {
 			return await this.client.put(this.api.DETAIL(roomId), roomData);
 		} catch (error) {
-			this._handleError(`update room ${roomId}`, error);
+			this.#handleError(`update room ${roomId}`, error);
 		}
 	}
 
@@ -40,14 +53,15 @@ class RoomApiV1Service {
 		try {
 			return await this.client.delete(this.api.DETAIL(roomId));
 		} catch (error) {
-			this._handleError(`delete room ${roomId}`, error);
+			this.#handleError(`delete room ${roomId}`, error);
 		}
 	}
 
-	_handleError(action, error) {
+	#handleError(action, error) {
 		console.error(`[RoomApiV1Service] Failed to ${action}:`, error);
 		throw error;
 	}
 }
 
-window.RoomApiV1Service = RoomApiV1Service;
+if (typeof window == 'undefined') throw new Error('RoomApiV1Service can only be initialized in a browser environment');
+window.roomApiV1Service = new RoomApiV1Service();

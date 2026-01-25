@@ -74,4 +74,20 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
 
         return results;
     }
+
+    public List<FloorDto> findAll(String langCode) {
+        String dtoClassPath = FloorDto.class.getName();
+
+        String jpql = """
+                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
+                FROM Floor f
+                LEFT JOIN f.translations flan ON flan.langCode = :langCode
+                """.formatted(dtoClassPath);
+
+        List<FloorDto> results = entityManager.createQuery(jpql, FloorDto.class)
+                .setParameter("langCode", langCode)
+                .getResultList();
+
+        return results;
+    }
 }

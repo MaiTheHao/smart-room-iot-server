@@ -1,6 +1,11 @@
 class ClientApiV1Service {
-	constructor(httpClient) {
-		this.client = httpClient || new HttpClient();
+	static instance;
+
+	constructor() {
+		if (ClientApiV1Service.instance) return ClientApiV1Service.instance;
+		ClientApiV1Service.instance = this;
+
+		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.CLIENT;
 	}
 
@@ -8,7 +13,7 @@ class ClientApiV1Service {
 		try {
 			return await this.client.get(this.api.PATH, { page, size });
 		} catch (error) {
-			this._handleError('fetch clients', error);
+			this.#handleError('fetch clients', error);
 		}
 	}
 
@@ -16,7 +21,7 @@ class ClientApiV1Service {
 		try {
 			return await this.client.get(this.api.DETAIL(clientId));
 		} catch (error) {
-			this._handleError(`fetch client ${clientId}`, error);
+			this.#handleError(`fetch client ${clientId}`, error);
 		}
 	}
 
@@ -24,7 +29,7 @@ class ClientApiV1Service {
 		try {
 			return await this.client.get(this.api.BY_ROOM(roomId), { page, size });
 		} catch (error) {
-			this._handleError(`fetch clients for room ${roomId}`, error);
+			this.#handleError(`fetch clients for room ${roomId}`, error);
 		}
 	}
 
@@ -32,7 +37,7 @@ class ClientApiV1Service {
 		try {
 			return await this.client.post(this.api.PATH, clientData);
 		} catch (error) {
-			this._handleError('create client', error);
+			this.#handleError('create client', error);
 		}
 	}
 
@@ -40,7 +45,7 @@ class ClientApiV1Service {
 		try {
 			return await this.client.put(this.api.DETAIL(clientId), updateData);
 		} catch (error) {
-			this._handleError(`update client ${clientId}`, error);
+			this.#handleError(`update client ${clientId}`, error);
 		}
 	}
 
@@ -48,14 +53,15 @@ class ClientApiV1Service {
 		try {
 			return await this.client.delete(this.api.DETAIL(clientId));
 		} catch (error) {
-			this._handleError(`delete client ${clientId}`, error);
+			this.#handleError(`delete client ${clientId}`, error);
 		}
 	}
 
-	_handleError(action, error) {
+	#handleError(action, error) {
 		console.error(`[ClientApiV1Service] Failed to ${action}:`, error);
 		throw error;
 	}
 }
 
-window.ClientApiV1Service = ClientApiV1Service;
+if (typeof window == 'undefined') throw new Error('ClientApiV1Service can only be initialized in a browser environment');
+window.clientApiV1Service = new ClientApiV1Service();

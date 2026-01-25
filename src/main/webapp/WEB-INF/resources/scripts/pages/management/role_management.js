@@ -1,10 +1,10 @@
 class RoleManager {
-	static init(contextPath) {
-		this.contextPath = contextPath;
-		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
-		this.roleService = new RoleApiV1Service(this.apiClient);
-		this.groupService = new GroupApiV1Service(this.apiClient);
-		this.functionService = new FunctionApiV1Service(this.apiClient);
+	static init() {
+		if (typeof window === 'undefined') throw new Error('RoleManager can only be initialized in a browser environment');
+
+		this.roleService = window.roleApiV1Service;
+		this.groupService = window.groupApiV1Service;
+		this.functionService = window.functionApiV1Service;
 		this.table = null;
 		this.functionChanges = {};
 

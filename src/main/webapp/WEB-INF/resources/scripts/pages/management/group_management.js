@@ -1,10 +1,12 @@
 class GroupManager {
-	static init(contextPath) {
-		this.contextPath = contextPath;
-		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
-		this.groupService = new GroupApiV1Service(this.apiClient);
-		this.roleService = new RoleApiV1Service(this.apiClient);
+	static init() {
+		if (typeof window === 'undefined') throw new Error('GroupManager can only be initialized in a browser environment');
+
+		this.groupService = window.groupApiV1Service;
+		this.roleService = window.roleApiV1Service;
 		this.table = null;
+
+		this.isClientChanged = false;
 
 		this.initDataTable();
 		this.bindEvents();
@@ -82,7 +84,8 @@ class GroupManager {
 		});
 
 		$('#manageClientsModal').on('hidden.bs.modal', () => {
-			if (this.table) {
+			if (this.table && this.isClientChanged) {
+				console.log('Data changed in modal, reloading table...');
 				this.table.ajax.reload(null, false);
 			}
 		});
@@ -186,6 +189,9 @@ class GroupManager {
 	}
 
 	static openClientsModal($btn) {
+		// Reset flag khi mở modal
+		this.isClientChanged = false;
+
 		const groupId = $btn.data('id');
 		const groupName = $btn.data('name');
 
@@ -266,6 +272,9 @@ class GroupManager {
 		try {
 			await this.roleService.unassignGroupFromClient(clientId, groupId);
 			notify.success(`Removed ${username} from group`);
+
+			this.isClientChanged = true;
+
 			await this.loadClientsInGroup(groupId);
 		} catch (error) {
 			notify.error(error.message || 'Failed to remove user from group');

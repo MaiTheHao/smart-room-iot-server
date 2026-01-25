@@ -13,9 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateAutomationActionDto {
 
-	@NotNull(message = "Automation ID is required")
-	private Long automationId;
-
 	@NotNull(message = "Target type is required")
 	private JobTargetType targetType;
 

@@ -73,6 +73,52 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 .getResultList();
     }
 
+    public List<RoomDto> findAllByFloorId(Long floorId, String langCode) {
+        String dtoPath = RoomDto.class.getName();
+
+        String jpql = """
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                FROM Room r
+                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                WHERE r.floor.id = :floorId
+                """.formatted(dtoPath);
+
+        return entityManager.createQuery(jpql, RoomDto.class)
+                .setParameter("floorId", floorId)
+                .setParameter("langCode", langCode)
+                .getResultList();
+    }
+
+    public List<RoomDto> findAll(String langCode) {
+        String dtoPath = RoomDto.class.getName();
+
+        String jpql = """
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                FROM Room r
+                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                """.formatted(dtoPath);
+
+        return entityManager.createQuery(jpql, RoomDto.class)
+                .setParameter("langCode", langCode)
+                .getResultList();
+    }
+
+    public List<RoomDto> findAll(int page, int size, String langCode) {
+        String dtoPath = RoomDto.class.getName();
+
+        String jpql = """
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                FROM Room r
+                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                """.formatted(dtoPath);
+
+        return entityManager.createQuery(jpql, RoomDto.class)
+                .setParameter("langCode", langCode)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
+    }
+
     public long countByFloorId(Long floorId) {
         return count(root -> entityManager.getCriteriaBuilder().equal(root.get("floor").get("id"), floorId));
     }

@@ -1,16 +1,14 @@
-const DEFAULT_API_BASE = '/api/v1/';
-
 class HttpClient {
-	constructor(baseURL) {
-		this.baseURL = baseURL || DEFAULT_API_BASE;
-		if (!this.baseURL.endsWith('/')) {
-			this.baseURL += '/';
-		}
-
+	constructor() {
 		this.headers = {
 			Accept: 'application/json',
 			'Content-Type': 'application/json; charset=utf-8',
 		};
+
+		this.isSecure = window.location.protocol === 'https:';
+		this.ip = 'localhost';
+		this.port = '8080';
+		this.baseUrl = `${this.isSecure ? 'https' : 'http'}://${this.ip}:${this.port}`;
 	}
 
 	get(endpoint, params = {}) {
@@ -30,8 +28,8 @@ class HttpClient {
 	}
 
 	async request(method, endpoint, params = null, body = null) {
-		const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-		let url = `${this.baseURL}${cleanEndpoint}`;
+		const cleanEndpoint = this._normalizeEndpoint(endpoint);
+		let url = `${this.baseUrl}/${cleanEndpoint}`;
 
 		if ((method === 'GET' || method === 'DELETE') && params && Object.keys(params).length) {
 			const query = new URLSearchParams(params).toString();
@@ -84,11 +82,16 @@ class HttpClient {
 						status: 0,
 						message: error.message || 'Network Error',
 						timestamp: new Date().toISOString(),
-				  };
+					};
 
 			console.error(`[API] ${method} ${url} FAILED:`, safeError);
 			throw safeError;
 		}
+	}
+
+	_normalizeEndpoint(endpoint) {
+		if (typeof endpoint !== 'string') return '';
+		return endpoint.trim().replace(/^\/+/, '');
 	}
 }
 

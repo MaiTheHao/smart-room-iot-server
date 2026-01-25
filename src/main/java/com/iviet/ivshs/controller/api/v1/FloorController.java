@@ -4,6 +4,9 @@ import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.service.FloorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,11 @@ public class FloorController {
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(floorService.getList(page, size)));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<FloorDto>>> getAllFloors() {
+        return ResponseEntity.ok(ApiResponse.ok(floorService.getAll()));
     }
 
     @GetMapping("/{floorId}")

@@ -67,6 +67,21 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
                 .getResultList();
     }
 
+    public List<LightDto> findAll(String langCode) {
+        String dtoPath = LightDto.class.getName();
+
+        String jpql = """
+                SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+                FROM Light l 
+                LEFT JOIN l.translations ll ON ll.langCode = :langCode 
+                ORDER BY l.id ASC
+                """.formatted(dtoPath);
+
+        return entityManager.createQuery(jpql, LightDto.class)
+                .setParameter("langCode", langCode)
+                .getResultList();
+    }
+
     public List<LightDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
         String dtoPath = LightDto.class.getName();
 
@@ -83,6 +98,23 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
                 .setParameter("langCode", langCode)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
+                .getResultList();
+    }
+
+    public List<LightDto> findAllByRoomId(Long roomId, String langCode) {
+        String dtoPath = LightDto.class.getName();
+
+        String jpql = """
+                SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+                FROM Light l 
+                LEFT JOIN l.translations ll ON ll.langCode = :langCode 
+                WHERE l.room.id = :roomId 
+                ORDER BY l.id ASC
+                """.formatted(dtoPath);
+
+        return entityManager.createQuery(jpql, LightDto.class)
+                .setParameter("roomId", roomId)
+                .setParameter("langCode", langCode)
                 .getResultList();
     }
 }

@@ -1,9 +1,8 @@
 class JobManager {
-	static init(contextPath) {
-		this.contextPath = contextPath;
-		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
+	static init() {
+		if (typeof window === 'undefined') throw new Error('JobManager can only be initialized in a browser environment');
 
-		this.automationService = new AutomationApiV1Service(this.apiClient);
+		this.automationService = window.automationApiV1Service;
 		this.table = null;
 
 		this.initDataTable();

@@ -15,6 +15,8 @@ import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -42,6 +44,12 @@ public class LightServiceImpl implements LightService {
     }
 
     @Override
+    public List<LightDto> getAll() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return lightDao.findAll(langCode);
+    }
+
+    @Override
     public PaginatedResponse<LightDto> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
         String langCode = LocalContextUtil.getCurrentLangCode();
@@ -49,6 +57,13 @@ public class LightServiceImpl implements LightService {
                 lightDao.findAllByRoomId(roomId, page, size, langCode),
                 page, size, lightDao.countByRoomId(roomId)
         );
+    }
+
+    @Override
+    public List<LightDto> getAllByRoomId(Long roomId) {
+        if (roomId == null) throw new BadRequestException("Room ID is required");
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return lightDao.findAllByRoomId(roomId, langCode);
     }
 
     @Override

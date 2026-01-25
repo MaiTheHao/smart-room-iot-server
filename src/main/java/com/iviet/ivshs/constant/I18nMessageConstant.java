@@ -182,4 +182,30 @@ public final class I18nMessageConstant {
     public static final String ERROR_500_TITLE = "error.500.title";
     public static final String ERROR_500_HEADING = "error.500.heading";
     public static final String ERROR_500_DESC = "error.500.desc";
+
+    // --- Room Detail Page ---
+    public static final String ROOM_DETAIL_TITLE = "room.detail.title";
+    public static final String ROOM_DETAIL_PAGE_TITLE = "room.detail.page.title";
+    public static final String ROOM_DETAIL_AREA = "room.detail.area";
+    public static final String ROOM_DETAIL_STATUS_ONLINE = "room.detail.status.online";
+    public static final String ROOM_DETAIL_STATUS_OFFLINE = "room.detail.status.offline";
+    public static final String ROOM_DETAIL_HEADER_BACK = "room.detail.header.back";
+    public static final String ROOM_DETAIL_HEADER_SETTINGS = "room.detail.header.settings";
+    public static final String ROOM_DETAIL_ANALYTICS_TITLE = "room.detail.analytics.title";
+    public static final String ROOM_DETAIL_ANALYTICS_REFRESH = "room.detail.analytics.refresh";
+    public static final String ROOM_DETAIL_CONTROLS_TITLE = "room.detail.controls.title";
+    public static final String ROOM_DETAIL_CONTROLS_LIGHTS_SECTION = "room.detail.controls.lights.section";
+    public static final String ROOM_DETAIL_MSG_LIGHT_ON = "room.detail.msg.light.on";
+    public static final String ROOM_DETAIL_MSG_LIGHT_OFF = "room.detail.msg.light.off";
+    public static final String ROOM_DETAIL_MSG_REFRESHED = "room.detail.msg.refreshed";
+    public static final String ROOM_DETAIL_MSG_DEVICE_TOGGLED = "room.detail.msg.device.toggled";
+    public static final String ROOM_DETAIL_ERROR_TOGGLE_FAILED = "room.detail.error.toggle.failed";
+    public static final String ROOM_DETAIL_ERROR_INIT_FAILED = "room.detail.error.init.failed";
+    public static final String ROOM_DETAIL_ERROR_HEALTH_FAILED = "room.detail.error.health.failed";
+    public static final String ROOM_DETAIL_ERROR_LOAD_FAILED = "room.detail.error.load.failed";
+    public static final String ROOM_DETAIL_HEALTH_EXCELLENT = "room.detail.health.excellent";
+    public static final String ROOM_DETAIL_HEALTH_GOOD = "room.detail.health.good";
+    public static final String ROOM_DETAIL_HEALTH_WARNING = "room.detail.health.warning";
+    public static final String ROOM_DETAIL_HEALTH_CRITICAL = "room.detail.health.critical";
+    public static final String ROOM_DETAIL_HEALTH_UNKNOWN = "room.detail.health.unknown";
 }

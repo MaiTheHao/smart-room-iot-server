@@ -26,8 +26,7 @@ public class AutomationJob implements Job {
         
         try {
             automationService.executeAutomationLogic(automationId);
-            log.info("Finished execution for ID: {} in {}ms", 
-                    automationId, System.currentTimeMillis() - start);
+            log.info("Finished execution for ID: {} in {}ms", automationId, System.currentTimeMillis() - start);
         } catch (Exception e) {
             log.error("Execution failed for ID {}: {}", automationId, e.getMessage());
             throw new JobExecutionException(e.getMessage(), e);

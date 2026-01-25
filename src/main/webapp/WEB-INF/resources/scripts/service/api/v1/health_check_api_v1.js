@@ -1,6 +1,11 @@
 class HealthCheckApiV1Service {
-	constructor(httpClient) {
-		this.client = httpClient || new HttpClient();
+	static instance;
+
+	constructor() {
+		if (HealthCheckApiV1Service.instance) return HealthCheckApiV1Service.instance;
+		HealthCheckApiV1Service.instance = this;
+
+		this.client = new HttpClient();
 	}
 
 	async getRoomHealthScore(roomId) {
@@ -8,7 +13,7 @@ class HealthCheckApiV1Service {
 			const response = await this.client.get(SMRC_API_V1.ROOM.HEALTH_SCORE(roomId));
 			return response.data;
 		} catch (error) {
-			this._handleError(`get room score for ID: ${roomId}`, error);
+			this.#handleError(`get room score for ID: ${roomId}`, error);
 		}
 	}
 
@@ -17,7 +22,7 @@ class HealthCheckApiV1Service {
 			const response = await this.client.get(SMRC_API_V1.ROOM.HEALTH(roomId));
 			return response.data;
 		} catch (error) {
-			this._handleError(`get room health details for ID: ${roomId}`, error);
+			this.#handleError(`get room health details for ID: ${roomId}`, error);
 		}
 	}
 
@@ -26,7 +31,7 @@ class HealthCheckApiV1Service {
 			const response = await this.client.get(SMRC_API_V1.CLIENT.HEALTH_SCORE(clientId));
 			return response.data;
 		} catch (error) {
-			this._handleError(`get client health score for ID: ${clientId}`, error);
+			this.#handleError(`get client health score for ID: ${clientId}`, error);
 		}
 	}
 
@@ -35,7 +40,7 @@ class HealthCheckApiV1Service {
 			const response = await this.client.get(SMRC_API_V1.CLIENT.HEALTH(clientId));
 			return response.data;
 		} catch (error) {
-			this._handleError(`get client health for ID: ${clientId}`, error);
+			this.#handleError(`get client health for ID: ${clientId}`, error);
 		}
 	}
 
@@ -88,10 +93,11 @@ class HealthCheckApiV1Service {
 		}
 	}
 
-	_handleError(action, error) {
+	#handleError(action, error) {
 		console.error(`[HealthCheckApiV1Service] Failed to ${action}:`, error);
 		throw error;
 	}
 }
 
-window.HealthCheckApiV1Service = HealthCheckApiV1Service;
+if (typeof window == 'undefined') throw new Error('HealthCheckApiV1Service can only be initialized in a browser environment');
+window.healthCheckApiV1Service = new HealthCheckApiV1Service();

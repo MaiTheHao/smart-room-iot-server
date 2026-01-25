@@ -6,8 +6,12 @@ import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.TimeZone;
+
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -16,6 +20,9 @@ import org.springframework.stereotype.Component;
 public class QuartzHelper {
 
     private final Scheduler scheduler;
+
+    @Value("${app.timezone:Asia/Ho_Chi_Minh}")
+    private String appTimezone;
 
     private static final String JOB_GROUP = "AUTOMATION_GROUP";
     private static final String TRIGGER_GROUP = "AUTOMATION_TRIGGER_GROUP";
@@ -39,8 +46,8 @@ public class QuartzHelper {
             Trigger trigger = buildCronTrigger(automation);
 
             scheduler.scheduleJob(jobDetail, trigger);
-            log.info("Successfully scheduled automation [ID: {}] with cron [{}]", automation.getId(), automation.getCronExpression());
-
+            log .info("Scheduled automation [ID: {}] with cron [{}] (Timezone: {})", 
+                    automation.getId(), automation.getCronExpression(), appTimezone);
         } catch (SchedulerException e) {
             log.error("Error scheduling automation [ID: {}]: {}", automation.getId(), e.getMessage(), e);
             throw new InternalServerErrorException("Quartz error: Failed to schedule job");
@@ -103,14 +110,15 @@ public class QuartzHelper {
     private void reschedule(Automation automation, TriggerKey triggerKey) throws SchedulerException {
         Trigger newTrigger = buildCronTrigger(automation);
         scheduler.rescheduleJob(triggerKey, newTrigger);
-        log.info("Rescheduled automation [ID: {}] with new cron [{}]", 
-                automation.getId(), automation.getCronExpression());
+        log.info("Rescheduled automation [ID: {}] with new cron [{}] (Timezone: {})", 
+                automation.getId(), automation.getCronExpression(), appTimezone);
     }
 
     private Trigger buildCronTrigger(Automation automation) {
         return TriggerBuilder.newTrigger()
                 .withIdentity(getTriggerKey(automation.getId()))
                 .withSchedule(CronScheduleBuilder.cronSchedule(automation.getCronExpression())
+                        .inTimeZone(TimeZone.getTimeZone(appTimezone))
                         .withMisfireHandlingInstructionDoNothing())
                 .build();
     }

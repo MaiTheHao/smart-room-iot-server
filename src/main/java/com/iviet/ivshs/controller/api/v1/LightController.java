@@ -23,6 +23,11 @@ public class LightController {
         return ResponseEntity.ok(ApiResponse.ok(lightService.getList(page, size)));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<java.util.List<LightDto>>> getAllLights() {
+        return ResponseEntity.ok(ApiResponse.ok(lightService.getAll()));
+    }
+
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLightsByRoom(
             @PathVariable(name = "roomId") Long roomId,
@@ -30,6 +35,13 @@ public class LightController {
             @RequestParam(name = "size", defaultValue = "20") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(lightService.getListByRoomId(roomId, page, size)));
+    }
+
+    @GetMapping("/room/{roomId}/all")
+    public ResponseEntity<ApiResponse<java.util.List<LightDto>>> getAllLightsByRoom(
+            @PathVariable(name = "roomId") Long roomId) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(lightService.getAllByRoomId(roomId)));
     }
 
     @GetMapping("/{id}")

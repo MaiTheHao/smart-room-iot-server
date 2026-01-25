@@ -86,8 +86,6 @@ public class AutomationController {
             @PathVariable(name = "id") Long automationId,
             @RequestBody @Valid CreateAutomationActionDto request) {
         
-        request.setAutomationId(automationId); 
-        
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(automationService.addAction(automationId, request)));
     }

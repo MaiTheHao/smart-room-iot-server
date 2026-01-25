@@ -1,10 +1,14 @@
 class UserManager {
-	constructor(contextPath) {
-		this.contextPath = contextPath;
-		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
-		this.clientService = new ClientApiV1Service(this.apiClient);
-		this.roleService = new RoleApiV1Service(this.apiClient);
-		this.groupService = new GroupApiV1Service(this.apiClient);
+	static instance;
+
+	constructor() {
+		if (typeof window === 'undefined') throw new Error('UserManager can only be initialized in a browser environment');
+		if (UserManager.instance) return UserManager.instance;
+		UserManager.instance = this;
+
+		this.clientService = window.clientApiV1Service;
+		this.roleService = window.roleApiV1Service;
+		this.groupService = window.groupApiV1Service;
 		this.table = null;
 		this.roleChanges = {};
 		this.init();

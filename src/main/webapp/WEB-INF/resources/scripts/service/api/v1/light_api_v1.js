@@ -1,14 +1,19 @@
 class LightApiV1Service {
-	constructor(httpClient) {
-		this.client = httpClient || new HttpClient();
+	static instance;
+
+	constructor() {
+		if (LightApiV1Service.instance) return LightApiV1Service.instance;
+		LightApiV1Service.instance = this;
+
+		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.LIGHT;
 	}
 
 	async getAll(page = 0, size = 20) {
 		try {
-			return await this.client.get(this.api.BASE, { page, size });
+			return await this.client.get(this.api.PATH, { page, size });
 		} catch (error) {
-			this._handleError('get all lights', error);
+			this.#handleError('get all lights', error);
 		}
 	}
 
@@ -16,7 +21,15 @@ class LightApiV1Service {
 		try {
 			return await this.client.get(this.api.BY_ROOM(roomId), { page, size });
 		} catch (error) {
-			this._handleError(`get lights for room ${roomId}`, error);
+			this.#handleError(`get lights for room ${roomId}`, error);
+		}
+	}
+
+	async getAllByRoom(roomId) {
+		try {
+			return await this.client.get(this.api.ALL_BY_ROOM(roomId));
+		} catch (error) {
+			this.#handleError(`get all lights for room ${roomId}`, error);
 		}
 	}
 
@@ -24,15 +37,15 @@ class LightApiV1Service {
 		try {
 			return await this.client.get(this.api.DETAIL(id));
 		} catch (error) {
-			this._handleError(`get light ${id}`, error);
+			this.#handleError(`get light ${id}`, error);
 		}
 	}
 
 	async create(lightData) {
 		try {
-			return await this.client.post(this.api.BASE, lightData);
+			return await this.client.post(this.api.PATH, lightData);
 		} catch (error) {
-			this._handleError('create light', error);
+			this.#handleError('create light', error);
 		}
 	}
 
@@ -40,7 +53,7 @@ class LightApiV1Service {
 		try {
 			return await this.client.put(this.api.DETAIL(id), lightData);
 		} catch (error) {
-			this._handleError(`update light ${id}`, error);
+			this.#handleError(`update light ${id}`, error);
 		}
 	}
 
@@ -48,7 +61,7 @@ class LightApiV1Service {
 		try {
 			return await this.client.delete(this.api.DETAIL(id));
 		} catch (error) {
-			this._handleError(`delete light ${id}`, error);
+			this.#handleError(`delete light ${id}`, error);
 		}
 	}
 
@@ -56,7 +69,7 @@ class LightApiV1Service {
 		try {
 			return await this.client.put(this.api.TOGGLE(id));
 		} catch (error) {
-			this._handleError(`toggle state for light ${id}`, error);
+			this.#handleError(`toggle state for light ${id}`, error);
 		}
 	}
 
@@ -64,14 +77,15 @@ class LightApiV1Service {
 		try {
 			return await this.client.put(this.api.LEVEL(id, newLevel));
 		} catch (error) {
-			this._handleError(`set level for light ${id} to ${newLevel}`, error);
+			this.#handleError(`set level for light ${id} to ${newLevel}`, error);
 		}
 	}
 
-	_handleError(action, error) {
+	#handleError(action, error) {
 		console.error(`[LightApiV1Service] Failed to ${action}:`, error);
 		throw error;
 	}
 }
 
-window.LightApiV1Service = LightApiV1Service;
+if (typeof window == 'undefined') throw new Error('LightApiV1Service can only be initialized in a browser environment');
+window.lightApiV1Service = new LightApiV1Service();

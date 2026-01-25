@@ -1,58 +1,67 @@
 class FloorApiV1Service {
-	constructor(httpClient) {
-		this.client = httpClient || new HttpClient();
+	static instance;
+
+	constructor() {
+		if (FloorApiV1Service.instance) return FloorApiV1Service.instance;
+		FloorApiV1Service.instance = this;
+
+		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.FLOOR;
 	}
 
 	async getAll(page = 0, size = 10) {
 		try {
-			const response = await this.client.get(this.api.PATH, { page, size });
-			return response.data;
+			return await this.client.get(this.api.PATH, { page, size });
 		} catch (error) {
-			this._handleError('fetch floors', error);
+			this.#handleError('fetch floors', error);
+		}
+	}
+
+	async getAllWithoutPagination() {
+		try {
+			return await this.client.get(SMRC_API_V1.FLOOR.ALL);
+		} catch (error) {
+			this.#handleError('fetch all floors', error);
 		}
 	}
 
 	async getById(id) {
 		try {
-			const response = await this.client.get(this.api.DETAIL(id));
-			return response.data;
+			return await this.client.get(this.api.DETAIL(id));
 		} catch (error) {
-			this._handleError(`fetch floor ${id}`, error);
+			this.#handleError(`fetch floor ${id}`, error);
 		}
 	}
 
 	async create(floorData) {
 		try {
-			const response = await this.client.post(this.api.PATH, floorData);
-			return response.data;
+			return await this.client.post(this.api.PATH, floorData);
 		} catch (error) {
-			this._handleError('create floor', error);
+			this.#handleError('create floor', error);
 		}
 	}
 
 	async update(id, floorData) {
 		try {
-			const response = await this.client.put(this.api.DETAIL(id), floorData);
-			return response.data;
+			return await this.client.put(this.api.DETAIL(id), floorData);
 		} catch (error) {
-			this._handleError(`update floor ${id}`, error);
+			this.#handleError(`update floor ${id}`, error);
 		}
 	}
 
 	async delete(id) {
 		try {
-			const response = await this.client.delete(this.api.DETAIL(id));
-			return response.data;
+			return await this.client.delete(this.api.DETAIL(id));
 		} catch (error) {
-			this._handleError(`delete floor ${id}`, error);
+			this.#handleError(`delete floor ${id}`, error);
 		}
 	}
 
-	_handleError(action, error) {
+	#handleError(action, error) {
 		console.error(`[FloorApiV1Service] Failed to ${action}:`, error);
 		throw error;
 	}
 }
 
-window.FloorApiV1Service = FloorApiV1Service;
+if (typeof window == 'undefined') throw new Error('FloorApiV1Service can only be initialized in a browser environment');
+window.floorApiV1Service = new FloorApiV1Service();

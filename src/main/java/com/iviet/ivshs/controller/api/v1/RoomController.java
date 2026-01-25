@@ -4,6 +4,9 @@ import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +18,19 @@ public class RoomController {
 
     private final RoomService roomService;
 
+    @GetMapping("/rooms/all")
+    public ResponseEntity<ApiResponse<List<RoomDto>>> getAllRooms() {
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getAll()));
+    }
+
+    @GetMapping("/rooms")
+    public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRooms(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getList(page, size)));
+    }
+
     @GetMapping("/floors/{floorId}/rooms")
     public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRoomsByFloor(
             @PathVariable(name = "floorId") Long floorId,
@@ -22,6 +38,13 @@ public class RoomController {
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(roomService.getListByFloor(floorId, page, size)));
+    }
+
+    @GetMapping("/floors/{floorId}/rooms/all")
+    public ResponseEntity<ApiResponse<List<RoomDto>>> getAllRoomsByFloor(
+            @PathVariable(name = "floorId") Long floorId) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getAllByFloor(floorId)));
     }
 
     @GetMapping("/rooms/{roomId}")

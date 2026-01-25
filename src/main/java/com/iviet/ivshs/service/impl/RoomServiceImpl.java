@@ -53,6 +53,44 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public PaginatedResponse<RoomDto> getList(int page, int size) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        List<RoomDto> rooms = roomDao.findAll(page, size, langCode);
+
+        Set<String> accessibleRoomCodes = permissionService.getAccessibleRoomCodes();
+        if (!accessibleRoomCodes.contains(PermissionService.ACCESS_ALL)) rooms.removeIf(room -> !accessibleRoomCodes.contains(room.code()));
+
+        return new PaginatedResponse<>(
+                rooms,
+                page, size, roomDao.count()
+        );
+    }
+
+    @Override
+    public List<RoomDto> getAllByFloor(Long floorId) {
+        floorService.getEntityById(floorId);
+
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        List<RoomDto> rooms = roomDao.findAllByFloorId(floorId, langCode);
+
+        Set<String> accessibleRoomCodes = permissionService.getAccessibleRoomCodes();
+        if (!accessibleRoomCodes.contains(PermissionService.ACCESS_ALL)) rooms.removeIf(room -> !accessibleRoomCodes.contains(room.code()));
+
+        return rooms;
+    } 
+
+    @Override
+    public List<RoomDto> getAll() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        List<RoomDto> rooms = roomDao.findAll(langCode);
+
+        Set<String> accessibleRoomCodes = permissionService.getAccessibleRoomCodes();
+        if (!accessibleRoomCodes.contains(PermissionService.ACCESS_ALL)) rooms.removeIf(room -> !accessibleRoomCodes.contains(room.code()));
+
+        return rooms;
+    }
+
+    @Override
     public RoomDto getById(Long roomId) {
         RoomDto roomDto = roomDao.findById(roomId, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
         permissionService.requireAccessRoom(roomDto.code());

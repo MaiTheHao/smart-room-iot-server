@@ -46,6 +46,17 @@ public class FloorServiceImpl implements FloorService {
     }
 
     @Override
+    public List<FloorDto> getAll() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        List<FloorDto> floors = floorDao.findAll(langCode);
+
+        Set<String> accessibleFloorCodes = permissionService.getAccessibleFloorCodes();
+        if (!accessibleFloorCodes.contains(PermissionService.ACCESS_ALL)) floors.removeIf(floor -> !accessibleFloorCodes.contains(floor.code()));
+
+        return floors;
+    }
+
+    @Override
     public FloorDto getById(Long id) {
         FloorDto floorDto = floorDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
         permissionService.requireAccessFloor(floorDto.code());

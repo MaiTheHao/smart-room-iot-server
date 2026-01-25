@@ -1,8 +1,8 @@
 class FunctionManager {
-	static init(contextPath) {
-		this.contextPath = contextPath;
-		this.apiClient = new HttpClient(`${contextPath}api/v1/`);
-		this.functionService = new FunctionApiV1Service(this.apiClient);
+	static init() {
+		if (typeof window === 'undefined') throw new Error('FunctionManager can only be initialized in a browser environment');
+
+		this.functionService = window.functionApiV1Service;
 		this.table = null;
 
 		this.initDataTable();

@@ -1,6 +1,11 @@
 class RoleApiV1Service {
-	constructor(httpClient) {
-		this.client = httpClient || new HttpClient();
+	static instance;
+
+	constructor() {
+		if (RoleApiV1Service.instance) return RoleApiV1Service.instance;
+		RoleApiV1Service.instance = this;
+
+		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.ROLE;
 	}
 
@@ -8,7 +13,7 @@ class RoleApiV1Service {
 		try {
 			return await this.client.post(this.api.GROUPS.BATCH_ADD, { groupId, functionCodes });
 		} catch (error) {
-			this._handleError('batch add functions to group', error);
+			this.#handleError('batch add functions to group', error);
 		}
 	}
 
@@ -79,14 +84,15 @@ class RoleApiV1Service {
 		try {
 			return await this.client.get(this.api.GROUPS.CHECK(groupId, functionCode));
 		} catch (error) {
-			this._handleError(`check function ${functionCode} for group ${groupId}`, error);
+			this.#handleError(`check function ${functionCode} for group ${groupId}`, error);
 		}
 	}
 
-	_handleError(action, error) {
+	#handleError(action, error) {
 		console.error(`[RoleApiV1Service] Failed to ${action}:`, error);
 		throw error;
 	}
 }
 
-window.RoleApiV1Service = RoleApiV1Service;
+if (typeof window == 'undefined') throw new Error('RoleApiV1Service can only be initialized in a browser environment');
+window.roleApiV1Service = new RoleApiV1Service();

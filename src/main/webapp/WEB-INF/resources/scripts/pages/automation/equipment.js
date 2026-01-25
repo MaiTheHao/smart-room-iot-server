@@ -1,12 +1,11 @@
 class EquipmentManager {
-	static init(contextPath) {
-		this.contextPath = contextPath;
-		this.httpClient = new HttpClient(`${contextPath}api/v1/`);
+	static init() {
+		if (typeof window === 'undefined') throw new Error('EquipmentManager can only be initialized in a browser environment');
 
-		this.automationService = new AutomationApiV1Service(this.httpClient);
-		this.floorService = new FloorApiV1Service(this.httpClient);
-		this.roomApiService = new RoomApiV1Service(this.httpClient);
-		this.lightService = new LightApiV1Service(this.httpClient);
+		this.automationService = window.automationApiV1Service;
+		this.floorService = window.floorApiV1Service;
+		this.roomApiService = window.roomApiV1Service;
+		this.lightService = window.lightApiV1Service;
 
 		this.initDataTable();
 		this.bindEvents();
@@ -49,7 +48,6 @@ class EquipmentManager {
 
 		$('#actionsTable tbody').on('click', '.btn-delete', (e) => this.handleDelete($(e.currentTarget).data('id')));
 
-		// Cascading Dropdowns
 		$('#floorSelect').on('change', (e) => this.loadRooms(e.target.value));
 		$('#roomSelect').on('change', (e) => this.loadDevices(e.target.value));
 	}
@@ -96,10 +94,10 @@ class EquipmentManager {
 
 	static async loadFloors() {
 		try {
-			const response = await this.floorService.getAll();
+			const response = await this.floorService.getAllWithoutPagination();
 			const $select = $('#floorSelect');
 			$select.empty().append('<option value="" disabled selected>Select Floor</option>');
-			const floors = (response && response.content) || [];
+			const floors = response?.data || [];
 
 			if (floors && floors.length > 0) {
 				floors.forEach((floor) => {
@@ -118,8 +116,9 @@ class EquipmentManager {
 			const $select = $('#roomSelect');
 			$select.prop('disabled', true).html('<option>Loading...</option>');
 
-			const response = await this.roomApiService.getByFloor(floorId, 0, 1000);
-			const rooms = (response && response.content) || [];
+			const response = await this.roomApiService.getAllByFloor(floorId);
+			console.log(response);
+			const rooms = response?.data || [];
 			$select.empty().append('<option value="" disabled selected>Select Room</option>');
 
 			if (rooms) {
@@ -142,8 +141,8 @@ class EquipmentManager {
 			const $select = $('#targetId');
 			$select.prop('disabled', true).html('<option>Loading...</option>');
 
-			const response = await this.lightService.getByRoom(roomId, 0, 1000);
-			const lights = (response && response.content) || [];
+			const response = await this.lightService.getAllByRoom(roomId);
+			const lights = response?.data || [];
 			$select.empty().append('<option value="" disabled selected>Select Device</option>');
 
 			if (lights) {
@@ -165,7 +164,6 @@ class EquipmentManager {
 		const targetId = actionId ? $('#hiddenTargetId').val() : $('#targetId').val();
 
 		const dto = {
-			automationId: parseInt(automationId),
 			targetType: $('#targetType').val(),
 			targetId: parseInt(targetId),
 			actionType: $('#actionType').val(),
