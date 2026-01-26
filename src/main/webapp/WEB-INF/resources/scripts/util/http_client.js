@@ -5,12 +5,13 @@ class HttpClient {
 			'Content-Type': 'application/json; charset=utf-8',
 		};
 
-		this.isSecure = window.location.protocol === 'https:';
-		this.ip = 'localhost';
+		this.ip = window.location.hostname;
 		this.port = '8080';
-		this.baseUrl = `${this.isSecure ? 'https' : 'http'}://${this.ip}:${this.port}`;
-	}
 
+		const protocol = this.ip === 'localhost' || this.ip === '127.0.0.1' ? 'http' : window.location.protocol.replace(':', '');
+
+		this.baseUrl = `${protocol}://${this.ip}:${this.port}`;
+	}
 	get(endpoint, params = {}) {
 		return this.request('GET', endpoint, params);
 	}

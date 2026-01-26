@@ -72,7 +72,7 @@ public class QuartzConfig {
 		props.put("org.quartz.jobStore.isClustered", "false"); 
 		
 		props.put("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
-		props.put("org.quartz.jobStore.tablePrefix", "qrtz_");
+		props.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
 		
 		props.put("org.quartz.scheduler.instanceName", "IVSHS_Quartz_Scheduler");
 		props.put("org.quartz.scheduler.instanceId", "AUTO");
