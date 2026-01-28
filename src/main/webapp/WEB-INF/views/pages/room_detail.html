@@ -3,6 +3,7 @@
 	<head>
 		<title th:text="${room.name} + ' | Dashboard'">Room Dashboard</title>
 		<link rel="stylesheet" th:href="@{/webjars/bootstrap-daterangepicker/css/bootstrap-daterangepicker.css}" />
+		<link rel="stylesheet" th:href="@{/styles/pages/room_detail.css}" />
 	</head>
 
 	<body>
@@ -71,14 +72,14 @@
 
 				<div class="row mb-4">
 					<div class="col-12">
-						<div class="card card-outline card-success shadow-sm">
+						<div class="card card-outline card-success shadow-sm" id="quick-control">
 							<div class="card-header">
 								<h3 class="card-title"><i class="fas fa-gamepad mr-1"></i> Quick Controls</h3>
 							</div>
-							<div class="card-body">
-								<p class="text-muted small mb-2 text-uppercase font-weight-bold">Lights</p>
-								<div id="lightsList">
-									<div th:each="light : ${lights}" th:if="${light != null}">
+							<div class="card-body quick-control__device" id="quick-control-lights">
+								<p class="text-muted mb-2 text-uppercase font-weight-bold">Lights</p>
+								<div id="lightsList" class="list-group">
+									<th:block th:each="light : ${lights}" th:if="${light != null}">
 										<div
 											th:replace="~{fragments/room_detail/device_items.html :: light_switch(
                                         name=${light.name}, 
@@ -87,7 +88,7 @@
                                         isActive=${light.isActive}
                                     )}"
 										></div>
-									</div>
+									</th:block>
 								</div>
 							</div>
 						</div>

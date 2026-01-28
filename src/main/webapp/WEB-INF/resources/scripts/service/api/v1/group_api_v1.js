@@ -4,14 +4,12 @@ class GroupApiV1Service {
 	constructor() {
 		if (GroupApiV1Service.instance) return GroupApiV1Service.instance;
 		GroupApiV1Service.instance = this;
-
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.GROUP;
 	}
 
 	async getAll(page = 0, size = 10) {
 		try {
-			return await this.client.get(this.api.PATH, { page, size });
+			return await window.http.get(this.api.PATH, { page, size });
 		} catch (error) {
 			this.#handleError('fetch paginated groups', error);
 		}
@@ -19,7 +17,7 @@ class GroupApiV1Service {
 
 	async getAllWithoutPagination() {
 		try {
-			return await this.client.get(this.api.ALL);
+			return await window.http.get(this.api.ALL);
 		} catch (error) {
 			this.#handleError('fetch all groups', error);
 		}
@@ -27,7 +25,7 @@ class GroupApiV1Service {
 
 	async getById(groupId) {
 		try {
-			return await this.client.get(this.api.DETAIL(groupId));
+			return await window.http.get(this.api.DETAIL(groupId));
 		} catch (error) {
 			this.#handleError(`fetch group ${groupId}`, error);
 		}
@@ -35,7 +33,7 @@ class GroupApiV1Service {
 
 	async getByCode(groupCode) {
 		try {
-			return await this.client.get(this.api.BY_CODE(groupCode));
+			return await window.http.get(this.api.BY_CODE(groupCode));
 		} catch (error) {
 			this.#handleError(`fetch group code ${groupCode}`, error);
 		}
@@ -43,7 +41,7 @@ class GroupApiV1Service {
 
 	async getWithClientStatus(clientId) {
 		try {
-			return await this.client.get(this.api.WITH_CLIENT_STATUS(clientId));
+			return await window.http.get(this.api.WITH_CLIENT_STATUS(clientId));
 		} catch (error) {
 			this.#handleError(`fetch groups status for client ${clientId}`, error);
 		}
@@ -51,7 +49,7 @@ class GroupApiV1Service {
 
 	async create(groupData) {
 		try {
-			return await this.client.post(this.api.PATH, groupData);
+			return await window.http.post(this.api.PATH, groupData);
 		} catch (error) {
 			this.#handleError('create group', error);
 		}
@@ -59,7 +57,7 @@ class GroupApiV1Service {
 
 	async update(groupId, updateData) {
 		try {
-			return await this.client.put(this.api.DETAIL(groupId), updateData);
+			return await window.http.put(this.api.DETAIL(groupId), updateData);
 		} catch (error) {
 			this.#handleError(`update group ${groupId}`, error);
 		}
@@ -67,7 +65,7 @@ class GroupApiV1Service {
 
 	async delete(groupId) {
 		try {
-			return await this.client.delete(this.api.DETAIL(groupId));
+			return await window.http.delete(this.api.DETAIL(groupId));
 		} catch (error) {
 			this.#handleError(`delete group ${groupId}`, error);
 		}
@@ -75,7 +73,7 @@ class GroupApiV1Service {
 
 	async getFunctionsAll(groupId) {
 		try {
-			return await this.client.get(SMRC_API_V1.FUNCTION.BY_GROUP_ALL(groupId));
+			return await window.http.get(SMRC_API_V1.FUNCTION.BY_GROUP_ALL(groupId));
 		} catch (error) {
 			this.#handleError(`fetch all functions for group ${groupId}`, error);
 		}
@@ -83,7 +81,7 @@ class GroupApiV1Service {
 
 	async getFunctionsPaginated(groupId, page = 0, size = 10) {
 		try {
-			return await this.client.get(SMRC_API_V1.FUNCTION.BY_GROUP(groupId), { page, size });
+			return await window.http.get(SMRC_API_V1.FUNCTION.BY_GROUP(groupId), { page, size });
 		} catch (error) {
 			this.#handleError(`fetch paginated functions for group ${groupId}`, error);
 		}
@@ -91,7 +89,7 @@ class GroupApiV1Service {
 
 	async getClientsAll(groupId) {
 		try {
-			return await this.client.get(SMRC_API_V1.CLIENT.BY_GROUP_ALL(groupId));
+			return await window.http.get(SMRC_API_V1.CLIENT.BY_GROUP_ALL(groupId));
 		} catch (error) {
 			this.#handleError(`fetch all clients for group ${groupId}`, error);
 		}
@@ -99,7 +97,7 @@ class GroupApiV1Service {
 
 	async getClientsPaginated(groupId, page = 0, size = 10) {
 		try {
-			return await this.client.get(SMRC_API_V1.CLIENT.BY_GROUP(groupId), { page, size });
+			return await window.http.get(SMRC_API_V1.CLIENT.BY_GROUP(groupId), { page, size });
 		} catch (error) {
 			this.#handleError(`fetch paginated clients for group ${groupId}`, error);
 		}
@@ -107,7 +105,7 @@ class GroupApiV1Service {
 
 	async getCount() {
 		try {
-			const response = await this.client.get(this.api.COUNT);
+			const response = await window.http.get(this.api.COUNT);
 			return response.data;
 		} catch (error) {
 			this.#handleError('get group count', error);
@@ -116,7 +114,7 @@ class GroupApiV1Service {
 
 	async getFunctionsCount(groupId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.FUNCTION.BY_GROUP_COUNT(groupId));
+			const response = await window.http.get(SMRC_API_V1.FUNCTION.BY_GROUP_COUNT(groupId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get function count for group ${groupId}`, error);
@@ -125,7 +123,7 @@ class GroupApiV1Service {
 
 	async getClientsCount(groupId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.CLIENT.BY_GROUP_COUNT(groupId));
+			const response = await window.http.get(SMRC_API_V1.CLIENT.BY_GROUP_COUNT(groupId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get client count for group ${groupId}`, error);
@@ -134,7 +132,7 @@ class GroupApiV1Service {
 
 	async getClientGroupsAll(clientId) {
 		try {
-			return await this.client.get(SMRC_API_V1.GROUP.FOR_CLIENT_ALL(clientId));
+			return await window.http.get(SMRC_API_V1.GROUP.FOR_CLIENT_ALL(clientId));
 		} catch (error) {
 			this.#handleError(`fetch all groups for client ${clientId}`, error);
 		}
@@ -142,7 +140,7 @@ class GroupApiV1Service {
 
 	async getClientGroupsPaginated(clientId, page = 0, size = 10) {
 		try {
-			return await this.client.get(SMRC_API_V1.GROUP.FOR_CLIENT(clientId), { page, size });
+			return await window.http.get(SMRC_API_V1.GROUP.FOR_CLIENT(clientId), { page, size });
 		} catch (error) {
 			this.#handleError(`fetch paginated groups for client ${clientId}`, error);
 		}
@@ -150,7 +148,7 @@ class GroupApiV1Service {
 
 	async getClientGroupsCount(clientId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.GROUP.FOR_CLIENT_COUNT(clientId));
+			const response = await window.http.get(SMRC_API_V1.GROUP.FOR_CLIENT_COUNT(clientId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get group count for client ${clientId}`, error);

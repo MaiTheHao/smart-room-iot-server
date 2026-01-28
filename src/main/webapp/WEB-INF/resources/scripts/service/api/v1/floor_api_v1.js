@@ -5,13 +5,12 @@ class FloorApiV1Service {
 		if (FloorApiV1Service.instance) return FloorApiV1Service.instance;
 		FloorApiV1Service.instance = this;
 
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.FLOOR;
 	}
 
 	async getAll(page = 0, size = 10) {
 		try {
-			return await this.client.get(this.api.PATH, { page, size });
+			return await window.http.get(this.api.PATH, { page, size });
 		} catch (error) {
 			this.#handleError('fetch floors', error);
 		}
@@ -19,7 +18,7 @@ class FloorApiV1Service {
 
 	async getAllWithoutPagination() {
 		try {
-			return await this.client.get(SMRC_API_V1.FLOOR.ALL);
+			return await window.http.get(SMRC_API_V1.FLOOR.ALL);
 		} catch (error) {
 			this.#handleError('fetch all floors', error);
 		}
@@ -27,7 +26,7 @@ class FloorApiV1Service {
 
 	async getById(id) {
 		try {
-			return await this.client.get(this.api.DETAIL(id));
+			return await window.http.get(this.api.DETAIL(id));
 		} catch (error) {
 			this.#handleError(`fetch floor ${id}`, error);
 		}
@@ -35,7 +34,7 @@ class FloorApiV1Service {
 
 	async create(floorData) {
 		try {
-			return await this.client.post(this.api.PATH, floorData);
+			return await window.http.post(this.api.PATH, floorData);
 		} catch (error) {
 			this.#handleError('create floor', error);
 		}
@@ -43,7 +42,7 @@ class FloorApiV1Service {
 
 	async update(id, floorData) {
 		try {
-			return await this.client.put(this.api.DETAIL(id), floorData);
+			return await window.http.put(this.api.DETAIL(id), floorData);
 		} catch (error) {
 			this.#handleError(`update floor ${id}`, error);
 		}
@@ -51,7 +50,7 @@ class FloorApiV1Service {
 
 	async delete(id) {
 		try {
-			return await this.client.delete(this.api.DETAIL(id));
+			return await window.http.delete(this.api.DETAIL(id));
 		} catch (error) {
 			this.#handleError(`delete floor ${id}`, error);
 		}

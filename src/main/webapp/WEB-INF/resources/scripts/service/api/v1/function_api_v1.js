@@ -5,13 +5,12 @@ class FunctionApiV1Service {
 		if (FunctionApiV1Service.instance) return FunctionApiV1Service.instance;
 		FunctionApiV1Service.instance = this;
 
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.FUNCTION;
 	}
 
 	async getAll(page = 0, size = 10) {
 		try {
-			return await this.client.get(this.api.PATH, { page, size });
+			return await window.http.get(this.api.PATH, { page, size });
 		} catch (error) {
 			this.#handleError('fetch functions', error);
 		}
@@ -19,7 +18,7 @@ class FunctionApiV1Service {
 
 	async getAllWithoutPagination() {
 		try {
-			return await this.client.get(this.api.ALL);
+			return await window.http.get(this.api.ALL);
 		} catch (error) {
 			this.#handleError('fetch all functions', error);
 		}
@@ -27,7 +26,7 @@ class FunctionApiV1Service {
 
 	async getById(functionId) {
 		try {
-			return await this.client.get(this.api.DETAIL(functionId));
+			return await window.http.get(this.api.DETAIL(functionId));
 		} catch (error) {
 			this.#handleError(`fetch function ${functionId}`, error);
 		}
@@ -35,7 +34,7 @@ class FunctionApiV1Service {
 
 	async getByCode(functionCode) {
 		try {
-			return await this.client.get(this.api.BY_CODE(functionCode));
+			return await window.http.get(this.api.BY_CODE(functionCode));
 		} catch (error) {
 			this.#handleError(`fetch function by code ${functionCode}`, error);
 		}
@@ -43,7 +42,7 @@ class FunctionApiV1Service {
 
 	async getByGroupStatus(groupId) {
 		try {
-			return await this.client.get(this.api.WITH_GROUP_STATUS(groupId));
+			return await window.http.get(this.api.WITH_GROUP_STATUS(groupId));
 		} catch (error) {
 			this.#handleError(`fetch functions status for group ${groupId}`, error);
 		}
@@ -51,7 +50,7 @@ class FunctionApiV1Service {
 
 	async create(functionData) {
 		try {
-			return await this.client.post(this.api.PATH, functionData);
+			return await window.http.post(this.api.PATH, functionData);
 		} catch (error) {
 			this.#handleError('create function', error);
 		}
@@ -59,7 +58,7 @@ class FunctionApiV1Service {
 
 	async update(functionId, updateData) {
 		try {
-			return await this.client.put(this.api.DETAIL(functionId), updateData);
+			return await window.http.put(this.api.DETAIL(functionId), updateData);
 		} catch (error) {
 			this.#handleError(`update function ${functionId}`, error);
 		}
@@ -67,7 +66,7 @@ class FunctionApiV1Service {
 
 	async delete(functionId) {
 		try {
-			return await this.client.delete(this.api.DETAIL(functionId));
+			return await window.http.delete(this.api.DETAIL(functionId));
 		} catch (error) {
 			this.#handleError(`delete function ${functionId}`, error);
 		}
@@ -75,7 +74,7 @@ class FunctionApiV1Service {
 
 	async getCount() {
 		try {
-			return await this.client.get(this.api.COUNT);
+			return await window.http.get(this.api.COUNT);
 		} catch (error) {
 			this.#handleError('fetch function count', error);
 		}

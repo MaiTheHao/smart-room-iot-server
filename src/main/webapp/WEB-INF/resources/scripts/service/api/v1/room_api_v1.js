@@ -5,13 +5,12 @@ class RoomApiV1Service {
 		if (RoomApiV1Service.instance) return RoomApiV1Service.instance;
 		RoomApiV1Service.instance = this;
 
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.ROOM;
 	}
 
 	async getByFloor(floorId, page = 0, size = 10) {
 		try {
-			return await this.client.get(SMRC_API_V1.ROOM.BY_FLOOR(floorId), { page, size });
+			return await window.http.get(SMRC_API_V1.ROOM.BY_FLOOR(floorId), { page, size });
 		} catch (error) {
 			this.#handleError(`get rooms for floor ${floorId}`, error);
 		}
@@ -19,7 +18,7 @@ class RoomApiV1Service {
 
 	async getAllByFloor(floorId) {
 		try {
-			return await this.client.get(SMRC_API_V1.ROOM.BY_FLOOR_ALL(floorId));
+			return await window.http.get(SMRC_API_V1.ROOM.BY_FLOOR_ALL(floorId));
 		} catch (error) {
 			this.#handleError(`get all rooms for floor ${floorId}`, error);
 		}
@@ -27,7 +26,7 @@ class RoomApiV1Service {
 
 	async getById(roomId) {
 		try {
-			return await this.client.get(this.api.DETAIL(roomId));
+			return await window.http.get(this.api.DETAIL(roomId));
 		} catch (error) {
 			this.#handleError(`get room ${roomId}`, error);
 		}
@@ -35,7 +34,7 @@ class RoomApiV1Service {
 
 	async create(floorId, roomData) {
 		try {
-			return await this.client.post(SMRC_API_V1.ROOM.BY_FLOOR(floorId), roomData);
+			return await window.http.post(SMRC_API_V1.ROOM.BY_FLOOR(floorId), roomData);
 		} catch (error) {
 			this.#handleError(`create room on floor ${floorId}`, error);
 		}
@@ -43,7 +42,7 @@ class RoomApiV1Service {
 
 	async update(roomId, roomData) {
 		try {
-			return await this.client.put(this.api.DETAIL(roomId), roomData);
+			return await window.http.put(this.api.DETAIL(roomId), roomData);
 		} catch (error) {
 			this.#handleError(`update room ${roomId}`, error);
 		}
@@ -51,7 +50,7 @@ class RoomApiV1Service {
 
 	async delete(roomId) {
 		try {
-			return await this.client.delete(this.api.DETAIL(roomId));
+			return await window.http.delete(this.api.DETAIL(roomId));
 		} catch (error) {
 			this.#handleError(`delete room ${roomId}`, error);
 		}

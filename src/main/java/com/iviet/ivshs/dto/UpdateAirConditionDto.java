@@ -32,7 +32,7 @@ public record UpdateAirConditionDto(
 
     AcMode mode,
 
-    @Min(1) @Max(5)
+    @Min(0) @Max(5)
     Integer fanSpeed,
 
     AcSwing swing

@@ -5,13 +5,12 @@ class ClientApiV1Service {
 		if (ClientApiV1Service.instance) return ClientApiV1Service.instance;
 		ClientApiV1Service.instance = this;
 
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.CLIENT;
 	}
 
 	async getAll(page = 0, size = 10) {
 		try {
-			return await this.client.get(this.api.PATH, { page, size });
+			return await window.http.get(this.api.PATH, { page, size });
 		} catch (error) {
 			this.#handleError('fetch clients', error);
 		}
@@ -19,7 +18,7 @@ class ClientApiV1Service {
 
 	async getById(clientId) {
 		try {
-			return await this.client.get(this.api.DETAIL(clientId));
+			return await window.http.get(this.api.DETAIL(clientId));
 		} catch (error) {
 			this.#handleError(`fetch client ${clientId}`, error);
 		}
@@ -27,7 +26,7 @@ class ClientApiV1Service {
 
 	async getByRoomId(roomId, page = 0, size = 10) {
 		try {
-			return await this.client.get(this.api.BY_ROOM(roomId), { page, size });
+			return await window.http.get(this.api.BY_ROOM(roomId), { page, size });
 		} catch (error) {
 			this.#handleError(`fetch clients for room ${roomId}`, error);
 		}
@@ -35,7 +34,7 @@ class ClientApiV1Service {
 
 	async create(clientData) {
 		try {
-			return await this.client.post(this.api.PATH, clientData);
+			return await window.http.post(this.api.PATH, clientData);
 		} catch (error) {
 			this.#handleError('create client', error);
 		}
@@ -43,7 +42,7 @@ class ClientApiV1Service {
 
 	async update(clientId, updateData) {
 		try {
-			return await this.client.put(this.api.DETAIL(clientId), updateData);
+			return await window.http.put(this.api.DETAIL(clientId), updateData);
 		} catch (error) {
 			this.#handleError(`update client ${clientId}`, error);
 		}
@@ -51,7 +50,7 @@ class ClientApiV1Service {
 
 	async delete(clientId) {
 		try {
-			return await this.client.delete(this.api.DETAIL(clientId));
+			return await window.http.delete(this.api.DETAIL(clientId));
 		} catch (error) {
 			this.#handleError(`delete client ${clientId}`, error);
 		}

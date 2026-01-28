@@ -3,6 +3,8 @@ package com.iviet.ivshs.dto;
 import com.iviet.ivshs.enumeration.JobActionType;
 import com.iviet.ivshs.enumeration.JobTargetType;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,5 +27,7 @@ public class CreateAutomationActionDto {
 	private String parameterValue;
 
 	@NotNull(message = "Execution order is required")
+	@Min(value = 0, message = "Execution order must be at least 0")
+	@Max(value = 1000, message = "Execution order cannot exceed 1000")
 	private Integer executionOrder;
 }

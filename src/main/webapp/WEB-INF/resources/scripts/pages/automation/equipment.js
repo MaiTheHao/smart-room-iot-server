@@ -176,6 +176,18 @@ class EquipmentManager {
 			return;
 		}
 
+		if (dto.executionOrder !== null && !isNaN(dto.executionOrder)) {
+			if (dto.executionOrder < 1) {
+				notify.warning('Execution order must be a positive integer');
+				return;
+			}
+
+			if (dto.executionOrder > 1000) {
+				notify.warning('Execution order is too large');
+				return;
+			}
+		}
+
 		try {
 			const $btn = $('#btnSaveEquipment');
 			$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');

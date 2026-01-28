@@ -42,7 +42,7 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 	private AcMode mode;
 
 	@Column(name = "fan_speed")
-	private Integer fanSpeed;
+	private Integer fanSpeed; // 0: auto, 1-5: speed levels
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "swing")

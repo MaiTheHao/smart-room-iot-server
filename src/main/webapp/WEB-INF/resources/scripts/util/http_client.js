@@ -1,99 +1,118 @@
-class HttpClient {
-	constructor() {
-		this.headers = {
-			Accept: 'application/json',
-			'Content-Type': 'application/json; charset=utf-8',
-		};
+(() => {
+	'use strict';
 
-		this.ip = window.location.hostname;
-		this.port = '8080';
+	class HttpClient {
+		#logger;
 
-		const protocol = this.ip === 'localhost' || this.ip === '127.0.0.1' ? 'http' : window.location.protocol.replace(':', '');
+		constructor(
+			options = {
+				ip: null,
+				port: null,
+				baseUrl: null,
+				headers: null,
+			},
+		) {
+			this.headers = {
+				Accept: 'application/json',
+				'Content-Type': 'application/json; charset=utf-8',
+				...(options.headers || {}),
+			};
 
-		this.baseUrl = `${protocol}://${this.ip}:${this.port}`;
-	}
-	get(endpoint, params = {}) {
-		return this.request('GET', endpoint, params);
-	}
+			this.ip = options.ip || window.location.hostname;
+			this.port = options.port || '8080';
 
-	post(endpoint, body = {}) {
-		return this.request('POST', endpoint, null, body);
-	}
+			const isLocal = this.ip === 'localhost' || this.ip === '127.0.0.1';
+			const protocol = isLocal ? 'http' : window.location.protocol.replace(':', '');
 
-	put(endpoint, body = {}) {
-		return this.request('PUT', endpoint, null, body);
-	}
+			this.baseUrl = options.baseUrl || `${protocol}://${this.ip}:${this.port}`;
 
-	delete(endpoint, params = {}) {
-		return this.request('DELETE', endpoint, params);
-	}
-
-	async request(method, endpoint, params = null, body = null) {
-		const cleanEndpoint = this._normalizeEndpoint(endpoint);
-		let url = `${this.baseUrl}/${cleanEndpoint}`;
-
-		if ((method === 'GET' || method === 'DELETE') && params && Object.keys(params).length) {
-			const query = new URLSearchParams(params).toString();
-			url += `${url.includes('?') ? '&' : '?'}${query}`;
+			this.#logger = window.logger('HttpClient') || console;
 		}
 
-		const config = {
-			method,
-			headers: this.headers,
-			credentials: 'include',
-		};
-
-		if (method === 'POST' || method === 'PUT') {
-			config.body = JSON.stringify(body);
+		#normalizeEndpoint(endpoint) {
+			if (typeof endpoint !== 'string') return '';
+			return endpoint.trim().replace(/^\/+/, '');
 		}
 
-		try {
-			const response = await fetch(url, config);
+		get(endpoint, params = {}) {
+			return this.request('GET', endpoint, params);
+		}
 
-			if (method === 'DELETE' && response.status === 204) {
-				return {};
+		post(endpoint, body = {}) {
+			return this.request('POST', endpoint, null, body);
+		}
+
+		put(endpoint, body = {}) {
+			return this.request('PUT', endpoint, null, body);
+		}
+
+		delete(endpoint, params = {}) {
+			return this.request('DELETE', endpoint, params);
+		}
+
+		async request(method, endpoint, params = null, body = null) {
+			const cleanEndpoint = this.#normalizeEndpoint(endpoint);
+			let url = `${this.baseUrl}/${cleanEndpoint}`;
+
+			if ((method === 'GET' || method === 'DELETE') && params && Object.keys(params).length) {
+				const query = new URLSearchParams(params).toString();
+				url += `${url.includes('?') ? '&' : '?'}${query}`;
 			}
 
-			let result;
-			const contentType = response.headers.get('content-type');
+			this.#logger.debug(`${method} ${url}`, body || params || '');
 
-			if (response.status === 204) {
-				result = {};
-			} else if (contentType && contentType.includes('application/json')) {
-				result = await response.json();
-			} else {
-				const text = await response.text();
-				result = text ? { message: text } : {};
+			const config = {
+				method,
+				headers: this.headers,
+				credentials: 'include',
+			};
+
+			if (method === 'POST' || method === 'PUT') {
+				config.body = JSON.stringify(body);
 			}
 
-			if (!response.ok) {
-				throw {
-					status: response.status,
-					message: result.message || result.error || 'Server Error',
-					data: result,
-					timestamp: new Date().toISOString(),
-				};
-			}
+			try {
+				const response = await fetch(url, config);
 
-			return result;
-		} catch (error) {
-			const safeError = error.status
-				? error
-				: {
-						status: 0,
-						message: error.message || 'Network Error',
+				if (response.status === 204) {
+					return {};
+				}
+
+				let result;
+				const contentType = response.headers.get('content-type');
+
+				if (contentType && contentType.includes('application/json')) {
+					result = await response.json();
+				} else {
+					const text = await response.text();
+					result = text ? { message: text } : {};
+				}
+
+				if (!response.ok) {
+					throw {
+						status: response.status,
+						message: result.message || result.error || 'Server Error',
+						data: result,
 						timestamp: new Date().toISOString(),
 					};
+				}
 
-			console.error(`[API] ${method} ${url} FAILED:`, safeError);
-			throw safeError;
+				return result;
+			} catch (error) {
+				const safeError = error.status
+					? error
+					: {
+							status: 0,
+							message: error.message || 'Network Error',
+							timestamp: new Date().toISOString(),
+						};
+
+				this.#logger.error(`${method} ${url} FAILED`, safeError);
+				throw safeError;
+			}
 		}
 	}
 
-	_normalizeEndpoint(endpoint) {
-		if (typeof endpoint !== 'string') return '';
-		return endpoint.trim().replace(/^\/+/, '');
-	}
-}
-
-window.HttpClient = HttpClient;
+	window.HttpClient = HttpClient;
+	window.http = new HttpClient();
+})();

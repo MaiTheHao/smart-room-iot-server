@@ -4,13 +4,11 @@ class HealthCheckApiV1Service {
 	constructor() {
 		if (HealthCheckApiV1Service.instance) return HealthCheckApiV1Service.instance;
 		HealthCheckApiV1Service.instance = this;
-
-		this.client = new HttpClient();
 	}
 
 	async getRoomHealthScore(roomId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.ROOM.HEALTH_SCORE(roomId));
+			const response = await window.http.get(SMRC_API_V1.ROOM.HEALTH_SCORE(roomId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get room score for ID: ${roomId}`, error);
@@ -19,7 +17,7 @@ class HealthCheckApiV1Service {
 
 	async getRoomHealthDetails(roomId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.ROOM.HEALTH(roomId));
+			const response = await window.http.get(SMRC_API_V1.ROOM.HEALTH(roomId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get room health details for ID: ${roomId}`, error);
@@ -28,7 +26,7 @@ class HealthCheckApiV1Service {
 
 	async getClientHealthScore(clientId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.CLIENT.HEALTH_SCORE(clientId));
+			const response = await window.http.get(SMRC_API_V1.CLIENT.HEALTH_SCORE(clientId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get client health score for ID: ${clientId}`, error);
@@ -37,7 +35,7 @@ class HealthCheckApiV1Service {
 
 	async getClientHealth(clientId) {
 		try {
-			const response = await this.client.get(SMRC_API_V1.CLIENT.HEALTH(clientId));
+			const response = await window.http.get(SMRC_API_V1.CLIENT.HEALTH(clientId));
 			return response.data;
 		} catch (error) {
 			this.#handleError(`get client health for ID: ${clientId}`, error);

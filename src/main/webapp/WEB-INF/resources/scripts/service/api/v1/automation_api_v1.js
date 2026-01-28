@@ -5,13 +5,12 @@ class AutomationApiV1Service {
 		if (AutomationApiV1Service.instance) return AutomationApiV1Service.instance;
 		AutomationApiV1Service.instance = this;
 
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.AUTOMATION;
 	}
 
 	async getAll(page = 0, size = 20) {
 		try {
-			return await this.client.get(this.api.PATH, { page, size });
+			return await window.http.get(this.api.PATH, { page, size });
 		} catch (error) {
 			this.#handleError('fetch automations', error);
 		}
@@ -19,7 +18,7 @@ class AutomationApiV1Service {
 
 	async getById(id) {
 		try {
-			return await this.client.get(this.api.DETAIL(id));
+			return await window.http.get(this.api.DETAIL(id));
 		} catch (error) {
 			this.#handleError(`fetch automation ${id}`, error);
 		}
@@ -27,7 +26,7 @@ class AutomationApiV1Service {
 
 	async create(dto) {
 		try {
-			return await this.client.post(this.api.PATH, dto);
+			return await window.http.post(this.api.PATH, dto);
 		} catch (error) {
 			this.#handleError('create automation', error);
 		}
@@ -35,7 +34,7 @@ class AutomationApiV1Service {
 
 	async update(id, dto) {
 		try {
-			return await this.client.put(this.api.DETAIL(id), dto);
+			return await window.http.put(this.api.DETAIL(id), dto);
 		} catch (error) {
 			this.#handleError(`update automation ${id}`, error);
 		}
@@ -43,7 +42,7 @@ class AutomationApiV1Service {
 
 	async delete(id) {
 		try {
-			return await this.client.delete(this.api.DETAIL(id));
+			return await window.http.delete(this.api.DETAIL(id));
 		} catch (error) {
 			this.#handleError(`delete automation ${id}`, error);
 		}
@@ -51,7 +50,7 @@ class AutomationApiV1Service {
 
 	async getActive() {
 		try {
-			return await this.client.get(this.api.ACTIVE);
+			return await window.http.get(this.api.ACTIVE);
 		} catch (error) {
 			this.#handleError('fetch active automations', error);
 		}
@@ -59,7 +58,7 @@ class AutomationApiV1Service {
 
 	async getActions(automationId) {
 		try {
-			return await this.client.get(SMRC_API_V1.AUTOMATION_ACTION.BY_AUTOMATION(automationId));
+			return await window.http.get(SMRC_API_V1.AUTOMATION_ACTION.BY_AUTOMATION(automationId));
 		} catch (error) {
 			this.#handleError(`fetch actions for automation ${automationId}`, error);
 		}
@@ -67,7 +66,7 @@ class AutomationApiV1Service {
 
 	async addAction(automationId, dto) {
 		try {
-			return await this.client.post(SMRC_API_V1.AUTOMATION_ACTION.BY_AUTOMATION(automationId), dto);
+			return await window.http.post(SMRC_API_V1.AUTOMATION_ACTION.BY_AUTOMATION(automationId), dto);
 		} catch (error) {
 			this.#handleError(`add action to automation ${automationId}`, error);
 		}
@@ -75,7 +74,7 @@ class AutomationApiV1Service {
 
 	async updateAction(actionId, dto) {
 		try {
-			return await this.client.put(SMRC_API_V1.AUTOMATION_ACTION.DETAIL(actionId), dto);
+			return await window.http.put(SMRC_API_V1.AUTOMATION_ACTION.DETAIL(actionId), dto);
 		} catch (error) {
 			this.#handleError(`update action ${actionId}`, error);
 		}
@@ -83,7 +82,7 @@ class AutomationApiV1Service {
 
 	async removeAction(actionId) {
 		try {
-			return await this.client.delete(SMRC_API_V1.AUTOMATION_ACTION.DETAIL(actionId));
+			return await window.http.delete(SMRC_API_V1.AUTOMATION_ACTION.DETAIL(actionId));
 		} catch (error) {
 			this.#handleError(`remove action ${actionId}`, error);
 		}
@@ -92,10 +91,10 @@ class AutomationApiV1Service {
 	async patchStatus(id, isActive) {
 		try {
 			const url = this.api.STATUS(id);
-			if (this.client.patch) {
-				return await this.client.patch(url, null, { params: { isActive } });
+			if (window.http.patch) {
+				return await window.http.patch(url, null, { params: { isActive } });
 			} else {
-				return await this.client.request('PATCH', `${url}?isActive=${isActive}`);
+				return await window.http.request('PATCH', `${url}?isActive=${isActive}`);
 			}
 		} catch (error) {
 			this.#handleError(`patch status ${id}`, error);
@@ -104,7 +103,7 @@ class AutomationApiV1Service {
 
 	async execute(id) {
 		try {
-			return await this.client.post(this.api.EXECUTE(id));
+			return await window.http.post(this.api.EXECUTE(id));
 		} catch (error) {
 			this.#handleError(`execute automation ${id}`, error);
 		}
@@ -112,7 +111,7 @@ class AutomationApiV1Service {
 
 	async reloadJob() {
 		try {
-			return await this.client.post(this.api.RELOAD);
+			return await window.http.post(this.api.RELOAD);
 		} catch (error) {
 			this.#handleError('reload system jobs', error);
 		}

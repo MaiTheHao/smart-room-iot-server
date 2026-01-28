@@ -1,0 +1,43 @@
+.light-item {
+	position: relative;
+	transition: background-color 0.3s;
+}
+
+.light-item.is-loading {
+	background-color: #f8f9fa;
+}
+
+.light-item.is-loading .icon-box {
+	background-color: #e2e8f0 !important;
+}
+
+.icon-box {
+	width: 50px;
+	height: 50px;
+	flex-shrink: 0;
+	border-radius: 8px;
+	transition: all 0.2s ease;
+}
+
+.custom-spin {
+	animation: custom-rotate 1s infinite ease-in-out;
+}
+
+@keyframes custom-rotate {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.loading-icon {
+	display: none;
+}
+.is-loading .loading-icon {
+	display: inline-block;
+}
+.is-loading .default-icon {
+	display: none;
+}

@@ -5,13 +5,12 @@ class LightApiV1Service {
 		if (LightApiV1Service.instance) return LightApiV1Service.instance;
 		LightApiV1Service.instance = this;
 
-		this.client = new HttpClient('/api/v1');
 		this.api = SMRC_API_V1.LIGHT;
 	}
 
 	async getAll(page = 0, size = 20) {
 		try {
-			return await this.client.get(this.api.PATH, { page, size });
+			return await window.http.get(this.api.PATH, { page, size });
 		} catch (error) {
 			this.#handleError('get all lights', error);
 		}
@@ -19,7 +18,7 @@ class LightApiV1Service {
 
 	async getByRoom(roomId, page = 0, size = 20) {
 		try {
-			return await this.client.get(this.api.BY_ROOM(roomId), { page, size });
+			return await window.http.get(this.api.BY_ROOM(roomId), { page, size });
 		} catch (error) {
 			this.#handleError(`get lights for room ${roomId}`, error);
 		}
@@ -27,7 +26,7 @@ class LightApiV1Service {
 
 	async getAllByRoom(roomId) {
 		try {
-			return await this.client.get(this.api.ALL_BY_ROOM(roomId));
+			return await window.http.get(this.api.ALL_BY_ROOM(roomId));
 		} catch (error) {
 			this.#handleError(`get all lights for room ${roomId}`, error);
 		}
@@ -35,7 +34,7 @@ class LightApiV1Service {
 
 	async getById(id) {
 		try {
-			return await this.client.get(this.api.DETAIL(id));
+			return await window.http.get(this.api.DETAIL(id));
 		} catch (error) {
 			this.#handleError(`get light ${id}`, error);
 		}
@@ -43,7 +42,7 @@ class LightApiV1Service {
 
 	async create(lightData) {
 		try {
-			return await this.client.post(this.api.PATH, lightData);
+			return await window.http.post(this.api.PATH, lightData);
 		} catch (error) {
 			this.#handleError('create light', error);
 		}
@@ -51,7 +50,7 @@ class LightApiV1Service {
 
 	async update(id, lightData) {
 		try {
-			return await this.client.put(this.api.DETAIL(id), lightData);
+			return await window.http.put(this.api.DETAIL(id), lightData);
 		} catch (error) {
 			this.#handleError(`update light ${id}`, error);
 		}
@@ -59,7 +58,7 @@ class LightApiV1Service {
 
 	async delete(id) {
 		try {
-			return await this.client.delete(this.api.DETAIL(id));
+			return await window.http.delete(this.api.DETAIL(id));
 		} catch (error) {
 			this.#handleError(`delete light ${id}`, error);
 		}
@@ -67,7 +66,7 @@ class LightApiV1Service {
 
 	async toggleState(id) {
 		try {
-			return await this.client.put(this.api.TOGGLE(id));
+			return await window.http.put(this.api.TOGGLE(id));
 		} catch (error) {
 			this.#handleError(`toggle state for light ${id}`, error);
 		}
@@ -75,7 +74,7 @@ class LightApiV1Service {
 
 	async setLevel(id, newLevel) {
 		try {
-			return await this.client.put(this.api.LEVEL(id, newLevel));
+			return await window.http.put(this.api.LEVEL(id, newLevel));
 		} catch (error) {
 			this.#handleError(`set level for light ${id} to ${newLevel}`, error);
 		}

@@ -91,18 +91,28 @@ class RoomDetailPage {
 	async handleLightToggle($input) {
 		const lightId = $input.data('light-id');
 		const isChecked = $input.is(':checked');
-		const lightName = $input.closest('.device-item').find('.device-name').text() || 'Light';
+		const lightName = $input.closest('.light-item').find('h6').text() || 'Light';
 
+		const $item = $input.closest('.light-item');
+		const $defaultIcon = $item.find('.default-icon');
+
+		$item.addClass('is-loading');
 		$input.prop('disabled', true);
 
 		try {
 			await this.lightService.toggleState(lightId);
 			notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
-			// setTimeout(() => this.loadHealthScore(), 500); Hiện không cần load lại điểm sức khỏe khi bật/tắt đèn
+
+			if (isChecked) {
+				$defaultIcon.removeClass('text-secondary').addClass('text-warning');
+			} else {
+				$defaultIcon.removeClass('text-warning').addClass('text-secondary');
+			}
 		} catch (error) {
 			notify.error(error.message || `Failed to toggle ${lightName}`);
 			$input.prop('checked', !isChecked);
 		} finally {
+			$item.removeClass('is-loading');
 			$input.prop('disabled', false);
 		}
 	}
