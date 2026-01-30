@@ -26,7 +26,7 @@ class JobManager {
 				opens: 'right',
 				drops: 'auto',
 			})
-			.on('show.daterangepicker', function (ev, picker) {
+			.on('show.daterangepicker', function (_, picker) {
 				picker.container.find('.calendar-table').hide();
 			});
 	}
@@ -180,8 +180,8 @@ class JobManager {
 				{
 					data: 'isActive',
 					className: 'text-center align-middle',
-					render: (active, type, row) => `
-                        <div class="custom-control custom-switch">
+					render: (active, _, row) => `
+						<div class="custom-control custom-switch">
                             <input type="checkbox" class="custom-control-input toggle-status" id="status_${row.id}" data-id="${row.id}" ${active ? 'checked' : ''}>
                             <label class="custom-control-label" for="status_${row.id}"></label>
                         </div>`,
@@ -189,8 +189,8 @@ class JobManager {
 				{
 					data: null,
 					className: 'text-center align-middle',
-					render: (data, type, row) => `
-                        <div class="btn-group">
+					render: (_, __, row) => `
+						<div class="btn-group">
                             <button class="btn btn-sm btn-default btn-edit" title="Edit Info" data-id="${row.id}">
                                 <i class="fas fa-pen text-primary"></i>
                             </button>
@@ -223,7 +223,7 @@ class JobManager {
 
 	static handleToggleStatus(id, isActive, $chk) {
 		this.automationService
-			.toggleStatus(id, isActive)
+			.patchStatus(id, isActive)
 			.then(() => notify.success(`Automation ${isActive ? 'enabled' : 'disabled'}`))
 			.catch(() => {
 				$chk.prop('checked', !isActive);
@@ -236,7 +236,7 @@ class JobManager {
 			this.automationService
 				.reloadJob()
 				.then(() => notify.success('System reloaded'))
-				.catch((err) => notify.error('Reload failed'));
+				.catch(() => notify.error('Reload failed'));
 		}
 	}
 }

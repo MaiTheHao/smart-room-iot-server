@@ -6,8 +6,6 @@
 
 		constructor(
 			options = {
-				ip: null,
-				port: null,
 				baseUrl: null,
 				headers: null,
 			},
@@ -18,15 +16,11 @@
 				...(options.headers || {}),
 			};
 
-			this.ip = options.ip || window.location.hostname;
-			this.port = options.port || window.location.port;
-
-			const isLocal = this.ip === 'localhost' || this.ip === '127.0.0.1';
-			const protocol = isLocal ? 'http' : window.location.protocol.replace(':', '');
-
-			this.baseUrl = options.baseUrl || `${protocol}://${this.ip}${this.port ? `:${this.port}` : ''}`;
+			this.baseUrl = options.baseUrl || window.location.origin;
 
 			this.#logger = window.logger('HttpClient') || console;
+
+			this.#logger.info(`HttpClient initialized with baseUrl: ${this.baseUrl}`);
 		}
 
 		#normalizeEndpoint(endpoint) {

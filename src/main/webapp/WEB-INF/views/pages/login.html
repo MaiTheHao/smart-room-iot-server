@@ -8,140 +8,7 @@
 		<link rel="stylesheet" th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" />
 		<link rel="stylesheet" th:href="@{/webjars/font-awesome/5.15.4/css/all.min.css}" />
 		<link rel="stylesheet" th:href="@{/styles/global.css}" />
-		<style>
-			body {
-				background-color: var(--bg-body);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				min-height: 100vh;
-				font-family: var(--font-family);
-			}
-
-			.login-container {
-				width: 100%;
-				max-width: 400px;
-				padding: 20px;
-			}
-
-			.login-card {
-				background-color: var(--bg-surface);
-				border: 1px solid var(--border-color);
-				border-radius: var(--radius-md);
-			}
-
-			.login-card .card-body {
-				padding: 2.5rem;
-			}
-
-			.login-logo {
-				text-align: center;
-				margin-bottom: 2rem;
-				font-size: 1.75rem;
-				color: var(--color-accent);
-			}
-
-			.login-logo i {
-				color: var(--color-accent);
-				margin-right: 0.5rem;
-			}
-
-			.login-logo b {
-				color: var(--color-accent);
-			}
-
-			.form-control {
-				background-color: var(--bg-body);
-				border: 1px solid var(--border-color);
-				border-radius: var(--radius-md);
-				color: var(--text-main);
-				padding: 0.75rem 1rem;
-				font-family: var(--font-family);
-				transition: border-color 0.2s;
-			}
-
-			.form-control:focus {
-				background-color: var(--bg-body);
-				border-color: var(--color-accent);
-				color: var(--text-main);
-				box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.15);
-			}
-
-			.form-control::placeholder {
-				color: var(--text-light);
-			}
-
-			.btn-login {
-				background-color: var(--color-accent);
-				border: none;
-				border-radius: var(--radius-md);
-				color: #fff;
-				font-weight: 600;
-				padding: 0.75rem;
-				width: 100%;
-				transition: all 0.3s ease;
-				margin-top: 0.5rem;
-				box-shadow: var(--shadow-accent);
-			}
-
-			.btn-login:hover {
-				background-color: var(--color-accent-hover);
-				transform: translateY(-2px);
-				box-shadow: 0 5px 20px rgba(139, 92, 246, 0.3);
-				color: #fff;
-			}
-
-			.btn-login:focus {
-				color: #fff;
-				box-shadow: none;
-			}
-
-			.form-check-input {
-				width: 1.25rem;
-				height: 1.25rem;
-				border-radius: 4px;
-				accent-color: var(--color-accent);
-				cursor: pointer;
-				border: 1px solid var(--border-color);
-			}
-
-			.form-check-label {
-				cursor: pointer;
-				margin-left: 0.5rem;
-				color: var(--text-main);
-			}
-
-			.forgot-link {
-				color: var(--color-accent);
-				text-decoration: none;
-				transition: color 0.2s;
-			}
-
-			.forgot-link:hover {
-				color: var(--color-accent-hover);
-				text-decoration: underline;
-			}
-
-			.language-switcher a {
-				color: var(--text-muted);
-				text-decoration: none;
-				margin: 0 0.5rem;
-				transition: color 0.2s;
-			}
-
-			.language-switcher a.active {
-				color: var(--color-accent);
-				font-weight: 600;
-			}
-
-			.language-switcher a:hover {
-				color: var(--color-accent-hover);
-			}
-
-			.login-footer {
-				color: var(--text-light);
-			}
-		</style>
+		<link rel="stylesheet" th:href="@{/styles/pages/login.css}" />
 	</head>
 
 	<body>
@@ -173,24 +40,26 @@
 
 					<form th:action="@{/loginAction}" method="POST" novalidate>
 						<div class="form-group">
+							<i class="fas fa-envelope input-icon"></i>
 							<input type="text" class="form-control" th:placeholder="#{login.username}" id="j_username_id" name="username" required autocomplete="off" />
 						</div>
 
 						<div class="form-group">
+							<i class="fas fa-lock input-icon"></i>
 							<input type="password" class="form-control" th:placeholder="#{login.password}" id="j_password_id" name="password" required autocomplete="off" />
 						</div>
 
 						<div class="form-group d-flex justify-content-between align-items-center mb-4">
-							<div class="form-check">
-								<input type="checkbox" class="form-check-input" id="remember" name="remember-me" />
-								<label class="form-check-label paragraph" for="remember" th:text="#{login.rememberMe}">Remember Me</label>
+							<div class="form-check d-flex align-items-center">
+								<input type="checkbox" class="form-check-input position-static mt-0" id="remember" name="remember-me" />
+								<label class="form-check-label ml-2 mb-0" for="remember" th:text="#{login.rememberMe}">Remember Me</label>
 							</div>
-							<a href="#" class="paragraph forgot-link" style="font-size: 0.875rem" th:text="#{login.forgot.password}">Forgot Password?</a>
+							<a href="#" class="forgot-link" th:text="#{login.forgot.password}">Forgot Password?</a>
 						</div>
 
-						<button type="submit" class="btn btn-login button-text">
+						<button type="submit" class="btn btn-login btn-block button-text">
 							<span th:text="#{login.button}">Sign In</span>
-							<i class="fas fa-arrow-right ms-2"></i>
+							<i class="fas fa-chevron-right ml-2" style="font-size: 0.8rem"></i>
 						</button>
 					</form>
 
@@ -211,5 +80,27 @@
 
 		<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
 		<script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+		<script>
+			$(document).ready(function () {
+				// Thêm hiệu ứng loading khi nhấn nút Sign In
+				$('form').on('submit', function () {
+					const $btn = $(this).find('.btn-login');
+					$btn.addClass('loading').prop('disabled', true);
+					const originalText = $btn.html();
+					$btn.data('original-text', originalText);
+				});
+
+				// Hiệu ứng focus cho input field
+				$('.form-control')
+					.on('focus', function () {
+						$(this).parent('.form-group').find('i.input-icon').css('color', 'var(--color-accent)');
+					})
+					.on('blur', function () {
+						if ($(this).val() === '') {
+							$(this).parent('.form-group').find('i.input-icon').css('color', 'var(--text-light)');
+						}
+					});
+			});
+		</script>
 	</body>
 </html>

@@ -14,10 +14,10 @@
 	--color-brand-hover: #3b82f6;
 	--color-brand-active: #2563eb;
 	--color-brand-bg-subtle: #eff6ff;
-	--color-accent: #8b5cf6;
-	--color-accent-hover: #7c3aed;
-	--color-accent-active: #6d28d9;
-	--shadow-accent: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
+	--color-accent: #0d9488; /* Teal 600 */
+	--color-accent-hover: #0f766e; /* Teal 700 */
+	--color-accent-active: #115e59; /* Teal 800 */
+	--shadow-accent: 0 4px 14px 0 rgba(13, 148, 136, 0.25);
 	--font-family: 'Rethink Sans', sans-serif;
 	--radius-md: 8px;
 }
