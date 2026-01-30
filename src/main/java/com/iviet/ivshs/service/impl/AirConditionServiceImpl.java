@@ -24,7 +24,6 @@ import com.iviet.ivshs.service.AirConditionService;
 import com.iviet.ivshs.util.HttpClientUtil;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -33,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -46,7 +44,7 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     private static final int MIN_TEMP = 16;
     private static final int MAX_TEMP = 32;
-    private static final int MIN_FAN_SPEED = 1;
+    private static final int MIN_FAN_SPEED = 0;
     private static final int MAX_FAN_SPEED = 5;
 
     @Override
@@ -128,7 +126,6 @@ public class AirConditionServiceImpl implements AirConditionService {
         ac.getTranslations().add(lan);
         airConditionDao.save(ac);
 
-        log.info("Created Air Condition: naturalId={}, roomId={}", naturalId, dto.roomId());
         return airConditionDao.findById(ac.getId(), langCode)
                 .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Air Condition"));
     }
@@ -187,7 +184,6 @@ public class AirConditionServiceImpl implements AirConditionService {
         if (dto.description() != null) lan.setDescription(dto.description());
 
         airConditionDao.save(ac);
-        log.info("Updated Air Condition: id={}", id);
 
         return airConditionDao.findById(id, langCode)
                 .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Air Condition"));
@@ -200,7 +196,6 @@ public class AirConditionServiceImpl implements AirConditionService {
                 .orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
 
         airConditionDao.delete(ac);
-        log.info("Deleted Air Condition: id={}, naturalId={}", id, ac.getNaturalId());
     }
 
     @Override
@@ -213,11 +208,10 @@ public class AirConditionServiceImpl implements AirConditionService {
         payload.put("power", state.getValue());
 
         String url = UrlConstant.getAcPowerUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload, "Power");
+        executeControlCommand(url, payload);
 
         ac.setPower(state);
         airConditionDao.save(ac);
-        log.info("AC Power controlled: id={}, state={}", id, state);
     }
 
     @Override
@@ -238,18 +232,16 @@ public class AirConditionServiceImpl implements AirConditionService {
         } else if (temperature < currentTemp) {
             url = UrlConstant.getAcTempDownUrlV1(gatewayIp, ac.getNaturalId());
         } else {
-            log.info("Temperature unchanged: id={}, temp={}", id, temperature);
             return;
         }
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("temp", temperature);
 
-        executeControlCommand(url, payload, "Temperature");
+        executeControlCommand(url, payload);
 
         ac.setTemperature(temperature);
         airConditionDao.save(ac);
-        log.info("AC Temperature controlled: id={}, temp={}", id, temperature);
     }
 
     @Override
@@ -262,11 +254,10 @@ public class AirConditionServiceImpl implements AirConditionService {
         payload.put("mode", mode.getValue());
 
         String url = UrlConstant.getAcModeUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload, "Mode");
+        executeControlCommand(url, payload);
 
         ac.setMode(mode);
         airConditionDao.save(ac);
-        log.info("AC Mode controlled: id={}, mode={}", id, mode);
     }
 
     @Override
@@ -283,11 +274,10 @@ public class AirConditionServiceImpl implements AirConditionService {
         payload.put("fan", speed);
 
         String url = UrlConstant.getAcFanUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload, "Fan Speed");
+        executeControlCommand(url, payload);
 
         ac.setFanSpeed(speed);
         airConditionDao.save(ac);
-        log.info("AC Fan Speed controlled: id={}, speed={}", id, speed);
     }
 
     @Override
@@ -300,11 +290,10 @@ public class AirConditionServiceImpl implements AirConditionService {
         payload.put("swing", swing.getValue());
 
         String url = UrlConstant.getAcSwingUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload, "Swing");
+        executeControlCommand(url, payload);
 
         ac.setSwing(swing);
         airConditionDao.save(ac);
-        log.info("AC Swing controlled: id={}, swing={}", id, swing);
     }
 
     private AirCondition getAirConditionEntity(Long id) {
@@ -326,15 +315,8 @@ public class AirConditionServiceImpl implements AirConditionService {
         return gateway.getIpAddress();
     }
 
-    private void executeControlCommand(String url, Map<String, Object> payload, String operation) {
-        log.info("Sending {} control command to: {}", operation, url);
-        
+    private void executeControlCommand(String url, Map<String, Object> payload) {
         HttpClientUtil.Response response = HttpClientUtil.post(url, payload);
-        
-        if (!response.isSuccess()) {
-            log.error("AC {} control failed: status={}, body={}", operation, response.getStatusCode(), response.getBody());
-        }
-        
         HttpClientUtil.handleThrowException(response);
     }
 

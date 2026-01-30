@@ -24,11 +24,9 @@ public class UpdateClientDto {
 
     private ClientType clientType;
 
-    @Size(max = 45, message = "IP address must not exceed 45 characters")
+    @Size(max = 255, message = "IP address must not exceed 255 characters")
     @Pattern(
-        regexp = "^((25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(?!$)|$)){4}$"
-                + "|"
-                + "^[0-9A-Fa-f:]{2,45}$",
+        regexp = "^(([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?|([0-9a-fA-F:]+)|(\\[[0-9a-fA-F:]+\\]:[0-9]{1,5}))$",
         message = "Invalid IP address format"
     )
     private String ipAddress;

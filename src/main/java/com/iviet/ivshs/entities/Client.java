@@ -50,7 +50,7 @@ public class Client extends BaseAuditEntity {
     @Enumerated(EnumType.STRING)
     private ClientType clientType;
 
-    @Column(name = "ip_address", length = 45)
+    @Column(name = "ip_address", length = 255)
     private String ipAddress;
 
     @Column(name = "mac_address", length = 100)

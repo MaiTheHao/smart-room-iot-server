@@ -82,10 +82,29 @@ public final class UrlConstant {
     // --- Utils ---
 
     private static String build(@NonNull String ip, @NonNull String basePath, @NonNull String endpoint) {
+        String host = ip;
+        Integer port = DEFAULT_PORT;
+
+        try {
+            java.net.URI uri = java.net.URI.create("http://" + ip);
+            if (uri.getHost() != null) {
+                host = uri.getHost();
+            }
+            if (uri.getPort() != -1) {
+                port = uri.getPort();
+            }
+        } catch (Exception e) {
+            if (ip.contains(":") && !ip.contains("]")) {
+                int lastColon = ip.lastIndexOf(":");
+                host = ip.substring(0, lastColon);
+                port = Integer.valueOf(ip.substring(lastColon + 1));
+            }
+        }
+
         return UriComponentsBuilder.newInstance()
                 .scheme(SCHEME)
-                .host(ip)
-                .port(DEFAULT_PORT)
+                .host(host)
+                .port(port)
                 .path(basePath)
                 .path(endpoint)
                 .build()
