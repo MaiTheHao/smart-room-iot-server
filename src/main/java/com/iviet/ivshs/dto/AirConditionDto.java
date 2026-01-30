@@ -17,7 +17,6 @@ public record AirConditionDto(
     String description,
     Boolean isActive,
     Long roomId,
-
     AcPower power,
     Integer temperature,
     AcMode mode,
@@ -59,13 +58,11 @@ public record AirConditionDto(
         entity.setId(dto.id());
         entity.setNaturalId(dto.naturalId());
         entity.setIsActive(dto.isActive());
-
         entity.setPower(dto.power());
         entity.setTemperature(dto.temperature());
         entity.setMode(dto.mode());
         entity.setFanSpeed(dto.fanSpeed());
         entity.setSwing(dto.swing());
-        
         return entity;
     }
 }

@@ -202,16 +202,16 @@ public class AirConditionServiceImpl implements AirConditionService {
     @Transactional
     public void controlPower(Long id, AcPower state) {
         AirCondition ac = getAirConditionEntity(id);
-        String gatewayIp = getGatewayIp(ac);
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("power", state.getValue());
-
-        String url = UrlConstant.getAcPowerUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload);
-
+        
         ac.setPower(state);
         airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcPowerUrlV1(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("power", state.getValue());
+        
+        sendControlCommand(url, payload);
     }
 
     @Override
@@ -222,42 +222,40 @@ public class AirConditionServiceImpl implements AirConditionService {
         }
 
         AirCondition ac = getAirConditionEntity(id);
-        String gatewayIp = getGatewayIp(ac);
-
         int currentTemp = ac.getTemperature();
-        String url;
-
-        if (temperature > currentTemp) {
-            url = UrlConstant.getAcTempUpUrlV1(gatewayIp, ac.getNaturalId());
-        } else if (temperature < currentTemp) {
-            url = UrlConstant.getAcTempDownUrlV1(gatewayIp, ac.getNaturalId());
-        } else {
+        
+        if (temperature == currentTemp) {
             return;
         }
 
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("temp", temperature);
-
-        executeControlCommand(url, payload);
-
         ac.setTemperature(temperature);
         airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = temperature > currentTemp 
+            ? UrlConstant.getAcTempUpUrlV1(gatewayIp, ac.getNaturalId())
+            : UrlConstant.getAcTempDownUrlV1(gatewayIp, ac.getNaturalId());
+        
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("temp", temperature);
+        
+        sendControlCommand(url, payload);
     }
 
     @Override
     @Transactional
     public void controlMode(Long id, AcMode mode) {
         AirCondition ac = getAirConditionEntity(id);
-        String gatewayIp = getGatewayIp(ac);
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("mode", mode.getValue());
-
-        String url = UrlConstant.getAcModeUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload);
-
+        
         ac.setMode(mode);
         airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcModeUrlV1(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("mode", mode.getValue());
+        
+        sendControlCommand(url, payload);
     }
 
     @Override
@@ -268,32 +266,32 @@ public class AirConditionServiceImpl implements AirConditionService {
         }
 
         AirCondition ac = getAirConditionEntity(id);
-        String gatewayIp = getGatewayIp(ac);
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("fan", speed);
-
-        String url = UrlConstant.getAcFanUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload);
-
+        
         ac.setFanSpeed(speed);
         airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcFanUrlV1(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("fan", speed);
+        
+        sendControlCommand(url, payload);
     }
 
     @Override
     @Transactional
     public void controlSwing(Long id, AcSwing swing) {
         AirCondition ac = getAirConditionEntity(id);
-        String gatewayIp = getGatewayIp(ac);
-
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("swing", swing.getValue());
-
-        String url = UrlConstant.getAcSwingUrlV1(gatewayIp, ac.getNaturalId());
-        executeControlCommand(url, payload);
-
+        
         ac.setSwing(swing);
         airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcSwingUrlV1(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("swing", swing.getValue());
+        
+        sendControlCommand(url, payload);
     }
 
     private AirCondition getAirConditionEntity(Long id) {
@@ -315,9 +313,9 @@ public class AirConditionServiceImpl implements AirConditionService {
         return gateway.getIpAddress();
     }
 
-    private void executeControlCommand(String url, Map<String, Object> payload) {
-        HttpClientUtil.Response response = HttpClientUtil.post(url, payload);
-        HttpClientUtil.handleThrowException(response);
+    private void sendControlCommand(String url, Map<String, Object> payload) {
+        HttpClientUtil.postAsync(url, payload)
+            .exceptionally(ex -> null);
     }
 
     private void validateControlValues(Integer temperature, Integer fanSpeed) {

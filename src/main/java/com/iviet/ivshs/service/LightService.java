@@ -6,6 +6,7 @@ import com.iviet.ivshs.dto.CreateLightDto;
 import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateLightDto;
+import com.iviet.ivshs.enumeration.LightPower;
 
 public interface LightService {
 
@@ -25,7 +26,7 @@ public interface LightService {
 
     void delete(Long lightId);
 
-    void handleStateControl(Long lightId, boolean newState);
+    void handleStateControl(Long lightId, LightPower state);
 
     void handleToggleStateControl(Long lightId);
 

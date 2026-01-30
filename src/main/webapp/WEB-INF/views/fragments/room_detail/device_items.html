@@ -1,21 +1,184 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 	<body>
-		<div th:fragment="light_switch(name, description, id, isActive)" class="list-group-item px-0 py-3 border-light light-item">
-			<div class="d-flex align-items-start px-3">
-				<div class="bg-light icon-box d-flex align-items-center justify-content-center mr-3">
-					<i class="fas fa-lightbulb fa-lg default-icon" th:classappend="${isActive} ? 'text-warning' : 'text-secondary'"></i>
-					<i class="fas fa-sync-alt fa-lg text-info loading-icon custom-spin"></i>
+		<div th:fragment="light_switch(name, description, id, isActive)" class="d-flex justify-content-between align-items-start mb-3 light-item" th:data-light-id="${id}">
+			<div class="flex-grow-1">
+				<div class="d-flex justify-content-between align-items-center">
+					<div class="d-flex align-items-center flex-grow-1" style="cursor: pointer" th:onclick="'$(\'#btn-expand-light-' + ${id} + '\').click()'">
+						<div class="icon-box mr-3 default-icon d-flex justify-content-center align-items-center" th:classappend="${isActive} ? 'active-light' : ''">
+							<i class="fas fa-lightbulb"></i>
+						</div>
+						<i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
+						<div>
+							<h6 class="mb-0 font-weight-bold text-dark" th:text="${name != null and !name.isEmpty() ? name : '...'}">Light Name</h6>
+							<small class="text-muted light-status-text" th:text="${isActive ? 'Đang bật' : 'Đã tắt'}">Status</small>
+						</div>
+					</div>
+					<div class="d-flex align-items-center">
+						<div class="custom-control custom-switch scale-125 mr-3">
+							<input type="checkbox" class="custom-control-input light-toggle" th:id="'lightSwitch' + ${id}" th:data-light-id="${id}" th:checked="${isActive}" />
+							<label class="custom-control-label" th:for="'lightSwitch' + ${id}"></label>
+						</div>
+						<button
+							class="btn btn-link text-muted p-0 btn-expand"
+							th:id="'btn-expand-light-' + ${id}"
+							type="button"
+							th:data-target="'#lightControls' + ${id}"
+							data-toggle="collapse"
+						>
+							<i class="fas fa-chevron-down"></i>
+						</button>
+					</div>
 				</div>
 
-				<div class="flex-grow-1 pr-3">
-					<h6 class="mb-1 font-weight-bold text-dark" th:text="${name != null and !name.isEmpty() ? name : '...'}">Light Name</h6>
-					<small class="text-muted max-line-2" th:text="${description != null and !description.isEmpty() ? description : '...'}">Description</small>
+				<div class="collapse mt-3" th:id="'lightControls' + ${id}" th:classappend="${!isActive} ? 'disabled-overlay' : ''">
+					<div class="bg-light rounded p-4">
+						<div class="mb-3">
+							<small class="text-muted d-block mb-2 font-weight-bold text-uppercase" style="font-size: 0.7rem">Mô tả</small>
+							<p class="text-dark mb-0" style="font-size: 0.875rem" th:text="${description != null and !description.isEmpty() ? description : 'Không có mô tả'}">
+								Description
+							</p>
+						</div>
+						<div class="bg-white rounded p-3 border text-center text-muted" style="font-size: 0.8rem">
+							<i class="fas fa-info-circle mr-1"></i> Các tính năng nâng cao sẽ được bổ sung sau
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div th:fragment="ac_unit(ac)" class="d-flex justify-content-between align-items-start mb-3 ac-item" th:data-ac-id="${ac.id}">
+			<div class="flex-grow-1">
+				<div class="d-flex justify-content-between align-items-center">
+					<div class="d-flex align-items-center flex-grow-1" style="cursor: pointer" th:onclick="'$(\'#btn-expand-ac-' + ${ac.id} + '\').click()'">
+						<div class="icon-box mr-3 default-icon d-flex justify-content-center align-items-center" th:classappend="${ac.power.name() == 'ON'} ? 'active-ac' : ''">
+							<i class="fas fa-wind"></i>
+						</div>
+						<i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
+						<div>
+							<h6 class="mb-0 font-weight-bold text-dark" th:text="${ac.name}">AC Name</h6>
+							<small class="text-muted ac-status-text" th:text="${ac.power.name() == 'ON' ? (ac.mode.name() + ' • ' + ac.temperature + '°C') : 'Đã tắt'}"
+								>Status</small
+							>
+						</div>
+					</div>
+					<div class="d-flex align-items-center">
+						<div class="custom-control custom-switch scale-125 mr-3">
+							<input
+								type="checkbox"
+								class="custom-control-input ac-master-switch"
+								th:id="'acMasterSwitch' + ${ac.id}"
+								th:data-ac-id="${ac.id}"
+								th:checked="${ac.power.name() == 'ON'}"
+							/>
+							<label class="custom-control-label" th:for="'acMasterSwitch' + ${ac.id}"></label>
+						</div>
+						<button
+							class="btn btn-link text-muted p-0 btn-expand"
+							th:id="'btn-expand-ac-' + ${ac.id}"
+							type="button"
+							th:data-target="'#acControls' + ${ac.id}"
+							data-toggle="collapse"
+						>
+							<i class="fas fa-chevron-down"></i>
+						</button>
+					</div>
 				</div>
 
-				<div class="custom-control custom-switch pt-1">
-					<input type="checkbox" class="custom-control-input light-toggle" th:id="'lightSwitch' + ${id}" th:data-light-id="${id}" th:checked="${isActive}" />
-					<label class="custom-control-label" th:for="'lightSwitch' + ${id}"></label>
+				<div class="collapse mt-3" th:id="'acControls' + ${ac.id}" th:classappend="${ac.power.name() != 'ON'} ? 'disabled-overlay' : ''">
+					<div class="bg-light rounded p-4">
+						<!-- Description Section -->
+						<div class="mb-4">
+							<small class="text-muted d-block mb-2 font-weight-bold text-uppercase" style="font-size: 0.7rem">Mô tả</small>
+							<p
+								class="text-dark mb-0"
+								style="font-size: 0.875rem"
+								th:text="${ac.description != null and !ac.description.isEmpty() ? ac.description : 'Không có mô tả'}"
+							>
+								Description
+							</p>
+						</div>
+
+						<!-- Temperature Control -->
+						<div class="text-center mb-4">
+							<div class="d-flex justify-content-center align-items-center">
+								<button class="btn btn-white border shadow-sm rounded-circle ac-temp-decrease" th:data-ac-id="${ac.id}" style="width: 50px; height: 50px">
+									<i class="fas fa-minus text-muted"></i>
+								</button>
+								<div class="temp-display mx-4"><span class="ac-temp-value" th:text="${ac.temperature}">24</span><span class="unit">°C</span></div>
+								<button class="btn btn-white border shadow-sm rounded-circle ac-temp-increase" th:data-ac-id="${ac.id}" style="width: 50px; height: 50px">
+									<i class="fas fa-plus text-dark"></i>
+								</button>
+							</div>
+						</div>
+
+						<!-- Mode Selection -->
+						<div class="d-flex justify-content-center mb-4">
+							<div class="mx-2 text-center">
+								<button
+									class="btn btn-mode ac-mode-btn"
+									th:data-ac-id="${ac.id}"
+									data-mode="COOL"
+									th:classappend="${ac.mode.name() == 'COOL'} ? 'active-cool' : ''"
+								>
+									<i class="fas fa-snowflake"></i>
+								</button>
+								<small class="text-muted text-xs">Cool</small>
+							</div>
+							<div class="mx-2 text-center">
+								<button
+									class="btn btn-mode ac-mode-btn"
+									th:data-ac-id="${ac.id}"
+									data-mode="HEAT"
+									th:classappend="${ac.mode.name() == 'HEAT'} ? 'active-heat' : ''"
+								>
+									<i class="fas fa-fire"></i>
+								</button>
+								<small class="text-muted text-xs">Heat</small>
+							</div>
+							<div class="mx-2 text-center">
+								<button class="btn btn-mode ac-mode-btn" th:data-ac-id="${ac.id}" data-mode="DRY" th:classappend="${ac.mode.name() == 'DRY'} ? 'active-dry' : ''">
+									<i class="fas fa-tint"></i>
+								</button>
+								<small class="text-muted text-xs">Dry</small>
+							</div>
+							<div class="mx-2 text-center">
+								<button class="btn btn-mode ac-mode-btn" th:data-ac-id="${ac.id}" data-mode="FAN" th:classappend="${ac.mode.name() == 'FAN'} ? 'active-fan' : ''">
+									<i class="fas fa-fan"></i>
+								</button>
+								<small class="text-muted text-xs">Fan</small>
+							</div>
+						</div>
+
+						<!-- Fan Speed & Swing Controls -->
+						<div class="bg-white rounded p-3 border text-center">
+							<div class="d-flex justify-content-between align-items-center mb-2">
+								<span class="text-xs font-weight-bold text-uppercase text-muted">Fan Speed</span>
+								<span class="badge badge-primary ac-fan-badge" th:text="${ac.fanSpeed == 0 ? 'AUTO' : 'Mức ' + ac.fanSpeed}">AUTO</span>
+							</div>
+							<input type="range" class="custom-range w-100 mb-3 ac-fan-slider" th:data-ac-id="${ac.id}" min="0" max="5" th:value="${ac.fanSpeed}" />
+
+							<div class="d-flex justify-content-between align-items-center pt-2 border-top">
+								<span class="text-xs font-weight-bold text-uppercase text-muted">Swing</span>
+								<div class="custom-control custom-switch">
+									<input
+										type="checkbox"
+										class="custom-control-input ac-swing-switch"
+										th:id="'swingSwitch' + ${ac.id}"
+										th:data-ac-id="${ac.id}"
+										th:checked="${ac.swing == 'ON'}"
+									/>
+									<label
+										class="custom-control-label font-weight-bold text-xs ac-swing-label"
+										th:for="'swingSwitch' + ${ac.id}"
+										th:text="${ac.swing == 'ON' ? 'ON' : 'OFF'}"
+										th:classappend="${ac.swing == 'ON'} ? 'text-success' : ''"
+										>OFF</label
+									>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

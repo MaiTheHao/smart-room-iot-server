@@ -1,3 +1,19 @@
+/* =========================================
+   HEADER COMPONENT STYLES (Minimal Custom)
+   ========================================= */
+
+.card-primary.card-outline {
+	border-top: 3px solid var(--color-brand-active) !important;
+}
+
+.text-brand {
+	color: var(--color-brand-active) !important;
+}
+
+/* =========================================
+   DEVICE LIST STYLES
+   ========================================= */
+
 .light-item {
 	position: relative;
 	transition: background-color 0.3s;
@@ -40,4 +56,132 @@
 }
 .is-loading .default-icon {
 	display: none;
+}
+
+.icon-box.active-ac {
+	background-color: #eff6ff;
+	color: var(--color-primary);
+}
+
+.icon-box.active-light {
+	background-color: #fffbeb;
+	color: var(--color-warning);
+}
+
+.temp-display {
+	font-size: 3.5rem;
+	font-weight: 700;
+	color: var(--text-main);
+	line-height: 1;
+}
+
+.temp-display .unit {
+	font-size: 1.5rem;
+	vertical-align: super;
+	color: var(--text-muted);
+	font-weight: 400;
+}
+
+.btn-mode {
+	width: 45px;
+	height: 45px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #e2e8f0;
+	color: var(--text-muted);
+	transition: all 0.2s;
+	background-color: #fff;
+}
+
+.btn-mode:hover {
+	transform: translateY(-2px);
+}
+
+.btn-mode.active-cool {
+	background-color: var(--color-primary);
+	color: white;
+	border-color: var(--color-primary);
+}
+
+.btn-mode.active-heat {
+	background-color: var(--color-danger);
+	color: white;
+	border-color: var(--color-danger);
+}
+
+.btn-mode.active-dry {
+	background-color: #0ea5e9;
+	color: white;
+	border-color: #0ea5e9;
+}
+
+.btn-mode.active-fan {
+	background-color: var(--text-muted);
+	color: white;
+	border-color: var(--text-muted);
+}
+
+.custom-range {
+	height: 6px;
+	border-radius: 5px;
+	background: #e2e8f0;
+}
+
+.custom-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--color-primary);
+	cursor: pointer;
+	margin-top: -6px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-range::-webkit-slider-runnable-track {
+	height: 6px;
+	border-radius: 5px;
+}
+
+.device-row {
+	border-bottom: 1px solid #f1f5f9;
+	padding: 1rem 1.25rem;
+	background: #fff;
+}
+
+.device-row:last-child {
+	border-bottom: none;
+}
+
+.btn-expand i {
+	transition: transform 0.3s;
+}
+
+.btn-expand[aria-expanded='true'] i {
+	transform: rotate(180deg);
+}
+
+.disabled-overlay {
+	opacity: 0.5;
+	pointer-events: none;
+	filter: grayscale(100%);
+}
+
+.ac-item {
+	position: relative;
+	transition: background-color 0.3s;
+}
+
+.ac-item.is-loading {
+	background-color: #f8f9fa;
+}
+
+.ac-item.is-loading .icon-box {
+	background-color: #e2e8f0 !important;
+}
+
+.scale-125 {
+	transform: scale(1.25);
 }

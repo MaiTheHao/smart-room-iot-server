@@ -11,42 +11,39 @@
 			<div class="container-fluid">
 				<div th:if="${errorMessage != null and !errorMessage.isEmpty()}" th:insert="~{fragments/common.html :: alert_error(${errorMessage})}"></div>
 
-				<div class="card card-primary card-outline shadow-sm mb-4">
-					<div class="card-body">
+				<div class="card card-outline card-primary shadow-sm border-0 mb-4" style="border-radius: 12px">
+					<div class="card-body p-4">
 						<div class="row align-items-center">
-							<div class="col-md-8 d-flex align-items-center">
+							<div class="col-md-9 d-flex align-items-start">
 								<div
-									class="elevation-2 rounded-circle bg-primary d-flex justify-content-center align-items-center mr-3"
-									style="width: 60px; height: 60px; font-size: 1.5rem"
+									class="bg-light shadow-sm d-flex align-items-center justify-content-center rounded text-brand mr-4"
+									style="width: 64px; height: 64px; min-width: 64px"
 								>
-									<i class="fas fa-door-open"></i>
+									<i class="fas fa-network-wired fa-lg"></i>
 								</div>
-								<div>
-									<h3 class="text-bold text-dark mb-1" th:text="${pageTitle}">Room Name</h3>
-									<div class="text-muted d-flex align-items-center">
-										<i class="fas fa-map-marker-alt mr-1 text-sm"></i>
-										<span th:text="${room?.description() ?: 'Smart Room Area'}">Description</span>
 
-										<span class="mx-2">|</span>
-										<span class="badge badge-success">Online</span>
-
-										<span class="mx-2">|</span>
-										<span id="healthScoreBadge" class="badge badge-secondary fade" style="opacity: 0">
-											<i id="healthIcon" class="fas fa-heartbeat mr-1"></i>
-											<span id="healthScoreValue">--%</span>
+								<div class="d-flex flex-column">
+									<h3 class="font-weight-bold mb-1" style="font-size: 1.35rem; color: #1e293b" th:text="${pageTitle}">Room Name</h3>
+									<p class="text-muted mb-3" style="font-size: 0.925rem; line-height: 1.5" th:text="${room?.description ?: 'Smart Room Area'}">Description</p>
+									<div class="d-flex align-items-center">
+										<span class="badge badge-pill badge-success px-3 py-2 mr-2" style="font-size: 0.75rem">
+											<i class="fas fa-circle mr-1" style="font-size: 0.5rem"></i> Trực tuyến
+										</span>
+										<span id="healthScoreBadge" class="badge badge-pill badge-secondary px-3 py-2" style="font-size: 0.75rem">
+											<i id="healthIcon" class="fas fa-heartbeat mr-1"></i> Sức khỏe: <span id="healthScoreValue">N/A</span>
 										</span>
 									</div>
 								</div>
 							</div>
-							<div class="col-md-4 text-md-right mt-3 mt-md-0">
-								<a th:href="@{/home}" class="btn btn-default shadow-sm mr-2"> <i class="fas fa-arrow-left mr-1"></i> Dashboard </a>
-								<button class="btn btn-primary shadow-sm"><i class="fas fa-cog mr-1"></i> Settings</button>
+							<div class="col-md-3 text-md-right mt-3 mt-md-0">
+								<a th:href="@{/home}" class="btn btn-light border shadow-sm px-3 py-2 text-dark font-weight-bold" style="border-radius: 8px; font-size: 0.9rem">
+									<i class="fas fa-chevron-left mr-2 text-muted"></i> Quay về Dashboard
+								</a>
 							</div>
 						</div>
 					</div>
-					<input type="hidden" id="roomId" th:value="${room?.id()}" />
+					<input type="hidden" id="roomId" th:value="${room?.id}" />
 				</div>
-
 				<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
 					<h5 class="m-0 text-dark"><i class="fas fa-chart-line mr-1"></i> Sensor Analytics</h5>
 					<div class="form-inline mt-2 mt-md-0">
@@ -59,7 +56,6 @@
 								<button class="btn btn-default" id="btn-refresh-chart" title="Refresh Charts">
 									<i class="fas fa-sync-alt"></i>
 								</button>
-								<button class="btn btn-info" id="btn-refresh-all" title="Refresh All Data"><i class="fas fa-redo"></i> Refresh All</button>
 							</div>
 						</div>
 					</div>
@@ -72,23 +68,75 @@
 
 				<div class="row mb-4">
 					<div class="col-12">
-						<div class="card card-outline card-success shadow-sm" id="quick-control">
-							<div class="card-header">
-								<h3 class="card-title"><i class="fas fa-gamepad mr-1"></i> Quick Controls</h3>
+						<div class="card card-outline card-teal shadow-sm border-0" id="quick-control">
+							<div class="card-header border-0 bg-white">
+								<h3 class="card-title font-weight-bold text-dark"><i class="fas fa-sliders-h mr-2"></i>Thiết bị (Devices)</h3>
 							</div>
-							<div class="card-body quick-control__device" id="quick-control-lights">
-								<p class="text-muted mb-2 text-uppercase font-weight-bold">Lights</p>
-								<div id="lightsList" class="list-group">
-									<th:block th:each="light : ${lights}" th:if="${light != null}">
-										<div
-											th:replace="~{fragments/room_detail/device_items.html :: light_switch(
-                                        name=${light.name}, 
-                                        description=${light.description}, 
-                                        id=${light.id}, 
-                                        isActive=${light.isActive}
-                                    )}"
-										></div>
-									</th:block>
+							<div class="card-body p-0">
+								<div class="device-row">
+									<div class="d-flex justify-content-between align-items-center">
+										<div class="d-flex align-items-center flex-grow-1" style="cursor: pointer" onclick="$('#btn-expand-ac').click()">
+											<div class="icon-box active-ac mr-3 d-flex justify-content-center align-items-center">
+												<i class="fas fa-wind"></i>
+											</div>
+											<div>
+												<h6 class="mb-0 font-weight-bold text-dark">Hệ thống điều hòa</h6>
+												<small class="text-muted" th:text="${airConditions.size()} + ' thiết bị'">0 thiết bị</small>
+											</div>
+										</div>
+										<button
+											class="btn btn-link text-muted p-0 btn-expand"
+											id="btn-expand-ac"
+											type="button"
+											data-toggle="collapse"
+											data-target="#acControls"
+											aria-expanded="false"
+										>
+											<i class="fas fa-chevron-down"></i>
+										</button>
+									</div>
+
+									<div class="collapse" id="acControls">
+										<div id="acList" class="mt-3 pl-5">
+											<th:block th:each="ac : ${airConditions}" th:if="${ac != null}">
+												<div th:replace="~{fragments/room_detail/device_items.html :: ac_unit(ac=${ac})}"></div>
+											</th:block>
+										</div>
+									</div>
+								</div>
+
+								<div class="device-row">
+									<div class="d-flex justify-content-between align-items-center">
+										<div class="d-flex align-items-center flex-grow-1" style="cursor: pointer" onclick="$('#btn-expand-light').click()">
+											<div class="icon-box active-light mr-3 d-flex justify-content-center align-items-center">
+												<i class="fas fa-lightbulb"></i>
+											</div>
+											<div>
+												<h6 class="mb-0 font-weight-bold text-dark">Hệ thống đèn</h6>
+												<small class="text-muted" th:text="${lights.size()} + ' thiết bị'">0 thiết bị</small>
+											</div>
+										</div>
+										<button
+											class="btn btn-link text-muted p-0 btn-expand"
+											id="btn-expand-light"
+											type="button"
+											data-toggle="collapse"
+											data-target="#lightControls"
+											aria-expanded="false"
+										>
+											<i class="fas fa-chevron-down"></i>
+										</button>
+									</div>
+
+									<div class="collapse" id="lightControls">
+										<div id="lightsList" class="mt-3 pl-5">
+											<th:block th:each="light : ${lights}" th:if="${light != null}">
+												<div
+													th:replace="~{fragments/room_detail/device_items.html :: light_switch(name=${light.name}, description=${light.description}, id=${light.id}, isActive=${light.isActive})}"
+												></div>
+											</th:block>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -105,6 +153,7 @@
 			<script defer th:src="@{/webjars/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js}"></script>
 			<script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/service/api/v1/light_api_v1.js}"></script>
+			<script defer th:src="@{/scripts/service/api/v1/air_condition_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/service/api/v1/health_check_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/pages/room_detail.js}"></script>
 

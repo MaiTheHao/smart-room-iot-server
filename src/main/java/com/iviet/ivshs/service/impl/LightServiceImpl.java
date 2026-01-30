@@ -4,6 +4,7 @@ import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.enumeration.GatewayCommand;
+import com.iviet.ivshs.enumeration.LightPower;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
@@ -155,18 +156,18 @@ public class LightServiceImpl implements LightService {
 
     @Override
     @Transactional
-    public void handleStateControl(Long lightId, boolean newState) {
+    public void handleStateControl(Long lightId, LightPower state) {
         Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
         
         DeviceControl dc = light.getDeviceControl();
         if (dc == null) throw new BadRequestException("No control associated");
         Client gateway = dc.getClient();
 
-        GatewayCommand command = newState ? GatewayCommand.ON : GatewayCommand.OFF;
+        GatewayCommand command = state == LightPower.ON ? GatewayCommand.ON : GatewayCommand.OFF;
         ControlDeviceResponse resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
 
         if (200 == resp.status()) {
-            light.setIsActive(newState);
+            light.setIsActive(state == LightPower.ON);
             lightDao.save(light);
         } else {
             log.error("Failed to set light state. Response status: {}, message: {}", resp.status(), resp.message());
@@ -184,7 +185,7 @@ public class LightServiceImpl implements LightService {
     @Transactional
     public void handleToggleStateControl(Long lightId) {
         Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
-        boolean newState = !light.getIsActive();
+        LightPower newState = light.getIsActive() ? LightPower.OFF : LightPower.ON;
         handleStateControl(lightId, newState);
     }
 

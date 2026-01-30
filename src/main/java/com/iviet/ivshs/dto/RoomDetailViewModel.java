@@ -16,6 +16,7 @@ public record RoomDetailViewModel(
 	List<?> tempChartData,
 	List<?> powerChartData,
 	List<LightDto> lights,
+	List<AirConditionDto> airConditions,
 	String errorMessage
 ) {
 	public Map<String, Object> toModelAttributes() {
@@ -27,6 +28,7 @@ public record RoomDetailViewModel(
 			"tempChartData", tempChartData != null ? tempChartData : Collections.emptyList(),
 			"powerChartData", powerChartData != null ? powerChartData : Collections.emptyList(),
 			"lights", lights != null ? lights : Collections.emptyList(),
+			"airConditions", airConditions != null ? airConditions : Collections.emptyList(),
 			"errorMessage", errorMessage != null ? errorMessage : ""
 		);
 	}

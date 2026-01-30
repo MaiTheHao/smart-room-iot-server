@@ -89,6 +89,18 @@ const SMRC_API_V1 = {
 		TOGGLE: (id) => `/api/v1/lights/${id}/toggle-state`,
 		LEVEL: (id, newLevel) => `/api/v1/lights/${id}/level/${newLevel}`,
 	},
+
+	AIR_CONDITION: {
+		PATH: '/api/v1/air-conditions',
+		DETAIL: (id) => `/api/v1/air-conditions/${id}`,
+		BY_ROOM: (roomId) => `/api/v1/air-conditions/room/${roomId}`,
+		ALL_BY_ROOM: (roomId) => `/api/v1/air-conditions/room/${roomId}/all`,
+		POWER: (id) => `/api/v1/air-conditions/${id}/power`,
+		TEMPERATURE: (id) => `/api/v1/air-conditions/${id}/temperature`,
+		MODE: (id) => `/api/v1/air-conditions/${id}/mode`,
+		FAN_SPEED: (id) => `/api/v1/air-conditions/${id}/fan`,
+		SWING: (id) => `/api/v1/air-conditions/${id}/swing`,
+	},
 };
 
 const SMRC_TYPES = {

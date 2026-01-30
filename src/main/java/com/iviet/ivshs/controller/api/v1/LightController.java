@@ -1,6 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
+import com.iviet.ivshs.enumeration.LightPower;
 import com.iviet.ivshs.service.LightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,14 @@ public class LightController {
         lightService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+    }
+
+    @PutMapping("/{id}/power")
+    public ResponseEntity<ApiResponse<ControlDeviceResponse>> handleStateControl(
+            @PathVariable(name = "id") Long id,
+            @RequestParam(name = "state") LightPower state) {
+        lightService.handleStateControl(id, state);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
     }
     
     @PutMapping("/{id}/toggle-state")

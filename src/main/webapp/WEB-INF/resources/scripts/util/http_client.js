@@ -28,19 +28,19 @@
 			return endpoint.trim().replace(/^\/+/, '');
 		}
 
-		get(endpoint, params = {}) {
+		get(endpoint, params = null) {
 			return this.request('GET', endpoint, params);
 		}
 
-		post(endpoint, body = {}) {
-			return this.request('POST', endpoint, null, body);
+		post(endpoint, body = null, params = null) {
+			return this.request('POST', endpoint, params, body);
 		}
 
-		put(endpoint, body = {}) {
-			return this.request('PUT', endpoint, null, body);
+		put(endpoint, body = null, params = null) {
+			return this.request('PUT', endpoint, params, body);
 		}
 
-		delete(endpoint, params = {}) {
+		delete(endpoint, params = null) {
 			return this.request('DELETE', endpoint, params);
 		}
 
@@ -48,12 +48,12 @@
 			const cleanEndpoint = this.#normalizeEndpoint(endpoint);
 			let url = `${this.baseUrl}/${cleanEndpoint}`;
 
-			if ((method === 'GET' || method === 'DELETE') && params && Object.keys(params).length) {
+			if (params && Object.keys(params).length) {
 				const query = new URLSearchParams(params).toString();
 				url += `${url.includes('?') ? '&' : '?'}${query}`;
 			}
 
-			this.#logger.debug(`${method} ${url}`, body || params || '');
+			this.#logger.debug(`${method} ${url} body: ${body ? JSON.stringify(body) : 'N/A'} params: ${params ? JSON.stringify(params) : 'N/A'}`);
 
 			const config = {
 				method,
@@ -61,7 +61,7 @@
 				credentials: 'include',
 			};
 
-			if (method === 'POST' || method === 'PUT') {
+			if (body) {
 				config.body = JSON.stringify(body);
 			}
 

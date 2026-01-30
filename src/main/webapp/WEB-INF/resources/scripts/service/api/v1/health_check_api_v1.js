@@ -44,12 +44,12 @@ class HealthCheckApiV1Service {
 
 	static evaluateStatus(score) {
 		const types = SMRC_TYPES.HEALTH_STATUS;
+
 		if (score === null || score === undefined || isNaN(score)) {
 			return {
 				level: types.UNKNOWN,
 				className: 'badge-secondary',
 				label: 'N/A',
-				color: '#6c757d',
 				icon: 'fa-question-circle',
 			};
 		}
@@ -59,7 +59,6 @@ class HealthCheckApiV1Service {
 				level: types.GOOD,
 				className: 'badge-success',
 				label: 'Healthy',
-				color: '#28a745',
 				icon: 'fa-check-circle',
 			};
 		} else if (score >= 50) {
@@ -67,7 +66,6 @@ class HealthCheckApiV1Service {
 				level: types.WARNING,
 				className: 'badge-warning',
 				label: 'Unstable',
-				color: '#ffc107',
 				icon: 'fa-exclamation-triangle',
 			};
 		} else {
@@ -75,7 +73,6 @@ class HealthCheckApiV1Service {
 				level: types.CRITICAL,
 				className: 'badge-danger',
 				label: 'Critical',
-				color: '#dc3545',
 				icon: 'fa-times-circle',
 			};
 		}

@@ -14,12 +14,67 @@
 	--color-brand-hover: #3b82f6;
 	--color-brand-active: #2563eb;
 	--color-brand-bg-subtle: #eff6ff;
-	--color-accent: #0d9488; /* Teal 600 */
-	--color-accent-hover: #0f766e; /* Teal 700 */
-	--color-accent-active: #115e59; /* Teal 800 */
+	--color-accent: #0d9488;
+	--color-accent-hover: #0f766e;
+	--color-accent-active: #115e59;
 	--shadow-accent: 0 4px 14px 0 rgba(13, 148, 136, 0.25);
+	--color-primary: #3b82f6;
+	--color-danger: #ef4444;
+	--color-warning: #f59e0b;
+	--color-teal: #14b8a6;
+	--color-success-bg: #ecfdf5;
+	--color-success-text: #059669;
+	--color-danger-bg: #fef2f2;
+	--color-danger-text: #dc2626;
+	--color-warning-bg: #fef3c7;
+	--color-warning-text: #d97706;
+	--color-secondary-bg: #f1f5f9;
+	--color-secondary-text: #64748b;
 	--font-family: 'Rethink Sans', sans-serif;
 	--radius-md: 8px;
+}
+
+body {
+	font-family: var(--font-family);
+	background-color: var(--bg-body);
+	color: var(--text-main);
+}
+
+.content-wrapper {
+	background-color: var(--bg-body) !important;
+}
+
+/* =========================================
+   BOOTSTRAP BADGE OVERRIDES (Reusable)
+   ========================================= */
+
+.badge-success {
+	background-color: var(--color-success-bg) !important;
+	color: var(--color-success-text) !important;
+	border: 1px solid #a7f3d0;
+}
+
+.badge-danger {
+	background-color: var(--color-danger-bg) !important;
+	color: var(--color-danger-text) !important;
+	border: 1px solid #fecaca;
+}
+
+.badge-warning {
+	background-color: var(--color-warning-bg) !important;
+	color: var(--color-warning-text) !important;
+	border: 1px solid #fde68a;
+}
+
+.badge-secondary {
+	background-color: var(--color-secondary-bg) !important;
+	color: var(--color-secondary-text) !important;
+	border: 1px solid #cbd5e1;
+}
+
+/* Line height fix for badges with icons */
+.badge * {
+	line-height: 1;
 }
 
 h1 {
