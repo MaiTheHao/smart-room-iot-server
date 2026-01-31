@@ -32,7 +32,11 @@ public class SetupDao extends BaseDao<SetupDao> {
 		int processedDevices = 0;
 		for (int i = 0; i < devices.size(); i++) {
 			SetupRequest.BodyData.DeviceConfig device = devices.get(i);
-			
+			if (device.getCategory() == null) {
+				log.warn("[SETUP:SKIP] Device category is null, skipping device at index={}", i);
+				continue;
+			}
+
 			if (log.isDebugEnabled()) {
 				log.debug("[SETUP:DEVICE] index={}, name={}, category={}", 
 					i, device.getName(), device.getCategory());

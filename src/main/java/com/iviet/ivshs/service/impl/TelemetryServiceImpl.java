@@ -2,6 +2,8 @@ package com.iviet.ivshs.service.impl;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -68,10 +70,26 @@ public class TelemetryServiceImpl implements TelemetryService {
     @Override
     public void takeByRoom(Long roomId) {
         List<ClientDto> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
-        if (gateways == null || gateways.size() == 0) return;
+        if (gateways == null || gateways.isEmpty()) return;
 
-        for(ClientDto gateway : gateways) {
-            processTakeByGateway(gateway);
+        long start = System.currentTimeMillis();
+        log.info("[TELEMETRY] Starting batch telemetry collection for room [{}] - {} gateways", roomId, gateways.size());
+
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<CompletableFuture<Void>> futures = gateways.stream()
+                    .map(gateway -> CompletableFuture.runAsync(() -> {
+                        try {
+                            processTakeByGateway(gateway);
+                        } catch (Exception e) {
+                            log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}", 
+                                    gateway.getUsername(), roomId, e.getMessage());
+                        }
+                    }, executor))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            log.info("[TELEMETRY] Finished batch telemetry collection for room [{}] in {}ms", 
+                    roomId, System.currentTimeMillis() - start);
         }
     }
 
@@ -80,10 +98,26 @@ public class TelemetryServiceImpl implements TelemetryService {
         if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
         Long roomId = roomService.getEntityByCode(roomCode).getId();
         List<ClientDto> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
-        if (gateways == null || gateways.size() == 0) return;
+        if (gateways == null || gateways.isEmpty()) return;
 
-        for(ClientDto gateway : gateways) {
-            processTakeByGateway(gateway);
+        long start = System.currentTimeMillis();
+        log.info("[TELEMETRY] Starting batch telemetry collection for room [{}] - {} gateways", roomCode, gateways.size());
+
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<CompletableFuture<Void>> futures = gateways.stream()
+                    .map(gateway -> CompletableFuture.runAsync(() -> {
+                        try {
+                            processTakeByGateway(gateway);
+                        } catch (Exception e) {
+                            log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}", 
+                                    gateway.getUsername(), roomCode, e.getMessage());
+                        }
+                    }, executor))
+                    .toList();
+
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            log.info("[TELEMETRY] Finished batch telemetry collection for room [{}] in {}ms", 
+                    roomCode, System.currentTimeMillis() - start);
         }
     }
 

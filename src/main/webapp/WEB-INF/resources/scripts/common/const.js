@@ -101,6 +101,14 @@ const SMRC_API_V1 = {
 		FAN_SPEED: (id) => `/api/v1/air-conditions/${id}/fan`,
 		SWING: (id) => `/api/v1/air-conditions/${id}/swing`,
 	},
+
+	TELEMETRY: {
+		PATH: '/api/v1/telemetries',
+		BY_GATEWAY: (gatewayUsername) => `/api/v1/telemetries/gateway/${gatewayUsername}`,
+		BY_ROOM: (roomCode) => `/api/v1/telemetries/room/${roomCode}`,
+		TEMPERATURE: (naturalId) => `/api/v1/telemetries/temperature/${naturalId}`,
+		POWER_CONSUMPTION: (naturalId) => `/api/v1/telemetries/power-consumption/${naturalId}`,
+	},
 };
 
 const SMRC_TYPES = {

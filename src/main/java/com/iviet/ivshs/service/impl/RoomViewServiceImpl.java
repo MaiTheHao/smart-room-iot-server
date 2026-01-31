@@ -19,6 +19,7 @@ import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.RoomViewService;
+// import com.iviet.ivshs.service.TelemetryService;
 import com.iviet.ivshs.service.TemperatureValueService;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class RoomViewServiceImpl implements RoomViewService {
 	private final AirConditionService airConditionService;
 	private final TemperatureValueService temperatureValueService;
 	private final PowerConsumptionValueService powerConsumptionValueService;
+	// private final TelemetryService telemetryService;
 	
 	private static final long DEFAULT_MINUS_MINUTES = 15;
 	private static final int MAX_DEVICES_PER_ROOM = 1000;
@@ -41,6 +43,8 @@ public class RoomViewServiceImpl implements RoomViewService {
 	@Override
 	public RoomDetailViewModel getRoomDetailModel(Long roomId, String startedAtStr, String endedAtStr) {
 		try {
+			// fetchLatestTelemetryData(roomId);
+			
 			RoomDto room = getRoomMetadata(roomId);
 			
 			Instant now = Instant.now();
@@ -86,6 +90,14 @@ public class RoomViewServiceImpl implements RoomViewService {
 			return buildErrorModel(roomId, e.getMessage());
 		}
 	}
+
+	// private void fetchLatestTelemetryData(Long roomId) {
+	// 	try {
+	// 		telemetryService.takeByRoom(roomId);
+	// 	} catch (Exception e) {
+	// 		log.error("Failed to fetch telemetry data for room: {}", roomId, e);
+	// 	}
+	// }
 
 	private RoomDto getRoomMetadata(Long roomId) {
 		return roomService.getById(roomId);

@@ -18,6 +18,9 @@ class RoomDetailPage {
 		this.healthService = window.healthCheckApiV1Service;
 		this.lightService = window.lightApiV1Service;
 		this.acService = window.airConditionApiV1Service;
+		this.telemetryService = window.telemetryApiV1Service;
+
+		this.logger = window.logger('RoomDetailPage');
 
 		this.state = this._parseUrlParams();
 		this.charts = {};
@@ -35,9 +38,10 @@ class RoomDetailPage {
 			this.initDateRangePicker();
 			this.renderInitialData();
 			this.loadHealthScore();
+			this.fetchTelemetryData();
 			this.bindEvents();
 		} catch (error) {
-			console.error('[RoomDetailPage] Init failed:', error);
+			this.logger.error('Init failed:', error);
 			notify.error('Failed to initialize dashboard');
 		}
 	}
@@ -70,11 +74,31 @@ class RoomDetailPage {
 			$text.text(`${uiConfig.score}%`);
 			$icon.attr('class', `fas ${uiConfig.icon} mr-1`);
 		} catch (error) {
-			console.error('[RoomDetailPage] Failed to load health score:', error);
+			this.logger.error('Failed to load health score:', error);
 			$badge.removeClass('badge-success badge-warning badge-danger').addClass('badge-secondary');
 			$text.text('N/A');
 			$icon.attr('class', 'fas fa-question-circle mr-1');
 		}
+	}
+
+	fetchTelemetryData() {
+		const roomCode = $('#roomCode').val();
+
+		if (!roomCode) {
+			this.logger.warn('Room code not found, skipping telemetry fetch');
+			return;
+		}
+
+		this.telemetryService
+			.fetchByRoom(roomCode)
+			.then(() => {
+				this.logger.info(`Telemetry data fetched successfully for room: ${roomCode}`);
+			})
+			.catch((error) => {
+				this.logger.error('Failed to fetch telemetry data:', error);
+			});
+
+		this.logger.debug(`Telemetry fetch initiated for room: ${roomCode}`);
 	}
 
 	bindEvents() {

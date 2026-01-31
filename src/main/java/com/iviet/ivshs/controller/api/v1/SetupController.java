@@ -23,7 +23,7 @@ public class SetupController {
 	
 	@PostMapping("/{clientId}")
 	public ResponseEntity<ApiResponse<?>> setup(@PathVariable(name = "clientId") Long clientId) {
-		log.info("[SETUP_CTRL_START] Starting setup for clientId={}", clientId);
+		log.info("[SETUP_CTRL_TSTAR] Starting setup for clientId={}", clientId);
 		setupService.setup(clientId);
 		
 		log.info("[SETUP_CTRL_SUCCESS] Setup completed for clientId={}", clientId);

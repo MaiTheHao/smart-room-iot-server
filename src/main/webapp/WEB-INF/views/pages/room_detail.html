@@ -43,6 +43,7 @@
 						</div>
 					</div>
 					<input type="hidden" id="roomId" th:value="${room?.id}" />
+					<input type="hidden" id="roomCode" th:value="${room?.code}" />
 				</div>
 				<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
 					<h5 class="m-0 text-dark"><i class="fas fa-chart-line mr-1"></i> Sensor Analytics</h5>
@@ -155,6 +156,7 @@
 			<script defer th:src="@{/scripts/service/api/v1/light_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/service/api/v1/air_condition_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/service/api/v1/health_check_api_v1.js}"></script>
+			<script defer th:src="@{/scripts/service/api/v1/telemetry_api_v1.js}"></script>
 			<script defer th:src="@{/scripts/pages/room_detail.js}"></script>
 
 			<script defer th:inline="javascript">
