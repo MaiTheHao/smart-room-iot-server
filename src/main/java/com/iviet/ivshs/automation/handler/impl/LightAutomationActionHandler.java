@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class LightAutomationActionHandler implements AutomationActionHandler {
 
-    private final LightService lightService;
+    private final LightService service;
 
     @Override
     public JobTargetType getTargetType() {
@@ -29,7 +29,7 @@ public class LightAutomationActionHandler implements AutomationActionHandler {
         LightPower newState = (action.getActionType() == JobActionType.ON) ? LightPower.ON : LightPower.OFF;
         
         try {
-            lightService.handleStateControl(action.getTargetId(), newState);
+            service.handleStateControl(action.getTargetId(), newState);
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {
             log.warn("Failed: TargetId={}, Reason={}", action.getTargetId(), e.getMessage());

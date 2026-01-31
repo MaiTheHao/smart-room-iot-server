@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.automation.processor.AutomationProcessor;
+import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.AutomationActionDao;
 import com.iviet.ivshs.dao.AutomationDao;
 import com.iviet.ivshs.dao.LightDao;
@@ -38,6 +39,7 @@ public class AutomationServiceImpl implements AutomationService {
 	private final AutomationDao automationDao;
 	private final AutomationActionDao automationActionDao;
 	private final LightDao lightDao;
+	private final AirConditionDao airConditionDao;
 	private final QuartzHelper quartzHelper;
 	private final AutomationProcessor processor;
 
@@ -290,7 +292,12 @@ public class AutomationServiceImpl implements AutomationService {
 				return lightDao.findById(targetId)
 						.map(light -> light.getNaturalId())
 						.orElse("Unknown Light");
+			} else if (targetType == JobTargetType.AIR_CONDITION) {
+				return airConditionDao.findById(targetId)
+						.map(ac -> ac.getNaturalId())
+						.orElse("Unknown Air Conditioner");
 			}
+			
 			return "Unknown Device";
 		} catch (Exception e) {
 			return "Unknown Device";

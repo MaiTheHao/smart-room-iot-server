@@ -56,6 +56,12 @@ public class AirConditionServiceImpl implements AirConditionService {
     }
 
     @Override
+    public List<AirConditionDto> getAll() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return airConditionDao.findAll(langCode);
+    }
+
+    @Override
     public PaginatedResponse<AirConditionDto> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) {
             throw new BadRequestException("Room ID is required");
@@ -65,6 +71,16 @@ public class AirConditionServiceImpl implements AirConditionService {
         List<AirConditionDto> data = airConditionDao.findAllByRoomId(roomId, page, size, langCode);
         Long totalElements = airConditionDao.countByRoomId(roomId);
         return new PaginatedResponse<>(data, page, size, totalElements);
+    }
+
+    @Override
+    public List<AirConditionDto> getAllByRoomId(Long roomId) {
+        if (roomId == null) {
+            throw new BadRequestException("Room ID is required");
+        }
+
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return airConditionDao.findAllByRoomId(roomId, langCode);
     }
 
     @Override

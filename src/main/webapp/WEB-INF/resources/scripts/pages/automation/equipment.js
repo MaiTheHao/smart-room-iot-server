@@ -6,6 +6,7 @@ class EquipmentManager {
 		this.floorService = window.floorApiV1Service;
 		this.roomApiService = window.roomApiV1Service;
 		this.lightService = window.lightApiV1Service;
+		this.acService = window.airConditionApiV1Service;
 
 		this.initDataTable();
 		this.bindEvents();
@@ -117,7 +118,6 @@ class EquipmentManager {
 			$select.prop('disabled', true).html('<option>Loading...</option>');
 
 			const response = await this.roomApiService.getAllByFloor(floorId);
-			console.log(response);
 			const rooms = response?.data || [];
 			$select.empty().append('<option value="" disabled selected>Select Room</option>');
 
@@ -137,19 +137,45 @@ class EquipmentManager {
 
 	static async loadDevices(roomId) {
 		if (!roomId) return;
+		const devices = [];
+
 		try {
 			const $select = $('#targetId');
-			$select.prop('disabled', true).html('<option>Loading...</option>');
+			$select.prop('disabled', true).html('<option><i class="fas fa-spinner fa-spin"></i></option>');
 
-			const response = await this.lightService.getAllByRoom(roomId);
-			const lights = response?.data || [];
+			let lights = [];
+			let airConditions = [];
+
+			// Load lights
+			try {
+				const lightResponse = await this.lightService.getAllByRoom(roomId);
+				lights = lightResponse?.data || [];
+			} catch (error) {
+				console.error('Failed to load lights:', error);
+			}
+
+			// Load air conditioners
+			try {
+				const acResponse = await this.acService.getAllByRoom(roomId);
+				airConditions = acResponse?.data || [];
+			} catch (error) {
+				console.error('Failed to load air conditioners:', error);
+			}
+
 			$select.empty().append('<option value="" disabled selected>Select Device</option>');
 
-			if (lights) {
+			if (lights && lights.length > 0) {
 				lights.forEach((light) => {
-					$select.append(`<option value="${light.id}">${light.name || 'Light: ' + light.code}</option>`);
+					$select.append(`<option data-category="LIGHT" value="${light.id}">${light.name || 'Light: ' + light.naturalId}</option>`);
 				});
 			}
+
+			if (airConditions && airConditions.length > 0) {
+				airConditions.forEach((ac) => {
+					$select.append(`<option data-category="AIR_CONDITION" value="${ac.id}">${ac.name || 'AC: ' + ac.naturalId}</option>`);
+				});
+			}
+
 			$select.prop('disabled', false);
 		} catch (error) {
 			notify.error('Failed to load devices');
@@ -158,17 +184,19 @@ class EquipmentManager {
 	}
 
 	static async handleSave() {
+		const $btn = $('#btnSaveEquipment');
+		const $targetSelect = $('#targetId');
 		const actionId = $('#actionId').val();
 		const automationId = $('#automationId').val();
-
-		const targetId = actionId ? $('#hiddenTargetId').val() : $('#targetId').val();
+		const executionOrder = parseInt($('#executionOrder').val());
+		const targetId = actionId ? $('#hiddenTargetId').val() : $targetSelect.val();
 
 		const dto = {
-			targetType: $('#targetType').val(),
+			targetType: $targetSelect.find('option:selected').data('category'),
 			targetId: parseInt(targetId),
 			actionType: $('#actionType').val(),
-			parameterValue: $('#parameterValue').val() || ' ',
-			executionOrder: parseInt($('#executionOrder').val()),
+			parameterValue: $('#parameterValue').val()?.trim() || ' ',
+			executionOrder: executionOrder,
 		};
 
 		if (!dto.targetId || isNaN(dto.targetId)) {
@@ -176,20 +204,12 @@ class EquipmentManager {
 			return;
 		}
 
-		if (dto.executionOrder !== null && !isNaN(dto.executionOrder)) {
-			if (dto.executionOrder < 1) {
-				notify.warning('Execution order must be a positive integer');
-				return;
-			}
-
-			if (dto.executionOrder > 1000) {
-				notify.warning('Execution order is too large');
-				return;
-			}
+		if (!isNaN(executionOrder) && (executionOrder < 1 || executionOrder > 1000)) {
+			notify.warning('Execution order must be between 1 and 1000');
+			return;
 		}
 
 		try {
-			const $btn = $('#btnSaveEquipment');
 			$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
 
 			if (actionId) {
@@ -203,10 +223,10 @@ class EquipmentManager {
 			$('#equipmentModal').modal('hide');
 			setTimeout(() => window.location.reload(), 500);
 		} catch (error) {
-			notify.error('Failed to save action');
+			notify.error(error.response?.data?.message || 'Failed to save action');
 			console.error(error);
 		} finally {
-			$('#btnSaveEquipment').prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Changes');
+			$btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Changes');
 		}
 	}
 

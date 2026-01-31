@@ -92,6 +92,23 @@ public class AirConditionDao extends BaseIoTDeviceDao<AirCondition> {
                 .getResultList();
     }
 
+    public List<AirConditionDto> findAll(String langCode) {
+        String dtoPath = AirConditionDto.class.getName();
+        String jpql = """
+                SELECT new %s(
+                    ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
+                    ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing
+                )
+                FROM AirCondition ac 
+                LEFT JOIN ac.translations tl ON tl.langCode = :langCode 
+                ORDER BY ac.id ASC
+                """.formatted(dtoPath);
+        
+        return entityManager.createQuery(jpql, AirConditionDto.class)
+                .setParameter("langCode", langCode)
+                .getResultList();
+    }
+
     public List<AirConditionDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
         String dtoPath = AirConditionDto.class.getName();
         String jpql = """
@@ -110,6 +127,25 @@ public class AirConditionDao extends BaseIoTDeviceDao<AirCondition> {
                 .setParameter("langCode", langCode)
                 .setFirstResult(page * size)
                 .setMaxResults(size)
+                .getResultList();
+    }
+
+    public List<AirConditionDto> findAllByRoomId(Long roomId, String langCode) {
+        String dtoPath = AirConditionDto.class.getName();    
+        String jpql = """
+                SELECT new %s(
+                    ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
+                    ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing
+                )
+                FROM AirCondition ac 
+                LEFT JOIN ac.translations tl ON tl.langCode = :langCode 
+                WHERE ac.room.id = :roomId 
+                ORDER BY ac.id ASC
+                """.formatted(dtoPath);
+                
+        return entityManager.createQuery(jpql, AirConditionDto.class)
+                .setParameter("roomId", roomId)
+                .setParameter("langCode", langCode)
                 .getResultList();
     }
 }

@@ -30,6 +30,11 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.getList(page, size)));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<java.util.List<AirConditionDto>>> getAllAirConditions() {
+        return ResponseEntity.ok(ApiResponse.ok(airConditionService.getAll()));
+    }
+
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ApiResponse<PaginatedResponse<AirConditionDto>>> getByRoom(
             @PathVariable(name = "roomId") Long roomId,
@@ -37,6 +42,13 @@ public class AirConditionController {
             @RequestParam(name = "size", defaultValue = "20") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.getListByRoomId(roomId, page, size)));
+    }
+
+    @GetMapping("/room/{roomId}/all")
+    public ResponseEntity<ApiResponse<java.util.List<AirConditionDto>>> getAllByRoom(
+            @PathVariable(name = "roomId") Long roomId) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(airConditionService.getAllByRoomId(roomId)));
     }
 
     @GetMapping("/{id}")

@@ -164,21 +164,23 @@ public class LightServiceImpl implements LightService {
         Client gateway = dc.getClient();
 
         GatewayCommand command = state == LightPower.ON ? GatewayCommand.ON : GatewayCommand.OFF;
-        ControlDeviceResponse resp = controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
+        light.setIsActive(state == LightPower.ON);
+        lightDao.save(light);
+        controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
 
-        if (200 == resp.status()) {
-            light.setIsActive(state == LightPower.ON);
-            lightDao.save(light);
-        } else {
-            log.error("Failed to set light state. Response status: {}, message: {}", resp.status(), resp.message());
-            switch (resp.status()) {
-                case 400 -> throw new BadRequestException(resp.message());
-                case 404 -> throw new NotFoundException(resp.message());
-                case 502, 503 -> throw new ExternalServiceException(resp.message());
-                case 500 -> throw new InternalServerErrorException(resp.message());
-                default -> throw new InternalServerErrorException("Unexpected response from gateway: " + resp.status());
-            }
-        }
+        // if (200 == resp.status()) {
+        //     light.setIsActive(state == LightPower.ON);
+        //     lightDao.save(light);
+        // } else {
+        //     log.error("Failed to set light state. Response status: {}, message: {}", resp.status(), resp.message());
+        //     switch (resp.status()) {
+        //         case 400 -> throw new BadRequestException(resp.message());
+        //         case 404 -> throw new NotFoundException(resp.message());
+        //         case 502, 503 -> throw new ExternalServiceException(resp.message());
+        //         case 500 -> throw new InternalServerErrorException(resp.message());
+        //         default -> throw new InternalServerErrorException("Unexpected response from gateway: " + resp.status());
+        //     }
+        // }
     }
 
     @Override

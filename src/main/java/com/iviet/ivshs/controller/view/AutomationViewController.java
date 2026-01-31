@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.iviet.ivshs.dto.AutomationActionDto;
 import com.iviet.ivshs.dto.AutomationDto;
-import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.AutomationService;
 import com.iviet.ivshs.service.PermissionService;
