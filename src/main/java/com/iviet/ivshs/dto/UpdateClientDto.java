@@ -2,6 +2,7 @@ package com.iviet.ivshs.dto;
 
 import org.hibernate.validator.constraints.URL;
 
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,9 +16,6 @@ import jakarta.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateClientDto {
-    
-    @Size(min = 3, max = 100, message = "Username must be between 3 and 100 characters")
-    private String username;
 
     @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
     private String password;
@@ -41,4 +39,13 @@ public class UpdateClientDto {
     @URL(message = "Invalid avatar URL")
     @Size(max = 255, message = "Avatar URL must not exceed 255 characters")
     private String avatarUrl;
+
+    public static void applyToEntity(UpdateClientDto dto, Client entity) {
+        if (dto == null || entity == null) return;
+
+        entity.setClientType(dto.getClientType());
+        entity.setIpAddress(dto.getIpAddress());
+        entity.setMacAddress(dto.getMacAddress());
+        entity.setAvatarUrl(dto.getAvatarUrl());
+    }
 }

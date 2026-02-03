@@ -23,6 +23,7 @@ public class AutomationActionDto {
 	private String targetName;
 
 	public static AutomationActionDto fromEntity(AutomationAction action, String targetName) {
+		if (action == null) return null;
 		AutomationActionDto dto = new AutomationActionDto();
 		dto.setId(action.getId());
 		dto.setAutomationId(action.getAutomation().getId());
@@ -36,6 +37,7 @@ public class AutomationActionDto {
 	}
 
 	public static AutomationAction toEntity(Automation automation, AutomationActionDto dto) {
+		if (dto == null) return null;
 		AutomationAction action = new AutomationAction();
 		action.setId(dto.getId());
 		action.setAutomation(automation);

@@ -25,9 +25,7 @@ public record AirConditionDto(
 ) {
 
     public static AirConditionDto fromEntity(AirCondition entity) {
-        if (entity == null) {
-            return null;
-        }
+        if (entity == null) return null;
         return AirConditionDto.builder()
                 .id(entity.getId())
                 .naturalId(entity.getNaturalId())
@@ -42,18 +40,14 @@ public record AirConditionDto(
     }
 
     public static List<AirConditionDto> fromEntities(List<AirCondition> entities) {
-        if (entities == null) {
-            return List.of();
-        }
+        if (entities == null) return List.of();
         return entities.stream()
                 .map(AirConditionDto::fromEntity)
                 .toList();
     }
 
     public static AirCondition toEntity(AirConditionDto dto) {
-        if (dto == null) {
-            return null;
-        }
+        if (dto == null) return null;
         AirCondition entity = new AirCondition();
         entity.setId(dto.id());
         entity.setNaturalId(dto.naturalId());

@@ -10,7 +10,6 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.enumeration.ClientType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.ClientMapper;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.util.SecurityContextUtil;
 
@@ -31,9 +30,6 @@ public class ClientServiceImpl implements ClientService {
     private ClientDao clientDao;
 
     @Autowired
-    private ClientMapper clientMapper;
-
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -49,7 +45,7 @@ public class ClientServiceImpl implements ClientService {
     public PaginatedResponse<ClientDto> getAll(int page, int size) {
         log.info("Fetching all clients, page: {}, size: {}", page, size);
         List<ClientDto> clients = clientDao.findAll(page, size).stream()
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .toList();
         Long totalElements = clientDao.count();
         return new PaginatedResponse<>(clients, page, size, totalElements);
@@ -59,7 +55,7 @@ public class ClientServiceImpl implements ClientService {
     public List<ClientDto> getAll() {
         log.info("Fetching all client DTOs");
         return clientDao.findAll().stream()
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .toList();
     }
 
@@ -72,21 +68,13 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientDto getById(Long clientId) {
         log.info("Fetching client by ID: {}", clientId);
-        if (clientId == null || clientId <= 0) {
-            log.warn("Invalid client ID: {}", clientId);
-            throw new BadRequestException("Client ID is required and must be greater than 0");
-        }
 
-        return clientMapper.toDto(clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId)));
+        return ClientDto.fromEntity(clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId)));
     }
 
     @Override
     public Client getEntityById(Long clientId) {
         log.info("Fetching client entity by ID: {}", clientId);
-        if (clientId == null || clientId <= 0) {
-            log.warn("Invalid client ID: {}", clientId);
-            throw new BadRequestException("Client ID is required and must be greater than 0");
-        }
 
         Client client = clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
@@ -100,24 +88,16 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientDto getByUsername(String username) {
         log.info("Fetching client by username: {}", username);
-        if (username == null || username.trim().isEmpty()) {
-            log.warn("Username is required");
-            throw new BadRequestException("Username is required");
-        }
 
         return clientDao.findByUsername(username.trim())
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
     }
 
     @Override
     public Client getEntityByUsername(String username) {
         log.info("Fetching client entity by username: {}", username);
-        if (username == null || username.trim().isEmpty()) {
-            log.warn("Username is required");
-            throw new BadRequestException("Username is required");
-        }
-        
+
         Client client = clientDao.findByUsername(username.trim())
                 .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
 
@@ -130,91 +110,63 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientDto getUserById(Long userId) {
         log.info("Fetching user by ID: {}", userId);
-        if (userId == null || userId <= 0) {
-            log.warn("Invalid user ID: {}", userId);
-            throw new BadRequestException("User ID is required and must be greater than 0");
-        }
 
         return clientDao.findUserById(userId)
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
     }
 
     @Override
     public ClientDto getGatewayById(Long gatewayId) {
         log.info("Fetching gateway by ID: {}", gatewayId);
-        if (gatewayId == null || gatewayId <= 0) {
-            log.warn("Invalid gateway ID: {}", gatewayId);
-            throw new BadRequestException("Gateway ID is required and must be greater than 0");
-        }
 
         return clientDao.findGatewayById(gatewayId)
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with ID: " + gatewayId));
     }
 
     @Override
     public ClientDto getUserByUsername(String username) {
         log.info("Fetching user by username: {}", username);
-        if (username == null || username.trim().isEmpty()) {
-            log.warn("Username is required");
-            throw new BadRequestException("Username is required");
-        }
 
         return clientDao.findUserByUsername(username.trim())
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .orElseThrow(() -> new NotFoundException("User not found with username: " + username));
     }
 
     @Override
     public ClientDto getUserByIpAddress(String ipAddress) {
         log.info("Fetching user by IP address: {}", ipAddress);
-        if (ipAddress == null || ipAddress.isBlank()) {
-            log.warn("IP Address is required");
-            throw new BadRequestException("IP Address is required");
-        }
 
         Client user = clientDao.findUserByIpAddress(ipAddress)
                 .orElseThrow(() -> new NotFoundException("User not found with IP Address: " + ipAddress));
 
-        return clientMapper.toDto(user);
+        return ClientDto.fromEntity(user);
     }
 
     @Override
     public ClientDto getGatewayByUsername(String username) {
         log.info("Fetching gateway by username: {}", username);
-        if (username == null || username.trim().isEmpty()) {
-            log.warn("Username is required");
-            throw new BadRequestException("Username is required");
-        }
 
         return clientDao.findGatewayByUsername(username.trim())
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with username: " + username));
     }
 
     @Override
     public ClientDto getGatewayByIpAddress(String ipAddress) {
         log.info("Fetching gateway by IP address: {}", ipAddress);
-        if (ipAddress == null || ipAddress.isBlank()) {
-            log.warn("IP Address is required");
-            throw new BadRequestException("IP Address is required");
-        }
 
         Client gateway = clientDao.findGatewayByIpAddress(ipAddress)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
 
-        return clientMapper.toDto(gateway);
+        return ClientDto.fromEntity(gateway);
     }
 
     @Override
     @Transactional
     public ClientDto create(CreateClientDto createDto) {
         log.info("Creating new client: {}", createDto);
-        if (createDto == null) {
-            log.warn("Client data is required");
-            throw new BadRequestException("Client data is required");
-        }
 
         String username = createDto.getUsername() == null ? null : createDto.getUsername().trim();
         if (username == null || username.isEmpty()) {
@@ -241,42 +193,24 @@ public class ClientServiceImpl implements ClientService {
             createDto.setIpAddress(null);
         }
 
-        Client client = clientMapper.toEntity(createDto);
+        Client client = CreateClientDto.toEntity(createDto);
         client.setUsername(username);
         client.setPasswordHash(passwordEncoder.encode(createDto.getPassword()));
 
         Client savedClient = clientDao.save(client);
 
         log.info("Client created successfully: {}", savedClient.getId());
-        return clientMapper.toDto(savedClient);
+        return ClientDto.fromEntity(savedClient);
     }
 
     @Override
     @Transactional
     public ClientDto update(Long clientId, UpdateClientDto updateDto) {
         log.info("Updating client ID: {}", clientId);
-        if (clientId == null) {
-            log.warn("Client ID is required");
-            throw new BadRequestException("Client ID is required");
-        }
-        if (updateDto == null) {
-            log.warn("Update data is required");
-            throw new BadRequestException("Update data is required");
-        }
 
-        Client client = clientDao.findById(clientId)
-                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        Client client = clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
-        if (updateDto.getUsername() != null && !updateDto.getUsername().trim().isEmpty()) {
-            String newUsername = updateDto.getUsername().trim();
-            if (!newUsername.equals(client.getUsername()) && clientDao.existsByUsername(newUsername)) {
-                log.warn("Username already exists: {}", newUsername);
-                throw new BadRequestException("Username already exists: " + newUsername);
-            }
-            client.setUsername(newUsername);
-        }
-
-        clientMapper.updateEntityFromDto(updateDto, client);
+        UpdateClientDto.applyToEntity(updateDto, client);
 
         if (updateDto.getPassword() != null && !updateDto.getPassword().trim().isEmpty()) {
             client.setPasswordHash(passwordEncoder.encode(updateDto.getPassword()));
@@ -285,7 +219,7 @@ public class ClientServiceImpl implements ClientService {
         clientDao.update(client);
 
         log.info("Client updated successfully: {}", clientId);
-        return clientMapper.toDto(client);
+        return ClientDto.fromEntity(client);
     }
 
     @Override
@@ -324,13 +258,9 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public PaginatedResponse<ClientDto> getAllGatewaysByRoomId(Long roomId, int page, int size) {
         log.info("Fetching all gateways by room ID: {}, page: {}, size: {}", roomId, page, size);
-        if (roomId == null || roomId <= 0) {
-            log.warn("Room ID is required and must be greater than 0");
-            throw new BadRequestException("Room ID is required and must be greater than 0");
-        }
 
         List<ClientDto> gateways = clientDao.findGatewaysByRoomId(roomId, page, size).stream()
-                .map(clientMapper::toDto)
+                .map(ClientDto::fromEntity)
                 .toList();
         Long totalElements = clientDao.countGatewaysByRoomId(roomId);
 
@@ -340,10 +270,6 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Long countGateWayByRoomId(Long roomId) {
         log.info("Counting gateways by room ID: {}", roomId);
-        if (roomId == null || roomId <= 0) {
-            log.warn("Room ID is required and must be greater than 0");
-            throw new BadRequestException("Room ID is required and must be greater than 0");
-        }
 
         return clientDao.countGatewaysByRoomId(roomId);
     }

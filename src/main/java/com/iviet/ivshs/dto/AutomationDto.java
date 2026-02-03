@@ -22,6 +22,7 @@ public class AutomationDto {
     private Instant updatedAt;
 
     public static AutomationDto fromEntity(Automation entity) {
+        if (entity == null) return null;
         AutomationDto dto = new AutomationDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -34,12 +35,14 @@ public class AutomationDto {
     }
 
     public static List<AutomationDto> fromEntities(List<Automation> entities) {
+        if (entities == null) return List.of();
         return entities.stream()
             .map(AutomationDto::fromEntity)
             .toList();
     }
 
     public static Automation toEntity(AutomationDto dto) {
+        if (dto == null) return null;
         Automation automation = new Automation();
         automation.setId(dto.getId());
         automation.setName(dto.getName());
