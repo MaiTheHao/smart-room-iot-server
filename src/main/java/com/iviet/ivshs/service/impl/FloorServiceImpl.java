@@ -7,7 +7,6 @@ import com.iviet.ivshs.entities.FloorLan;
 import com.iviet.ivshs.entities.Floor;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.FloorMapper;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.util.LocalContextUtil;
@@ -28,7 +27,6 @@ public class FloorServiceImpl implements FloorService {
 
     private final FloorDao floorDao;
     private final LanguageDao languageDao;
-    private final FloorMapper floorMapper;
     private final PermissionService permissionService;
 
     @Override
@@ -83,7 +81,7 @@ public class FloorServiceImpl implements FloorService {
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
 
-        Floor floor = floorMapper.fromCreateDto(dto);
+        Floor floor = CreateFloorDto.toEntity(dto);
         floor.setCode(code);
 
         FloorLan floorLan = new FloorLan();
@@ -95,7 +93,7 @@ public class FloorServiceImpl implements FloorService {
         floor.getTranslations().add(floorLan);
         floorDao.save(floor);
 
-        return floorMapper.toDto(floor, floorLan); 
+        return FloorDto.fromEntity(floor, floorLan); 
     }
 
     @Override
@@ -130,7 +128,7 @@ public class FloorServiceImpl implements FloorService {
         if (dto.description() != null) floorLan.setDescription(dto.description());
 
         floorDao.save(floor);
-        return floorMapper.toDto(floor, floorLan);
+        return FloorDto.fromEntity(floor, floorLan);
     }
 
     @Override

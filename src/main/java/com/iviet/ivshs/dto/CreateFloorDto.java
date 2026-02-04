@@ -1,5 +1,7 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.entities.Floor;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,4 +25,11 @@ public record CreateFloorDto(
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")
     String langCode
-) {}
+) {
+    public static Floor toEntity(CreateFloorDto dto) {
+        Floor floor = new Floor();
+        floor.setCode(dto.code());
+        floor.setLevel(dto.level());
+        return floor;
+    }
+}

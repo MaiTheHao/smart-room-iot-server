@@ -82,7 +82,7 @@ public class TelemetryServiceImpl implements TelemetryService {
                             processTakeByGateway(gateway);
                         } catch (Exception e) {
                             log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}", 
-                                    gateway.getUsername(), roomId, e.getMessage());
+                                    gateway.username(), roomId, e.getMessage());
                         }
                     }, executor))
                     .toList();
@@ -110,7 +110,7 @@ public class TelemetryServiceImpl implements TelemetryService {
                             processTakeByGateway(gateway);
                         } catch (Exception e) {
                             log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}", 
-                                    gateway.getUsername(), roomCode, e.getMessage());
+                                    gateway.username(), roomCode, e.getMessage());
                         }
                     }, executor))
                     .toList();
@@ -170,7 +170,7 @@ public class TelemetryServiceImpl implements TelemetryService {
     }
 
     private void processTakeByGateway(ClientDto gateway) {
-        String url = UrlConstant.getTelemetryByGatewayV1(gateway.getIpAddress());
+        String url = UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress());
         var response = HttpClientUtil.get(url);
         HttpClientUtil.handleThrowException(response);
 
@@ -205,10 +205,10 @@ public class TelemetryServiceImpl implements TelemetryService {
                 }
                 processedCount++;
             } catch (Exception e) {
-                log.error("Failed to process sensor {} for gateway {}: {}", naturalId, gateway.getUsername(), e.getMessage());
+                log.error("Failed to process sensor {} for gateway {}: {}", naturalId, gateway.username(), e.getMessage());
             }
         }
 
-        log.info("Gateway {}: Processed {}/{} telemetry records", gateway.getUsername(), processedCount, telemetryData.size());
+        log.info("Gateway {}: Processed {}/{} telemetry records", gateway.username(), processedCount, telemetryData.size());
     }
 }
