@@ -15,7 +15,7 @@ public record ClientDto(
     String avatarUrl,
     Date lastLoginAt
 ) {
-    public static ClientDto fromEntity(Client entity) {
+    public static ClientDto from(Client entity) {
         if (entity == null) return null;
         return ClientDto.builder()
                 .id(entity.getId())

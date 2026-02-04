@@ -22,7 +22,7 @@ public class AutomationActionDto {
 	private Integer executionOrder;
 	private String targetName;
 
-	public static AutomationActionDto fromEntity(AutomationAction action, String targetName) {
+	public static AutomationActionDto from(AutomationAction action, String targetName) {
 		if (action == null) return null;
 		AutomationActionDto dto = new AutomationActionDto();
 		dto.setId(action.getId());

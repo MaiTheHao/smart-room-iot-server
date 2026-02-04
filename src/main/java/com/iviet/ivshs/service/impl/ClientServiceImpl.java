@@ -41,7 +41,7 @@ public class ClientServiceImpl implements ClientService {
     public PaginatedResponse<ClientDto> getAll(int page, int size) {
         log.info("Fetching all clients, page: {}, size: {}", page, size);
         List<ClientDto> clients = clientDao.findAll(page, size).stream()
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .toList();
         Long totalElements = clientDao.count();
         return new PaginatedResponse<>(clients, page, size, totalElements);
@@ -51,7 +51,7 @@ public class ClientServiceImpl implements ClientService {
     public List<ClientDto> getAll() {
         log.info("Fetching all client DTOs");
         return clientDao.findAll().stream()
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .toList();
     }
 
@@ -64,7 +64,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientDto getById(Long clientId) {
         log.info("Fetching client by ID: {}", clientId);
-        return ClientDto.fromEntity(clientDao.findById(clientId)
+        return ClientDto.from(clientDao.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId)));
     }
 
@@ -84,7 +84,7 @@ public class ClientServiceImpl implements ClientService {
     public ClientDto getByUsername(String username) {
         log.info("Fetching client by username: {}", username);
         return clientDao.findByUsername(username.trim())
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
     }
 
@@ -104,7 +104,7 @@ public class ClientServiceImpl implements ClientService {
     public ClientDto getUserById(Long userId) {
         log.info("Fetching user by ID: {}", userId);
         return clientDao.findUserById(userId)
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
     }
 
@@ -112,7 +112,7 @@ public class ClientServiceImpl implements ClientService {
     public ClientDto getGatewayById(Long gatewayId) {
         log.info("Fetching gateway by ID: {}", gatewayId);
         return clientDao.findGatewayById(gatewayId)
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with ID: " + gatewayId));
     }
 
@@ -120,7 +120,7 @@ public class ClientServiceImpl implements ClientService {
     public ClientDto getUserByUsername(String username) {
         log.info("Fetching user by username: {}", username);
         return clientDao.findUserByUsername(username.trim())
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .orElseThrow(() -> new NotFoundException("User not found with username: " + username));
     }
 
@@ -129,14 +129,14 @@ public class ClientServiceImpl implements ClientService {
         log.info("Fetching user by IP address: {}", ipAddress);
         Client user = clientDao.findUserByIpAddress(ipAddress)
                 .orElseThrow(() -> new NotFoundException("User not found with IP Address: " + ipAddress));
-        return ClientDto.fromEntity(user);
+        return ClientDto.from(user);
     }
 
     @Override
     public ClientDto getGatewayByUsername(String username) {
         log.info("Fetching gateway by username: {}", username);
         return clientDao.findGatewayByUsername(username.trim())
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with username: " + username));
     }
 
@@ -145,7 +145,7 @@ public class ClientServiceImpl implements ClientService {
         log.info("Fetching gateway by IP address: {}", ipAddress);
         Client gateway = clientDao.findGatewayByIpAddress(ipAddress)
                 .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
-        return ClientDto.fromEntity(gateway);
+        return ClientDto.from(gateway);
     }
 
     @Override
@@ -183,7 +183,7 @@ public class ClientServiceImpl implements ClientService {
         Client savedClient = clientDao.save(client);
 
         log.info("Client created successfully with ID: {}", savedClient.getId());
-        return ClientDto.fromEntity(savedClient);
+        return ClientDto.from(savedClient);
     }
 
     @Override
@@ -214,7 +214,7 @@ public class ClientServiceImpl implements ClientService {
         clientDao.update(client);
 
         log.info("Client updated successfully: {}", clientId);
-        return ClientDto.fromEntity(client);
+        return ClientDto.from(client);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class ClientServiceImpl implements ClientService {
         log.info("Fetching all gateways by room ID: {}, page: {}, size: {}", roomId, page, size);
 
         List<ClientDto> gateways = clientDao.findGatewaysByRoomId(roomId, page, size).stream()
-                .map(ClientDto::fromEntity)
+                .map(ClientDto::from)
                 .toList();
         Long totalElements = clientDao.countGatewaysByRoomId(roomId);
 

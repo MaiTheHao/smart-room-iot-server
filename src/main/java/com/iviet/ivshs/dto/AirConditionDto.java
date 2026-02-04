@@ -24,7 +24,7 @@ public record AirConditionDto(
     AcSwing swing
 ) {
 
-    public static AirConditionDto fromEntity(AirCondition entity) {
+    public static AirConditionDto from(AirCondition entity) {
         if (entity == null) return null;
         return AirConditionDto.builder()
                 .id(entity.getId())
@@ -42,7 +42,7 @@ public record AirConditionDto(
     public static List<AirConditionDto> fromEntities(List<AirCondition> entities) {
         if (entities == null) return List.of();
         return entities.stream()
-                .map(AirConditionDto::fromEntity)
+                .map(AirConditionDto::from)
                 .toList();
     }
 

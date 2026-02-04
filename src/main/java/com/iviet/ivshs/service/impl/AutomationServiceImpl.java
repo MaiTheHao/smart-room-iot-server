@@ -69,7 +69,7 @@ public class AutomationServiceImpl implements AutomationService {
 		}
 
 		log.info("Created automation ID: {}", automation.getId());
-		return AutomationDto.fromEntity(automation);
+		return AutomationDto.from(automation);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class AutomationServiceImpl implements AutomationService {
 		quartzHelper.sync(automation);
 
 		log.info("Updated automation ID: {}", automationId);
-		return AutomationDto.fromEntity(automation);
+		return AutomationDto.from(automation);
 	}
 
 	@Override
@@ -119,14 +119,14 @@ public class AutomationServiceImpl implements AutomationService {
 	public AutomationDto getById(Long automationId) {
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
-		return AutomationDto.fromEntity(automation);
+		return AutomationDto.from(automation);
 	}
 
 	@Override
 	public PaginatedResponse<AutomationDto> getAll(int page, int size) {
 		List<Automation> automations = automationDao.findAllPaginated(page, size);
 		List<AutomationDto> dtos = automations.stream()
-				.map(AutomationDto::fromEntity)
+				.map(AutomationDto::from)
 				.collect(Collectors.toList());
 
 		long total = automationDao.countAll();
@@ -136,7 +136,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	public List<AutomationDto> getAllActive() {
 		return automationDao.findAllActive().stream()
-				.map(AutomationDto::fromEntity)
+				.map(AutomationDto::from)
 				.collect(Collectors.toList());
 	}
 
@@ -152,7 +152,7 @@ public class AutomationServiceImpl implements AutomationService {
 		return automation.getActions().stream()
 				.map(action -> {
 					String targetName = getTargetName(action.getTargetType(), action.getTargetId());
-					return AutomationActionDto.fromEntity(action, targetName);
+					return AutomationActionDto.from(action, targetName);
 				})
 				.collect(Collectors.toList());
 	}
@@ -177,7 +177,7 @@ public class AutomationServiceImpl implements AutomationService {
 		automationActionDao.save(action);
 
 		String targetName = getTargetName(action.getTargetType(), action.getTargetId());
-		return AutomationActionDto.fromEntity(action, targetName);
+		return AutomationActionDto.from(action, targetName);
 	}
 
 	@Override
@@ -198,7 +198,7 @@ public class AutomationServiceImpl implements AutomationService {
 		automationActionDao.update(action);
 
 		String targetName = getTargetName(action.getTargetType(), action.getTargetId());
-		return AutomationActionDto.fromEntity(action, targetName);
+		return AutomationActionDto.from(action, targetName);
 	}
 
 	@Override

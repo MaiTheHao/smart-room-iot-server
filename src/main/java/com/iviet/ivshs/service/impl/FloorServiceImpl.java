@@ -93,7 +93,7 @@ public class FloorServiceImpl implements FloorService {
         floor.getTranslations().add(floorLan);
         floorDao.save(floor);
 
-        return FloorDto.fromEntity(floor, floorLan); 
+        return FloorDto.from(floor, floorLan); 
     }
 
     @Override
@@ -128,7 +128,7 @@ public class FloorServiceImpl implements FloorService {
         if (dto.description() != null) floorLan.setDescription(dto.description());
 
         floorDao.save(floor);
-        return FloorDto.fromEntity(floor, floorLan);
+        return FloorDto.from(floor, floorLan);
     }
 
     @Override

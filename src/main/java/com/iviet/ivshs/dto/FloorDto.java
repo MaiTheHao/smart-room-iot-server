@@ -13,7 +13,7 @@ public record FloorDto(
     String description,
     Integer level
 ) {
-    public static FloorDto fromEntity(Floor entity, FloorLan lan) {
+    public static FloorDto from(Floor entity, FloorLan lan) {
         return FloorDto.builder()
             .id(entity.getId())
             .code(entity.getCode())

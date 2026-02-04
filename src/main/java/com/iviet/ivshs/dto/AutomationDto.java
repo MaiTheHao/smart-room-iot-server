@@ -21,7 +21,7 @@ public class AutomationDto {
     private Instant createdAt;
     private Instant updatedAt;
 
-    public static AutomationDto fromEntity(Automation entity) {
+    public static AutomationDto from(Automation entity) {
         if (entity == null) return null;
         AutomationDto dto = new AutomationDto();
         dto.setId(entity.getId());
@@ -37,7 +37,7 @@ public class AutomationDto {
     public static List<AutomationDto> fromEntities(List<Automation> entities) {
         if (entities == null) return List.of();
         return entities.stream()
-            .map(AutomationDto::fromEntity)
+            .map(AutomationDto::from)
             .toList();
     }
 
