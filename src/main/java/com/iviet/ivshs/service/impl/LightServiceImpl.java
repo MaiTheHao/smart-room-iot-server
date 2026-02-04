@@ -6,8 +6,6 @@ import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.enumeration.GatewayCommand;
 import com.iviet.ivshs.enumeration.LightPower;
 import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.ExternalServiceException;
-import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.LightMapper;
 import com.iviet.ivshs.service.ControlService;

@@ -1,5 +1,6 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.entities.Room;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,4 +24,10 @@ public record CreateRoomDto(
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")
     String langCode
-) {}
+) {
+    public Room toEntity() {
+        Room room = new Room();
+        room.setCode(this.code);
+        return room;
+    }
+}

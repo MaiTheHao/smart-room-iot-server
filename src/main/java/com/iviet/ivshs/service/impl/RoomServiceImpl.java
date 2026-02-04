@@ -9,7 +9,6 @@ import com.iviet.ivshs.entities.RoomLan;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.RoomMapper;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.PermissionService;
@@ -35,21 +34,20 @@ public class RoomServiceImpl implements RoomService {
     private final FloorDao floorDao;
     private final FloorService floorService;
     private final LanguageDao languageDao;
-    private final RoomMapper roomMapper;
     private final PermissionService permissionService;
 
     @Override
     public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {
-        floorService.getEntityById(floorId);
-
         String langCode = LocalContextUtil.getCurrentLangCode();
         List<RoomDto> rooms = roomDao.findAllByFloorId(floorId, page, size, langCode);
-       
+
         Set<String> accessibleRoomCodes = permissionService.getAccessibleRoomCodes();
         if (!accessibleRoomCodes.contains(PermissionService.ACCESS_ALL)) rooms.removeIf(room -> !accessibleRoomCodes.contains(room.code()));
 
-        long total = roomDao.countByFloorId(floorId);
-        return new PaginatedResponse<>(rooms, page, size, total);
+        return new PaginatedResponse<>(
+                rooms,
+                page, size, roomDao.countByFloorId(floorId)
+        );
     }
 
     @Override
@@ -115,7 +113,7 @@ public class RoomServiceImpl implements RoomService {
 
         _checkDuplicate(dto.code().trim(), null);
 
-        Room room = roomMapper.fromCreateDto(dto);
+        Room room = dto.toEntity();
         room.setCode(dto.code().trim());
         room.setFloor(floor);
 
@@ -128,7 +126,7 @@ public class RoomServiceImpl implements RoomService {
         room.getTranslations().add(roomLan);
         roomDao.save(room);
 
-        return roomMapper.toDto(room, roomLan);
+        return RoomDto.from(room, roomLan);
     }
 
     @Override
@@ -149,12 +147,12 @@ public class RoomServiceImpl implements RoomService {
 
         if (dto.floorId() != null && !dto.floorId().equals(room.getFloor().getId())) {
             Floor newFloor = floorDao.findById(dto.floorId())
-                    .orElseThrow(() -> new NotFoundException("Target floor not found: " + dto.floorId()));
+                    .orElseThrow(() -> new NotFoundException("Floor not found with ID: " + dto.floorId()));
             room.setFloor(newFloor);
         }
 
         RoomLan roomLan = room.getTranslations().stream()
-                .filter(lan -> langCode.equals(lan.getLangCode()))
+                .filter(t -> t.getLangCode().equals(langCode))
                 .findFirst()
                 .orElseGet(() -> {
                     RoomLan newLan = new RoomLan();
@@ -164,7 +162,7 @@ public class RoomServiceImpl implements RoomService {
                     return newLan;
                 });
 
-        if (dto.name() != null) {
+        if (StringUtils.hasText(dto.name())) {
             roomLan.setName(dto.name().trim());
         }
         if (dto.description() != null) {
@@ -172,7 +170,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         roomDao.save(room);
-        return roomMapper.toDto(room, roomLan);
+        return RoomDto.from(room, roomLan);
     }
 
     @Override

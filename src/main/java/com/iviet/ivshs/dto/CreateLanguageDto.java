@@ -1,5 +1,6 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.entities.Language;
 import lombok.Builder;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,4 +17,12 @@ public record CreateLanguageDto(
 
     @Size(max = 255, message = "Description must not exceed 255 characters")
     String description
-){}
+) {
+    public Language toEntity() {
+        Language language = new Language();
+        language.setCode(this.code);
+        language.setName(this.name);
+        language.setDescription(this.description);
+        return language;
+    }
+}

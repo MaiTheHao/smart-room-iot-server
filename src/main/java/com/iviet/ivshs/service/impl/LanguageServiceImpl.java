@@ -8,7 +8,6 @@ import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.LanguageMapper;
 import com.iviet.ivshs.service.LanguageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,12 +22,11 @@ import java.util.List;
 public class LanguageServiceImpl implements LanguageService {
 
     private final LanguageDao languageDao;
-    private final LanguageMapper languageMapper;
 
     @Override
     public PaginatedResponse<LanguageDto> getList(int page, int size) {
         List<LanguageDto> content = languageDao.findAll(page, size).stream()
-                .map(languageMapper::toDto)
+                .map(LanguageDto::from)
                 .toList();
 
         return new PaginatedResponse<>(content, page, size, languageDao.count());
@@ -36,7 +34,8 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public LanguageDto getById(Long langId) {
-        return languageMapper.toDto(languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId)));
+        return LanguageDto.from(languageDao.findById(langId)
+                .orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId)));
     }
 
     @Override
@@ -44,7 +43,7 @@ public class LanguageServiceImpl implements LanguageService {
         if (!StringUtils.hasText(code)) throw new BadRequestException("Language code is required");
 
         return languageDao.findByCode(code.trim())
-                .map(languageMapper::toDto)
+                .map(LanguageDto::from)
                 .orElseThrow(() -> new NotFoundException("Language not found with code: " + code));
     }
 
@@ -58,10 +57,10 @@ public class LanguageServiceImpl implements LanguageService {
         String code = dto.code().trim();
         _checkDuplicate(code, null);
 
-        Language entity = languageMapper.fromCreateDto(dto);
+        Language entity = dto.toEntity();
         entity.setCode(code);
         
-        return languageMapper.toDto(languageDao.save(entity));
+        return LanguageDto.from(languageDao.save(entity));
     }
 
     @Override
@@ -69,7 +68,8 @@ public class LanguageServiceImpl implements LanguageService {
     public LanguageDto update(Long langId, UpdateLanguageDto dto) {
         if (dto == null) throw new BadRequestException("Update data is required");
 
-        Language entity = languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
+        Language entity = languageDao.findById(langId)
+                .orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
 
         if (StringUtils.hasText(dto.code())) {
             String newCode = dto.code().trim();
@@ -80,7 +80,7 @@ public class LanguageServiceImpl implements LanguageService {
         if (dto.name() != null) entity.setName(dto.name());
         if (dto.description() != null) entity.setDescription(dto.description());
 
-        return languageMapper.toDto(languageDao.save(entity));
+        return LanguageDto.from(languageDao.save(entity));
     }
 
     @Override
