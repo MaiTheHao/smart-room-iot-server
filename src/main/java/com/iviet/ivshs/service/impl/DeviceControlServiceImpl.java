@@ -11,15 +11,10 @@ import com.iviet.ivshs.dto.CreateDeviceControlDto;
 import com.iviet.ivshs.dto.DeviceControlDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateDeviceControlDto;
-import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.DeviceControl;
-import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.DeviceControlMapper;
 import com.iviet.ivshs.service.DeviceControlService;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,9 +22,6 @@ public class DeviceControlServiceImpl implements DeviceControlService {
 
     @Autowired
     private DeviceControlDao deviceControlDao;
-    
-    @Autowired
-    private DeviceControlMapper deviceControlMapper;
     
     @Autowired
     private ClientDao clientDao;
@@ -42,29 +34,29 @@ public class DeviceControlServiceImpl implements DeviceControlService {
         if (deviceControlId == null) 
             throw new BadRequestException("Device Control ID is required");
         
-        DeviceControl deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        var deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
         
-        return deviceControlMapper.toDto(deviceControl);
+        return DeviceControlDto.from(deviceControl);
     }
 
     @Override
     @Transactional
     public DeviceControlDto create(CreateDeviceControlDto dto) {
         if (dto == null) throw new BadRequestException("Device control data is required");
-        if (dto.getClientId() == null) throw new BadRequestException("Client ID is required");
-        if (dto.getRoomId() == null) throw new BadRequestException("Room ID is required");
+        if (dto.clientId() == null) throw new BadRequestException("Client ID is required");
+        if (dto.roomId() == null) throw new BadRequestException("Room ID is required");
 
-        Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+        var client = clientDao.findById(dto.clientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
         
-        Room room = roomDao.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
+        var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
-        DeviceControl deviceControl = deviceControlMapper.toEntity(dto);
+        var deviceControl = dto.toEntity();
         deviceControl.setClient(client);
         deviceControl.setRoom(room);
 
-        DeviceControl savedDeviceControl = deviceControlDao.save(deviceControl);
+        var savedDeviceControl = deviceControlDao.save(deviceControl);
 
-        return deviceControlMapper.toDto(savedDeviceControl);
+        return DeviceControlDto.from(savedDeviceControl);
     }
 
     @Override
@@ -73,25 +65,25 @@ public class DeviceControlServiceImpl implements DeviceControlService {
         if (deviceControlId == null) throw new BadRequestException("Device Control ID is required");
         if (dto == null) throw new BadRequestException("Update data is required");
 
-        DeviceControl deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        var deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
 
-        if (dto.getClientId() != null) {
+        if (dto.clientId() != null) {
             Long currentClientId = deviceControl.getClient() != null ? deviceControl.getClient().getId() : null;
-            if (!dto.getClientId().equals(currentClientId)) {
-                Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+            if (!dto.clientId().equals(currentClientId)) {
+                var client = clientDao.findById(dto.clientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
                 deviceControl.setClient(client);
             }
         }
 
-        if (dto.getRoomId() != null && !dto.getRoomId().equals(deviceControl.getRoom().getId())) {
-            Room room = roomDao.findById(dto.getRoomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.getRoomId()));
+        if (dto.roomId() != null && !dto.roomId().equals(deviceControl.getRoom().getId())) {
+            var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
             deviceControl.setRoom(room);
         }
 
-        deviceControlMapper.updateEntityFromDto(dto, deviceControl);
+        dto.applyTo(deviceControl);
         deviceControlDao.update(deviceControl);
 
-        return deviceControlMapper.toDto(deviceControl);
+        return DeviceControlDto.from(deviceControl);
     }
 
     @Override
@@ -108,8 +100,8 @@ public class DeviceControlServiceImpl implements DeviceControlService {
     public PaginatedResponse<DeviceControlDto> getListByClientId(Long clientId, int page, int size) {
         if (clientId == null) throw new BadRequestException("Client ID is required");
         
-        List<DeviceControl> deviceControls = deviceControlDao.findByClientId(clientId, page, size);
-        List<DeviceControlDto> content = deviceControlMapper.toListDto(deviceControls);
+        var deviceControls = deviceControlDao.findByClientId(clientId, page, size);
+        var content = deviceControls.stream().map(DeviceControlDto::from).toList();
         Long totalElements = deviceControlDao.countByClientId(clientId);
         
         return new PaginatedResponse<>(content, page, size, totalElements);
@@ -119,8 +111,8 @@ public class DeviceControlServiceImpl implements DeviceControlService {
     public PaginatedResponse<DeviceControlDto> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
         
-        List<DeviceControl> deviceControls = deviceControlDao.findByRoomId(roomId, page, size);
-        List<DeviceControlDto> content = deviceControlMapper.toListDto(deviceControls);
+        var deviceControls = deviceControlDao.findByRoomId(roomId, page, size);
+        var content = deviceControls.stream().map(DeviceControlDto::from).toList();
         Long totalElements = deviceControlDao.countByRoomId(roomId);
         
         return new PaginatedResponse<>(content, page, size, totalElements);

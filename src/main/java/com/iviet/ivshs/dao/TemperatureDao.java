@@ -11,18 +11,19 @@ import com.iviet.ivshs.entities.Temperature;
 @Repository
 public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
 
+    private final String DTO_CLASS = TemperatureDto.class.getName();
+
     public TemperatureDao() {
         super(Temperature.class);
     }
 
     public Optional<TemperatureDto> findById(Long temperatureId, String langCode) {
-        String dtoPath = TemperatureDto.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.id = :temperatureId
-                """.formatted(dtoPath);
+                """.formatted(DTO_CLASS);
 
         return entityManager.createQuery(jpql, TemperatureDto.class)
                 .setParameter("temperatureId", temperatureId)
@@ -33,14 +34,13 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
     }
 
     public List<TemperatureDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
-        String dtoPath = TemperatureDto.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.room.id = :roomId 
                 ORDER BY t.id ASC
-                """.formatted(dtoPath);
+                """.formatted(DTO_CLASS);
 
         return entityManager.createQuery(jpql, TemperatureDto.class)
                 .setParameter("roomId", roomId)
@@ -52,13 +52,12 @@ public class TemperatureDao extends BaseIoTDeviceDao<Temperature> {
 
     @Override
     public Optional<TemperatureDto> findByNaturalId(String naturalId, String langCode) {
-        String dtoPath = TemperatureDto.class.getName();
         String jpql = """
                 SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
                 FROM Temperature t 
                 LEFT JOIN t.translations tl ON tl.langCode = :langCode 
                 WHERE t.naturalId = :naturalId
-                """.formatted(dtoPath);
+                """.formatted(DTO_CLASS);
         return entityManager.createQuery(jpql, TemperatureDto.class)
                 .setParameter("naturalId", naturalId)
                 .setParameter("langCode", langCode)

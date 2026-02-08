@@ -1,23 +1,17 @@
 package com.iviet.ivshs.dto;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateSysGroupDto {
-    
+public record UpdateSysGroupDto(
     @Size(min = 1, max = 100, message = "Group name must be between 1 and 100 characters")
-    private String name;
+    String name,
 
     @Size(max = 255, message = "Description must not exceed 255 characters")
-    private String description;
+    String description,
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")
-    private String langCode;
+    String langCode
+) {
 }

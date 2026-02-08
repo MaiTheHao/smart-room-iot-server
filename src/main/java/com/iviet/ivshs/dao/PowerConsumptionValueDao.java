@@ -14,6 +14,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
 	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', pcv.timestamp, '" + DATE_FORMAT + "') AS string)";
+	private final String AVG_DTO_CLASS = AveragePowerConsumptionValueDto.class.getName();
+	private final String SUM_DTO_CLASS = SumPowerConsumptionValueDto.class.getName();
 
 	public PowerConsumptionValueDao() {
 		super(PowerConsumptionValue.class);
@@ -48,14 +50,13 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String dtoPath = AveragePowerConsumptionValueDto.class.getName();
 		String jpql = """
 				SELECT new %s(%s, AVG(pcv.watt))
 				FROM PowerConsumptionValue pcv
 				WHERE pcv.sensor.room.id = :roomId AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY %s
 				ORDER BY %s ASC
-				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+				""".formatted(AVG_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 		
 		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
 				.setParameter("roomId", roomId)
@@ -65,7 +66,6 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String dtoPath = AveragePowerConsumptionValueDto.class.getName();
 		String jpql = """
 				SELECT new %s(%s, AVG(pcv.watt))
 				FROM PowerConsumptionValue pcv
@@ -73,7 +73,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY %s
 				ORDER BY %s ASC
-				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+				""".formatted(AVG_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 		
 		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
 				.setParameter("clientId", clientId)
@@ -83,7 +83,6 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String dtoPath = SumPowerConsumptionValueDto.class.getName();
 		String jpql = """
 				SELECT new %s(%s, SUM(pcv.watt))
 				FROM PowerConsumptionValue pcv
@@ -91,7 +90,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY %s
 				ORDER BY %s ASC
-				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+				""".formatted(SUM_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 		
 		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
 				.setParameter("clientId", clientId)
@@ -101,14 +100,13 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String dtoPath = SumPowerConsumptionValueDto.class.getName();
 		String jpql = """
 				SELECT new %s(%s, SUM(pcv.watt))
 				FROM PowerConsumptionValue pcv
 				WHERE pcv.sensor.room.id = :roomId AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY %s
 				ORDER BY %s ASC
-				""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+				""".formatted(SUM_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 		
 		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
 				.setParameter("roomId", roomId)

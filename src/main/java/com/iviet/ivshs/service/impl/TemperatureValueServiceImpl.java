@@ -6,9 +6,7 @@ import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.CreateTemperatureValueDto;
 import com.iviet.ivshs.entities.Temperature;
-import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.TemperatureValueMapper;
 import com.iviet.ivshs.service.TemperatureValueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,6 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     private final RoomDao roomDao;
     private final TemperatureDao temperatureDao;
     private final TemperatureValueDao temperatureValueDao;
-    private final TemperatureValueMapper temperatureValueMapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,8 +36,8 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     @Override
     @Transactional
     public void create(CreateTemperatureValueDto dto) {
-        Temperature sensor = temperatureDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + dto.sensorNaturalId()));
-        TemperatureValue record = temperatureValueMapper.fromCreateDto(dto);
+        var sensor = temperatureDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + dto.sensorNaturalId()));
+        var record = dto.toEntity();
         record.setSensor(sensor);
         temperatureValueDao.save(record);
     }
@@ -48,7 +45,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     @Override
     @Transactional
     public void createWithSensor(Temperature sensor, CreateTemperatureValueDto dto) {
-        TemperatureValue record = temperatureValueMapper.fromCreateDto(dto);
+        var record = dto.toEntity();
         record.setSensor(sensor);
         temperatureValueDao.saveAndForget(sensor.getId(), record);
     }
@@ -56,8 +53,9 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     @Override
     @Transactional
     public void createBatchWithSensor(Temperature sensor, List<CreateTemperatureValueDto> dtoList) {
-        temperatureValueDao.saveAndForget(sensor.getId(), dtoList.stream().filter(dto -> dto != null)
-            .map(temperatureValueMapper::fromCreateDto)
+        temperatureValueDao.saveAndForget(sensor.getId(), dtoList.stream()
+            .filter(dto -> dto != null)
+            .map(CreateTemperatureValueDto::toEntity)
             .toList()
         );
     }

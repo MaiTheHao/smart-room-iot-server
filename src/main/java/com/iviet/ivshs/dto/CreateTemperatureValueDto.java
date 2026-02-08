@@ -1,14 +1,26 @@
 package com.iviet.ivshs.dto;
 
-import java.time.Instant;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.iviet.ivshs.entities.TemperatureValue;
 import lombok.Builder;
+
+import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
 
 @Builder
 public record CreateTemperatureValueDto(
-    @NotBlank(message = "Sensor natural ID is required") String sensorNaturalId,
-    @NotNull(message = "Temperature value (°C) is required") Double tempC,
-    @NotNull(message = "Timestamp is required") Instant timestamp
-) {}
+    @NotNull(message = "Sensor natural ID is required")
+    String sensorNaturalId,
+
+    @NotNull(message = "Temperature in Celsius is required")
+    Double tempC,
+
+    @NotNull(message = "Timestamp is required")
+    Instant timestamp
+) {
+    public TemperatureValue toEntity() {
+        var entity = new TemperatureValue();
+        entity.setTempC(tempC);
+        entity.setTimestamp(timestamp);
+        return entity;
+    }
+}

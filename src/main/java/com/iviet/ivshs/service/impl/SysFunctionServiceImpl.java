@@ -7,7 +7,6 @@ import com.iviet.ivshs.entities.SysFunctionLan;
 import com.iviet.ivshs.entities.SysFunction;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.SysFunctionMapper;
 import com.iviet.ivshs.service.ClientFunctionService;
 import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.util.LocalContextUtil;
@@ -25,7 +24,6 @@ public class SysFunctionServiceImpl implements SysFunctionService {
 
     private final SysFunctionDao functionDao;
     private final LanguageDao languageDao;
-    private final SysFunctionMapper functionMapper;
     private final ClientFunctionService cacheService;
 
     @Override
@@ -70,31 +68,31 @@ public class SysFunctionServiceImpl implements SysFunctionService {
     @Override
     @Transactional
     public SysFunctionDto create(CreateSysFunctionDto dto) {
-        if (dto == null || !StringUtils.hasText(dto.getFunctionCode())) {
+        if (dto == null || !StringUtils.hasText(dto.functionCode())) {
             throw new BadRequestException("Data and Function code are required");
         }
 
-        String code = dto.getFunctionCode().trim();
+        String code = dto.functionCode().trim();
         _checkDuplicate(code, null);
         
-        String langCode = LocalContextUtil.resolveLangCode(dto.getLangCode());
+        String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        SysFunction function = functionMapper.fromCreateDto(dto);
+        SysFunction function = dto.toEntity();
         function.setFunctionCode(code);
 
-        SysFunctionLan functionLan = new SysFunctionLan();
+        var functionLan = new SysFunctionLan();
         functionLan.setLangCode(langCode);
-        functionLan.setName(dto.getName() != null ? dto.getName().trim() : "");
-        functionLan.setDescription(dto.getDescription());
+        functionLan.setName(dto.name() != null ? dto.name().trim() : "");
+        functionLan.setDescription(dto.description());
         functionLan.setOwner(function);
         
         function.getTranslations().add(functionLan);
         functionDao.save(function);
 
-        return functionMapper.toDto(function, functionLan);
+        return SysFunctionDto.from(function, functionLan);
     }
 
     @Override
@@ -103,33 +101,31 @@ public class SysFunctionServiceImpl implements SysFunctionService {
         SysFunction function = functionDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
         
-        String langCode = LocalContextUtil.resolveLangCode(dto.getLangCode());
+        String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        // Tìm hoặc tạo translation cho langCode
-        SysFunctionLan functionLan = function.getTranslations().stream()
+        var functionLan = function.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    SysFunctionLan newLan = new SysFunctionLan();
+                    var newLan = new SysFunctionLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(function);
                     function.getTranslations().add(newLan);
                     return newLan;
                 });
 
-        // Update translation fields
-        if (dto.getName() != null) {
-            functionLan.setName(dto.getName().trim());
+        if (dto.name() != null) {
+            functionLan.setName(dto.name().trim());
         }
-        if (dto.getDescription() != null) {
-            functionLan.setDescription(dto.getDescription());
+        if (dto.description() != null) {
+            functionLan.setDescription(dto.description());
         }
 
         functionDao.save(function);
-        return functionMapper.toDto(function, functionLan);
+        return SysFunctionDto.from(function, functionLan);
     }
 
     @Override

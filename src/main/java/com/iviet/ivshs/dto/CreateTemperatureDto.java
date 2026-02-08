@@ -1,9 +1,11 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.entities.Temperature;
+import lombok.Builder;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 
 @Builder
 public record CreateTemperatureDto(
@@ -28,4 +30,11 @@ public record CreateTemperatureDto(
 
     @Size(max = 10, message = "Language code must not exceed 10 characters")
     String langCode
-) {}
+) {
+    public Temperature toEntity() {
+        var entity = new Temperature();
+        entity.setNaturalId(naturalId);
+        entity.setIsActive(isActive != null ? isActive : true);
+        return entity;
+    }
+}

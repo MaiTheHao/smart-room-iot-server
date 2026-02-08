@@ -9,9 +9,7 @@ import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.CreatePowerConsumptionValueDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumption;
-import com.iviet.ivshs.entities.PowerConsumptionValue;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.PowerConsumptionValueMapper;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +25,6 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
     private final RoomDao roomDao;
     private final PowerConsumptionDao powerConsumptionDao;
     private final PowerConsumptionValueDao powerConsumptionValueDao;
-    private final PowerConsumptionValueMapper powerConsumptionValueMapper;
 
     @Override
     public List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
@@ -41,8 +38,8 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
     @Override
     @Transactional
     public void create(CreatePowerConsumptionValueDto dto) {
-        PowerConsumption sensor = powerConsumptionDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + dto.sensorNaturalId()));
-        PowerConsumptionValue record = powerConsumptionValueMapper.fromCreateDto(dto);
+        var sensor = powerConsumptionDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + dto.sensorNaturalId()));
+        var record = dto.toEntity();
         record.setSensor(sensor);
         powerConsumptionValueDao.save(record);
     }
@@ -50,7 +47,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
     @Override
     @Transactional
     public void createWithSensor(PowerConsumption sensor, CreatePowerConsumptionValueDto dto) {
-        PowerConsumptionValue record = powerConsumptionValueMapper.fromCreateDto(dto);
+        var record = dto.toEntity();
         record.setSensor(sensor);
         powerConsumptionValueDao.saveAndForget(sensor.getId(), record);
     }
@@ -60,7 +57,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
     public void createBatchWithSensor(PowerConsumption sensor, List<CreatePowerConsumptionValueDto> dtoList) {
         powerConsumptionValueDao.saveAndForget(sensor.getId(), dtoList.stream()
             .filter(dto -> dto != null)
-            .map(powerConsumptionValueMapper::fromCreateDto)
+            .map(CreatePowerConsumptionValueDto::toEntity)
             .toList()
         );
     }

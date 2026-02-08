@@ -1,22 +1,28 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.enumeration.DeviceControlType;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class DeviceControlDto {
-    
-    private Long id;
-    private DeviceControlType deviceControlType;
-    private Integer gpioPin;
-    private String bleMacAddress;
-    private String apiEndpoint;
-    private Long clientId;
-    private Long roomId;
+public record DeviceControlDto(
+    Long id,
+    DeviceControlType deviceControlType,
+    Integer gpioPin,
+    String bleMacAddress,
+    String apiEndpoint,
+    Long clientId,
+    Long roomId
+) {
+    public static DeviceControlDto from(DeviceControl entity) {
+        return DeviceControlDto.builder()
+            .id(entity.getId())
+            .deviceControlType(entity.getDeviceControlType())
+            .gpioPin(entity.getGpioPin())
+            .bleMacAddress(entity.getBleMacAddress())
+            .apiEndpoint(entity.getApiEndpoint())
+            .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
+            .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
+            .build();
+    }
 }

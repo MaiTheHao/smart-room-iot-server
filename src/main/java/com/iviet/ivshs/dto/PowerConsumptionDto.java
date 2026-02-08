@@ -1,21 +1,28 @@
 package com.iviet.ivshs.dto;
 
-import lombok.AllArgsConstructor;
+import com.iviet.ivshs.entities.PowerConsumption;
+import com.iviet.ivshs.entities.PowerConsumptionLan;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PowerConsumptionDto {
-    
-    private Long id;
-    private String name;
-    private String description;
-    private Boolean isActive;
-    private Double currentWatt;
-    private String naturalId;
-    private Long roomId;
+public record PowerConsumptionDto(
+    Long id,
+    String name,
+    String description,
+    Boolean isActive,
+    Double currentWatt,
+    String naturalId,
+    Long roomId
+) {
+    public static PowerConsumptionDto from(PowerConsumption entity, PowerConsumptionLan powerLan) {
+        return PowerConsumptionDto.builder()
+            .id(entity.getId())
+            .name(powerLan.getName())
+            .description(powerLan.getDescription())
+            .isActive(entity.getIsActive())
+            .currentWatt(entity.getCurrentWatt())
+            .naturalId(entity.getNaturalId())
+            .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
+            .build();
+    }
 }

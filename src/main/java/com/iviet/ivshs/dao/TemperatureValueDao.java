@@ -14,6 +14,7 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
 	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', tv.timestamp, '" + DATE_FORMAT + "') AS string)";
+	private final String DTO_CLASS = AverageTemperatureValueDto.class.getName();
 
 	public TemperatureValueDao() {
 		super(TemperatureValue.class);
@@ -48,7 +49,6 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String dtoPath = AverageTemperatureValueDto.class.getName();
 		String jpql = """
 						SELECT new %s(%s, AVG(tv.tempC))
 						FROM TemperatureValue tv
@@ -56,7 +56,7 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY %s
 						ORDER BY %s ASC
-						""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+						""".formatted(DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 						.setParameter("roomId", roomId)
@@ -66,7 +66,6 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
-		String dtoPath = AverageTemperatureValueDto.class.getName();
 		String jpql = """
 						SELECT new %s(%s, AVG(tv.tempC))
 						FROM TemperatureValue tv
@@ -74,7 +73,7 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY %s
 						ORDER BY %s ASC
-						""".formatted(dtoPath, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+						""".formatted(DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 						.setParameter("clientId", clientId)

@@ -1,5 +1,6 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.entities.Light;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 
@@ -27,4 +28,12 @@ public record CreateLightDto(
 
     @Size(max = 10)
     String langCode
-) {}
+) {
+    public Light toEntity() {
+        var light = new Light();
+        light.setNaturalId(this.naturalId);
+        light.setIsActive(this.isActive != null ? this.isActive : false);
+        light.setLevel(this.level != null ? this.level : 0);
+        return light;
+    }
+}

@@ -7,7 +7,6 @@ import com.iviet.ivshs.entities.SysGroupLan;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.SysGroupMapper;
 import com.iviet.ivshs.service.SysGroupService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ public class SysGroupServiceImpl implements SysGroupService {
 
     private final SysGroupDao groupDao;
     private final LanguageDao languageDao;
-    private final SysGroupMapper groupMapper;
 
     @Override
     public PaginatedResponse<SysGroupDto> getList(int page, int size) {
@@ -59,31 +57,31 @@ public class SysGroupServiceImpl implements SysGroupService {
     @Override
     @Transactional
     public SysGroupDto create(CreateSysGroupDto dto) {
-        if (dto == null || !StringUtils.hasText(dto.getGroupCode())) {
+        if (dto == null || !StringUtils.hasText(dto.groupCode())) {
             throw new BadRequestException("Data and Group code are required");
         }
 
-        String code = dto.getGroupCode().trim();
+        String code = dto.groupCode().trim();
         _checkDuplicate(code, null);
         
-        String langCode = LocalContextUtil.resolveLangCode(dto.getLangCode());
+        String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        SysGroup group = groupMapper.fromCreateDto(dto);
+        SysGroup group = dto.toEntity();
         group.setGroupCode(code);
 
         SysGroupLan groupLan = new SysGroupLan();
         groupLan.setLangCode(langCode);
-        groupLan.setName(dto.getName() != null ? dto.getName().trim() : "");
-        groupLan.setDescription(dto.getDescription());
+        groupLan.setName(dto.name() != null ? dto.name().trim() : "");
+        groupLan.setDescription(dto.description());
         groupLan.setOwner(group);
         
         group.getTranslations().add(groupLan);
         groupDao.save(group);
 
-        return groupMapper.toDto(group, groupLan);
+        return SysGroupDto.from(group, groupLan);
     }
 
     @Override
@@ -92,33 +90,31 @@ public class SysGroupServiceImpl implements SysGroupService {
         SysGroup group = groupDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
         
-        String langCode = LocalContextUtil.resolveLangCode(dto.getLangCode());
+        String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        // Tìm hoặc tạo translation cho langCode
         SysGroupLan groupLan = group.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    SysGroupLan newLan = new SysGroupLan();
+                    var newLan = new SysGroupLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(group);
                     group.getTranslations().add(newLan);
                     return newLan;
                 });
 
-        // Update translation fields
-        if (dto.getName() != null) {
-            groupLan.setName(dto.getName().trim());
+        if (dto.name() != null) {
+            groupLan.setName(dto.name().trim());
         }
-        if (dto.getDescription() != null) {
-            groupLan.setDescription(dto.getDescription());
+        if (dto.description() != null) {
+            groupLan.setDescription(dto.description());
         }
 
         groupDao.save(group);
-        return groupMapper.toDto(group, groupLan);
+        return SysGroupDto.from(group, groupLan);
     }
 
     @Override

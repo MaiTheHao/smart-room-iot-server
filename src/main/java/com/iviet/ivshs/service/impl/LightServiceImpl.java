@@ -7,7 +7,6 @@ import com.iviet.ivshs.enumeration.GatewayCommand;
 import com.iviet.ivshs.enumeration.LightPower;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.mapper.LightMapper;
 import com.iviet.ivshs.service.ControlService;
 import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.util.LocalContextUtil;
@@ -30,7 +29,6 @@ public class LightServiceImpl implements LightService {
     private final RoomDao roomDao;
     private final LanguageDao languageDao;
     private final DeviceControlDao deviceControlDao;
-    private final LightMapper lightMapper;
     private final ControlService controlService;
 
     @Override
@@ -79,21 +77,19 @@ public class LightServiceImpl implements LightService {
 
         _checkDuplicate(dto.naturalId().trim(), null);
 
-        Room room = roomDao.findById(dto.roomId())
+        var room = roomDao.findById(dto.roomId())
                 .orElseThrow(() -> new NotFoundException("Room not found"));
-        DeviceControl deviceControl = deviceControlDao.findById(dto.deviceControlId())
+        var deviceControl = deviceControlDao.findById(dto.deviceControlId())
                 .orElseThrow(() -> new NotFoundException("Device Control not found"));
         
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found");
 
-        Light light = lightMapper.fromCreateDto(dto);
+        var light = dto.toEntity();
         light.setRoom(room);
         light.setDeviceControl(deviceControl);
-        light.setIsActive(dto.isActive() != null ? dto.isActive() : false);
-        light.setLevel(dto.level() != null ? dto.level() : 0);
 
-        LightLan lightLan = new LightLan();
+        var lightLan = new LightLan();
         lightLan.setLangCode(langCode);
         lightLan.setName(dto.name() != null ? dto.name().trim() : "");
         lightLan.setDescription(dto.description());
@@ -102,13 +98,13 @@ public class LightServiceImpl implements LightService {
         light.getTranslations().add(lightLan);
         lightDao.save(light);
 
-        return lightMapper.toDto(light, lightLan);
+        return LightDto.from(light, lightLan);
     }
 
     @Override
     @Transactional
     public LightDto update(Long lightId, UpdateLightDto dto) {
-        Light light = lightDao.findById(lightId)
+        var light = lightDao.findById(lightId)
                 .orElseThrow(() -> new NotFoundException("Light not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 
@@ -120,6 +116,7 @@ public class LightServiceImpl implements LightService {
         if (dto.roomId() != null && !dto.roomId().equals(light.getRoom().getId())) {
             light.setRoom(roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found")));
         }
+
         if (dto.deviceControlId() != null && !dto.deviceControlId().equals(light.getDeviceControl().getId())) {
             light.setDeviceControl(deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found")));
         }
@@ -127,11 +124,11 @@ public class LightServiceImpl implements LightService {
         if (dto.isActive() != null) light.setIsActive(dto.isActive());
         if (dto.level() != null) light.setLevel(dto.level());
 
-        LightLan lan = light.getTranslations().stream()
+        var lan = light.getTranslations().stream()
                 .filter(ll -> langCode.equals(ll.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    LightLan newLan = new LightLan();
+                    var newLan = new LightLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(light);
                     light.getTranslations().add(newLan);
@@ -142,7 +139,7 @@ public class LightServiceImpl implements LightService {
         if (dto.description() != null) lan.setDescription(dto.description());
 
         lightDao.save(light);
-        return lightMapper.toDto(light, lan);
+        return LightDto.from(light, lan);
     }
 
     @Override
@@ -155,37 +152,28 @@ public class LightServiceImpl implements LightService {
     @Override
     @Transactional
     public void handleStateControl(Long lightId, LightPower state) {
-        Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
-        
-        DeviceControl dc = light.getDeviceControl();
-        if (dc == null) throw new BadRequestException("No control associated");
-        Client gateway = dc.getClient();
+        var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        var client = light.getDeviceControl().getClient();
 
-        GatewayCommand command = state == LightPower.ON ? GatewayCommand.ON : GatewayCommand.OFF;
-        light.setIsActive(state == LightPower.ON);
-        lightDao.save(light);
-        controlService.sendCommand(gateway.getIpAddress(), light.getNaturalId(), command);
-
-        // if (200 == resp.status()) {
-        //     light.setIsActive(state == LightPower.ON);
-        //     lightDao.save(light);
-        // } else {
-        //     log.error("Failed to set light state. Response status: {}, message: {}", resp.status(), resp.message());
-        //     switch (resp.status()) {
-        //         case 400 -> throw new BadRequestException(resp.message());
-        //         case 404 -> throw new NotFoundException(resp.message());
-        //         case 502, 503 -> throw new ExternalServiceException(resp.message());
-        //         case 500 -> throw new InternalServerErrorException(resp.message());
-        //         default -> throw new InternalServerErrorException("Unexpected response from gateway: " + resp.status());
-        //     }
-        // }
+        try {
+            controlService.sendCommand(
+                client.getIpAddress(),
+                light.getNaturalId(),
+                ((state == LightPower.ON) ? GatewayCommand.ON : GatewayCommand.OFF)
+            );
+            light.setIsActive(state == LightPower.ON);
+            lightDao.save(light);
+        } catch (Exception e) {
+            log.error("Failed to control light state: lightId={}, state={}, error={}", lightId, state, e.getMessage());
+            throw new BadRequestException("Failed to control light state: " + e.getMessage());
+        }
     }
 
     @Override
     @Transactional
     public void handleToggleStateControl(Long lightId) {
-        Light light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
-        LightPower newState = light.getIsActive() ? LightPower.OFF : LightPower.ON;
+        var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        var newState = light.getIsActive() ? LightPower.OFF : LightPower.ON;
         handleStateControl(lightId, newState);
     }
 
