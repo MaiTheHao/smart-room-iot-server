@@ -20,6 +20,7 @@
 
 - [Device Control (Điều khiển thiết bị)](device_control.md)
 - [Setup (Thiết lập cấu hình thiết bị)](setup.md)
+- [Device Metadata (Tổng hợp thiết bị)](device_metadata.md)
 - [Air Condition (Quản lý điều hòa)](air_condition.md)
 - [Light (Quản lý đèn)](light.md)
 
