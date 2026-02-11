@@ -1,5 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dto.ControlDeviceRequest;
 import com.iviet.ivshs.dto.ControlDeviceResponse;
@@ -35,5 +36,10 @@ public class ControlServiceImpl implements ControlService {
 			.exceptionally(ex -> null);
 		
 		return ControlDeviceResponse.builder().build();
+	}
+
+	@Override
+	public ControlDeviceResponse sendCommand(String gatewayAddress, String targetNaturalId, JsonNode command) {
+		throw new UnsupportedOperationException();
 	}
 }

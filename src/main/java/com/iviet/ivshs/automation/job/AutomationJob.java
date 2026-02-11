@@ -29,7 +29,7 @@ public class AutomationJob implements Job {
             log.info("Finished execution for ID: {} in {}ms", automationId, System.currentTimeMillis() - start);
         } catch (Exception e) {
             log.error("Execution failed for ID {}: {}", automationId, e.getMessage());
-            throw new JobExecutionException(e.getMessage(), e);
+            throw new JobExecutionException(e, false);
         }
     }
 }

@@ -1,5 +1,4 @@
 package com.iviet.ivshs.service.impl;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,10 +42,6 @@ public class AutomationServiceImpl implements AutomationService {
 	private final QuartzHelper quartzHelper;
 	private final AutomationProcessor processor;
 
-	// =========================================================================
-	// AUTOMATION MANAGEMENT (Parent Entity)
-	// =========================================================================
-
 	@Override
 	@Transactional
 	public AutomationDto create(CreateAutomationDto dto) {
@@ -56,7 +51,6 @@ public class AutomationServiceImpl implements AutomationService {
 			throw new BadRequestException("Automation name already exists: " + dto.getName());
 		}
 
-		// Sử dụng Util mới để validate
 		if (!CronExpressionUtil.isValid(dto.getCronExpression())) {
 			throw new BadRequestException("Invalid cron expression: " + dto.getCronExpression());
 		}
@@ -64,9 +58,7 @@ public class AutomationServiceImpl implements AutomationService {
 		Automation automation = CreateAutomationDto.toEntity(dto);
 		automationDao.save(automation);
 
-		if (Boolean.TRUE.equals(automation.getIsActive())) {
-			quartzHelper.schedule(automation);
-		}
+		quartzHelper.sync(automation);
 
 		log.info("Created automation ID: {}", automation.getId());
 		return AutomationDto.from(automation);
@@ -84,12 +76,10 @@ public class AutomationServiceImpl implements AutomationService {
 			throw new BadRequestException("Automation name already exists: " + dto.getName());
 		}
 		
-		// Validate cron expression
 		if (!CronExpressionUtil.isValid(dto.getCronExpression())) {
 			throw new BadRequestException("Invalid cron expression: " + dto.getCronExpression());
 		}
 
-		// Chỉ update thông tin của Automation, không đụng tới Actions
 		automation.setName(dto.getName());
 		automation.setCronExpression(dto.getCronExpression());
 		if (dto.getIsActive() != null) {
@@ -108,10 +98,8 @@ public class AutomationServiceImpl implements AutomationService {
 	@Transactional
 	public void delete(Long automationId) {
 		log.info("Deleting automation ID: {}", automationId);
-		if (!automationDao.existsById(automationId)) {
-			throw new NotFoundException("Automation not found: " + automationId);
-		}
-		quartzHelper.delete(automationId);
+		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
+		quartzHelper.delete(automation);
 		automationDao.deleteById(automationId);
 	}
 
@@ -139,10 +127,6 @@ public class AutomationServiceImpl implements AutomationService {
 				.map(AutomationDto::from)
 				.collect(Collectors.toList());
 	}
-
-	// =========================================================================
-	// ACTION MANAGEMENT (Child Entity - Separated)
-	// =========================================================================
 
 	@Override
 	public List<AutomationActionDto> getActions(Long automationId) {
@@ -211,10 +195,6 @@ public class AutomationServiceImpl implements AutomationService {
 		automationActionDao.deleteById(actionId);
 	}
 
-	// =========================================================================
-	// SYSTEM / JOB CONTROL
-	// =========================================================================
-
 	@Override
 	@Transactional
 	public void toggleIsActive(Long automationId, boolean isActive) {
@@ -231,7 +211,7 @@ public class AutomationServiceImpl implements AutomationService {
 
 	@Override
 	public void scheduleJob(Automation automation) {
-		quartzHelper.schedule(automation);
+		quartzHelper.sync(automation);
 	}
 
 	@Override
@@ -241,7 +221,8 @@ public class AutomationServiceImpl implements AutomationService {
 
 	@Override
 	public void unscheduleJob(Long automationId) {
-		quartzHelper.delete(automationId);
+		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
+		quartzHelper.delete(automation);
 	}
 
 	@Override
@@ -257,27 +238,25 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	@Transactional
 	public void executeAutomationImmediately(Long automationId) {
-		executeAutomationLogic(automationId);
+		Automation automation = automationDao.findById(automationId)
+				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
+		quartzHelper.triggerNow(automation);
 	}
 
 	@Override
 	@Transactional
 	public void reloadAllAutomations() {
-		quartzHelper.deleteAllInGroup();
+		quartzHelper.deleteAllInGroup(Automation.JOB_GROUP);
 		List<Automation> activeAutomations = automationDao.findAllActive(); 
 		for (Automation automation : activeAutomations) {
 			try {
-				quartzHelper.schedule(automation);
+				quartzHelper.sync(automation);
 			} catch (Exception e) {
 				log.error("Failed to reload automation ID {}: {}", automation.getId(), e.getMessage());
 			}
 		}
 	}
-
-	// =========================================================================
-	// PRIVATE HELPERS
-	// =========================================================================
-
+	
 	private void validateAction(JobTargetType targetType, Long targetId) {
 		if (targetType == JobTargetType.LIGHT) {
 			if (!lightDao.existsById(targetId)) {

@@ -1,18 +1,16 @@
 package com.iviet.ivshs.util;
 
-import com.iviet.ivshs.automation.job.AutomationJob;
-import com.iviet.ivshs.entities.Automation;
+import com.iviet.ivshs.entities.BaseSchedulableEntity;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.TimeZone;
-
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.TimeZone;
 
 @Slf4j
 @Component
@@ -24,110 +22,156 @@ public class QuartzHelper {
     @Value("${app.timezone:Asia/Ho_Chi_Minh}")
     private String appTimezone;
 
-    private static final String JOB_GROUP = "AUTOMATION_GROUP";
-    private static final String TRIGGER_GROUP = "AUTOMATION_TRIGGER_GROUP";
-    private static final String JOB_PREFIX = "Auto_";
-    private static final String TRIGGER_PREFIX = "Trigger_";
-
-    public void schedule(Automation automation) {
-        JobKey jobKey = getJobKey(automation.getId());
+    /**
+     * Đồng bộ Job: Tự động quyết định Schedule mới, Reschedule, hoặc Delete dựa trên trạng thái entity.
+     */
+    public void sync(BaseSchedulableEntity entity) {
+        String jobName = entity.getJobName();
         try {
-            if (scheduler.checkExists(jobKey)) {
-                log.warn("Job already exists, skipping schedule: {}", jobKey);
+            // 1. Nếu tắt (isActive = false) -> Xóa luôn cho sạch
+            if (Boolean.FALSE.equals(entity.getIsActive())) {
+                delete(entity);
                 return;
             }
 
-            JobDetail jobDetail = JobBuilder.newJob(AutomationJob.class)
-                    .withIdentity(jobKey)
-                    .usingJobData("id", automation.getId())
-                    .storeDurably(false)
-                    .build();
-
-            Trigger trigger = buildCronTrigger(automation);
-
-            scheduler.scheduleJob(jobDetail, trigger);
-            log .info("Scheduled automation [ID: {}] with cron [{}] (Timezone: {})", 
-                    automation.getId(), automation.getCronExpression(), appTimezone);
-        } catch (SchedulerException e) {
-            log.error("Error scheduling automation [ID: {}]: {}", automation.getId(), e.getMessage(), e);
-            throw new InternalServerErrorException("Quartz error: Failed to schedule job");
-        }
-    }
-
-    public void sync(Automation automation) {
-        try {
-            if (Boolean.TRUE.equals(automation.getIsActive())) {
-                TriggerKey triggerKey = getTriggerKey(automation.getId());
-                
-                if (scheduler.checkExists(triggerKey)) {
-                    reschedule(automation, triggerKey);
-                } else {
-                    log.debug("Trigger not found for active automation [ID: {}], creating new...", automation.getId());
-                    schedule(automation);
-                }
-            } else {
-                log.debug("Automation [ID: {}] is inactive, ensuring job is deleted", automation.getId());
-                delete(automation.getId());
+            // 2. Validate Cron Expression (Chặn lỗi cú pháp ngay từ đầu)
+            if (!CronExpression.isValidExpression(entity.getCronExpression())) {
+                log.error("Invalid Cron Expression for job '{}': {}", jobName, entity.getCronExpression());
+                throw new InternalServerErrorException("Invalid Cron Expression: " + entity.getCronExpression());
             }
+
+            // 3. Kiểm tra tồn tại để Create hay Update
+            TriggerKey triggerKey = getTriggerKey(entity);
+            if (scheduler.checkExists(triggerKey)) {
+                rescheduleJob(entity, triggerKey);
+            } else {
+                scheduleNewJob(entity);
+            }
+
         } catch (SchedulerException e) {
-            log.error("Error syncing automation [ID: {}]: {}", automation.getId(), e.getMessage(), e);
-            throw new InternalServerErrorException("Quartz error: Failed to sync automation state");
+            log.error("Error syncing job '{}': {}", jobName, e.getMessage(), e);
+            throw new InternalServerErrorException("Failed to sync job: " + jobName);
         }
     }
 
-    public void delete(Long automationId) {
-        JobKey jobKey = getJobKey(automationId);
+    /**
+     * Tạo Job mới
+     */
+    private void scheduleNewJob(BaseSchedulableEntity entity) throws SchedulerException {
+        JobKey jobKey = getJobKey(entity);
+        
+        // Double check tránh trùng
+        if (scheduler.checkExists(jobKey)) {
+            log.warn("Job already exists, skipping create: {}", jobKey);
+            return;
+        }
+
+        JobDetail jobDetail = JobBuilder.newJob(entity.getJobClass())
+                .withIdentity(jobKey)
+                .withDescription("Scheduled by QuartzHelper")
+                .usingJobData(entity.getJobDataMap())
+                .storeDurably() // Quan trọng: Giữ Job lại kể cả khi Trigger bị xóa
+                .build();
+
+        scheduler.scheduleJob(jobDetail, buildCronTrigger(entity));
+        log.info("Scheduled NEW job: [{} - {}]", entity.getJobGroup(), entity.getJobName());
+    }
+
+    /**
+     * Cập nhật lại Trigger cho Job đã tồn tại
+     */
+    private void rescheduleJob(BaseSchedulableEntity entity, TriggerKey triggerKey) throws SchedulerException {
+        Trigger newTrigger = buildCronTrigger(entity);
+        Date nextFireTime = scheduler.rescheduleJob(triggerKey, newTrigger);
+        log.info("Rescheduled job: [{}]. Next run: {}", entity.getJobName(), nextFireTime);
+    }
+
+    /**
+     * Xóa Job
+     */
+    public void delete(BaseSchedulableEntity entity) {
+        JobKey jobKey = getJobKey(entity);
         try {
             if (scheduler.checkExists(jobKey)) {
                 scheduler.deleteJob(jobKey);
-                log.info("Successfully deleted job: {}", jobKey);
-            } else {
-                log.debug("Job {} does not exist, nothing to delete", jobKey);
+                log.info("Deleted job: {}", jobKey);
             }
         } catch (SchedulerException e) {
-            log.error("Error deleting job [ID: {}]: {}", automationId, e.getMessage(), e);
-            throw new InternalServerErrorException("Quartz error: Failed to delete job");
+            log.error("Error deleting job '{}': {}", jobKey, e.getMessage());
+            throw new InternalServerErrorException("Failed to delete job");
         }
     }
 
-    public void deleteAllInGroup() {
+    /**
+     * Xóa toàn bộ Job trong một Group
+     */
+    public void deleteAllInGroup(String groupName) {
         try {
-            scheduler.getJobKeys(GroupMatcher.groupEquals(JOB_GROUP))
-                    .forEach(jobKey -> {
-                        try {
-                            scheduler.deleteJob(jobKey);
-                            log.debug("Deleted job from group: {}", jobKey);
-                        } catch (SchedulerException e) {
-                            log.error("Failed to delete job {} during mass deletion", jobKey, e);
-                        }
-                    });
-            log.info("Completed cleaning up all jobs in group: {}", JOB_GROUP);
+            GroupMatcher<JobKey> matcher = GroupMatcher.groupEquals(groupName);
+            var jobKeys = scheduler.getJobKeys(matcher);
+            
+            if (jobKeys != null && !jobKeys.isEmpty()) {
+                scheduler.deleteJobs(new java.util.ArrayList<>(jobKeys));
+                log.info("Deleted {} jobs in group '{}'", jobKeys.size(), groupName);
+            }
         } catch (SchedulerException e) {
-            log.error("Failed to fetch jobs for group deletion", e);
+            log.error("Error deleting group '{}': {}", groupName, e.getMessage());
         }
     }
 
-    private void reschedule(Automation automation, TriggerKey triggerKey) throws SchedulerException {
-        Trigger newTrigger = buildCronTrigger(automation);
-        scheduler.rescheduleJob(triggerKey, newTrigger);
-        log.info("Rescheduled automation [ID: {}] with new cron [{}] (Timezone: {})", 
-                automation.getId(), automation.getCronExpression(), appTimezone);
+    /**
+     * Tạm dừng Job
+     */
+    public void pause(BaseSchedulableEntity entity) {
+        try {
+            scheduler.pauseJob(getJobKey(entity));
+            log.info("Paused job: {}", entity.getJobName());
+        } catch (SchedulerException e) {
+            throw new InternalServerErrorException("Failed to pause job");
+        }
     }
 
-    private Trigger buildCronTrigger(Automation automation) {
+    /**
+     * Tiếp tục Job
+     */
+    public void resume(BaseSchedulableEntity entity) {
+        try {
+            scheduler.resumeJob(getJobKey(entity));
+            log.info("Resumed job: {}", entity.getJobName());
+        } catch (SchedulerException e) {
+            throw new InternalServerErrorException("Failed to resume job");
+        }
+    }
+
+    /**
+     * Chạy ngay lập tức
+     */
+    public void triggerNow(BaseSchedulableEntity entity) {
+        try {
+            scheduler.triggerJob(getJobKey(entity), entity.getJobDataMap());
+            log.info("Manually triggered job: {}", entity.getJobName());
+        } catch (SchedulerException e) {
+            log.error("Error triggering job '{}': {}", entity.getJobName(), e.getMessage());
+            throw new InternalServerErrorException("Failed to trigger job manually");
+        }
+    }
+
+    // --- Helpers ---
+
+    private Trigger buildCronTrigger(BaseSchedulableEntity entity) {
         return TriggerBuilder.newTrigger()
-                .withIdentity(getTriggerKey(automation.getId()))
-                .withSchedule(CronScheduleBuilder.cronSchedule(automation.getCronExpression())
+                .withIdentity(getTriggerKey(entity))
+                .withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression())
                         .inTimeZone(TimeZone.getTimeZone(appTimezone))
-                        .withMisfireHandlingInstructionDoNothing())
+                        .withMisfireHandlingInstructionFireAndProceed())
                 .build();
     }
 
-    private JobKey getJobKey(Long id) {
-        return JobKey.jobKey(JOB_PREFIX + id, JOB_GROUP);
+    private JobKey getJobKey(BaseSchedulableEntity entity) {
+        return JobKey.jobKey(entity.getJobName(), entity.getJobGroup());
     }
 
-    private TriggerKey getTriggerKey(Long id) {
-        return TriggerKey.triggerKey(TRIGGER_PREFIX + id, TRIGGER_GROUP);
+    private TriggerKey getTriggerKey(BaseSchedulableEntity entity) {
+        return TriggerKey.triggerKey("Trigger_" + entity.getJobName(), entity.getJobGroup());
     }
 }
