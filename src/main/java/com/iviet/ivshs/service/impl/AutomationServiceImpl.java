@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.automation.processor.AutomationProcessor;
+import com.iviet.ivshs.schedule.processor.AutomationProcessor;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.AutomationActionDao;
 import com.iviet.ivshs.dao.AutomationDao;
@@ -24,7 +24,7 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.AutomationService;
 import com.iviet.ivshs.util.CronExpressionUtil;
-import com.iviet.ivshs.util.QuartzHelper;
+import com.iviet.ivshs.util.ScheduleUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class AutomationServiceImpl implements AutomationService {
 	private final AutomationActionDao automationActionDao;
 	private final LightDao lightDao;
 	private final AirConditionDao airConditionDao;
-	private final QuartzHelper quartzHelper;
+	private final ScheduleUtil scheduleUtil;
 	private final AutomationProcessor processor;
 
 	@Override
@@ -58,7 +58,7 @@ public class AutomationServiceImpl implements AutomationService {
 		Automation automation = CreateAutomationDto.toEntity(dto);
 		automationDao.save(automation);
 
-		quartzHelper.sync(automation);
+		scheduleUtil.sync(automation);
 
 		log.info("Created automation ID: {}", automation.getId());
 		return AutomationDto.from(automation);
@@ -88,7 +88,7 @@ public class AutomationServiceImpl implements AutomationService {
 		automation.setDescription(dto.getDescription());
 
 		automationDao.update(automation);
-		quartzHelper.sync(automation);
+		scheduleUtil.sync(automation);
 
 		log.info("Updated automation ID: {}", automationId);
 		return AutomationDto.from(automation);
@@ -99,7 +99,7 @@ public class AutomationServiceImpl implements AutomationService {
 	public void delete(Long automationId) {
 		log.info("Deleting automation ID: {}", automationId);
 		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
-		quartzHelper.delete(automation);
+		scheduleUtil.delete(automation);
 		automationDao.deleteById(automationId);
 	}
 
@@ -206,23 +206,23 @@ public class AutomationServiceImpl implements AutomationService {
 
 		automation.setIsActive(isActive);
 		automationDao.update(automation);
-		quartzHelper.sync(automation);
+		scheduleUtil.sync(automation);
 	}
 
 	@Override
 	public void scheduleJob(Automation automation) {
-		quartzHelper.sync(automation);
+		scheduleUtil.sync(automation);
 	}
 
 	@Override
 	public void rescheduleJob(Automation automation) {
-		quartzHelper.sync(automation);
+		scheduleUtil.sync(automation);
 	}
 
 	@Override
 	public void unscheduleJob(Long automationId) {
 		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
-		quartzHelper.delete(automation);
+		scheduleUtil.delete(automation);
 	}
 
 	@Override
@@ -240,17 +240,17 @@ public class AutomationServiceImpl implements AutomationService {
 	public void executeAutomationImmediately(Long automationId) {
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
-		quartzHelper.triggerNow(automation);
+		scheduleUtil.triggerNow(automation);
 	}
 
 	@Override
 	@Transactional
 	public void reloadAllAutomations() {
-		quartzHelper.deleteAllInGroup(Automation.JOB_GROUP);
+		scheduleUtil.deleteJobGroup(Automation.JOB_GROUP);
 		List<Automation> activeAutomations = automationDao.findAllActive(); 
 		for (Automation automation : activeAutomations) {
 			try {
-				quartzHelper.sync(automation);
+				scheduleUtil.sync(automation);
 			} catch (Exception e) {
 				log.error("Failed to reload automation ID {}: {}", automation.getId(), e.getMessage());
 			}

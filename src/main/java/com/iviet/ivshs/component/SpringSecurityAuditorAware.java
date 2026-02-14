@@ -16,20 +16,25 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
 	private static final String ANONYMOUS_AUDITOR = "ANONYMOUS";
 
     @Override
-    @NonNull
-    public Optional<String> getCurrentAuditor() {
+    public @NonNull Optional<String> getCurrentAuditor() {
         if (RequestContextUtil.isInternalCall()) {
             log.debug("Internal system call detected, setting auditor to SYSTEM");
-            return Optional.of(SYSTEM_AUDITOR);
+            var res = Optional.of(SYSTEM_AUDITOR);
+            if (res.isEmpty()) log.warn("SYSTEM_AUDITOR is null or empty!");
+            return res;
         }
 
         try {
             String username = SecurityContextUtil.getCurrentUsername();
             log.debug("Authenticated user detected, setting auditor to {}", username);
-            return Optional.ofNullable(username);
+            var res = Optional.of(username);
+            if (res.isEmpty()) log.warn("Current username is null or empty!");
+            return res;
         } catch (Exception e) {
             log.debug("No authenticated user found, setting auditor to ANONYMOUS");
-            return Optional.of(ANONYMOUS_AUDITOR);
+            var res = Optional.of(ANONYMOUS_AUDITOR);
+            if (res.isEmpty()) log.warn("ANONYMOUS_AUDITOR is null or empty!");
+            return res;
         }
     }
 }

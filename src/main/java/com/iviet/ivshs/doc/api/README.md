@@ -30,11 +30,12 @@
 - [Temperature (Cảm biến nhiệt độ)](temperature.md)
 - [Power Consumption (Cảm biến điện năng)](power_consumption.md)
 
+## Automation & Rules
+
+- [Automation (Kịch bản tự động hóa)](automation.md)
+- [Rule (Quy tắc điều khiển)](rule.md)
+
 ## System
 
 - [Language (Ngôn ngữ)](language.md)
 - [Health Check (Kiểm tra trạng thái hệ thống)](health_check.md)
-
-## Automation
-
-- [Automation (Kịch bản tự động hóa)](automation.md)

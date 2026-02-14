@@ -39,6 +39,7 @@ public class QuartzConfig {
 	@Bean
 	public AutowiringSpringBeanJobFactory springBeanJobFactory() {
 		AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+		if (applicationContext == null) throw new IllegalStateException("ApplicationContext is not set");
 		jobFactory.setApplicationContext(applicationContext);
 		return jobFactory;
 	}

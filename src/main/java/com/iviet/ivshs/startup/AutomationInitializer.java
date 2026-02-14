@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Order(20)
 @RequiredArgsConstructor
-public class QuartzInitializer implements ApplicationListener<ContextRefreshedEvent> {
+public class AutomationInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
 	private final AutomationService automationService;
 	private boolean isInitialized = false;
@@ -39,7 +39,10 @@ public class QuartzInitializer implements ApplicationListener<ContextRefreshedEv
 		} catch (Exception e) {
 			log.error("Module       : [Quartz Automation] -> [FAILED]");
 			log.error("  - Reason     : {}", e.getMessage());
+			log.error("------------------------------------------------------------");
 			log.error("Stack trace:", e);
+			log.warn("WARNING: Server proceeding without automation");
+			log.warn("ACTION: Check logs and restart server if needed");
 		}
 	}
 }

@@ -1,8 +1,8 @@
-package com.iviet.ivshs.automation.handler.impl;
+package com.iviet.ivshs.schedule.handler.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.automation.handler.AutomationActionHandler;
+import com.iviet.ivshs.schedule.handler.AutomationActionHandler;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.AcPower;
 import com.iviet.ivshs.enumeration.JobActionType;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.automation.handler;
+package com.iviet.ivshs.schedule.handler;
 
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.JobTargetType;

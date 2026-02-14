@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j(topic = "Startup")
 @Component
 @Order(999)
-public class ApplicationStartupCompleteLogger implements ApplicationListener<ContextRefreshedEvent> {
+public class ContextRefreshedLogger implements ApplicationListener<ContextRefreshedEvent> {
 
     private boolean isLogged = false;
 

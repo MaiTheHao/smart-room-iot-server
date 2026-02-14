@@ -1,4 +1,4 @@
-package com.iviet.ivshs.automation.processor;
+package com.iviet.ivshs.schedule.processor;
 
 import java.util.Comparator;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.automation.handler.AutomationActionHandler;
+import com.iviet.ivshs.schedule.handler.AutomationActionHandler;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.JobTargetType;

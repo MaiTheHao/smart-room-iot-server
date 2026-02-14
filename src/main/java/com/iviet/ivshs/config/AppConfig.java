@@ -40,13 +40,14 @@ import lombok.extern.slf4j.Slf4j;
 @EnableTransactionManagement
 @ComponentScans(value = {
     @ComponentScan("com.iviet.ivshs.dao"),
-    @ComponentScan("com.iviet.ivshs.mapper"),
+    @ComponentScan("com.iviet.ivshs.engine"),
     @ComponentScan("com.iviet.ivshs.service"),
     @ComponentScan("com.iviet.ivshs.repository"),
     @ComponentScan("com.iviet.ivshs.component"),
     @ComponentScan("com.iviet.ivshs.startup"),
     @ComponentScan("com.iviet.ivshs.util"),
-    @ComponentScan("com.iviet.ivshs.automation")
+    @ComponentScan("com.iviet.ivshs.schedule"),
+    @ComponentScan("com.iviet.ivshs.rule"),
 })
 public class AppConfig implements EnvironmentAware {
 
