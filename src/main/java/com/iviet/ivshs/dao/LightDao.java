@@ -9,7 +9,7 @@ import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.entities.Light;
 
 @Repository
-public class LightDao extends BaseIoTDeviceDao<Light> {
+public class LightDao extends BaseIoTActuatorDao<Light> {
 	
 	public LightDao() {
 			super(Light.class);
@@ -19,7 +19,7 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
 	public Optional<LightDto> findByNaturalId(String naturalId, String langCode) {
 					String dtoPath = LightDto.class.getName();
 					String jpql = """
-													SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+													SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
 													FROM Light l 
 													LEFT JOIN l.translations ll ON ll.langCode = :langCode 
 													WHERE l.naturalId = :naturalId
@@ -36,7 +36,7 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
 			String dtoPath = LightDto.class.getName();
 
 			String jpql = """
-							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
 							FROM Light l 
 							LEFT JOIN l.translations ll ON ll.langCode = :langCode 
 							WHERE l.id = :lightId
@@ -54,7 +54,7 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
 			String dtoPath = LightDto.class.getName();
 
 			String jpql = """
-							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
 							FROM Light l 
 							LEFT JOIN l.translations ll ON ll.langCode = :langCode 
 							ORDER BY l.id ASC
@@ -71,7 +71,7 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
 			String dtoPath = LightDto.class.getName();
 
 			String jpql = """
-							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
 							FROM Light l 
 							LEFT JOIN l.translations ll ON ll.langCode = :langCode 
 							ORDER BY l.id ASC
@@ -86,7 +86,7 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
 			String dtoPath = LightDto.class.getName();
 
 			String jpql = """
-							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
 							FROM Light l 
 							LEFT JOIN l.translations ll ON ll.langCode = :langCode 
 							WHERE l.room.id = :roomId 
@@ -105,7 +105,7 @@ public class LightDao extends BaseIoTDeviceDao<Light> {
 			String dtoPath = LightDto.class.getName();
 
 			String jpql = """
-							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.level, l.room.id)
+							SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
 							FROM Light l 
 							LEFT JOIN l.translations ll ON ll.langCode = :langCode 
 							WHERE l.room.id = :roomId 

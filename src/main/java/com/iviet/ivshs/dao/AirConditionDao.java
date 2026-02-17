@@ -9,7 +9,7 @@ import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.entities.AirCondition;
 
 @Repository
-public class AirConditionDao extends BaseIoTDeviceDao<AirCondition> {
+public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
     public AirConditionDao() {
         super(AirCondition.class);

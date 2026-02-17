@@ -1,0 +1,31 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <!-- 
+        FRAGMENT: power
+        DESCRIPTION: Renders the power usage chart card.
+        PARAMETERS:
+            - currentPower: The current total power usage value.
+    -->
+    <div th:fragment="power(currentPower)" class="card card-warning card-outline shadow-sm">
+      <div class="card-header border-0">
+        <h3 class="card-title"><i class="fas fa-bolt mr-1"></i> Power Usage</h3>
+        <div class="card-tools">
+          <span
+            class="badge badge-warning"
+            th:text="'Current Sum Watt: ' + (${currentPower != null} ? ${#numbers.formatDecimal(currentPower, 1, 1)} + ' Wh' : '--')"
+            >--</span
+          >
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="chart" style="min-height: 250px; height: 250px; position: relative">
+          <canvas id="powerChart"></canvas>
+        </div>
+      </div>
+      <div class="overlay" id="powerChartLoading" style="display: none">
+        <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+      </div>
+    </div>
+  </body>
+</html>

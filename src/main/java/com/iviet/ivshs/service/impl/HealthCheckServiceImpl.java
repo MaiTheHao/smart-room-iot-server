@@ -11,6 +11,7 @@ import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.service.HealthCheckService;
 import com.iviet.ivshs.util.HttpClientUtil;
+import com.iviet.ivshs.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
                 throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
             }
 
-            HealthCheckResponseDto result = HttpClientUtil.fromJson(response.getBody(), HealthCheckResponseDto.class);
+            HealthCheckResponseDto result = JsonUtil.fromJson(response.getBody(), HealthCheckResponseDto.class);
             log.info("[HEALTH-CHECK] Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
             return result;
         } catch (NetworkTimeoutException | ExternalServiceException e) {

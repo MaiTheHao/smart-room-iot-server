@@ -13,7 +13,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseTelemetryValue<T extends BaseIoTDevice<?>> extends BaseEntity {
+public abstract class BaseTelemetryValue<T extends BaseIoTSensor<?>> extends BaseEntity {
 
 	@Column(name = "timestamp", nullable = false, updatable = false)
     private Instant timestamp;

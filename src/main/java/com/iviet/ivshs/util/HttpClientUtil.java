@@ -1,10 +1,7 @@
 package com.iviet.ivshs.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import com.iviet.ivshs.constant.AppConstant;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
@@ -29,23 +26,12 @@ public class HttpClientUtil {
 
 	// Hiện tại 10s là timeout mặc định, do phía thiết bị IoT có độ trễ cao, chưa có giải pháp tối ưu hơn.
 	private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
-	private static final String CONTENT_TYPE_HEADER = "Content-Type";
-	private static final String ACCEPT_HEADER = "Accept";
-	private static final String APPLICATION_JSON = "application/json";
 
 	private static final HttpClient CLIENT = HttpClient.newBuilder()
 			.connectTimeout(DEFAULT_TIMEOUT)
 			.version(HttpClient.Version.HTTP_2)
 			.executor(Executors.newVirtualThreadPerTaskExecutor())
 			.build();
-
-	private static final ObjectMapper MAPPER = new ObjectMapper();
-
-	static {
-		MAPPER.registerModule(new JavaTimeModule());
-		MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-		MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-	}
 
 	@Data
 	@Builder
@@ -69,28 +55,6 @@ public class HttpClientUtil {
 		private Duration timeout = DEFAULT_TIMEOUT;
 	}
 
-	// ===== JSON Utilities =====
-	public static String toJson(Object obj) {
-		if (obj == null) return null;
-		try {
-			return MAPPER.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			log.error("Failed to serialize object to JSON: {}", e.getMessage(), e);
-			throw new IllegalArgumentException("JSON serialization error", e);
-		}
-	}
-
-	public static <T> T fromJson(String json, Class<T> clazz) {
-		if (json == null || json.isEmpty()) return null;
-		
-		try {
-			return MAPPER.readValue(json, clazz);
-		} catch (Exception e) {
-			log.error("Failed to deserialize JSON to {}: {}", clazz.getSimpleName(), e.getMessage(), e);
-			throw new IllegalArgumentException("JSON deserialization error", e);
-		}
-	}
-
 	// ===== GET =====
 	public static Response get(String url) {
 		return get(Request.builder().url(url).build());
@@ -106,7 +70,7 @@ public class HttpClientUtil {
 	}
 
 	public static Response post(String url, Object bodyObj) {
-		String json = toJson(bodyObj);
+		String json = JsonUtil.toJson(bodyObj);
 		return post(Request.builder().url(url).body(json).build());
 	}
 
@@ -120,7 +84,7 @@ public class HttpClientUtil {
 	}
 
 	public static Response put(String url, Object bodyObj) {
-		String json = toJson(bodyObj);
+		String json = JsonUtil.toJson(bodyObj);
 		return put(Request.builder().url(url).body(json).build());
 	}
 
@@ -134,7 +98,7 @@ public class HttpClientUtil {
 	}
 
 	public static Response patch(String url, Object bodyObj) {
-		String json = toJson(bodyObj);
+		String json = JsonUtil.toJson(bodyObj);
 		return patch(Request.builder().url(url).body(json).build());
 	}
 
@@ -166,7 +130,7 @@ public class HttpClientUtil {
 	}
 
 	public static CompletableFuture<Response> postAsync(String url, Object bodyObj) {
-		String json = toJson(bodyObj);
+		String json = JsonUtil.toJson(bodyObj);
 		return postAsync(Request.builder().url(url).body(json).build());
 	}
 
@@ -180,7 +144,7 @@ public class HttpClientUtil {
 	}
 
 	public static CompletableFuture<Response> putAsync(String url, Object bodyObj) {
-		String json = toJson(bodyObj);
+		String json = JsonUtil.toJson(bodyObj);
 		return putAsync(Request.builder().url(url).body(json).build());
 	}
 
@@ -194,7 +158,7 @@ public class HttpClientUtil {
 	}
 
 	public static CompletableFuture<Response> patchAsync(String url, Object bodyObj) {
-		String json = toJson(bodyObj);
+		String json = JsonUtil.toJson(bodyObj);
 		return patchAsync(Request.builder().url(url).body(json).build());
 	}
 
@@ -293,8 +257,9 @@ public class HttpClientUtil {
 		HttpRequest.Builder builder = HttpRequest.newBuilder()
 				.uri(URI.create(request.getUrl()))
 				.timeout(request.getTimeout())
-				.header(CONTENT_TYPE_HEADER, APPLICATION_JSON)
-				.header(ACCEPT_HEADER, APPLICATION_JSON);
+				.header("Content-Type", "application/json")
+				.header("Accept", "application/json")
+				.header("User-Agent", AppConstant.APP_USER_AGENT);
 
 		if (request.getHeaders() != null && !request.getHeaders().isEmpty()) {
 			request.getHeaders().forEach(builder::header);

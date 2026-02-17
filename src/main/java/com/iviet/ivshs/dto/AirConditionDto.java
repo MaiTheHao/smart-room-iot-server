@@ -3,9 +3,9 @@ package com.iviet.ivshs.dto;
 import java.util.List;
 
 import com.iviet.ivshs.entities.AirCondition;
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.ActuatorPower;
 
 import lombok.Builder;
 
@@ -17,11 +17,11 @@ public record AirConditionDto(
     String description,
     Boolean isActive,
     Long roomId,
-    AcPower power,
+    ActuatorPower power,
     Integer temperature,
-    AcMode mode,
+    ActuatorMode mode,
     Integer fanSpeed,
-    AcSwing swing
+    ActuatorSwing swing
 ) {
 
     public static AirConditionDto from(AirCondition entity) {

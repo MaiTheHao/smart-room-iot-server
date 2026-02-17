@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Temperature extends BaseIoTDevice<TemperatureLan> {
+public class Temperature extends BaseIoTSensor<TemperatureLan> {
 
     private static final long serialVersionUID = 1L;
 

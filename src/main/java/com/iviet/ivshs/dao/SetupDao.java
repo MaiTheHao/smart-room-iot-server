@@ -2,9 +2,9 @@ package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.ActuatorMode;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -104,6 +104,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Light light = new Light();
 		light.setIsActive(device.isActive());
+		light.setPower(ActuatorPower.OFF);
 		light.setRoom(room);
 		light.setDeviceControl(deviceControl);
 		light.setNaturalId(device.getNaturalId());
@@ -149,11 +150,11 @@ public class SetupDao extends BaseDao<SetupDao> {
 		ac.setDeviceControl(deviceControl);
 		ac.setNaturalId(device.getNaturalId());
 		
-		ac.setPower(AcPower.OFF);
+		ac.setPower(ActuatorPower.OFF);
 		ac.setTemperature(26);
-		ac.setMode(AcMode.COOL);
+		ac.setMode(ActuatorMode.COOL);
 		ac.setFanSpeed(1);
-		ac.setSwing(AcSwing.OFF);
+		ac.setSwing(ActuatorSwing.OFF);
 
 		persistEntity(ac);
 		persistTranslations(ac, translations);

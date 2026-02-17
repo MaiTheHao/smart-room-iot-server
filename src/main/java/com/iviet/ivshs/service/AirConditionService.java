@@ -6,9 +6,9 @@ import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.dto.CreateAirConditionDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAirConditionDto;
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
 
 public interface AirConditionService {
     
@@ -28,13 +28,33 @@ public interface AirConditionService {
     
     void delete(Long id);
     
-    void controlPower(Long id, AcPower state);
+    @Deprecated
+    void controlPower(Long id, ActuatorPower state);
     
+    @Deprecated
     void controlTemperature(Long id, int temperature);
     
-    void controlMode(Long id, AcMode mode);
+    @Deprecated
+    void controlMode(Long id, ActuatorMode mode);
     
+    @Deprecated
     void controlFanSpeed(Long id, int speed);
     
-    void controlSwing(Long id, AcSwing swing);
+    @Deprecated
+    void controlSwing(Long id, ActuatorSwing swing);
+
+    // New
+    void _v2api_handlePowerControl(Long id, ActuatorPower power);
+
+    // New
+    void _v2api_handleTemperatureControl(Long id, int temperature);
+
+    // New
+    void _v2api_handleModeControl(Long id, ActuatorMode mode);
+
+    // New
+    void _v2api_handleFanSpeedControl(Long id, int speed);
+
+    // New
+    void _v2api_handleSwingControl(Long id, ActuatorSwing swing);
 }

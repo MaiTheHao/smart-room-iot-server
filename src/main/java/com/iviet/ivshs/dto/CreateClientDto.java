@@ -22,10 +22,10 @@ public record CreateClientDto(
     @NotNull(message = "Client type is required")
     ClientType clientType,
 
-    @Size(max = 255, message = "IPv4 address must not exceed 255 characters")
+    @Size(max = 255, message = "IP address too long")
     @Pattern(
-        regexp = "^(([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?|([0-9a-fA-F:]+)|(\\[[0-9a-fA-F:]+\\]:[0-9]{1,5}))$",
-        message = "Invalid IPv4 address format"
+        regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$",
+        message = "IP address is invalid"
     )
     String ipAddress,
 

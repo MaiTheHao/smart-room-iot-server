@@ -1,7 +1,6 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.enumeration.LightPower;
 import com.iviet.ivshs.service.LightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -76,27 +75,19 @@ public class LightController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
-
-    @PutMapping("/{id}/power")
-    public ResponseEntity<ApiResponse<ControlDeviceResponse>> handleStateControl(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "state") LightPower state) {
-        lightService.handleStateControl(id, state);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
-    }
     
+    @PutMapping("/{id}/level/{level}")
+    public ResponseEntity<ApiResponse<Void>> handleLevelControl(
+            @PathVariable(name = "id") Long id,
+            @PathVariable(name = "level") int level) {
+        lightService.controlLevel(id, level);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Brightness level set successfully"));
+    }
+
     @PutMapping("/{id}/toggle-state")
     public ResponseEntity<ApiResponse<ControlDeviceResponse>> handleToggleStateControl(
             @PathVariable(name = "id") Long id) {
-        lightService.handleToggleStateControl(id);
+        lightService.togglePower(id);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Toggled successfully"));
-    }
-
-    @PutMapping("/{id}/level/{newLevel}")
-    public ResponseEntity<ApiResponse<ControlDeviceResponse>> setLevel(
-            @PathVariable(name = "id") Long id,
-            @PathVariable(name = "newLevel") int newLevel) {
-        
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Level set successfully"));
     }
 }

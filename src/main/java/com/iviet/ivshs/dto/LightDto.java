@@ -2,6 +2,8 @@ package com.iviet.ivshs.dto;
 
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
+import com.iviet.ivshs.enumeration.ActuatorPower;
+
 import lombok.Builder;
 
 @Builder
@@ -11,6 +13,7 @@ public record LightDto(
     String name,
     String description,
     Boolean isActive,
+    ActuatorPower power,
     Integer level,
     Long roomId
 ) {
@@ -18,14 +21,15 @@ public record LightDto(
         if (entity == null) {
             return null;
         }
-        return new LightDto(
-            entity.getId(),
-            entity.getNaturalId(),
-            lan != null ? lan.getName() : null,
-            lan != null ? lan.getDescription() : null,
-            entity.getIsActive(),
-            entity.getLevel(),
-            (entity.getRoom() != null) ? entity.getRoom().getId() : null
-        );
+        return LightDto.builder()
+                .id(entity.getId())
+                .naturalId(entity.getNaturalId())
+                .name(lan != null ? lan.getName() : null)
+                .description(lan != null ? lan.getDescription() : null)
+                .isActive(entity.getIsActive())
+                .power(entity.getPower())
+                .level(entity.getLevel())
+                .roomId((entity.getRoom() != null) ? entity.getRoom().getId() : null)
+                .build();
     }
 }

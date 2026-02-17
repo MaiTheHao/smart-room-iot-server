@@ -20,6 +20,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.iviet.ivshs.constant.AppConstant;
+
 import io.jsonwebtoken.JwtException;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -34,22 +36,29 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 	private UserDetailsService userDetailsService;
 
 	@Override
-	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, 
-									@NonNull FilterChain filterChain) throws ServletException, IOException {
+	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 		try {
+			if (!isNotRecursiveCall(request)) {
+				String clientIp = getClientIp(request);
+				logger.warn("RECURSIVE CALL DETECTED - URL: {}, Method: {}, IP: {}, User-Agent: {}", 
+					request.getRequestURI(),
+					request.getMethod(),
+					clientIp,
+					request.getHeader("User-Agent"));
+				request.setAttribute("recursive_call", true);
+				throw new JwtException("Recursive call detected");
+			}
+
 			String jwt = parseJwt(request);
 			if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
 				String username = jwtUtils.getUserNameFromJwtToken(jwt);
 				authenticateUser(username, request);
 			}
 		} catch (JwtException e) {
-			logger.error("JWT validation failed", e);
 			SecurityContextHolder.clearContext();
 		} catch (UsernameNotFoundException e) {
-			logger.error("User not found during authentication", e);
 			SecurityContextHolder.clearContext();
 		} catch (Exception e) {
-			logger.error("Cannot set user authentication", e);
 			SecurityContextHolder.clearContext();
 		}
 
@@ -72,5 +81,22 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 			return headerAuth.substring(BEARER_PREFIX.length());
 		}
 		return null;
+	}
+
+	private boolean isNotRecursiveCall(HttpServletRequest request) {
+		String userAgent = request.getHeader("User-Agent");
+		return userAgent == null || !userAgent.contains(AppConstant.APP_USER_AGENT);
+	}
+
+	private String getClientIp(HttpServletRequest request) {
+		String xForwardedFor = request.getHeader("X-Forwarded-For");
+		if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+			return xForwardedFor.split(",")[0].trim();
+		}
+		String xRealIp = request.getHeader("X-Real-IP");
+		if (xRealIp != null && !xRealIp.isEmpty()) {
+			return xRealIp;
+		}
+		return request.getRemoteAddr();
 	}
 }

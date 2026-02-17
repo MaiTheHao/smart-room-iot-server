@@ -15,10 +15,10 @@ public record UpdateClientDto(
 
     ClientType clientType,
 
-    @Size(max = 255, message = "IP address must not exceed 255 characters")
+    @Size(max = 255, message = "IP address too long")
     @Pattern(
-        regexp = "^(([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?|([0-9a-fA-F:]+)|(\\[[0-9a-fA-F:]+\\]:[0-9]{1,5}))$",
-        message = "Invalid IP address format"
+        regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(:[0-9]{1,5})?$",
+        message = "IP address is invalid"
     )
     String ipAddress,
 

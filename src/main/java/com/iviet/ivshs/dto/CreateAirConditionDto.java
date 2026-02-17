@@ -1,9 +1,12 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import java.util.HashSet;
 
+import com.iviet.ivshs.entities.AirCondition;
+import com.iviet.ivshs.entities.AirConditionLan;
+import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.ActuatorPower;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -33,15 +36,37 @@ public record CreateAirConditionDto(
     @Size(max = 10)
     String langCode,
 
-    AcPower power,
+    ActuatorPower power,
 
     @Min(16) @Max(32)
     Integer temperature,
 
-    AcMode mode,
+    ActuatorMode mode,
 
     @Min(1) @Max(5)
     Integer fanSpeed,
 
-    AcSwing swing
-) {}
+    ActuatorSwing swing
+) {
+    public AirCondition toEntity() {
+        var ac = new AirCondition();
+        ac.setNaturalId(this.naturalId);
+        ac.setIsActive(this.isActive != null ? this.isActive : false);
+        ac.setPower(this.power != null ? this.power : ActuatorPower.OFF);
+        ac.setTemperature(this.temperature != null ? this.temperature : 24);
+        ac.setMode(this.mode != null ? this.mode : ActuatorMode.AUTO);
+        ac.setFanSpeed(this.fanSpeed != null ? this.fanSpeed : 1);
+        ac.setSwing(this.swing != null ? this.swing : ActuatorSwing.OFF);
+
+        HashSet<AirConditionLan> translations = new HashSet<>();
+        var acLan = new AirConditionLan();
+        acLan.setName(this.name);
+        acLan.setDescription(this.description);
+        acLan.setLangCode(this.langCode);
+        acLan.setOwner(ac);
+        translations.add(acLan);
+        ac.setTranslations(translations);
+        
+        return ac;
+    }
+}

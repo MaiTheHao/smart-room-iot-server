@@ -1,0 +1,91 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div
+      th:fragment="light(light)"
+      class="d-flex justify-content-between align-items-start mb-3 light-item"
+      th:data-light-id="${light.id}"
+    >
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center">
+          <div
+            class="d-flex align-items-center flex-grow-1"
+            style="cursor: pointer"
+            th:onclick="'$(\'#btn-expand-light-' + ${light.id} + '\').click()'"
+          >
+            <div
+              class="icon-box mr-3 default-icon d-flex justify-content-center align-items-center"
+              th:classappend="${light.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'active-light' : ''}"
+            >
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
+            <div>
+              <h6
+                class="mb-0 font-weight-bold text-dark"
+                th:text="${light.name != null and !light.name.isEmpty() ? light.name : '...'}"
+              >
+                Light Name
+              </h6>
+              <small
+                class="text-muted light-status-text"
+                th:text="${light.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'Đang bật' : 'Đã tắt'}"
+                >Status</small
+              >
+            </div>
+          </div>
+          <div class="d-flex align-items-center">
+            <div class="custom-control custom-switch scale-125 mr-3">
+              <input
+                type="checkbox"
+                class="custom-control-input light-toggle"
+                th:id="'lightSwitch' + ${light.id}"
+                th:data-light-id="${light.id}"
+                th:checked="${light.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}"
+              />
+              <label class="custom-control-label" th:for="'lightSwitch' + ${light.id}"></label>
+            </div>
+            <button
+              class="btn btn-link text-muted p-0 btn-expand"
+              th:id="'btn-expand-light-' + ${light.id}"
+              type="button"
+              th:data-target="'#lightControls' + ${light.id}"
+              data-toggle="collapse"
+            >
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="collapse mt-3"
+          th:id="'lightControls' + ${light.id}"
+          th:classappend="${light.power != T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'disabled-overlay' : ''}"
+        >
+          <div class="bg-light rounded p-4">
+            <div class="mb-3">
+              <small
+                class="text-muted d-block mb-2 font-weight-bold text-uppercase"
+                style="font-size: 0.7rem"
+                >Mô tả</small
+              >
+              <p
+                class="text-dark mb-0"
+                style="font-size: 0.875rem"
+                th:text="${light.description != null and !light.description.isEmpty() ? light.description : 'Không có mô tả'}"
+              >
+                Description
+              </p>
+            </div>
+            <div
+              class="bg-white rounded p-3 border text-center text-muted"
+              style="font-size: 0.8rem"
+            >
+              <i class="fas fa-info-circle mr-1"></i> Các tính năng nâng cao sẽ được bổ sung sau
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

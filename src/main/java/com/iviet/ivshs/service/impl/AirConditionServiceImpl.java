@@ -14,9 +14,9 @@ import com.iviet.ivshs.entities.AirConditionLan;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
@@ -41,11 +41,6 @@ public class AirConditionServiceImpl implements AirConditionService {
     private final RoomDao roomDao;
     private final DeviceControlDao deviceControlDao;
     private final LanguageDao languageDao;
-
-    private static final int MIN_TEMP = 16;
-    private static final int MAX_TEMP = 32;
-    private static final int MIN_FAN_SPEED = 0;
-    private static final int MAX_FAN_SPEED = 5;
 
     @Override
     public PaginatedResponse<AirConditionDto> getList(int page, int size) {
@@ -127,11 +122,11 @@ public class AirConditionServiceImpl implements AirConditionService {
         ac.setRoom(room);
         ac.setDeviceControl(deviceControl);
 
-        ac.setPower(dto.power() != null ? dto.power() : AcPower.OFF);
+        ac.setPower(dto.power() != null ? dto.power() : ActuatorPower.OFF);
         ac.setTemperature(dto.temperature() != null ? dto.temperature() : 25);
-        ac.setMode(dto.mode() != null ? dto.mode() : AcMode.COOL);
+        ac.setMode(dto.mode() != null ? dto.mode() : ActuatorMode.COOL);
         ac.setFanSpeed(dto.fanSpeed() != null ? dto.fanSpeed() : 3);
-        ac.setSwing(dto.swing() != null ? dto.swing() : AcSwing.OFF);
+        ac.setSwing(dto.swing() != null ? dto.swing() : ActuatorSwing.OFF);
 
         AirConditionLan lan = new AirConditionLan();
         lan.setLangCode(langCode);
@@ -216,7 +211,8 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     @Override
     @Transactional
-    public void controlPower(Long id, AcPower state) {
+    @Deprecated
+    public void controlPower(Long id, ActuatorPower state) {
         AirCondition ac = getAirConditionEntity(id);
         
         ac.setPower(state);
@@ -225,20 +221,36 @@ public class AirConditionServiceImpl implements AirConditionService {
         String gatewayIp = getGatewayIp(ac);
         String url = UrlConstant.getAcPowerUrlV1(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = new HashMap<>();
-        payload.put("power", state.getValue());
+        payload.put("power", state);
         
         sendControlCommand(url, payload);
     }
 
     @Override
     @Transactional
+    public void _v2api_handlePowerControl(Long id, ActuatorPower power) {
+        AirCondition ac = getAirConditionEntity(id);
+        
+        ac.setPower(power);
+        airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcPowerUrlV2(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = Map.of("data", power);
+        
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    @Deprecated
     public void controlTemperature(Long id, int temperature) {
-        if (temperature < MIN_TEMP || temperature > MAX_TEMP) {
-            throw new BadRequestException("Temperature must be between " + MIN_TEMP + " and " + MAX_TEMP);
+        if (temperature < AirCondition.MIN_TEMP || temperature > AirCondition.MAX_TEMP) {
+            throw new BadRequestException("Temperature must be between " + AirCondition.MIN_TEMP + " and " + AirCondition.MAX_TEMP);
         }
 
         AirCondition ac = getAirConditionEntity(id);
-        int currentTemp = ac.getTemperature();
+        int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
         
         if (temperature == currentTemp) {
             return;
@@ -260,7 +272,36 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     @Override
     @Transactional
-    public void controlMode(Long id, AcMode mode) {
+    public void _v2api_handleTemperatureControl(Long id, int temperature) {
+        if (temperature < AirCondition.MIN_TEMP || temperature > AirCondition.MAX_TEMP) {
+            throw new BadRequestException("Temperature must be between " + AirCondition.MIN_TEMP + " and " + AirCondition.MAX_TEMP);
+        }
+
+        AirCondition ac = getAirConditionEntity(id);
+        int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
+        
+        if (temperature == currentTemp) {
+            return;
+        }
+
+        ac.setTemperature(temperature);
+        airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        // Determine Up or Down based on diff
+        String url = temperature > currentTemp 
+            ? UrlConstant.getAcTempUpUrlV2(gatewayIp, ac.getNaturalId())
+            : UrlConstant.getAcTempDownUrlV2(gatewayIp, ac.getNaturalId());
+        
+        Map<String, Object> payload = Map.of("data", temperature);
+        
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    @Deprecated
+    public void controlMode(Long id, ActuatorMode mode) {
         AirCondition ac = getAirConditionEntity(id);
         
         ac.setMode(mode);
@@ -269,16 +310,32 @@ public class AirConditionServiceImpl implements AirConditionService {
         String gatewayIp = getGatewayIp(ac);
         String url = UrlConstant.getAcModeUrlV1(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = new HashMap<>();
-        payload.put("mode", mode.getValue());
+        payload.put("mode", mode);
         
         sendControlCommand(url, payload);
     }
 
     @Override
     @Transactional
+    public void _v2api_handleModeControl(Long id, ActuatorMode mode) {
+        AirCondition ac = getAirConditionEntity(id);
+        
+        ac.setMode(mode);
+        airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcModeUrlV2(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = Map.of("data", mode);
+        
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    @Deprecated
     public void controlFanSpeed(Long id, int speed) {
-        if (speed < MIN_FAN_SPEED || speed > MAX_FAN_SPEED) {
-            throw new BadRequestException("Fan speed must be between " + MIN_FAN_SPEED + " and " + MAX_FAN_SPEED);
+        if (speed < AirCondition.MIN_FAN_SPEED || speed > AirCondition.MAX_FAN_SPEED) {
+            throw new BadRequestException("Fan speed must be between " + AirCondition.MIN_FAN_SPEED + " and " + AirCondition.MAX_FAN_SPEED);
         }
 
         AirCondition ac = getAirConditionEntity(id);
@@ -296,7 +353,27 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     @Override
     @Transactional
-    public void controlSwing(Long id, AcSwing swing) {
+    public void _v2api_handleFanSpeedControl(Long id, int speed) {
+        if (speed < AirCondition.MIN_FAN_SPEED || speed > AirCondition.MAX_FAN_SPEED) {
+            throw new BadRequestException("Fan speed must be between " + AirCondition.MIN_FAN_SPEED + " and " + AirCondition.MAX_FAN_SPEED);
+        }
+
+        AirCondition ac = getAirConditionEntity(id);
+        
+        ac.setFanSpeed(speed);
+        airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcFanUrlV2(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = Map.of("data", speed);
+        
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    @Deprecated
+    public void controlSwing(Long id, ActuatorSwing swing) {
         AirCondition ac = getAirConditionEntity(id);
         
         ac.setSwing(swing);
@@ -305,9 +382,24 @@ public class AirConditionServiceImpl implements AirConditionService {
         String gatewayIp = getGatewayIp(ac);
         String url = UrlConstant.getAcSwingUrlV1(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = new HashMap<>();
-        payload.put("swing", swing.getValue());
+        payload.put("swing", swing);
         
         sendControlCommand(url, payload);
+    }
+
+    @Override
+    @Transactional
+    public void _v2api_handleSwingControl(Long id, ActuatorSwing swing) {
+        AirCondition ac = getAirConditionEntity(id);
+        
+        ac.setSwing(swing);
+        airConditionDao.save(ac);
+        
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getAcSwingUrlV2(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = Map.of("data", swing);
+        
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
     }
 
     private AirCondition getAirConditionEntity(Long id) {
@@ -335,12 +427,12 @@ public class AirConditionServiceImpl implements AirConditionService {
     }
 
     private void validateControlValues(Integer temperature, Integer fanSpeed) {
-        if (temperature != null && (temperature < MIN_TEMP || temperature > MAX_TEMP)) {
-            throw new BadRequestException("Temperature must be between " + MIN_TEMP + " and " + MAX_TEMP);
+        if (temperature != null && (temperature < AirCondition.MIN_TEMP || temperature > AirCondition.MAX_TEMP)) {
+            throw new BadRequestException("Temperature must be between " + AirCondition.MIN_TEMP + " and " + AirCondition.MAX_TEMP);
         }
 
-        if (fanSpeed != null && (fanSpeed < MIN_FAN_SPEED || fanSpeed > MAX_FAN_SPEED)) {
-            throw new BadRequestException("Fan speed must be between " + MIN_FAN_SPEED + " and " + MAX_FAN_SPEED);
+        if (fanSpeed != null && (fanSpeed < AirCondition.MIN_FAN_SPEED || fanSpeed > AirCondition.MAX_FAN_SPEED)) {
+            throw new BadRequestException("Fan speed must be between " + AirCondition.MIN_FAN_SPEED + " and " + AirCondition.MAX_FAN_SPEED);
         }
     }
 }

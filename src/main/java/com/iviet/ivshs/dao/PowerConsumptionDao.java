@@ -9,7 +9,7 @@ import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
 @Repository
-public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
+public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
 
 	private final String DTO_CLASS = PowerConsumptionDto.class.getName();
 
@@ -18,7 +18,7 @@ public class PowerConsumptionDao extends BaseIoTDeviceDao<PowerConsumption> {
 	}
 
 	@Override
-	 public Optional<PowerConsumptionDto> findByNaturalId(String naturalId, String langCode) {
+	public Optional<PowerConsumptionDto> findByNaturalId(String naturalId, String langCode) {
 		String jpql = """
 			SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentWatt, t.naturalId, t.room.id)
 				FROM PowerConsumption t

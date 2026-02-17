@@ -18,6 +18,7 @@ import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.SetupService;
 import com.iviet.ivshs.util.HttpClientUtil;
+import com.iviet.ivshs.util.JsonUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,7 +69,7 @@ public class SetupServiceImpl implements SetupService {
                 throw new ExternalServiceException("Gateway rejected request. Status: " + res.getStatusCode());
             }
 
-            SetupRequest req = HttpClientUtil.fromJson(res.getBody(), SetupRequest.class);
+            SetupRequest req = JsonUtil.fromJson(res.getBody(), SetupRequest.class);
             validateData(req);
             return req;
 

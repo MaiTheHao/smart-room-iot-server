@@ -18,8 +18,6 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseAuditEntity extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 

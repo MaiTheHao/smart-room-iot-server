@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PowerConsumption extends BaseIoTDevice<PowerConsumptionLan> {
+public class PowerConsumption extends BaseIoTSensor<PowerConsumptionLan> {
 
     private static final long serialVersionUID = 1L;
 

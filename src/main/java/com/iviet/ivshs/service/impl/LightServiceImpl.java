@@ -4,15 +4,20 @@ import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.enumeration.GatewayCommand;
-import com.iviet.ivshs.enumeration.LightPower;
+import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.ControlService;
 import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.constant.UrlConstant;
+import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -72,24 +77,43 @@ public class LightServiceImpl implements LightService {
     @Override
     @Transactional
     public LightDto create(CreateLightDto dto) {
-        if (dto == null || !StringUtils.hasText(dto.naturalId())) 
-            throw new BadRequestException("Light data and naturalId are required");
+        if (dto == null) {
+            throw new BadRequestException("Light data is required");
+        }
+        if (dto.roomId() == null) {
+            throw new BadRequestException("Room ID is required");
+        }
 
-        _checkDuplicate(dto.naturalId().trim(), null);
+        String naturalId = dto.naturalId().trim();
+        _checkDuplicate(naturalId, null);
 
-        var room = roomDao.findById(dto.roomId())
-                .orElseThrow(() -> new NotFoundException("Room not found"));
-        var deviceControl = deviceControlDao.findById(dto.deviceControlId())
-                .orElseThrow(() -> new NotFoundException("Device Control not found"));
-        
+        Room room = roomDao.findById(dto.roomId())
+                .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+
+        DeviceControl deviceControl = null;
+        if (dto.deviceControlId() != null) {
+            deviceControl = deviceControlDao.findById(dto.deviceControlId())
+                    .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
+        }
+
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
-        if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found");
+        if (!languageDao.existsByCode(langCode)) {
+            throw new NotFoundException("Language not found: " + langCode);
+        }
 
-        var light = dto.toEntity();
+        if (dto.level() != null && (dto.level() < Light.MIN_LEVEL || dto.level() > Light.MAX_LEVEL)) {
+            throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
+        }
+
+        Light light = new Light();
+        light.setNaturalId(naturalId);
+        light.setIsActive(dto.isActive() != null ? dto.isActive() : false);
         light.setRoom(room);
         light.setDeviceControl(deviceControl);
+        light.setPower(dto.power() != null ? dto.power() : ActuatorPower.OFF);
+        light.setLevel(dto.level() != null ? dto.level() : 0);
 
-        var lightLan = new LightLan();
+        LightLan lightLan = new LightLan();
         lightLan.setLangCode(langCode);
         lightLan.setName(dto.name() != null ? dto.name().trim() : "");
         lightLan.setDescription(dto.description());
@@ -98,15 +122,20 @@ public class LightServiceImpl implements LightService {
         light.getTranslations().add(lightLan);
         lightDao.save(light);
 
-        return LightDto.from(light, lightLan);
+        return lightDao.findById(light.getId(), langCode)
+                .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Light"));
     }
 
     @Override
     @Transactional
     public LightDto update(Long lightId, UpdateLightDto dto) {
-        var light = lightDao.findById(lightId)
-                .orElseThrow(() -> new NotFoundException("Light not found"));
+        Light light = lightDao.findById(lightId)
+                .orElseThrow(() -> new NotFoundException("Light not found with ID: " + lightId));
+
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
+        if (!languageDao.existsByCode(langCode)) {
+            throw new NotFoundException("Language not found: " + langCode);
+        }
 
         if (StringUtils.hasText(dto.naturalId()) && !dto.naturalId().trim().equals(light.getNaturalId())) {
             _checkDuplicate(dto.naturalId().trim(), lightId);
@@ -114,21 +143,30 @@ public class LightServiceImpl implements LightService {
         }
 
         if (dto.roomId() != null && !dto.roomId().equals(light.getRoom().getId())) {
-            light.setRoom(roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found")));
+            Room room = roomDao.findById(dto.roomId())
+                    .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+            light.setRoom(room);
         }
 
-        if (dto.deviceControlId() != null && !dto.deviceControlId().equals(light.getDeviceControl().getId())) {
-            light.setDeviceControl(deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found")));
+        if (dto.deviceControlId() != null && (light.getDeviceControl() == null || !dto.deviceControlId().equals(light.getDeviceControl().getId()))) {
+            DeviceControl dc = deviceControlDao.findById(dto.deviceControlId())
+                    .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
+            light.setDeviceControl(dc);
+        }
+
+        if (dto.level() != null && (dto.level() < Light.MIN_LEVEL || dto.level() > Light.MAX_LEVEL)) {
+            throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
         }
 
         if (dto.isActive() != null) light.setIsActive(dto.isActive());
+        if (dto.power() != null) light.setPower(dto.power());
         if (dto.level() != null) light.setLevel(dto.level());
 
-        var lan = light.getTranslations().stream()
+        LightLan lan = light.getTranslations().stream()
                 .filter(ll -> langCode.equals(ll.getLangCode()))
                 .findFirst()
                 .orElseGet(() -> {
-                    var newLan = new LightLan();
+                    LightLan newLan = new LightLan();
                     newLan.setLangCode(langCode);
                     newLan.setOwner(light);
                     light.getTranslations().add(newLan);
@@ -139,7 +177,9 @@ public class LightServiceImpl implements LightService {
         if (dto.description() != null) lan.setDescription(dto.description());
 
         lightDao.save(light);
-        return LightDto.from(light, lan);
+
+        return lightDao.findById(lightId, langCode)
+                .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Light"));
     }
 
     @Override
@@ -149,38 +189,93 @@ public class LightServiceImpl implements LightService {
         lightDao.deleteById(lightId);
     }
 
+    
     @Override
     @Transactional
-    public void handleStateControl(Long lightId, LightPower state) {
+    public void _v2api_handlePowerControl(Long lightId, ActuatorPower power) {
         var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        var client = light.getDeviceControl().getClient();
+        
+        light.setPower(power);
+        lightDao.save(light);
+
+        String url = UrlConstant.getLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
+        Map<String, Object> payload = Map.of("data", power);
+
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    public void _v2api_handleTogglePowerControl(Long lightId) {
+        var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        ActuatorPower currentPower = light.getPower() != null ? light.getPower() : ActuatorPower.OFF;
+        ActuatorPower newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
+    
+        _v2api_handlePowerControl(lightId, newPower);
+    }
+
+    @Override
+    @Transactional
+    public void _v2api_handleLevelControl(Long lightId, int level) {
+        if (level < Light.MIN_LEVEL || level > Light.MAX_LEVEL) {
+            throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
+        }
+        var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        var client = light.getDeviceControl().getClient();
+        
+        light.setLevel(level);
+        lightDao.save(light);
+
+        String url = UrlConstant.getLightLevelUrlV2(client.getIpAddress(), light.getNaturalId());
+        Map<String, Object> payload = Map.of("data", level);
+
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    @Deprecated
+    public void controlPower(Long id, ActuatorPower state) {
+        var light = lightDao.findById(id).orElseThrow(() -> new NotFoundException("Light not found"));
         var client = light.getDeviceControl().getClient();
 
         try {
             controlService.sendCommand(
                 client.getIpAddress(),
                 light.getNaturalId(),
-                ((state == LightPower.ON) ? GatewayCommand.ON : GatewayCommand.OFF)
+                ((state == ActuatorPower.ON) ? GatewayCommand.ON : GatewayCommand.OFF)
             );
-            light.setIsActive(state == LightPower.ON);
+            light.setPower(state);
+            light.setIsActive(state == ActuatorPower.ON);
             lightDao.save(light);
         } catch (Exception e) {
-            log.error("Failed to control light state: lightId={}, state={}, error={}", lightId, state, e.getMessage());
+            log.error("Failed to control light state: lightId={}, state={}, error={}", id, state, e.getMessage());
             throw new BadRequestException("Failed to control light state: " + e.getMessage());
         }
     }
 
     @Override
     @Transactional
-    public void handleToggleStateControl(Long lightId) {
-        var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
-        var newState = light.getIsActive() ? LightPower.OFF : LightPower.ON;
-        handleStateControl(lightId, newState);
+    @Deprecated
+    public void togglePower(Long id) {
+        var light = lightDao.findById(id).orElseThrow(() -> new NotFoundException("Light not found"));
+        ActuatorPower currentPower = light.getPower() != null ? light.getPower() : ActuatorPower.OFF;
+        ActuatorPower newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
+        controlPower(id, newPower);
     }
 
     @Override
     @Transactional
-    public void handleSetLevelControl(Long lightId, int newLevel) {
-        throw new UnsupportedOperationException("Not implemented yet");
+    @Deprecated
+    public void controlLevel(Long id, int level) {
+        if (level < Light.MIN_LEVEL || level > Light.MAX_LEVEL) {
+            throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
+        }
+        // Logic for V1 control level if exists, otherwise same as handleLevelControl or throw Unsupported
+        // Since V1 usually uses controlService.sendCommand with a JsonNode for custom commands
+        // I'll keep it simple for now as the user didn't specify V1 level control logic differences
+        throw new UnsupportedOperationException("Legacy level control is not supported. Please use the new API endpoint for level control.");
     }
 
     private void _checkDuplicate(String nid, Long cid) {

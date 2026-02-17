@@ -1,5 +1,7 @@
 package com.iviet.ivshs.service;
 
+import org.springframework.lang.NonNull;
+
 public interface I18nMessageService {
-	String getMessage(String key, Object... args);
+	String getMessage(@NonNull String key, Object... args);
 }

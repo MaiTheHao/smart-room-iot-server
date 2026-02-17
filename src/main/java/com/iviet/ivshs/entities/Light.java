@@ -21,9 +21,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Light extends BaseIoTDevice<LightLan> {
-
-    private static final long serialVersionUID = 1L;
+public class Light extends BaseIoTActuator<LightLan>{
+    public static final int MIN_LEVEL = 0;
+    public static final int MAX_LEVEL = 100;
 
     @Column(name = "level")
     private Integer level;

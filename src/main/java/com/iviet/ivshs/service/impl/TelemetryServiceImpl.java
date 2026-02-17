@@ -27,6 +27,8 @@ import com.iviet.ivshs.service.TemperatureService;
 import com.iviet.ivshs.service.TemperatureValueService;
 import com.iviet.ivshs.util.HttpClientUtil;
 
+import com.iviet.ivshs.util.JsonUtil;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -135,7 +137,7 @@ public class TelemetryServiceImpl implements TelemetryService {
         HttpClientUtil.handleThrowException(response);
 
         // Stage 3: PROCESS & SAVE
-        FetchTempValueResponseDto responseBody = HttpClientUtil.fromJson(response.getBody(), FetchTempValueResponseDto.class);
+        FetchTempValueResponseDto responseBody = JsonUtil.fromJson(response.getBody(), FetchTempValueResponseDto.class);
         CreateTemperatureValueDto createDto = CreateTemperatureValueDto.builder()
             .sensorNaturalId(naturalId)
             .tempC(responseBody.getData().getTempC())
@@ -159,7 +161,7 @@ public class TelemetryServiceImpl implements TelemetryService {
         HttpClientUtil.handleThrowException(response);
 
         // Stage 3: PROCESS & SAVE
-        var responseBody = HttpClientUtil.fromJson(response.getBody(), FetchPowerConsumpValueResponseDto.class);
+        var responseBody = JsonUtil.fromJson(response.getBody(), FetchPowerConsumpValueResponseDto.class);
         var createDto = CreatePowerConsumptionValueDto.builder()
             .sensorNaturalId(naturalId)
             .watt(responseBody.getData().getWatt())
@@ -174,7 +176,7 @@ public class TelemetryServiceImpl implements TelemetryService {
         var response = HttpClientUtil.get(url);
         HttpClientUtil.handleThrowException(response);
 
-        var responseBody = HttpClientUtil.fromJson(response.getBody(), FetchTelemetryByGatewayResponseDto.class);
+        var responseBody = JsonUtil.fromJson(response.getBody(), FetchTelemetryByGatewayResponseDto.class);
         Instant timestamp = responseBody.getTimestamp();
         List<FetchTelemetryByGatewayResponseDto.Data> telemetryData = responseBody.getData();
 

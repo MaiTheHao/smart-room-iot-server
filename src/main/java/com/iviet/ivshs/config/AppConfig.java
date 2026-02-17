@@ -44,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
     @ComponentScan("com.iviet.ivshs.service"),
     @ComponentScan("com.iviet.ivshs.repository"),
     @ComponentScan("com.iviet.ivshs.component"),
+    @ComponentScan("com.iviet.ivshs.jwt"),
     @ComponentScan("com.iviet.ivshs.startup"),
     @ComponentScan("com.iviet.ivshs.util"),
     @ComponentScan("com.iviet.ivshs.schedule"),

@@ -1,5 +1,7 @@
 package com.iviet.ivshs.dto;
 
+import com.iviet.ivshs.enumeration.ActuatorPower;
+
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 
@@ -14,6 +16,8 @@ public record UpdateLightDto(
     String description,
 
     Boolean isActive,
+
+    ActuatorPower power,
 
     @Min(0) @Max(100)
     Integer level,

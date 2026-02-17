@@ -1,8 +1,10 @@
 package com.iviet.ivshs.entities;
 
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,25 +28,36 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AirCondition extends BaseIoTDevice<AirConditionLan> {
+public class AirCondition extends BaseIoTActuator<AirConditionLan>{
+	public static final int MIN_TEMP = 16;
+	public static final int MAX_TEMP = 32;
+	public static final int MIN_FAN_SPEED = 0;
+	public static final int MAX_FAN_SPEED = 5;
 
-	private static final long serialVersionUID = 1L;
+	public static final HashSet<ActuatorMode> SUPPORTED_MODES = new HashSet<>(Set.of(
+		ActuatorMode.COOL,
+		ActuatorMode.HEAT,
+		ActuatorMode.DRY,
+		ActuatorMode.FAN,
+		ActuatorMode.AUTO
+	));
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "power")
-	private AcPower power;
+	public static final HashSet<ActuatorSwing> SUPPORTED_SWINGS = new HashSet<>(Set.of(
+		ActuatorSwing.ON,
+		ActuatorSwing.OFF
+	));
 
 	@Column(name = "temperature")
 	private Integer temperature;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "mode")
-	private AcMode mode;
+	private ActuatorMode mode;
 
 	@Column(name = "fan_speed")
-	private Integer fanSpeed; // 0: auto, 1-5: speed levels
+	private Integer fanSpeed;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "swing")
-	private AcSwing swing;
+	private ActuatorSwing swing;
 }

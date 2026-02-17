@@ -1,8 +1,8 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.ActuatorPower;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -25,15 +25,15 @@ public record UpdateAirConditionDto(
     Long deviceControlId,
     String langCode,
 
-    AcPower power,
+    ActuatorPower power,
 
     @Min(16) @Max(32)
     Integer temperature,
 
-    AcMode mode,
+    ActuatorMode mode,
 
     @Min(0) @Max(5)
     Integer fanSpeed,
 
-    AcSwing swing
+    ActuatorSwing swing
 ) {}

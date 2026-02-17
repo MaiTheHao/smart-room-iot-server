@@ -5,9 +5,9 @@ import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.CreateAirConditionDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAirConditionDto;
-import com.iviet.ivshs.enumeration.AcMode;
-import com.iviet.ivshs.enumeration.AcPower;
-import com.iviet.ivshs.enumeration.AcSwing;
+import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.service.AirConditionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +88,7 @@ public class AirConditionController {
     @PostMapping("/{id}/power")
     public ResponseEntity<ApiResponse<Void>> controlPower(
             @PathVariable(name = "id") Long id,
-            @RequestParam(name = "state") AcPower state) {
+            @RequestParam(name = "state") ActuatorPower state) {
         
         airConditionService.controlPower(id, state);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Power controlled successfully"));
@@ -106,7 +106,7 @@ public class AirConditionController {
     @PostMapping("/{id}/mode")
     public ResponseEntity<ApiResponse<Void>> controlMode(
             @PathVariable(name = "id") Long id,
-            @RequestParam(name = "value") AcMode mode) {
+            @RequestParam(name = "value") ActuatorMode mode) {
         
         airConditionService.controlMode(id, mode);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Mode controlled successfully"));
@@ -124,7 +124,7 @@ public class AirConditionController {
     @PostMapping("/{id}/swing")
     public ResponseEntity<ApiResponse<Void>> controlSwing(
             @PathVariable(name = "id") Long id,
-            @RequestParam(name = "state") AcSwing swing) {
+            @RequestParam(name = "state") ActuatorSwing swing) {
         
         airConditionService.controlSwing(id, swing);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Swing controlled successfully"));
