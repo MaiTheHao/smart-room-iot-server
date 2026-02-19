@@ -3,8 +3,7 @@ USE smart_room_iot;
 SET
   FOREIGN_KEY_CHECKS = 0;
 
-SET
-  NAMES utf8;
+SET NAMES utf8;
 
 SET
   TIME_ZONE = '+00:00';
@@ -15,9 +14,9 @@ SET
 INSERT INTO
   `floor` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `code`, `level`)
 VALUES
-  (1, NOW (), 'system', NOW (), 'system', 0, 'F00', 0),
-  (2, NOW (), 'system', NOW (), 'system', 0, 'F01', 1),
-  (3, NOW (), 'system', NOW (), 'system', 0, 'F02', 2);
+  (1, NOW(), 'system', NOW(), 'system', 0, 'F00', 0),
+  (2, NOW(), 'system', NOW(), 'system', 0, 'F01', 1),
+  (3, NOW(), 'system', NOW(), 'system', 0, 'F02', 2);
 
 -- ----------------------------
 -- 2. Dữ liệu bảng floor_lan (Đa ngôn ngữ cho Tầng)
@@ -38,9 +37,9 @@ VALUES
 INSERT INTO
   `room` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `code`, `floor_id`)
 VALUES
-  (1, NOW (), 'system', NOW (), 'system', 0, 'R-Main-Server', 1),
-  (2, NOW (), 'system', NOW (), 'system', 0, 'R-F01-Kitchen', 2),
-  (3, NOW (), 'system', NOW (), 'system', 0, 'R-F02-Master', 3);
+  (1, NOW(), 'system', NOW(), 'system', 0, 'R-Main-Server', 1),
+  (2, NOW(), 'system', NOW(), 'system', 0, 'R-F01-Kitchen', 2),
+  (3, NOW(), 'system', NOW(), 'system', 0, 'R-F02-Master', 3);
 
 -- ----------------------------
 -- 4. Dữ liệu bảng room_lan (Đa ngôn ngữ cho Phòng)
@@ -131,17 +130,17 @@ VALUES
 INSERT INTO
   `sys_function` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `function_code`)
 VALUES
-  (1, NOW (), 'system', NOW (), 'system', 0, 'F_MANAGE_CLIENT'),
-  (4, NOW (), 'system', NOW (), 'system', 0, 'F_MANAGE_DEVICE'),
-  (5, NOW (), 'system', NOW (), 'system', 0, 'F_MANAGE_ALL'),
-  (100, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_FLOOR_F00'),
-  (101, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_FLOOR_F01'),
-  (102, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_FLOOR_F02'),
-  (104, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_FLOOR_ALL'),
-  (200, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_ROOM_R-Main-Server'),
-  (201, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_ROOM_R-F01-Kitchen'),
-  (202, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_ROOM_R-F02-Master'),
-  (205, NOW (), 'system', NOW (), 'system', 0, 'F_ACCESS_ROOM_ALL');
+  (1, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_CLIENT'),
+  (4, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_DEVICE'),
+  (5, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ALL'),
+  (100, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_FLOOR_F00'),
+  (101, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_FLOOR_F01'),
+  (102, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_FLOOR_F02'),
+  (104, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_FLOOR_ALL'),
+  (200, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ROOM_R-Main-Server'),
+  (201, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ROOM_R-F01-Kitchen'),
+  (202, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ROOM_R-F02-Master'),
+  (205, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ROOM_ALL');
 
 -- ----------------------------
 -- 14. Dữ liệu bảng sys_function_lan
@@ -172,8 +171,8 @@ VALUES
 INSERT INTO
   `sys_group` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `group_code`)
 VALUES
-  (1, NOW (), 'system', NOW (), 'system', 0, 'G_ADMIN'),
-  (2, NOW (), 'system', NOW (), 'system', 0, 'G_USER');
+  (1, NOW(), 'system', NOW(), 'system', 0, 'G_ADMIN'),
+  (2, NOW(), 'system', NOW(), 'system', 0, 'G_USER');
 
 -- ----------------------------
 -- 16. Dữ liệu bảng sys_group_lan
@@ -191,8 +190,8 @@ VALUES
 INSERT INTO
   `sys_role` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `function_id`, `group_id`)
 VALUES
-  (1, NOW (), NULL, NOW (), NULL, 0, 5, 1),
-  (3, NOW (), NULL, NOW (), NULL, 0, 205, 1),
+  (1, NOW(), NULL, NOW(), NULL, 0, 5, 1),
+  (3, NOW(), NULL, NOW(), NULL, 0, 205, 1),
   (17, NULL, NULL, NULL, NULL, 0, 104, 1),
   (18, NULL, NULL, NULL, NULL, 0, 200, 2),
   (19, NULL, 'admin', NULL, 'admin', 0, 104, 2),
