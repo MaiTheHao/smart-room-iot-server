@@ -12,17 +12,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
-import com.iviet.ivshs.dto.CreateRuleConditionDto;
 import com.iviet.ivshs.dto.CreateRuleDto;
 import com.iviet.ivshs.dto.RuleDto;
-import com.iviet.ivshs.dto.UpdateRuleConditionDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.rule.RuleEvaluator;
+import com.iviet.ivshs.schedule.rule.RuleJob;
+import com.iviet.ivshs.schedule.rule.RuleProcessor;
 import com.iviet.ivshs.service.RuleService;
+import com.iviet.ivshs.util.QuartzUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 public class RuleServiceImpl implements RuleService {
 
 	private final RuleDao ruleDao;
-	private final RuleEvaluator ruleEvaluator;
+	private final RuleProcessor ruleProcessor;
 	private final ObjectMapper objectMapper;
+	private final QuartzUtil quartzUtil;
 
 	@Override
 	@Transactional
@@ -52,7 +53,7 @@ public class RuleServiceImpl implements RuleService {
 
 	private void evaluateTargetRules(String targetKey, List<Rule> rules) {
 		List<Rule> satisfiedRules = rules.stream()
-			.filter(ruleEvaluator::matches)
+			.filter(ruleProcessor::matches)
 			.collect(Collectors.toList());
 
 		if (satisfiedRules.isEmpty()) {
@@ -65,25 +66,37 @@ public class RuleServiceImpl implements RuleService {
 			.orElse(null);
 
 		if (winner != null) {
-			executeRuleAction(winner);
-		}
-	}
-
-	private void executeRuleAction(Rule rule) {
-		log.info("EXECUTING WINNER RULE: {} - Target: {}:{}", rule.getName(), rule.getTargetDeviceCategory(), rule.getTargetDeviceId());
-		try {
-			JsonNode params = objectMapper.readTree(rule.getActionParams());
-			log.info("Action Params: {}", params.toString());
-			// TODO: dispatch to DeviceControlService
-		} catch (JsonProcessingException e) {
-			log.error("Invalid action params for rule {}: {}", rule.getId(), e.getMessage());
+			log.info("EXECUTING WINNER RULE: {} - Target: {}:{}", winner.getName(), winner.getTargetDeviceCategory(), winner.getTargetDeviceId());
+			try {
+				JsonNode params = objectMapper.readTree(winner.getActionParams());
+				log.info("Action Params: {}", params.toString());
+				// TODO: Hoàn thiện chổ này, môt method để tiến hành điều khiển các thiết bị
+			} catch (JsonProcessingException e) {
+				log.error("Invalid action params for rule {}: {}", winner.getId(), e.getMessage());
+			}
 		}
 	}
 
 	@Override
 	@Transactional
 	public void reloadAllRules() {
-		log.info("Rules reloaded (Global Engine Model)");
+		log.info("Request to reload all rules received. Triggering immediate rule scan.");
+		try {
+			org.quartz.JobKey jobKey = org.quartz.JobKey.jobKey(
+				RuleJob.JOB_NAME, 
+				RuleJob.JOB_GROUP
+			);
+			
+			if (quartzUtil.checkExists(jobKey)) {
+				quartzUtil.triggerJob(jobKey, null);
+				log.info("Triggered immediate execution of RuleEngineJob: {}", jobKey);
+			} else {
+				log.warn("RuleEngineJob not found with key: {}", jobKey);
+			}
+		} catch (Exception e) {
+			log.error("Failed to trigger rule reload: {}", e.getMessage(), e);
+			throw new InternalServerErrorException("Failed to trigger rule reload", e);
+		}
 	}
 
 	@Override

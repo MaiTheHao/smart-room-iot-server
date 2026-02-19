@@ -1,21 +1,21 @@
-package com.iviet.ivshs.schedule.handler.impl;
+package com.iviet.ivshs.schedule.automation.strategy.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.schedule.handler.AutomationActionHandler;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.JobActionType;
 import com.iviet.ivshs.enumeration.JobTargetType;
+import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
 import com.iviet.ivshs.service.AirConditionService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "ACTION-AIRCONDITION")
+@Slf4j(topic = "AUTOMATION_ACTION_AIRCONDITION")
 @Component
 @RequiredArgsConstructor
-public class AirConditionAutomationActionHandler implements AutomationActionHandler {
+public class AirConditionAutomationActionStrategy implements AutomationActionStrategy {
 
     private final AirConditionService service;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.schedule.job;
+package com.iviet.ivshs.schedule.automation;
 
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;

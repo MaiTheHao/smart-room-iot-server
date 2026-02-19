@@ -15,7 +15,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.schedule.job.RuleEngineJob;
+import com.iviet.ivshs.schedule.rule.RuleJob;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,8 +65,8 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
 
     log.info("Scheduling Rule Engine Job with interval: {} seconds", scanIntervalSeconds);
 
-    JobDetail jobDetail = JobBuilder.newJob(RuleEngineJob.class)
-        .withIdentity(RuleEngineJob.JOB_NAME, RuleEngineJob.JOB_GROUP)
+    JobDetail jobDetail = JobBuilder.newJob(RuleJob.class)
+        .withIdentity(RuleJob.JOB_NAME, RuleJob.JOB_GROUP)
         .storeDurably()
         .build();
 
@@ -75,7 +75,7 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
     }
 
     Trigger trigger = TriggerBuilder.newTrigger()
-        .withIdentity("RuleEngineTrigger", RuleEngineJob.JOB_GROUP)
+        .withIdentity("RuleEngineTrigger", RuleJob.JOB_GROUP)
         .startNow()
         .withSchedule(SimpleScheduleBuilder.simpleSchedule()
             .withIntervalInSeconds(scanIntervalSeconds)

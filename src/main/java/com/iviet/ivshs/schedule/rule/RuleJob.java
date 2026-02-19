@@ -1,4 +1,4 @@
-package com.iviet.ivshs.schedule.job;
+package com.iviet.ivshs.schedule.rule;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @DisallowConcurrentExecution
-public class RuleEngineJob implements Job {
+public class RuleJob implements Job {
 
     public static final String JOB_NAME = "GLOBAL_RULE_SCAN_JOB";
     public static final String JOB_GROUP = "RULE_ENGINE_SYSTEM";

@@ -1,9 +1,9 @@
-package com.iviet.ivshs.schedule.handler;
+package com.iviet.ivshs.schedule.automation.strategy;
 
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.JobTargetType;
 
-public interface AutomationActionHandler {
+public interface AutomationActionStrategy {
 
     JobTargetType getTargetType();
 

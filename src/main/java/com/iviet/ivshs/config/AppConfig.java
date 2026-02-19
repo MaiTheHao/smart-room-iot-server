@@ -48,7 +48,6 @@ import lombok.extern.slf4j.Slf4j;
     @ComponentScan("com.iviet.ivshs.startup"),
     @ComponentScan("com.iviet.ivshs.util"),
     @ComponentScan("com.iviet.ivshs.schedule"),
-    @ComponentScan("com.iviet.ivshs.rule"),
 })
 public class AppConfig implements EnvironmentAware {
 

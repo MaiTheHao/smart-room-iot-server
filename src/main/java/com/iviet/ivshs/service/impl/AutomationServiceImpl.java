@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.schedule.processor.AutomationProcessor;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.AutomationActionDao;
 import com.iviet.ivshs.dao.AutomationDao;
@@ -22,6 +21,7 @@ import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.JobTargetType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.schedule.automation.AutomationProcessor;
 import com.iviet.ivshs.service.AutomationService;
 import com.iviet.ivshs.util.CronExpressionUtil;
 import com.iviet.ivshs.util.ScheduleUtil;

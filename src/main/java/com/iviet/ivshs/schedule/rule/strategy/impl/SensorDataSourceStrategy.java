@@ -1,4 +1,4 @@
-package com.iviet.ivshs.rule.strategy.impl;
+package com.iviet.ivshs.schedule.rule.strategy.impl;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.RuleDataSource;
-import com.iviet.ivshs.rule.strategy.RuleDataSourceStrategy;
-import com.iviet.ivshs.rule.strategy.SensorStrategy;
+import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
+import com.iviet.ivshs.schedule.rule.strategy.RuleSensorStrategy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
 
-    private final List<SensorStrategy> strategies;
+    private final List<RuleSensorStrategy> strategies;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -36,7 +36,7 @@ public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
             Long sensorId = params.path("sensorId").asLong();
             String property = params.path("property").asText();
 
-            for (SensorStrategy strategy : strategies) {
+            for (RuleSensorStrategy strategy : strategies) {
                 if (strategy.supports(category)) {
                     return strategy.getValue(sensorId, property);
                 }

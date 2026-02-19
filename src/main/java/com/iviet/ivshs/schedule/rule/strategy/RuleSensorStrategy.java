@@ -1,8 +1,8 @@
-package com.iviet.ivshs.rule.strategy;
+package com.iviet.ivshs.schedule.rule.strategy;
 
 import com.iviet.ivshs.enumeration.DeviceCategory;
 
-public interface SensorStrategy {
+public interface RuleSensorStrategy {
 
     boolean supports(DeviceCategory category);
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.schedule.processor;
+package com.iviet.ivshs.schedule.automation;
 
 import java.util.Comparator;
 import java.util.List;
@@ -8,23 +8,23 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.schedule.handler.AutomationActionHandler;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.JobTargetType;
 import com.iviet.ivshs.exception.domain.BaseException;
+import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTOMATION-PROCESSOR")
+@Slf4j(topic = "AUTOMATION_PROCESSOR")
 @Component
 public class AutomationProcessor {
 
-    private final Map<JobTargetType, AutomationActionHandler> actionHandlerMap;
+    private final Map<JobTargetType, AutomationActionStrategy> actionHandlerMap;
 
-    public AutomationProcessor(List<AutomationActionHandler> actionHandlers) {
+    public AutomationProcessor(List<AutomationActionStrategy> actionHandlers) {
         this.actionHandlerMap = actionHandlers.stream()
-                .collect(Collectors.toMap(AutomationActionHandler::getTargetType, Function.identity()));
+                .collect(Collectors.toMap(AutomationActionStrategy::getTargetType, Function.identity()));
         
         log.info("Processor initialized with {} handlers", actionHandlerMap.size());
     }
@@ -46,7 +46,7 @@ public class AutomationProcessor {
 
     private void dispatchAction(AutomationAction action) {
         JobTargetType type = action.getTargetType();
-        AutomationActionHandler handler = actionHandlerMap.get(type);
+        AutomationActionStrategy handler = actionHandlerMap.get(type);
 
         if (handler == null) {
             log.warn("Skip: No handler for type {}", type);
