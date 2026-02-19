@@ -18,7 +18,8 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
 
     private final ObjectMapper objectMapper;
 
-    private static final String PROPERTY_CURRENT_TIME = "current_time";
+    private static final String PROP_CURRENT_TIME = "current_time"; // Returns current time in hours (e.g., 14.5 for 2:30 PM)
+    private static final String PROP_DAY_OF_WEEK = "day_of_week"; // 1 -> 7 (Monday -> Sunday)
 
     @Override
     public Object provide(RuleCondition condition, Long contextId) {
@@ -30,9 +31,12 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
             
             String property = params.path("property").asText();
 
-            if (PROPERTY_CURRENT_TIME.equalsIgnoreCase(property)) {
+            if (PROP_CURRENT_TIME.equalsIgnoreCase(property)) {
                 java.time.LocalTime now = java.time.LocalTime.now();
                 return now.getHour() + (now.getMinute() / 60.0);
+            } else if (PROP_DAY_OF_WEEK.equalsIgnoreCase(property)) {
+                java.time.DayOfWeek day = java.time.LocalDate.now().getDayOfWeek();
+                return day.getValue();
             }
 
             return null;

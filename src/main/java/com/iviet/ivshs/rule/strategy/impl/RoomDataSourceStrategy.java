@@ -28,9 +28,8 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
     private final TemperatureValueDao temperatureValueDao;
     private final PowerConsumptionValueDao powerConsumptionValueDao;
 
-    private static final String PROPERTY_TEMPERATURE = "temperature";
-    private static final String PROPERTY_POWER_CONSUMPTION = "power_consumption";
-    private static final String PROPERTY_WATT = "watt";
+    private static final String PROP_TEMPERATURE = "temperature";
+    private static final String PROP_WATT = "watt";
 
     @Override
     public Object provide(RuleCondition condition, Long contextId) {
@@ -46,7 +45,7 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
             Instant now = Instant.now();
             Instant fifteenMinutesAgo = now.minus(15, ChronoUnit.MINUTES);
 
-            if (PROPERTY_TEMPERATURE.equalsIgnoreCase(property)) {
+            if (PROP_TEMPERATURE.equalsIgnoreCase(property)) {
                 List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, fifteenMinutesAgo, now);
                 if (history != null && !history.isEmpty()) {
                     return history.get(history.size() - 1).avgTempC();
@@ -54,7 +53,7 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
                 return null;
             }
 
-            if (PROPERTY_POWER_CONSUMPTION.equalsIgnoreCase(property) || PROPERTY_WATT.equalsIgnoreCase(property)) {
+            if (PROP_WATT.equalsIgnoreCase(property)) {
                 List<AveragePowerConsumptionValueDto> history = powerConsumptionValueDao.getAverageHistoryByRoom(roomId, fifteenMinutesAgo, now);
                 if (history != null && !history.isEmpty()) {
                     return history.get(history.size() - 1).getAvgWatt();

@@ -3,8 +3,7 @@ USE smart_room_iot;
 SET
   FOREIGN_KEY_CHECKS = 0;
 
-SET
-  NAMES utf8;
+SET NAMES utf8;
 
 SET
   TIME_ZONE = '+00:00';
@@ -12,12 +11,12 @@ SET
 CREATE TABLE
   `air_condition` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
-    `is_active` bit (1) NOT NULL,
+    `is_active` bit(1) NOT NULL,
     `natural_id` varchar(256) NOT NULL,
     `fan_speed` int DEFAULT NULL,
     `mode` varchar(256) DEFAULT NULL,
@@ -37,9 +36,9 @@ CREATE TABLE
 CREATE TABLE
   `air_condition_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -54,14 +53,14 @@ CREATE TABLE
 CREATE TABLE
   `automation` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `cron_expression` varchar(256) NOT NULL,
     `description` varchar(256) DEFAULT NULL,
-    `is_active` bit (1) DEFAULT NULL,
+    `is_active` bit(1) DEFAULT NULL,
     `name` varchar(256) NOT NULL,
     PRIMARY KEY (`id`),
     KEY `idx_auto_status` (`is_active`)
@@ -70,9 +69,9 @@ CREATE TABLE
 CREATE TABLE
   `automation_action` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `action_type` varchar(256) NOT NULL,
@@ -89,15 +88,15 @@ CREATE TABLE
 CREATE TABLE
   `client` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `avatar_url` varchar(256) DEFAULT NULL,
     `client_type` varchar(256) DEFAULT NULL,
     `ip_address` varchar(45) DEFAULT NULL,
-    `last_login_at` datetime (6) DEFAULT NULL,
+    `last_login_at` datetime(6) DEFAULT NULL,
     `mac_address` varchar(100) DEFAULT NULL,
     `password_hash` varchar(256) DEFAULT NULL,
     `username` varchar(100) NOT NULL,
@@ -119,9 +118,9 @@ CREATE TABLE
 CREATE TABLE
   `device_control` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `api_endpoint` varchar(256) DEFAULT NULL,
@@ -140,9 +139,9 @@ CREATE TABLE
 CREATE TABLE
   `floor` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `code` varchar(256) NOT NULL,
@@ -154,9 +153,9 @@ CREATE TABLE
 CREATE TABLE
   `floor_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -171,9 +170,9 @@ CREATE TABLE
 CREATE TABLE
   `language` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `code` varchar(10) NOT NULL,
@@ -186,12 +185,12 @@ CREATE TABLE
 CREATE TABLE
   `light` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
-    `is_active` bit (1) NOT NULL,
+    `is_active` bit(1) NOT NULL,
     `natural_id` varchar(256) NOT NULL,
     `power` varchar(256) DEFAULT NULL,
     `level` int DEFAULT NULL,
@@ -208,9 +207,9 @@ CREATE TABLE
 CREATE TABLE
   `light_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -223,17 +222,17 @@ CREATE TABLE
   ) ENGINE = InnoDB AUTO_INCREMENT = 8 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
-  `persistent_logins` (`series` varchar(64) NOT NULL, `last_used` datetime (6) NOT NULL, `token` varchar(64) NOT NULL, `username` varchar(64) NOT NULL, PRIMARY KEY (`series`)) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+  `persistent_logins` (`series` varchar(64) NOT NULL, `last_used` datetime(6) NOT NULL, `token` varchar(64) NOT NULL, `username` varchar(64) NOT NULL, PRIMARY KEY (`series`)) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
   `power_consumption` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
-    `is_active` bit (1) NOT NULL,
+    `is_active` bit(1) NOT NULL,
     `natural_id` varchar(256) NOT NULL,
     `current_watt` double DEFAULT NULL,
     `device_control_id` bigint DEFAULT NULL,
@@ -249,9 +248,9 @@ CREATE TABLE
 CREATE TABLE
   `power_consumption_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -266,7 +265,7 @@ CREATE TABLE
 CREATE TABLE
   `power_consumption_value` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `timestamp` datetime (6) NOT NULL,
+    `timestamp` datetime(6) NOT NULL,
     `watt` double DEFAULT NULL,
     `sensor_id` bigint NOT NULL,
     PRIMARY KEY (`id`),
@@ -312,8 +311,8 @@ CREATE TABLE
     `STATE` varchar(16) NOT NULL,
     `JOB_NAME` varchar(200) DEFAULT NULL,
     `JOB_GROUP` varchar(200) DEFAULT NULL,
-    `IS_NONCONCURRENT` tinyint (1) DEFAULT NULL,
-    `REQUESTS_RECOVERY` tinyint (1) DEFAULT NULL,
+    `IS_NONCONCURRENT` tinyint(1) DEFAULT NULL,
+    `REQUESTS_RECOVERY` tinyint(1) DEFAULT NULL,
     PRIMARY KEY (`SCHED_NAME`, `ENTRY_ID`)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -324,10 +323,10 @@ CREATE TABLE
     `JOB_GROUP` varchar(200) NOT NULL,
     `DESCRIPTION` varchar(250) DEFAULT NULL,
     `JOB_CLASS_NAME` varchar(250) NOT NULL,
-    `IS_DURABLE` tinyint (1) NOT NULL,
-    `IS_NONCONCURRENT` tinyint (1) NOT NULL,
-    `IS_UPDATE_DATA` tinyint (1) NOT NULL,
-    `REQUESTS_RECOVERY` tinyint (1) NOT NULL,
+    `IS_DURABLE` tinyint(1) NOT NULL,
+    `IS_NONCONCURRENT` tinyint(1) NOT NULL,
+    `IS_UPDATE_DATA` tinyint(1) NOT NULL,
+    `REQUESTS_RECOVERY` tinyint(1) NOT NULL,
     `JOB_DATA` blob,
     PRIMARY KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
@@ -367,8 +366,8 @@ CREATE TABLE
     `LONG_PROP_2` bigint DEFAULT NULL,
     `DEC_PROP_1` decimal(13, 4) DEFAULT NULL,
     `DEC_PROP_2` decimal(13, 4) DEFAULT NULL,
-    `BOOL_PROP_1` tinyint (1) DEFAULT NULL,
-    `BOOL_PROP_2` tinyint (1) DEFAULT NULL,
+    `BOOL_PROP_1` tinyint(1) DEFAULT NULL,
+    `BOOL_PROP_2` tinyint(1) DEFAULT NULL,
     PRIMARY KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`),
     CONSTRAINT `QRTZ_SIMPROP_TRIGGERS_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
@@ -399,9 +398,9 @@ CREATE TABLE
 CREATE TABLE
   `room` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `code` varchar(256) NOT NULL,
@@ -415,9 +414,9 @@ CREATE TABLE
 CREATE TABLE
   `room_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -428,6 +427,47 @@ CREATE TABLE
     UNIQUE KEY `idx_room_lan_owner_id_lang_code` (`owner_id`, `lang_code`),
     CONSTRAINT `fk_room_lan_room` FOREIGN KEY (`owner_id`) REFERENCES `room` (`id`)
   ) ENGINE = InnoDB AUTO_INCREMENT = 7 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+CREATE TABLE
+  `rule` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `created_at` datetime(6) DEFAULT NULL,
+    `created_by` varchar(256) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
+    `updated_by` varchar(256) DEFAULT NULL,
+    `v` bigint NOT NULL,
+    `name` varchar(256) NOT NULL,
+    `priority` int NOT NULL,
+    `is_active` bit(1) NOT NULL DEFAULT(1),
+    `room_id` bigint NOT NULL,
+    `target_device_id` bigint NOT NULL,
+    `target_device_category` varchar(256) NOT NULL COMMENT 'Enum: AIR_CONDITION, LIGHT',
+    `action_params` json DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_rule_room` (`room_id`),
+    KEY `idx_rule_status` (`is_active`),
+    CONSTRAINT `fk_rule_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+CREATE TABLE
+  `rule_condition` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `created_at` datetime(6) DEFAULT NULL,
+    `created_by` varchar(256) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
+    `updated_by` varchar(256) DEFAULT NULL,
+    `v` bigint NOT NULL,
+    `rule_id` bigint NOT NULL,
+    `sort_order` int NOT NULL,
+    `data_source` varchar(256) NOT NULL COMMENT 'Enum: SYSTEM, ROOM, DEVICE, SENSOR',
+    `resource_param` json DEFAULT NULL COMMENT 'JSON: { "deviceId": 1, "category": "FAN", "property": "level" }',
+    `operator` varchar(5) NOT NULL,
+    `value_param` varchar(256) NOT NULL,
+    `next_logic` varchar(3) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_rule_condition_rule_id` (`rule_id`),
+    CONSTRAINT `fk_rule_condition_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`)
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
   `sys_client_function_cache` (
@@ -446,9 +486,9 @@ CREATE TABLE
 CREATE TABLE
   `sys_function` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `function_code` varchar(256) NOT NULL,
@@ -459,9 +499,9 @@ CREATE TABLE
 CREATE TABLE
   `sys_function_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -476,9 +516,9 @@ CREATE TABLE
 CREATE TABLE
   `sys_group` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `group_code` varchar(100) NOT NULL,
@@ -489,9 +529,9 @@ CREATE TABLE
 CREATE TABLE
   `sys_group_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -506,9 +546,9 @@ CREATE TABLE
 CREATE TABLE
   `sys_role` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `function_id` bigint NOT NULL,
@@ -523,12 +563,12 @@ CREATE TABLE
 CREATE TABLE
   `temperature` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
-    `is_active` bit (1) NOT NULL,
+    `is_active` bit(1) NOT NULL,
     `natural_id` varchar(256) NOT NULL,
     `current_value` double DEFAULT NULL,
     `device_control_id` bigint DEFAULT NULL,
@@ -544,9 +584,9 @@ CREATE TABLE
 CREATE TABLE
   `temperature_lan` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `created_at` datetime (6) DEFAULT NULL,
+    `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
-    `updated_at` datetime (6) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `description` text,
@@ -561,7 +601,7 @@ CREATE TABLE
 CREATE TABLE
   `temperature_value` (
     `id` bigint NOT NULL AUTO_INCREMENT,
-    `timestamp` datetime (6) NOT NULL,
+    `timestamp` datetime(6) NOT NULL,
     `temp_c` double DEFAULT NULL,
     `sensor_id` bigint NOT NULL,
     PRIMARY KEY (`id`),

@@ -304,6 +304,47 @@ Table "automation_action" {
   }
 }
 
+Table "rule" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "name" varchar(256) [not null]
+  "priority" int [not null]
+  "is_active" bit(1) [not null, default: 1]
+  "room_id" bigint [not null]
+  "target_device_id" bigint [not null]
+  "target_device_category" varchar(256) [not null, note: "Enum: AIR_CONDITION, LIGHT"]
+  "action_params" json [default: NULL]
+
+  Indexes {
+    room_id [name: "idx_rule_room"]
+    is_active [name: "idx_rule_status"]
+  }
+}
+
+Table "rule_condition" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "rule_id" bigint [not null]
+  "sort_order" int [not null]
+  "data_source" varchar(256) [not null, note: "Enum: SYSTEM, ROOM, DEVICE, SENSOR"]
+  "resource_param" json [default: NULL]
+  "operator" varchar(5) [not null]
+  "value_param" varchar(256) [not null]
+  "next_logic" varchar(3) [default: NULL]
+
+  Indexes {
+    rule_id [name: "idx_rule_condition_rule_id"]
+  }
+}
+
 // ------------------------------------------------------------
 // Module: System & Auth
 // ------------------------------------------------------------
@@ -646,6 +687,9 @@ Ref: "power_consumption"."id" < "power_consumption_lan"."owner_id"
 Ref: "power_consumption"."id" < "power_consumption_value"."sensor_id"
 
 Ref: "automation"."id" < "automation_action"."automation_id"
+
+Ref: "room"."id" < "rule"."room_id"
+Ref: "rule"."id" < "rule_condition"."rule_id"
 
 Ref: "sys_group"."id" < "client_group"."group_id"
 Ref: "sys_group"."id" < "sys_group_lan"."owner_id"
