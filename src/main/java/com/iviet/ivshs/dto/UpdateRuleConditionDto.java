@@ -10,9 +10,9 @@ import lombok.Builder;
 public record UpdateRuleConditionDto(
     Long id,
 
-    @NotNull(message = "Sort order is required")
-    @Min(value = 0, message = "Sort order must be at least 0")
-    Integer sortOrder,
+    @NotNull(message = "Priority is required")
+    @Min(value = 0, message = "Priority must be at least 0")
+    Integer priority,
 
     @NotNull(message = "Data source is required")
     RuleDataSource dataSource,

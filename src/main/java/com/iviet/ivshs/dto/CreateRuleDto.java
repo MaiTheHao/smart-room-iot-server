@@ -47,7 +47,7 @@ public record CreateRuleDto(
         if (this.conditions != null && !this.conditions.isEmpty()) {
             for (CreateRuleConditionDto condDto : this.conditions) {
                 RuleCondition condition = new RuleCondition();
-                condition.setSortOrder(condDto.sortOrder());
+                condition.setPriority(condDto.priority());
                 condition.setDataSource(condDto.dataSource());
                 condition.setResourceParam(condDto.resourceParam());
                 condition.setOperator(condDto.operator());

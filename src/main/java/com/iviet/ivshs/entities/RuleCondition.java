@@ -26,8 +26,8 @@ public class RuleCondition extends BaseAuditEntity {
     @JoinColumn(name = "rule_id", nullable = false)
     private Rule rule;
 
-    @Column(name = "sort_order", nullable = false)
-    private Integer sortOrder;
+    @Column(name = "priority", nullable = false)
+    private Integer priority;
 
     @Column(name = "data_source", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)

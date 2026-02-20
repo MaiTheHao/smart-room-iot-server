@@ -10,7 +10,7 @@ import lombok.Builder;
 @Builder
 public record RuleConditionDto(
     Long id,
-    Integer sortOrder,
+    Integer priority,
     RuleDataSource dataSource,
     String resourceParam,
     String operator,
@@ -23,7 +23,7 @@ public record RuleConditionDto(
         if (entity == null) return null;
         return new RuleConditionDto(
             entity.getId(),
-            entity.getSortOrder(),
+            entity.getPriority(),
             entity.getDataSource(),
             entity.getResourceParam(),
             entity.getOperator(),

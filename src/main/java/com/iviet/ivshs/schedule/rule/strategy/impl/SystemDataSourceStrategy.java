@@ -18,48 +18,48 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
 
-	private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-	private static final String PROP_CURRENT_TIME = "current_time";
-	private static final String PROP_DAY_OF_WEEK = "day_of_week";
-	private static final String PROP_DAY_OF_MONTH = "day_of_month";
+  private static final String PROP_CURRENT_TIME = "current_time";
+  private static final String PROP_DAY_OF_WEEK = "day_of_week";
+  private static final String PROP_DAY_OF_MONTH = "day_of_month";
 
-	@Override
-	public boolean supports(RuleCondition condition) {
-		return condition != null && RuleDataSource.SYSTEM.equals(condition.getDataSource());
-	}
+  @Override
+  public boolean supports(RuleDataSource dataSource) {
+    return RuleDataSource.SYSTEM.equals(dataSource);
+  }
 
-	@Override
-	public Object provide(RuleCondition condition, Long contextId) {
-		if (condition == null || condition.getResourceParam() == null) {
-			return null;
-		}
+  @Override
+  public Object fetchValue(RuleCondition condition, Long contextId) {
+    if (condition == null || condition.getResourceParam() == null) {
+      return null;
+    }
 
-		try {
-			JsonNode params = objectMapper.readTree(condition.getResourceParam());
-			String property = params.path("property").asText(null);
+    try {
+      JsonNode params = objectMapper.readTree(condition.getResourceParam());
+      String property = params.path("property").asText(null);
 
-			if (property == null) {
-				log.warn("Property is missing in SYSTEM resourceParam for condition {}", condition.getId());
-				return null;
-			}
+      if (property == null) {
+        log.warn("Property is missing in SYSTEM resourceParam for condition {}", condition.getId());
+        return null;
+      }
 
-			LocalDateTime now = LocalDateTime.now();
+      LocalDateTime now = LocalDateTime.now();
 
-			return switch (property.toLowerCase()) {
-				case PROP_CURRENT_TIME -> now.getHour() + (now.getMinute() / 60.0);
-				case PROP_DAY_OF_WEEK -> now.getDayOfWeek().getValue();
-				case PROP_DAY_OF_MONTH -> now.getDayOfMonth();
-				default -> {
-					log.warn("Property {} not supported for SYSTEM data source in condition {}", property, condition.getId());
-					yield null;
-				}
-			};
+      return switch (property.toLowerCase()) {
+        case PROP_CURRENT_TIME -> now.getHour() + (now.getMinute() / 60.0);
+        case PROP_DAY_OF_WEEK -> now.getDayOfWeek().getValue();
+        case PROP_DAY_OF_MONTH -> now.getDayOfMonth();
+        default -> {
+          log.warn("Property {} not supported for SYSTEM data source in condition {}", property, condition.getId());
+          yield null;
+        }
+      };
 
-		} catch (Exception e) {
-			log.error("Failed to provide SYSTEM data for condition {}: {}", 
-				condition.getId(), e.getMessage());
-			return null;
-		}
-	}
+    } catch (Exception e) {
+      log.error("Failed to provide SYSTEM data for condition {}: {}",
+          condition.getId(), e.getMessage());
+      return null;
+    }
+  }
 }

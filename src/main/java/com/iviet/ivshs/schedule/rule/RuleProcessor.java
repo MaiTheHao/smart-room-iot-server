@@ -29,7 +29,8 @@ public class RuleProcessor {
 		}
 
 		List<RuleCondition> conditions = rule.getConditions();
-		conditions.sort(Comparator.comparingInt(RuleCondition::getSortOrder));
+		sortConditions(conditions);
+
 		log.info("Evaluating rule {} with {} conditions", rule.getId(), conditions.size());
 
 		boolean currentResult = true;
@@ -60,26 +61,32 @@ public class RuleProcessor {
 		return currentResult;
 	}
 
+	private void sortConditions(List<RuleCondition> conditions) {
+		conditions.sort(Comparator.comparingInt(RuleCondition::getPriority).reversed());
+	}
+
 	private boolean evaluateCondition(RuleCondition cond, Long contextId) {
 		for (RuleDataSourceStrategy strategy : ruleDataSourceStrategies) {
-			if (strategy.supports(cond)) {
+			if (strategy.supports(cond.getDataSource())) {
 				try {
-					log.debug("Using strategy {} for condition {}", strategy.getClass().getSimpleName(), cond.getId());
-					Object valueObj = strategy.provide(cond, contextId);
+					log.debug("Using Data Source Strategy {} for condition {}", strategy.getClass().getSimpleName(), cond.getId());
+
+					Object valueObj = strategy.fetchValue(cond, contextId);
+
 					if (valueObj == null) {
 						log.warn("Strategy {} returned null for condition {}", strategy.getClass().getSimpleName(), cond.getId());
 						return false;
 					}
-					boolean result = compareValues(valueObj.toString(), cond.getValue(), cond.getOperator());
-					log.debug("Comparison result for condition {}: {}", cond.getId(), result);
-					return result;
+					return compareValues(valueObj.toString(), cond.getValue(), cond.getOperator());
+
 				} catch (Exception e) {
 					log.warn("Failed to evaluate condition {}: {}", cond.getId(), e.getMessage());
 					return false;
 				}
 			}
 		}
-		log.warn("No strategy found for condition {}", cond.getId());
+
+		log.warn("No strategy found for data source: {}", cond.getDataSource());
 		return false;
 	}
 

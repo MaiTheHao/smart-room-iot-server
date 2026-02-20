@@ -1,23 +1,18 @@
 package com.iviet.ivshs.schedule.rule.strategy;
 
 import com.iviet.ivshs.entities.RuleCondition;
+import com.iviet.ivshs.enumeration.RuleDataSource;
 
 public interface RuleDataSourceStrategy {
 
-    /**
-     * Provides the current value for the given condition and context.
-     *
-     * @param condition The rule condition to evaluate.
-     * @param contextId The context ID (e.g., roomId or deviceId) depending on logic.
-     * @return The current value (Double for sensors, etc.) or null if not found.
-     */
-    Object provide(RuleCondition condition, Long contextId);
+  /**
+   * Kiểm tra xem strategy này có hỗ trợ DataSource tương ứng không
+   */
+  boolean supports(RuleDataSource dataSource);
 
-    /**
-     * Checks if this provider supports the given condition.
-     *
-     * @param condition The rule condition.
-     * @return true if supported.
-     */
-    boolean supports(RuleCondition condition);
+  /**
+   * Lấy giá trị hiện tại dựa trên condition
+   */
+  Object fetchValue(RuleCondition condition, Long contextId);
 }
+

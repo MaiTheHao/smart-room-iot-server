@@ -458,7 +458,7 @@ CREATE TABLE
     `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `rule_id` bigint NOT NULL,
-    `sort_order` int NOT NULL,
+    `priority` int NOT NULL,
     `data_source` varchar(256) NOT NULL COMMENT 'Enum: SYSTEM, ROOM, DEVICE, SENSOR',
     `resource_param` json DEFAULT NULL COMMENT 'JSON: { "deviceId": 1, "category": "FAN", "property": "level" }',
     `operator` varchar(5) NOT NULL,

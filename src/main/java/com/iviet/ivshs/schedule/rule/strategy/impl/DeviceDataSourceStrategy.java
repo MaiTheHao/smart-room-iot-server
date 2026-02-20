@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.RuleDataSource;
-import com.iviet.ivshs.schedule.rule.strategy.RuleActuatorStrategy;
+import com.iviet.ivshs.schedule.rule.strategy.DeviceStateStrategy;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
 import lombok.RequiredArgsConstructor;
@@ -20,37 +20,38 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DeviceDataSourceStrategy implements RuleDataSourceStrategy {
 
-    private final List<RuleActuatorStrategy> strategies;
-    private final ObjectMapper objectMapper;
+  private final List<DeviceStateStrategy> deviceStrategies;
+  private final ObjectMapper objectMapper;
 
-    @Override
-    public Object provide(RuleCondition condition, Long contextId) {
-        try {
-            JsonNode params = objectMapper.readTree(condition.getResourceParam());
-            if (params == null) {
-                return null;
-            }
+  @Override
+  public boolean supports(RuleDataSource dataSource) {
+    return RuleDataSource.DEVICE.equals(dataSource);
+  }
 
-            String categoryStr = params.path("category").asText();
-            DeviceCategory category = DeviceCategory.valueOf(categoryStr);
-            Long deviceId = params.path("deviceId").asLong();
-            String property = params.path("property").asText();
+  @Override
+  public Object fetchValue(RuleCondition condition, Long contextId) {
+    try {
+      JsonNode params = objectMapper.readTree(condition.getResourceParam());
+      if (params == null) {
+        return null;
+      }
 
-            for (RuleActuatorStrategy strategy : strategies) {
-                if (strategy.supports(category)) {
-                    return strategy.getValue(deviceId, property);
-                }
-            }
-            log.warn("No device strategy found for category: {}", categoryStr);
-            return null;
-        } catch (Exception e) {
-            log.error("Error in DeviceDataProvider: {}", e.getMessage());
-            return null;
+      String categoryStr = params.path("category").asText();
+      DeviceCategory category = DeviceCategory.valueOf(categoryStr);
+      Long deviceId = params.path("deviceId").asLong();
+      String property = params.path("property").asText();
+
+      // Loop qua các loại device (AirCondition, Light,...)
+      for (DeviceStateStrategy strategy : deviceStrategies) {
+        if (strategy.supports(category)) {
+          return strategy.fetchState(deviceId, property);
         }
+      }
+      log.warn("No device strategy found for category: {}", categoryStr);
+      return null;
+    } catch (Exception e) {
+      log.error("Error in DeviceDataProvider: {}", e.getMessage());
+      return null;
     }
-
-    @Override
-    public boolean supports(RuleCondition condition) {
-        return RuleDataSource.DEVICE.equals(condition.getDataSource());
-    }
+  }
 }

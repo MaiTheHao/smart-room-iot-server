@@ -333,7 +333,7 @@ Table "rule_condition" {
   "updated_by" varchar(256) [default: NULL]
   "v" bigint [not null]
   "rule_id" bigint [not null]
-  "sort_order" int [not null]
+  "priority" int [not null]
   "data_source" varchar(256) [not null, note: "Enum: SYSTEM, ROOM, DEVICE, SENSOR"]
   "resource_param" json [default: NULL]
   "operator" varchar(5) [not null]

@@ -24,63 +24,63 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
-	private final ObjectMapper objectMapper;
-	private final TemperatureValueDao temperatureValueDao;
-	private final PowerConsumptionValueDao powerConsumptionValueDao;
+  private final ObjectMapper objectMapper;
+  private final TemperatureValueDao temperatureValueDao;
+  private final PowerConsumptionValueDao powerConsumptionValueDao;
 
-	private static final String PROP_TEMPERATURE = "temperature";
-	private static final String PROP_WATT = "watt";
-	private static final int LOOKBACK_MINUTES = 15;
+  private static final String PROP_TEMPERATURE = "temperature";
+  private static final String PROP_WATT = "watt";
+  private static final int LOOKBACK_MINUTES = 15;
 
-	@Override
-	public boolean supports(RuleCondition condition) {
-		return condition != null && RuleDataSource.ROOM.equals(condition.getDataSource());
-	}
+  @Override
+  public boolean supports(RuleDataSource dataSource) {
+    return RuleDataSource.ROOM.equals(dataSource);
+  }
 
-	@Override
-	public Object provide(RuleCondition condition, Long contextId) {
-		if (condition == null || condition.getResourceParam() == null) {
-			return null;
-		}
+  @Override
+  public Object fetchValue(RuleCondition condition, Long contextId) {
+    if (condition == null || condition.getResourceParam() == null) {
+      return null;
+    }
 
-		try {
-			JsonNode params = objectMapper.readTree(condition.getResourceParam());
-			String property = params.path("property").asText(null);
-			
-			if (property == null) {
-				log.warn("Property is missing in ROOM resourceParam for condition {}", condition.getId());
-				return null;
-			}
+    try {
+      JsonNode params = objectMapper.readTree(condition.getResourceParam());
+      String property = params.path("property").asText(null);
 
-			Instant now = Instant.now();
-			Instant startTime = now.minus(LOOKBACK_MINUTES, ChronoUnit.MINUTES);
+      if (property == null) {
+        log.warn("Property is missing in ROOM resourceParam for condition {}", condition.getId());
+        return null;
+      }
 
-			return switch (property.toLowerCase()) {
-				case PROP_TEMPERATURE -> {
-					List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(contextId, startTime, now);
-					yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
-				}
-				case PROP_WATT -> {
-					List<AveragePowerConsumptionValueDto> history = powerConsumptionValueDao.getAverageHistoryByRoom(contextId, startTime, now);
-					yield getLastElement(history) != null ? getLastElement(history).getAvgWatt() : null;
-				}
-				default -> {
-					log.warn("Property {} not supported for ROOM data source in condition {}", property, condition.getId());
-					yield null;
-				}
-			};
+      Instant now = Instant.now();
+      Instant startTime = now.minus(LOOKBACK_MINUTES, ChronoUnit.MINUTES);
 
-		} catch (Exception e) {
-			log.error("Failed to provide ROOM data for condition {} (Room ID: {}): {}", 
-				condition.getId(), contextId, e.getMessage());
-			return null;
-		}
-	}
+      return switch (property.toLowerCase()) {
+        case PROP_TEMPERATURE -> {
+          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(contextId, startTime, now);
+          yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
+        }
+        case PROP_WATT -> {
+          List<AveragePowerConsumptionValueDto> history = powerConsumptionValueDao.getAverageHistoryByRoom(contextId, startTime, now);
+          yield getLastElement(history) != null ? getLastElement(history).getAvgWatt() : null;
+        }
+        default -> {
+          log.warn("Property {} not supported for ROOM data source in condition {}", property, condition.getId());
+          yield null;
+        }
+      };
 
-	private <T> T getLastElement(List<T> list) {
-		if (list == null || list.isEmpty()) {
-			return null;
-		}
-		return list.get(list.size() - 1);
-	}
+    } catch (Exception e) {
+      log.error("Failed to provide ROOM data for condition {} (Room ID: {}): {}",
+          condition.getId(), contextId, e.getMessage());
+      return null;
+    }
+  }
+
+  private <T> T getLastElement(List<T> list) {
+    if (list == null || list.isEmpty()) {
+      return null;
+    }
+    return list.get(list.size() - 1);
+  }
 }
