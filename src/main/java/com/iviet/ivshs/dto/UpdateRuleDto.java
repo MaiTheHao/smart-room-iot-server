@@ -52,7 +52,7 @@ public record UpdateRuleDto(
                 if (condDto.id() != null) {
                     condition.setId(condDto.id());
                 }
-                condition.setPriority(condDto.priority());
+                condition.setSortOrder(condDto.sortOrder());
                 condition.setDataSource(condDto.dataSource());
                 condition.setResourceParam(condDto.resourceParam());
                 condition.setOperator(condDto.operator());

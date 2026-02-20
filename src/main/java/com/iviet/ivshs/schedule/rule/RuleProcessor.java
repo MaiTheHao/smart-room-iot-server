@@ -62,7 +62,7 @@ public class RuleProcessor {
 	}
 
 	private void sortConditions(List<RuleCondition> conditions) {
-		conditions.sort(Comparator.comparingInt(RuleCondition::getPriority).reversed());
+		conditions.sort(Comparator.comparingInt(RuleCondition::getSortOrder));
 	}
 
 	private boolean evaluateCondition(RuleCondition cond, Long contextId) {

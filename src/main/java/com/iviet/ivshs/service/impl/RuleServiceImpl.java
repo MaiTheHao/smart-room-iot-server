@@ -27,7 +27,7 @@ import com.iviet.ivshs.util.QuartzUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic="RuleService")
 @Service
 @RequiredArgsConstructor
 public class RuleServiceImpl implements RuleService {
@@ -41,12 +41,16 @@ public class RuleServiceImpl implements RuleService {
 	@Transactional
 	public void executeGlobalRuleScan() {
 		List<Rule> activeRules = ruleDao.findAllActive();
-		if (activeRules.isEmpty()) return;
+		if (activeRules.isEmpty()) {
+			log.info("No active rules found during global scan.");
+			return;
+		}
 
 		Map<String, List<Rule>> rulesByTarget = activeRules.stream()
 			.collect(Collectors.groupingBy(r -> r.getTargetDeviceCategory() + ":" + r.getTargetDeviceId()));
 
 		rulesByTarget.forEach((targetKey, rules) -> {
+			log.debug("Evaluating rules for target {}:{}", targetKey.split(":")[0], targetKey.split(":")[1]);
 			evaluateTargetRules(targetKey, rules);
 		});
 	}
