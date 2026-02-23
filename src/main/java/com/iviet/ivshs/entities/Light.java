@@ -27,4 +27,10 @@ public class Light extends BaseIoTActuator<LightLan>{
 
     @Column(name = "level")
     private Integer level;
+
+    @Override 
+    public void addTranslation(LightLan translation) {
+        translation.setOwner(this);
+        this.getTranslations().add(translation);
+    }
 }

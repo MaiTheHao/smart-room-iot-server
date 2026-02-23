@@ -38,4 +38,10 @@ public class SysGroup extends BaseTranslatableEntity<SysGroupLan> {
 
 	@ManyToMany(mappedBy = "groups")
 	private Set<Client> clients = new HashSet<>();
+
+	@Override
+	public void addTranslation(SysGroupLan translation) {
+		translation.setOwner(this);
+		this.getTranslations().add(translation);
+	}
 }

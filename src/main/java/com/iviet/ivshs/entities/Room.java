@@ -48,4 +48,10 @@ public class Room extends BaseTranslatableEntity<RoomLan> {
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     private Set<DeviceControl> deviceControls = new HashSet<>();
+
+    @Override
+    public void addTranslation(RoomLan translation) {
+        translation.setOwner(this);
+        this.getTranslations().add(translation);
+    }
 }

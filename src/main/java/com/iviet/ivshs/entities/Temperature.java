@@ -35,4 +35,10 @@ public class Temperature extends BaseIoTSensor<TemperatureLan> {
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<TemperatureValue> temperatureValues = new HashSet<>();
+
+    @Override
+    public void addTranslation(TemperatureLan translation) {
+        translation.setOwner(this);
+        this.getTranslations().add(translation);    
+    }
 }

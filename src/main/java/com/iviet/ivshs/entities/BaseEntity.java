@@ -24,11 +24,13 @@ public abstract class BaseEntity implements Serializable {
         if (this == o) return true;
         if (!(o instanceof BaseEntity)) return false;
         BaseEntity that = (BaseEntity) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+        boolean sameClass = getClass() != null && that.getClass() != null && Objects.equals(getClass(), that.getClass());
+        boolean sameId = getId() != null && that.getId() != null && Objects.equals(getId(), that.getId());
+        return sameClass && sameId;
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(getClass(), getId());
     }
 }

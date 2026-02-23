@@ -60,4 +60,10 @@ public class AirCondition extends BaseIoTActuator<AirConditionLan>{
 	@Enumerated(EnumType.STRING)
 	@Column(name = "swing")
 	private ActuatorSwing swing;
+
+	@Override
+	public void addTranslation(AirConditionLan translation) {
+		translation.setOwner(this);
+		this.getTranslations().add(translation);
+	}
 }

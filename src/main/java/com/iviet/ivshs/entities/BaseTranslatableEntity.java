@@ -17,4 +17,6 @@ public abstract class BaseTranslatableEntity<L extends BaseTranslation<?>> exten
     
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<L> translations = new HashSet<>();
+
+    abstract public void addTranslation(L translation);
 }

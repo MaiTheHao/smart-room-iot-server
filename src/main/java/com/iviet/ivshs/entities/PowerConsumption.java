@@ -35,4 +35,10 @@ public class PowerConsumption extends BaseIoTSensor<PowerConsumptionLan> {
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<PowerConsumptionValue> consumptionValues = new HashSet<>();
+
+    @Override
+    public void addTranslation(PowerConsumptionLan translation) {
+        translation.setOwner(this);
+        this.getTranslations().add(translation);
+    }
 }
