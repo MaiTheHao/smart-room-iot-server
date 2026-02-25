@@ -117,4 +117,24 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 							.setParameter("langCode", langCode)
 							.getResultList();
 	}
+
+	@Override
+	public Optional<LightDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+		String dtoPath = LightDto.class.getName();
+
+		String jpql = """
+						SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id)
+						FROM Light l 
+						LEFT JOIN l.translations ll ON ll.langCode = :langCode 
+						WHERE l.room.id = :roomId AND l.naturalId = :naturalId
+						""".formatted(dtoPath);
+
+		return entityManager.createQuery(jpql, LightDto.class)
+						.setParameter("roomId", roomId)
+						.setParameter("naturalId", naturalId)
+						.setParameter("langCode", langCode)
+						.setMaxResults(1)
+						.getResultStream()
+						.findFirst();
+	}
 }

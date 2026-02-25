@@ -72,6 +72,19 @@ public class FanServiceImpl implements FanService {
     }
 
     @Override
+    public FanDto getByRoomAndNaturalId(Long roomId, String naturalId) {
+        if (roomId == null) {
+            throw new BadRequestException("Room ID is required");
+        }
+        if (!StringUtils.hasText(naturalId)) {
+            throw new BadRequestException("Natural ID is required");
+        }
+
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return fanDao.findByRoomAndNaturalId(roomId, naturalId, langCode).orElseThrow(() -> new NotFoundException("Fan not found with Room ID: " + roomId + " and Natural ID: " + naturalId));
+    }
+
+    @Override
     public List<FanDto> getAllByRoomId(Long roomId) {
         if (roomId == null) {
             throw new BadRequestException("Room ID is required");

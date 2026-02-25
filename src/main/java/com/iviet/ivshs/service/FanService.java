@@ -20,6 +20,8 @@ public interface FanService {
     PaginatedResponse<FanDto> getListByRoomId(Long roomId, int page, int size);
 
     List<FanDto> getAllByRoomId(Long roomId);
+
+    FanDto getByRoomAndNaturalId(Long roomId, String naturalId);
     
     FanDto getById(Long id);
     

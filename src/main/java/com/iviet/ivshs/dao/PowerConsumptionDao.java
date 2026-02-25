@@ -65,4 +65,22 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
 				.setMaxResults(size)
 				.getResultList();
 	}
+
+	@Override
+	public Optional<PowerConsumptionDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+		String jpql = """
+			SELECT new %s(s.id, sl.name, sl.description, s.isActive, s.currentWatt, s.naturalId, s.room.id)
+				FROM PowerConsumption s 
+				LEFT JOIN s.translations sl ON sl.langCode = :langCode 
+				WHERE s.room.id = :roomId AND s.naturalId = :naturalId
+				""".formatted(DTO_CLASS);
+
+		return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+				.setParameter("roomId", roomId)
+				.setParameter("naturalId", naturalId)
+				.setParameter("langCode", langCode)
+				.setMaxResults(1)
+				.getResultStream()
+				.findFirst();
+	}
 }

@@ -66,4 +66,22 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
 			.getResultStream()
 			.findFirst();
   }
+
+  @Override
+  public Optional<TemperatureDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+    String jpql = """
+      SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id)
+      FROM Temperature t 
+      LEFT JOIN t.translations tl ON tl.langCode = :langCode 
+      WHERE t.room.id = :roomId AND t.naturalId = :naturalId
+      """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, TemperatureDto.class)
+      .setParameter("roomId", roomId)
+      .setParameter("naturalId", naturalId) 
+      .setParameter("langCode", langCode)
+      .setMaxResults(1)
+      .getResultStream()
+      .findFirst();
+  }
 }

@@ -33,6 +33,25 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
                 .findFirst();
     }
 
+    // TODO: Triển khai hoàn thiện super class để handle tốt các case tìm theo room, natural id, room + natural id
+    public Optional<FanDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+        String jpql = """
+                SELECT f FROM Fan f 
+                LEFT JOIN FETCH f.translations tl 
+                LEFT JOIN FETCH f.room r
+                WHERE r.id = :roomId AND f.naturalId = :naturalId AND (tl.langCode = :langCode OR tl.langCode IS NULL)
+                """;
+        
+        return entityManager.createQuery(jpql, Fan.class)
+                .setParameter("roomId", roomId)
+                .setParameter("naturalId", naturalId)
+                .setParameter("langCode", langCode)
+                .setMaxResults(1)
+                .getResultStream()
+                .map(this::mapToDtoWithTranslation)
+                .findFirst();
+    }
+
     public Optional<FanDto> findById(Long id, String langCode) {
         String jpql = """
                 SELECT f FROM Fan f 

@@ -11,6 +11,8 @@ import com.iviet.ivshs.entities.AirCondition;
 @Repository
 public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
+    private final String DTO_CLASS = AirConditionDto.class.getName();
+
     public AirConditionDao() {
         super(AirCondition.class);
     }
@@ -130,5 +132,25 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
                 .setParameter("roomId", roomId)
                 .setParameter("langCode", langCode)
                 .getResultList();
+    }
+
+    @Override
+    public Optional<AirConditionDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+        String jpql = """
+                SELECT new %s(
+                    ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
+                    ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing
+                )
+                FROM AirCondition ac 
+                LEFT JOIN ac.translations tl ON tl.langCode = :langCode 
+                WHERE ac.room.id = :roomId AND ac.naturalId = :naturalId
+                """.formatted(DTO_CLASS);
+        return entityManager.createQuery(jpql, AirConditionDto.class)
+                .setParameter("roomId", roomId)
+                .setParameter("naturalId", naturalId)
+                .setParameter("langCode", langCode)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
     }
 }

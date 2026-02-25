@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/fans")
+@RequestMapping("/api/v1")
 public class FanController {
 
     private final FanService fanService;
 
-    @GetMapping
+    @GetMapping("/fans")
     public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getAll(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size) {
@@ -31,12 +31,12 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.ok(fanService.getList(page, size)));
     }
 
-    @GetMapping("/all")
+    @GetMapping("/fans/all")
     public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllFans() {
         return ResponseEntity.ok(ApiResponse.ok(fanService.getAll()));
     }
 
-    @GetMapping("/room/{roomId}")
+    @GetMapping("/room/{roomId}/fans")
     public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getByRoom(
             @PathVariable(name = "roomId") Long roomId,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -45,7 +45,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.ok(fanService.getListByRoomId(roomId, page, size)));
     }
 
-    @GetMapping("/room/{roomId}/all")
+    @GetMapping("/room/{roomId}/fans/all")
     public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllByRoom(
             @PathVariable(name = "roomId") Long roomId) {
         
@@ -72,14 +72,14 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.ok(fan));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/fans/{id}")
     public ResponseEntity<ApiResponse<FanDto>> getById(
             @PathVariable(name = "id") Long id) {
         
         return ResponseEntity.ok(ApiResponse.ok(fanService.getById(id)));
     }
 
-    @PostMapping
+    @PostMapping("/fans")
     public ResponseEntity<ApiResponse<FanDto>> create(
             @RequestBody @Valid CreateFanDto request) {
         
@@ -87,7 +87,7 @@ public class FanController {
                 .body(ApiResponse.created(fanService.create(request)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/fans/{id}")
     public ResponseEntity<ApiResponse<FanDto>> update(
             @PathVariable(name = "id") Long id,
             @RequestBody @Valid UpdateFanDto request) {
@@ -95,7 +95,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.ok(fanService.update(id, request)));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/fans/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable(name = "id") Long id) {
         
@@ -106,7 +106,7 @@ public class FanController {
 
     // === CONTROL ENDPOINTS ===
 
-    @PutMapping("/{id}/power")
+    @PutMapping("/fans/{id}/power")
     public ResponseEntity<ApiResponse<Void>> controlPower(
             @PathVariable(name = "id") Long id,
             @RequestParam(name = "state") ActuatorPower state) {
@@ -115,7 +115,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Power controlled successfully"));
     }
 
-    @PutMapping("/{id}/mode")
+    @PutMapping("/fans/{id}/mode")
     public ResponseEntity<ApiResponse<Void>> controlMode(
             @PathVariable(name = "id") Long id,
             @RequestParam(name = "value") ActuatorMode mode) {
@@ -124,7 +124,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Mode controlled successfully"));
     }
 
-    @PutMapping("/{id}/fan")
+    @PutMapping("/fans/{id}/fan")
     public ResponseEntity<ApiResponse<Void>> controlFanSpeed(
             @PathVariable(name = "id") Long id,
             @RequestParam(name = "speed") int speed) {
@@ -133,7 +133,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Fan speed controlled successfully"));
     }
 
-    @PutMapping("/{id}/swing")
+    @PutMapping("/fans/{id}/swing")
     public ResponseEntity<ApiResponse<Void>> controlSwing(
             @PathVariable(name = "id") Long id,
             @RequestParam(name = "state") ActuatorSwing swing) {
@@ -142,7 +142,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Swing controlled successfully"));
     }
     
-    @PutMapping("/{id}/light")
+    @PutMapping("/fans/{id}/light")
     public ResponseEntity<ApiResponse<Void>> controlLight(
             @PathVariable(name = "id") Long id,
             @RequestParam(name = "state") ActuatorState state) {

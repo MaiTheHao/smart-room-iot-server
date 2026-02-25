@@ -39,6 +39,21 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
     return count != null && count > 0;
   }
 
+  public Optional<T> findByRoomAndNaturalId(Long roomId, String naturalId) {
+    return findOne(
+      root -> entityManager.getCriteriaBuilder().and(
+        entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId),
+        entityManager.getCriteriaBuilder().equal(root.get("naturalId"), naturalId)
+      ),
+      (root, cq) -> {
+        root.fetch("room", JoinType.LEFT);
+        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+      }
+    );
+  }
+
+  public abstract Optional<?> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode);
+
   public Optional<T> findByNaturalId(String naturalId) {
     return findOne(
       root -> entityManager.getCriteriaBuilder().equal(root.get("naturalId"), naturalId),
