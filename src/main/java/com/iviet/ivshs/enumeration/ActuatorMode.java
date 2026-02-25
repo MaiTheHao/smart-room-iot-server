@@ -5,5 +5,8 @@ public enum ActuatorMode {
   HEAT,
   DRY,
   FAN,
-  AUTO
+  AUTO,
+  NORMAL,
+  SLEEP,
+  NATURAL
 }

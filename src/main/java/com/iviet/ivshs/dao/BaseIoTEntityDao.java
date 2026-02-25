@@ -22,6 +22,23 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
     );
   }
 
+  public boolean existsByNaturalId(String naturalId) {
+    String jpql = "SELECT COUNT(e) FROM " + clazz.getSimpleName() + " e WHERE e.naturalId = :naturalId";
+    Long count = entityManager.createQuery(jpql, Long.class)
+            .setParameter("naturalId", naturalId)
+            .getSingleResult();
+    return count != null && count > 0;
+  }
+
+  public boolean existsByNaturalIdAndIdNot(String naturalId, Long id) {
+    String jpql = "SELECT COUNT(e) FROM " + clazz.getSimpleName() + " e WHERE e.naturalId = :naturalId AND e.id != :id";
+    Long count = entityManager.createQuery(jpql, Long.class)
+            .setParameter("naturalId", naturalId)
+            .setParameter("id", id)
+            .getSingleResult();
+    return count != null && count > 0;
+  }
+
   public Optional<T> findByNaturalId(String naturalId) {
     return findOne(
       root -> entityManager.getCriteriaBuilder().equal(root.get("naturalId"), naturalId),

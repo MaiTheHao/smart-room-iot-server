@@ -15,23 +15,6 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
         super(AirCondition.class);
     }
 
-    public boolean existsByNaturalId(String naturalId) {
-        String jpql = "SELECT COUNT(ac) FROM AirCondition ac WHERE ac.naturalId = :naturalId";
-        Long count = entityManager.createQuery(jpql, Long.class)
-                .setParameter("naturalId", naturalId)
-                .getSingleResult();
-        return count > 0;
-    }
-
-    public boolean existsByNaturalIdAndIdNot(String naturalId, Long id) {
-        String jpql = "SELECT COUNT(ac) FROM AirCondition ac WHERE ac.naturalId = :naturalId AND ac.id != :id";
-        Long count = entityManager.createQuery(jpql, Long.class)
-                .setParameter("naturalId", naturalId)
-                .setParameter("id", id)
-                .getSingleResult();
-        return count > 0;
-    }
-
     @Override
     public Optional<AirConditionDto> findByNaturalId(String naturalId, String langCode) {
         String dtoPath = AirConditionDto.class.getName();

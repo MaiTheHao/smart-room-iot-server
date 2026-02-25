@@ -16,7 +16,6 @@ import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
@@ -195,12 +194,14 @@ public class LightServiceImpl implements LightService {
     public void _v2api_handlePowerControl(Long lightId, ActuatorPower power) {
         var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
         var client = light.getDeviceControl().getClient();
+
+        ActuatorPower _power = (power != null) ? power : ActuatorPower.OFF;
         
-        light.setPower(power);
+        light.setPower(_power);
         lightDao.save(light);
 
-        String url = UrlConstant.getLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
-        Map<String, Object> payload = Map.of("data", power);
+        String url = UrlConstant.getControlLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
+        Map<String, Object> payload = Map.of("data", _power);
 
         HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
     }
@@ -209,10 +210,18 @@ public class LightServiceImpl implements LightService {
     @Transactional
     public void _v2api_handleTogglePowerControl(Long lightId) {
         var light = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        var client = light.getDeviceControl().getClient();
+
         ActuatorPower currentPower = light.getPower() != null ? light.getPower() : ActuatorPower.OFF;
-        ActuatorPower newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
+        ActuatorPower _power = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     
-        _v2api_handlePowerControl(lightId, newPower);
+        light.setPower(_power);
+        lightDao.save(light);
+        
+        String url = UrlConstant.getControlLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
+        Map<String, Object> payload = Map.of("data", _power);
+
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
     }
 
     @Override
@@ -227,7 +236,7 @@ public class LightServiceImpl implements LightService {
         light.setLevel(level);
         lightDao.save(light);
 
-        String url = UrlConstant.getLightLevelUrlV2(client.getIpAddress(), light.getNaturalId());
+        String url = UrlConstant.getControlLightLevelUrlV2(client.getIpAddress(), light.getNaturalId());
         Map<String, Object> payload = Map.of("data", level);
 
         HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);

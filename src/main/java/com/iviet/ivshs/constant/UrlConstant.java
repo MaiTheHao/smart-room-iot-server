@@ -35,16 +35,16 @@ public final class UrlConstant {
         return build(ip, "/api/v1", "control/" + naturalId);
     }
 
-    // Light Control Methods
-    public static String getLightPowerUrlV2(String ip, String naturalId) {
+    // Light Control Methods (V2)
+    public static String getControlLightPowerUrlV2(String ip, String naturalId) {
         return build(ip, "/api/v2", "light/" + naturalId + "/power");
     }
 
-    public static String getLightLevelUrlV2(String ip, String naturalId) {
+    public static String getControlLightLevelUrlV2(String ip, String naturalId) {
         return build(ip, "/api/v2", "light/" + naturalId + "/level");
     }
 
-    // AC Control Methods
+    // AC Control Methods (V1)
     public static String getAcPowerUrlV1(String ip, String naturalId) {
         return build(ip, "/api/v1", "ac/" + naturalId + "/power");
     }
@@ -61,36 +61,58 @@ public final class UrlConstant {
         return build(ip, "/api/v1", "ac/" + naturalId + "/mode");
     }
 
-    public static String getAcPowerUrlV2(String ip, String naturalId) {
-        return build(ip, "/api/v2", "air-condition/" + naturalId + "/power");
-    }
-
-    public static String getAcTempUpUrlV2(String ip, String naturalId) {
-        return build(ip, "/api/v2", "air-condition/" + naturalId + "/temp_up");
-    }
-
-    public static String getAcTempDownUrlV2(String ip, String naturalId) {
-        return build(ip, "/api/v2", "air-condition/" + naturalId + "/temp_down");
-    }
-
-    public static String getAcSwingUrlV2(String ip, String naturalId) {
-        return build(ip, "/api/v2", "air-condition/" + naturalId + "/swing");
-    }
-
-    public static String getAcModeUrlV2(String ip, String naturalId) {
-        return build(ip, "/api/v2", "air-condition/" + naturalId + "/mode");
-    }
-
-    public static String getAcFanUrlV2(String ip, String naturalId) {
-        return build(ip, "/api/v2", "air-condition/" + naturalId + "/fan");
-    }
-
     public static String getAcFanUrlV1(String ip, String naturalId) {
         return build(ip, "/api/v1", "ac/" + naturalId + "/fan");
     }
 
     public static String getAcSwingUrlV1(String ip, String naturalId) {
         return build(ip, "/api/v1", "ac/" + naturalId + "/swing");
+    }
+
+    // AC Control Methods (V2)
+    public static String getControlAcPowerUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "air-condition/" + naturalId + "/power");
+    }
+
+    public static String getControlAcTempUpUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "air-condition/" + naturalId + "/temp_up");
+    }
+
+    public static String getControlAcTempDownUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "air-condition/" + naturalId + "/temp_down");
+    }
+
+    public static String getControlAcSwingUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "air-condition/" + naturalId + "/swing");
+    }
+
+    public static String getControlAcModeUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "air-condition/" + naturalId + "/mode");
+    }
+
+    public static String getControlAcFanUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "air-condition/" + naturalId + "/fan");
+    }
+
+    // Fan Control Methods (V2)
+    public static String getControlFanPowerUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "fan/" + naturalId + "/power");
+    }
+
+    public static String getControlFanSpeedUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "fan/" + naturalId + "/speed");
+    }
+
+    public static String getControlFanModeUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "fan/" + naturalId + "/mode");
+    }
+
+    public static String getControlFanSwingUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "fan/" + naturalId + "/swing");
+    }
+
+    public static String getControlFanLightUrlV2(String ip, String naturalId) {
+        return build(ip, "/api/v2", "fan/" + naturalId + "/light");
     }
 
     // --- Utils ---

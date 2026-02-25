@@ -51,6 +51,48 @@ CREATE TABLE
   ) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
+  `fan` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `created_at` datetime(6) DEFAULT NULL,
+    `created_by` varchar(256) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
+    `updated_by` varchar(256) DEFAULT NULL,
+    `v` bigint NOT NULL,
+    `is_active` bit(1) NOT NULL,
+    `natural_id` varchar(256) NOT NULL,
+    `type` varchar(256) NOT NULL,
+    `speed` int DEFAULT NULL,
+    `mode` varchar(256) DEFAULT NULL,
+    `light` varchar(256) DEFAULT NULL,
+    `swing` varchar(256) DEFAULT NULL,
+    `device_control_id` bigint DEFAULT NULL,
+    `room_id` bigint NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_fan_natural_id` (`natural_id`),
+    UNIQUE KEY `idx_fan_device_control_id` (`device_control_id`),
+    KEY `idx_fan_room_id` (`room_id`),
+    CONSTRAINT `fk_fan_device_control` FOREIGN KEY (`device_control_id`) REFERENCES `device_control` (`id`),
+    CONSTRAINT `fk_fan_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+CREATE TABLE
+  `fan_lan` (
+    `id` bigint NOT NULL AUTO_INCREMENT,
+    `created_at` datetime(6) DEFAULT NULL,
+    `created_by` varchar(256) DEFAULT NULL,
+    `updated_at` datetime(6) DEFAULT NULL,
+    `updated_by` varchar(256) DEFAULT NULL,
+    `v` bigint NOT NULL,
+    `description` text,
+    `lang_code` varchar(10) NOT NULL,
+    `name` varchar(256) NOT NULL,
+    `owner_id` bigint NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_fan_lan_owner_id_lang_code` (`owner_id`, `lang_code`),
+    CONSTRAINT `fk_fan_lan_fan` FOREIGN KEY (`owner_id`) REFERENCES `fan` (`id`)
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+CREATE TABLE
   `automation` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `created_at` datetime(6) DEFAULT NULL,

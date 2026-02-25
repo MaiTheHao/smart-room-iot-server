@@ -47,6 +47,9 @@ public interface AirConditionService {
     void _v2api_handlePowerControl(Long id, ActuatorPower power);
 
     // New
+    void _v2api_handleTogglePowerControl(Long id);
+
+    // New
     void _v2api_handleTemperatureControl(Long id, int temperature);
 
     // New

@@ -235,9 +235,26 @@ public class AirConditionServiceImpl implements AirConditionService {
         airConditionDao.save(ac);
         
         String gatewayIp = getGatewayIp(ac);
-        String url = UrlConstant.getAcPowerUrlV2(gatewayIp, ac.getNaturalId());
+        String url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = Map.of("data", power);
         
+        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    }
+
+    @Override
+    @Transactional
+    public void _v2api_handleTogglePowerControl(Long id) {
+        AirCondition ac = getAirConditionEntity(id);
+        ActuatorPower currentPower = ac.getPower() != null ? ac.getPower() : ActuatorPower.OFF;
+        ActuatorPower newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
+
+        ac.setPower(newPower);
+        airConditionDao.save(ac);
+
+        String gatewayIp = getGatewayIp(ac);
+        String url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, ac.getNaturalId());
+        Map<String, Object> payload = Map.of("data", newPower);
+
         HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
     }
 
@@ -288,10 +305,9 @@ public class AirConditionServiceImpl implements AirConditionService {
         airConditionDao.save(ac);
         
         String gatewayIp = getGatewayIp(ac);
-        // Determine Up or Down based on diff
         String url = temperature > currentTemp 
-            ? UrlConstant.getAcTempUpUrlV2(gatewayIp, ac.getNaturalId())
-            : UrlConstant.getAcTempDownUrlV2(gatewayIp, ac.getNaturalId());
+            ? UrlConstant.getControlAcTempUpUrlV2(gatewayIp, ac.getNaturalId())
+            : UrlConstant.getControlAcTempDownUrlV2(gatewayIp, ac.getNaturalId());
         
         Map<String, Object> payload = Map.of("data", temperature);
         
@@ -324,7 +340,7 @@ public class AirConditionServiceImpl implements AirConditionService {
         airConditionDao.save(ac);
         
         String gatewayIp = getGatewayIp(ac);
-        String url = UrlConstant.getAcModeUrlV2(gatewayIp, ac.getNaturalId());
+        String url = UrlConstant.getControlAcModeUrlV2(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = Map.of("data", mode);
         
         HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
@@ -364,7 +380,7 @@ public class AirConditionServiceImpl implements AirConditionService {
         airConditionDao.save(ac);
         
         String gatewayIp = getGatewayIp(ac);
-        String url = UrlConstant.getAcFanUrlV2(gatewayIp, ac.getNaturalId());
+        String url = UrlConstant.getControlAcFanUrlV2(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = Map.of("data", speed);
         
         HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
@@ -396,7 +412,7 @@ public class AirConditionServiceImpl implements AirConditionService {
         airConditionDao.save(ac);
         
         String gatewayIp = getGatewayIp(ac);
-        String url = UrlConstant.getAcSwingUrlV2(gatewayIp, ac.getNaturalId());
+        String url = UrlConstant.getControlAcSwingUrlV2(gatewayIp, ac.getNaturalId());
         Map<String, Object> payload = Map.of("data", swing);
         
         HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);

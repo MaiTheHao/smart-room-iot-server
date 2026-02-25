@@ -128,6 +128,47 @@ Table "air_condition_lan" {
   }
 }
 
+Table "fan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "is_active" bit(1) [not null]
+  "natural_id" varchar(256) [not null]
+  "type" varchar(256) [not null, note: "Enum: GPIO, IR"]
+  "speed" int [default: NULL]
+  "mode" varchar(255) [default: NULL, note: "Enum: NORMAL, NATURAL, SLEEP"]
+  "light" varchar(255) [default: NULL, note: "Enum: ON, OFF"]
+  "swing" varchar(255) [default: NULL, note: "Enum: ON, OFF"]
+  "device_control_id" bigint [default: NULL]
+  "room_id" bigint [not null]
+
+  Indexes {
+    natural_id [unique, name: "idx_fan_natural_id"]
+    device_control_id [unique, name: "idx_fan_device_control_id"]
+    room_id [name: "idx_fan_room_id"]
+  }
+}
+
+Table "fan_lan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "description" text
+  "lang_code" varchar(10) [not null]
+  "name" varchar(255) [not null]
+  "owner_id" bigint [not null]
+
+  Indexes {
+    (owner_id, lang_code) [unique, name: "idx_fan_lan_owner_id_lang_code"]
+  }
+}
+
 Table "light" {
   "id" bigint [pk, not null, increment]
   "created_at" datetime(6) [default: NULL]
@@ -666,6 +707,7 @@ Ref: "floor"."id" < "floor_lan"."owner_id"
 Ref: "room"."id" < "room_lan"."owner_id"
 Ref: "room"."id" < "device_control"."room_id"
 Ref: "room"."id" < "air_condition"."room_id"
+Ref: "room"."id" < "fan"."room_id"
 Ref: "room"."id" < "light"."room_id"
 Ref: "room"."id" < "temperature"."room_id"
 Ref: "room"."id" < "power_consumption"."room_id"
@@ -675,11 +717,13 @@ Ref: "client"."id" < "client_group"."client_id"
 Ref: "client"."id" < "sys_client_function_cache"."client_id"
 
 Ref: "device_control"."id" < "air_condition"."device_control_id"
+Ref: "device_control"."id" < "fan"."device_control_id"
 Ref: "device_control"."id" < "light"."device_control_id"
 Ref: "device_control"."id" < "temperature"."device_control_id"
 Ref: "device_control"."id" < "power_consumption"."device_control_id"
 
 Ref: "air_condition"."id" < "air_condition_lan"."owner_id"
+Ref: "fan"."id" < "fan_lan"."owner_id"
 Ref: "light"."id" < "light_lan"."owner_id"
 Ref: "temperature"."id" < "temperature_lan"."owner_id"
 Ref: "temperature"."id" < "temperature_value"."sensor_id"
