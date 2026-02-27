@@ -1,5 +1,6 @@
 package com.iviet.ivshs.controller.api.v1;
 
+import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.CreateAirConditionDto;
@@ -8,6 +9,7 @@ import com.iviet.ivshs.dto.UpdateAirConditionDto;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.ActuatorMode;
+import com.iviet.ivshs.service.AirConditionControlService;
 import com.iviet.ivshs.service.AirConditionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +17,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("AirConditionControllerV1")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/air-conditions")
 public class AirConditionController {
 
     private final AirConditionService airConditionService;
+		private final AirConditionControlService airConditionControlService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<AirConditionDto>>> getAll(
@@ -85,6 +88,16 @@ public class AirConditionController {
 
     // === CONTROL ENDPOINTS ===
 
+    @PutMapping("/{naturalId}/control")
+    public ResponseEntity<ApiResponse<Void>> control(
+			@PathVariable(name = "naturalId") String naturalId,
+			@RequestBody @Valid AirConditionControlRequestBody params
+    ) {
+			airConditionControlService.control(naturalId, params);
+			return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Controlled successfully"));
+		}
+
+		@Deprecated
     @PostMapping("/{id}/power")
     public ResponseEntity<ApiResponse<Void>> controlPower(
             @PathVariable(name = "id") Long id,
@@ -94,6 +107,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Power controlled successfully"));
     }
 
+		@Deprecated
     @PostMapping("/{id}/temperature")
     public ResponseEntity<ApiResponse<Void>> controlTemperature(
             @PathVariable(name = "id") Long id,
@@ -103,6 +117,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Temperature controlled successfully"));
     }
 
+		@Deprecated
     @PostMapping("/{id}/mode")
     public ResponseEntity<ApiResponse<Void>> controlMode(
             @PathVariable(name = "id") Long id,
@@ -112,6 +127,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Mode controlled successfully"));
     }
 
+		@Deprecated
     @PostMapping("/{id}/fan")
     public ResponseEntity<ApiResponse<Void>> controlFanSpeed(
             @PathVariable(name = "id") Long id,
@@ -121,6 +137,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Fan speed controlled successfully"));
     }
 
+		@Deprecated
     @PostMapping("/{id}/swing")
     public ResponseEntity<ApiResponse<Void>> controlSwing(
             @PathVariable(name = "id") Long id,

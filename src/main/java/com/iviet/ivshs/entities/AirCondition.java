@@ -11,8 +11,6 @@ import com.iviet.ivshs.enumeration.ActuatorSwing;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -68,5 +66,33 @@ public class AirCondition extends BaseIoTActuator<AirConditionLan>{
 	public void addTranslation(AirConditionLan translation) {
 		translation.setOwner(this);
 		this.getTranslations().add(translation);
+	}
+
+	public void setMode(ActuatorMode mode) {
+		if (mode != null && !SUPPORTED_MODES.contains(mode)) {
+			throw new IllegalArgumentException("Unsupported mode: " + mode + ". Supported modes are: " + SUPPORTED_MODES);
+		}
+		this.mode = mode;
+	}
+
+	public void setSwing(ActuatorSwing swing) {
+		if (swing != null && !SUPPORTED_SWINGS.contains(swing)) {
+			throw new IllegalArgumentException("Unsupported swing state: " + swing + ". Supported swing states are: " + SUPPORTED_SWINGS);
+		}
+		this.swing = swing;
+	}
+
+	public void setFanSpeed(Integer fanSpeed) {
+		if (fanSpeed != null && (fanSpeed < MIN_FAN_SPEED || fanSpeed > MAX_FAN_SPEED)) {
+			throw new IllegalArgumentException("Fan speed must be between " + MIN_FAN_SPEED + " and " + MAX_FAN_SPEED);
+		}
+		this.fanSpeed = fanSpeed;
+	}
+
+	public void setTemperature(Integer temperature) {
+		if (temperature != null && (temperature < MIN_TEMP || temperature > MAX_TEMP)) {
+			throw new IllegalArgumentException("Temperature must be between " + MIN_TEMP + " and " + MAX_TEMP);
+		}
+		this.temperature = temperature;
 	}
 }

@@ -11,28 +11,32 @@ import lombok.Builder;
 
 @Builder
 public record UpdateAirConditionDto(
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = 100, message = "Name must be between 1 and 100 characters")
     String name,
 
     String naturalId,
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Description must not exceed 255 characters")
     String description,
 
     Boolean isActive,
 
     Long roomId,
+
     Long deviceControlId,
+    
     String langCode,
 
     ActuatorPower power,
 
-    @Min(16) @Max(32)
+    @Min(value = 16, message = "Temperature must be between 16 and 32")
+    @Max(value = 32, message = "Temperature must be between 16 and 32")
     Integer temperature,
 
     ActuatorMode mode,
 
-    @Min(0) @Max(5)
+    @Min(value = 0, message = "Fan speed must be between 0 and 5")
+    @Max(value = 5, message = "Fan speed must be between 0 and 5")
     Integer fanSpeed,
 
     ActuatorSwing swing
