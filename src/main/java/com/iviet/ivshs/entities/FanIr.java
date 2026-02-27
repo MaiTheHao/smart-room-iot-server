@@ -54,4 +54,25 @@ public class FanIr extends Fan {
 
 	@Column(name = "speed")
 	private Integer speed;
+
+	public void setMode(ActuatorMode mode) {
+		if (mode != null && !SUPPORTED_MODES.contains(mode)) {
+			throw new IllegalArgumentException("Unsupported mode: " + mode + ". Supported modes are: " + SUPPORTED_MODES);
+		}
+		this.mode = mode;
+	}
+
+	public void setSwing(ActuatorSwing swing) {
+		if (swing != null && !SUPPORTED_SWINGS.contains(swing)) {
+			throw new IllegalArgumentException("Unsupported swing: " + swing + ". Supported swings are: " + SUPPORTED_SWINGS);
+		}
+		this.swing = swing;
+	}
+
+	public void setSpeed(Integer speed) {
+		if (speed != null && (speed < MIN_SPEED || speed > MAX_SPEED)) {
+			throw new IllegalArgumentException("Speed must be between " + MIN_SPEED + " and " + MAX_SPEED);
+		}
+		this.speed = speed;
+	}
 }

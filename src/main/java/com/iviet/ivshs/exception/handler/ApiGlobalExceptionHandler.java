@@ -9,6 +9,7 @@ import com.iviet.ivshs.exception.domain.UnauthorizedException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(2)
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiGlobalExceptionHandler {
     private static final Logger log = LogManager.getLogger(ApiGlobalExceptionHandler.class);
@@ -173,11 +174,18 @@ public class ApiGlobalExceptionHandler {
             .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "Operation not supported: " + ex.getMessage()));
     }
 
-		@ExceptionHandler(IllegalArgumentException.class)
-		public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(ApiResponse.error(HttpStatus.BAD_REQUEST, "Invalid argument: " + ex.getMessage()));
-		}
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.error("Data integrity violation: ", ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, "Resource conflict: a record with the same unique identifier already exists."));
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAll(Exception ex) {

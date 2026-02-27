@@ -6,10 +6,6 @@ import com.iviet.ivshs.dto.CreateFanDto;
 import com.iviet.ivshs.dto.FanDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateFanDto;
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorState;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
 
 public interface FanService {
     
@@ -31,21 +27,5 @@ public interface FanService {
     
     void delete(Long id);
 
-    // New
-    void _v2api_handlePowerControl(Long id, ActuatorPower power);
 
-    // New
-    void _v2api_handleTogglePowerControl(Long id);
-
-    // New
-    void _v2api_handleModeControl(Long id, ActuatorMode mode);
-
-    // New
-    void _v2api_handleSpeedControl(Long id, int speed);
-
-    // New
-    void _v2api_handleSwingControl(Long id, ActuatorSwing swing);
-
-    // New
-    void _v2api_handleLightControl(Long id, ActuatorState light);
 }

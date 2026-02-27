@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@Order(2)
+@Order(3)
 @RestControllerAdvice(annotations = RestController.class)
 public class IntegrationExceptionHandler {
     private static final Logger log = LogManager.getLogger(IntegrationExceptionHandler.class);

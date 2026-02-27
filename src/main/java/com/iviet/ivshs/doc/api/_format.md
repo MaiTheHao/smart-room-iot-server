@@ -68,9 +68,42 @@ AI Agent vui lòng copy format dưới đây khi tạo document cho 1 API mới:
 
 - **Bảng (Tables)**: Sử dụng Markdown table, căn lề trái (`:---`). Luôn có cột "Bắt buộc" hoặc "Mặc định".
 - **Code Blocks**: Các ví dụ JSON phải được bọc trong ` ```json ` và được format chuẩn xác (Indentation).
-- **Tham chiếu Enum**: Nếu request body dùng Enum, phải liên kết hoặc giải thích rõ các giá trị được hỗ trợ (Ví dụ: COOL, HEAT).
+- **Tham chiếu Enum**: Nếu request body dùng Enum, phải liên kết hoặc giải thích rõ các giá trị được hỗ trợ (Ví dụ: COOL, HEAT, DRY, FAN).
 
-## 5. Edit prompt
+## 5. Hướng dẫn mô tả Enum & Ràng buộc
+
+- **Vị trí**: Đặt phần "Enumerations & Constraints" trong thẻ `<details>` ở cuối file, trước phần "Error Responses".
+- **Định dạng**: Mỗi enum phải có tiêu đề (H3) và bảng liệt kê tất cả các giá trị với mô tả rõ ràng.
+- **Ràng buộc bổ sung**: Nếu có giới hạn về giá trị (ví dụ: temperature 16-32, fanSpeed 0-5), phải tạo bảng riêng hoặc thêm dòng giải thích.
+- **Tham chiếu chéo**: Trong request body của endpoint, nếu trường sử dụng enum, ghi chú "(xem [Enum_Name] dưới Enumerations)" hoặc liệt kê giá trị trực tiếp.
+
+Ví dụ mẫu (tham khảo #file:air_condition.md):
+
+```html
+<details>
+<summary>Xem chi tiết các hằng số (Enums)</summary>
+
+### AcMode (ActuatorMode)
+
+| Giá trị | Mô tả |
+| :------ | :---- |
+| COOL    | Làm lạnh |
+| HEAT    | Sưởi ấm |
+| DRY     | Hút ẩm |
+| FAN     | Chế độ quạt |
+| AUTO    | Chế độ tự động |
+
+### Ràng buộc bổ sung
+
+| Tên | Mô tả |
+| :-- | :---- |
+| Temperature (Nhiệt độ) | Giá trị hợp lệ từ 16 đến 32 |
+| FanSpeed (Tốc độ quạt) | Giá trị hợp lệ từ 0 đến 5 |
+
+</details>
+```
+
+## 6. Edit prompt
 > Prompt này dành cho AI Agent khi được giao nhiệm vụ cập nhật tài liệu API. Mục tiêu là đảm bảo mọi cập nhật đều tuân thủ chuẩn Markdown và không làm mất dữ liệu quan trọng.
 
 ```plaintext

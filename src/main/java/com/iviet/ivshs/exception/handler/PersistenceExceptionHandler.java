@@ -57,6 +57,14 @@ public class PersistenceExceptionHandler {
 
     // ====== JPA & TRANSACTION SYSTEM EXCEPTIONS ======
 
+    @ExceptionHandler(org.hibernate.exception.ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(org.hibernate.exception.ConstraintViolationException ex) {
+        log.error("Database constraint violation: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(HttpStatus.CONFLICT, "Database conflict: Constraint violation (duplicate key, foreign key violation, etc.)."));
+    }
+
+
     @ExceptionHandler(TransactionSystemException.class)
     public ResponseEntity<ApiResponse<Void>> handleTransactionError(TransactionSystemException ex) {
         log.error("Transaction system error: {}", ex.getMessage());

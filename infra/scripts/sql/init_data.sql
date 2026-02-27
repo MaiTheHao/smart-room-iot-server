@@ -89,6 +89,26 @@ VALUES
   (2, NULL, 'admin', NULL, 'admin', 0, 'Main ceiling light', 'en', 'Server Light', 1);
 
 -- ----------------------------
+-- 8.1. Dữ liệu bảng fan (Quạt)
+-- ----------------------------
+INSERT INTO
+  `fan` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `is_active`, `natural_id`, `power`, `type`, `speed`, `mode`, `light`, `swing`, `device_control_id`, `room_id`)
+VALUES
+  (1, NULL, 'admin', NULL, 'admin', 0, b'1', 'FAN-IR-01', 'OFF', 'IR', 500, 'NORMAL', 'OFF', 'OFF', 1, 1),
+  (2, NULL, 'admin', NULL, 'admin', 0, b'1', 'FAN-GPIO-01', 'OFF', 'GPIO', NULL, NULL, NULL, NULL, NULL, 3);
+
+-- ----------------------------
+-- 8.2. Dữ liệu bảng fan_lan (Đa ngôn ngữ cho Quạt)
+-- ----------------------------
+INSERT INTO
+  `fan_lan` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `description`, `lang_code`, `name`, `owner_id`)
+VALUES
+  (1, NULL, 'admin', NULL, 'admin', 0, 'Quạt thông gió IR', 'vi', 'Quạt IR Server', 1),
+  (2, NULL, 'admin', NULL, 'admin', 0, 'IR Exhaust Fan', 'en', 'Server IR Fan', 1),
+  (3, NULL, 'admin', NULL, 'admin', 0, 'Quạt đứng phòng ngủ', 'vi', 'Quạt Master', 2),
+  (4, NULL, 'admin', NULL, 'admin', 0, 'Bedroom stand fan', 'en', 'Master Fan', 2);
+
+-- ----------------------------
 -- 9. Dữ liệu bảng device_control (Thiết bị điều khiển chung)
 -- ----------------------------
 INSERT INTO
