@@ -1,4 +1,4 @@
-
+// feat: Enhance entity definitions with JdbcTypeCode
 Table "air_condition" {
   "id" bigint [pk, not null, increment]
   "created_at" datetime(6) [default: NULL]

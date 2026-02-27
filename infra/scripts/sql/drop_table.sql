@@ -62,12 +62,23 @@ DROP TABLE IF EXISTS `power_consumption_lan`;
 
 DROP TABLE IF EXISTS `power_consumption_value`;
 
+DROP TABLE IF EXISTS `fan`;
+
+DROP TABLE IF EXISTS `fan_lan`;
+
 -- ----------------------------
 -- Xóa bảng Module Automation
 -- ----------------------------
 DROP TABLE IF EXISTS `automation`;
 
 DROP TABLE IF EXISTS `automation_action`;
+
+-- ----------------------------
+-- Xóa bảng Module Rule
+-- ----------------------------
+DROP TABLE IF EXISTS `rule`;
+
+DROP TABLE IF EXISTS `rule_condition`;
 
 -- ----------------------------
 -- Xóa bảng Module Quartz
