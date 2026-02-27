@@ -6,7 +6,8 @@
 
 ---
 
-## GET /api/v1/functions
+<details>
+<summary><b>GET</b> <code>/api/v1/functions</code> - Lấy danh sách Function (phân trang)</summary>
 
 > Lấy danh sách các Functions với phân trang.
 
@@ -47,9 +48,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/functions/all
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/functions/all</code> - Lấy tất cả Function</summary>
 
 > Lấy tất cả Functions (không phân trang).
 
@@ -77,9 +81,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/functions/{functionId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/functions/{functionId}</code> - Lấy chi tiết Function</summary>
 
 > Lấy thông tin chi tiết của một Function theo ID.
 
@@ -105,7 +112,7 @@
 }
 ```
 
-### Error Response (404 Not Found)
+### Response (404 Not Found)
 
 ```json
 {
@@ -116,9 +123,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/functions/code/{functionCode}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/functions/code/{functionCode}</code> - Lấy Function theo code</summary>
 
 > Lấy Function theo function code.
 
@@ -144,9 +154,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/functions/with-group-status/{groupId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/functions/with-group-status/{groupId}</code> - Lấy Functions trạng thái group</summary>
 
 > Lấy tất cả Functions với trạng thái đã assigned vào Group hay chưa.
 >
@@ -186,9 +199,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/functions
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/functions</code> - Tạo Function mới</summary>
 
 > Tạo mới một Function.
 
@@ -228,7 +244,7 @@
 }
 ```
 
-### Error Response (400 Bad Request)
+### Response (400 Bad Request)
 
 ```json
 {
@@ -239,9 +255,12 @@
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/functions/{functionId}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/functions/{functionId}</code> - Cập nhật Function</summary>
 
 > Update Function (chỉ update translation: name, description).
 >
@@ -287,9 +306,12 @@
 }
 ```
 
----
+</details>
 
-## DELETE /api/v1/functions/{functionId}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/functions/{functionId}</code> - Xóa Function</summary>
 
 > Xóa Function (cascade delete tất cả roles liên quan).
 >
@@ -312,9 +334,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/functions/count
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/functions/count</code> - Đếm tổng số Function</summary>
 
 > Đếm tổng số Functions trong hệ thống.
 
@@ -328,3 +353,9 @@
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

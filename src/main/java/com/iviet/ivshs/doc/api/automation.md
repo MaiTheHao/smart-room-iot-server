@@ -6,20 +6,19 @@
 
 ### 1. Automation Management (Cha)
 
----
-
-### GET /api/v1/automations
+<details>
+<summary><b>GET</b> <code>/api/v1/automations</code> - Lấy danh sách tự động hóa (phân trang)</summary>
 
 > Lấy danh sách tất cả các kịch bản tự động hóa (phân trang). Nội dung không bao gồm danh sách actions.
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên  | Loại | Mô tả                           | Mặc định |
 | :--- | :--- | :------------------------------ | :------- |
 | page | int  | Trang hiện tại (bắt đầu từ 0)   | 0        |
 | size | int  | Số lượng phần tử trên mỗi trang | 20       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -46,19 +45,22 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/automations/{id}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/automations/{id}</code> - Lấy chi tiết tự động hóa</summary>
 
 > Lấy thông tin chi tiết của một kịch bản tự động hóa theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                   | Bắt buộc |
 | :-- | :--- | :---------------------- | :------- |
 | id  | Long | ID của kịch bản cần lấy | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -77,13 +79,16 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/automations
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/automations</code> - Tạo mới một kịch bản tự động hóa</summary>
 
 > Tạo mới một kịch bản tự động hóa.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường     | Loại    | Bắt buộc | Mô tả                                  |
 | :------------- | :------ | :------- | :------------------------------------- |
@@ -92,7 +97,7 @@
 | isActive       | boolean | Không    | Trạng thái kích hoạt (Mặc định: true)  |
 | description    | string  | Không    | Mô tả kịch bản                         |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -103,7 +108,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -122,19 +127,22 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/automations/{id}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/automations/{id}</code> - Cập nhật kịch bản</summary>
 
 > Cập nhật thông tin kịch bản (Tên, Cron, Mô tả...). _Lưu ý: API này không cập nhật actions._
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                   | Bắt buộc |
 | :-- | :--- | :---------------------- | :------- |
 | id  | Long | ID của kịch bản cần sửa | Có       |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường     | Loại    | Bắt buộc | Mô tả                |
 | :------------- | :------ | :------- | :------------------- |
@@ -143,7 +151,7 @@
 | isActive       | boolean | Không    | Trạng thái kích hoạt |
 | description    | string  | Không    | Mô tả kịch bản       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -162,19 +170,22 @@
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/automations/{id}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/automations/{id}</code> - Xóa kịch bản tự động hóa</summary>
 
 > Xóa kịch bản tự động hóa. Xóa Automation sẽ xóa tất cả actions con của nó.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                   | Bắt buộc |
 | :-- | :--- | :---------------------- | :------- |
 | id  | Long | ID của kịch bản cần xóa | Có       |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -185,13 +196,16 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/automations/active
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/automations/active</code> - Lấy kịch bản đang hoạt động</summary>
 
 > Lấy danh sách tất cả các kịch bản đang ở trạng thái hoạt động.
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -212,23 +226,26 @@
 }
 ```
 
+</details>
+
+<br>
+
 ---
 
 ### 2. Action Management (Con)
 
----
-
-### GET /api/v1/automations/{id}/actions
+<details>
+<summary><b>GET</b> <code>/api/v1/automations/{id}/actions</code> - Lấy danh sách actions</summary>
 
 > Lấy danh sách các hành động thuộc về một kịch bản cụ thể.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả             | Bắt buộc |
 | :-- | :--- | :---------------- | :------- |
 | id  | Long | ID của Automation | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -250,19 +267,22 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/automations/{id}/actions
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/automations/{id}/actions</code> - Thêm hành động mới</summary>
 
 > Thêm một hành động mới vào kịch bản.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả             | Bắt buộc |
 | :-- | :--- | :---------------- | :------- |
 | id  | Long | ID của Automation | Có       |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường     | Loại   | Bắt buộc | Mô tả                                 |
 | :------------- | :----- | :------- | :------------------------------------ |
@@ -272,7 +292,7 @@
 | parameterValue | string | Không    | Tham số bổ sung (Ví dụ: độ sáng "80") |
 | executionOrder | int    | Không    | Thứ tự thực hiện (Mặc định: 0)        |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -284,7 +304,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -303,23 +323,34 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/automations/actions/{actionId}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/automations/actions/{actionId}</code> - Cập nhật hành động</summary>
 
 > Cập nhật thông tin một hành động hiện có.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên      | Loại | Mô tả            | Bắt buộc |
 | :------- | :--- | :--------------- | :------- |
 | actionId | Long | ID của hành động | Có       |
 
-#### Request Body Fields
+### Request Body
 
-Tương tự POST /actions.
+Tương tự thiết lập ở phần POST actions.
 
-#### Ví dụ Response (200 OK)
+| Tên trường     | Loại   | Bắt buộc | Mô tả                                 |
+| :------------- | :----- | :------- | :------------------------------------ |
+| targetType     | enum   | Có       | Loại mục tiêu (Ví dụ: `LIGHT`)        |
+| targetId       | Long   | Có       | ID của thiết bị mục tiêu              |
+| actionType     | enum   | Có       | Loại hành động (`ON`, `OFF`)          |
+| parameterValue | string | Không    | Tham số bổ sung (Ví dụ: độ sáng "80") |
+| executionOrder | int    | Không    | Thứ tự thực hiện (Mặc định: 0)        |
+
+### Response (200 OK)
 
 ```json
 {
@@ -338,19 +369,22 @@ Tương tự POST /actions.
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/automations/actions/{actionId}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/automations/actions/{actionId}</code> - Xóa hành động</summary>
 
 > Xóa một hành động khỏi kịch bản.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên      | Loại | Mô tả            | Bắt buộc |
 | :------- | :--- | :--------------- | :------- |
 | actionId | Long | ID của hành động | Có       |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -361,23 +395,26 @@ Tương tự POST /actions.
 }
 ```
 
+</details>
+
+<br>
+
 ---
 
 ### 3. System / Control Endpoints
 
----
-
-### PATCH /api/v1/automations/{id}/status
+<details>
+<summary><b>PATCH</b> <code>/api/v1/automations/{id}/status</code> - Thay đổi trạng thái</summary>
 
 > Bật hoặc tắt trạng thái hoạt động của kịch bản.
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên      | Loại    | Mô tả                       | Bắt buộc |
 | :------- | :------ | :-------------------------- | :------- |
 | isActive | boolean | Trạng thái mới (true/false) | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -388,13 +425,16 @@ Tương tự POST /actions.
 }
 ```
 
----
+</details>
 
-### POST /api/v1/automations/{id}/execute
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/automations/{id}/execute</code> - Thực thi kịch bản (Manual)</summary>
 
 > Thực thi ngay lập tức kịch bản tự động hóa (Manual Trigger).
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -405,13 +445,16 @@ Tương tự POST /actions.
 }
 ```
 
----
+</details>
 
-### POST /api/v1/automations/reload-job
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/automations/reload-job</code> - Tải lại Scheduler</summary>
 
 > Tải lại hệ thống Scheduler (Quartz Jobs). Dùng khi cần đồng bộ lại toàn bộ lịch trình.
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -421,6 +464,10 @@ Tương tự POST /actions.
 	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
+
+</details>
+
+<br>
 
 ---
 

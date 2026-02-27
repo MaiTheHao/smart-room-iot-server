@@ -4,17 +4,18 @@
 
 ---
 
-### GET /api/v1/device-controls/{id}
+<details>
+<summary><b>GET</b> <code>/api/v1/device-controls/{id}</code> - Lấy chi tiết Device Control</summary>
 
 > Lấy thông tin chi tiết một Device Control theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                 | Bắt buộc |
 | :-- | :--- | :-------------------- | :------- |
 | id  | Long | ID của Device Control | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -33,13 +34,16 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/device-controls
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/device-controls</code> - Tạo mới Device Control</summary>
 
 > Tạo mới một Device Control.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường        | Loại                | Bắt buộc | Mô tả                                     |
 | :---------------- | :------------------ | :------- | :---------------------------------------- |
@@ -50,7 +54,7 @@
 | clientId          | Long                | Có       | ID của Client                             |
 | roomId            | Long                | Có       | ID của Room                               |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -61,7 +65,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -80,19 +84,22 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/device-controls/{id}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/device-controls/{id}</code> - Cập nhật Device Control</summary>
 
 > Cập nhật thông tin một Device Control theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                 | Bắt buộc |
 | :-- | :--- | :-------------------- | :------- |
 | id  | Long | ID của Device Control | Có       |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường        | Loại                | Bắt buộc | Mô tả                                     |
 | :---------------- | :------------------ | :------- | :---------------------------------------- |
@@ -103,7 +110,7 @@
 | clientId          | Long                | Không    | ID của Client                             |
 | roomId            | Long                | Không    | ID của Room                               |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -114,7 +121,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -133,19 +140,22 @@
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/device-controls/{id}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/device-controls/{id}</code> - Xóa Device Control</summary>
 
 > Xóa một Device Control theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                 | Bắt buộc |
 | :-- | :--- | :-------------------- | :------- |
 | id  | Long | ID của Device Control | Có       |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -156,26 +166,29 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/device-controls/client/{clientId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/device-controls/client/{clientId}</code> - Lấy theo Client ID</summary>
 
 > Lấy danh sách Device Control theo Client ID (có phân trang).
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên      | Loại | Mô tả         | Bắt buộc |
 | :------- | :--- | :------------ | :------- |
 | clientId | Long | ID của Client | Có       |
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên  | Loại | Mô tả                  | Mặc định |
 | :--- | :--- | :--------------------- | :------- |
 | page | int  | Trang hiện tại         | 0        |
 | size | int  | Số lượng phần tử/trang | 10       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -202,26 +215,29 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/device-controls/room/{roomId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/device-controls/room/{roomId}</code> - Lấy theo Room ID</summary>
 
 > Lấy danh sách Device Control theo Room ID (có phân trang).
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên    | Loại | Mô tả       | Bắt buộc |
 | :----- | :--- | :---------- | :------- |
 | roomId | Long | ID của Room | Có       |
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên  | Loại | Mô tả                  | Mặc định |
 | :--- | :--- | :--------------------- | :------- |
 | page | int  | Trang hiện tại         | 0        |
 | size | int  | Số lượng phần tử/trang | 10       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -247,5 +263,9 @@
 	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
+
+</details>
+
+<br>
 
 ---

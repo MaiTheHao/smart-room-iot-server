@@ -2,22 +2,19 @@
 
 ## API Documentation
 
----
-
-## ## Get All Clients
-
-### GET /api/v1/clients
+<details>
+<summary><b>GET</b> <code>/api/v1/clients</code> - Get All Clients</summary>
 
 > Lấy danh sách tất cả client (người dùng và gateway) có phân trang.
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
-| Tên  | Loại | Mô tả                  | Mặc định |
-| :--- | :--- | :--------------------- | :------- |
-| page | int  | Trang hiện tại         | 0        |
-| size | int  | Số lượng phần tử/trang | 10       |
+| Tên  | Loại | Mô tả                  | Bắt buộc/Mặc định |
+| :--- | :--- | :--------------------- | :---------------- |
+| page | int  | Trang hiện tại         | 0                |
+| size | int  | Số lượng phần tử/trang | 10               |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -44,21 +41,20 @@
 }
 ```
 
----
+</details>
 
-## ## Get Client By ID
-
-### GET /api/v1/clients/{id}
+<details>
+<summary><b>GET</b> <code>/api/v1/clients/{id}</code> - Get Client By ID</summary>
 
 > Lấy thông tin chi tiết của một client theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên | Loại | Mô tả         | Bắt buộc |
-| :-- | :--- | :------------ | :------- |
-| id  | Long | ID của client | Có       |
+| Tên | Loại | Mô tả         | Bắt buộc/Mặc định |
+| :-- | :--- | :------------ | :---------------- |
+| id  | Long | ID của client | Có                |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -77,28 +73,27 @@
 }
 ```
 
----
+</details>
 
-## ## Get Clients By Room ID
-
-### GET /api/v1/clients/room/{roomId}
+<details>
+<summary><b>GET</b> <code>/api/v1/clients/room/{roomId}</code> - Get Clients By Room ID</summary>
 
 > Lấy danh sách client thuộc một phòng cụ thể (phân trang).
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên    | Loại | Mô tả        | Bắt buộc |
-| :----- | :--- | :----------- | :------- |
-| roomId | Long | ID của phòng | Có       |
+| Tên    | Loại | Mô tả        | Bắt buộc/Mặc định |
+| :----- | :--- | :----------- | :---------------- |
+| roomId | Long | ID của phòng | Có                |
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
-| Tên  | Loại | Mô tả                  | Mặc định |
-| :--- | :--- | :--------------------- | :------- |
-| page | int  | Trang hiện tại         | 0        |
-| size | int  | Số lượng phần tử/trang | 10       |
+| Tên  | Loại | Mô tả                  | Bắt buộc/Mặc định |
+| :--- | :--- | :--------------------- | :---------------- |
+| page | int  | Trang hiện tại         | 0                |
+| size | int  | Số lượng phần tử/trang | 10               |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -125,15 +120,14 @@
 }
 ```
 
----
+</details>
 
-## ## Create Client
-
-### POST /api/v1/clients
+<details>
+<summary><b>POST</b> <code>/api/v1/clients</code> - Create Client</summary>
 
 > Tạo mới một client (người dùng hoặc gateway).
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường | Loại         | Bắt buộc | Mô tả                                    |
 | :--------- | :----------- | :------- | :--------------------------------------- |
@@ -144,7 +138,7 @@
 | macAddress | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
 | avatarUrl  | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -157,7 +151,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -176,21 +170,20 @@
 }
 ```
 
----
+</details>
 
-## ## Update Client
-
-### PUT /api/v1/clients/{id}
+<details>
+<summary><b>PUT</b> <code>/api/v1/clients/{id}</code> - Update Client</summary>
 
 > Cập nhật thông tin một client theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên | Loại | Mô tả         | Bắt buộc |
-| :-- | :--- | :------------ | :------- |
-| id  | Long | ID của client | Có       |
+| Tên | Loại | Mô tả         | Bắt buộc/Mặc định |
+| :-- | :--- | :------------ | :---------------- |
+| id  | Long | ID của client | Có                |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường | Loại         | Bắt buộc | Mô tả                                    |
 | :--------- | :----------- | :------- | :--------------------------------------- |
@@ -201,7 +194,7 @@
 | macAddress | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
 | avatarUrl  | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -211,7 +204,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -230,21 +223,20 @@
 }
 ```
 
----
+</details>
 
-## ## Delete Client
-
-### DELETE /api/v1/clients/{id}
+<details>
+<summary><b>DELETE</b> <code>/api/v1/clients/{id}</code> - Delete Client</summary>
 
 > Xóa một client theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên | Loại | Mô tả         | Bắt buộc |
-| :-- | :--- | :------------ | :------- |
-| id  | Long | ID của client | Có       |
+| Tên | Loại | Mô tả         | Bắt buộc/Mặc định |
+| :-- | :--- | :------------ | :---------------- |
+| id  | Long | ID của client | Có                |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -255,9 +247,13 @@
 }
 ```
 
----
+</details>
 
-## ## Kiểu dữ liệu ClientTypeV1
+<br>
+
+## Enumerations
+
+### ClientType
 
 | Giá trị          | Mô tả                   |
 | :--------------- | :---------------------- |

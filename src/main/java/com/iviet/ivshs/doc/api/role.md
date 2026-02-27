@@ -6,7 +6,8 @@
 
 ---
 
-## POST /api/v1/roles/groups/functions/batch-add
+<details>
+<summary><b>POST</b> <code>/api/v1/roles/groups/functions/batch-add</code> - Thêm nhiều Functions</summary>
 
 > Batch thêm nhiều Functions vào một Group.
 >
@@ -44,9 +45,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/roles/groups/functions/batch-remove
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/roles/groups/functions/batch-remove</code> - Xóa nhiều Functions</summary>
 
 > Batch xóa nhiều Functions khỏi một Group.
 >
@@ -84,9 +88,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/roles/groups/functions/toggle
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/roles/groups/functions/toggle</code> - Đảo trạng thái Functions</summary>
 
 > Toggle Functions cho Group (Add/Remove dựa vào Map).
 >
@@ -132,9 +139,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/roles/groups/{groupId}/functions/{functionCode}
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/roles/groups/{groupId}/functions/{functionCode}</code> - Thêm một Function</summary>
 
 > Thêm một Function vào Group.
 
@@ -156,7 +166,7 @@
 }
 ```
 
-### Error Response (400 Bad Request)
+### Response (400 Bad Request)
 
 ```json
 {
@@ -167,9 +177,12 @@
 }
 ```
 
----
+</details>
 
-## DELETE /api/v1/roles/groups/{groupId}/functions/{functionCode}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/roles/groups/{groupId}/functions/{functionCode}</code> - Xóa một Function</summary>
 
 > Xóa một Function khỏi Group.
 
@@ -191,9 +204,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/roles/clients/groups/assign
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/roles/clients/groups/assign</code> - Gán nhiều Groups</summary>
 
 > Assign nhiều Groups cho một Client (User).
 >
@@ -231,9 +247,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/roles/clients/groups/unassign
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/roles/clients/groups/unassign</code> - Hủy gán nhiều Groups</summary>
 
 > Unassign nhiều Groups khỏi một Client.
 >
@@ -266,9 +285,12 @@
 }
 ```
 
----
+</details>
 
-## DELETE /api/v1/roles/clients/{clientId}/groups/{groupId}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/roles/clients/{clientId}/groups/{groupId}</code> - Hủy gán một Group</summary>
 
 > Unassign một Group khỏi Client.
 >
@@ -292,7 +314,7 @@
 }
 ```
 
-### Error Response (404 Not Found)
+### Response (404 Not Found)
 
 ```json
 {
@@ -303,9 +325,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/roles/groups/{groupId}/functions/{functionCode}/check
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/roles/groups/{groupId}/functions/{functionCode}/check</code> - Kiểm tra Function Group</summary>
 
 > Kiểm tra xem Group có Function hay không.
 >
@@ -328,3 +353,9 @@
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

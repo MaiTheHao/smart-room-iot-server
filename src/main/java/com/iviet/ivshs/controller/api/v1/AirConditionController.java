@@ -95,9 +95,9 @@ public class AirConditionController {
     ) {
 			airConditionControlService.control(naturalId, params);
 			return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Controlled successfully"));
-		}
+	}
 
-		@Deprecated
+	@Deprecated
     @PostMapping("/{id}/power")
     public ResponseEntity<ApiResponse<Void>> controlPower(
             @PathVariable(name = "id") Long id,
@@ -107,7 +107,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Power controlled successfully"));
     }
 
-		@Deprecated
+	@Deprecated
     @PostMapping("/{id}/temperature")
     public ResponseEntity<ApiResponse<Void>> controlTemperature(
             @PathVariable(name = "id") Long id,
@@ -117,7 +117,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Temperature controlled successfully"));
     }
 
-		@Deprecated
+	@Deprecated
     @PostMapping("/{id}/mode")
     public ResponseEntity<ApiResponse<Void>> controlMode(
             @PathVariable(name = "id") Long id,
@@ -127,7 +127,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Mode controlled successfully"));
     }
 
-		@Deprecated
+	@Deprecated
     @PostMapping("/{id}/fan")
     public ResponseEntity<ApiResponse<Void>> controlFanSpeed(
             @PathVariable(name = "id") Long id,
@@ -137,7 +137,7 @@ public class AirConditionController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Fan speed controlled successfully"));
     }
 
-		@Deprecated
+	@Deprecated
     @PostMapping("/{id}/swing")
     public ResponseEntity<ApiResponse<Void>> controlSwing(
             @PathVariable(name = "id") Long id,

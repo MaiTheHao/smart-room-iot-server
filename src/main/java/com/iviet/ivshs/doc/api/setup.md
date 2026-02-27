@@ -2,15 +2,14 @@
 
 ## Thiết lập cấu hình thiết bị phòng
 
-### Endpoint
-
-`POST /api/v1/setup/{clientId}`
-
-Thiết lập cấu hình thiết bị cho một phòng thông qua gateway phần cứng.
-
 ---
 
-## Request
+<details>
+<summary><b>POST</b> <code>/api/v1/setup/{clientId}</code> - Thiết lập cấu hình thiết bị</summary>
+
+> Thiết lập cấu hình thiết bị cho một phòng thông qua gateway phần cứng.
+> 
+> **Lưu ý:** Body gửi lên sẽ bị bỏ qua, hệ thống sẽ lấy cấu hình từ gateway phần cứng tương ứng với `clientId`.
 
 ### Path Parameter
 
@@ -18,20 +17,14 @@ Thiết lập cấu hình thiết bị cho một phòng thông qua gateway phầ
 | -------- | ---- | -------- | ------------------------ |
 | clientId | Long | Yes      | ID của gateway phần cứng |
 
-### Body Fields
-
-> **Lưu ý:** Body gửi lên sẽ bị bỏ qua, hệ thống sẽ lấy cấu hình từ gateway phần cứng tương ứng với `clientId`.
-
----
-
-## Gateway Response Structure (SetupRequestV1)
+### Gateway Response Structure (SetupRequestV1)
 
 | Field    | Type           | Required | Description                 |
 | -------- | -------------- | -------- | --------------------------- |
 | roomCode | string         | Yes      | Mã phòng cần thiết lập      |
 | devices  | DeviceConfig[] | Yes      | Danh sách cấu hình thiết bị |
 
-### DeviceConfig
+#### DeviceConfig
 
 | Field        | Type                | Required | Description                               |
 | ------------ | ------------------- | -------- | ----------------------------------------- |
@@ -78,11 +71,7 @@ Thiết lập cấu hình thiết bị cho một phòng thông qua gateway phầ
 }
 ```
 
----
-
-## Response
-
-### Status: 200 OK
+### Response (200 OK)
 
 ```json
 {
@@ -93,13 +82,17 @@ Thiết lập cấu hình thiết bị cho một phòng thông qua gateway phầ
 }
 ```
 
+</details>
+
+<br>
+
 ---
 
-## Lưu ý
+## Lưu ý chung
 
--   API này sẽ lấy thông tin cấu hình thiết bị từ gateway phần cứng qua địa chỉ IP của client (`clientId`).
--   Nếu không tìm thấy client hoặc phòng, hoặc dữ liệu trả về từ gateway không hợp lệ, API sẽ trả về lỗi tương ứng.
--   Không truyền trực tiếp cấu hình thiết bị trong body request.
+- API này sẽ lấy thông tin cấu hình thiết bị từ gateway phần cứng qua địa chỉ IP của client (`clientId`).
+- Nếu không tìm thấy client hoặc phòng, hoặc dữ liệu trả về từ gateway không hợp lệ, API sẽ trả về lỗi tương ứng.
+- Không truyền trực tiếp cấu hình thiết bị trong body request.
 
 ---
 

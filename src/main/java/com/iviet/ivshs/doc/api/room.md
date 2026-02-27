@@ -2,26 +2,20 @@
 
 ## Room API Documentation
 
----
-
-### GET /api/v1/floors/{floorId}/rooms
+<details>
+<summary><b>GET</b> <code>/api/v1/floors/{floorId}/rooms</code> - Lấy danh sách phòng theo tầng</summary>
 
 > Lấy danh sách phòng theo tầng, có phân trang.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path/Query Parameters (Nếu có)
 
-| Tên     | Loại | Mô tả       | Bắt buộc |
-| :------ | :--- | :---------- | :------- |
-| floorId | Long | ID của tầng | Có       |
+| Tên     | Loại | Mô tả                  | Bắt buộc/Mặc định |
+| :------ | :--- | :--------------------- | :---------------- |
+| floorId | Long | ID của tầng            | Có                |
+| page    | int  | Trang hiện tại         | 0                 |
+| size    | int  | Số lượng phần tử/trang | 10                |
 
-#### Tham số Truy vấn (Query Parameters)
-
-| Tên  | Loại | Mô tả                  | Mặc định |
-| :--- | :--- | :--------------------- | :------- |
-| page | int  | Trang hiện tại         | 0        |
-| size | int  | Số lượng phần tử/trang | 10       |
-
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -45,19 +39,20 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/rooms/{roomId}
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}</code> - Lấy thông tin chi tiết phòng</summary>
 
 > Lấy thông tin chi tiết của một phòng theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path/Query Parameters (Nếu có)
 
-| Tên    | Loại | Mô tả        | Bắt buộc |
-| :----- | :--- | :----------- | :------- |
-| roomId | Long | ID của phòng | Có       |
+| Tên    | Loại | Mô tả        | Bắt buộc/Mặc định |
+| :----- | :--- | :----------- | :---------------- |
+| roomId | Long | ID của phòng | Có                |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -73,19 +68,20 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/floors/{floorId}/rooms
+<details>
+<summary><b>POST</b> <code>/api/v1/floors/{floorId}/rooms</code> - Tạo mới phòng</summary>
 
 > Tạo mới một phòng thuộc tầng chỉ định.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path/Query Parameters (Nếu có)
 
-| Tên     | Loại | Mô tả       | Bắt buộc |
-| :------ | :--- | :---------- | :------- |
-| floorId | Long | ID của tầng | Có       |
+| Tên     | Loại | Mô tả       | Bắt buộc/Mặc định |
+| :------ | :--- | :---------- | :---------------- |
+| floorId | Long | ID của tầng | Có                |
 
-#### Request Body Fields
+### Request Body (Nếu có)
 
 | Tên trường  | Loại   | Bắt buộc | Mô tả                               |
 | :---------- | :----- | :------- | :---------------------------------- |
@@ -93,7 +89,7 @@
 | description | string | Không    | Mô tả phòng (tối đa 255 ký tự)      |
 | langCode    | string | Không    | Mã ngôn ngữ (tối đa 10 ký tự)       |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -103,7 +99,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -119,19 +115,20 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/rooms/{roomId}
+<details>
+<summary><b>PUT</b> <code>/api/v1/rooms/{roomId}</code> - Cập nhật phòng</summary>
 
 > Cập nhật thông tin phòng theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path/Query Parameters (Nếu có)
 
-| Tên    | Loại | Mô tả        | Bắt buộc |
-| :----- | :--- | :----------- | :------- |
-| roomId | Long | ID của phòng | Có       |
+| Tên    | Loại | Mô tả        | Bắt buộc/Mặc định |
+| :----- | :--- | :----------- | :---------------- |
+| roomId | Long | ID của phòng | Có                |
 
-#### Request Body Fields
+### Request Body (Nếu có)
 
 | Tên trường  | Loại   | Bắt buộc | Mô tả                          |
 | :---------- | :----- | :------- | :----------------------------- |
@@ -140,7 +137,7 @@
 | floorId     | Long   | Không    | ID tầng mới (nếu chuyển phòng) |
 | langCode    | string | Không    | Mã ngôn ngữ (tối đa 10 ký tự)  |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -151,7 +148,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -167,19 +164,20 @@
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/rooms/{roomId}
+<details>
+<summary><b>DELETE</b> <code>/api/v1/rooms/{roomId}</code> - Xóa phòng</summary>
 
 > Xóa một phòng theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path/Query Parameters (Nếu có)
 
-| Tên    | Loại | Mô tả        | Bắt buộc |
-| :----- | :--- | :----------- | :------- |
-| roomId | Long | ID của phòng | Có       |
+| Tên    | Loại | Mô tả        | Bắt buộc/Mặc định |
+| :----- | :--- | :----------- | :---------------- |
+| roomId | Long | ID của phòng | Có                |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -190,4 +188,5 @@
 }
 ```
 
----
+</details>
+

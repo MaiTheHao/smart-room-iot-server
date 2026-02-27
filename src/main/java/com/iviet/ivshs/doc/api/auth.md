@@ -4,18 +4,19 @@
 
 ---
 
-### POST /api/v1/auth/signin
+<details>
+<summary><b>POST</b> <code>/api/v1/auth/signin</code> - Đăng nhập hệ thống</summary>
 
 > Đăng nhập hệ thống, trả về JWT token và thông tin quyền.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường | Loại   | Bắt buộc | Mô tả                        |
 | :--------- | :----- | :------- | :--------------------------- |
 | username   | string | Có       | Tên đăng nhập của client     |
 | password   | string | Có       | Mật khẩu (tối thiểu 6 ký tự) |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -24,7 +25,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -40,7 +41,7 @@
 }
 ```
 
-#### Ví dụ Response (401 Unauthorized)
+### Response (401 Unauthorized)
 
 ```json
 {
@@ -51,13 +52,14 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/auth/signup
+<details>
+<summary><b>POST</b> <code>/api/v1/auth/signup</code> - Đăng ký client mới</summary>
 
 > Đăng ký client mới vào hệ thống.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường | Loại         | Bắt buộc | Mô tả                                       |
 | :--------- | :----------- | :------- | :------------------------------------------ |
@@ -68,7 +70,7 @@
 | macAddress | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)              |
 | avatarUrl  | string       | Không    | URL ảnh đại diện (tối đa 255 ký tự, hợp lệ) |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -81,7 +83,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -100,7 +102,7 @@
 }
 ```
 
-#### Ví dụ Response (400 Bad Request)
+### Response (400 Bad Request)
 
 ```json
 {
@@ -111,25 +113,26 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/auth/logout
+<details>
+<summary><b>POST</b> <code>/api/v1/auth/logout</code> - Đăng xuất client</summary>
 
 > Đăng xuất client khỏi hệ thống, hủy JWT token phía backend (nếu có) và xóa session phía client.
 
-#### Request
+### Request
 
 -   Header:
     -   `Authorization: Bearer <JWT token>`
 
-#### Ví dụ Request
+### Request Example
 
 ```http
 POST /api/v1/auth/logout HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -140,7 +143,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 }
 ```
 
-#### Gợi ý xử lý phía client (JavaScript)
+### Gợi ý xử lý phía client (JavaScript)
 
 ```js
 async function logoutApi() {
@@ -155,3 +158,5 @@ async function logoutApi() {
 	window.location.href = '/login';
 }
 ```
+
+</details>

@@ -8,17 +8,18 @@
 
 ### 1. Client Health Resources
 
-#### GET /clients/{clientId}/health
+<details>
+<summary><b>GET</b> <code>/clients/{clientId}/health</code> - Kiểm tra sức khỏe Client (ID)</summary>
 
 > Kiểm tra trạng thái sức khỏe của một Client (Gateway/Device) cụ thể dựa trên ID.
 
-**Tham số Đường dẫn (Path Parameters)**
+**Path Parameters**
 
 | Tên      | Loại | Mô tả                                  | Bắt buộc |
 | -------- | ---- | -------------------------------------- | -------- |
 | clientId | Long | ID định danh của Client trong hệ thống | Có       |
 
-**Ví dụ Response (200 OK)**
+**Response (200 OK)**
 
 ```json
 {
@@ -42,19 +43,22 @@
 }
 ```
 
----
+</details>
 
-#### GET /clients/health
+<br>
+
+<details>
+<summary><b>GET</b> <code>/clients/health</code> - Kiểm tra sức khỏe Client (IP)</summary>
 
 > Kiểm tra trạng thái sức khỏe của Client thông qua địa chỉ IP.
 
-**Tham số Truy vấn (Query Parameters)**
+**Query Parameters**
 
 | Tên | Loại   | Mô tả                                | Bắt buộc |
 | --- | ------ | ------------------------------------ | -------- |
 | ip  | String | Địa chỉ IP của thiết bị cần kiểm tra | Có       |
 
-**Ví dụ Response (200 OK)**
+**Response (200 OK)**
 
 ```json
 {
@@ -78,19 +82,22 @@
 }
 ```
 
----
+</details>
 
-#### GET /clients/{clientId}/health-score
+<br>
+
+<details>
+<summary><b>GET</b> <code>/clients/{clientId}/health-score</code> - Lấy điểm số sức khỏe Client</summary>
 
 > Lấy điểm số sức khỏe (Health Score) của Client. Điểm số từ 0 đến 100 dựa trên tỉ lệ thiết bị con hoạt động.
 
-**Tham số Đường dẫn (Path Parameters)**
+**Path Parameters**
 
 | Tên      | Loại | Mô tả                   | Bắt buộc |
 | -------- | ---- | ----------------------- | -------- |
 | clientId | Long | ID định danh của Client | Có       |
 
-**Ví dụ Response (200 OK)**
+**Response (200 OK)**
 
 ```json
 {
@@ -101,21 +108,26 @@
 }
 ```
 
+</details>
+
+<br>
+
 ---
 
 ### 2. Room Health Resources
 
-#### GET /rooms/{roomId}/health
+<details>
+<summary><b>GET</b> <code>/rooms/{roomId}/health</code> - Kiểm tra sức khỏe phòng (ID)</summary>
 
 > Kiểm tra sức khỏe toàn bộ các Gateway/Client nằm trong một phòng cụ thể theo ID phòng.
 
-**Tham số Đường dẫn (Path Parameters)**
+**Path Parameters**
 
 | Tên    | Loại | Mô tả                     | Bắt buộc |
 | ------ | ---- | ------------------------- | -------- |
 | roomId | Long | ID của phòng cần kiểm tra | Có       |
 
-**Ví dụ Response (200 OK)**
+**Response (200 OK)**
 
 ```json
 {
@@ -146,19 +158,22 @@
 }
 ```
 
----
+</details>
 
-#### GET /rooms/health
+<br>
+
+<details>
+<summary><b>GET</b> <code>/rooms/health</code> - Kiểm tra sức khỏe phòng (Code)</summary>
 
 > Kiểm tra sức khỏe toàn bộ các thiết bị trong phòng dựa trên Mã phòng (Room Code).
 
-**Tham số Truy vấn (Query Parameters)**
+**Query Parameters**
 
 | Tên  | Loại   | Mô tả                  | Bắt buộc |
 | ---- | ------ | ---------------------- | -------- |
 | code | String | Mã định danh của phòng | Có       |
 
-**Ví dụ Response (200 OK)**
+**Response (200 OK)**
 
 ```json
 {
@@ -184,19 +199,22 @@
 }
 ```
 
----
+</details>
 
-#### GET /rooms/{roomId}/health-score
+<br>
+
+<details>
+<summary><b>GET</b> <code>/rooms/{roomId}/health-score</code> - Lấy điểm số sức khỏe phòng</summary>
 
 > Tính toán điểm số sức khỏe trung bình của cả phòng dựa trên tất cả các Client trong phòng đó.
 
-**Tham số Đường dẫn (Path Parameters)**
+**Path Parameters**
 
 | Tên    | Loại | Mô tả                        | Bắt buộc |
 | ------ | ---- | ---------------------------- | -------- |
 | roomId | Long | ID của phòng cần lấy điểm số | Có       |
 
-**Ví dụ Response (200 OK)**
+**Response (200 OK)**
 
 ```json
 {
@@ -206,6 +224,10 @@
 	"timestamp": "2024-06-07T09:25:00Z"
 }
 ```
+
+</details>
+
+<br>
 
 ---
 

@@ -9,11 +9,12 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ---
 
-### GET /api/v1/rules
+<details>
+<summary><b>GET</b> <code>/api/v1/rules</code> - Lấy danh sách quy tắc</summary>
 
 > Lấy danh sách tất cả các quy tắc.
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -50,19 +51,22 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
----
+</details>
 
-### GET /api/v1/rules/{id}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rules/{id}</code> - Lấy chi tiết quy tắc</summary>
 
 > Lấy thông tin chi tiết của một quy tắc theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                | Bắt buộc |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc cần lấy | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -108,7 +112,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
-#### Lỗi Có thể xảy ra
+### Response (404 Not Found)
 
 ```json
 {
@@ -119,13 +123,16 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
----
+</details>
 
-### POST /api/v1/rules
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/rules</code> - Tạo mới quy tắc</summary>
 
 > Tạo mới một quy tắc điều khiển thiết bị.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường            | Loại   | Bắt buộc | Mô tả                                           |
 | :-------------------- | :----- | :------- | :---------------------------------------------- |
@@ -137,7 +144,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 | actionParams          | string | Không    | Tham số hành động (JSON format)                |
 | conditions            | array  | Có       | Danh sách điều kiện (ít nhất 1 điều kiện)      |
 
-#### Request Body Conditions Fields
+#### Request Body Conditions
 
 | Tên trường    | Loại   | Bắt buộc | Mô tả                                              |
 | :------------ | :----- | :------- | :------------------------------------------------- |
@@ -148,7 +155,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 | value         | string | Có       | Giá trị so sánh                                    |
 | nextLogic     | string | Không    | Logic cho điều kiện tiếp theo: AND, OR (Mặc định: AND) |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -179,7 +186,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
-#### Ví dụ Response (201 CREATED)
+### Response (201 Created)
 
 ```json
 {
@@ -225,7 +232,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
-#### Lỗi Có thể xảy ra
+### Response (400 Bad Request)
 
 ```json
 {
@@ -236,19 +243,22 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/rules/{id}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/rules/{id}</code> - Cập nhật quy tắc</summary>
 
 > Cập nhật thông tin của một quy tắc hiện có.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                | Bắt buộc |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc cần cập nhật | Có       |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường            | Loại   | Bắt buộc | Mô tả                                           |
 | :-------------------- | :----- | :------- | :---------------------------------------------- |
@@ -260,7 +270,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 | isActive              | boolean| Không    | Trạng thái hoạt động                           |
 | conditions            | array  | Có       | Danh sách điều kiện (ít nhất 1 điều kiện)      |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -284,7 +294,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -319,19 +329,22 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/rules/{id}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/rules/{id}</code> - Xóa quy tắc</summary>
 
 > Xóa một quy tắc.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                | Bắt buộc |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc cần xóa | Có       |
 
-#### Ví dụ Response (204 NO_CONTENT)
+### Response (204 No Content)
 
 ```json
 {
@@ -342,7 +355,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
-#### Lỗi Có thể xảy ra
+### Response (404 Not Found)
 
 ```json
 {
@@ -353,31 +366,34 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 }
 ```
 
----
+</details>
 
-### PATCH /api/v1/rules/{id}/status
+<br>
+
+<details>
+<summary><b>PATCH</b> <code>/api/v1/rules/{id}/status</code> - Đổi trạng thái quy tắc</summary>
 
 > Thay đổi trạng thái hoạt động (active/inactive) của một quy tắc.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả                | Bắt buộc |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc       | Có       |
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên      | Loại   | Mô tả              | Bắt buộc |
 | :------- | :----- | :----------------- | :------- |
 | isActive | boolean| Trạng thái mới     | Có       |
 
-#### Ví dụ Request
+### Request Example
 
 ```
 PATCH /api/v1/rules/1/status?isActive=false
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -388,26 +404,23 @@ PATCH /api/v1/rules/1/status?isActive=false
 }
 ```
 
----
+</details>
 
-### POST /api/v1/rules/scan
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/rules/scan</code> - Quét quy tắc (toàn cục)</summary>
 
 > Thực thi quét toàn cục tất cả các quy tắc đang hoạt động.
+> 
+> Quá trình quét:
+> 1. Lấy tất cả các quy tắc đang hoạt động (isActive = true)
+> 2. Nhóm các quy tắc theo thiết bị mục tiêu (category:id)
+> 3. Đánh giá điều kiện của từng quy tắc trong mỗi nhóm
+> 4. Chọn quy tắc có độ ưu tiên cao nhất (Winner-Takes-All)
+> 5. Thực thi hành động của quy tắc chiến thắng
 
-Quá trình quét:
-1. Lấy tất cả các quy tắc đang hoạt động (isActive = true)
-2. Nhóm các quy tắc theo thiết bị mục tiêu (category:id)
-3. Đánh giá điều kiện của từng quy tắc trong mỗi nhóm
-4. Chọn quy tắc có độ ưu tiên cao nhất (Winner-Takes-All)
-5. Thực thi hành động của quy tắc chiến thắng
-
-#### Ví dụ Request
-
-```
-POST /api/v1/rules/scan
-```
-
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -418,21 +431,18 @@ POST /api/v1/rules/scan
 }
 ```
 
----
+</details>
 
-### POST /api/v1/rules/reload
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/rules/reload</code> - Tải lại cấu hình quy tắc</summary>
 
 > Tái tải cấu hình tất cả các quy tắc từ cơ sở dữ liệu.
+> 
+> Sử dụng trong trường hợp cần đồng bộ hóa cấu hình quy tắc sau khi có thay đổi trong database.
 
-Sử dụng trong trường hợp cần đồng bộ hóa cấu hình quy tắc sau khi có thay đổi trong database.
-
-#### Ví dụ Request
-
-```
-POST /api/v1/rules/reload
-```
-
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -442,6 +452,10 @@ POST /api/v1/rules/reload
 	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
+
+</details>
+
+<br>
 
 ---
 

@@ -4,18 +4,19 @@
 
 ---
 
-### GET /api/v1/languages
+<details>
+<summary><b>GET</b> <code>/api/v1/languages</code> - Lấy danh sách ngôn ngữ</summary>
 
 > Lấy danh sách tất cả các ngôn ngữ (có phân trang).
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên Tham số | Loại | Mô tả                   | Mặc định |
 | :---------- | :--- | :---------------------- | :------- |
 | **page**    | int  | Số trang (bắt đầu từ 0) | 0        |
 | **size**    | int  | Kích thước trang        | 10       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -40,19 +41,22 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/languages/{id}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/languages/{id}</code> - Lấy ngôn ngữ theo ID</summary>
 
 > Lấy thông tin chi tiết của một ngôn ngữ bằng ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên Tham số | Loại | Mô tả                   |
 | :---------- | :--- | :---------------------- |
 | **id**      | Long | ID của ngôn ngữ cần lấy |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -69,19 +73,22 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/languages/code/{code}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/languages/code/{code}</code> - Lấy ngôn ngữ theo Code</summary>
 
 > Lấy thông tin chi tiết của một ngôn ngữ bằng mã code.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên Tham số | Loại   | Mô tả                |
 | :---------- | :----- | :------------------- |
 | **code**    | string | Mã code của ngôn ngữ |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -98,13 +105,16 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/languages
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/languages</code> - Tạo ngôn ngữ mới</summary>
 
 > Tạo một ngôn ngữ mới.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường      | Loại   | Bắt buộc | Mô tả                             |
 | :-------------- | :----- | :------- | :-------------------------------- |
@@ -113,7 +123,7 @@
 | **description** | string | Không    | Mô tả chi tiết (tối đa 255 ký tự) |
 | **priority**    | int    | Không    | Độ ưu tiên                        |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -124,7 +134,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -141,19 +151,22 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/languages/{id}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/languages/{id}</code> - Cập nhật ngôn ngữ</summary>
 
 > Cập nhật thông tin của một ngôn ngữ bằng ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên Tham số | Loại | Mô tả                        |
 | :---------- | :--- | :--------------------------- |
 | **id**      | Long | ID của ngôn ngữ cần cập nhật |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường      | Loại   | Bắt buộc | Mô tả                             |
 | :-------------- | :----- | :------- | :-------------------------------- |
@@ -162,7 +175,7 @@
 | **description** | string | Không    | Mô tả chi tiết (tối đa 255 ký tự) |
 | **priority**    | int    | Không    | Độ ưu tiên                        |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -173,7 +186,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -190,19 +203,22 @@
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/languages/{id}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/languages/{id}</code> - Xóa ngôn ngữ</summary>
 
 > Xóa một ngôn ngữ bằng ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên Tham số | Loại | Mô tả                   |
 | :---------- | :--- | :---------------------- |
 | **id**      | Long | ID của ngôn ngữ cần xóa |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -212,3 +228,9 @@
 	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

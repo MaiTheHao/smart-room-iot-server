@@ -6,7 +6,8 @@
 
 ---
 
-## GET /api/v1/groups
+<details>
+<summary><b>GET</b> <code>/api/v1/groups</code> - Lấy danh sách Groups (phân trang)</summary>
 
 > Lấy danh sách các Groups với phân trang.
 
@@ -47,9 +48,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/all
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/all</code> - Lấy tất cả Groups</summary>
 
 > Lấy tất cả Groups (không phân trang).
 
@@ -77,9 +81,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}</code> - Lấy thông tin Group (ID)</summary>
 
 > Lấy thông tin chi tiết của một Group theo ID.
 
@@ -105,9 +112,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/code/{groupCode}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/code/{groupCode}</code> - Lấy thông tin Group (Code)</summary>
 
 > Lấy Group theo group code.
 
@@ -133,9 +143,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/with-client-status/{clientId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/with-client-status/{clientId}</code> - Lấy Groups trạng thái Client</summary>
 
 > Lấy tất cả Groups với trạng thái đã assigned cho Client hay chưa.
 >
@@ -180,9 +193,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/groups
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/groups</code> - Tạo mới Group</summary>
 
 > Tạo mới một Group.
 
@@ -222,9 +238,12 @@
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/groups/{groupId}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/groups/{groupId}</code> - Cập nhật thông tin Group</summary>
 
 > Update Group (chỉ update translation: name, description).
 >
@@ -270,9 +289,12 @@
 }
 ```
 
----
+</details>
 
-## DELETE /api/v1/groups/{groupId}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/groups/{groupId}</code> - Xóa Group</summary>
 
 > Xóa Group.
 >
@@ -295,7 +317,7 @@
 }
 ```
 
-### Error Response (400 Bad Request)
+### Response (400 Bad Request)
 
 ```json
 {
@@ -306,9 +328,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}/functions/all
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}/functions/all</code> - Lấy tất cả Functions của Group</summary>
 
 > Lấy tất cả Functions của một Group (không phân trang).
 
@@ -342,9 +367,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}/functions
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}/functions</code> - Lấy danh sách Functions của Group</summary>
 
 > Lấy danh sách Functions của một Group với phân trang.
 
@@ -391,9 +419,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}/clients/all
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}/clients/all</code> - Lấy tất cả Clients của Group</summary>
 
 > Lấy tất cả Clients (Users) thuộc một Group (không phân trang).
 
@@ -424,9 +455,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}/clients
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}/clients</code> - Lấy danh sách Clients của Group (phân trang)</summary>
 
 > Lấy danh sách Clients (Users) thuộc một Group với phân trang.
 
@@ -470,9 +504,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/count
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/count</code> - Đếm tổng số Groups</summary>
 
 > Đếm tổng số Groups.
 
@@ -487,9 +524,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}/functions/count
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}/functions/count</code> - Đếm số Functions của Group</summary>
 
 > Đếm số Functions của một Group.
 
@@ -504,9 +544,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/groups/{groupId}/clients/count
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/groups/{groupId}/clients/count</code> - Đếm số Clients của Group</summary>
 
 > Đếm số Clients của một Group.
 
@@ -521,9 +564,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/clients/{clientId}/groups/all
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/clients/{clientId}/groups/all</code> - Lấy tất cả Groups của Client</summary>
 
 > Lấy tất cả Groups của một Client (không phân trang).
 
@@ -557,9 +603,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/clients/{clientId}/groups
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/clients/{clientId}/groups</code> - Lấy danh sách Groups của Client</summary>
 
 > Lấy danh sách Groups của một Client với phân trang.
 
@@ -606,9 +655,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/clients/{clientId}/groups/count
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/clients/{clientId}/groups/count</code> - Đếm số Groups của Client</summary>
 
 > Đếm số Groups của một Client.
 
@@ -622,3 +674,9 @@
 	"timestamp": "2026-01-05T10:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

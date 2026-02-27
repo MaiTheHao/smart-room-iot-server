@@ -4,18 +4,19 @@
 
 ---
 
-### GET /api/v1/lights
+<details>
+<summary><b>GET</b> <code>/api/v1/lights</code> - Lấy danh sách đèn (phân trang)</summary>
 
 > Lấy danh sách thiết bị chiếu sáng (phân trang).
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên  | Loại | Mô tả            | Mặc định |
 | :--- | :--- | :--------------- | :------- |
 | page | int  | Trang hiện tại   | 0        |
 | size | int  | Số phần tử/trang | 20       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -41,26 +42,29 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/lights/room/{roomId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/lights/room/{roomId}</code> - Lấy đèn theo phòng</summary>
 
 > Lấy danh sách thiết bị chiếu sáng theo phòng (phân trang).
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên    | Loại | Mô tả    | Bắt buộc |
 | :----- | :--- | :------- | :------- |
 | roomId | Long | ID phòng | Có       |
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
 | Tên  | Loại | Mô tả            | Mặc định |
 | :--- | :--- | :--------------- | :------- |
 | page | int  | Trang hiện tại   | 0        |
 | size | int  | Số phần tử/trang | 20       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -86,19 +90,22 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/lights/{id}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/lights/{id}</code> - Lấy chi tiết đèn</summary>
 
 > Lấy thông tin chi tiết thiết bị chiếu sáng theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả       | Bắt buộc |
 | :-- | :--- | :---------- | :------- |
 | id  | Long | ID thiết bị | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -116,13 +123,16 @@
 }
 ```
 
----
+</details>
 
-### POST /api/v1/lights
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/lights</code> - Tạo đèn mới</summary>
 
 > Tạo mới thiết bị chiếu sáng.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường      | Loại   | Bắt buộc | Mô tả                  |
 | :-------------- | :----- | :------- | :--------------------- |
@@ -134,7 +144,7 @@
 | roomId          | Long   | Có       | ID phòng               |
 | deviceControlId | Long   | Có       | ID thiết bị điều khiển |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -148,7 +158,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -166,19 +176,22 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/lights/{id}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/lights/{id}</code> - Cập nhật thông tin đèn</summary>
 
 > Cập nhật thông tin thiết bị chiếu sáng.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả       | Bắt buộc |
 | :-- | :--- | :---------- | :------- |
 | id  | Long | ID thiết bị | Có       |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường      | Loại   | Bắt buộc | Mô tả                  |
 | :-------------- | :----- | :------- | :--------------------- |
@@ -190,7 +203,7 @@
 | roomId          | Long   | Không    | ID phòng mới           |
 | deviceControlId | Long   | Không    | ID thiết bị điều khiển |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -204,7 +217,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -222,19 +235,22 @@
 }
 ```
 
----
+</details>
 
-### DELETE /api/v1/lights/{id}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/lights/{id}</code> - Xóa đèn</summary>
 
 > Xóa thiết bị chiếu sáng.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả       | Bắt buộc |
 | :-- | :--- | :---------- | :------- |
 | id  | Long | ID thiết bị | Có       |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -245,19 +261,22 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/lights/{id}/toggle-state
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/lights/{id}/toggle-state</code> - Bật tắt đèn</summary>
 
 > Bật/tắt thiết bị chiếu sáng.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên | Loại | Mô tả       | Bắt buộc |
 | :-- | :--- | :---------- | :------- |
 | id  | Long | ID thiết bị | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -272,20 +291,23 @@
 }
 ```
 
----
+</details>
 
-### PUT /api/v1/lights/{id}/level/{newLevel}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/lights/{id}/level/{newLevel}</code> - Đổi độ sáng</summary>
 
 > Điều chỉnh độ sáng của thiết bị chiếu sáng.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên      | Loại | Mô tả               | Bắt buộc |
 | :------- | :--- | :------------------ | :------- |
 | id       | Long | ID thiết bị         | Có       |
 | newLevel | int  | Độ sáng mới (0-100) | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -299,3 +321,9 @@
 	"timestamp": "2025-11-29T09:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

@@ -6,7 +6,8 @@
 
 ---
 
-## GET /api/v1/fans
+<details>
+<summary><b>GET</b> <code>/api/v1/fans</code> - Lấy danh sách quạt (phân trang)</summary>
 
 > Lấy danh sách tất cả các thiết bị quạt với phân trang.
 
@@ -49,9 +50,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/fans/room/{roomId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/fans/room/{roomId}</code> - Lấy quạt theo phòng</summary>
 
 > Lấy danh sách các thiết bị quạt trong một phòng cụ thể.
 
@@ -95,9 +99,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/fans/room/{roomId}/fans/{naturalId}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/fans/room/{roomId}/fans/{naturalId}</code> - Lấy chi tiết góc quạt</summary>
 
 > Lấy thông tin chi tiết của một thiết bị quạt dựa vào Room ID và Natural ID.
 
@@ -132,9 +139,12 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/fans/{id}
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/fans/{id}</code> - Lấy chi tiết quạt</summary>
 
 > Lấy thông tin chi tiết của một thiết bị quạt theo ID hệ thống.
 
@@ -163,9 +173,12 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/fans
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/fans</code> - Tạo quạt mới</summary>
 
 > Tạo mới một thiết bị quạt. Phải chỉ định loại cấu hình (GPIO hoặc IR).
 
@@ -220,9 +233,12 @@
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/fans/{id}
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/fans/{id}</code> - Cập nhật thông tin quạt</summary>
 
 > Cập nhật cấu hình thông tin thiết bị quạt.
 > **Lưu ý:** Dùng để cập nhật cấu hình hệ thống (name, description, device controller), không dùng để điều khiển trạng thái IoT vật lý.
@@ -236,6 +252,22 @@
 ### Request Body
 
 Tương tự JSON của POST /api/v1/fans nhưng các field đều là Optional, bao gồm `type` nếu muốn thay đổi mô hình quạt.
+
+| Tên trường      | Loại    | Bắt buộc | Mô tả                                                 |
+| :-------------- | :------ | :------- | :---------------------------------------------------- |
+| naturalId       | string  | Không       | Mã định danh vật lý của thiết bị (**UNIQUE**)         |
+| name            | string  | Không       | Tên thiết bị (1-100 ký tự)                            |
+| type            | string  | Không       | Loại quạt: `GPIO` hoặc `IR`                           |
+| description     | string  | Không    | Mô tả chi tiết (tối đa 255 ký tự)                     |
+| isActive        | boolean | Không    | Trạng thái kích hoạt (mặc định: false)                |
+| roomId          | Long    | Không       | ID phòng chứa thiết bị                                |
+| deviceControlId | Long    | Không    | ID bộ điều khiển trung tâm (Gateway)                  |
+| langCode        | string  | Không    | Mã ngôn ngữ (tối đa 10 ký tự, mặc định: vi)           |
+| power           | string  | Không    | Trạng thái nguồn: `ON`, `OFF` (mặc định: OFF)         |
+| mode            | string  | Không    | Chế độ cấu hình (chỉ áp dụng IR)                      |
+| swing           | string  | Không    | Đảo gió: `ON`, `OFF` (chỉ áp dụng IR)                 |
+| light           | string  | Không    | Bật/tắt đèn quạt phụ: `ON`, `OFF` (chỉ áp dụng IR)    |
+| speed           | int     | Không    | Tốc độ quạt (chỉ áp dụng IR)                          |
 
 ### Request Example
 
@@ -259,9 +291,12 @@ Tương tự JSON của POST /api/v1/fans nhưng các field đều là Optional,
 }
 ```
 
----
+</details>
 
-## DELETE /api/v1/fans/{id}
+<br>
+
+<details>
+<summary><b>DELETE</b> <code>/api/v1/fans/{id}</code> - Xóa quạt</summary>
 
 > Xóa thiết bị quạt khỏi hệ thống.
 
@@ -282,9 +317,12 @@ Tương tự JSON của POST /api/v1/fans nhưng các field đều là Optional,
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/fans/{id}/power
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/fans/{id}/power</code> - Bật tắt quạt</summary>
 
 > Điều khiển nguồn điện của thiết bị (Bật/Tắt).
 
@@ -317,9 +355,12 @@ PUT /api/v1/fans/1/power?state=ON
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/fans/{id}/mode
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/fans/{id}/mode</code> - Đổi chế độ quạt</summary>
 
 > Thay đổi chế độ hoạt động của quạt (Chỉ hỗ trợ IR).
 
@@ -352,9 +393,12 @@ PUT /api/v1/fans/1/mode?value=COOL
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/fans/{id}/fan
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/fans/{id}/fan</code> - Điều chỉnh tốc độ quạt</summary>
 
 > Điều chỉnh tốc độ gió của thiết bị (Chỉ hỗ trợ cho quạt cấu hình IR).
 
@@ -387,9 +431,12 @@ PUT /api/v1/fans/1/fan?speed=3
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/fans/{id}/swing
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/fans/{id}/swing</code> - Bật tắt đảo gió</summary>
 
 > Điều khiển trạng thái quay/đảo gió (Chỉ hỗ trợ IR).
 
@@ -422,9 +469,12 @@ PUT /api/v1/fans/1/swing?state=OFF
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/fans/{id}/light
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/fans/{id}/light</code> - Bật tắt đèn quạt</summary>
 
 > Bật tắt đèn đính kèm với thiết bị quạt trần (Chỉ hỗ trợ IR).
 
@@ -456,3 +506,9 @@ PUT /api/v1/fans/1/light?state=ON
 	"timestamp": "2026-02-24T10:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

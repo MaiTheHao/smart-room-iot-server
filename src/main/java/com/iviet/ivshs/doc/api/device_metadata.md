@@ -4,11 +4,12 @@
 
 ---
 
-### GET /api/v1/devices/all
+<details>
+<summary><b>GET</b> <code>/api/v1/devices/all</code> - Lấy tất cả thiết bị</summary>
 
 > Lấy danh sách tất cả các thiết bị trong hệ thống (Đèn, Điều hòa, ...).
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -38,19 +39,22 @@
 }
 ```
 
----
+</details>
 
-### GET /api/v1/rooms/{roomId}/devices
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/devices</code> - Lấy thiết bị theo phòng</summary>
 
 > Lấy danh sách thiết bị theo ID phòng.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
 | Tên    | Loại | Mô tả    | Bắt buộc |
 | :----- | :--- | :------- | :------- |
 | roomId | Long | ID phòng | Có       |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -79,3 +83,9 @@
 	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
+
+</details>
+
+<br>
+
+---

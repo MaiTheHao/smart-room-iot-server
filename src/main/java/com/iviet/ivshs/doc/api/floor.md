@@ -2,20 +2,19 @@
 
 ## API Documentation for Floor Management (v1)
 
----
-
-## GET /api/v1/floors
+<details>
+<summary><b>GET</b> <code>/api/v1/floors</code> - Lấy danh sách các tầng (phân trang)</summary>
 
 > Lấy danh sách các tầng (phân trang).
 
-#### Tham số Truy vấn (Query Parameters)
+### Query Parameters
 
-| Tên  | Loại | Mô tả                         | Mặc định |
-| :--- | :--- | :---------------------------- | :------- |
-| page | int  | Trang hiện tại (bắt đầu từ 0) | 0        |
-| size | int  | Số lượng phần tử/trang        | 10       |
+| Tên  | Loại | Mô tả                         | Bắt buộc/Mặc định |
+| :--- | :--- | :---------------------------- | :---------------- |
+| page | int  | Trang hiện tại (bắt đầu từ 0) | Mặc định: 0       |
+| size | int  | Số lượng phần tử/trang        | Mặc định: 10      |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -39,19 +38,20 @@
 }
 ```
 
----
+</details>
 
-## GET /api/v1/floors/{floorId}
+<details>
+<summary><b>GET</b> <code>/api/v1/floors/{floorId}</code> - Lấy thông tin chi tiết của một tầng</summary>
 
 > Lấy thông tin chi tiết của một tầng theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên     | Loại | Mô tả               | Bắt buộc |
-| :------ | :--- | :------------------ | :------- |
-| floorId | Long | ID của tầng cần lấy | Có       |
+| Tên     | Loại | Mô tả               | Bắt buộc/Mặc định |
+| :------ | :--- | :------------------ | :---------------- |
+| floorId | Long | ID của tầng cần lấy | Có                |
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -67,13 +67,14 @@
 }
 ```
 
----
+</details>
 
-## POST /api/v1/floors
+<details>
+<summary><b>POST</b> <code>/api/v1/floors</code> - Tạo mới một tầng</summary>
 
-> Tạo mới một tầng.
+> Tạo mới một tầng trong hệ thống.
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường  | Loại   | Bắt buộc | Mô tả                         |
 | :---------- | :----- | :------- | :---------------------------- |
@@ -82,7 +83,7 @@
 | level       | int    | Có       | Số thứ tự tầng                |
 | langCode    | string | Không    | Mã ngôn ngữ (tối đa 10 ký tự) |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -93,7 +94,7 @@
 }
 ```
 
-#### Ví dụ Response (201 Created)
+### Response (201 Created)
 
 ```json
 {
@@ -109,19 +110,20 @@
 }
 ```
 
----
+</details>
 
-## PUT /api/v1/floors/{floorId}
+<details>
+<summary><b>PUT</b> <code>/api/v1/floors/{floorId}</code> - Cập nhật thông tin tầng</summary>
 
-> Cập nhật thông tin tầng theo ID.
+> Cập nhật thông tin tầng hiện có theo ID.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên     | Loại | Mô tả                | Bắt buộc |
-| :------ | :--- | :------------------- | :------- |
-| floorId | Long | ID tầng cần cập nhật | Có       |
+| Tên     | Loại | Mô tả                | Bắt buộc/Mặc định |
+| :------ | :--- | :------------------- | :---------------- |
+| floorId | Long | ID tầng cần cập nhật | Có                |
 
-#### Request Body Fields
+### Request Body
 
 | Tên trường  | Loại   | Bắt buộc | Mô tả                         |
 | :---------- | :----- | :------- | :---------------------------- |
@@ -130,7 +132,7 @@
 | level       | int    | Không    | Số thứ tự tầng                |
 | langCode    | string | Không    | Mã ngôn ngữ (tối đa 10 ký tự) |
 
-#### Ví dụ Request Body
+### Request Example
 
 ```json
 {
@@ -141,7 +143,7 @@
 }
 ```
 
-#### Ví dụ Response (200 OK)
+### Response (200 OK)
 
 ```json
 {
@@ -157,19 +159,20 @@
 }
 ```
 
----
+</details>
 
-## DELETE /api/v1/floors/{floorId}
+<details>
+<summary><b>DELETE</b> <code>/api/v1/floors/{floorId}</code> - Xóa tầng theo ID</summary>
 
-> Xóa tầng theo ID.
+> Xóa bỏ một tầng khỏi hệ thống.
 
-#### Tham số Đường dẫn (Path Parameters)
+### Path Parameters
 
-| Tên     | Loại | Mô tả           | Bắt buộc |
-| :------ | :--- | :-------------- | :------- |
-| floorId | Long | ID tầng cần xóa | Có       |
+| Tên     | Loại | Mô tả           | Bắt buộc/Mặc định |
+| :------ | :--- | :-------------- | :---------------- |
+| floorId | Long | ID tầng cần xóa | Có                |
 
-#### Ví dụ Response (204 No Content)
+### Response (204 No Content)
 
 ```json
 {
@@ -180,4 +183,4 @@
 }
 ```
 
----
+</details>
