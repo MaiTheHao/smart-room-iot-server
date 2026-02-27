@@ -1,10 +1,11 @@
 package com.iviet.ivshs.entities;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.iviet.ivshs.enumeration.ActuatorPower;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class BaseIoTActuator<L extends BaseTranslation<?>> extends BaseIoTEntity<L> {
-  @Enumerated(EnumType.STRING)
-	@Column(name = "power")
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "power", length = 256)
 	private ActuatorPower power;
 }

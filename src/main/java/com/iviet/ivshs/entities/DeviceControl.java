@@ -11,6 +11,9 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.iviet.ivshs.enumeration.DeviceControlType;
 
 import lombok.AllArgsConstructor;
@@ -30,8 +33,8 @@ public class DeviceControl extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(name = "device_control_type", length = 50, nullable = false)
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "device_control_type", length = 256, nullable = false)
     private DeviceControlType deviceControlType;
 
     @Column(name = "gpio_pin", nullable = false)

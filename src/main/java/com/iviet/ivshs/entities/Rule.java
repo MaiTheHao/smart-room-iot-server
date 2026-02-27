@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "rules", indexes = {
+@Table(name = "rule", indexes = {
         @Index(name = "idx_rule_room", columnList = "room_id"),
         @Index(name = "idx_rule_status", columnList = "is_active")
 })
@@ -35,16 +35,14 @@ public class Rule extends BaseAuditEntity {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    // Defines the CONTEXT of the rule (Which room's data to use)
     @Column(name = "room_id", nullable = false)
     private Long roomId;
 
-    // Defines the ACTION TARGET
     @Column(name = "target_device_id", nullable = false)
     private Long targetDeviceId;
     
     @Column(name = "target_device_category", nullable = false)
-    private String targetDeviceCategory; // e.g. "AIR_CONDITION", "LIGHT"
+    private String targetDeviceCategory;
 
     @Column(name = "action_params", columnDefinition = "JSON")
     private String actionParams;

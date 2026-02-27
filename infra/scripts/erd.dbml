@@ -1,91 +1,3 @@
-Table "floor" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "code" varchar(256) [not null, note: "Unique floor code"]
-  "level" int [default: NULL]
-
-  Indexes {
-    code [unique, name: "idx_floor_code"]
-  }
-}
-
-Table "floor_lan" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "description" text
-  "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
-  "owner_id" bigint [not null]
-
-  Indexes {
-    (owner_id, lang_code) [unique, name: "idx_floor_lan_owner_id_lang_code"]
-  }
-}
-
-Table "room" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "code" varchar(256) [not null, note: "Unique room code"]
-  "floor_id" bigint [not null]
-
-  Indexes {
-    code [unique, name: "idx_room_code"]
-    floor_id [name: "idx_room_floor_id"]
-  }
-}
-
-Table "room_lan" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "description" text
-  "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
-  "owner_id" bigint [not null]
-
-  Indexes {
-    (owner_id, lang_code) [unique, name: "idx_room_lan_owner_id_lang_code"]
-  }
-}
-
-Table "device_control" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "api_endpoint" varchar(255) [default: NULL]
-  "ble_mac_address" varchar(100) [default: NULL]
-  "device_control_type" varchar(255) [not null, note: "Enum: GPIO, BLUETOOTH, API"]
-  "gpio_pin" int [not null]
-  "client_id" bigint [not null]
-  "room_id" bigint [not null]
-
-  Indexes {
-    (client_id, gpio_pin, ble_mac_address) [unique, name: "idx_device_control_client_gpio_ble"]
-    room_id [name: "idx_device_control_room_id"]
-  }
-}
-
-// ------------------------------------------------------------
-// Module: Devices & Sensors
-// ------------------------------------------------------------
 
 Table "air_condition" {
   "id" bigint [pk, not null, increment]
@@ -97,9 +9,9 @@ Table "air_condition" {
   "is_active" bit(1) [not null]
   "natural_id" varchar(256) [not null]
   "fan_speed" int [default: NULL]
-  "mode" varchar(255) [default: NULL, note: "Enum: COOL, HEAT, DRY, FAN, AUTO"]
-  "power" varchar(255) [default: NULL, note: "Enum: ON, OFF"]
-  "swing" varchar(255) [default: NULL, note: "Enum: ON, OFF"]
+  "mode" varchar(256) [default: NULL]
+  "power" varchar(256) [default: NULL]
+  "swing" varchar(256) [default: NULL]
   "temperature" int [default: NULL]
   "device_control_id" bigint [default: NULL]
   "room_id" bigint [not null]
@@ -120,7 +32,7 @@ Table "air_condition_lan" {
   "v" bigint [not null]
   "description" text
   "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
+  "name" varchar(256) [not null]
   "owner_id" bigint [not null]
 
   Indexes {
@@ -137,11 +49,12 @@ Table "fan" {
   "v" bigint [not null]
   "is_active" bit(1) [not null]
   "natural_id" varchar(256) [not null]
-  "type" varchar(256) [not null, note: "Enum: GPIO, IR"]
+  "power" varchar(256) [default: NULL]
+  "type" varchar(256) [not null]
   "speed" int [default: NULL]
-  "mode" varchar(255) [default: NULL, note: "Enum: NORMAL, NATURAL, SLEEP"]
-  "light" varchar(255) [default: NULL, note: "Enum: ON, OFF"]
-  "swing" varchar(255) [default: NULL, note: "Enum: ON, OFF"]
+  "mode" varchar(256) [default: NULL]
+  "light" varchar(256) [default: NULL]
+  "swing" varchar(256) [default: NULL]
   "device_control_id" bigint [default: NULL]
   "room_id" bigint [not null]
 
@@ -161,11 +74,146 @@ Table "fan_lan" {
   "v" bigint [not null]
   "description" text
   "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
+  "name" varchar(256) [not null]
   "owner_id" bigint [not null]
 
   Indexes {
     (owner_id, lang_code) [unique, name: "idx_fan_lan_owner_id_lang_code"]
+  }
+}
+
+Table "automation" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "cron_expression" varchar(256) [not null]
+  "description" varchar(256) [default: NULL]
+  "is_active" bit(1) [default: NULL]
+  "name" varchar(256) [not null]
+
+  Indexes {
+    is_active [name: "idx_auto_status"]
+  }
+}
+
+Table "automation_action" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "action_type" varchar(256) [not null]
+  "execution_order" int [default: NULL]
+  "parameter_value" varchar(256) [default: NULL]
+  "target_id" bigint [not null]
+  "target_type" varchar(256) [default: NULL]
+  "automation_id" bigint [not null]
+
+  Indexes {
+    automation_id [name: "idx_automation_action_automation_id"]
+  }
+}
+
+Table "client" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "avatar_url" varchar(256) [default: NULL]
+  "client_type" varchar(256) [default: NULL]
+  "ip_address" varchar(45) [default: NULL]
+  "last_login_at" datetime(6) [default: NULL]
+  "mac_address" varchar(100) [default: NULL]
+  "password_hash" varchar(256) [default: NULL]
+  "username" varchar(100) [not null]
+
+  Indexes {
+    username [unique, name: "idx_username"]
+    (client_type, ip_address) [unique, name: "idx_client_type_ip_address"]
+  }
+}
+
+Table "client_group" {
+  "client_id" bigint [not null]
+  "group_id" bigint [not null]
+
+  Indexes {
+    (client_id, group_id) [pk]
+    group_id [name: "idx_client_group_group_id"]
+  }
+}
+
+Table "device_control" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "api_endpoint" varchar(256) [default: NULL]
+  "ble_mac_address" varchar(100) [default: NULL]
+  "device_control_type" varchar(256) [not null]
+  "gpio_pin" int [not null]
+  "client_id" bigint [not null]
+  "room_id" bigint [not null]
+
+  Indexes {
+    (client_id, gpio_pin, ble_mac_address) [unique, name: "idx_device_control_client_gpio_ble"]
+    room_id [name: "idx_device_control_room_id"]
+  }
+}
+
+Table "floor" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "code" varchar(256) [not null]
+  "level" int [default: NULL]
+
+  Indexes {
+    code [unique, name: "idx_floor_code"]
+  }
+}
+
+Table "floor_lan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "description" text
+  "lang_code" varchar(10) [not null]
+  "name" varchar(256) [not null]
+  "owner_id" bigint [not null]
+
+  Indexes {
+    (owner_id, lang_code) [unique, name: "idx_floor_lan_owner_id_lang_code"]
+  }
+}
+
+Table "language" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "code" varchar(10) [not null]
+  "description" varchar(256) [default: NULL]
+  "name" varchar(100) [not null]
+
+  Indexes {
+    code [unique, name: "idx_language_code"]
   }
 }
 
@@ -178,7 +226,7 @@ Table "light" {
   "v" bigint [not null]
   "is_active" bit(1) [not null]
   "natural_id" varchar(256) [not null]
-  "power" varchar(255) [default: NULL, note: "Enum: ON, OFF (Stored as String)"]
+  "power" varchar(256) [default: NULL]
   "level" int [default: NULL]
   "device_control_id" bigint [default: NULL]
   "room_id" bigint [not null]
@@ -199,7 +247,7 @@ Table "light_lan" {
   "v" bigint [not null]
   "description" text
   "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
+  "name" varchar(256) [not null]
   "owner_id" bigint [not null]
 
   Indexes {
@@ -207,53 +255,11 @@ Table "light_lan" {
   }
 }
 
-Table "temperature" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "is_active" bit(1) [not null]
-  "natural_id" varchar(256) [not null]
-  "current_value" double [default: NULL]
-  "device_control_id" bigint [default: NULL]
-  "room_id" bigint [not null]
-
-  Indexes {
-    natural_id [unique, name: "idx_temperature_natural_id"]
-    device_control_id [unique, name: "idx_temperature_device_control_id"]
-    room_id [name: "idx_temperature_room_id"]
-  }
-}
-
-Table "temperature_lan" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "description" text
-  "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
-  "owner_id" bigint [not null]
-
-  Indexes {
-    (owner_id, lang_code) [unique, name: "idx_temperature_lan_owner_id_lang_code"]
-  }
-}
-
-Table "temperature_value" {
-  "id" bigint [pk, not null, increment]
-  "timestamp" datetime(6) [not null]
-  "temp_c" double [default: NULL]
-  "sensor_id" bigint [not null]
-
-  Indexes {
-    (sensor_id, timestamp) [name: "idx_sensor_timestamp"]
-    timestamp [name: "idx_timestamp"]
-  }
+Table "persistent_logins" {
+  "series" varchar(64) [pk, not null]
+  "last_used" datetime(6) [not null]
+  "token" varchar(64) [not null]
+  "username" varchar(64) [not null]
 }
 
 Table "power_consumption" {
@@ -285,7 +291,7 @@ Table "power_consumption_lan" {
   "v" bigint [not null]
   "description" text
   "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
+  "name" varchar(256) [not null]
   "owner_id" bigint [not null]
 
   Indexes {
@@ -304,241 +310,6 @@ Table "power_consumption_value" {
     timestamp [name: "idx_timestamp"]
   }
 }
-
-// ------------------------------------------------------------
-// Module: Automation
-// ------------------------------------------------------------
-
-Table "automation" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "cron_expression" varchar(255) [not null]
-  "description" varchar(255) [default: NULL]
-  "is_active" bit(1) [default: NULL]
-  "name" varchar(255) [not null]
-
-  Indexes {
-    is_active [name: "idx_auto_status"]
-  }
-}
-
-Table "automation_action" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "action_type" varchar(255) [not null, note: "Enum: ON, OFF"]
-  "execution_order" int [default: NULL]
-  "parameter_value" varchar(255) [default: NULL]
-  "target_id" bigint [not null]
-  "target_type" varchar(255) [default: NULL, note: "Enum: LIGHT"]
-  "automation_id" bigint [not null]
-
-  Indexes {
-    automation_id [name: "idx_automation_action_automation_id"]
-  }
-}
-
-Table "rule" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "name" varchar(256) [not null]
-  "priority" int [not null]
-  "is_active" bit(1) [not null, default: 1]
-  "room_id" bigint [not null]
-  "target_device_id" bigint [not null]
-  "target_device_category" varchar(256) [not null, note: "Enum: AIR_CONDITION, LIGHT"]
-  "action_params" json [default: NULL]
-
-  Indexes {
-    room_id [name: "idx_rule_room"]
-    is_active [name: "idx_rule_status"]
-  }
-}
-
-Table "rule_condition" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "rule_id" bigint [not null]
-  "sort_order" int [not null]
-  "data_source" varchar(256) [not null, note: "Enum: SYSTEM, ROOM, DEVICE, SENSOR"]
-  "resource_param" json [default: NULL]
-  "operator" varchar(5) [not null]
-  "value_param" varchar(256) [not null]
-  "next_logic" varchar(3) [default: NULL]
-
-  Indexes {
-    rule_id [name: "idx_rule_condition_rule_id"]
-  }
-}
-
-// ------------------------------------------------------------
-// Module: System & Auth
-// ------------------------------------------------------------
-
-Table "client" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "avatar_url" varchar(255) [default: NULL]
-  "client_type" varchar(255) [default: NULL, note: "Enum: USER, HARDWARE_GATEWAY"]
-  "ip_address" varchar(45) [default: NULL]
-  "last_login_at" datetime(6) [default: NULL]
-  "mac_address" varchar(100) [default: NULL]
-  "password_hash" varchar(255) [default: NULL]
-  "username" varchar(100) [not null]
-
-  Indexes {
-    username [unique, name: "idx_username"]
-    (client_type, ip_address) [unique, name: "idx_client_type_ip_address"]
-  }
-}
-
-Table "client_group" {
-  "client_id" bigint [not null]
-  "group_id" bigint [not null]
-
-  Indexes {
-    (client_id, group_id) [pk]
-    group_id [name: "idx_client_group_group_id"]
-  }
-}
-
-Table "sys_group" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "group_code" varchar(100) [not null]
-
-  Indexes {
-    group_code [unique, name: "idx_sys_group_code"]
-  }
-}
-
-Table "sys_group_lan" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "description" text
-  "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
-  "owner_id" bigint [not null]
-
-  Indexes {
-    (owner_id, lang_code) [unique, name: "idx_sys_group_lan_owner_lang"]
-  }
-}
-
-Table "sys_function" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "function_code" varchar(256) [not null]
-
-  Indexes {
-    function_code [unique, name: "idx_sys_function_code"]
-  }
-}
-
-Table "sys_function_lan" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "description" text
-  "lang_code" varchar(10) [not null]
-  "name" varchar(255) [not null]
-  "owner_id" bigint [not null]
-
-  Indexes {
-    (owner_id, lang_code) [unique, name: "idx_sys_function_lan_owner_lang"]
-  }
-}
-
-Table "sys_role" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "function_id" bigint [not null]
-  "group_id" bigint [not null]
-
-  Indexes {
-    (group_id, function_id) [unique, name: "idx_sys_role_group_function"]
-    function_id [name: "idx_sys_role_function_id"]
-  }
-}
-
-Table "sys_client_function_cache" {
-  "client_id" bigint [not null]
-  "function_code" varchar(100) [not null]
-  "group_id" bigint [not null]
-
-  Indexes {
-    (client_id, function_code, group_id) [pk]
-    (client_id, function_code) [name: "idx_cache_client_function"]
-    client_id [name: "idx_cache_client"]
-    group_id [name: "idx_cache_group"]
-    function_code [name: "idx_cache_function"]
-  }
-}
-
-Table "language" {
-  "id" bigint [pk, not null, increment]
-  "created_at" datetime(6) [default: NULL]
-  "created_by" varchar(256) [default: NULL]
-  "updated_at" datetime(6) [default: NULL]
-  "updated_by" varchar(256) [default: NULL]
-  "v" bigint [not null]
-  "code" varchar(10) [not null]
-  "description" varchar(255) [default: NULL]
-  "name" varchar(100) [not null]
-
-  Indexes {
-    code [unique, name: "idx_language_code"]
-  }
-}
-
-Table "persistent_logins" {
-  "series" varchar(64) [pk, not null]
-  "last_used" datetime(6) [not null]
-  "token" varchar(64) [not null]
-  "username" varchar(64) [not null]
-}
-
-// ------------------------------------------------------------
-// Module: Quartz Scheduler (Infrastructure)
-// ------------------------------------------------------------
 
 Table "QRTZ_BLOB_TRIGGERS" {
   "SCHED_NAME" varchar(120) [not null]
@@ -697,55 +468,293 @@ Table "QRTZ_TRIGGERS" {
   }
 }
 
-// ------------------------------------------------------------
-// Relationships
-// ------------------------------------------------------------
+Table "room" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "code" varchar(256) [not null]
+  "floor_id" bigint [not null]
 
-Ref: "floor"."id" < "room"."floor_id"
-Ref: "floor"."id" < "floor_lan"."owner_id"
+  Indexes {
+    code [unique, name: "idx_room_code"]
+    floor_id [name: "idx_room_floor_id"]
+  }
+}
 
-Ref: "room"."id" < "room_lan"."owner_id"
-Ref: "room"."id" < "device_control"."room_id"
-Ref: "room"."id" < "air_condition"."room_id"
-Ref: "room"."id" < "fan"."room_id"
-Ref: "room"."id" < "light"."room_id"
-Ref: "room"."id" < "temperature"."room_id"
-Ref: "room"."id" < "power_consumption"."room_id"
+Table "room_lan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "description" text
+  "lang_code" varchar(10) [not null]
+  "name" varchar(256) [not null]
+  "owner_id" bigint [not null]
 
-Ref: "client"."id" < "device_control"."client_id"
-Ref: "client"."id" < "client_group"."client_id"
-Ref: "client"."id" < "sys_client_function_cache"."client_id"
+  Indexes {
+    (owner_id, lang_code) [unique, name: "idx_room_lan_owner_id_lang_code"]
+  }
+}
 
-Ref: "device_control"."id" < "air_condition"."device_control_id"
-Ref: "device_control"."id" < "fan"."device_control_id"
-Ref: "device_control"."id" < "light"."device_control_id"
-Ref: "device_control"."id" < "temperature"."device_control_id"
-Ref: "device_control"."id" < "power_consumption"."device_control_id"
+Table "rule" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "name" varchar(256) [not null]
+  "priority" int [not null]
+  "is_active" bit(1) [not null, default: `1`]
+  "room_id" bigint [not null]
+  "target_device_id" bigint [not null]
+  "target_device_category" varchar(256) [not null, note: 'Enum: AIR_CONDITION, LIGHT']
+  "action_params" json [default: NULL]
 
-Ref: "air_condition"."id" < "air_condition_lan"."owner_id"
-Ref: "fan"."id" < "fan_lan"."owner_id"
-Ref: "light"."id" < "light_lan"."owner_id"
-Ref: "temperature"."id" < "temperature_lan"."owner_id"
-Ref: "temperature"."id" < "temperature_value"."sensor_id"
-Ref: "power_consumption"."id" < "power_consumption_lan"."owner_id"
-Ref: "power_consumption"."id" < "power_consumption_value"."sensor_id"
+  Indexes {
+    room_id [name: "idx_rule_room"]
+    is_active [name: "idx_rule_status"]
+  }
+}
 
-Ref: "automation"."id" < "automation_action"."automation_id"
+Table "rule_condition" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "rule_id" bigint [not null]
+  "sort_order" int [not null]
+  "data_source" varchar(256) [not null, note: 'Enum: SYSTEM, ROOM, DEVICE, SENSOR']
+  "resource_param" json [default: NULL, note: 'JSON: { "deviceId": 1, "category": "FAN", "property": "level" }']
+  "operator" varchar(5) [not null]
+  "value_param" varchar(256) [not null]
+  "next_logic" varchar(3) [default: NULL]
 
-Ref: "room"."id" < "rule"."room_id"
-Ref: "rule"."id" < "rule_condition"."rule_id"
+  Indexes {
+    rule_id [name: "idx_rule_condition_rule_id"]
+  }
+}
 
-Ref: "sys_group"."id" < "client_group"."group_id"
-Ref: "sys_group"."id" < "sys_group_lan"."owner_id"
-Ref: "sys_group"."id" < "sys_role"."group_id"
-Ref: "sys_group"."id" < "sys_client_function_cache"."group_id"
+Table "sys_client_function_cache" {
+  "client_id" bigint [not null]
+  "function_code" varchar(100) [not null]
+  "group_id" bigint [not null]
 
-Ref: "sys_function"."id" < "sys_function_lan"."owner_id"
-Ref: "sys_function"."id" < "sys_role"."function_id"
+  Indexes {
+    (client_id, function_code, group_id) [pk]
+    (client_id, function_code) [name: "idx_cache_client_function"]
+    client_id [name: "idx_cache_client"]
+    group_id [name: "idx_cache_group"]
+    function_code [name: "idx_cache_function"]
+  }
+}
 
-// Quartz Relationships
-Ref: "QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_BLOB_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
-Ref: "QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_CRON_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
-Ref: "QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_SIMPLE_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
-Ref: "QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_SIMPROP_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
-Ref: "QRTZ_JOB_DETAILS".("SCHED_NAME", "JOB_NAME", "JOB_GROUP") < "QRTZ_TRIGGERS".("SCHED_NAME", "JOB_NAME", "JOB_GROUP")
+Table "sys_function" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "function_code" varchar(256) [not null]
+
+  Indexes {
+    function_code [unique, name: "idx_sys_function_code"]
+  }
+}
+
+Table "sys_function_lan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "description" text
+  "lang_code" varchar(10) [not null]
+  "name" varchar(256) [not null]
+  "owner_id" bigint [not null]
+
+  Indexes {
+    (owner_id, lang_code) [unique, name: "idx_sys_function_lan_owner_lang"]
+  }
+}
+
+Table "sys_group" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "group_code" varchar(100) [not null]
+
+  Indexes {
+    group_code [unique, name: "idx_sys_group_code"]
+  }
+}
+
+Table "sys_group_lan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "description" text
+  "lang_code" varchar(10) [not null]
+  "name" varchar(256) [not null]
+  "owner_id" bigint [not null]
+
+  Indexes {
+    (owner_id, lang_code) [unique, name: "idx_sys_group_lan_owner_lang"]
+  }
+}
+
+Table "sys_role" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "function_id" bigint [not null]
+  "group_id" bigint [not null]
+
+  Indexes {
+    (group_id, function_id) [unique, name: "idx_sys_role_group_function"]
+    function_id [name: "idx_sys_role_function_id"]
+  }
+}
+
+Table "temperature" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "is_active" bit(1) [not null]
+  "natural_id" varchar(256) [not null]
+  "current_value" double [default: NULL]
+  "device_control_id" bigint [default: NULL]
+  "room_id" bigint [not null]
+
+  Indexes {
+    natural_id [unique, name: "idx_temperature_natural_id"]
+    device_control_id [unique, name: "idx_temperature_device_control_id"]
+    room_id [name: "idx_temperature_room_id"]
+  }
+}
+
+Table "temperature_lan" {
+  "id" bigint [pk, not null, increment]
+  "created_at" datetime(6) [default: NULL]
+  "created_by" varchar(256) [default: NULL]
+  "updated_at" datetime(6) [default: NULL]
+  "updated_by" varchar(256) [default: NULL]
+  "v" bigint [not null]
+  "description" text
+  "lang_code" varchar(10) [not null]
+  "name" varchar(256) [not null]
+  "owner_id" bigint [not null]
+
+  Indexes {
+    (owner_id, lang_code) [unique, name: "idx_temperature_lan_owner_id_lang_code"]
+  }
+}
+
+Table "temperature_value" {
+  "id" bigint [pk, not null, increment]
+  "timestamp" datetime(6) [not null]
+  "temp_c" double [default: NULL]
+  "sensor_id" bigint [not null]
+
+  Indexes {
+    (sensor_id, timestamp) [name: "idx_sensor_timestamp"]
+    timestamp [name: "idx_timestamp"]
+  }
+}
+
+Ref "fk_air_condition_device_control":"device_control"."id" < "air_condition"."device_control_id"
+
+Ref "fk_air_condition_room":"room"."id" < "air_condition"."room_id"
+
+Ref "fk_air_condition_lan_air_condition":"air_condition"."id" < "air_condition_lan"."owner_id"
+
+Ref "fk_fan_device_control":"device_control"."id" < "fan"."device_control_id"
+
+Ref "fk_fan_room":"room"."id" < "fan"."room_id"
+
+Ref "fk_fan_lan_fan":"fan"."id" < "fan_lan"."owner_id"
+
+Ref "fk_automation_action_automation":"automation"."id" < "automation_action"."automation_id"
+
+Ref "fk_client_group_sys_group":"sys_group"."id" < "client_group"."group_id"
+
+Ref "fk_client_group_client":"client"."id" < "client_group"."client_id"
+
+Ref "fk_device_control_client":"client"."id" < "device_control"."client_id"
+
+Ref "fk_device_control_room":"room"."id" < "device_control"."room_id"
+
+Ref "fk_floor_lan_floor":"floor"."id" < "floor_lan"."owner_id"
+
+Ref "fk_light_room":"room"."id" < "light"."room_id"
+
+Ref "fk_light_device_control":"device_control"."id" < "light"."device_control_id"
+
+Ref "fk_light_lan_light":"light"."id" < "light_lan"."owner_id"
+
+Ref "fk_power_consumption_device_control":"device_control"."id" < "power_consumption"."device_control_id"
+
+Ref "fk_power_consumption_room":"room"."id" < "power_consumption"."room_id"
+
+Ref "fk_power_consumption_lan_power_consumption":"power_consumption"."id" < "power_consumption_lan"."owner_id"
+
+Ref "fk_power_consumption_value_power_consumption":"power_consumption"."id" < "power_consumption_value"."sensor_id"
+
+Ref "QRTZ_BLOB_TRIGGERS_ibfk_1":"QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_BLOB_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
+
+Ref "QRTZ_CRON_TRIGGERS_ibfk_1":"QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_CRON_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
+
+Ref "QRTZ_SIMPLE_TRIGGERS_ibfk_1":"QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_SIMPLE_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
+
+Ref "QRTZ_SIMPROP_TRIGGERS_ibfk_1":"QRTZ_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP") < "QRTZ_SIMPROP_TRIGGERS".("SCHED_NAME", "TRIGGER_NAME", "TRIGGER_GROUP")
+
+Ref "QRTZ_TRIGGERS_ibfk_1":"QRTZ_JOB_DETAILS".("SCHED_NAME", "JOB_NAME", "JOB_GROUP") < "QRTZ_TRIGGERS".("SCHED_NAME", "JOB_NAME", "JOB_GROUP")
+
+Ref "fk_room_floor":"floor"."id" < "room"."floor_id"
+
+Ref "fk_room_lan_room":"room"."id" < "room_lan"."owner_id"
+
+Ref "fk_rule_room":"room"."id" < "rule"."room_id"
+
+Ref "fk_rule_condition_rule":"rule"."id" < "rule_condition"."rule_id"
+
+Ref "fk_cache_sys_group":"sys_group"."id" < "sys_client_function_cache"."group_id"
+
+Ref "fk_cache_client":"client"."id" < "sys_client_function_cache"."client_id"
+
+Ref "fk_sys_function_lan_sys_function":"sys_function"."id" < "sys_function_lan"."owner_id"
+
+Ref "fk_sys_group_lan_sys_group":"sys_group"."id" < "sys_group_lan"."owner_id"
+
+Ref "fk_sys_role_sys_group":"sys_group"."id" < "sys_role"."group_id"
+
+Ref "fk_sys_role_sys_function":"sys_function"."id" < "sys_role"."function_id"
+
+Ref "fk_temperature_device_control":"device_control"."id" < "temperature"."device_control_id"
+
+Ref "fk_temperature_room":"room"."id" < "temperature"."room_id"
+
+Ref "fk_temperature_lan_temperature":"temperature"."id" < "temperature_lan"."owner_id"
+
+Ref "fk_temperature_value_temperature":"temperature"."id" < "temperature_value"."sensor_id"

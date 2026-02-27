@@ -3,6 +3,10 @@ package com.iviet.ivshs.entities;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,8 +50,8 @@ public class Client extends BaseAuditEntity {
     @Column(name = "password_hash", length = 255)
     private String passwordHash;
 
-    @Column(name = "client_type", length = 50)
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "client_type", length = 256)
     private ClientType clientType;
 
     @Column(name = "ip_address", length = 255)

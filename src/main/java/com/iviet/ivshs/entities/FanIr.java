@@ -3,6 +3,9 @@ package com.iviet.ivshs.entities;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
@@ -40,16 +43,16 @@ public class FanIr extends Fan {
 		ActuatorSwing.OFF
 	));
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "mode")
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "mode", length = 256)
 	private ActuatorMode mode;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "swing")
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "swing", length = 256)
 	private ActuatorSwing swing;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "light")
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "light", length = 256)
 	private ActuatorState light;
 
 	@Column(name = "speed")

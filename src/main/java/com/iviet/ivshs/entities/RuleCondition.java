@@ -12,6 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.iviet.ivshs.enumeration.RuleDataSource;
 
 @Entity
@@ -19,7 +23,7 @@ import com.iviet.ivshs.enumeration.RuleDataSource;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "rule_conditions")
+@Table(name = "rule_condition")
 public class RuleCondition extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,8 +33,8 @@ public class RuleCondition extends BaseAuditEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder;
 
-    @Column(name = "data_source", nullable = false, length = 50)
-    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "data_source", nullable = false, length = 256)
     private RuleDataSource dataSource;
 
     @Column(name = "resource_param", columnDefinition = "JSON")

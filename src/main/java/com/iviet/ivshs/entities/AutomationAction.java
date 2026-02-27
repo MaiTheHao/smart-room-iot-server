@@ -1,5 +1,8 @@
 package com.iviet.ivshs.entities;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.iviet.ivshs.enumeration.JobActionType;
 import com.iviet.ivshs.enumeration.JobTargetType;
 
@@ -18,15 +21,15 @@ public class AutomationAction extends BaseAuditEntity {
     @JoinColumn(name = "automation_id", nullable = false)
     private Automation automation;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "target_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "target_type", nullable = false, length = 256)
     private JobTargetType targetType; 
 
     @Column(name = "target_id", nullable = false)
     private Long targetId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "action_type", nullable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "action_type", nullable = false, length = 256)
     private JobActionType actionType;
 
     @Column(name = "parameter_value")

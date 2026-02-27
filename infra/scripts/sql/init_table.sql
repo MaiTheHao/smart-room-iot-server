@@ -60,6 +60,7 @@ CREATE TABLE
     `v` bigint NOT NULL,
     `is_active` bit(1) NOT NULL,
     `natural_id` varchar(256) NOT NULL,
+    `power` varchar(256) DEFAULT NULL,
     `type` varchar(256) NOT NULL,
     `speed` int DEFAULT NULL,
     `mode` varchar(256) DEFAULT NULL,

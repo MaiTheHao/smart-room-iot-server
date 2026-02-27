@@ -3,6 +3,9 @@ package com.iviet.ivshs.entities;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 
@@ -50,15 +53,15 @@ public class AirCondition extends BaseIoTActuator<AirConditionLan>{
 	@Column(name = "temperature")
 	private Integer temperature;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "mode")
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "mode", length = 256)
 	private ActuatorMode mode;
 
 	@Column(name = "fan_speed")
 	private Integer fanSpeed;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "swing")
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "swing", length = 256)
 	private ActuatorSwing swing;
 
 	@Override
