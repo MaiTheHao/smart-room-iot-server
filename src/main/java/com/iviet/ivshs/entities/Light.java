@@ -33,4 +33,11 @@ public class Light extends BaseIoTActuator<LightLan>{
         translation.setOwner(this);
         this.getTranslations().add(translation);
     }
+
+    public void setLevel(Integer level) {
+        if (level != null && (level < MIN_LEVEL || level > MAX_LEVEL)) {
+            throw new IllegalArgumentException("Level must be between " + MIN_LEVEL + " and " + MAX_LEVEL);
+        }
+        this.level = level;
+    }
 }

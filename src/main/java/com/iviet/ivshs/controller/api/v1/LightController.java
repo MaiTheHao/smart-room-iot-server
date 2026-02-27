@@ -1,6 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
+import com.iviet.ivshs.service.LightControlService;
 import com.iviet.ivshs.service.LightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class LightController {
 
     private final LightService lightService;
+    private final LightControlService  lightControlService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLights(
@@ -75,7 +77,17 @@ public class LightController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
+
+    @PutMapping("/{naturalId}/control")
+    public ResponseEntity<ApiResponse<Void>> controlLight(
+            @PathVariable(name = "naturalId") String naturalId,
+            @RequestBody @Valid LightControlRequestBody request) {
+        
+        lightControlService.control(naturalId, request);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
+    }
     
+    @Deprecated
     @PutMapping("/{id}/level/{level}")
     public ResponseEntity<ApiResponse<Void>> handleLevelControl(
             @PathVariable(name = "id") Long id,
@@ -84,6 +96,7 @@ public class LightController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Brightness level set successfully"));
     }
 
+    @Deprecated
     @PutMapping("/{id}/toggle-state")
     public ResponseEntity<ApiResponse<ControlDeviceResponse>> handleToggleStateControl(
             @PathVariable(name = "id") Long id) {
