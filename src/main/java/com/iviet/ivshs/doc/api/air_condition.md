@@ -297,8 +297,10 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 </details>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/power</code> - Bật/Tắt thiết bị (Theo ID)</summary>
+<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/power</code> - Bật/Tắt thiết bị (Theo ID) (Deprecated)</summary>
 
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
+>
 > Điều khiển nguồn điện của thiết bị điều hòa (Bật/Tắt).
 
 ### Path Parameters
@@ -333,8 +335,10 @@ POST /api/v1/air-conditions/1/power?state=ON
 </details>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/temperature</code> - Chỉnh nhiệt độ (Theo ID)</summary>
+<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/temperature</code> - Chỉnh nhiệt độ (Theo ID) (Deprecated)</summary>
 
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
+>
 > Điều chỉnh nhiệt độ của thiết bị điều hòa.
 
 ### Path Parameters
@@ -369,8 +373,10 @@ POST /api/v1/air-conditions/1/temperature?value=24
 </details>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/mode</code> - Chỉnh chế độ (Theo ID)</summary>
+<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/mode</code> - Chỉnh chế độ (Theo ID) (Deprecated)</summary>
 
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
+>
 > Thay đổi chế độ hoạt động của điều hòa.
 
 ### Path Parameters
@@ -405,8 +411,10 @@ POST /api/v1/air-conditions/1/mode?value=COOL
 </details>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/fan</code> - Chỉnh tốc độ quạt (Theo ID)</summary>
+<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/fan</code> - Chỉnh tốc độ quạt (Theo ID) (Deprecated)</summary>
 
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
+>
 > Điều chỉnh tốc độ quạt của điều hòa.
 
 ### Path Parameters
@@ -441,8 +449,10 @@ POST /api/v1/air-conditions/1/fan?speed=3
 </details>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/swing</code> - Chỉnh đảo gió (Theo ID)</summary>
+<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/swing</code> - Chỉnh đảo gió (Theo ID) (Deprecated)</summary>
 
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
+>
 > Điều khiển chế độ đảo gió (swing) của điều hòa.
 
 ### Path Parameters

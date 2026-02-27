@@ -266,8 +266,54 @@
 <br>
 
 <details>
-<summary><b>PUT</b> <code>/api/v1/lights/{id}/toggle-state</code> - Bật tắt đèn</summary>
+<summary><b>PUT</b> <code>/api/v1/lights/{naturalId}/control</code> - Điều khiển đèn (Power, Level)</summary>
 
+> Điều khiển thiết bị chiếu sáng bằng mã định danh vật lý (naturalId).
+>
+> Hỗ trợ thay đổi trạng thái nguồn và/hoặc điều chỉnh độ sáng trong cùng một request.
+
+### Path Parameters
+
+| Tên       | Loại   | Mô tả                                       | Bắt buộc |
+| :-------- | :----- | :------------------------------------------ | :------- |
+| naturalId | string | Mã định danh vật lý của thiết bị chiếu sáng | Có       |
+
+### Request Body
+
+| Tên trường | Loại   | Bắt buộc | Mô tả                         |
+| :--------- | :----- | :------- | :---------------------------- |
+| power      | enum   | Không    | Trạng thái nguồn: `ON`, `OFF` |
+| level      | int    | Không    | Độ sáng (0-100)               |
+
+### Request Example
+
+```json
+{
+	"power": "ON",
+	"level": 80
+}
+```
+
+### Response (200 OK)
+
+```json
+{
+	"status": 202,
+	"message": "Controlled successfully",
+	"data": null,
+	"timestamp": "2025-11-29T09:00:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/lights/{id}/toggle-state</code> - Bật tắt đèn (Deprecated)</summary>
+
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/control` thay thế.**
+>
 > Bật/tắt thiết bị chiếu sáng.
 
 ### Path Parameters
@@ -296,8 +342,10 @@
 <br>
 
 <details>
-<summary><b>PUT</b> <code>/api/v1/lights/{id}/level/{newLevel}</code> - Đổi độ sáng</summary>
+<summary><b>PUT</b> <code>/api/v1/lights/{id}/level/{newLevel}</code> - Đổi độ sáng (Deprecated)</summary>
 
+> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/control` thay thế.**
+>
 > Điều chỉnh độ sáng của thiết bị chiếu sáng.
 
 ### Path Parameters
