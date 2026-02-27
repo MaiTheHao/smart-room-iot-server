@@ -42,7 +42,7 @@ public class RuleServiceImpl implements RuleService {
 	public void executeGlobalRuleScan() {
 		List<Rule> activeRules = ruleDao.findAllActive();
 		if (activeRules.isEmpty()) {
-			log.info("No active rules found during global scan.");
+			log.debug("No active rules found during global scan.");
 			return;
 		}
 

@@ -6,8 +6,13 @@ import com.iviet.ivshs.exception.domain.BaseException;
 import com.iviet.ivshs.exception.domain.ForbiddenException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.exception.domain.UnauthorizedException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import jakarta.validation.ConstraintViolationException;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.Ordered;
@@ -23,7 +28,6 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -74,7 +78,33 @@ public class ApiGlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String msg = "Malformed JSON request or invalid data format.";
-        log.error("HttpMessageNotReadableException: ", ex);
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof InvalidFormatException) {
+            InvalidFormatException ife = (InvalidFormatException) cause;
+            
+            String fieldName = "unknown";
+            if (!ife.getPath().isEmpty()) {
+                fieldName = ife.getPath().get(ife.getPath().size() - 1).getFieldName();
+            }
+
+            if (ife.getTargetType() != null) {
+                if (ife.getTargetType().isEnum()) {
+                    String validValues = Arrays.stream(ife.getTargetType().getEnumConstants())
+                            .map(Object::toString)
+                            .collect(Collectors.joining(", "));
+                    msg = String.format("Invalid value '%s' for field '%s'. Accepted values are: [%s]",
+                            ife.getValue(), fieldName, validValues);
+                } else {
+                    String expectedType = ife.getTargetType().getSimpleName();
+                    msg = String.format("Invalid value '%s' for field '%s'. Expected type: %s",
+                            ife.getValue(), fieldName, expectedType);
+                }
+            }
+        }
+
+        log.warn("HttpMessageNotReadableException: {}", msg);
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST, msg));
     }
@@ -139,9 +169,15 @@ public class ApiGlobalExceptionHandler {
 
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ApiResponse<Object>> handleUnsupportedOperationException(UnsupportedOperationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "Operation not supported: " + ex.getMessage()));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "Operation not supported: " + ex.getMessage()));
     }
+
+		@ExceptionHandler(IllegalArgumentException.class)
+		public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(ApiResponse.error(HttpStatus.BAD_REQUEST, "Invalid argument: " + ex.getMessage()));
+		}
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAll(Exception ex) {
