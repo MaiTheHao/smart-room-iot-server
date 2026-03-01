@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.CreateRuleDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
+import com.iviet.ivshs.dto.UpdateRuleStatusDto;
 import com.iviet.ivshs.service.RuleService;
 
 import jakarta.validation.Valid;
@@ -38,9 +40,17 @@ public class RuleController {
 				.body(ApiResponse.created(ruleService.create(request)));
 	}
 
-	@GetMapping
+	@GetMapping("/all")
 	public ResponseEntity<ApiResponse<List<RuleDto>>> getAll() {
 		return ResponseEntity.ok(ApiResponse.ok(ruleService.getAll()));
+	}
+
+	@GetMapping
+	public ResponseEntity<ApiResponse<PaginatedResponse<RuleDto>>> getList(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+		return ResponseEntity.ok(ApiResponse.ok(ruleService.getList(page, size)));
 	}
 
 	@GetMapping("/{id}")
@@ -67,20 +77,20 @@ public class RuleController {
 	@PatchMapping("/{id}/status")
 	public ResponseEntity<ApiResponse<Void>> toggleStatus(
 			@PathVariable(name = "id") Long id,
-			@RequestParam(name = "isActive") boolean isActive) {
-		ruleService.toggleIsActive(id, isActive);
+			@RequestBody @Valid UpdateRuleStatusDto request) {
+		ruleService.toggleIsActive(id, request.isActive());
 		return ResponseEntity.ok(
-				ApiResponse.success(HttpStatus.OK, null, "Rule status updated: " + isActive));
+				ApiResponse.success(HttpStatus.OK, null, "Rule status updated: " + request.isActive()));
 	}
 
-	@PostMapping("/scan")
+	@PostMapping(":scan")
 	public ResponseEntity<ApiResponse<Void>> executeGlobalRuleScan() {
 		ruleService.executeGlobalRuleScan();
 		return ResponseEntity.ok(
 				ApiResponse.success(HttpStatus.OK, null, "Global rule scan executed"));
 	}
 
-	@PostMapping("/reload")
+	@PostMapping(":reload")
 	public ResponseEntity<ApiResponse<Void>> reloadAllRules() {
 		ruleService.reloadAllRules();
 		return ResponseEntity.ok(

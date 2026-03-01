@@ -41,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @ComponentScans(value = {
     @ComponentScan("com.iviet.ivshs.dao"),
     @ComponentScan("com.iviet.ivshs.engine"),
+    @ComponentScan("com.iviet.ivshs.mapper"),
     @ComponentScan("com.iviet.ivshs.service"),
     @ComponentScan("com.iviet.ivshs.repository"),
     @ComponentScan("com.iviet.ivshs.component"),

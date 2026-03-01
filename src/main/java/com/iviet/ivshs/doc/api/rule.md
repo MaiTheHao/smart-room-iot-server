@@ -10,9 +10,68 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 ---
 
 <details>
-<summary><b>GET</b> <code>/api/v1/rules</code> - Lấy danh sách quy tắc</summary>
+<summary><b>GET</b> <code>/api/v1/rules</code> - Lấy danh sách quy tắc (Phân trang)</summary>
 
-> Lấy danh sách tất cả các quy tắc.
+> Lấy danh sách quy tắc với hỗ trợ phân trang.
+
+### Query Parameters
+
+| Tên  | Loại | Mô tả               | Bắt buộc/Mặc định |
+| :--- | :--- | :------------------ | :---------------- |
+| page | int  | Trang cần lấy       | Mặc định: 0       |
+| size | int  | Số lượng trên trang | Mặc định: 10      |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"content": [
+			{
+				"id": 1,
+				"name": "Bật điều hòa khi nóng",
+				"priority": 10,
+				"isActive": true,
+				"roomId": 5,
+				"targetDeviceId": 101,
+				"targetDeviceCategory": "AIR_CONDITION",
+				"actionParams": "{\"temperature\": 22, \"mode\": \"cool\"}",
+				"conditions": [
+					{
+						"id": 1,
+						"sortOrder": 0,
+						"dataSource": "DEVICE",
+						"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
+						"operator": ">",
+						"value": "30",
+						"nextLogic": "AND",
+						"createdAt": "2024-06-07T09:00:00Z",
+						"updatedAt": "2024-06-07T09:00:00Z"
+					}
+				],
+				"createdAt": "2024-06-07T09:00:00Z",
+				"updatedAt": "2024-06-07T09:00:00Z"
+			}
+		],
+		"page": 0,
+		"size": 10,
+		"totalElements": 1,
+		"totalPages": 1
+	},
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rules/all</code> - Lấy danh sách tất cả quy tắc</summary>
+
+> Lấy toàn bộ danh sách quy tắc (không phân trang), thường dùng cho dropdown hoặc cache nội bộ.
 
 ### Response (200 OK)
 
@@ -62,7 +121,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc |
+| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc cần lấy | Có       |
 
@@ -144,12 +203,12 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 | actionParams          | string | Không    | Tham số hành động (JSON format)                |
 | conditions            | array  | Có       | Danh sách điều kiện (ít nhất 1 điều kiện)      |
 
-#### Request Body Conditions
+#### Details of Request Body Conditions `conditions`
 
 | Tên trường    | Loại   | Bắt buộc | Mô tả                                              |
 | :------------ | :----- | :------- | :------------------------------------------------- |
 | sortOrder     | int    | Có       | Thứ tự đánh giá (>= 0)                             |
-| dataSource    | enum   | Có       | Nguồn dữ liệu: DEVICE, AUTOMATION, CONSTANT, RULE |
+| dataSource    | enum   | Có       | Nguồn dữ liệu (xem chi tiết RuleDataSource dưới Enumerations) |
 | resourceParam | string | Có       | Tham số tài nguyên (JSON format)                   |
 | operator      | string | Có       | Toán tử so sánh: ==, !=, >, <, >=, <=, IN, etc    |
 | value         | string | Có       | Giá trị so sánh                                    |
@@ -254,7 +313,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc |
+| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc cần cập nhật | Có       |
 
@@ -340,7 +399,7 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc |
+| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc cần xóa | Có       |
 
@@ -377,11 +436,11 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc |
+| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
 | :-- | :--- | :------------------- | :------- |
 | id  | Long | ID của quy tắc       | Có       |
 
-### Query Parameters
+### Request Body
 
 | Tên      | Loại   | Mô tả              | Bắt buộc |
 | :------- | :----- | :----------------- | :------- |
@@ -389,8 +448,10 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Request Example
 
-```
-PATCH /api/v1/rules/1/status?isActive=false
+```json
+{
+    "isActive": false
+}
 ```
 
 ### Response (200 OK)
@@ -409,7 +470,7 @@ PATCH /api/v1/rules/1/status?isActive=false
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/rules/scan</code> - Quét quy tắc (toàn cục)</summary>
+<summary><b>POST</b> <code>/api/v1/rules:scan</code> - Quét quy tắc (toàn cục)</summary>
 
 > Thực thi quét toàn cục tất cả các quy tắc đang hoạt động.
 > 
@@ -436,7 +497,7 @@ PATCH /api/v1/rules/1/status?isActive=false
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/rules/reload</code> - Tải lại cấu hình quy tắc</summary>
+<summary><b>POST</b> <code>/api/v1/rules:reload</code> - Tải lại cấu hình quy tắc</summary>
 
 > Tái tải cấu hình tất cả các quy tắc từ cơ sở dữ liệu.
 > 
@@ -459,19 +520,34 @@ PATCH /api/v1/rules/1/status?isActive=false
 
 ---
 
-## Ghi chú
+<details>
+<summary>Xem chi tiết các hằng số (Enums)</summary>
 
-### Data Source Types (RuleDataSource)
-- **DEVICE**: Lấy dữ liệu từ thiết bị (ví dụ: nhiệt độ, trạng thái)
-- **AUTOMATION**: Lấy dữ liệu từ trạng thái tự động hóa
-- **CONSTANT**: Giá trị hằng định
-- **RULE**: Lấy kết quả từ quy tắc khác
+### RuleDataSource (Data Source Types)
 
-### Operators
-- **Comparison**: `==`, `!=`, `>`, `<`, `>=`, `<=`
-- **Membership**: `IN`, `NOT_IN`
-- **Pattern**: `LIKE`, `NOT_LIKE`
+| Giá trị | Mô tả |
+| :------ | :---- |
+| SYSTEM  | Lấy dữ liệu từ hệ thống (ví dụ: thời gian, ngày, trạng thái hệ thống) |
+| ROOM    | Lấy dữ liệu từ phòng (ví dụ: trạng thái phòng, số lượng thiết bị) |
+| DEVICE  | Lấy dữ liệu từ thiết bị (ví dụ: trạng thái bật/tắt, chế độ hoạt động) |
+| SENSOR  | Lấy dữ liệu từ cảm biến (ví dụ: nhiệt độ, độ ẩm, ánh sáng) |
 
-### Logic Gates
-- **AND**: Cả hai điều kiện phải đúng
-- **OR**: Ít nhất một điều kiện phải đúng (mặc định là AND)
+### DeviceCategory (Device Categories)
+
+| Giá trị           | Mô tả |
+| :---------------- | :---- |
+| LIGHT             | Thiết bị chiếu sáng (đèn) |
+| AIR_CONDITION     | Thiết bị điều hòa không khí |
+| TEMPERATURE       | Thiết bị/cảm biến đo nhiệt độ |
+| POWER_CONSUMPTION | Thiết bị đo tiêu thụ điện năng |
+
+### Ràng buộc bổ sung
+
+| Tên | Mô tả |
+| :-- | :---- |
+| Operators (Comparison) | `==`, `!=`, `>`, `<`, `>=`, `<=` |
+| Operators (Membership) | `IN`, `NOT_IN` |
+| Operators (Pattern)    | `LIKE`, `NOT_LIKE` |
+| Logic Gates            | `AND` (Cả hai điều kiện phải đúng), `OR` (Ít nhất một điều kiện phải đúng) |
+
+</details>

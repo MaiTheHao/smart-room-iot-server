@@ -3,6 +3,12 @@ package com.iviet.ivshs.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.iviet.ivshs.enumeration.DeviceCategory;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,11 +47,13 @@ public class Rule extends BaseAuditEntity {
     @Column(name = "target_device_id", nullable = false)
     private Long targetDeviceId;
     
-    @Column(name = "target_device_category", nullable = false)
-    private String targetDeviceCategory;
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "target_device_category", nullable = false, length = 256)
+    private DeviceCategory targetDeviceCategory;
 
-    @Column(name = "action_params", columnDefinition = "JSON")
-    private String actionParams;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "action_params")
+    private JsonNode actionParams;
 
     @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<RuleCondition> conditions = new ArrayList<>();

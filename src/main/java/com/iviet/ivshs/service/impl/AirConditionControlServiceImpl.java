@@ -14,6 +14,7 @@ import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.AirConditionControlService;
 import com.iviet.ivshs.util.HttpClientUtil;
@@ -28,6 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 public class AirConditionControlServiceImpl implements AirConditionControlService {
 
   private final AirConditionDao airConditionDao;
+
+  @Override
+  public DeviceCategory getSupportedCategory() {
+    return DeviceCategory.AIR_CONDITION;
+  }
+
+  @Override
+  public Class<AirConditionControlRequestBody> getControlDtoClass() {
+    return AirConditionControlRequestBody.class;
+  }
 
   @Override
   @Transactional
@@ -143,6 +154,17 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public void control(String naturalId, AirConditionControlRequestBody body) {
     AirCondition ac = airConditionDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("AirCondition not found with naturalId: " + naturalId));
+    applyControlParams(ac, body);
+  }
+
+  @Override
+  @Transactional
+  public void control(Long id, AirConditionControlRequestBody body) {
+    AirCondition ac = airConditionDao.findById(id).orElseThrow(() -> new BadRequestException("AirCondition not found with id: " + id));
+    applyControlParams(ac, body);
+  }
+
+  private void applyControlParams(AirCondition ac, AirConditionControlRequestBody body) {
     String gatewayIp = extractClientIpAddress(ac);
 
     if (body.power() != null) {
@@ -165,10 +187,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
       ac.setSwing(body.swing());
       handleSwingControlCall(gatewayIp, ac.getNaturalId(), body.swing());
     }
-    
+
     airConditionDao.save(ac);
   }
-  
+
   private String extractClientIpAddress(AirCondition ac) {
     DeviceControl control = ac.getDeviceControl();
     if (control == null) throw new BadRequestException("Device control not found for air condition with id: " + ac.getId());

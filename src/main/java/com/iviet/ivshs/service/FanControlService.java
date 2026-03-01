@@ -6,7 +6,7 @@ import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 
-public interface FanControlService {
+public interface FanControlService extends DeviceControlStrategy<FanControlRequestBody> {
 
     void handlePowerControl(String naturalId, ActuatorPower power);
 

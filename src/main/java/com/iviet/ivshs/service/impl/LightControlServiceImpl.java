@@ -12,6 +12,7 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.LightControlService;
 import com.iviet.ivshs.util.HttpClientUtil;
@@ -26,6 +27,16 @@ import lombok.extern.slf4j.Slf4j;
 public class LightControlServiceImpl implements LightControlService {
 
   private final LightDao lightDao;
+
+  @Override
+  public DeviceCategory getSupportedCategory() {
+    return DeviceCategory.LIGHT;
+  }
+
+  @Override
+  public Class<LightControlRequestBody> getControlDtoClass() {
+    return LightControlRequestBody.class;
+  }
 
   @Override
   @Transactional
@@ -80,8 +91,19 @@ public class LightControlServiceImpl implements LightControlService {
   @Transactional
   public void control(String naturalId, LightControlRequestBody params) {
     Light light = lightDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Light not found with naturalId: " + naturalId));
-    String gatewayIp = extractClientIpAddress(light);
+    applyControlParams(light, params);
+  }
 
+  @Override
+  @Transactional
+  public void control(Long id, LightControlRequestBody params) {
+    Light light = lightDao.findById(id).orElseThrow(() -> new BadRequestException("Light not found with id: " + id));
+    applyControlParams(light, params);
+  }
+
+  private void applyControlParams(Light light, LightControlRequestBody params) {
+    String gatewayIp = extractClientIpAddress(light);
+    
     if (params.power() != null) {
       light.setPower(params.power());
       handlePowerControlCall(gatewayIp, light.getNaturalId(), params.power());

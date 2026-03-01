@@ -16,6 +16,7 @@ import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.FanControlService;
 import com.iviet.ivshs.util.HttpClientUtil;
@@ -30,6 +31,16 @@ import lombok.extern.slf4j.Slf4j;
 public class FanControlServiceImpl implements FanControlService {
 
     private final FanDao fanDao;
+
+    @Override
+    public DeviceCategory getSupportedCategory() {
+        return DeviceCategory.FAN;
+    }
+
+    @Override
+    public Class<FanControlRequestBody> getControlDtoClass() {
+        return FanControlRequestBody.class;
+    }
 
     @Override
     @Transactional
@@ -146,30 +157,45 @@ public class FanControlServiceImpl implements FanControlService {
     @Transactional
     public void control(String naturalId, FanControlRequestBody body) {
         Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
+        applyControlParams(fan, body);
+    }
+
+    @Override
+    @Transactional
+    public void control(Long id, FanControlRequestBody body) {
+        Fan fan = fanDao.findById(id).orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
+        applyControlParams(fan, body);
+    }
+
+    private void applyControlParams(Fan fan, FanControlRequestBody body) {
         String gatewayIp = extractClientIpAddress(fan);
 
         if (body.power() != null) {
             fan.setPower(body.power());
             handlePowerControlCall(gatewayIp, fan.getNaturalId(), body.power());
         }
+
         if (body.speed() != null) {
             if (fan instanceof FanIr fanIr) {
                 fanIr.setSpeed(body.speed());
             }
             handleSpeedControlCall(gatewayIp, fan.getNaturalId(), body.speed());
         }
+
         if (body.mode() != null) {
             if (fan instanceof FanIr fanIr) {
                 fanIr.setMode(body.mode());
             }
             handleModeControlCall(gatewayIp, fan.getNaturalId(), body.mode());
         }
+
         if (body.swing() != null) {
             if (fan instanceof FanIr fanIr) {
                 fanIr.setSwing(body.swing());
             }
             handleSwingControlCall(gatewayIp, fan.getNaturalId(), body.swing());
         }
+        
         if (body.light() != null) {
             if (fan instanceof FanIr fanIr) {
                 fanIr.setLight(body.light());

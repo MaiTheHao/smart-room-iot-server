@@ -1,5 +1,11 @@
 package com.iviet.ivshs.entities;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import com.iviet.ivshs.enumeration.FanType;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
@@ -23,6 +29,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class Fan extends BaseIoTActuator<FanLan> {
+
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "type", length = 256, insertable = false, updatable = false)
+    FanType type;
     
     @Override 
     public void addTranslation(FanLan translation) {

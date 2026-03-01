@@ -4,5 +4,6 @@ public enum DeviceCategory {
     LIGHT,
     AIR_CONDITION,
     TEMPERATURE,
-    POWER_CONSUMPTION
+    POWER_CONSUMPTION,
+    FAN
 }

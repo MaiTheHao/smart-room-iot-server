@@ -2,8 +2,8 @@ package com.iviet.ivshs.dto;
 
 import java.util.List;
 
-import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.entities.RuleCondition;
+import com.iviet.ivshs.enumeration.DeviceCategory;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -23,45 +23,14 @@ public record UpdateRuleDto(
     Long targetDeviceId,
 
     @NotBlank(message = "Target device category is required")
-    String targetDeviceCategory,
+    DeviceCategory targetDeviceCategory,
 
-    String actionParams,
+    @NotNull(message = "Action parameters are required")
+    DeviceControlPayload actionParams,
 
     Boolean isActive,
 
     @Valid
     @NotNull(message = "At least one condition is required")
     List<UpdateRuleConditionDto> conditions
-) {
-    public Rule toEntity(Long ruleId) {
-        Rule rule = new Rule();
-        rule.setId(ruleId);
-        rule.setName(this.name);
-        rule.setPriority(this.priority);
-        rule.setTargetDeviceId(this.targetDeviceId);
-        rule.setTargetDeviceCategory(this.targetDeviceCategory);
-        rule.setActionParams(this.actionParams);
-        
-        if (this.isActive != null) {
-            rule.setIsActive(this.isActive);
-        }
-
-        if (this.conditions != null && !this.conditions.isEmpty()) {
-            for (UpdateRuleConditionDto condDto : this.conditions) {
-                RuleCondition condition = new RuleCondition();
-                if (condDto.id() != null) {
-                    condition.setId(condDto.id());
-                }
-                condition.setSortOrder(condDto.sortOrder());
-                condition.setDataSource(condDto.dataSource());
-                condition.setResourceParam(condDto.resourceParam());
-                condition.setOperator(condDto.operator());
-                condition.setValue(condDto.value());
-                condition.setNextLogic(condDto.nextLogic());
-                rule.addCondition(condition);
-            }
-        }
-
-        return rule;
-    }
-}
+) {}

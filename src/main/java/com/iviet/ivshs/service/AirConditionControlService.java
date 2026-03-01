@@ -5,7 +5,7 @@ import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 
-public interface AirConditionControlService {
+public interface AirConditionControlService extends DeviceControlStrategy<AirConditionControlRequestBody> {
 
   void handlePowerControl(String naturalId, ActuatorPower power);
 
@@ -18,6 +18,4 @@ public interface AirConditionControlService {
   void handleFanSpeedControl(String naturalId, int speed);
 
   void handleSwingControl(String naturalId, ActuatorSwing swing);
-
-  void control(String naturalId, AirConditionControlRequestBody body);
 }

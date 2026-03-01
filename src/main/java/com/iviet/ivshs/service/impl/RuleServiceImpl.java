@@ -9,21 +9,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
 import com.iviet.ivshs.dto.CreateRuleDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
+import com.iviet.ivshs.mapper.RuleMapper;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.schedule.rule.RuleJob;
 import com.iviet.ivshs.schedule.rule.RuleProcessor;
+import com.iviet.ivshs.service.DeviceControlStrategy;
 import com.iviet.ivshs.service.RuleService;
 import com.iviet.ivshs.util.QuartzUtil;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,9 +37,20 @@ import lombok.extern.slf4j.Slf4j;
 public class RuleServiceImpl implements RuleService {
 
 	private final RuleDao ruleDao;
+	private final RuleMapper ruleMapper;
 	private final RuleProcessor ruleProcessor;
 	private final ObjectMapper objectMapper;
 	private final QuartzUtil quartzUtil;
+
+	// Control Strategies handle
+	private final List<DeviceControlStrategy<?>> controlStrategies;
+	private Map<DeviceCategory, DeviceControlStrategy<?>> controlStrategyMap;
+
+	@PostConstruct
+	public void handleDeviceControlStrategy() {
+		controlStrategyMap = controlStrategies.stream().collect(Collectors.toMap(DeviceControlStrategy::getSupportedCategory, strategy -> strategy));
+		log.info("Initialized Device Control Strategy Map with categories: {}", controlStrategyMap.keySet());
+	}
 
 	@Override
 	@Transactional
@@ -46,38 +61,69 @@ public class RuleServiceImpl implements RuleService {
 			return;
 		}
 
+		// Gom nhóm rule theo target (Category + DeviceId)
 		Map<String, List<Rule>> rulesByTarget = activeRules.stream()
 			.collect(Collectors.groupingBy(r -> r.getTargetDeviceCategory() + ":" + r.getTargetDeviceId()));
 
 		rulesByTarget.forEach((targetKey, rules) -> {
-			log.debug("Evaluating rules for target {}:{}", targetKey.split(":")[0], targetKey.split(":")[1]);
-			evaluateTargetRules(targetKey, rules);
+			log.debug("Processing rules for target {}", targetKey);
+			processTargetHighestPriorityRule(targetKey, rules);
 		});
 	}
 
-	private void evaluateTargetRules(String targetKey, List<Rule> rules) {
-		List<Rule> satisfiedRules = rules.stream()
-			.filter(ruleProcessor::matches)
-			.collect(Collectors.toList());
+	/**
+	 * Xử lý kiểm tra Rule cho một target cụ thể.
+	 * Chỉ lấy Rule có priority cao nhất. Nếu không thỏa mãn, bỏ qua các rule khác.
+	 */
+	private void processTargetHighestPriorityRule(String targetKey, List<Rule> rules) {
+		Rule highestPriorityRule = findHighestPriorityRule(rules);
 
-		if (satisfiedRules.isEmpty()) {
+		if (highestPriorityRule == null) {
 			return;
 		}
 
-		Rule winner = satisfiedRules.stream()
-			.sorted(Comparator.comparing(Rule::getPriority).reversed())
-			.findFirst()
-			.orElse(null);
+		boolean isRuleSatisfied = ruleProcessor.matches(highestPriorityRule);
 
-		if (winner != null) {
-			log.info("EXECUTING WINNER RULE: {} - Target: {}:{}", winner.getName(), winner.getTargetDeviceCategory(), winner.getTargetDeviceId());
-			try {
-				JsonNode params = objectMapper.readTree(winner.getActionParams());
-				log.info("Action Params: {}", params.toString());
-				// TODO: Hoàn thiện chổ này, môt method để tiến hành điều khiển các thiết bị
-			} catch (JsonProcessingException e) {
-				log.error("Invalid action params for rule {}: {}", winner.getId(), e.getMessage());
-			}
+		if (isRuleSatisfied) {
+			executeRuleAction(highestPriorityRule);
+		} else {
+			log.debug("Rule [{}] did not match for target [{}].", 
+				highestPriorityRule.getName(), targetKey);
+		}
+	}
+
+	/**
+	 * Tìm Rule có priority cao nhất trong danh sách.
+	 */
+	private Rule findHighestPriorityRule(List<Rule> rules) {
+		return rules.stream()
+			.max(Comparator.comparing(Rule::getPriority))
+			.orElse(null);
+	}
+
+	/**
+	 * Đọc tham số và thực thi hành động điều khiển thiết bị.
+	 */
+	@SuppressWarnings("unchecked")
+	private void executeRuleAction(Rule rule) {
+		log.info("EXECUTING WINNER RULE: {} - Target: {}:{}", rule.getName(), rule.getTargetDeviceCategory(), rule.getTargetDeviceId());
+		
+		DeviceControlStrategy controlStrategy = controlStrategyMap.get(rule.getTargetDeviceCategory());
+		if (controlStrategy == null) {
+			log.error("No control strategy found for device category: {}. Cannot execute action for rule: {}", rule.getTargetDeviceCategory(), rule.getId());
+			return;
+		}
+
+		try {
+			var controlDtoClass = controlStrategy.getControlDtoClass();
+			var controlRequestDto = objectMapper.treeToValue(rule.getActionParams(), controlDtoClass);
+			var targetDeviceId = rule.getTargetDeviceId();
+			controlStrategy.control(targetDeviceId, controlRequestDto);
+			log.info("Successfully executed action for rule {} on device {}:{}", rule.getId(), rule.getTargetDeviceCategory(), targetDeviceId);
+		} catch (JsonProcessingException e) {
+			log.error("Invalid action params (JSON format error) for rule {}: {}", rule.getId(), e.getMessage());
+		} catch (Exception e) {
+			log.error("Unexpected error executing action for rule {}: {}", rule.getId(), e.getMessage(), e);
 		}
 	}
 
@@ -110,9 +156,9 @@ public class RuleServiceImpl implements RuleService {
 			throw new BadRequestException("Rule name exists");
 		}
 
-		Rule rule = request.toEntity();
+		Rule rule = ruleMapper.fromCreateDto(request);
 		Rule saved = ruleDao.save(rule);
-		return RuleDto.from(saved);
+		return ruleMapper.toDto(saved);
 	}
 
 	@Override
@@ -121,23 +167,13 @@ public class RuleServiceImpl implements RuleService {
 		Rule existing = ruleDao.findById(id)
 			.orElseThrow(() -> new NotFoundException("Rule not found"));
 
-		Rule updated = request.toEntity(id);
-		existing.setId(updated.getId());
-		existing.setName(updated.getName());
-		existing.setPriority(updated.getPriority());
-		existing.setTargetDeviceId(updated.getTargetDeviceId());
-		existing.setTargetDeviceCategory(updated.getTargetDeviceCategory());
-		existing.setActionParams(updated.getActionParams());
-		
-		if (request.isActive() != null) {
-			existing.setIsActive(request.isActive());
-		}
+		// Update entity in-place using mapper
+		ruleMapper.updateFromDto(request, existing);
 
-		existing.getConditions().clear();
-		existing.getConditions().addAll(updated.getConditions());
-
+		// JPA dirty checking will auto-persist changes
+		// But we call update explicitly if needed by DAO pattern
 		Rule result = ruleDao.update(existing);
-		return RuleDto.from(result);
+		return ruleMapper.toDto(result);
 	}
 
 	@Override
@@ -153,20 +189,29 @@ public class RuleServiceImpl implements RuleService {
 	public RuleDto getById(Long id) {
 		Rule rule = ruleDao.findById(id)
 			.orElseThrow(() -> new NotFoundException("Rule not found"));
-		return RuleDto.from(rule);
+		return ruleMapper.toDto(rule);
 	}
 
 	@Override
 	public List<RuleDto> getAll() {
-		List<Rule> rules = ruleDao.findAll(0, 100);
-		return RuleDto.fromEntities(rules);
+		List<Rule> rules = ruleDao.findAll();
+		return ruleMapper.toDtoList(rules);
+	}
+
+	@Override
+	public PaginatedResponse<RuleDto> getList(int page, int size) {
+		List<Rule> rules = ruleDao.findAll(page, size);
+		long total = ruleDao.count();
+		return new PaginatedResponse<>(
+			ruleMapper.toDtoList(rules),
+			page, size, total
+		);
 	}
 
 	@Override
 	@Transactional
 	public void toggleIsActive(Long id, boolean isActive) {
-		Rule rule = ruleDao.findById(id)
-			.orElseThrow(() -> new NotFoundException("Rule not found"));
+		Rule rule = ruleDao.findById(id).orElseThrow(() -> new NotFoundException("Rule not found"));
 		rule.setIsActive(isActive);
 		ruleDao.update(rule);
 	}
