@@ -28,8 +28,8 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
   private final PowerConsumptionValueDao powerConsumptionValueDao;
   private final Environment env;
 
-  private static final String PROP_TEMPERATURE = "temperature";
-  private static final String PROP_WATT = "watt";
+  private static final String PROP_AVG_TEMPERATURE = "avg_temperature";
+  private static final String PROP_SUM_WATT = "sum_watt";
   private static final int DEFAULT_LOOKBACK_MINUTES = 24 * 60; 
   
   private int lookbackMinutes;
@@ -63,12 +63,12 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
       Instant startTime = now.minus(lookbackMinutes, ChronoUnit.MINUTES);
 
       return switch (property.toLowerCase()) {
-        case PROP_TEMPERATURE -> {
+        case PROP_AVG_TEMPERATURE -> {
           List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(contextId, startTime, now);
           log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), contextId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
         }
-        case PROP_WATT -> {
+        case PROP_SUM_WATT -> {
           List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(contextId, startTime, now);
           log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), contextId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
