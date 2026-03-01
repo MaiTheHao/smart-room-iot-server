@@ -1,6 +1,8 @@
 package com.iviet.ivshs.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.iviet.ivshs.enumeration.ConditionLogic;
+import com.iviet.ivshs.enumeration.ConditionOperator;
 import com.iviet.ivshs.enumeration.RuleDataSource;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -21,12 +23,12 @@ public record UpdateRuleConditionDto(
     @NotNull(message = "Resource parameters are required")
     JsonNode resourceParam,
 
-    @NotBlank(message = "Operator is required")
-    String operator,
+    @NotNull(message = "Operator is required")
+    ConditionOperator operator,
 
     @NotBlank(message = "Value parameter is required")
     String value,
 
-    String nextLogic
+    ConditionLogic nextLogic
 ) {
 }

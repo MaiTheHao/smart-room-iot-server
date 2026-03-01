@@ -1,39 +1,34 @@
 package com.iviet.ivshs.service.impl;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
-import com.iviet.ivshs.dto.CreateRuleDto;
-import com.iviet.ivshs.dto.PaginatedResponse;
-import com.iviet.ivshs.dto.RuleDto;
-import com.iviet.ivshs.dto.UpdateRuleDto;
+import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.mapper.RuleMapper;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.mapper.RuleMapper;
 import com.iviet.ivshs.schedule.rule.RuleJob;
 import com.iviet.ivshs.schedule.rule.RuleProcessor;
 import com.iviet.ivshs.service.DeviceControlStrategy;
 import com.iviet.ivshs.service.RuleService;
 import com.iviet.ivshs.util.QuartzUtil;
-
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.JobKey;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j(topic="RuleService")
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Slf4j(topic = "RuleService")
 @Service
 @RequiredArgsConstructor
 public class RuleServiceImpl implements RuleService {
@@ -43,196 +38,83 @@ public class RuleServiceImpl implements RuleService {
 	private final RuleProcessor ruleProcessor;
 	private final ObjectMapper objectMapper;
 	private final QuartzUtil quartzUtil;
-
-	// Control Strategies handle
-	private final List<DeviceControlStrategy<?>> controlStrategies;
-	private Map<DeviceCategory, DeviceControlStrategy<?>> controlStrategyMap;
-
-	// Validator
 	private final Validator validator;
+	private final List<DeviceControlStrategy<?>> controlStrategies;
+
+	private Map<DeviceCategory, DeviceControlStrategy<?>> strategyMap;
 
 	@PostConstruct
-	public void handleDeviceControlStrategy() {
-		controlStrategyMap = controlStrategies.stream().collect(Collectors.toMap(DeviceControlStrategy::getSupportedCategory, strategy -> strategy));
-		log.info("Initialized Device Control Strategy Map with categories: {}", controlStrategyMap.keySet());
+	private void initStrategyMap() {
+			strategyMap = controlStrategies.stream()
+							.collect(Collectors.toUnmodifiableMap(
+											DeviceControlStrategy::getSupportedCategory,
+											Function.identity()
+							));
+			log.info("RuleEngine initialized with categories: {}", strategyMap.keySet());
 	}
 
 	@Override
-	@Transactional
+	@Transactional(readOnly = true)
 	public void executeGlobalRuleScan() {
-		List<Rule> activeRules = ruleDao.findAllActive();
-		if (activeRules.isEmpty()) {
-			log.debug("No active rules found during global scan.");
-			return;
-		}
+			List<Rule> activeRules = ruleDao.findAllActive();
+			if (activeRules.isEmpty()) return;
 
-		// Gom nhóm rule theo target (Category + DeviceId)
-		Map<String, List<Rule>> rulesByTarget = activeRules.stream()
-			.collect(Collectors.groupingBy(r -> r.getTargetDeviceCategory() + ":" + r.getTargetDeviceId()));
-
-		rulesByTarget.forEach((targetKey, rules) -> {
-			log.debug("Processing rules for target {}", targetKey);
-			processTargetHighestPriorityRule(targetKey, rules);
-		});
+			activeRules.stream()
+				.collect(Collectors
+					.groupingBy(r -> r.getTargetDeviceCategory() + ":" + r.getTargetDeviceId(), Collectors.maxBy(Comparator.comparingInt(Rule::getPriority))))
+					.forEach((target, optRule) -> optRule.ifPresent(this::processRule));
 	}
 
-	/**
-	 * Xử lý kiểm tra Rule cho một target cụ thể.
-	 * Chỉ lấy Rule có priority cao nhất. Nếu không thỏa mãn, bỏ qua các rule khác.
-	 */
-	private void processTargetHighestPriorityRule(String targetKey, List<Rule> rules) {
-		Rule highestPriorityRule = findHighestPriorityRule(rules);
-
-		if (highestPriorityRule == null) {
-			return;
-		}
-
-		boolean isRuleSatisfied = ruleProcessor.matches(highestPriorityRule);
-
-		if (isRuleSatisfied) {
-			executeRuleAction(highestPriorityRule);
-		} else {
-			log.debug("Rule [{}] did not match for target [{}].", 
-				highestPriorityRule.getName(), targetKey);
-		}
+	private void processRule(Rule rule) {
+			if (ruleProcessor.matches(rule)) executeRuleAction(rule);
 	}
 
-	/**
-	 * Tìm Rule có priority cao nhất trong danh sách.
-	 */
-	private Rule findHighestPriorityRule(List<Rule> rules) {
-		return rules.stream()
-			.max(Comparator.comparing(Rule::getPriority))
-			.orElse(null);
-	}
-
-	/**
-	 * Đọc tham số và thực thi hành động điều khiển thiết bị.
-	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void executeRuleAction(Rule rule) {
-		log.info("EXECUTING WINNER RULE: {} - Target: {}:{}", rule.getName(), rule.getTargetDeviceCategory(), rule.getTargetDeviceId());
-		
-		DeviceControlStrategy controlStrategy = controlStrategyMap.get(rule.getTargetDeviceCategory());
-		if (controlStrategy == null) {
-			log.error("No control strategy found for device category: {}. Cannot execute action for rule: {}", rule.getTargetDeviceCategory(), rule.getId());
-			return;
-		}
-
-		try {
-			var controlDtoClass = controlStrategy.getControlDtoClass();
-			var controlRequestDto = objectMapper.treeToValue(rule.getActionParams(), controlDtoClass);
-			var targetDeviceId = rule.getTargetDeviceId();
-			controlStrategy.control(targetDeviceId, controlRequestDto);
-			log.info("Successfully executed action for rule {} on device {}:{}", rule.getId(), rule.getTargetDeviceCategory(), targetDeviceId);
-		} catch (JsonProcessingException e) {
-			log.error("Invalid action params (JSON format error) for rule {}: {}", rule.getId(), e.getMessage());
-		} catch (Exception e) {
-			log.error("Unexpected error executing action for rule {}: {}", rule.getId(), e.getMessage(), e);
-		}
-	}
-
-	@Override
-	@Transactional
-	public void reloadAllRules() {
-		log.info("Request to reload all rules received. Triggering immediate rule scan.");
-		try {
-			org.quartz.JobKey jobKey = org.quartz.JobKey.jobKey(
-				RuleJob.JOB_NAME, 
-				RuleJob.JOB_GROUP
-			);
+			DeviceControlStrategy strategy = strategyMap.get(rule.getTargetDeviceCategory());
 			
-			if (quartzUtil.checkExists(jobKey)) {
-				quartzUtil.triggerJob(jobKey, null);
-				log.info("Triggered immediate execution of RuleEngineJob: {}", jobKey);
-			} else {
-				log.warn("RuleEngineJob not found with key: {}", jobKey);
+			if (strategy == null) {
+				log.error("Missing strategy for category: {}", rule.getTargetDeviceCategory());
+				return;
 			}
-		} catch (Exception e) {
-			log.error("Failed to trigger rule reload: {}", e.getMessage(), e);
-			throw new InternalServerErrorException("Failed to trigger rule reload", e);
-		}
+
+			try {
+				Object controlDto = objectMapper.treeToValue(rule.getActionParams(), strategy.getControlDtoClass());
+				strategy.control(rule.getTargetDeviceId(), controlDto);
+				log.info("Executed rule [{}] for device [{}]", rule.getName(), rule.getTargetDeviceId());
+			} catch (Exception e) {
+				log.error("Failed to execute rule {}: {}", rule.getId(), e.getMessage());
+			}
 	}
 
 	@Override
 	@Transactional
 	public RuleDto create(CreateRuleDto request) {
-
-		if (ruleDao.existsByName(request.name())) {
-			throw new BadRequestException("Rule name already exists");
-		}
-
-		validateActionParams(request.targetDeviceCategory(), request.actionParams());
-
-		Rule rule = ruleMapper.fromCreateDto(request);
-		Rule saved = ruleDao.save(rule);
-
-		return ruleMapper.toDto(saved);
+			if (ruleDao.existsByName(request.name())) {
+				throw new BadRequestException("Rule name already exists");
+			}
+			validateActionParams(request.targetDeviceCategory(), request.actionParams());
+			
+			Rule saved = ruleDao.save(ruleMapper.fromCreateDto(request));
+			return ruleMapper.toDto(saved);
 	}
 
 	@Override
 	@Transactional
 	public RuleDto update(Long id, UpdateRuleDto request) {
+		Rule existing = ruleDao.findById(id).orElseThrow(() -> new NotFoundException("Rule not found"));
 
-		Rule existing = ruleDao.findById(id)
-			.orElseThrow(() -> new NotFoundException("Rule not found"));
+		DeviceCategory category = Objects.requireNonNullElse(request.targetDeviceCategory(), existing.getTargetDeviceCategory());
+		JsonNode params = Objects.requireNonNullElse(request.actionParams(), existing.getActionParams());
 
-		DeviceCategory finalCategory =
-			request.targetDeviceCategory() != null
-				? request.targetDeviceCategory()
-				: existing.getTargetDeviceCategory();
-
-		JsonNode finalActionParams =
-			request.actionParams() != null
-				? request.actionParams()
-				: existing.getActionParams();
-
-		if (request.targetDeviceCategory() != null
-			&& request.actionParams() == null) {
-
-			throw new BadRequestException(
-				"Updating target device category requires new action parameters."
-			);
+		if (request.targetDeviceCategory() != null && request.actionParams() == null) {
+			throw new BadRequestException("New category requires specific action parameters");
 		}
 
-		validateActionParams(finalCategory, finalActionParams);
-
+		validateActionParams(category, params);
 		ruleMapper.updateFromDto(request, existing);
-
-		Rule updated = ruleDao.update(existing);
-		return ruleMapper.toDto(updated);
-	}
-
-	@Override
-	@Transactional
-	public void delete(Long id) {
-		if (!ruleDao.existsById(id)) {
-			throw new NotFoundException("Rule not found");
-		}
-		ruleDao.deleteById(id);
-	}
-
-	@Override
-	public RuleDto getById(Long id) {
-		Rule rule = ruleDao.findById(id)
-			.orElseThrow(() -> new NotFoundException("Rule not found"));
-		return ruleMapper.toDto(rule);
-	}
-
-	@Override
-	public List<RuleDto> getAll() {
-		List<Rule> rules = ruleDao.findAll();
-		return ruleMapper.toDtoList(rules);
-	}
-
-	@Override
-	public PaginatedResponse<RuleDto> getList(int page, int size) {
-		List<Rule> rules = ruleDao.findAll(page, size);
-		long total = ruleDao.count();
-		return new PaginatedResponse<>(
-			ruleMapper.toDtoList(rules),
-			page, size, total
-		);
+		
+		return ruleMapper.toDto(ruleDao.update(existing));
 	}
 
 	@Override
@@ -243,43 +125,40 @@ public class RuleServiceImpl implements RuleService {
 		ruleDao.update(rule);
 	}
 
-	private void validateActionParams(
-		DeviceCategory category,
-		JsonNode actionParams
-	) {
-		DeviceControlStrategy<?> strategy = controlStrategyMap.get(category);
+	private void validateActionParams(DeviceCategory category, JsonNode params) {
+		DeviceControlStrategy<?> strategy = Optional.ofNullable(strategyMap.get(category))
+						.orElseThrow(() -> new BadRequestException("Unsupported category: " + category));
 
-		if (strategy == null) {
-			throw new BadRequestException("Unsupported target device category: " + category);
-		}
-
-		Object controlDto = convertToControlDto(strategy, actionParams);
-
-		var violations = validator.validate(controlDto);
-
-		if (!violations.isEmpty()) {
-			String message = violations.stream()
-				.map(v -> v.getPropertyPath() + " " + v.getMessage())
-				.reduce((a, b) -> a + ", " + b)
-				.orElse("Invalid action params");
-
-			throw new BadRequestException(message);
+		try {
+			Object dto = objectMapper.treeToValue(params, strategy.getControlDtoClass());
+			var violations = validator.validate(dto);
+			if (!violations.isEmpty()) {
+				String errorMsg = violations.stream()
+					.map(v -> v.getPropertyPath() + " " + v.getMessage())
+					.collect(Collectors.joining(", "));
+				throw new BadRequestException(errorMsg);
+			}
+		} catch (JsonProcessingException e) {
+			throw new BadRequestException("Invalid JSON format for action parameters");
 		}
 	}
 
-	private Object convertToControlDto(
-		DeviceControlStrategy<?> strategy,
-		JsonNode actionParams
-	) {
+	@Override
+	public void reloadAllRules() {
+		JobKey jobKey = JobKey.jobKey(RuleJob.JOB_NAME, RuleJob.JOB_GROUP);
 		try {
-			return objectMapper.treeToValue(
-				actionParams,
-				strategy.getControlDtoClass()
-			);
-		} catch (JsonProcessingException e) {
-			throw new BadRequestException(
-				"Invalid action params format: " + e.getOriginalMessage()
-			);
+			if (quartzUtil.checkExists(jobKey)) {
+				quartzUtil.triggerJob(jobKey, null);
+			}
+		} catch (Exception e) {
+			throw new InternalServerErrorException("Quartz trigger failed", e);
 		}
+	}
+
+	@Override public List<RuleDto> getAll() { return ruleMapper.toDtoList(ruleDao.findAll()); }
+	@Override public RuleDto getById(Long id) { return ruleDao.findById(id).map(ruleMapper::toDto).orElseThrow(() -> new NotFoundException("Rule not found")); }
+	@Override @Transactional public void delete(Long id) { if (!ruleDao.existsById(id)) throw new NotFoundException("Rule not found"); ruleDao.deleteById(id); }
+	@Override public PaginatedResponse<RuleDto> getList(int page, int size) { 
+			return new PaginatedResponse<>(ruleMapper.toDtoList(ruleDao.findAll(page, size)), page, size, ruleDao.count()); 
 	}
 }

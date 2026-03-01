@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DeviceDataSourceStrategy implements RuleDataSourceStrategy {
 
   private final List<DeviceStateStrategy> deviceStrategies;
+
   @Override
   public boolean supports(RuleDataSource dataSource) {
     return RuleDataSource.DEVICE.equals(dataSource);
@@ -30,6 +31,7 @@ public class DeviceDataSourceStrategy implements RuleDataSourceStrategy {
     try {
       JsonNode params = condition.getResourceParam();
       if (params == null) {
+        log.debug("Resource params are null for condition: {}", condition.getId());
         return null;
       }
 
@@ -38,16 +40,21 @@ public class DeviceDataSourceStrategy implements RuleDataSourceStrategy {
       Long deviceId = params.path("deviceId").asLong();
       String property = params.path("property").asText();
 
-      // Loop qua các loại device (AirCondition, Light,...)
       for (DeviceStateStrategy strategy : deviceStrategies) {
         if (strategy.supports(category)) {
-          return strategy.fetchState(deviceId, property);
+          Object value = strategy.fetchState(deviceId, property);
+          log.debug("Fetched state for condition {}: DEVICE [{}] property '{}' = {}", 
+                    condition.getId(), deviceId, property, value);
+          return value;
         }
       }
-      log.warn("No device strategy found for category: {}", categoryStr);
+      log.warn("No device strategy found for category '{}' in condition {}", categoryStr, condition.getId());
+      return null;
+    } catch (IllegalArgumentException e) {
+      log.warn("Invalid category in condition {}: {}", condition.getId(), e.getMessage());
       return null;
     } catch (Exception e) {
-      log.error("Error in DeviceDataProvider: {}", e.getMessage());
+      log.error("Error fetching device data for condition {}: {}", condition.getId(), e.getMessage(), e);
       return null;
     }
   }

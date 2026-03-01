@@ -38,18 +38,15 @@ public class TemperatureSensorStateStrategy implements SensorStateStrategy {
       }
 
       return switch (property.toLowerCase()) {
-        case PROP_TEMPERATURE -> {
-          log.info("Fetched current temperature value for sensor {}: {}", sensorId, sensor.getCurrentValue());
-          yield sensor.getCurrentValue();
-        }
+        case PROP_TEMPERATURE -> sensor.getCurrentValue();
         default -> {
-          log.warn("Property {} not supported for TEMPERATURE sensor in sensor {}", property, sensorId);
+          log.warn("Property '{}' not supported for TEMPERATURE sensor in sensor {}", property, sensorId);
           yield null;
         }
       };
 
     } catch (Exception e) {
-      log.error("Failed to fetch TEMPERATURE state for sensor {}: {}", sensorId, e.getMessage());
+      log.error("Failed to fetch TEMPERATURE state for sensor {}: {}", sensorId, e.getMessage(), e);
       return null;
     }
   }

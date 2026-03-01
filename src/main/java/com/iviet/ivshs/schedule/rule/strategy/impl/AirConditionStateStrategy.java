@@ -7,7 +7,9 @@ import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.schedule.rule.strategy.DeviceStateStrategy;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AirConditionStateStrategy implements DeviceStateStrategy {
@@ -27,10 +29,15 @@ public class AirConditionStateStrategy implements DeviceStateStrategy {
 
   @Override
   public Object fetchState(Long deviceId, String property) {
-    if (property == null)
+    if (property == null || deviceId == null) {
       return null;
+    }
 
-    AirCondition ac = getAirCondition(deviceId);
+    AirCondition ac = airConditionDao.findById(deviceId).orElse(null);
+    if (ac == null) {
+      log.warn("AirCondition not found with id: {}", deviceId);
+      return null;
+    }
 
     return switch (property.toLowerCase()) {
       case PROP_POWER -> ac.getPower();
@@ -38,12 +45,10 @@ public class AirConditionStateStrategy implements DeviceStateStrategy {
       case PROP_MODE -> ac.getMode();
       case PROP_FAN_SPEED -> ac.getFanSpeed();
       case PROP_SWING -> ac.getSwing();
-      default -> null;
+      default -> {
+        log.warn("Property '{}' not supported for AIR_CONDITION ID: {}", property, deviceId);
+        yield null;
+      }
     };
-  }
-
-  private AirCondition getAirCondition(Long deviceId) {
-    return airConditionDao.findById(deviceId)
-        .orElseThrow(() -> new RuntimeException("AirCondition not found with id: " + deviceId));
   }
 }

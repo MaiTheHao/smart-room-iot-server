@@ -30,7 +30,7 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
   private static final String PROP_TEMPERATURE = "temperature";
   private static final String PROP_WATT = "watt";
-  private static final int DEFAULT_LOOKBACK_MINUTES = 24 * 60; // 24 hours by default
+  private static final int DEFAULT_LOOKBACK_MINUTES = 24 * 60; 
   
   private int lookbackMinutes;
 
@@ -47,6 +47,7 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
   @Override
   public Object fetchValue(RuleCondition condition, Long contextId) {
     if (condition == null || condition.getResourceParam() == null) {
+      log.debug("Condition or resource params are null");
       return null;
     }
 
@@ -64,23 +65,23 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
       return switch (property.toLowerCase()) {
         case PROP_TEMPERATURE -> {
           List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(contextId, startTime, now);
-          log.info("Fetched {} temperature records for ROOM {} in the last {} minutes", history.size(), contextId, lookbackMinutes);
+          log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), contextId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
         }
         case PROP_WATT -> {
           List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(contextId, startTime, now);
-          log.info("Fetched {} watt records for ROOM {} in the last {} minutes", history.size(), contextId, lookbackMinutes);
+          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), contextId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
         }
         default -> {
-          log.warn("Property {} not supported for ROOM data source in condition {}", property, condition.getId());
+          log.warn("Property '{}' not supported for ROOM data source in condition {}", property, condition.getId());
           yield null;
         }
       };
 
     } catch (Exception e) {
       log.error("Failed to provide ROOM data for condition {} (Room ID: {}): {}",
-          condition.getId(), contextId, e.getMessage());
+          condition.getId(), contextId, e.getMessage(), e);
       return null;
     }
   }

@@ -3,6 +3,8 @@ package com.iviet.ivshs.dto;
 import java.time.Instant;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.iviet.ivshs.enumeration.ConditionLogic;
+import com.iviet.ivshs.enumeration.ConditionOperator;
 import com.iviet.ivshs.enumeration.RuleDataSource;
 import lombok.Builder;
 
@@ -12,9 +14,9 @@ public record RuleConditionDto(
     Integer sortOrder,
     RuleDataSource dataSource,
     JsonNode resourceParam,
-    String operator,
+    ConditionOperator operator,
     String value,
-    String nextLogic,
+    ConditionLogic nextLogic,
     Instant createdAt,
     Instant updatedAt
 ) {}

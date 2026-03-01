@@ -7,7 +7,9 @@ import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.schedule.rule.strategy.DeviceStateStrategy;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LightStateStrategy implements DeviceStateStrategy {
@@ -24,20 +26,23 @@ public class LightStateStrategy implements DeviceStateStrategy {
 
   @Override
   public Object fetchState(Long deviceId, String property) {
-    if (property == null)
+    if (property == null || deviceId == null) {
       return null;
+    }
 
-    Light light = getLight(deviceId);
+    Light light = lightDao.findById(deviceId).orElse(null);
+    if (light == null) {
+      log.warn("Light not found with id: {}", deviceId);
+      return null;
+    }
 
     return switch (property.toLowerCase()) {
       case PROP_LEVEL -> light.getLevel();
       case PROP_POWER -> light.getPower();
-      default -> null;
+      default -> {
+        log.warn("Property '{}' not supported for LIGHT ID: {}", property, deviceId);
+        yield null;
+      }
     };
-  }
-
-  private Light getLight(Long deviceId) {
-    return lightDao.findById(deviceId)
-        .orElseThrow(() -> new RuntimeException("Light not found with id: " + deviceId));
   }
 }

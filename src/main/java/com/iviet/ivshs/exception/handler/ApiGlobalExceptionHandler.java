@@ -6,8 +6,12 @@ import com.iviet.ivshs.exception.domain.BaseException;
 import com.iviet.ivshs.exception.domain.ForbiddenException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.exception.domain.UnauthorizedException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -16,7 +20,6 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,32 +83,57 @@ public class ApiGlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String msg = "Malformed JSON request or invalid data format.";
         Throwable cause = ex.getCause();
-        log.error("HttpMessageNotReadableException: ", ex);
 
-        if (cause instanceof InvalidFormatException) {
-            InvalidFormatException ife = (InvalidFormatException) cause;
-            
-            String fieldName = "unknown";
-            if (!ife.getPath().isEmpty()) {
-                fieldName = ife.getPath().get(ife.getPath().size() - 1).getFieldName();
-            }
+        log.debug("HttpMessageNotReadableException StackTrace: ", ex);
 
-            if (ife.getTargetType() != null) {
-                if (ife.getTargetType().isEnum()) {
-                    String validValues = Arrays.stream(ife.getTargetType().getEnumConstants())
-                            .map(Object::toString)
-                            .collect(Collectors.joining(", "));
-                    msg = String.format("Invalid value '%s' for field '%s'. Accepted values are: [%s]",
-                            ife.getValue(), fieldName, validValues);
-                } else {
-                    String expectedType = ife.getTargetType().getSimpleName();
-                    msg = String.format("Invalid value '%s' for field '%s'. Expected type: %s",
-                            ife.getValue(), fieldName, expectedType);
+        if (cause instanceof JsonMappingException jme) {
+            StringBuilder pathBuilder = new StringBuilder();
+            for (JsonMappingException.Reference ref : jme.getPath()) {
+                if (ref.getFieldName() != null) {
+                    if (!pathBuilder.isEmpty()) pathBuilder.append(".");
+                    pathBuilder.append(ref.getFieldName());
+                } else if (ref.getIndex() >= 0) {
+                    pathBuilder.append("[").append(ref.getIndex()).append("]");
                 }
             }
+            String fieldName = !pathBuilder.isEmpty() ? pathBuilder.toString() : "unknown";
+
+            if (jme instanceof InvalidFormatException ife) {
+                if (ife.getTargetType() != null) {
+                    if (ife.getTargetType().isEnum()) {
+                        String validValues = Arrays.stream(ife.getTargetType().getEnumConstants())
+                                .map(Object::toString).collect(Collectors.joining(", "));
+                        msg = String.format("Invalid value '%s' for field '%s'. Accepted values are: [%s]",
+                                ife.getValue(), fieldName, validValues);
+                    } else {
+                        msg = String.format("Invalid value '%s' for field '%s'. Expected type: %s",
+                                ife.getValue(), fieldName, ife.getTargetType().getSimpleName());
+                    }
+                }
+            } 
+            else if (jme instanceof ValueInstantiationException vie) {
+                Class<?> targetType = vie.getType() != null ? vie.getType().getRawClass() : null;
+                
+                if (targetType != null && targetType.isEnum()) {
+                    String validValues = Arrays.stream(targetType.getEnumConstants())
+                            .map(Object::toString).collect(Collectors.joining(", "));
+                    
+                    String detailMsg = vie.getCause() != null ? vie.getCause().getMessage() : "Invalid input";
+                    msg = String.format("Invalid value for field '%s'. Accepted values are: [%s]. (%s)",
+                            fieldName, validValues, detailMsg);
+                } else if (vie.getCause() != null) {
+                    msg = vie.getCause().getMessage();
+                }
+            }
+        } 
+        else if (cause instanceof JsonParseException) {
+            msg = "Malformed JSON request. Please check the JSON syntax (e.g. missing quotes, trailing commas).";
+        } 
+        else if (cause != null && cause.getMessage() != null) {
+            msg = cause.getMessage().split("\n")[0]; 
         }
 
-        log.warn("HttpMessageNotReadableException: {}", msg);
+        log.warn("Bad Request (HttpMessageNotReadable): {}", msg);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST, msg));
@@ -171,7 +199,7 @@ public class ApiGlobalExceptionHandler {
 
     @ExceptionHandler(UnsupportedOperationException.class)
     public ResponseEntity<ApiResponse<Object>> handleUnsupportedOperationException(UnsupportedOperationException ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ApiResponse.error(HttpStatus.BAD_REQUEST, "Operation not supported: " + ex.getMessage()));
     }
 

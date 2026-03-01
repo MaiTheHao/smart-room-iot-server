@@ -1,119 +1,130 @@
 package com.iviet.ivshs.schedule.rule;
 
-import java.util.Comparator;
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import com.iviet.ivshs.entities.Rule;
 import com.iviet.ivshs.entities.RuleCondition;
+import com.iviet.ivshs.enumeration.ConditionLogic;
+import com.iviet.ivshs.enumeration.ConditionOperator;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "RULE_PROCESSOR")
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import java.util.Comparator;
+import java.util.List;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RuleProcessor {
 
+	private final Environment env;
 	private final List<RuleDataSourceStrategy> ruleDataSourceStrategies;
+	private static final double DEFAULT_EPSILON = 0.05;
+	private double EPSILON = DEFAULT_EPSILON;
 
-	private static final String LOGIC_OR = "OR";
-	private static final double EPSILON = .001;
+	@PostConstruct 
+	private void init() {
+		Double epsilonConfig = env.getProperty("app.engine.rule.computeEpsilon", Double.class);
+		if (epsilonConfig != null) EPSILON = epsilonConfig;
+		log.info("RuleProcessor initialized with epsilon = {}", EPSILON);
+	}
 
 	public boolean matches(Rule rule) {
-		if (rule.getConditions() == null || rule.getConditions().isEmpty()) {
+		List<RuleCondition> conditions = rule.getConditions();
+		
+		if (conditions == null || conditions.isEmpty()) {
 			log.warn("Rule {} has no conditions", rule.getId());
 			return false;
 		}
 
-		List<RuleCondition> conditions = rule.getConditions();
-		sortConditions(conditions);
-
 		log.info("Evaluating rule {} with {} conditions", rule.getId(), conditions.size());
 
-		boolean currentResult = true;
+		return conditions.stream()
+				.sorted(Comparator.comparingInt(RuleCondition::getSortOrder))
+				.reduce(new EvaluationContext(), this::accumulateResult, (a, b) -> a)
+				.isFinalResult();
+	}
 
-		for (int i = 0; i < conditions.size(); i++) {
-			RuleCondition cond = conditions.get(i);
-			log.debug("Evaluating condition {} (operator: {}, value: {})", cond.getId(), cond.getOperator(), cond.getValue());
-			boolean isMet = evaluateCondition(cond, rule.getRoomId());
-
-			log.info("Condition id {} evaluated to {}", cond.getId(), isMet);
-
-			if (i == 0) {
-				currentResult = isMet;
-			} else {
-				RuleCondition prev = conditions.get(i - 1);
-				String logic = prev.getNextLogic();
-				log.debug("Applying logic {} between previous and current condition", logic);
-
-				if (LOGIC_OR.equalsIgnoreCase(logic)) {
-					currentResult = currentResult || isMet;
-				} else {
-					currentResult = currentResult && isMet;
-				}
-			}
+	private EvaluationContext accumulateResult(EvaluationContext ctx, RuleCondition cond) {
+		boolean isMet = evaluateCondition(cond, ctx.getRoomId());
+		
+		if (ctx.isFirst()) {
+			ctx.setFinalResult(isMet);
+			ctx.setFirst(false);
+		} else {
+			ConditionLogic logic = ctx.getPrevLogic();
+			boolean newResult = (logic == ConditionLogic.OR) 
+					? ctx.isFinalResult() || isMet 
+					: ctx.isFinalResult() && isMet;
+			ctx.setFinalResult(newResult);
 		}
-
-		log.info("Final result for rule {}: {}", rule.getId(), currentResult);
-		return currentResult;
+		
+		ctx.setPrevLogic(cond.getNextLogic());
+		return ctx;
 	}
 
-	private void sortConditions(List<RuleCondition> conditions) {
-		conditions.sort(Comparator.comparingInt(RuleCondition::getSortOrder));
-	}
-
-	private boolean evaluateCondition(RuleCondition cond, Long contextId) {
-		for (RuleDataSourceStrategy strategy : ruleDataSourceStrategies) {
-			if (strategy.supports(cond.getDataSource())) {
-				try {
-					log.debug("Using Data Source Strategy {} for condition {}", strategy.getClass().getSimpleName(), cond.getId());
-
-					Object valueObj = strategy.fetchValue(cond, contextId);
-
-					if (valueObj == null) {
-						log.warn("Strategy {} returned null for condition {}", strategy.getClass().getSimpleName(), cond.getId());
+	private boolean evaluateCondition(RuleCondition cond, Long roomId) {
+		return ruleDataSourceStrategies.stream()
+				.filter(s -> s.supports(cond.getDataSource()))
+				.findFirst()
+				.map(strategy -> {
+					try {
+						Object val = strategy.fetchValue(cond, roomId);
+						return val != null && compareValues(val.toString(), cond.getValue(), cond.getOperator());
+					} catch (Exception e) {
+						log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
 						return false;
 					}
-				
-					return compareValues(valueObj.toString(), cond.getValue(), cond.getOperator());
-
-				} catch (Exception e) {
-					log.warn("Failed to evaluate condition {}: {}", cond.getId(), e.getMessage());
+				})
+				.orElseGet(() -> {
+					log.warn("No strategy for: {}", cond.getDataSource());
 					return false;
-				}
-			}
-		}
-
-		log.warn("No strategy found for data source: {}", cond.getDataSource());
-		return false;
+				});
 	}
 
-	private boolean compareValues(String actualStr, String targetStr, String operator) {
+	private boolean compareValues(String actual, String target, ConditionOperator op) {
 		try {
-			double actualValue = Double.parseDouble(actualStr);
-			double targetValue = Double.parseDouble(targetStr);
-			boolean result = switch (operator) {
-				case ">" -> actualValue > targetValue;
-				case "<" -> actualValue < targetValue;
-				case "=" -> Math.abs(actualValue - targetValue) < EPSILON;
-				case "!=" -> Math.abs(actualValue - targetValue) >= EPSILON;
-				case ">=" -> actualValue >= targetValue;
-				case "<=" -> actualValue <= targetValue;
+			double v1 = Double.parseDouble(actual);
+			double v2 = Double.parseDouble(target);
+			
+			boolean res = switch (op) {
+				case GT -> v1 > v2;
+				case LT -> v1 < v2;
+				case EQ -> Math.abs(v1 - v2) < EPSILON;
+				case NEQ -> Math.abs(v1 - v2) >= EPSILON;
+				case GTE -> v1 >= v2;
+				case LTE -> v1 <= v2;
 				default -> false;
 			};
-			log.info("Numeric comparison: {} {} {} => {}", actualValue, operator, targetValue, result);
-			return result;
+			log.debug("Numeric: {} {} {} -> {}", v1, op.getSymbol(), v2, res);
+			return res;
 		} catch (NumberFormatException e) {
-			boolean result = switch (operator) {
-				case "=" -> actualStr.equalsIgnoreCase(targetStr);
-				case "!=" -> !actualStr.equalsIgnoreCase(targetStr);
-				default -> false;
+			boolean res = switch (op) {
+				case GT -> actual.compareToIgnoreCase(target) > 0;
+				case LT -> actual.compareToIgnoreCase(target) < 0;
+				case EQ -> actual.equals(target);
+				case NEQ -> !actual.equals(target);
+				case GTE -> actual.compareToIgnoreCase(target) >= 0;
+				case LTE -> actual.compareToIgnoreCase(target) <= 0;
+				default -> {
+					log.warn("Invalid operator for non-numeric: {}", op);
+					yield false;
+				}
 			};
-			log.info("String comparison: '{}' {} '{}' => {}", actualStr, operator, targetStr, result);
-			return result;
+			log.debug("String: '{}' {} '{}' -> {}", actual, op.getSymbol(), target, res);
+			return res;
 		}
+	}
+
+	@lombok.Data
+	private static class EvaluationContext {
+		private boolean finalResult = true;
+		private boolean isFirst = true;
+		private ConditionLogic prevLogic;
+		private Long roomId;
 	}
 }

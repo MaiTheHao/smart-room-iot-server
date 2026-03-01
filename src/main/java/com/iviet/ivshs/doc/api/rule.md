@@ -638,21 +638,29 @@ Sử dụng trong trường hợp cần đồng bộ hóa cấu hình quy tắc 
 
 ### Operators (Toán tử so sánh)
 
-| Toán tử | Mô tả                  |
-| :------ | :--------------------- |
-| `=`     | Bằng                   |
-| `!=`    | Khác                   |
-| `>`     | Lớn hơn                |
-| `<`     | Nhỏ hơn                |
-| `>=`    | Lớn hơn hoặc bằng      |
-| `<=`    | Nhỏ hơn hoặc bằng      |
+Sử dụng các ký tự toán học chuẩn sau (gửi dưới dạng chuỗi String trong trường `operator`):
+
+| Toán tử | Database | Enum (Backend) | Mô tả                  |
+| :------ | :------- | :------------- | :--------------------- |
+| `=`     | `=`      | `EQ`           | Bằng                   |
+| `!=`    | `!=`     | `NEQ`          | Khác                   |
+| `>`     | `>`      | `GT`           | Lớn hơn                |
+| `<`     | `<`      | `LT`           | Nhỏ hơn                |
+| `>=`    | `>=`     | `GTE`          | Lớn hơn hoặc bằng      |
+| `<=`    | `<=`     | `LTE`          | Nhỏ hơn hoặc bằng      |
+
+**Lưu ý:** Frontend/Client chỉ cần gửi ký tự toán học (cột "Database"). Hệ thống tự động chuyển đổi sang Enum nội bộ.
 
 ### Logic Gates (Toán tử logic)
 
-| Giá trị | Mô tả                                       |
-| :------ | :------------------------------------------ |
-| `AND`   | Cả hai điều kiện phải đúng                  |
-| `OR`    | Ít nhất một điều kiện phải đúng             |
+Sử dụng cho trường `nextLogic` để kết nối giữa các điều kiện:
+
+| Giá trị | Mô tả                                       | Ví dụ                                    |
+| :------ | :------------------------------------------ | :--------------------------------------- |
+| `AND`   | Cả hai điều kiện phải đúng (mặc định)      | Nhiệt độ > 30 **AND** Đèn đang bật      |
+| `OR`    | Ít nhất một điều kiện phải đúng            | Nhiệt độ > 30 **OR** Độ ẩm > 80         |
+
+**Lưu ý:** Nếu không truyền `nextLogic` hoặc truyền `null`, hệ thống mặc định sử dụng `AND`.
 
 ### Chi tiết cấu trúc `resourceParam` theo từng Data Source
 

@@ -41,19 +41,21 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
 
       LocalDateTime now = LocalDateTime.now();
 
-      return switch (property.toLowerCase()) {
+      Object value = switch (property.toLowerCase()) {
         case PROP_CURRENT_TIME -> now.getHour() + (now.getMinute() / 60.0);
         case PROP_DAY_OF_WEEK -> now.getDayOfWeek().getValue();
         case PROP_DAY_OF_MONTH -> now.getDayOfMonth();
         default -> {
-          log.warn("Property {} not supported for SYSTEM data source in condition {}", property, condition.getId());
+          log.warn("Property '{}' not supported for SYSTEM data source in condition {}", property, condition.getId());
           yield null;
         }
       };
+      
+      log.debug("Fetched SYSTEM data for condition {}: {} = {}", condition.getId(), property, value);
+      return value;
 
     } catch (Exception e) {
-      log.error("Failed to provide SYSTEM data for condition {}: {}",
-          condition.getId(), e.getMessage());
+      log.error("Failed to provide SYSTEM data for condition {}: {}", condition.getId(), e.getMessage(), e);
       return null;
     }
   }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.schedule.rule.RuleJob;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +30,14 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
   private final SchedulerFactoryBean schedulerFactoryBean;
   private final Environment env;
   private boolean isInitialized = false;
+
+  private int ruleScanIntervalSeconds;
+
+  @PostConstruct
+  private void init() {
+    ruleScanIntervalSeconds = env.getProperty("app.engine.rule.scanIntervalSeconds", Integer.class, 300);
+    log.info("RuleInitializer configured with scan interval: {} seconds", ruleScanIntervalSeconds);
+  }
 
   @Override
   public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
@@ -60,10 +69,8 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
 
   private void scheduleGlobalRuleEngineJob() throws SchedulerException {
     Scheduler scheduler = schedulerFactoryBean.getScheduler();
-    
-    Integer scanIntervalSeconds = env.getProperty("app.engine.rule.scanIntervalSeconds", Integer.class, 300);
 
-    log.info("Scheduling Rule Engine Job with interval: {} seconds", scanIntervalSeconds);
+    log.info("Scheduling Rule Engine Job with interval: {} seconds", ruleScanIntervalSeconds);
 
     JobDetail jobDetail = JobBuilder.newJob(RuleJob.class)
         .withIdentity(RuleJob.JOB_NAME, RuleJob.JOB_GROUP)
@@ -78,11 +85,11 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
         .withIdentity("RuleEngineTrigger", RuleJob.JOB_GROUP)
         .startNow()
         .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-            .withIntervalInSeconds(scanIntervalSeconds)
+            .withIntervalInSeconds(ruleScanIntervalSeconds)
             .repeatForever())
         .build();
 
     scheduler.scheduleJob(jobDetail, trigger);
-    log.info("Rule Engine Job scheduled successfully (Interval: {}s).", scanIntervalSeconds);
+    log.info("Rule Engine Job scheduled successfully (Interval: {}s).", ruleScanIntervalSeconds);
   }
 }

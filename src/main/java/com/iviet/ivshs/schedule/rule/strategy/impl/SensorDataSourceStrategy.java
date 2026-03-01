@@ -31,6 +31,7 @@ public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
     try {
       JsonNode params = condition.getResourceParam();
       if (params == null) {
+        log.debug("Resource params are null for condition: {}", condition.getId());
         return null;
       }
 
@@ -41,13 +42,19 @@ public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
 
       for (SensorStateStrategy strategy : sensorStrategies) {
         if (strategy.supports(category)) {
-          return strategy.fetchState(sensorId, property);
+          Object value = strategy.fetchState(sensorId, property);
+          log.debug("Fetched state for condition {}: SENSOR [{}] property '{}' = {}", 
+                    condition.getId(), sensorId, property, value);
+          return value;
         }
       }
-      log.warn("No sensor strategy found for category: {}", categoryStr);
+      log.warn("No sensor strategy found for category '{}' in condition {}", categoryStr, condition.getId());
+      return null;
+    } catch (IllegalArgumentException e) {
+      log.warn("Invalid category in condition {}: {}", condition.getId(), e.getMessage());
       return null;
     } catch (Exception e) {
-      log.error("Error in SensorDataProvider: {}", e.getMessage());
+      log.error("Error fetching sensor data for condition {}: {}", condition.getId(), e.getMessage(), e);
       return null;
     }
   }

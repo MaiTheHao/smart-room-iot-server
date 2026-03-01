@@ -15,6 +15,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.iviet.ivshs.enumeration.ConditionLogic;
+import com.iviet.ivshs.enumeration.ConditionOperator;
 import com.iviet.ivshs.enumeration.RuleDataSource;
 
 @Entity
@@ -41,11 +43,12 @@ public class RuleCondition extends BaseAuditEntity {
     private JsonNode resourceParam; // JSON: { "deviceId": 1, "category": "FAN", "property": "level" }
 
     @Column(name = "operator", nullable = false, length = 5)
-    private String operator;
+    private ConditionOperator operator;
 
     @Column(name = "value_param", nullable = false)
     private String value;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "next_logic", length = 3)
-    private String nextLogic;
+    private ConditionLogic nextLogic;
 }

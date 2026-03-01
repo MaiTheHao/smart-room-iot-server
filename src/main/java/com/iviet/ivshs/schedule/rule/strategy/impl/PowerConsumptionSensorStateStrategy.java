@@ -36,18 +36,15 @@ public class PowerConsumptionSensorStateStrategy implements SensorStateStrategy 
       }
 
       return switch (property.toLowerCase()) {
-        case PROP_WATT -> {
-          log.info("Fetched current watt value for sensor {}: {}", sensorId, sensor.getCurrentWatt());
-          yield sensor.getCurrentWatt();
-        }
+        case PROP_WATT -> sensor.getCurrentWatt();
         default -> {
-          log.warn("Property {} not supported for POWER_CONSUMPTION sensor in sensor {}", property, sensorId);
+          log.warn("Property '{}' not supported for POWER_CONSUMPTION sensor in sensor {}", property, sensorId);
           yield null;
         }
       };
 
     } catch (Exception e) {
-      log.error("Failed to fetch POWER_CONSUMPTION state for sensor {}: {}", sensorId, e.getMessage());
+      log.error("Failed to fetch POWER_CONSUMPTION state for sensor {}: {}", sensorId, e.getMessage(), e);
       return null;
     }
   }
