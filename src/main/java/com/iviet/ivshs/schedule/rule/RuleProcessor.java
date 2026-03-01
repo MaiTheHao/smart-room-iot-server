@@ -40,7 +40,7 @@ public class RuleProcessor {
 			log.debug("Evaluating condition {} (operator: {}, value: {})", cond.getId(), cond.getOperator(), cond.getValue());
 			boolean isMet = evaluateCondition(cond, rule.getRoomId());
 
-			log.info("Condition {} evaluated to {}", cond.getId(), isMet);
+			log.info("Condition id {} evaluated to {}", cond.getId(), isMet);
 
 			if (i == 0) {
 				currentResult = isMet;
@@ -77,6 +77,7 @@ public class RuleProcessor {
 						log.warn("Strategy {} returned null for condition {}", strategy.getClass().getSimpleName(), cond.getId());
 						return false;
 					}
+				
 					return compareValues(valueObj.toString(), cond.getValue(), cond.getOperator());
 
 				} catch (Exception e) {
@@ -103,7 +104,7 @@ public class RuleProcessor {
 				case "<=" -> actualValue <= targetValue;
 				default -> false;
 			};
-			log.debug("Numeric comparison: {} {} {} => {}", actualValue, operator, targetValue, result);
+			log.info("Numeric comparison: {} {} {} => {}", actualValue, operator, targetValue, result);
 			return result;
 		} catch (NumberFormatException e) {
 			boolean result = switch (operator) {
@@ -111,7 +112,7 @@ public class RuleProcessor {
 				case "!=" -> !actualStr.equalsIgnoreCase(targetStr);
 				default -> false;
 			};
-			log.debug("String comparison: '{}' {} '{}' => {}", actualStr, operator, targetStr, result);
+			log.info("String comparison: '{}' {} '{}' => {}", actualStr, operator, targetStr, result);
 			return result;
 		}
 	}

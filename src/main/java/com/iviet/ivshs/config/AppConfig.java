@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -155,5 +156,10 @@ public class AppConfig implements EnvironmentAware {
     @Bean
     public PlatformTransactionManager transactionManager(@NonNull EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
+    }
+
+    @Bean
+    public Validator validator() {
+        return new org.springframework.validation.beanvalidation.LocalValidatorFactoryBean();
     }
 }

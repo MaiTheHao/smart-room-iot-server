@@ -40,6 +40,9 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
         var record = dto.toEntity();
         record.setSensor(sensor);
         temperatureValueDao.save(record);
+
+        sensor.setCurrentValue(record.getTempC());
+        temperatureDao.save(sensor);
     }
 
     @Override
@@ -48,15 +51,33 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
         var record = dto.toEntity();
         record.setSensor(sensor);
         temperatureValueDao.saveAndForget(sensor.getId(), record);
+
+        sensor.setCurrentValue(record.getTempC());
+        temperatureDao.save(sensor);
     }
 
     @Override
     @Transactional
     public void createBatchWithSensor(Temperature sensor, List<CreateTemperatureValueDto> dtoList) {
-        temperatureValueDao.saveAndForget(sensor.getId(), dtoList.stream()
+        if (dtoList == null || dtoList.isEmpty()) {
+            return;
+        }
+
+        List<CreateTemperatureValueDto> sortedByTimestampLatestFirst = dtoList.stream()
             .filter(dto -> dto != null)
+            .sorted((dto1, dto2) -> dto2.timestamp().compareTo(dto1.timestamp()))
+            .toList();
+
+        if (sortedByTimestampLatestFirst.isEmpty()) {
+            return;
+        }
+
+        temperatureValueDao.saveAndForget(sensor.getId(), sortedByTimestampLatestFirst.stream()
             .map(CreateTemperatureValueDto::toEntity)
             .toList()
         );
+
+        sensor.setCurrentValue(sortedByTimestampLatestFirst.get(0).tempC());
+        temperatureDao.save(sensor);
     }
 }

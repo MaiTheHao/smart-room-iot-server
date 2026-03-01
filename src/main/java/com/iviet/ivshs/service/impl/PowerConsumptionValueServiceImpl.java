@@ -42,6 +42,9 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
         var record = dto.toEntity();
         record.setSensor(sensor);
         powerConsumptionValueDao.save(record);
+
+        sensor.setCurrentWatt(record.getWatt());
+        powerConsumptionDao.save(sensor);
     }
 
     @Override
@@ -50,15 +53,33 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
         var record = dto.toEntity();
         record.setSensor(sensor);
         powerConsumptionValueDao.saveAndForget(sensor.getId(), record);
+
+        sensor.setCurrentWatt(record.getWatt());
+        powerConsumptionDao.save(sensor);
     }
 
     @Override
     @Transactional
     public void createBatchWithSensor(PowerConsumption sensor, List<CreatePowerConsumptionValueDto> dtoList) {
-        powerConsumptionValueDao.saveAndForget(sensor.getId(), dtoList.stream()
+        if (dtoList == null || dtoList.isEmpty()) {
+            return;
+        }
+
+        List<CreatePowerConsumptionValueDto> sortedByTimestampLatestFirst = dtoList.stream()
             .filter(dto -> dto != null)
+            .sorted((dto1, dto2) -> dto2.timestamp().compareTo(dto1.timestamp()))
+            .toList();
+
+        if (sortedByTimestampLatestFirst.isEmpty()) {
+            return;
+        }
+
+        powerConsumptionValueDao.saveAndForget(sensor.getId(), sortedByTimestampLatestFirst.stream()
             .map(CreatePowerConsumptionValueDto::toEntity)
             .toList()
         );
+
+        sensor.setCurrentWatt(sortedByTimestampLatestFirst.get(0).watt());
+        powerConsumptionDao.save(sensor);
     }
 }

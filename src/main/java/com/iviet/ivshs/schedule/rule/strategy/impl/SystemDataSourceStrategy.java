@@ -2,8 +2,6 @@ package com.iviet.ivshs.schedule.rule.strategy.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.enumeration.RuleDataSource;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
@@ -17,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
-
-  private final ObjectMapper objectMapper;
 
   private static final String PROP_CURRENT_TIME = "current_time";
   private static final String PROP_DAY_OF_WEEK = "day_of_week";
@@ -36,8 +32,7 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
     }
 
     try {
-      JsonNode params = objectMapper.readTree(condition.getResourceParam());
-      String property = params.path("property").asText(null);
+      String property = condition.getResourceParam().path("property").asText(null);
 
       if (property == null) {
         log.warn("Property is missing in SYSTEM resourceParam for condition {}", condition.getId());

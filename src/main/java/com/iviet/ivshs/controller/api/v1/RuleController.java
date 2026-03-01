@@ -83,14 +83,14 @@ public class RuleController {
 				ApiResponse.success(HttpStatus.OK, null, "Rule status updated: " + request.isActive()));
 	}
 
-	@PostMapping(":scan")
+	@PostMapping("/scan")
 	public ResponseEntity<ApiResponse<Void>> executeGlobalRuleScan() {
 		ruleService.executeGlobalRuleScan();
 		return ResponseEntity.ok(
 				ApiResponse.success(HttpStatus.OK, null, "Global rule scan executed"));
 	}
 
-	@PostMapping(":reload")
+	@PostMapping("/reload")
 	public ResponseEntity<ApiResponse<Void>> reloadAllRules() {
 		ruleService.reloadAllRules();
 		return ResponseEntity.ok(

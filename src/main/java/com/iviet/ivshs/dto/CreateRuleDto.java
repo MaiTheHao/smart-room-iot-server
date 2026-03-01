@@ -2,6 +2,7 @@ package com.iviet.ivshs.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 
 import jakarta.validation.Valid;
@@ -25,11 +26,11 @@ public record CreateRuleDto(
     @NotNull(message = "Target device ID is required")
     Long targetDeviceId,
 
-    @NotBlank(message = "Target device category is required")
+    @NotNull(message = "Target device category is required")
     DeviceCategory targetDeviceCategory,
 
     @NotNull(message = "Action parameters are required")
-    DeviceControlPayload actionParams,
+    JsonNode actionParams,
 
     @Valid
     @NotNull(message = "At least one condition is required")

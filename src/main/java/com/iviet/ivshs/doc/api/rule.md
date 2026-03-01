@@ -2,7 +2,9 @@
 
 ## Rule API Documentation
 
-Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết bị dựa trên các điều kiện được định nghĩa. Mỗi quy tắc có:
+Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết bị dựa trên các điều kiện được định nghĩa. Module Rule cho phép tạo các kịch bản quét định kỳ (Global Scan) theo lịch của hệ thống. Nếu các điều kiện (Conditions) thỏa mãn, hệ thống sẽ thực thi hành động (Action) lên thiết bị mục tiêu (Target Device).
+
+Mỗi quy tắc có:
 - **Điều kiện (Conditions)**: Các tiêu chí cần được đáp ứng (ví dụ: nhiệt độ > 30°C)
 - **Hành động (Action)**: Lệnh được thực thi khi điều kiện được đáp ứng (ví dụ: bật điều hòa)
 - **Độ ưu tiên (Priority)**: Được sử dụng để chọn quy tắc khi có nhiều quy tắc thỏa mãn
@@ -10,57 +12,142 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 ---
 
 <details>
-<summary><b>GET</b> <code>/api/v1/rules</code> - Lấy danh sách quy tắc (Phân trang)</summary>
+<summary><b>POST</b> <code>/api/v1/rules</code> - Tạo mới quy tắc</summary>
 
-> Lấy danh sách quy tắc với hỗ trợ phân trang.
+> Tạo mới một quy tắc điều khiển thiết bị tự động.
 
-### Query Parameters
+### Request Body
 
-| Tên  | Loại | Mô tả               | Bắt buộc/Mặc định |
-| :--- | :--- | :------------------ | :---------------- |
-| page | int  | Trang cần lấy       | Mặc định: 0       |
-| size | int  | Số lượng trên trang | Mặc định: 10      |
+| Tên trường            | Loại     | Bắt buộc | Mô tả                                                                      |
+| :-------------------- | :------- | :------- | :------------------------------------------------------------------------- |
+| name                  | string   | Có       | Tên quy tắc (không rỗng, unique)                                          |
+| priority              | integer  | Có       | Độ ưu tiên (>= 0, giá trị cao hơn = ưu tiên cao hơn)                     |
+| roomId                | Long     | Có       | ID của phòng áp dụng quy tắc (dùng để xác định ngữ cảnh dữ liệu)         |
+| targetDeviceId        | Long     | Có       | ID của thiết bị mục tiêu sẽ bị tác động khi quy tắc thỏa mãn             |
+| targetDeviceCategory  | string   | Có       | Loại thiết bị mục tiêu (xem DeviceCategory dưới Enumerations)            |
+| actionParams          | JsonNode | Có       | Tham số điều khiển gửi xuống thiết bị mục tiêu (JSON format, phụ thuộc vào targetDeviceCategory) |
+| conditions            | array    | Có       | Danh sách điều kiện (ít nhất 1 điều kiện, xem chi tiết bên dưới)         |
 
-### Response (200 OK)
+#### Cấu trúc chi tiết của mỗi phần tử trong `conditions`
+
+| Tên trường    | Loại     | Bắt buộc | Mô tả                                                                                     |
+| :------------ | :------- | :------- | :---------------------------------------------------------------------------------------- |
+| sortOrder     | integer  | Có       | Thứ tự đánh giá điều kiện (bắt đầu từ 0)                                                 |
+| dataSource    | string   | Có       | Nguồn dữ liệu: `SYSTEM`, `ROOM`, `DEVICE`, `SENSOR` (xem chi tiết [RuleDataSource](#chi-tiết-cấu-trúc-resourceparam-theo-từng-data-source))       |
+| resourceParam | JsonNode | Có       | Tham số tài nguyên (JSON format, cấu trúc phụ thuộc vào dataSource, xem chi tiết bên dưới) |
+| operator      | string   | Có       | Toán tử so sánh: `>`, `<`, `=`, `!=`, `>=`, `<=` (xem Operators dưới Enumerations)      |
+| value         | string   | Có       | Giá trị mốc dùng để so sánh (hệ thống tự parse sang số hoặc chuỗi)                      |
+| nextLogic     | string   | Không    | Toán tử logic kết nối với điều kiện tiếp theo: `AND`, `OR` (mặc định: `AND`)            |
+
+### Request Example
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"content": [
-			{
-				"id": 1,
-				"name": "Bật điều hòa khi nóng",
-				"priority": 10,
-				"isActive": true,
-				"roomId": 5,
-				"targetDeviceId": 101,
-				"targetDeviceCategory": "AIR_CONDITION",
-				"actionParams": "{\"temperature\": 22, \"mode\": \"cool\"}",
-				"conditions": [
-					{
-						"id": 1,
-						"sortOrder": 0,
-						"dataSource": "DEVICE",
-						"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-						"operator": ">",
-						"value": "30",
-						"nextLogic": "AND",
-						"createdAt": "2024-06-07T09:00:00Z",
-						"updatedAt": "2024-06-07T09:00:00Z"
-					}
-				],
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T09:00:00Z"
-			}
-		],
-		"page": 0,
-		"size": 10,
-		"totalElements": 1,
-		"totalPages": 1
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
+  "name": "Bật điều hòa phòng khách khi nhiệt độ > 30",
+  "priority": 10,
+  "roomId": 1,
+  "targetDeviceId": 101,
+  "targetDeviceCategory": "AIR_CONDITION",
+  "actionParams": {
+    "power": "ON",
+    "temp": 24,
+    "mode": "COOL"
+  },
+  "conditions": [
+    {
+      "sortOrder": 0,
+      "dataSource": "SENSOR",
+      "resourceParam": {
+        "category": "TEMPERATURE",
+        "sensorId": 50,
+        "property": "temperature"
+      },
+      "operator": ">",
+      "value": "30",
+      "nextLogic": "AND"
+    },
+    {
+      "sortOrder": 1,
+      "dataSource": "DEVICE",
+      "resourceParam": {
+        "category": "AIR_CONDITION",
+        "deviceId": 101,
+        "property": "power"
+      },
+      "operator": "=",
+      "value": "OFF",
+      "nextLogic": null
+    }
+  ]
+}
+```
+
+### Response (201 Created)
+
+```json
+{
+  "status": 201,
+  "message": "Created",
+  "data": {
+    "id": 1,
+    "name": "Bật điều hòa phòng khách khi nhiệt độ > 30",
+    "priority": 10,
+    "isActive": true,
+    "roomId": 1,
+    "targetDeviceId": 101,
+    "targetDeviceCategory": "AIR_CONDITION",
+    "actionParams": {
+      "power": "ON",
+      "temp": 24,
+      "mode": "COOL"
+    },
+    "conditions": [
+      {
+        "id": 1,
+        "sortOrder": 0,
+        "dataSource": "SENSOR",
+        "resourceParam": {
+          "category": "TEMPERATURE",
+          "sensorId": 50,
+          "property": "temperature"
+        },
+        "operator": ">",
+        "value": "30",
+        "nextLogic": "AND",
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-03-01T09:00:00Z"
+      },
+      {
+        "id": 2,
+        "sortOrder": 1,
+        "dataSource": "DEVICE",
+        "resourceParam": {
+          "category": "AIR_CONDITION",
+          "deviceId": 101,
+          "property": "power"
+        },
+        "operator": "=",
+        "value": "OFF",
+        "nextLogic": null,
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-03-01T09:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-01T09:00:00Z",
+    "updatedAt": "2026-03-01T09:00:00Z"
+  },
+  "timestamp": "2026-03-01T09:00:00Z"
+}
+```
+
+### Response (400 Bad Request)
+
+```json
+{
+  "status": 400,
+  "message": "Bad Request",
+  "errors": ["Rule name already exists"],
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -77,36 +164,107 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"id": 1,
-			"name": "Bật điều hòa khi nóng",
-			"priority": 10,
-			"isActive": true,
-			"roomId": 5,
-			"targetDeviceId": 101,
-			"targetDeviceCategory": "AIR_CONDITION",
-			"actionParams": "{\"temperature\": 22, \"mode\": \"cool\"}",
-			"conditions": [
-				{
-					"id": 1,
-					"sortOrder": 0,
-					"dataSource": "DEVICE",
-					"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-					"operator": ">",
-					"value": "30",
-					"nextLogic": "AND",
-					"createdAt": "2024-06-07T09:00:00Z",
-					"updatedAt": "2024-06-07T09:00:00Z"
-				}
-			],
-			"createdAt": "2024-06-07T09:00:00Z",
-			"updatedAt": "2024-06-07T09:00:00Z"
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 1,
+      "name": "Bật điều hòa khi nóng",
+      "priority": 10,
+      "isActive": true,
+      "roomId": 5,
+      "targetDeviceId": 101,
+      "targetDeviceCategory": "AIR_CONDITION",
+      "actionParams": {
+        "power": "ON",
+        "temp": 22,
+        "mode": "COOL"
+      },
+      "conditions": [
+        {
+          "id": 1,
+          "sortOrder": 0,
+          "dataSource": "ROOM",
+          "resourceParam": {
+            "property": "temperature"
+          },
+          "operator": ">",
+          "value": "30",
+          "nextLogic": "AND",
+          "createdAt": "2026-03-01T09:00:00Z",
+          "updatedAt": "2026-03-01T09:00:00Z"
+        }
+      ],
+      "createdAt": "2026-03-01T09:00:00Z",
+      "updatedAt": "2026-03-01T09:00:00Z"
+    }
+  ],
+  "timestamp": "2026-03-01T09:00:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rules</code> - Lấy danh sách quy tắc (Phân trang)</summary>
+
+> Lấy danh sách quy tắc với hỗ trợ phân trang.
+
+### Query Parameters
+
+| Tên  | Loại    | Mô tả               | Bắt buộc/Mặc định |
+| :--- | :------ | :------------------ | :---------------- |
+| page | integer | Trang cần lấy       | Mặc định: 0       |
+| size | integer | Số lượng trên trang | Mặc định: 10      |
+
+### Response (200 OK)
+
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "name": "Bật điều hòa khi nóng",
+        "priority": 10,
+        "isActive": true,
+        "roomId": 5,
+        "targetDeviceId": 101,
+        "targetDeviceCategory": "AIR_CONDITION",
+        "actionParams": {
+          "power": "ON",
+          "temp": 22,
+          "mode": "COOL"
+        },
+        "conditions": [
+          {
+            "id": 1,
+            "sortOrder": 0,
+            "dataSource": "ROOM",
+            "resourceParam": {
+              "property": "temperature"
+            },
+            "operator": ">",
+            "value": "30",
+            "nextLogic": "AND",
+            "createdAt": "2026-03-01T09:00:00Z",
+            "updatedAt": "2026-03-01T09:00:00Z"
+          }
+        ],
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-03-01T09:00:00Z"
+      }
+    ],
+    "page": 0,
+    "size": 10,
+    "totalElements": 1,
+    "totalPages": 1
+  },
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -121,53 +279,63 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
-| :-- | :--- | :------------------- | :------- |
-| id  | Long | ID của quy tắc cần lấy | Có       |
+| Tên | Loại | Mô tả                   | Bắt buộc |
+| :-- | :--- | :---------------------- | :------- |
+| id  | Long | ID của quy tắc cần lấy  | Có       |
 
 ### Response (200 OK)
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"id": 1,
-		"name": "Bật điều hòa khi nóng",
-		"priority": 10,
-		"isActive": true,
-		"roomId": 5,
-		"targetDeviceId": 101,
-		"targetDeviceCategory": "AIR_CONDITION",
-		"actionParams": "{\"temperature\": 22, \"mode\": \"cool\"}",
-		"conditions": [
-			{
-				"id": 1,
-				"sortOrder": 0,
-				"dataSource": "DEVICE",
-				"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-				"operator": ">",
-				"value": "30",
-				"nextLogic": "AND",
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T09:00:00Z"
-			},
-			{
-				"id": 2,
-				"sortOrder": 1,
-				"dataSource": "DEVICE",
-				"resourceParam": "{\"deviceId\": 101, \"property\": \"status\"}",
-				"operator": "==",
-				"value": "OFF",
-				"nextLogic": null,
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T09:00:00Z"
-			}
-		],
-		"createdAt": "2024-06-07T09:00:00Z",
-		"updatedAt": "2024-06-07T09:00:00Z"
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "id": 1,
+    "name": "Bật điều hòa khi nóng",
+    "priority": 10,
+    "isActive": true,
+    "roomId": 5,
+    "targetDeviceId": 101,
+    "targetDeviceCategory": "AIR_CONDITION",
+    "actionParams": {
+      "power": "ON",
+      "temp": 22,
+      "mode": "COOL"
+    },
+    "conditions": [
+      {
+        "id": 1,
+        "sortOrder": 0,
+        "dataSource": "ROOM",
+        "resourceParam": {
+          "property": "temperature"
+        },
+        "operator": ">",
+        "value": "30",
+        "nextLogic": "AND",
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-03-01T09:00:00Z"
+      },
+      {
+        "id": 2,
+        "sortOrder": 1,
+        "dataSource": "DEVICE",
+        "resourceParam": {
+          "category": "AIR_CONDITION",
+          "deviceId": 101,
+          "property": "power"
+        },
+        "operator": "=",
+        "value": "OFF",
+        "nextLogic": null,
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-03-01T09:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-01T09:00:00Z",
+    "updatedAt": "2026-03-01T09:00:00Z"
+  },
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -175,130 +343,10 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ```json
 {
-	"status": 404,
-	"message": "Not Found",
-	"errors": ["Rule not found"],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-</details>
-
-<br>
-
-<details>
-<summary><b>POST</b> <code>/api/v1/rules</code> - Tạo mới quy tắc</summary>
-
-> Tạo mới một quy tắc điều khiển thiết bị.
-
-### Request Body
-
-| Tên trường            | Loại   | Bắt buộc | Mô tả                                           |
-| :-------------------- | :----- | :------- | :---------------------------------------------- |
-| name                  | string | Có       | Tên quy tắc (không rỗng)                       |
-| priority              | int    | Có       | Độ ưu tiên (>= 0, cao hơn = ưu tiên hơn)       |
-| roomId                | Long   | Có       | ID của phòng (dùng để xác định ngữ cảnh dữ liệu) |
-| targetDeviceId        | Long   | Có       | ID của thiết bị mục tiêu                        |
-| targetDeviceCategory  | string | Có       | Loại thiết bị (ví dụ: AIR_CONDITION, LIGHT)    |
-| actionParams          | string | Không    | Tham số hành động (JSON format)                |
-| conditions            | array  | Có       | Danh sách điều kiện (ít nhất 1 điều kiện)      |
-
-#### Details of Request Body Conditions `conditions`
-
-| Tên trường    | Loại   | Bắt buộc | Mô tả                                              |
-| :------------ | :----- | :------- | :------------------------------------------------- |
-| sortOrder     | int    | Có       | Thứ tự đánh giá (>= 0)                             |
-| dataSource    | enum   | Có       | Nguồn dữ liệu (xem chi tiết RuleDataSource dưới Enumerations) |
-| resourceParam | string | Có       | Tham số tài nguyên (JSON format)                   |
-| operator      | string | Có       | Toán tử so sánh: ==, !=, >, <, >=, <=, IN, etc    |
-| value         | string | Có       | Giá trị so sánh                                    |
-| nextLogic     | string | Không    | Logic cho điều kiện tiếp theo: AND, OR (Mặc định: AND) |
-
-### Request Example
-
-```json
-{
-	"name": "Bật điều hòa khi nóng",
-	"priority": 10,
-	"roomId": 5,
-	"targetDeviceId": 101,
-	"targetDeviceCategory": "AIR_CONDITION",
-	"actionParams": "{\"temperature\": 22, \"mode\": \"cool\"}",
-	"conditions": [
-		{
-			"sortOrder": 0,
-			"dataSource": "DEVICE",
-			"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-			"operator": ">",
-			"value": "30",
-			"nextLogic": "AND"
-		},
-		{
-			"sortOrder": 1,
-			"dataSource": "DEVICE",
-			"resourceParam": "{\"deviceId\": 101, \"property\": \"status\"}",
-			"operator": "==",
-			"value": "OFF",
-			"nextLogic": null
-		}
-	]
-}
-```
-
-### Response (201 Created)
-
-```json
-{
-	"status": 201,
-	"message": "Created",
-	"data": {
-		"id": 1,
-		"name": "Bật điều hòa khi nóng",
-		"priority": 10,
-		"isActive": true,
-		"roomId": 5,
-		"targetDeviceId": 101,
-		"targetDeviceCategory": "AIR_CONDITION",
-		"actionParams": "{\"temperature\": 22, \"mode\": \"cool\"}",
-		"conditions": [
-			{
-				"id": 1,
-				"sortOrder": 0,
-				"dataSource": "DEVICE",
-				"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-				"operator": ">",
-				"value": "30",
-				"nextLogic": "AND",
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T09:00:00Z"
-			},
-			{
-				"id": 2,
-				"sortOrder": 1,
-				"dataSource": "DEVICE",
-				"resourceParam": "{\"deviceId\": 101, \"property\": \"status\"}",
-				"operator": "==",
-				"value": "OFF",
-				"nextLogic": null,
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T09:00:00Z"
-			}
-		],
-		"createdAt": "2024-06-07T09:00:00Z",
-		"updatedAt": "2024-06-07T09:00:00Z"
-	},
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-### Response (400 Bad Request)
-
-```json
-{
-	"status": 400,
-	"message": "Bad Request",
-	"errors": ["Rule name exists"],
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 404,
+  "message": "Not Found",
+  "errors": ["Rule not found"],
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -309,47 +357,65 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 <details>
 <summary><b>PUT</b> <code>/api/v1/rules/{id}</code> - Cập nhật quy tắc</summary>
 
-> Cập nhật thông tin của một quy tắc hiện có.
+> Cập nhật thông tin của một quy tắc hiện có. Lưu ý: Không cho phép cập nhật `roomId`.
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
-| :-- | :--- | :------------------- | :------- |
-| id  | Long | ID của quy tắc cần cập nhật | Có       |
+| Tên | Loại | Mô tả                        | Bắt buộc |
+| :-- | :--- | :--------------------------- | :------- |
+| id  | Long | ID của quy tắc cần cập nhật  | Có       |
 
 ### Request Body
 
-| Tên trường            | Loại   | Bắt buộc | Mô tả                                           |
-| :-------------------- | :----- | :------- | :---------------------------------------------- |
-| name                  | string | Có       | Tên quy tắc (không rỗng)                       |
-| priority              | int    | Có       | Độ ưu tiên (>= 0)                              |
-| targetDeviceId        | Long   | Có       | ID của thiết bị mục tiêu                        |
-| targetDeviceCategory  | string | Có       | Loại thiết bị                                  |
-| actionParams          | string | Không    | Tham số hành động (JSON format)                |
-| isActive              | boolean| Không    | Trạng thái hoạt động                           |
-| conditions            | array  | Có       | Danh sách điều kiện (ít nhất 1 điều kiện)      |
+| Tên trường            | Loại     | Bắt buộc | Mô tả                                                               |
+| :-------------------- | :------- | :------- | :------------------------------------------------------------------ |
+| name                  | string   | Có       | Tên quy tắc (không rỗng)                                           |
+| priority              | integer  | Có       | Độ ưu tiên (>= 0)                                                  |
+| targetDeviceId        | Long     | Có       | ID của thiết bị mục tiêu                                           |
+| targetDeviceCategory  | string   | Có       | Loại thiết bị. Nếu đổi, bắt buộc gửi kèm `actionParams` mới       |
+| actionParams          | JsonNode | Có       | Tham số điều khiển thiết bị mục tiêu (JSON format)                |
+| isActive              | boolean  | Không    | Trạng thái hoạt động của quy tắc                                   |
+| conditions            | array    | Có       | Danh sách điều kiện mới/cập nhật (ít nhất 1 điều kiện)            |
+
+#### Cấu trúc chi tiết của mỗi phần tử trong `conditions` (khi Update)
+
+| Tên trường    | Loại     | Bắt buộc | Mô tả                                                                                    |
+| :------------ | :------- | :------- | :--------------------------------------------------------------------------------------- |
+| id            | Long     | Không    | ID của condition nếu muốn cập nhật điều kiện đã có (bỏ qua nếu tạo mới)                 |
+| sortOrder     | integer  | Có       | Thứ tự đánh giá điều kiện (bắt đầu từ 0)                                                |
+| dataSource    | string   | Có       | Nguồn dữ liệu: `SYSTEM`, `ROOM`, `DEVICE`, `SENSOR` (xem chi tiết [RuleDataSource](#chi-tiết-cấu-trúc-resourceparam-theo-từng-data-source))       |
+| resourceParam | JsonNode | Có       | Tham số tài nguyên (JSON format, phụ thuộc vào dataSource)                              |
+| operator      | string   | Có       | Toán tử so sánh: `>`, `<`, `=`, `!=`, `>=`, `<=`                                        |
+| value         | string   | Có       | Giá trị so sánh                                                                          |
+| nextLogic     | string   | Không    | Logic kết nối: `AND`, `OR` (mặc định: `AND`)                                            |
 
 ### Request Example
 
 ```json
 {
-	"name": "Bật điều hòa khi nóng (cập nhật)",
-	"priority": 15,
-	"targetDeviceId": 101,
-	"targetDeviceCategory": "AIR_CONDITION",
-	"actionParams": "{\"temperature\": 20, \"mode\": \"cool\"}",
-	"isActive": true,
-	"conditions": [
-		{
-			"id": 1,
-			"sortOrder": 0,
-			"dataSource": "DEVICE",
-			"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-			"operator": ">",
-			"value": "32",
-			"nextLogic": "AND"
-		}
-	]
+  "name": "Bật điều hòa khi nóng (cập nhật)",
+  "priority": 15,
+  "targetDeviceId": 101,
+  "targetDeviceCategory": "AIR_CONDITION",
+  "actionParams": {
+    "power": "ON",
+    "temp": 20,
+    "mode": "COOL"
+  },
+  "isActive": true,
+  "conditions": [
+    {
+      "id": 1,
+      "sortOrder": 0,
+      "dataSource": "ROOM",
+      "resourceParam": {
+        "property": "temperature"
+      },
+      "operator": ">",
+      "value": "32",
+      "nextLogic": "AND"
+    }
+  ]
 }
 ```
 
@@ -357,34 +423,51 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"id": 1,
-		"name": "Bật điều hòa khi nóng (cập nhật)",
-		"priority": 15,
-		"isActive": true,
-		"roomId": 5,
-		"targetDeviceId": 101,
-		"targetDeviceCategory": "AIR_CONDITION",
-		"actionParams": "{\"temperature\": 20, \"mode\": \"cool\"}",
-		"conditions": [
-			{
-				"id": 1,
-				"sortOrder": 0,
-				"dataSource": "DEVICE",
-				"resourceParam": "{\"deviceId\": 50, \"property\": \"temperature\"}",
-				"operator": ">",
-				"value": "32",
-				"nextLogic": "AND",
-				"createdAt": "2024-06-07T09:00:00Z",
-				"updatedAt": "2024-06-07T10:00:00Z"
-			}
-		],
-		"createdAt": "2024-06-07T09:00:00Z",
-		"updatedAt": "2024-06-07T10:00:00Z"
-	},
-	"timestamp": "2024-06-07T10:00:00Z"
+  "status": 200,
+  "message": "Success",
+  "data": {
+    "id": 1,
+    "name": "Bật điều hòa khi nóng (cập nhật)",
+    "priority": 15,
+    "isActive": true,
+    "roomId": 5,
+    "targetDeviceId": 101,
+    "targetDeviceCategory": "AIR_CONDITION",
+    "actionParams": {
+      "power": "ON",
+      "temp": 20,
+      "mode": "COOL"
+    },
+    "conditions": [
+      {
+        "id": 1,
+        "sortOrder": 0,
+        "dataSource": "ROOM",
+        "resourceParam": {
+          "property": "temperature"
+        },
+        "operator": ">",
+        "value": "32",
+        "nextLogic": "AND",
+        "createdAt": "2026-03-01T09:00:00Z",
+        "updatedAt": "2026-03-01T10:00:00Z"
+      }
+    ],
+    "createdAt": "2026-03-01T09:00:00Z",
+    "updatedAt": "2026-03-01T10:00:00Z"
+  },
+  "timestamp": "2026-03-01T10:00:00Z"
+}
+```
+
+### Response (404 Not Found)
+
+```json
+{
+  "status": 404,
+  "message": "Not Found",
+  "errors": ["Rule not found"],
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -395,22 +478,22 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 <details>
 <summary><b>DELETE</b> <code>/api/v1/rules/{id}</code> - Xóa quy tắc</summary>
 
-> Xóa một quy tắc.
+> Xóa một quy tắc khỏi hệ thống.
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
-| :-- | :--- | :------------------- | :------- |
+| Tên | Loại | Mô tả                  | Bắt buộc |
+| :-- | :--- | :--------------------- | :------- |
 | id  | Long | ID của quy tắc cần xóa | Có       |
 
 ### Response (204 No Content)
 
 ```json
 {
-	"status": 204,
-	"message": "No Content",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 204,
+  "message": "Rule deleted successfully",
+  "data": null,
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -418,10 +501,10 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ```json
 {
-	"status": 404,
-	"message": "Not Found",
-	"errors": ["Rule not found"],
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 404,
+  "message": "Not Found",
+  "errors": ["Rule not found"],
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -436,21 +519,21 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ### Path Parameters
 
-| Tên | Loại | Mô tả                | Bắt buộc/Mặc định |
-| :-- | :--- | :------------------- | :------- |
-| id  | Long | ID của quy tắc       | Có       |
+| Tên | Loại | Mô tả          | Bắt buộc |
+| :-- | :--- | :------------- | :------- |
+| id  | Long | ID của quy tắc | Có       |
 
 ### Request Body
 
-| Tên      | Loại   | Mô tả              | Bắt buộc |
-| :------- | :----- | :----------------- | :------- |
-| isActive | boolean| Trạng thái mới     | Có       |
+| Tên      | Loại    | Bắt buộc | Mô tả          |
+| :------- | :------ | :------- | :------------- |
+| isActive | boolean | Có       | Trạng thái mới |
 
 ### Request Example
 
 ```json
 {
-    "isActive": false
+  "isActive": false
 }
 ```
 
@@ -458,10 +541,21 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 200,
+  "message": "Rule status updated: false",
+  "data": null,
+  "timestamp": "2026-03-01T09:00:00Z"
+}
+```
+
+### Response (404 Not Found)
+
+```json
+{
+  "status": 404,
+  "message": "Not Found",
+  "errors": ["Rule not found"],
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -470,25 +564,25 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/rules:scan</code> - Quét quy tắc (toàn cục)</summary>
+<summary><b>POST</b> <code>/api/v1/rules/scan</code> - Quét quy tắc (toàn cục)</summary>
 
 > Thực thi quét toàn cục tất cả các quy tắc đang hoạt động.
-> 
-> Quá trình quét:
-> 1. Lấy tất cả các quy tắc đang hoạt động (isActive = true)
-> 2. Nhóm các quy tắc theo thiết bị mục tiêu (category:id)
-> 3. Đánh giá điều kiện của từng quy tắc trong mỗi nhóm
-> 4. Chọn quy tắc có độ ưu tiên cao nhất (Winner-Takes-All)
-> 5. Thực thi hành động của quy tắc chiến thắng
+
+**Quá trình quét:**
+1. Lấy tất cả các quy tắc đang hoạt động (`isActive = true`)
+2. Nhóm các quy tắc theo thiết bị mục tiêu (`category:id`)
+3. Đánh giá điều kiện của từng quy tắc trong mỗi nhóm
+4. Chọn quy tắc có độ ưu tiên cao nhất (Winner-Takes-All)
+5. Thực thi hành động của quy tắc chiến thắng
 
 ### Response (200 OK)
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 200,
+  "message": "Global rule scan executed",
+  "data": null,
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -497,20 +591,20 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/rules:reload</code> - Tải lại cấu hình quy tắc</summary>
+<summary><b>POST</b> <code>/api/v1/rules/reload</code> - Tải lại cấu hình quy tắc</summary>
 
 > Tái tải cấu hình tất cả các quy tắc từ cơ sở dữ liệu.
-> 
-> Sử dụng trong trường hợp cần đồng bộ hóa cấu hình quy tắc sau khi có thay đổi trong database.
+
+Sử dụng trong trường hợp cần đồng bộ hóa cấu hình quy tắc sau khi có thay đổi trong database.
 
 ### Response (200 OK)
 
 ```json
 {
-	"status": 200,
-	"message": "Success",
-	"data": null,
-	"timestamp": "2024-06-07T09:00:00Z"
+  "status": 200,
+  "message": "All rules reloaded",
+  "data": null,
+  "timestamp": "2026-03-01T09:00:00Z"
 }
 ```
 
@@ -521,33 +615,210 @@ Quy tắc (Rule) là cơ chế để tự động điều khiển các thiết b
 ---
 
 <details>
-<summary>Xem chi tiết các hằng số (Enums)</summary>
+<summary>Xem chi tiết các hằng số và ràng buộc (Enumerations & Constraints)</summary>
 
-### RuleDataSource (Data Source Types)
+### RuleDataSource (Nguồn dữ liệu)
 
-| Giá trị | Mô tả |
-| :------ | :---- |
-| SYSTEM  | Lấy dữ liệu từ hệ thống (ví dụ: thời gian, ngày, trạng thái hệ thống) |
-| ROOM    | Lấy dữ liệu từ phòng (ví dụ: trạng thái phòng, số lượng thiết bị) |
-| DEVICE  | Lấy dữ liệu từ thiết bị (ví dụ: trạng thái bật/tắt, chế độ hoạt động) |
-| SENSOR  | Lấy dữ liệu từ cảm biến (ví dụ: nhiệt độ, độ ẩm, ánh sáng) |
+| Giá trị | Mô tả                                                                     |
+| :------ | :------------------------------------------------------------------------ |
+| SYSTEM  | Lấy dữ liệu từ hệ thống (thời gian, ngày, trạng thái hệ thống)          |
+| ROOM    | Lấy dữ liệu từ phòng (nhiệt độ trung bình, tổng điện năng tiêu thụ)     |
+| DEVICE  | Lấy dữ liệu từ thiết bị (trạng thái bật/tắt, chế độ hoạt động)          |
+| SENSOR  | Lấy dữ liệu từ cảm biến (giá trị nhiệt độ, độ ẩm, ánh sáng ngay lúc đó) |
 
-### DeviceCategory (Device Categories)
+### DeviceCategory (Loại thiết bị)
 
-| Giá trị           | Mô tả |
-| :---------------- | :---- |
-| LIGHT             | Thiết bị chiếu sáng (đèn) |
-| AIR_CONDITION     | Thiết bị điều hòa không khí |
+| Giá trị           | Mô tả                          |
+| :---------------- | :----------------------------- |
+| LIGHT             | Thiết bị chiếu sáng (đèn)      |
+| AIR_CONDITION     | Thiết bị điều hòa không khí    |
 | TEMPERATURE       | Thiết bị/cảm biến đo nhiệt độ |
 | POWER_CONSUMPTION | Thiết bị đo tiêu thụ điện năng |
+| FAN               | Thiết bị quạt                  |
 
-### Ràng buộc bổ sung
+### Operators (Toán tử so sánh)
 
-| Tên | Mô tả |
-| :-- | :---- |
-| Operators (Comparison) | `==`, `!=`, `>`, `<`, `>=`, `<=` |
-| Operators (Membership) | `IN`, `NOT_IN` |
-| Operators (Pattern)    | `LIKE`, `NOT_LIKE` |
-| Logic Gates            | `AND` (Cả hai điều kiện phải đúng), `OR` (Ít nhất một điều kiện phải đúng) |
+| Toán tử | Mô tả                  |
+| :------ | :--------------------- |
+| `=`     | Bằng                   |
+| `!=`    | Khác                   |
+| `>`     | Lớn hơn                |
+| `<`     | Nhỏ hơn                |
+| `>=`    | Lớn hơn hoặc bằng      |
+| `<=`    | Nhỏ hơn hoặc bằng      |
+
+### Logic Gates (Toán tử logic)
+
+| Giá trị | Mô tả                                       |
+| :------ | :------------------------------------------ |
+| `AND`   | Cả hai điều kiện phải đúng                  |
+| `OR`    | Ít nhất một điều kiện phải đúng             |
+
+### Chi tiết cấu trúc `resourceParam` theo từng Data Source
+
+#### 1. SYSTEM (Hệ thống thời gian)
+
+Sử dụng để tạo điều kiện liên quan đến thời gian thực tế của hệ thống.
+
+**Cấu trúc:** `{"property": "<tên_thuộc_tính>"}`
+
+**Các property hỗ trợ:**
+
+| Property       | Mô tả                                                                                     | Ví dụ giá trị so sánh            |
+| :------------- | :---------------------------------------------------------------------------------------- | :------------------------------- |
+| current_time   | Thời gian hiện tại trong ngày. Cách tính: `Giờ + (Phút / 60.0)`                         | `10.5` (10h30), `14.75` (14h45)  |
+| day_of_week    | Thứ trong tuần                                                                            | `1` (Thứ 2) đến `7` (Chủ nhật)   |
+| day_of_month   | Ngày trong tháng                                                                          | `1` đến `31`                     |
+
+**Ví dụ:** Nếu thời gian hiện tại là sau 18h30
+```json
+{
+  "sortOrder": 0,
+  "dataSource": "SYSTEM",
+  "resourceParam": {
+    "property": "current_time"
+  },
+  "operator": ">=",
+  "value": "18.5",
+  "nextLogic": "AND"
+}
+```
+
+#### 2. ROOM (Thông số phòng)
+
+Sử dụng để lấy thông số trung bình/tổng hợp của căn phòng (dựa vào `roomId` trong Rule).
+
+**Cấu trúc:** `{"property": "<tên_thuộc_tính>"}`
+
+**Các property hỗ trợ:**
+
+| Property    | Mô tả                                                    |
+| :---------- | :------------------------------------------------------- |
+| temperature | Nhiệt độ trung bình (`avgTempC`) của phòng              |
+| watt        | Tổng điện năng tiêu thụ (`sumWatt`) của phòng           |
+
+**Ví dụ:** Nếu nhiệt độ trung bình của phòng > 30°C
+```json
+{
+  "sortOrder": 1,
+  "dataSource": "ROOM",
+  "resourceParam": {
+    "property": "temperature"
+  },
+  "operator": ">",
+  "value": "30",
+  "nextLogic": "AND"
+}
+```
+
+#### 3. DEVICE (Trạng thái Thiết bị)
+
+Sử dụng để kiểm tra trạng thái của một thiết bị cụ thể trong hệ thống.
+
+**Cấu trúc:** `{"category": "<loại_thiết_bị>", "deviceId": <id>, "property": "<tên_thuộc_tính>"}`
+
+**Các category và property hỗ trợ:**
+
+| Category      | Properties hỗ trợ                             |
+| :------------ | :-------------------------------------------- |
+| AIR_CONDITION | `power`, `temp`, `mode`, `fan_speed`, `swing` |
+| LIGHT         | `power`, `level`                              |
+| FAN           | `power`, `mode`, `speed`, `swing`, `light`    |
+
+**Ví dụ:** Nếu Trạng thái nguồn (power) của Điều hòa (ID: 15) đang là ON
+```json
+{
+  "sortOrder": 2,
+  "dataSource": "DEVICE",
+  "resourceParam": {
+    "category": "AIR_CONDITION",
+    "deviceId": 15,
+    "property": "power"
+  },
+  "operator": "=",
+  "value": "ON",
+  "nextLogic": "OR"
+}
+```
+
+#### 4. SENSOR (Trạng thái Cảm biến)
+
+Sử dụng để kiểm tra giá trị trực tiếp ngay lúc đó của một cảm biến cụ thể.
+
+**Cấu trúc:** `{"category": "<loại_cảm_biến>", "sensorId": <id>, "property": "<tên_thuộc_tính>"}`
+
+**Các category và property hỗ trợ:**
+
+| Category          | Property     | Mô tả                                              |
+| :---------------- | :----------- | :------------------------------------------------- |
+| TEMPERATURE       | temperature  | Lấy `currentValue` của cảm biến nhiệt độ          |
+| POWER_CONSUMPTION | watt         | Lấy `currentWatt` của cảm biến điện năng tiêu thụ |
+
+**Ví dụ:** Nếu giá trị watt của Cảm biến điện năng (ID: 9) lớn hơn 1000W
+```json
+{
+  "sortOrder": 3,
+  "dataSource": "SENSOR",
+  "resourceParam": {
+    "category": "POWER_CONSUMPTION",
+    "sensorId": 9,
+    "property": "watt"
+  },
+  "operator": ">",
+  "value": "1000"
+}
+```
+
+### Ví dụ Request Body phức tạp
+
+Ngữ cảnh: "Vào thứ 2 hàng tuần (SYSTEM), nếu nhiệt độ phòng > 28°C (ROOM) VÀ Đèn số 5 đang bật (DEVICE), thì hãy bật Điều hòa số 101 ở chế độ COOL 24 độ."
+
+```json
+{
+  "name": "Làm mát phòng làm việc Thứ 2",
+  "priority": 1,
+  "roomId": 10,
+  "targetDeviceId": 101,
+  "targetDeviceCategory": "AIR_CONDITION",
+  "actionParams": {
+    "power": "ON",
+    "temp": 24,
+    "mode": "COOL"
+  },
+  "conditions": [
+    {
+      "sortOrder": 0,
+      "dataSource": "SYSTEM",
+      "resourceParam": {
+        "property": "day_of_week"
+      },
+      "operator": "=",
+      "value": "1",
+      "nextLogic": "AND"
+    },
+    {
+      "sortOrder": 1,
+      "dataSource": "ROOM",
+      "resourceParam": {
+        "property": "temperature"
+      },
+      "operator": ">",
+      "value": "28",
+      "nextLogic": "AND"
+    },
+    {
+      "sortOrder": 2,
+      "dataSource": "DEVICE",
+      "resourceParam": {
+        "category": "LIGHT",
+        "deviceId": 5,
+        "property": "power"
+      },
+      "operator": "=",
+      "value": "ON"
+    }
+  ]
+}
+```
 
 </details>

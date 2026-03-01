@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
 import com.iviet.ivshs.dto.CreateRuleDto;
@@ -28,6 +29,7 @@ import com.iviet.ivshs.service.RuleService;
 import com.iviet.ivshs.util.QuartzUtil;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +47,9 @@ public class RuleServiceImpl implements RuleService {
 	// Control Strategies handle
 	private final List<DeviceControlStrategy<?>> controlStrategies;
 	private Map<DeviceCategory, DeviceControlStrategy<?>> controlStrategyMap;
+
+	// Validator
+	private final Validator validator;
 
 	@PostConstruct
 	public void handleDeviceControlStrategy() {
@@ -152,28 +157,50 @@ public class RuleServiceImpl implements RuleService {
 	@Override
 	@Transactional
 	public RuleDto create(CreateRuleDto request) {
+
 		if (ruleDao.existsByName(request.name())) {
-			throw new BadRequestException("Rule name exists");
+			throw new BadRequestException("Rule name already exists");
 		}
+
+		validateActionParams(request.targetDeviceCategory(), request.actionParams());
 
 		Rule rule = ruleMapper.fromCreateDto(request);
 		Rule saved = ruleDao.save(rule);
+
 		return ruleMapper.toDto(saved);
 	}
 
 	@Override
 	@Transactional
 	public RuleDto update(Long id, UpdateRuleDto request) {
+
 		Rule existing = ruleDao.findById(id)
 			.orElseThrow(() -> new NotFoundException("Rule not found"));
 
-		// Update entity in-place using mapper
+		DeviceCategory finalCategory =
+			request.targetDeviceCategory() != null
+				? request.targetDeviceCategory()
+				: existing.getTargetDeviceCategory();
+
+		JsonNode finalActionParams =
+			request.actionParams() != null
+				? request.actionParams()
+				: existing.getActionParams();
+
+		if (request.targetDeviceCategory() != null
+			&& request.actionParams() == null) {
+
+			throw new BadRequestException(
+				"Updating target device category requires new action parameters."
+			);
+		}
+
+		validateActionParams(finalCategory, finalActionParams);
+
 		ruleMapper.updateFromDto(request, existing);
 
-		// JPA dirty checking will auto-persist changes
-		// But we call update explicitly if needed by DAO pattern
-		Rule result = ruleDao.update(existing);
-		return ruleMapper.toDto(result);
+		Rule updated = ruleDao.update(existing);
+		return ruleMapper.toDto(updated);
 	}
 
 	@Override
@@ -214,5 +241,45 @@ public class RuleServiceImpl implements RuleService {
 		Rule rule = ruleDao.findById(id).orElseThrow(() -> new NotFoundException("Rule not found"));
 		rule.setIsActive(isActive);
 		ruleDao.update(rule);
+	}
+
+	private void validateActionParams(
+		DeviceCategory category,
+		JsonNode actionParams
+	) {
+		DeviceControlStrategy<?> strategy = controlStrategyMap.get(category);
+
+		if (strategy == null) {
+			throw new BadRequestException("Unsupported target device category: " + category);
+		}
+
+		Object controlDto = convertToControlDto(strategy, actionParams);
+
+		var violations = validator.validate(controlDto);
+
+		if (!violations.isEmpty()) {
+			String message = violations.stream()
+				.map(v -> v.getPropertyPath() + " " + v.getMessage())
+				.reduce((a, b) -> a + ", " + b)
+				.orElse("Invalid action params");
+
+			throw new BadRequestException(message);
+		}
+	}
+
+	private Object convertToControlDto(
+		DeviceControlStrategy<?> strategy,
+		JsonNode actionParams
+	) {
+		try {
+			return objectMapper.treeToValue(
+				actionParams,
+				strategy.getControlDtoClass()
+			);
+		} catch (JsonProcessingException e) {
+			throw new BadRequestException(
+				"Invalid action params format: " + e.getOriginalMessage()
+			);
+		}
 	}
 }

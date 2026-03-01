@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.RuleDataSource;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
 
   private final List<SensorStateStrategy> sensorStrategies;
-  private final ObjectMapper objectMapper;
 
   @Override
   public boolean supports(RuleDataSource dataSource) {
@@ -31,7 +29,7 @@ public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
   @Override
   public Object fetchValue(RuleCondition condition, Long contextId) {
     try {
-      JsonNode params = objectMapper.readTree(condition.getResourceParam());
+      JsonNode params = condition.getResourceParam();
       if (params == null) {
         return null;
       }

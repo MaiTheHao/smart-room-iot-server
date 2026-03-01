@@ -80,6 +80,7 @@ public class ApiGlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String msg = "Malformed JSON request or invalid data format.";
         Throwable cause = ex.getCause();
+        log.error("HttpMessageNotReadableException: ", ex);
 
         if (cause instanceof InvalidFormatException) {
             InvalidFormatException ife = (InvalidFormatException) cause;

@@ -1,5 +1,6 @@
 package com.iviet.ivshs.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.enumeration.RuleDataSource;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,8 +18,8 @@ public record UpdateRuleConditionDto(
     @NotNull(message = "Data source is required")
     RuleDataSource dataSource,
 
-    @NotBlank(message = "Resource parameter is required")
-    String resourceParam,
+    @NotNull(message = "Resource parameters are required")
+    JsonNode resourceParam,
 
     @NotBlank(message = "Operator is required")
     String operator,
