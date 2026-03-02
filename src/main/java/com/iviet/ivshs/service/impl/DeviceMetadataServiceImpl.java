@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.iviet.ivshs.dto.FanDto;
+import com.iviet.ivshs.service.FanService;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.AirConditionDto;
@@ -22,6 +24,7 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
 
   private final LightService lightService;
   private final AirConditionService airConditionService;
+  private final FanService fanService;
 
   @Override
   public List<DeviceMetadataDto> getAll() {
@@ -38,6 +41,12 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
     if (airConditions != null) {
       devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
     }
+
+    // Get Fan
+      List<FanDto> fan = fanService.getAll();
+      if (fan != null) {
+          devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
+      }
 
     return devices;
   }
@@ -57,6 +66,12 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
     if (airConditions != null) {
       devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
     }
+
+      // Get Fan by Room
+      List<FanDto> fan = fanService.getAllByRoomId(roomId);
+      if (fan != null) {
+          devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
+      }
 
     return devices;
   }
@@ -90,4 +105,15 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
         DeviceCategory.AIR_CONDITION
     );
   }
+    private DeviceMetadataDto mapFanToMetadata(FanDto fan) {
+        return DeviceMetadataDto.from(
+                fan.id(),
+                fan.naturalId(),
+                fan.name(),
+                fan.description(),
+                fan.isActive(),
+                fan.roomId(),
+                DeviceCategory.FAN
+        );
+    }
 }
