@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.DeviceControlType;
+import com.iviet.ivshs.enumeration.FanType;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -55,6 +56,9 @@ public class SetupRequest {
             @JsonProperty("isActive")
             @Builder.Default
             private boolean isActive = true;
+
+            @JsonSetter(nulls = Nulls.AS_EMPTY)
+            private FanType fanType;
 
             @Data
             @Builder

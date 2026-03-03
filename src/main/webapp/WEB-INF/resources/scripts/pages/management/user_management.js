@@ -361,25 +361,67 @@ class UserManager {
       notify.success(res.message || 'Setup completed successfully');
       this.table.ajax.reload(null, false);
     } catch (error) {
-      let errorMsg = 'Failed to trigger setup';
-
-      if (error.message) {
-        if (error.message.includes('IP address')) {
-          errorMsg = 'Gateway IP address not configured. Please update client information first.';
-        } else if (error.message.includes('timed out')) {
-          errorMsg =
-            'Gateway connection timed out. Please check if gateway is online and network is accessible.';
-        } else if (error.message.includes('not a hardware gateway')) {
-          errorMsg =
-            'This client is not a gateway. Setup can only be triggered for gateway clients.';
-        } else {
-          errorMsg = error.message;
-        }
-      }
-
-      notify.error(errorMsg);
+      const raw = error?.message || error?.data?.message || '';
+      const errorMsg = this.#resolveSetupErrorMessage(raw);
+      this.#showSetupErrorModal(username, errorMsg, error);
     } finally {
       $btn.prop('disabled', false).html('<i class="fas fa-cogs"></i>');
     }
+  }
+
+  #resolveSetupErrorMessage(raw) {
+    if (!raw) return 'Failed to trigger setup. Unknown error occurred.';
+
+    if (/ip address/i.test(raw))
+      return 'Gateway IP address not configured. Please update client information first.';
+    if (/timed out/i.test(raw))
+      return 'Gateway connection timed out. Please check if gateway is online and network is accessible.';
+    if (/not a hardware gateway/i.test(raw))
+      return 'This client is not a hardware gateway. Setup can only be triggered for gateway clients.';
+    if (/connection refused|unreachable/i.test(raw))
+      return 'Cannot reach gateway. Please verify gateway IP address and ensure it is online.';
+    if (/duplicate entry/i.test(raw))
+      return `Duplicate device detected. Some devices may already exist in the database.\n\nDetails: ${raw}`;
+    if (/null id/i.test(raw))
+      return `Database persistence error (null ID). A previous failed setup may have left partial data. Try clearing room devices and retry.\n\nDetails: ${raw}`;
+    if (/fantype|fan_type/i.test(raw))
+      return `Invalid or missing FanType in gateway response. The 'fanType' field must be set to "GPIO" or "IR" for fan devices.\n\nDetails: ${raw}`;
+    if (/gpio_pin/i.test(raw))
+      return `Invalid GPIO pin value. Devices using BLUETOOTH or API control must include gpioPin set to 0.\n\nDetails: ${raw}`;
+    if (/cannot be null|not.null/i.test(raw))
+      return `A required field is missing in gateway response data.\n\nDetails: ${raw}`;
+    if (/persistence failed/i.test(raw)) return `Device persistence failed.\n\nDetails: ${raw}`;
+    if (/invalid.*format|deserialization/i.test(raw))
+      return `Gateway returned data in an unexpected format. Please check gateway firmware and response structure.\n\nDetails: ${raw}`;
+
+    return raw;
+  }
+
+  #showSetupErrorModal(username, friendlyMsg, error) {
+    const rawDetail = error?.data?.message || error?.message || '';
+    const statusCode = error?.status || error?.data?.status || '';
+
+    Swal.fire({
+      icon: 'error',
+      title: `Setup Failed — ${username}`,
+      html: `
+        <div style="text-align:left">
+          <p style="margin-bottom:0.75rem">${friendlyMsg.replace(/\n/g, '<br>')}</p>
+          ${
+            rawDetail
+              ? `<hr>
+            <details>
+              <summary style="cursor:pointer;color:#6c757d;font-size:0.85rem">
+                Technical details ${statusCode ? `(HTTP ${statusCode})` : ''}
+              </summary>
+              <pre style="text-align:left;margin-top:0.5rem;padding:0.5rem;background:#f8f9fa;border-radius:4px;font-size:0.8rem;white-space:pre-wrap;word-break:break-all;">${rawDetail}</pre>
+            </details>`
+              : ''
+          }
+        </div>
+      `,
+      confirmButtonText: 'OK',
+      width: '620px',
+    });
   }
 }

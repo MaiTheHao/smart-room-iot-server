@@ -162,7 +162,7 @@
                   ></span>
                   <span
                     class="badge badge-primary fan-speed-display"
-                    th:text="${fan.speed != null ? fan.speed : 0}"
+                    th:text="#{device_card.ac.fan_speed.level} + ' ' + ${fan.speed != null ? fan.speed : 0}"
                   ></span>
                 </div>
                 <input

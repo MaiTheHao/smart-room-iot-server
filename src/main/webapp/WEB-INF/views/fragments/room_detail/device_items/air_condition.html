@@ -179,12 +179,6 @@
                     th:data-ac-id="${ac.id}"
                     th:checked="${ac.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON}"
                   />
-                  <label
-                    class="custom-control-label font-weight-bold text-xs ac-swing-label"
-                    th:for="'swingSwitch' + ${ac.id}"
-                    th:text="${ac.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON} ? #{device_card.common.on} : #{device_card.common.off}"
-                    th:classappend="${ac.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON ? 'text-success' : ''}"
-                  ></label>
                 </div>
               </div>
             </div>

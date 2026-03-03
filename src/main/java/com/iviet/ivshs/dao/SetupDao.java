@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-// NOTE: Gửi đến dev đến sau, sau này hãy sử dụng Strategy Pattern để clean lại toàn bộ Setup flow
+@Deprecated
 @Slf4j
 @Repository
 public class SetupDao extends BaseDao<SetupDao> {

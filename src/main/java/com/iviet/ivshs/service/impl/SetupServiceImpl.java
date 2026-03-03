@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.dao.SetupDao;
+import com.iviet.ivshs.dao.setup.DeviceSetupOrchestrator;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
@@ -33,7 +33,7 @@ public class SetupServiceImpl implements SetupService {
     private RoomService roomService;
 
     @Autowired
-    private SetupDao setupDao;
+    private DeviceSetupOrchestrator deviceSetupOrchestrator;
 
     @Override
     @Transactional
@@ -160,20 +160,20 @@ public class SetupServiceImpl implements SetupService {
     protected void executeDatabasePersistence(Client client, SetupRequest.BodyData body) {
         try {
             Room room = roomService.getEntityByCode(body.getRoomCode());
-            
-            int processed = setupDao.persistDeviceSetup(
-                body.getDevices(), 
-                client.getId(), 
-                room.getId()
+
+            int processed = deviceSetupOrchestrator.persistAll(
+                body.getDevices(),
+                client,
+                room
             );
 
-            log.info("[SETUP] Persisted {} devices for room {}", processed, body.getRoomCode());
+            log.info("[SETUP] Persisted {} devices for room '{}'", processed, body.getRoomCode());
 
         } catch (NotFoundException e) {
-            log.error("[SETUP] Room not found in system: {}", body.getRoomCode());
+            log.error("[SETUP] Room not found in system: '{}'", body.getRoomCode());
             throw e;
         } catch (Exception e) {
-            log.error("[SETUP] Critical error during persistence: {}", e.getMessage());
+            log.error("[SETUP] Critical error during persistence: {}", e.getMessage(), e);
             throw new ExternalServiceException("Persistence failed: " + e.getMessage());
         }
     }
