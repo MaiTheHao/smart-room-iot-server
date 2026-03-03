@@ -18,6 +18,7 @@ class RoomDetailPage {
     this.healthService = window.healthCheckApiV1Service;
     this.lightService = window.lightApiV1Service;
     this.acService = window.airConditionApiV1Service;
+    this.fanService = window.fanApiV1Service;
     this.telemetryService = window.telemetryApiV1Service;
 
     this.logger = window.logger('RoomDetailPage');
@@ -119,6 +120,12 @@ class RoomDetailPage {
     $('.ac-mode-btn').on('click', (e) => this.handleAcModeChange($(e.currentTarget)));
     $('.ac-fan-slider').on('input', (e) => this.handleAcFanSpeedChange($(e.currentTarget)));
     $('.ac-swing-switch').on('change', (e) => this.handleAcSwingToggle($(e.currentTarget)));
+
+    $('.fan-master-switch').on('change', (e) => this.handleFanMasterToggle($(e.currentTarget)));
+    $('.btn-mode').on('click', (e) => this.handleFanModeChange($(e.currentTarget)));
+    $('.fan-speed-slider').on('input', (e) => this.handleFanSpeedChange($(e.currentTarget)));
+    $('.fan-swing-switch').on('change', (e) => this.handleFanSwingToggle($(e.currentTarget)));
+    $('.fan-light-switch').on('change', (e) => this.handleFanLightToggle($(e.currentTarget)));
   }
 
   async handleLightToggle($input) {
@@ -301,6 +308,143 @@ class RoomDetailPage {
       }
     } catch (error) {
       notify.error(error.message || 'Failed to toggle swing');
+      $input.prop('checked', !isChecked);
+    } finally {
+      $input.prop('disabled', false);
+    }
+  }
+
+  async handleFanMasterToggle($input) {
+    const fanId = $input.data('fan-id');
+    const naturalId = $input.data('fan-natural-id');
+    const isChecked = $input.is(':checked');
+    const $fanItem = $(`.fan-item[data-fan-id="${fanId}"]`);
+    const $controls = $fanItem.find('.collapse');
+    const $status = $fanItem.find('.fan-status-text');
+    const $icon = $fanItem.find('.default-icon');
+    const fanName = $fanItem.find('h6').text() || 'Fan';
+
+    $fanItem.addClass('is-loading');
+    $input.prop('disabled', true);
+
+    try {
+      const response = await this.fanService.control(naturalId, {
+        power: isChecked ? 'ON' : 'OFF',
+      });
+
+      if (response && response.status === 202) {
+        notify.success(`${fanName} turned ${isChecked ? 'ON' : 'OFF'}`);
+
+        if (isChecked) {
+          $controls.removeClass('disabled-overlay');
+          $icon.addClass('active-fan');
+          $status.text('Đang bật');
+        } else {
+          $controls.addClass('disabled-overlay');
+          $controls.collapse('hide');
+          $icon.removeClass('active-fan');
+          $status.text('Đã tắt');
+        }
+      }
+    } catch (error) {
+      notify.error(error.message || `Failed to toggle ${fanName}`);
+      $input.prop('checked', !isChecked);
+    } finally {
+      $fanItem.removeClass('is-loading');
+      $input.prop('disabled', false);
+    }
+  }
+
+  async handleFanModeChange($btn) {
+    const fanId = $btn.data('fan-id');
+    const naturalId = $btn.data('fan-natural-id');
+    const mode = $btn.data('mode');
+    const $fanItem = $(`.fan-item[data-fan-id="${fanId}"]`);
+
+    $fanItem.addClass('is-loading');
+    $btn.prop('disabled', true);
+
+    try {
+      const response = await this.fanService.control(naturalId, { mode });
+
+      if (response && response.status === 202) {
+        $fanItem.find('.btn-mode').removeClass('active-mode');
+        $btn.addClass('active-mode');
+        notify.success(`Mode changed to ${mode}`);
+      }
+    } catch (error) {
+      notify.error(error.message || 'Failed to change mode');
+    } finally {
+      $fanItem.removeClass('is-loading');
+      $btn.prop('disabled', false);
+    }
+  }
+
+  async handleFanSpeedChange($slider) {
+    const fanId = $slider.data('fan-id');
+    const naturalId = $slider.data('fan-natural-id');
+    const speed = parseInt($slider.val());
+    const $fanItem = $(`.fan-item[data-fan-id="${fanId}"]`);
+    const $badge = $fanItem.find('.fan-speed-display');
+
+    $badge.text(speed);
+
+    clearTimeout(this._fanSpeedDebounce);
+    this._fanSpeedDebounce = setTimeout(async () => {
+      try {
+        const response = await this.fanService.control(naturalId, { speed });
+
+        if (response && response.status === 202) {
+          notify.success(`Fan speed set to ${speed}`);
+        }
+      } catch (error) {
+        notify.error(error.message || 'Failed to change fan speed');
+      }
+    }, 500);
+  }
+
+  async handleFanSwingToggle($input) {
+    const fanId = $input.data('fan-id');
+    const naturalId = $input.data('fan-natural-id');
+    const isChecked = $input.is(':checked');
+    const $fanItem = $(`.fan-item[data-fan-id="${fanId}"]`);
+
+    $input.prop('disabled', true);
+
+    try {
+      const response = await this.fanService.control(naturalId, {
+        swing: isChecked ? 'ON' : 'OFF',
+      });
+
+      if (response && response.status === 202) {
+        notify.success(`Swing turned ${isChecked ? 'ON' : 'OFF'}`);
+      }
+    } catch (error) {
+      notify.error(error.message || 'Failed to toggle swing');
+      $input.prop('checked', !isChecked);
+    } finally {
+      $input.prop('disabled', false);
+    }
+  }
+
+  async handleFanLightToggle($input) {
+    const fanId = $input.data('fan-id');
+    const naturalId = $input.data('fan-natural-id');
+    const isChecked = $input.is(':checked');
+    const $fanItem = $(`.fan-item[data-fan-id="${fanId}"]`);
+
+    $input.prop('disabled', true);
+
+    try {
+      const response = await this.fanService.control(naturalId, {
+        light: isChecked ? 'ON' : 'OFF',
+      });
+
+      if (response && response.status === 202) {
+        notify.success(`Light turned ${isChecked ? 'ON' : 'OFF'}`);
+      }
+    } catch (error) {
+      notify.error(error.message || 'Failed to toggle light');
       $input.prop('checked', !isChecked);
     } finally {
       $input.prop('disabled', false);

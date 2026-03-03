@@ -10,11 +10,13 @@ import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
+import com.iviet.ivshs.dto.FanDto;
 import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.dto.RoomDetailViewModel;
 import com.iviet.ivshs.dto.RoomDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.service.AirConditionService;
+import com.iviet.ivshs.service.FanService;
 import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
 import com.iviet.ivshs.service.RoomService;
@@ -33,6 +35,7 @@ public class RoomViewServiceImpl implements RoomViewService {
 	private final RoomService roomService;
 	private final LightService lightService;
 	private final AirConditionService airConditionService;
+	private final FanService fanService;
 	private final TemperatureValueService temperatureValueService;
 	private final PowerConsumptionValueService powerConsumptionValueService;
 	// private final TelemetryService telemetryService;
@@ -72,6 +75,8 @@ public class RoomViewServiceImpl implements RoomViewService {
 			
 			List<LightDto> lights = getLightsForRoom(roomId);
 			List<AirConditionDto> airConditions = getAirConditionsForRoom(roomId);
+			List<FanDto> fans = getFansForRoom(roomId);
+			log.debug("Room ID: {}, Lights: {}, Air Conditions: {}, Fans: {}", roomId, lights.size(), airConditions.size(), fans.size());
 
 			return RoomDetailViewModel.builder()
 					.room(room)
@@ -82,6 +87,7 @@ public class RoomViewServiceImpl implements RoomViewService {
 					.powerChartData(powerChartData)
 					.lights(lights)
 					.airConditions(airConditions)
+					.fans(fans)
 					.errorMessage("")
 					.build();
 
@@ -121,6 +127,15 @@ public class RoomViewServiceImpl implements RoomViewService {
 		}
 	}
 
+	private List<FanDto> getFansForRoom(Long roomId) {
+		try {
+			return fanService.getListByRoomId(roomId, 0, MAX_DEVICES_PER_ROOM).content();
+		} catch (Exception e) {
+			log.error("Failed to load fans for room: {}", roomId, e);
+			return Collections.emptyList();
+		}
+	}
+
 	private List<AverageTemperatureValueDto> getTemperatureChartData(Long roomId, Instant start, Instant end) {
 		try {
 			return temperatureValueService.getAverageTemperatureByRoom(roomId, start, end);
@@ -150,8 +165,7 @@ public class RoomViewServiceImpl implements RoomViewService {
 					.tempChartData(Collections.emptyList())
 					.powerChartData(Collections.emptyList())
 					.lights(Collections.emptyList())
-					.airConditions(Collections.emptyList())
-					.errorMessage("Error: " + errorMessage)
+					.airConditions(Collections.emptyList())				.fans(Collections.emptyList())					.errorMessage("Error: " + errorMessage)
 					.build();
 		} catch (Exception e) {
 			log.error("Failed to build error model for room: {}", roomId, e);
@@ -163,8 +177,7 @@ public class RoomViewServiceImpl implements RoomViewService {
 					.tempChartData(Collections.emptyList())
 					.powerChartData(Collections.emptyList())
 					.lights(Collections.emptyList())
-					.airConditions(Collections.emptyList())
-					.errorMessage("Critical Error: " + e.getMessage())
+					.airConditions(Collections.emptyList())				.fans(Collections.emptyList())					.errorMessage("Critical Error: " + e.getMessage())
 					.build();
 		}
 	}

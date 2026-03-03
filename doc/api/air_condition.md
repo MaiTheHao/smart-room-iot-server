@@ -487,7 +487,7 @@ POST /api/v1/air-conditions/1/swing?state=ON
 </details>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{naturalId}/control</code> - Điều khiển cấu hình đa tham số [NEW]</summary>
+<summary><b>PUT</b> <code>/api/v1/air-conditions/{naturalId}/control</code> - Điều khiển cấu hình đa tham số [NEW]</summary>
 
 > Gửi một lệnh điều khiển bao gồm nhiều trạng thái (Nguồn, Quạt, Chế độ, Đảo gió, Nhiệt độ) cùng lúc dựa trên mã định danh vật lý (naturalId).
 

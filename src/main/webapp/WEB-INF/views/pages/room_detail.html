@@ -206,6 +206,48 @@
                     </div>
                   </div>
                 </div>
+
+                <div class="device-row">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div
+                      class="d-flex align-items-center flex-grow-1"
+                      style="cursor: pointer"
+                      onclick="$('#btn-expand-fan').click()"
+                    >
+                      <div
+                        class="icon-box active-fan mr-3 d-flex justify-content-center align-items-center"
+                      >
+                        <i class="fas fa-fan"></i>
+                      </div>
+                      <div>
+                        <h6 class="mb-0 font-weight-bold text-dark">Hệ thống quạt</h6>
+                        <small class="text-muted" th:text="${fans.size()} + ' thiết bị'"
+                          >0 thiết bị</small
+                        >
+                      </div>
+                    </div>
+                    <button
+                      class="btn btn-link text-muted p-0 btn-expand"
+                      id="btn-expand-fan"
+                      type="button"
+                      data-toggle="collapse"
+                      data-target="#fanControls"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse" id="fanControls">
+                    <div id="fansList" class="mt-3 pl-5">
+                      <th:block th:each="fan : ${fans}" th:if="${fan != null}">
+                        <div
+                          th:replace="~{fragments/room_detail/device_items/fan.html :: fan(fan=${fan})}"
+                        ></div>
+                      </th:block>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -228,6 +270,7 @@
       <script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/light_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/air_condition_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/fan_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/health_check_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/telemetry_api_v1.js}"></script>
       <script defer th:src="@{/scripts/pages/room_detail.js}"></script>

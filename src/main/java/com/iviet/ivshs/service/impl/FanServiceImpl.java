@@ -37,9 +37,11 @@ public class FanServiceImpl implements FanService {
     @Override
     public PaginatedResponse<FanDto> getList(int page, int size) {
         var langCode = LocalContextUtil.getCurrentLangCode();
+        var data = fanDao.findAll(page, size, langCode);
+        var totalElements = fanDao.count();
         return new PaginatedResponse<>(
-                fanDao.findAll(page, size, langCode),
-                page, size, fanDao.count()
+                data,
+                page, data.size(), totalElements
         );
     }
 
@@ -51,9 +53,11 @@ public class FanServiceImpl implements FanService {
     @Override
     public PaginatedResponse<FanDto> getListByRoomId(Long roomId, int page, int size) {
         var langCode = LocalContextUtil.getCurrentLangCode();
+        var data = fanDao.findAllByRoomId(roomId, page, size, langCode);
+        var totalElements = fanDao.countByRoomId(roomId);
         return new PaginatedResponse<>(
-                fanDao.findAllByRoomId(roomId, page, size, langCode),
-                page, size, fanDao.countByRoomId(roomId)
+                data,
+                page, data.size(), totalElements
         );
     }
 
