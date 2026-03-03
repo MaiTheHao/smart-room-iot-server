@@ -1,219 +1,321 @@
 <!doctype html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{main_layout.html}">
-	<head>
-		<title th:text="#{user.management.title}">Manage Users</title>
-		<th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
-	</head>
-	<body>
-		<th:block layout:fragment="header">
-			<th:block th:replace="~{fragments/management.html :: page_header(#{user.management.title})}"></th:block>
-		</th:block>
+<html
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{main_layout.html}"
+>
+  <head>
+    <title th:text="#{user.management.title}">Manage Users</title>
+    <th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
+  </head>
+  <body>
+    <th:block layout:fragment="header">
+      <th:block
+        th:replace="~{fragments/management.html :: page_header(#{user.management.title})}"
+      ></th:block>
+    </th:block>
 
-		<section class="content" layout:fragment="content">
-			<div class="container-fluid">
-				<div class="card card-outline card-secondary mb-3 collapsed-card">
-					<div class="card-header">
-						<h3 class="card-title">
-							<i class="fas fa-filter mr-1"></i>
-							<span th:text="#{user.management.filter.title}">Filters</span>
-						</h3>
-						<div class="card-tools">
-							<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
-						</div>
-					</div>
-					<div class="card-body">
-						<div class="row align-items-center">
-							<div class="col-md-3">
-								<label class="mb-1 small text-muted" th:text="#{user.management.filter.type}">Filter by Type:</label>
-								<select id="filterClientType" class="form-control form-control-sm">
-									<option value="" th:text="#{user.management.all.types}">All Types</option>
-									<option value="USER" th:text="#{user.management.type.user}">User</option>
-									<option value="HARDWARE_GATEWAY" th:text="#{user.management.type.gateway}">Hardware Gateway</option>
-								</select>
-							</div>
-							<div class="col-md-9 text-right">
-								<span class="text-muted small">
-									<i class="fas fa-info-circle mr-1"></i>
-									<span th:text="#{user.management.search.info}">Use the search box in table to filter by username, IP...</span>
-								</span>
-							</div>
-						</div>
-					</div>
-				</div>
+    <section class="content" layout:fragment="content">
+      <div class="container-fluid">
+        <div class="card card-outline card-secondary mb-3 collapsed-card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-filter mr-1"></i>
+              <span th:text="#{user.management.filter.title}">Filters</span>
+            </h3>
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <label class="mb-1 small text-muted" th:text="#{user.management.filter.type}"
+                  >Filter by Type:</label
+                >
+                <select id="filterClientType" class="form-control form-control-sm">
+                  <option value="" th:text="#{user.management.all.types}">All Types</option>
+                  <option value="USER" th:text="#{user.management.type.user}">User</option>
+                  <option value="HARDWARE_GATEWAY" th:text="#{user.management.type.gateway}">
+                    Hardware Gateway
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-9 text-right">
+                <span class="text-muted small">
+                  <i class="fas fa-info-circle mr-1"></i>
+                  <span th:text="#{user.management.search.info}"
+                    >Use the search box in table to filter by username, IP...</span
+                  >
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-				<div class="card card-outline card-primary shadow-sm">
-					<div class="card-header">
-						<h3 class="card-title">
-							<i class="fas fa-users mr-1"></i>
-							<span th:text="#{user.management.table.list.title}">User List</span>
-						</h3>
-						<div class="card-tools">
-							<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#createUserModal">
-								<i class="fas fa-plus mr-1"></i>
-								<span th:text="#{user.management.add.user}">Add User</span>
-							</button>
-						</div>
-					</div>
-					<div class="card-body">
-						<table id="usersTable" class="table table-bordered table-striped table-hover w-100">
-							<thead class="thead-light">
-								<tr>
-									<th th:text="#{user.table.id}">ID</th>
-									<th th:text="#{user.table.username}">Username</th>
-									<th th:text="#{user.table.type}">Type</th>
-									<th th:text="#{user.table.ip}">IP Address</th>
-									<th th:text="#{user.table.mac}">MAC Address</th>
-									<th th:text="#{user.table.last.login}">Last Login</th>
-									<th class="text-center" th:text="#{user.table.actions}">Actions</th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					</div>
-				</div>
+        <div class="card card-outline card-primary shadow-sm">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="fas fa-users mr-1"></i>
+              <span th:text="#{user.management.table.list.title}">User List</span>
+            </h3>
+            <div class="card-tools">
+              <button
+                type="button"
+                class="btn btn-success btn-sm"
+                data-toggle="modal"
+                data-target="#createUserModal"
+              >
+                <i class="fas fa-plus mr-1"></i>
+                <span th:text="#{user.management.add.user}">Add User</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <table id="usersTable" class="table table-bordered table-striped table-hover w-100">
+              <thead class="thead-light">
+                <tr>
+                  <th th:text="#{user.table.id}">ID</th>
+                  <th th:text="#{user.table.username}">Username</th>
+                  <th th:text="#{user.table.type}">Type</th>
+                  <th th:text="#{user.table.ip}">IP Address</th>
+                  <th th:text="#{user.table.mac}">MAC Address</th>
+                  <th th:text="#{user.table.last.login}">Last Login</th>
+                  <th class="text-center" th:text="#{user.table.actions}">Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
 
-				<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog modal-lg" role="document">
-						<div class="modal-content">
-							<th:block th:replace="~{fragments/management.html :: modal_header(#{user.modal.create.title}, 'bg-success', 'fas fa-user-plus')}"></th:block>
-							<div class="modal-body modal-body-scrollable">
-								<form id="createUserForm">
-									<div class="row">
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="createUsername"> <span th:text="#{user.modal.username}">Username</span> <span class="text-danger">*</span> </label>
-												<input type="text" class="form-control" id="createUsername" required minlength="3" maxlength="100" />
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="createPassword"> <span th:text="#{user.modal.password}">Password</span> <span class="text-danger">*</span> </label>
-												<input type="password" class="form-control" id="createPassword" required minlength="6" maxlength="100" />
-											</div>
-										</div>
-									</div>
-									<div class="row">
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="createClientType"> <span th:text="#{user.modal.type}">Type</span> <span class="text-danger">*</span> </label>
-												<select class="form-control" id="createClientType" required>
-													<option value="USER" th:text="#{user.management.type.user}">User</option>
-													<option value="HARDWARE_GATEWAY" th:text="#{user.management.type.gateway}">Hardware Gateway</option>
-												</select>
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="createIpAddress" th:text="#{user.modal.ip}">IP Address</label>
-												<input type="text" class="form-control" id="createIpAddress" maxlength="45" th:placeholder="#{user.modal.placeholder.ip}" />
-											</div>
-										</div>
-									</div>
-									<div class="row">
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="createMacAddress" th:text="#{user.modal.mac}">MAC Address</label>
-												<input type="text" class="form-control" id="createMacAddress" maxlength="100" th:placeholder="#{user.modal.placeholder.mac}" />
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="createAvatarUrl" th:text="#{user.modal.avatar}">Avatar URL</label>
-												<input type="url" class="form-control" id="createAvatarUrl" maxlength="255" />
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-							<th:block th:replace="~{fragments/management.html :: modal_footer('createUserBtn', #{user.modal.create.btn}, 'btn-success')}"></th:block>
-						</div>
-					</div>
-				</div>
+        <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <th:block
+                th:replace="~{fragments/management.html :: modal_header(#{user.modal.create.title}, 'bg-success', 'fas fa-user-plus')}"
+              ></th:block>
+              <div class="modal-body modal-body-scrollable">
+                <form id="createUserForm">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="createUsername">
+                          <span th:text="#{user.modal.username}">Username</span>
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="createUsername"
+                          required
+                          minlength="3"
+                          maxlength="100"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="createPassword">
+                          <span th:text="#{user.modal.password}">Password</span>
+                          <span class="text-danger">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="createPassword"
+                          required
+                          minlength="6"
+                          maxlength="100"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="createClientType">
+                          <span th:text="#{user.modal.type}">Type</span>
+                          <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control" id="createClientType" required>
+                          <option value="USER" th:text="#{user.management.type.user}">User</option>
+                          <option
+                            value="HARDWARE_GATEWAY"
+                            th:text="#{user.management.type.gateway}"
+                          >
+                            Hardware Gateway
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="createIpAddress" th:text="#{user.modal.ip}">IP Address</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="createIpAddress"
+                          maxlength="45"
+                          th:placeholder="#{user.modal.placeholder.ip}"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="createMacAddress" th:text="#{user.modal.mac}"
+                          >MAC Address</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="createMacAddress"
+                          maxlength="100"
+                          th:placeholder="#{user.modal.placeholder.mac}"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="createAvatarUrl" th:text="#{user.modal.avatar}"
+                          >Avatar URL</label
+                        >
+                        <input
+                          type="url"
+                          class="form-control"
+                          id="createAvatarUrl"
+                          maxlength="255"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <th:block
+                th:replace="~{fragments/management.html :: modal_footer('createUserBtn', #{user.modal.create.btn}, 'btn-success')}"
+              ></th:block>
+            </div>
+          </div>
+        </div>
 
-				<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog modal-lg" role="document">
-						<div class="modal-content">
-							<th:block th:replace="~{fragments/management.html :: modal_header(#{user.modal.edit.title}, 'bg-primary', 'fas fa-user-edit')}"></th:block>
-							<div class="modal-body modal-body-scrollable">
-								<form id="editUserForm">
-									<input type="hidden" id="editUserId" />
-									<div class="row">
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="editClientType"> <span th:text="#{user.modal.type}">Type</span> <span class="text-danger">*</span> </label>
-												<select class="form-control" id="editClientType" required>
-													<option value="USER" th:text="#{user.management.type.user}">User</option>
-													<option value="HARDWARE_GATEWAY" th:text="#{user.management.type.gateway}">Hardware Gateway</option>
-												</select>
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="editIpAddress" th:text="#{user.modal.ip}">IP Address</label>
-												<input type="text" class="form-control" id="editIpAddress" maxlength="45" />
-											</div>
-										</div>
-									</div>
-									<div class="row">
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="editMacAddress" th:text="#{user.modal.mac}">MAC Address</label>
-												<input type="text" class="form-control" id="editMacAddress" maxlength="100" />
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="editAvatarUrl" th:text="#{user.modal.avatar}">Avatar URL</label>
-												<input type="url" class="form-control" id="editAvatarUrl" maxlength="255" />
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-							<th:block th:replace="~{fragments/management.html :: modal_footer('saveEditBtn', #{user.modal.save.btn}, 'btn-primary')}"></th:block>
-						</div>
-					</div>
-				</div>
+        <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <th:block
+                th:replace="~{fragments/management.html :: modal_header(#{user.modal.edit.title}, 'bg-primary', 'fas fa-user-edit')}"
+              ></th:block>
+              <div class="modal-body modal-body-scrollable">
+                <form id="editUserForm">
+                  <input type="hidden" id="editUserId" />
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="editClientType">
+                          <span th:text="#{user.modal.type}">Type</span>
+                          <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-control" id="editClientType" required>
+                          <option value="USER" th:text="#{user.management.type.user}">User</option>
+                          <option
+                            value="HARDWARE_GATEWAY"
+                            th:text="#{user.management.type.gateway}"
+                          >
+                            Hardware Gateway
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="editIpAddress" th:text="#{user.modal.ip}">IP Address</label>
+                        <input type="text" class="form-control" id="editIpAddress" maxlength="45" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="editMacAddress" th:text="#{user.modal.mac}">MAC Address</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="editMacAddress"
+                          maxlength="100"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="editAvatarUrl" th:text="#{user.modal.avatar}">Avatar URL</label>
+                        <input type="url" class="form-control" id="editAvatarUrl" maxlength="255" />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <th:block
+                th:replace="~{fragments/management.html :: modal_footer('saveEditBtn', #{user.modal.save.btn}, 'btn-primary')}"
+              ></th:block>
+            </div>
+          </div>
+        </div>
 
-				<div class="modal fade" id="manageGroupsModal" tabindex="-1" role="dialog" aria-hidden="true">
-					<div class="modal-dialog modal-lg" role="document">
-						<div class="modal-content">
-							<div class="modal-header bg-info text-white">
-								<h5 class="modal-title">
-									<i class="fas fa-users-cog mr-2"></i>
-									<span th:text="#{user.roles.modal.title}">Manage Roles</span>:
-									<span id="groupModalUsername" class="font-weight-bold ml-1"></span>
-								</h5>
-								<button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
-							</div>
-							<div class="modal-body modal-body-scrollable">
-								<input type="hidden" id="groupClientId" />
-								<div class="alert alert-info">
-									<i class="fas fa-info-circle mr-2"></i>
-									<span th:text="#{user.roles.modal.info}">Check or uncheck roles.</span>
-								</div>
-								<div id="groupsList" class="list-group"></div>
-							</div>
-							<th:block th:replace="~{fragments/management.html :: modal_footer('saveGroupsBtn', #{user.roles.modal.save}, 'btn-info')}"></th:block>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
+        <div
+          class="modal fade"
+          id="manageGroupsModal"
+          tabindex="-1"
+          role="dialog"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                  <i class="fas fa-users-cog mr-2"></i>
+                  <span th:text="#{user.roles.modal.title}">Manage Roles</span>:
+                  <span id="groupModalUsername" class="font-weight-bold ml-1"></span>
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body modal-body-scrollable">
+                <input type="hidden" id="groupClientId" />
+                <div class="alert alert-info">
+                  <i class="fas fa-info-circle mr-2"></i>
+                  <span th:text="#{user.roles.modal.info}">Check or uncheck roles.</span>
+                </div>
+                <div id="groupsList" class="list-group"></div>
+              </div>
+              <th:block
+                th:replace="~{fragments/management.html :: modal_footer('saveGroupsBtn', #{user.roles.modal.save}, 'btn-info')}"
+              ></th:block>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-		<th:block layout:fragment="optional">
-			<script th:src="@{/scripts/service/api/v1/role_api_v1.js}"></script>
-			<script th:src="@{/scripts/service/api/v1/client_api_v1.js}"></script>
-			<script th:src="@{/scripts/service/api/v1/group_api_v1.js}"></script>
-			<th:block th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/user_management.js})}"></th:block>
-			<script defer th:inline="javascript">
-				/*<![CDATA[*/
-				$(document).ready(function () {
-					const contextPath = /*[[@{/}]]*/ '/';
-					new UserManager(contextPath);
-				});
-				/*]]>*/
-			</script>
-		</th:block>
-	</body>
+    <th:block layout:fragment="optional">
+      <script th:src="@{/scripts/service/api/v1/role_api_v1.js}"></script>
+      <script th:src="@{/scripts/service/api/v1/client_api_v1.js}"></script>
+      <script th:src="@{/scripts/service/api/v1/group_api_v1.js}"></script>
+      <script th:src="@{/scripts/service/api/v1/setup_api_v1.js}"></script>
+      <th:block
+        th:replace="~{fragments/management.html :: data_table_scripts(@{/scripts/pages/management/user_management.js})}"
+      ></th:block>
+      <script defer th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+          const contextPath = /*[[@{/}]]*/ '/';
+          new UserManager(contextPath);
+        });
+        /*]]>*/
+      </script>
+    </th:block>
+  </body>
 </html>

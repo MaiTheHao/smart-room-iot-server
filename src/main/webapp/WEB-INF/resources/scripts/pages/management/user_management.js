@@ -1,237 +1,269 @@
 class UserManager {
-	static instance;
+  static instance;
 
-	constructor() {
-		if (typeof window === 'undefined') throw new Error('UserManager can only be initialized in a browser environment');
-		if (UserManager.instance) return UserManager.instance;
-		UserManager.instance = this;
+  constructor() {
+    if (typeof window === 'undefined')
+      throw new Error('UserManager can only be initialized in a browser environment');
+    if (UserManager.instance) return UserManager.instance;
+    UserManager.instance = this;
 
-		this.clientService = window.clientApiV1Service;
-		this.roleService = window.roleApiV1Service;
-		this.groupService = window.groupApiV1Service;
-		this.table = null;
-		this.roleChanges = {};
-		this.init();
-	}
+    this.clientService = window.clientApiV1Service;
+    this.roleService = window.roleApiV1Service;
+    this.groupService = window.groupApiV1Service;
+    this.setupService = window.setupApiV1Service;
+    this.table = null;
+    this.roleChanges = {};
+    this.init();
+  }
 
-	init() {
-		this.initDataTable();
-		this.bindEvents();
-	}
+  init() {
+    this.initDataTable();
+    this.bindEvents();
+  }
 
-	initDataTable() {
-		this.table = $('#usersTable').DataTable({
-			processing: true,
-			serverSide: false,
-			ajax: (data, callback, settings) => {
-				(async () => {
-					try {
-						const res = await this.clientService.getAll(0, 1000);
-						callback({ data: res.data.content || [] });
-					} catch (error) {
-						notify.error('Failed to load users data');
-						callback({ data: [] });
-					}
-				})();
-			},
-			columns: [
-				{ data: 'id' },
-				{ data: 'username', render: this.renderAvatar },
-				{ data: 'clientType', render: this.renderStatus },
-				{ data: 'ipAddress', render: (data) => data || '<span class="text-muted">N/A</span>' },
-				{ data: 'macAddress', render: (data) => data || '<span class="text-muted">N/A</span>' },
-				{ data: 'lastLoginAt', render: (data) => (data ? `<small>${new Date(data).toLocaleString()}</small>` : '<span class="text-muted">Never</span>') },
-				{ data: null, orderable: false, render: this.renderActions },
-			],
-			order: [[0, 'asc']],
-			pageLength: 10,
-			lengthMenu: [5, 10, 25, 50, 100],
-			language: {
-				search: 'Search:',
-				lengthMenu: 'Show _MENU_ entries',
-				info: 'Showing _START_ to _END_ of _TOTAL_ users',
-				infoEmpty: 'No users found',
-				infoFiltered: '(filtered from _MAX_ total users)',
-				paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' },
-			},
-		});
-	}
+  initDataTable() {
+    this.table = $('#usersTable').DataTable({
+      processing: true,
+      serverSide: false,
+      ajax: (data, callback, settings) => {
+        (async () => {
+          try {
+            const res = await this.clientService.getAll(0, 1000);
+            callback({ data: res.data.content || [] });
+          } catch (error) {
+            notify.error('Failed to load users data');
+            callback({ data: [] });
+          }
+        })();
+      },
+      columns: [
+        { data: 'id' },
+        { data: 'username', render: this.renderAvatar },
+        { data: 'clientType', render: this.renderStatus },
+        { data: 'ipAddress', render: (data) => data || '<span class="text-muted">N/A</span>' },
+        { data: 'macAddress', render: (data) => data || '<span class="text-muted">N/A</span>' },
+        {
+          data: 'lastLoginAt',
+          render: (data) =>
+            data
+              ? `<small>${new Date(data).toLocaleString()}</small>`
+              : '<span class="text-muted">Never</span>',
+        },
+        { data: null, orderable: false, render: this.renderActions },
+      ],
+      order: [[0, 'asc']],
+      pageLength: 10,
+      lengthMenu: [5, 10, 25, 50, 100],
+      language: {
+        search: 'Search:',
+        lengthMenu: 'Show _MENU_ entries',
+        info: 'Showing _START_ to _END_ of _TOTAL_ users',
+        infoEmpty: 'No users found',
+        infoFiltered: '(filtered from _MAX_ total users)',
+        paginate: { first: 'First', last: 'Last', next: 'Next', previous: 'Previous' },
+      },
+    });
+  }
 
-	renderAvatar(data, type, row) {
-		const avatar = row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data)}`;
-		return `<div class="d-flex align-items-center">
+  renderAvatar(data, type, row) {
+    const avatar = row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data)}`;
+    return `<div class="d-flex align-items-center">
 					<img src="${avatar}" class="img-circle elevation-1 mr-2" width="35" height="35" 
 						onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data)}'">
 					<strong>${data}</strong>
 				</div>`;
-	}
+  }
 
-	renderStatus(data) {
-		return data === 'USER'
-			? '<span class="badge badge-user"><i class="fas fa-user mr-1"></i>User</span>'
-			: '<span class="badge badge-gateway"><i class="fas fa-network-wired mr-1"></i>Gateway</span>';
-	}
+  renderStatus(data) {
+    return data === 'USER'
+      ? '<span class="badge badge-user"><i class="fas fa-user mr-1"></i>User</span>'
+      : '<span class="badge badge-gateway"><i class="fas fa-network-wired mr-1"></i>Gateway</span>';
+  }
 
-	renderActions(data, type, row) {
-		return `<div class="btn-group btn-group-sm" role="group">
-					<button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
-						<i class="fas fa-users"></i>
-					</button>
-					<button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
-						<i class="fas fa-edit"></i>
-					</button>
-					<button class="btn btn-secondary action-btn btn-reset-password" data-id="${row.id}" data-username="${row.username}" title="Reset Password">
-						<i class="fas fa-key"></i>
-					</button>
-					<button class="btn btn-danger action-btn btn-delete-user" data-id="${row.id}" data-username="${row.username}" title="Delete User">
-						<i class="fas fa-trash"></i>
-					</button>
-				</div>`;
-	}
+  renderActions(data, type, row) {
+    // Base buttons (always visible)
+    let buttons = `
+			<button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
+				<i class="fas fa-users"></i>
+			</button>
+			<button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
+				<i class="fas fa-edit"></i>
+			</button>
+		`;
 
-	bindEvents() {
-		$('#filterClientType').on('change', (e) => this.table.column(2).search(e.target.value).draw());
-		$('#createUserBtn').on('click', () => this.handleCreateUser());
-		$('#saveEditBtn').on('click', () => this.handleUpdateUser());
-		$('#saveGroupsBtn').on('click', () => this.handleSaveRoles());
+    // Setup button (only for HARDWARE_GATEWAY)
+    if (row.clientType === 'HARDWARE_GATEWAY') {
+      buttons += `
+				<button class="btn btn-primary action-btn btn-setup-gateway" data-id="${row.id}" data-username="${row.username}" title="Setup Configuration">
+					<i class="fas fa-cogs"></i>
+				</button>
+			`;
+    }
 
-		$('#usersTable tbody')
-			.on('click', '.btn-manage-roles', (e) => this.openRolesModal($(e.currentTarget)))
-			.on('click', '.btn-edit-user', (e) => this.openEditModal($(e.currentTarget).data('id')))
-			.on('click', '.btn-reset-password', (e) => this.handleResetPassword($(e.currentTarget)))
-			.on('click', '.btn-delete-user', (e) => this.handleDeleteUser($(e.currentTarget)));
-	}
+    // Reset & Delete buttons
+    buttons += `
+			<button class="btn btn-secondary action-btn btn-reset-password" data-id="${row.id}" data-username="${row.username}" title="Reset Password">
+				<i class="fas fa-key"></i>
+			</button>
+			<button class="btn btn-danger action-btn btn-delete-user" data-id="${row.id}" data-username="${row.username}" title="Delete User">
+				<i class="fas fa-trash"></i>
+			</button>
+		`;
 
-	async handleCreateUser() {
-		const form = $('#createUserForm')[0];
-		if (!form.checkValidity()) {
-			form.reportValidity();
-			return;
-		}
+    return `<div class="btn-group btn-group-sm" role="group">${buttons}</div>`;
+  }
 
-		const data = {
-			username: $('#createUsername').val(),
-			password: $('#createPassword').val(),
-			clientType: $('#createClientType').val(),
-			ipAddress: $('#createIpAddress').val() || null,
-			macAddress: $('#createMacAddress').val() || null,
-			avatarUrl: $('#createAvatarUrl').val() || null,
-		};
+  bindEvents() {
+    $('#filterClientType').on('change', (e) => this.table.column(2).search(e.target.value).draw());
+    $('#createUserBtn').on('click', () => this.handleCreateUser());
+    $('#saveEditBtn').on('click', () => this.handleUpdateUser());
+    $('#saveGroupsBtn').on('click', () => this.handleSaveRoles());
 
-		try {
-			const res = await this.clientService.create(data);
-			notify.success(res.message || 'User created successfully');
-			$('#createUserModal').modal('hide');
-			form.reset();
-			this.table.ajax.reload();
-		} catch (error) {
-			notify.error(error.message || 'Failed to create user');
-		}
-	}
+    $('#usersTable tbody')
+      .on('click', '.btn-manage-roles', (e) => this.openRolesModal($(e.currentTarget)))
+      .on('click', '.btn-edit-user', (e) => this.openEditModal($(e.currentTarget).data('id')))
+      .on('click', '.btn-setup-gateway', (e) => this.handleSetupGateway($(e.currentTarget)))
+      .on('click', '.btn-reset-password', (e) => this.handleResetPassword($(e.currentTarget)))
+      .on('click', '.btn-delete-user', (e) => this.handleDeleteUser($(e.currentTarget)));
+  }
 
-	async openEditModal(id) {
-		try {
-			const res = await this.clientService.getById(id);
-			const user = res.data;
+  async handleCreateUser() {
+    const form = $('#createUserForm')[0];
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
 
-			$('#editUserId').val(user.id);
-			$('#editClientType').val(user.clientType);
-			$('#editIpAddress').val(user.ipAddress || '');
-			$('#editMacAddress').val(user.macAddress || '');
-			$('#editAvatarUrl').val(user.avatarUrl || '');
-			$('#editModalTitle').text(`Edit User: ${user.username}`);
-			$('#editUserModal').modal('show');
-		} catch (error) {
-			notify.error(error.message || 'Failed to load user data');
-		}
-	}
+    const data = {
+      username: $('#createUsername').val(),
+      password: $('#createPassword').val(),
+      clientType: $('#createClientType').val(),
+      ipAddress: $('#createIpAddress').val() || null,
+      macAddress: $('#createMacAddress').val() || null,
+      avatarUrl: $('#createAvatarUrl').val() || null,
+    };
 
-	async handleUpdateUser() {
-		const form = $('#editUserForm')[0];
-		if (!form.checkValidity()) {
-			form.reportValidity();
-			return;
-		}
+    try {
+      const res = await this.clientService.create(data);
+      notify.success(res.message || 'User created successfully');
+      $('#createUserModal').modal('hide');
+      form.reset();
+      this.table.ajax.reload();
+    } catch (error) {
+      notify.error(error.message || 'Failed to create user');
+    }
+  }
 
-		const userId = $('#editUserId').val();
-		if (!userId) return notify.error('User ID is missing');
+  async openEditModal(id) {
+    try {
+      const res = await this.clientService.getById(id);
+      const user = res.data;
 
-		const data = {
-			clientType: $('#editClientType').val(),
-			ipAddress: $('#editIpAddress').val() || null,
-			macAddress: $('#editMacAddress').val() || null,
-			avatarUrl: $('#editAvatarUrl').val() || null,
-		};
+      $('#editUserId').val(user.id);
+      $('#editClientType').val(user.clientType);
+      $('#editIpAddress').val(user.ipAddress || '');
+      $('#editMacAddress').val(user.macAddress || '');
+      $('#editAvatarUrl').val(user.avatarUrl || '');
+      $('#editModalTitle').text(`Edit User: ${user.username}`);
+      $('#editUserModal').modal('show');
+    } catch (error) {
+      notify.error(error.message || 'Failed to load user data');
+    }
+  }
 
-		try {
-			const res = await this.clientService.update(userId, data);
-			notify.success(res.message || 'User updated successfully');
-			$('#editUserModal').modal('hide');
-			this.table.ajax.reload();
-		} catch (error) {
-			notify.error(error.message || 'Failed to update user');
-		}
-	}
+  async handleUpdateUser() {
+    const form = $('#editUserForm')[0];
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
 
-	async handleResetPassword($btn) {
-		const id = $btn.data('id');
-		const username = $btn.data('username');
-		const newPassword = await notify.prompt(`Reset Password for "${username}"`, 'Enter new password (min 6 chars):', 'password', 'New password...');
+    const userId = $('#editUserId').val();
+    if (!userId) return notify.error('User ID is missing');
 
-		if (!newPassword) return;
-		if (newPassword.length < 6) return notify.error('Password must be at least 6 characters');
+    const data = {
+      clientType: $('#editClientType').val(),
+      ipAddress: $('#editIpAddress').val() || null,
+      macAddress: $('#editMacAddress').val() || null,
+      avatarUrl: $('#editAvatarUrl').val() || null,
+    };
 
-		try {
-			await this.clientService.update(id, { password: newPassword });
-			notify.success('Password reset successfully');
-		} catch (error) {
-			notify.error(error.message || 'Failed to reset password');
-		}
-	}
+    try {
+      const res = await this.clientService.update(userId, data);
+      notify.success(res.message || 'User updated successfully');
+      $('#editUserModal').modal('hide');
+      this.table.ajax.reload();
+    } catch (error) {
+      notify.error(error.message || 'Failed to update user');
+    }
+  }
 
-	async handleDeleteUser($btn) {
-		const id = $btn.data('id');
-		const username = $btn.data('username');
-		const confirmed = await notify.confirmDelete(username);
+  async handleResetPassword($btn) {
+    const id = $btn.data('id');
+    const username = $btn.data('username');
+    const newPassword = await notify.prompt(
+      `Reset Password for "${username}"`,
+      'Enter new password (min 6 chars):',
+      'password',
+      'New password...',
+    );
 
-		if (!confirmed) return;
+    if (!newPassword) return;
+    if (newPassword.length < 6) return notify.error('Password must be at least 6 characters');
 
-		try {
-			await this.clientService.delete(id);
-			notify.success('User deleted successfully');
-			this.table.ajax.reload();
-		} catch (error) {
-			notify.error(error.message || 'Failed to delete user');
-		}
-	}
+    try {
+      await this.clientService.update(id, { password: newPassword });
+      notify.success('Password reset successfully');
+    } catch (error) {
+      notify.error(error.message || 'Failed to reset password');
+    }
+  }
 
-	openRolesModal($btn) {
-		const clientId = $btn.data('id');
-		const username = $btn.data('username');
+  async handleDeleteUser($btn) {
+    const id = $btn.data('id');
+    const username = $btn.data('username');
+    const confirmed = await notify.confirmDelete(username);
 
-		this.roleChanges = {};
-		$('#groupClientId').val(clientId);
-		$('#groupModalUsername').text(username);
-		$('#manageGroupsModal').modal('show');
-		this.loadRolesForClient(clientId);
-	}
+    if (!confirmed) return;
 
-	async loadRolesForClient(clientId) {
-		const $list = $('#groupsList');
-		$list.html('<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>');
+    try {
+      await this.clientService.delete(id);
+      notify.success('User deleted successfully');
+      this.table.ajax.reload();
+    } catch (error) {
+      notify.error(error.message || 'Failed to delete user');
+    }
+  }
 
-		try {
-			const res = await this.groupService.getWithClientStatus(clientId);
-			const groups = res.data;
+  openRolesModal($btn) {
+    const clientId = $btn.data('id');
+    const username = $btn.data('username');
 
-			if (!groups || !groups.length) {
-				$list.html('<div class="alert alert-warning m-0">No roles available</div>');
-				return;
-			}
+    this.roleChanges = {};
+    $('#groupClientId').val(clientId);
+    $('#groupModalUsername').text(username);
+    $('#manageGroupsModal').modal('show');
+    this.loadRolesForClient(clientId);
+  }
 
-			const html = groups
-				.map(
-					(group) => `
+  async loadRolesForClient(clientId) {
+    const $list = $('#groupsList');
+    $list.html(
+      '<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>',
+    );
+
+    try {
+      const res = await this.groupService.getWithClientStatus(clientId);
+      const groups = res.data;
+
+      if (!groups || !groups.length) {
+        $list.html('<div class="alert alert-warning m-0">No roles available</div>');
+        return;
+      }
+
+      const html = groups
+        .map(
+          (group) => `
 				<div class="selection-list-item">
 					<div class="custom-control custom-checkbox">
 						<input type="checkbox" class="custom-control-input role-checkbox scale-checkbox" 
@@ -246,67 +278,108 @@ class UserManager {
 					</div>
 				</div>
 			`,
-				)
-				.join('');
+        )
+        .join('');
 
-			$list.html(html);
-			this.bindRoleCheckboxEvents($list);
-		} catch (error) {
-			$list.html('<div class="alert alert-danger m-0">Failed to load roles</div>');
-			notify.error(error.message || 'Failed to load roles');
-		}
-	}
+      $list.html(html);
+      this.bindRoleCheckboxEvents($list);
+    } catch (error) {
+      $list.html('<div class="alert alert-danger m-0">Failed to load roles</div>');
+      notify.error(error.message || 'Failed to load roles');
+    }
+  }
 
-	bindRoleCheckboxEvents($container) {
-		$container.off('change', '.role-checkbox').on('change', '.role-checkbox', (e) => {
-			const $cb = $(e.currentTarget);
-			const groupId = $cb.data('group-id');
-			const isChecked = $cb.is(':checked');
-			const initialState = $cb.data('initial-state') === true;
+  bindRoleCheckboxEvents($container) {
+    $container.off('change', '.role-checkbox').on('change', '.role-checkbox', (e) => {
+      const $cb = $(e.currentTarget);
+      const groupId = $cb.data('group-id');
+      const isChecked = $cb.is(':checked');
+      const initialState = $cb.data('initial-state') === true;
 
-			if (isChecked !== initialState) {
-				this.roleChanges[groupId] = isChecked;
-			} else {
-				delete this.roleChanges[groupId];
-			}
-		});
-	}
+      if (isChecked !== initialState) {
+        this.roleChanges[groupId] = isChecked;
+      } else {
+        delete this.roleChanges[groupId];
+      }
+    });
+  }
 
-	async handleSaveRoles() {
-		const clientId = parseInt($('#groupClientId').val());
-		if (!clientId) return notify.error('Client ID is missing');
+  async handleSaveRoles() {
+    const clientId = parseInt($('#groupClientId').val());
+    if (!clientId) return notify.error('Client ID is missing');
 
-		const changes = Object.keys(this.roleChanges);
-		if (!changes.length) {
-			notify.info('No changes to save');
-			$('#manageGroupsModal').modal('hide');
-			return;
-		}
+    const changes = Object.keys(this.roleChanges);
+    if (!changes.length) {
+      notify.info('No changes to save');
+      $('#manageGroupsModal').modal('hide');
+      return;
+    }
 
-		const toAssign = [];
-		const toUnassign = [];
+    const toAssign = [];
+    const toUnassign = [];
 
-		changes.forEach((groupId) => {
-			const id = parseInt(groupId);
-			this.roleChanges[groupId] ? toAssign.push(id) : toUnassign.push(id);
-		});
+    changes.forEach((groupId) => {
+      const id = parseInt(groupId);
+      this.roleChanges[groupId] ? toAssign.push(id) : toUnassign.push(id);
+    });
 
-		try {
-			const tasks = [];
-			if (toAssign.length > 0) {
-				tasks.push(this.roleService.assignGroupsToClient(clientId, toAssign));
-			}
-			if (toUnassign.length > 0) {
-				tasks.push(this.roleService.unassignGroupsFromClient(clientId, toUnassign));
-			}
+    try {
+      const tasks = [];
+      if (toAssign.length > 0) {
+        tasks.push(this.roleService.assignGroupsToClient(clientId, toAssign));
+      }
+      if (toUnassign.length > 0) {
+        tasks.push(this.roleService.unassignGroupsFromClient(clientId, toUnassign));
+      }
 
-			await Promise.all(tasks);
+      await Promise.all(tasks);
 
-			notify.success('Role assignments updated successfully');
-			$('#manageGroupsModal').modal('hide');
-			this.roleChanges = {};
-		} catch (error) {
-			notify.error(error.message || 'Failed to update role assignments');
-		}
-	}
+      notify.success('Role assignments updated successfully');
+      $('#manageGroupsModal').modal('hide');
+      this.roleChanges = {};
+    } catch (error) {
+      notify.error(error.message || 'Failed to update role assignments');
+    }
+  }
+
+  async handleSetupGateway($btn) {
+    const id = $btn.data('id');
+    const username = $btn.data('username');
+
+    const confirmed = await notify.confirm(
+      'Confirm Setup',
+      `Are you sure you want to trigger setup configuration for gateway "${username}"?`,
+      'warning',
+    );
+
+    if (!confirmed) return;
+
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+    try {
+      const res = await this.setupService.triggerSetup(id);
+      notify.success(res.message || 'Setup completed successfully');
+      this.table.ajax.reload(null, false);
+    } catch (error) {
+      let errorMsg = 'Failed to trigger setup';
+
+      if (error.message) {
+        if (error.message.includes('IP address')) {
+          errorMsg = 'Gateway IP address not configured. Please update client information first.';
+        } else if (error.message.includes('timed out')) {
+          errorMsg =
+            'Gateway connection timed out. Please check if gateway is online and network is accessible.';
+        } else if (error.message.includes('not a hardware gateway')) {
+          errorMsg =
+            'This client is not a gateway. Setup can only be triggered for gateway clients.';
+        } else {
+          errorMsg = error.message;
+        }
+      }
+
+      notify.error(errorMsg);
+    } finally {
+      $btn.prop('disabled', false).html('<i class="fas fa-cogs"></i>');
+    }
+  }
 }

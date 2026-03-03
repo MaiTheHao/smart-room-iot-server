@@ -41,13 +41,33 @@ public class SetupServiceImpl implements SetupService {
         long start = System.currentTimeMillis();
         log.info("[SETUP] Starting setup process for clientId: {}", clientId);
 
-        Client client = validateAndGetGateway(clientId);
+        try {
+            Client client = validateAndGetGateway(clientId);
+            log.info("[SETUP] Validated gateway: id={}, username={}, ip={}", 
+                client.getId(), client.getUsername(), client.getIpAddress());
 
-        SetupRequest setupRequest = fetchSetupData(client);
+            SetupRequest setupRequest = fetchSetupData(client);
 
-        executeDatabasePersistence(client, setupRequest.getData());
+            executeDatabasePersistence(client, setupRequest.getData());
 
-        log.info("[SETUP] Finished setup process for clientId: {} in {}ms", clientId, System.currentTimeMillis() - start);
+            long duration = System.currentTimeMillis() - start;
+            log.info("[SETUP] Successfully completed setup for clientId: {} in {}ms", 
+                clientId, duration);
+                
+        } catch (BadRequestException | NotFoundException e) {
+            log.error("[SETUP] Validation error for clientId {}: {}", clientId, e.getMessage());
+            throw e;
+        } catch (NetworkTimeoutException | ExternalServiceException e) {
+            log.error("[SETUP] Gateway communication error for clientId {}: {}", 
+                clientId, e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("[SETUP] Unexpected error during setup for clientId {}: {}", 
+                clientId, e.getMessage(), e);
+            throw new ExternalServiceException(
+                "Setup process failed: " + e.getMessage()
+            );
+        }
     }
 
     private Client validateAndGetGateway(Long clientId) {
@@ -57,28 +77,67 @@ public class SetupServiceImpl implements SetupService {
             log.error("[SETUP] Client is not a gateway: id={}", clientId);
             throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
         }
+        
+        if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
+            log.error("[SETUP] Gateway missing IP address: id={}, username={}", 
+                clientId, client.getUsername());
+            throw new BadRequestException(
+                "Gateway '" + client.getUsername() + "' does not have a configured IP address. " +
+                "Please configure the IP address before running setup."
+            );
+        }
+        
         return client;
     }
 
     private SetupRequest fetchSetupData(Client client) {
         String url = UrlConstant.getSetupUrlV1(client.getIpAddress());
+        
+        log.info("[SETUP] Fetching setup data from gateway: ip={}, url={}", 
+            client.getIpAddress(), url);
+        
         try {
             var res = HttpClientUtil.get(url);
             
             if (!res.isSuccess()) {
-                throw new ExternalServiceException("Gateway rejected request. Status: " + res.getStatusCode());
+                log.error("[SETUP] Gateway rejected request: status={}, ip={}", 
+                    res.getStatusCode(), client.getIpAddress());
+                throw new ExternalServiceException(
+                    "Gateway rejected request. Status: " + res.getStatusCode() + 
+                    ". Please check gateway service health."
+                );
             }
 
             SetupRequest req = JsonUtil.fromJson(res.getBody(), SetupRequest.class);
             validateData(req);
+            
+            log.info("[SETUP] Successfully fetched setup data: roomCode={}, devices={}", 
+                req.getData().getRoomCode(), 
+                req.getData().getDevices() != null ? req.getData().getDevices().size() : 0);
+            
             return req;
 
         } catch (NetworkTimeoutException e) {
-            log.error("[SETUP] Timeout connecting to gateway: {}", client.getIpAddress());
-            throw new NetworkTimeoutException("Gateway connection timed out.");
+            log.error("[SETUP] Timeout connecting to gateway: ip={}, error={}", 
+                client.getIpAddress(), e.getMessage());
+            throw new NetworkTimeoutException(
+                "Gateway connection timed out at " + client.getIpAddress() + ". " +
+                "Please verify gateway is online and network is accessible."
+            );
+        } catch (IllegalArgumentException e) {
+            log.error("[SETUP] Invalid JSON response from gateway: ip={}, error={}", 
+                client.getIpAddress(), e.getMessage());
+            throw new ExternalServiceException(
+                "Gateway returned invalid data format. Please check gateway firmware version."
+            );
+        } catch (ExternalServiceException e) {
+            throw e;
         } catch (Exception e) {
-            log.error("[SETUP] Error fetching setup data: {}", e.getMessage());
-            throw new ExternalServiceException("Failed to fetch setup: " + e.getMessage());
+            log.error("[SETUP] Unexpected error fetching setup data: ip={}, error={}", 
+                client.getIpAddress(), e.getMessage(), e);
+            throw new ExternalServiceException(
+                "Failed to communicate with gateway: " + e.getMessage()
+            );
         }
     }
 

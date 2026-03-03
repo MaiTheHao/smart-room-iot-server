@@ -24,42 +24,60 @@ public class SetupDao extends BaseDao<SetupDao> {
 
 	public int persistDeviceSetup(java.util.List<SetupRequest.BodyData.DeviceConfig> devices, Long clientId, Long roomId) {
 		if (devices == null || devices.isEmpty()) {
+			log.warn("[SETUP:DAO] No devices to persist: clientId={}, roomId={}", clientId, roomId);
 			return 0;
 		}
 
-		log.info("[SETUP] Starting device setup: total={}, roomId={}, clientId={}", 
+		log.info("[SETUP:DAO] Starting device persistence: total={}, roomId={}, clientId={}", 
 			devices.size(), roomId, clientId);
 
-		Client client = entityManager.getReference(Client.class, clientId);
-		Room room = entityManager.getReference(Room.class, roomId);
+		try {
+			Client client = entityManager.getReference(Client.class, clientId);
+			Room room = entityManager.getReference(Room.class, roomId);
 
-		int processedDevices = 0;
-		for (int i = 0; i < devices.size(); i++) {
-			SetupRequest.BodyData.DeviceConfig device = devices.get(i);
-			if (device.getCategory() == null) {
-				log.warn("[SETUP:SKIP] Device category is null, skipping device at index={}", i);
-				continue;
+			int processedDevices = 0;
+			for (int i = 0; i < devices.size(); i++) {
+				SetupRequest.BodyData.DeviceConfig device = devices.get(i);
+				
+				if (device.getCategory() == null) {
+					log.warn("[SETUP:DAO:SKIP] Device category is null at index={}, name={}", 
+						i, device.getName());
+					continue;
+				}
+
+				try {
+					if (log.isDebugEnabled()) {
+						log.debug("[SETUP:DAO:DEVICE] index={}, name={}, category={}", 
+							i, device.getName(), device.getCategory());
+					}
+
+					persistDevice(device, client, room);
+					processedDevices++;
+
+					if (processedDevices % BATCH_SIZE == 0) {
+						log.info("[SETUP:DAO:BATCH] Flushed batch: processed={}/{}", 
+							processedDevices, devices.size());
+						entityManager.flush();
+						entityManager.clear();
+					}
+					
+				} catch (Exception e) {
+					log.error("[SETUP:DAO:ERROR] Failed to persist device at index={}, name={}, category={}: {}", 
+						i, device.getName(), device.getCategory(), e.getMessage(), e);
+				}
 			}
 
-			if (log.isDebugEnabled()) {
-				log.debug("[SETUP:DEVICE] index={}, name={}, category={}", 
-					i, device.getName(), device.getCategory());
-			}
-
-			persistDevice(device, client, room);
-			processedDevices++;
-
-			if (processedDevices % BATCH_SIZE == 0) {
-				log.info("[SETUP:BATCH] Flushed batch: processed={}/{}", processedDevices, devices.size());
-				entityManager.flush();
-				entityManager.clear();
-			}
+			entityManager.flush();
+			log.info("[SETUP:DAO] Completed device persistence: total={}, processed={}, failed={}, roomId={}, clientId={}", 
+				devices.size(), processedDevices, devices.size() - processedDevices, roomId, clientId);
+			
+			return processedDevices;
+			
+		} catch (Exception e) {
+			log.error("[SETUP:DAO:CRITICAL] Critical error during batch persistence: clientId={}, roomId={}, error={}", 
+				clientId, roomId, e.getMessage(), e);
+			throw new RuntimeException("Failed to persist device setup: " + e.getMessage(), e);
 		}
-
-		entityManager.flush();
-		log.info("[SETUP] Completed device setup: total={}, processed={}, roomId={}, clientId={}", 
-			devices.size(), processedDevices, roomId, clientId);
-		return processedDevices;
 	}
 
 	private void persistDevice(SetupRequest.BodyData.DeviceConfig device, Client client, Room room) {

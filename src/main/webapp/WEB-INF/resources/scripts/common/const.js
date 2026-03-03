@@ -41,6 +41,10 @@ const SMRC_API_V1 = {
     BY_GROUP_COUNT: (groupId) => `/api/v1/groups/${groupId}/clients/count`,
   },
 
+  SETUP: {
+    TRIGGER: (clientId) => `/api/v1/setup/${clientId}`,
+  },
+
   GROUP: {
     PATH: '/api/v1/groups',
     ALL: '/api/v1/groups/all',
