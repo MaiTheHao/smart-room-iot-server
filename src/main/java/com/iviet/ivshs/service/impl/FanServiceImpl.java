@@ -18,12 +18,15 @@ import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.FanService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -55,6 +58,7 @@ public class FanServiceImpl implements FanService {
         var langCode = LocalContextUtil.getCurrentLangCode();
         var data = fanDao.findAllByRoomId(roomId, page, size, langCode);
         var totalElements = fanDao.countByRoomId(roomId);
+        log.debug("Fetched {} fans for Room ID: {}, Page: {}, Size: {}, Total Elements: {}", data.size(), roomId, page, size, totalElements);
         return new PaginatedResponse<>(
                 data,
                 page, data.size(), totalElements

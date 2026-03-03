@@ -11,6 +11,8 @@ import com.iviet.ivshs.entities.Fan;
 @Repository
 public class FanDao extends BaseIoTActuatorDao<Fan> {
 
+  private static final String DTO_CLASS = FanDto.class.getName();
+
   public FanDao() {
     super(Fan.class);
   }
@@ -18,136 +20,132 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
   @Override
   public Optional<FanDto> findByNaturalId(String naturalId, String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room
-        WHERE f.naturalId = :naturalId AND (tl.langCode = :langCode OR tl.langCode IS NULL)
-        """;
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
+        WHERE f.naturalId = :naturalId
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("naturalId", naturalId)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
         .getResultStream()
-        .map(this::mapToDtoWithTranslation)
         .findFirst();
   }
 
   @Override
   public Optional<FanDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room r
-        WHERE r.id = :roomId AND f.naturalId = :naturalId AND (tl.langCode = :langCode OR tl.langCode IS NULL)
-        """;
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
+        WHERE f.room.id = :roomId AND f.naturalId = :naturalId
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("roomId", roomId)
         .setParameter("naturalId", naturalId)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
         .getResultStream()
-        .map(this::mapToDtoWithTranslation)
         .findFirst();
   }
 
   public Optional<FanDto> findById(Long id, String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room
-        WHERE f.id = :id AND (tl.langCode = :langCode OR tl.langCode IS NULL)
-        """;
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
+        WHERE f.id = :id
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("id", id)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
         .getResultStream()
-        .map(this::mapToDtoWithTranslation)
         .findFirst();
   }
 
   public List<FanDto> findAll(int page, int size, String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room
-        WHERE (tl.langCode = :langCode OR tl.langCode IS NULL)
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
         ORDER BY f.id ASC
-        """;
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
         .setMaxResults(size)
-        .getResultStream()
-        .map(this::mapToDtoWithTranslation)
-        .toList();
+        .getResultList();
   }
 
   public List<FanDto> findAll(String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room
-        WHERE (tl.langCode = :langCode OR tl.langCode IS NULL)
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
         ORDER BY f.id ASC
-        """;
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("langCode", langCode)
-        .getResultStream()
-        .map(this::mapToDtoWithTranslation)
-        .toList();
+        .getResultList();
   }
 
   public List<FanDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room
-        WHERE f.room.id = :roomId AND (tl.langCode = :langCode OR tl.langCode IS NULL)
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
+        WHERE f.room.id = :roomId
         ORDER BY f.id ASC
-        """;
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("roomId", roomId)
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
         .setMaxResults(size)
-        .getResultStream()
-        .map(this::mapToDtoWithTranslation)
-        .toList();
+        .getResultList();
   }
 
   public List<FanDto> findAllByRoomId(Long roomId, String langCode) {
     String jpql = """
-        SELECT f FROM Fan f
-        LEFT JOIN FETCH f.translations tl
-        LEFT JOIN FETCH f.room
-        WHERE f.room.id = :roomId AND (tl.langCode = :langCode OR tl.langCode IS NULL)
+        SELECT new %s(
+            f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
+            f.power, f.type, f.speed, f.mode, f.light, f.swing
+        )
+        FROM Fan f
+        LEFT JOIN f.translations tl ON tl.langCode = :langCode
+        WHERE f.room.id = :roomId
         ORDER BY f.id ASC
-        """;
+        """.formatted(DTO_CLASS);
 
-    return entityManager.createQuery(jpql, Fan.class)
+    return entityManager.createQuery(jpql, FanDto.class)
         .setParameter("roomId", roomId)
         .setParameter("langCode", langCode)
-        .getResultStream()
-        .map(this::mapToDtoWithTranslation)
-        .toList();
-  }
-
-  private FanDto mapToDtoWithTranslation(Fan fan) {
-    FanDto dto = FanDto.from(fan);
-    if (fan.getTranslations() != null && !fan.getTranslations().isEmpty()) {
-      var translation = fan.getTranslations().iterator().next();
-      return new FanDto(
-          dto.id(), dto.naturalId(), translation.getName(), translation.getDescription(),
-          dto.isActive(), dto.roomId(), dto.power(), dto.type(), dto.speed(), dto.mode(), dto.light(), dto.swing()
-      );
-    }
-    return dto;
+        .getResultList();
   }
 }
