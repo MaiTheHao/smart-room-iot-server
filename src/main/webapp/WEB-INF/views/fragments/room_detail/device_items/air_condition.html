@@ -1,12 +1,6 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <body>
-    <!-- 
-        FRAGMENT: air_condition
-        DESCRIPTION: Renders a single air condition control unit with full controls (temp, mode, fan, swing).
-        PARAMETERS:
-            - ac: The air condition object containing id, name, power status, temperature, mode, etc.
-    -->
     <div
       th:fragment="air_condition(ac)"
       class="d-flex justify-content-between align-items-start mb-3 ac-item"
@@ -27,12 +21,17 @@
             </div>
             <i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
             <div>
-              <h6 class="mb-0 font-weight-bold text-dark" th:text="${ac.name}">AC Name</h6>
-              <small
-                class="text-muted ac-status-text"
-                th:text="${ac.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? (ac.mode != null ? ac.mode.name() : 'N/A') + ' • ' + ac.temperature + '°C' : 'Đã tắt'}"
-                >Status</small
-              >
+              <h6 class="mb-0 font-weight-bold text-dark" th:text="${ac.name}"></h6>
+              <small class="text-muted ac-status-text">
+                <th:block
+                  th:if="${ac.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}"
+                  th:text="(${ac.mode != null ? ac.mode.name() : 'N/A'}) + ' • ' + ${ac.temperature} + '°C'"
+                ></th:block>
+                <th:block
+                  th:unless="${ac.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}"
+                  th:text="#{device_card.common.status.off}"
+                ></th:block>
+              </small>
             </div>
           </div>
           <div class="d-flex align-items-center">
@@ -64,23 +63,19 @@
           th:classappend="${ac.power != T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'disabled-overlay' : ''}"
         >
           <div class="bg-light rounded p-4">
-            <!-- Description Section -->
             <div class="mb-4">
               <small
                 class="text-muted d-block mb-2 font-weight-bold text-uppercase"
                 style="font-size: 0.7rem"
-                >Mô tả</small
-              >
+                th:text="#{device_card.common.description.label}"
+              ></small>
               <p
                 class="text-dark mb-0"
                 style="font-size: 0.875rem"
-                th:text="${ac.description != null and !ac.description.isEmpty() ? ac.description : 'Không có mô tả'}"
-              >
-                Description
-              </p>
+                th:text="${ac.description != null and !ac.description.isEmpty()} ? ${ac.description} : #{device_card.common.description.empty}"
+              ></p>
             </div>
 
-            <!-- Temperature Control -->
             <div class="text-center mb-4">
               <div class="d-flex justify-content-center align-items-center">
                 <button
@@ -91,7 +86,7 @@
                   <i class="fas fa-minus text-muted"></i>
                 </button>
                 <div class="temp-display mx-4">
-                  <span class="ac-temp-value" th:text="${ac.temperature}">24</span
+                  <span class="ac-temp-value" th:text="${ac.temperature}"></span
                   ><span class="unit">°C</span>
                 </div>
                 <button
@@ -104,7 +99,6 @@
               </div>
             </div>
 
-            <!-- Mode Selection -->
             <div class="d-flex justify-content-center mb-4">
               <div class="mx-2 text-center">
                 <button
@@ -115,7 +109,7 @@
                 >
                   <i class="fas fa-snowflake"></i>
                 </button>
-                <small class="text-muted text-xs">Cool</small>
+                <small class="text-muted text-xs" th:text="#{device_card.ac.mode.cool}"></small>
               </div>
               <div class="mx-2 text-center">
                 <button
@@ -126,7 +120,7 @@
                 >
                   <i class="fas fa-fire"></i>
                 </button>
-                <small class="text-muted text-xs">Heat</small>
+                <small class="text-muted text-xs" th:text="#{device_card.ac.mode.heat}"></small>
               </div>
               <div class="mx-2 text-center">
                 <button
@@ -137,7 +131,7 @@
                 >
                   <i class="fas fa-tint"></i>
                 </button>
-                <small class="text-muted text-xs">Dry</small>
+                <small class="text-muted text-xs" th:text="#{device_card.ac.mode.dry}"></small>
               </div>
               <div class="mx-2 text-center">
                 <button
@@ -148,19 +142,20 @@
                 >
                   <i class="fas fa-fan"></i>
                 </button>
-                <small class="text-muted text-xs">Fan</small>
+                <small class="text-muted text-xs" th:text="#{device_card.ac.mode.fan}"></small>
               </div>
             </div>
 
-            <!-- Fan Speed & Swing Controls -->
             <div class="bg-white rounded p-3 border text-center">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-xs font-weight-bold text-uppercase text-muted">Fan Speed</span>
+                <span
+                  class="text-xs font-weight-bold text-uppercase text-muted"
+                  th:text="#{device_card.ac.fan_speed}"
+                ></span>
                 <span
                   class="badge badge-primary ac-fan-badge"
-                  th:text="${ac.fanSpeed == 0 ? 'AUTO' : 'Mức ' + ac.fanSpeed}"
-                  >AUTO</span
-                >
+                  th:text="${ac.fanSpeed == 0} ? #{device_card.ac.fan_speed.auto} : (#{device_card.ac.fan_speed.level} + ' ' + ${ac.fanSpeed})"
+                ></span>
               </div>
               <input
                 type="range"
@@ -172,7 +167,10 @@
               />
 
               <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                <span class="text-xs font-weight-bold text-uppercase text-muted">Swing</span>
+                <span
+                  class="text-xs font-weight-bold text-uppercase text-muted"
+                  th:text="#{device_card.ac.swing}"
+                ></span>
                 <div class="custom-control custom-switch">
                   <input
                     type="checkbox"
@@ -184,10 +182,9 @@
                   <label
                     class="custom-control-label font-weight-bold text-xs ac-swing-label"
                     th:for="'swingSwitch' + ${ac.id}"
-                    th:text="${ac.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON ? 'ON' : 'OFF'}"
+                    th:text="${ac.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON} ? #{device_card.common.on} : #{device_card.common.off}"
                     th:classappend="${ac.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON ? 'text-success' : ''}"
-                    >OFF</label
-                  >
+                  ></label>
                 </div>
               </div>
             </div>

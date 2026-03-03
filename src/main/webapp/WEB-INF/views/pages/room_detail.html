@@ -4,7 +4,7 @@
   layout:decorate="~{main_layout.html}"
 >
   <head>
-    <title th:text="${room.name} + ' | Dashboard'">Room Dashboard</title>
+    <title th:text="${room?.name} + ' | ' + #{room_detail.title.suffix}"></title>
     <link
       rel="stylesheet"
       th:href="@{/webjars/bootstrap-daterangepicker/css/bootstrap-daterangepicker.css}"
@@ -39,30 +39,28 @@
                     class="font-weight-bold mb-1"
                     style="font-size: 1.35rem; color: #1e293b"
                     th:text="${pageTitle}"
-                  >
-                    Room Name
-                  </h3>
+                  ></h3>
                   <p
                     class="text-muted mb-3"
                     style="font-size: 0.925rem; line-height: 1.5"
-                    th:text="${room?.description ?: 'Smart Room Area'}"
-                  >
-                    Description
-                  </p>
+                    th:text="${!#strings.isEmpty(room?.description)} ? ${room?.description} : #{room_detail.default.description}"
+                  ></p>
                   <div class="d-flex align-items-center">
                     <span
                       class="badge badge-pill badge-success px-3 py-2 mr-2"
                       style="font-size: 0.75rem"
                     >
-                      <i class="fas fa-circle mr-1" style="font-size: 0.5rem"></i> Trực tuyến
+                      <i class="fas fa-circle mr-1" style="font-size: 0.5rem"></i>
+                      <span th:text="#{room_detail.status.online}"></span>
                     </span>
                     <span
                       id="healthScoreBadge"
                       class="badge badge-pill badge-secondary px-3 py-2"
                       style="font-size: 0.75rem"
                     >
-                      <i id="healthIcon" class="fas fa-heartbeat mr-1"></i> Sức khỏe:
-                      <span id="healthScoreValue">N/A</span>
+                      <i id="healthIcon" class="fas fa-heartbeat mr-1"></i>
+                      <span th:text="#{room_detail.health.score}"></span>
+                      <span id="healthScoreValue" th:text="#{room_detail.health.na}"></span>
                     </span>
                   </div>
                 </div>
@@ -73,7 +71,8 @@
                   class="btn btn-light border shadow-sm px-3 py-2 text-dark font-weight-bold"
                   style="border-radius: 8px; font-size: 0.9rem"
                 >
-                  <i class="fas fa-chevron-left mr-2 text-muted"></i> Quay về Dashboard
+                  <i class="fas fa-chevron-left mr-2 text-muted"></i>
+                  <span th:text="#{room_detail.btn.back_dashboard}"></span>
                 </a>
               </div>
             </div>
@@ -82,7 +81,10 @@
           <input type="hidden" id="roomCode" th:value="${room?.code}" />
         </div>
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-          <h5 class="m-0 text-dark"><i class="fas fa-chart-line mr-1"></i> Sensor Analytics</h5>
+          <h5 class="m-0 text-dark">
+            <i class="fas fa-chart-line mr-1"></i>
+            <span th:text="#{room_detail.analytics.title}"></span>
+          </h5>
           <div class="form-inline mt-2 mt-md-0">
             <div class="input-group">
               <div class="input-group-prepend">
@@ -95,7 +97,11 @@
                 style="width: 34ch"
               />
               <div class="input-group-append">
-                <button class="btn btn-default" id="btn-refresh-chart" title="Refresh Charts">
+                <button
+                  class="btn btn-default"
+                  id="btn-refresh-chart"
+                  th:title="#{room_detail.analytics.refresh}"
+                >
                   <i class="fas fa-sync-alt"></i>
                 </button>
               </div>
@@ -119,7 +125,8 @@
             <div class="card card-outline card-teal shadow-sm border-0" id="quick-control">
               <div class="card-header border-0 bg-white">
                 <h3 class="card-title font-weight-bold text-dark">
-                  <i class="fas fa-sliders-h mr-2"></i>Thiết bị (Devices)
+                  <i class="fas fa-sliders-h mr-2"></i
+                  ><span th:text="#{room_detail.devices.title}"></span>
                 </h3>
               </div>
               <div class="card-body p-0">
@@ -136,10 +143,14 @@
                         <i class="fas fa-wind"></i>
                       </div>
                       <div>
-                        <h6 class="mb-0 font-weight-bold text-dark">Hệ thống điều hòa</h6>
-                        <small class="text-muted" th:text="${airConditions.size()} + ' thiết bị'"
-                          >0 thiết bị</small
-                        >
+                        <h6
+                          class="mb-0 font-weight-bold text-dark"
+                          th:text="#{room_detail.devices.ac.title}"
+                        ></h6>
+                        <small
+                          class="text-muted"
+                          th:text="${airConditions.size()} + ' ' + #{room_detail.devices.count}"
+                        ></small>
                       </div>
                     </div>
                     <button
@@ -170,48 +181,6 @@
                     <div
                       class="d-flex align-items-center flex-grow-1"
                       style="cursor: pointer"
-                      onclick="$('#btn-expand-light').click()"
-                    >
-                      <div
-                        class="icon-box active-light mr-3 d-flex justify-content-center align-items-center"
-                      >
-                        <i class="fas fa-lightbulb"></i>
-                      </div>
-                      <div>
-                        <h6 class="mb-0 font-weight-bold text-dark">Hệ thống đèn</h6>
-                        <small class="text-muted" th:text="${lights.size()} + ' thiết bị'"
-                          >0 thiết bị</small
-                        >
-                      </div>
-                    </div>
-                    <button
-                      class="btn btn-link text-muted p-0 btn-expand"
-                      id="btn-expand-light"
-                      type="button"
-                      data-toggle="collapse"
-                      data-target="#lightControls"
-                      aria-expanded="false"
-                    >
-                      <i class="fas fa-chevron-down"></i>
-                    </button>
-                  </div>
-
-                  <div class="collapse" id="lightControls">
-                    <div id="lightsList" class="mt-3 pl-5">
-                      <th:block th:each="light : ${lights}" th:if="${light != null}">
-                        <div
-                          th:replace="~{fragments/room_detail/device_items/light.html :: light(light=${light})}"
-                        ></div>
-                      </th:block>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="device-row">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div
-                      class="d-flex align-items-center flex-grow-1"
-                      style="cursor: pointer"
                       onclick="$('#btn-expand-fan').click()"
                     >
                       <div
@@ -220,10 +189,14 @@
                         <i class="fas fa-fan"></i>
                       </div>
                       <div>
-                        <h6 class="mb-0 font-weight-bold text-dark">Hệ thống quạt</h6>
-                        <small class="text-muted" th:text="${fans.size()} + ' thiết bị'"
-                          >0 thiết bị</small
-                        >
+                        <h6
+                          class="mb-0 font-weight-bold text-dark"
+                          th:text="#{room_detail.devices.fan.title}"
+                        ></h6>
+                        <small
+                          class="text-muted"
+                          th:text="${fans.size()} + ' ' + #{room_detail.devices.count}"
+                        ></small>
                       </div>
                     </div>
                     <button
@@ -243,6 +216,52 @@
                       <th:block th:each="fan : ${fans}" th:if="${fan != null}">
                         <div
                           th:replace="~{fragments/room_detail/device_items/fan.html :: fan(fan=${fan})}"
+                        ></div>
+                      </th:block>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="device-row">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div
+                      class="d-flex align-items-center flex-grow-1"
+                      style="cursor: pointer"
+                      onclick="$('#btn-expand-light').click()"
+                    >
+                      <div
+                        class="icon-box active-light mr-3 d-flex justify-content-center align-items-center"
+                      >
+                        <i class="fas fa-lightbulb"></i>
+                      </div>
+                      <div>
+                        <h6
+                          class="mb-0 font-weight-bold text-dark"
+                          th:text="#{room_detail.devices.light.title}"
+                        ></h6>
+                        <small
+                          class="text-muted"
+                          th:text="${lights.size()} + ' ' + #{room_detail.devices.count}"
+                        ></small>
+                      </div>
+                    </div>
+                    <button
+                      class="btn btn-link text-muted p-0 btn-expand"
+                      id="btn-expand-light"
+                      type="button"
+                      data-toggle="collapse"
+                      data-target="#lightControls"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="collapse" id="lightControls">
+                    <div id="lightsList" class="mt-3 pl-5">
+                      <th:block th:each="light : ${lights}" th:if="${light != null}">
+                        <div
+                          th:replace="~{fragments/room_detail/device_items/light.html :: light(light=${light})}"
                         ></div>
                       </th:block>
                     </div>

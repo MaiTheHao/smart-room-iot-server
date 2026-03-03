@@ -1,12 +1,6 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
   <body>
-    <!-- 
-        FRAGMENT: fan
-        DESCRIPTION: Renders a single fan control unit with full controls (speed, mode, swing, light).
-        PARAMETERS:
-            - fan: The fan object containing id, naturalId, name, type (GPIO/IR), power status, etc.
-    -->
     <div
       th:fragment="fan(fan)"
       class="d-flex justify-content-between align-items-start mb-3 fan-item"
@@ -28,12 +22,23 @@
             </div>
             <i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
             <div>
-              <h6 class="mb-0 font-weight-bold text-dark" th:text="${fan.name}">Fan Name</h6>
-              <small
-                class="text-muted fan-status-text"
-                th:text="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? (fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null ? fan.mode.name() + ' • Speed ' + fan.speed : 'Đang bật') : 'Đã tắt'}"
-                >Status</small
-              >
+              <h6 class="mb-0 font-weight-bold text-dark" th:text="${fan.name}"></h6>
+              <small class="text-muted fan-status-text">
+                <th:block th:if="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}">
+                  <th:block
+                    th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null}"
+                    th:text="${fan.mode.name()} + ' • ' + #{device_card.fan.speed.prefix} + ' ' + ${fan.speed}"
+                  ></th:block>
+                  <th:block
+                    th:unless="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null}"
+                    th:text="#{device_card.common.status.on}"
+                  ></th:block>
+                </th:block>
+                <th:block
+                  th:unless="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}"
+                  th:text="#{device_card.common.status.off}"
+                ></th:block>
+              </small>
             </div>
           </div>
           <div class="d-flex align-items-center">
@@ -66,40 +71,34 @@
           th:classappend="${fan.power != T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'disabled-overlay' : ''}"
         >
           <div class="bg-light rounded p-4">
-            <!-- Description Section -->
             <div class="mb-4">
               <small
                 class="text-muted d-block mb-2 font-weight-bold text-uppercase"
                 style="font-size: 0.7rem"
-                >Mô tả</small
-              >
+                th:text="#{device_card.common.description.label}"
+              ></small>
               <p
                 class="text-dark mb-0"
                 style="font-size: 0.875rem"
-                th:text="${fan.description != null and !fan.description.isEmpty() ? fan.description : 'Không có mô tả'}"
-              >
-                Description
-              </p>
+                th:text="${fan.description != null and !fan.description.isEmpty()} ? ${fan.description} : #{device_card.common.description.empty}"
+              ></p>
             </div>
 
-            <!-- GPIO Fan: Simple On/Off Message -->
             <div
               th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).GPIO}"
               class="text-center py-4"
             >
               <i class="fas fa-fan fa-3x text-secondary mb-3"></i>
-              <p class="text-muted mb-0">Quạt GPIO - Chỉ hỗ trợ bật/tắt</p>
+              <p class="text-muted mb-0" th:text="#{device_card.fan.gpio.desc}"></p>
             </div>
 
-            <!-- IR Fan: Full Controls -->
             <div th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR}">
-              <!-- Mode Selection -->
               <div class="mb-4">
                 <small
                   class="text-muted d-block mb-3 font-weight-bold text-uppercase"
                   style="font-size: 0.7rem"
-                  >Chế độ</small
-                >
+                  th:text="#{device_card.fan.mode.label}"
+                ></small>
                 <div class="d-flex justify-content-center">
                   <div class="mx-2 text-center">
                     <button
@@ -112,7 +111,11 @@
                     >
                       <i class="fas fa-wind fa-lg"></i>
                     </button>
-                    <small class="text-muted d-block mt-2" style="font-size: 0.7rem">Normal</small>
+                    <small
+                      class="text-muted d-block mt-2"
+                      style="font-size: 0.7rem"
+                      th:text="#{device_card.fan.mode.normal}"
+                    ></small>
                   </div>
                   <div class="mx-2 text-center">
                     <button
@@ -125,7 +128,11 @@
                     >
                       <i class="fas fa-moon fa-lg"></i>
                     </button>
-                    <small class="text-muted d-block mt-2" style="font-size: 0.7rem">Sleep</small>
+                    <small
+                      class="text-muted d-block mt-2"
+                      style="font-size: 0.7rem"
+                      th:text="#{device_card.fan.mode.sleep}"
+                    ></small>
                   </div>
                   <div class="mx-2 text-center">
                     <button
@@ -138,22 +145,25 @@
                     >
                       <i class="fas fa-leaf fa-lg"></i>
                     </button>
-                    <small class="text-muted d-block mt-2" style="font-size: 0.7rem">Natural</small>
+                    <small
+                      class="text-muted d-block mt-2"
+                      style="font-size: 0.7rem"
+                      th:text="#{device_card.fan.mode.natural}"
+                    ></small>
                   </div>
                 </div>
               </div>
 
-              <!-- Speed Control -->
               <div class="bg-white rounded p-3 border mb-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="text-xs font-weight-bold text-uppercase text-muted"
-                    >Tốc độ quạt</span
-                  >
+                  <span
+                    class="text-xs font-weight-bold text-uppercase text-muted"
+                    th:text="#{device_card.fan.fan_speed}"
+                  ></span>
                   <span
                     class="badge badge-primary fan-speed-display"
                     th:text="${fan.speed != null ? fan.speed : 0}"
-                    >0</span
-                  >
+                  ></span>
                 </div>
                 <input
                   type="range"
@@ -161,19 +171,19 @@
                   th:data-fan-id="${fan.id}"
                   th:data-fan-natural-id="${fan.naturalId}"
                   min="0"
-                  max="9"
-                  th:value="${fan.speed != null && fan.speed <= 9 ? fan.speed : 0}"
+                  max="5"
+                  th:value="${fan.speed != null && fan.speed <= 5 ? fan.speed : 0}"
                 />
               </div>
 
-              <!-- Swing & Light Controls -->
               <div class="bg-white rounded p-3 border">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom"
                 >
-                  <span class="text-xs font-weight-bold text-uppercase text-muted"
-                    ><i class="fas fa-random mr-2"></i>Đảo gió</span
-                  >
+                  <span class="text-xs font-weight-bold text-uppercase text-muted">
+                    <i class="fas fa-random mr-2"></i
+                    ><span th:text="#{device_card.fan.swing}"></span>
+                  </span>
                   <div class="custom-control custom-switch">
                     <input
                       type="checkbox"
@@ -191,9 +201,10 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-xs font-weight-bold text-uppercase text-muted"
-                    ><i class="fas fa-lightbulb mr-2"></i>Đèn</span
-                  >
+                  <span class="text-xs font-weight-bold text-uppercase text-muted">
+                    <i class="fas fa-lightbulb mr-2"></i
+                    ><span th:text="#{device_card.fan.light}"></span>
+                  </span>
                   <div class="custom-control custom-switch">
                     <input
                       type="checkbox"

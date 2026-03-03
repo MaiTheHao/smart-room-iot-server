@@ -24,14 +24,11 @@
               <h6
                 class="mb-0 font-weight-bold text-dark"
                 th:text="${light.name != null and !light.name.isEmpty() ? light.name : '...'}"
-              >
-                Light Name
-              </h6>
+              ></h6>
               <small
                 class="text-muted light-status-text"
-                th:text="${light.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'Đang bật' : 'Đã tắt'}"
-                >Status</small
-              >
+                th:text="${light.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON} ? #{device_card.common.status.on} : #{device_card.common.status.off}"
+              ></small>
             </div>
           </div>
           <div class="d-flex align-items-center">
@@ -67,21 +64,20 @@
               <small
                 class="text-muted d-block mb-2 font-weight-bold text-uppercase"
                 style="font-size: 0.7rem"
-                >Mô tả</small
-              >
+                th:text="#{device_card.common.description.label}"
+              ></small>
               <p
                 class="text-dark mb-0"
                 style="font-size: 0.875rem"
-                th:text="${light.description != null and !light.description.isEmpty() ? light.description : 'Không có mô tả'}"
-              >
-                Description
-              </p>
+                th:text="${light.description != null and !light.description.isEmpty()} ? ${light.description} : #{device_card.common.description.empty}"
+              ></p>
             </div>
             <div
               class="bg-white rounded p-3 border text-center text-muted"
               style="font-size: 0.8rem"
             >
-              <i class="fas fa-info-circle mr-1"></i> Các tính năng nâng cao sẽ được bổ sung sau
+              <i class="fas fa-info-circle mr-1"></i>
+              <span th:text="#{device_card.light.advanced.soon}"></span>
             </div>
           </div>
         </div>
