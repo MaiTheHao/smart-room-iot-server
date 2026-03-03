@@ -35,7 +35,7 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.ok(fanService.getAll()));
     }
 
-    @GetMapping("/room/{roomId}/fans")
+    @GetMapping("/rooms/{roomId}/fans")
     public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getByRoom(
             @PathVariable(name = "roomId") Long roomId,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -44,14 +44,14 @@ public class FanController {
         return ResponseEntity.ok(ApiResponse.ok(fanService.getListByRoomId(roomId, page, size)));
     }
 
-    @GetMapping("/room/{roomId}/fans/all")
+    @GetMapping("/rooms/{roomId}/fans/all")
     public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllByRoom(
             @PathVariable(name = "roomId") Long roomId) {
         
         return ResponseEntity.ok(ApiResponse.ok(fanService.getAllByRoomId(roomId)));
     }
 
-    @GetMapping("/room/{roomId}/fans/{naturalId}")
+    @GetMapping("/rooms/{roomId}/fans/{naturalId}")
     public ResponseEntity<ApiResponse<FanDto>> getByRoomAndNaturalId(
             @PathVariable(name = "roomId") Long roomId,
             @PathVariable(name = "naturalId") String naturalId) {

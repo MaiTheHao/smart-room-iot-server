@@ -106,7 +106,7 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/room/{roomId}/fans</code> - Lấy quạt theo phòng (phân trang)</summary>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/fans</code> - Lấy quạt theo phòng (phân trang)</summary>
 
 > Lấy danh sách các thiết bị quạt trong một phòng cụ thể với phân trang.
 
@@ -160,7 +160,7 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/room/{roomId}/fans/all</code> - Lấy tất cả quạt theo phòng (không phân trang)</summary>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/fans/all</code> - Lấy tất cả quạt theo phòng (không phân trang)</summary>
 
 > Lấy danh sách tất cả các thiết bị quạt trong một phòng cụ thể mà không phân trang.
 
@@ -215,7 +215,7 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/room/{roomId}/fans/{naturalId}</code> - Lấy chi tiết quạt theo phòng và naturalId</summary>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/fans/{naturalId}</code> - Lấy chi tiết quạt theo phòng và naturalId</summary>
 
 > Lấy thông tin chi tiết của một thiết bị quạt dựa vào Room ID và Natural ID.
 
