@@ -87,32 +87,32 @@ public final class UrlConstant {
 
     public static String getControlAcPowerUrlV2(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC power control API");
-        return build(ip, API_V2, "air-condition/" + naturalId + "/power");
+        return build(ip, API_V2, "ac/" + naturalId + "/power");
     }
 
     public static String getControlAcTempUpUrlV2(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC temperature up API");
-        return build(ip, API_V2, "air-condition/" + naturalId + "/temp_up");
+        return build(ip, API_V2, "ac/" + naturalId + "/temp_up");
     }
 
     public static String getControlAcTempDownUrlV2(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC temperature down API");
-        return build(ip, API_V2, "air-condition/" + naturalId + "/temp_down");
+        return build(ip, API_V2, "ac/" + naturalId + "/temp_down");
     }
 
     public static String getControlAcSwingUrlV2(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC swing control API");
-        return build(ip, API_V2, "air-condition/" + naturalId + "/swing");
+        return build(ip, API_V2, "ac/" + naturalId + "/swing");
     }
 
     public static String getControlAcModeUrlV2(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC mode control API");
-        return build(ip, API_V2, "air-condition/" + naturalId + "/mode");
+        return build(ip, API_V2, "ac/" + naturalId + "/mode");
     }
 
     public static String getControlAcFanUrlV2(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC fan control API");
-        return build(ip, API_V2, "air-condition/" + naturalId + "/fan");
+        return build(ip, API_V2, "ac/" + naturalId + "/fan");
     }
 
     public static String getControlFanPowerUrlV2(String ip, String naturalId) {
