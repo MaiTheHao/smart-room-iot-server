@@ -3,6 +3,7 @@ package com.iviet.ivshs.dto;
 import com.iviet.ivshs.enumeration.JobActionType;
 import com.iviet.ivshs.enumeration.JobTargetType;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,13 +13,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateAutomationActionDto {
 
-	private JobTargetType targetType;
+    @NotNull(message = "Target type is required")
+    private JobTargetType targetType;
 
-	private Long targetId;
+    @NotNull(message = "Target ID is required")
+    private Long targetId;
 
-	private JobActionType actionType;
+    @NotNull(message = "Action type is required")
+    private JobActionType actionType;
 
-	private String parameterValue;
+    private String parameterValue;
 
-	private Integer executionOrder;
+    private Integer executionOrder;
 }

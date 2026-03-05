@@ -87,6 +87,11 @@ const SMRC_API_V1 = {
     },
   },
 
+  DEVICE_METADATA: {
+    ALL: '/api/v1/devices/all',
+    BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/devices`,
+  },
+
   LIGHT: {
     PATH: '/api/v1/lights',
     DETAIL: (id) => `/api/v1/lights/${id}`,

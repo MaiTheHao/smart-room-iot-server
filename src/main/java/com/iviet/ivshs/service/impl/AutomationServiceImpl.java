@@ -171,6 +171,8 @@ public class AutomationServiceImpl implements AutomationService {
 		AutomationAction action = automationActionDao.findById(actionId)
 				.orElseThrow(() -> new NotFoundException("Action not found: " + actionId));
 
+		if (dto.getTargetType() == null) throw new BadRequestException("Target type is required");
+
 		validateAction(dto.getTargetType(), dto.getTargetId());
 
 		action.setTargetType(dto.getTargetType());
