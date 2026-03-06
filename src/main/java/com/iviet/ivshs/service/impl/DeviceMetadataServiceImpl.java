@@ -82,6 +82,21 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
     return Collections.emptyList();
   }
 
+  @Override
+  public Long getCountByRoomId(Long roomId) {
+    long count = 0;
+    count += lightService.countByRoomId(roomId);
+    count += airConditionService.countByRoomId(roomId);
+    count += fanService.countByRoomId(roomId);
+    return count;
+  }
+
+  @Override
+  public Long getCountByClientId(Long clientId) {
+    // Currently not supported/implemented for underlying services in this hardcoded version
+    return 0L;
+  }
+
   private DeviceMetadataDto mapLightToMetadata(LightDto light) {
     return DeviceMetadataDto.from(
         light.id(),

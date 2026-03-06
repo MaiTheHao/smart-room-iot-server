@@ -448,4 +448,10 @@ public class AirConditionServiceImpl implements AirConditionService {
 					throw new BadRequestException("Fan speed must be between " + AirCondition.MIN_FAN_SPEED + " and " + AirCondition.MAX_FAN_SPEED);
 			}
 	}
+
+	@Override
+	public Long countByRoomId(Long roomId) {
+			if (roomId == null) throw new BadRequestException("Room ID is required");
+			return airConditionDao.countByRoomId(roomId);
+	}
 }

@@ -183,4 +183,10 @@ public class FanServiceImpl implements FanService {
         var fan = fanDao.findById(id).orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
         fanDao.delete(fan);
     }
+
+    @Override
+    public Long countByRoomId(Long roomId) {
+        if (roomId == null) throw new BadRequestException("Room ID is required");
+        return fanDao.countByRoomId(roomId);
+    }
 }

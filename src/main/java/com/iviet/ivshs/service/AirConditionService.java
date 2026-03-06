@@ -60,4 +60,6 @@ public interface AirConditionService {
 
     // New
     void _v2api_handleSwingControl(Long id, ActuatorSwing swing);
+
+    Long countByRoomId(Long roomId);
 }

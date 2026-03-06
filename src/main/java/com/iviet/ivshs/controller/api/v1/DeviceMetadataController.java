@@ -32,4 +32,22 @@ public class DeviceMetadataController {
         List<DeviceMetadataDto> devices = deviceMetadataService.getAllByRoomId(roomId);
         return ResponseEntity.ok(ApiResponse.ok(devices));
     }
+
+    @GetMapping("/rooms/{roomId}/devices/count")
+    public ResponseEntity<ApiResponse<Long>> getCountByRoomId(@PathVariable(name = "roomId") Long roomId) {
+        Long count = deviceMetadataService.getCountByRoomId(roomId);
+        return ResponseEntity.ok(ApiResponse.ok(count));
+    }
+
+    // @GetMapping("/clients/{clientId}/devices")
+    // public ResponseEntity<ApiResponse<List<DeviceMetadataDto>>> getAllByClientId(@PathVariable(name = "clientId") Long clientId) {
+    //     List<DeviceMetadataDto> devices = deviceMetadataService.getAllByClientId(clientId);
+    //     return ResponseEntity.ok(ApiResponse.ok(devices));
+    // }
+
+    // @GetMapping("/clients/{clientId}/devices/count")
+    // public ResponseEntity<ApiResponse<Long>> getCountByClientId(@PathVariable(name = "clientId") Long clientId) {
+    //     Long count = deviceMetadataService.getCountByClientId(clientId);
+    //     return ResponseEntity.ok(ApiResponse.ok(count));
+    // }
 }

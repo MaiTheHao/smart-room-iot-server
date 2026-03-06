@@ -57,7 +57,7 @@ public class HomeViewServiceImpl implements HomeViewService {
 	private Map<Long, Long> getGatewayCountsForRooms(List<Long> roomIds) {
 		Map<Long, Long> result = new HashMap<>();
 		for (Long roomId : roomIds) {
-			result.put(roomId, cacheService.getGatewayCountForRoom(roomId));
+			result.put(roomId, cacheService.getDeviceCountByRoom(roomId));
 		}
 		return result;
 	}

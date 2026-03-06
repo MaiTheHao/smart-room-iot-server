@@ -88,4 +88,29 @@
 
 <br>
 
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/devices/count</code> - Đếm số lượng thiết bị theo phòng</summary>
+
+> Trả về số lượng thiết bị thuộc phòng có ID chỉ định.
+
+### Path Parameters
+
+| Tên    | Loại | Mô tả    | Bắt buộc |
+| :----- | :--- | :------- | :------- |
+| roomId | Long | ID phòng | Có       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 5,
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<br>
 ---

@@ -13,7 +13,7 @@ public interface HomeViewProcessService {
 	
 	Map<Long, FloorDto> getFloorsMap();
 
-	Long getGatewayCountForRoom(Long roomId);
+	Long getDeviceCountByRoom(Long roomId);
 
 	Optional<Double> getLatestTemperatureForRoom(Long roomId);
 

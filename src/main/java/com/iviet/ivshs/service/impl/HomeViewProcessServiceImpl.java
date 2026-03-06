@@ -16,6 +16,7 @@ import com.iviet.ivshs.dto.FloorDto;
 import com.iviet.ivshs.dto.RoomDto;
 // import com.iviet.ivshs.enumeration.CacheDefinition;
 import com.iviet.ivshs.service.DeviceControlService;
+import com.iviet.ivshs.service.DeviceMetadataService;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.HomeViewProcessService;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
@@ -33,6 +34,7 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	private final FloorService floorService;
 	private final RoomService roomService;
 	private final DeviceControlService deviceControlService;
+	private final DeviceMetadataService deviceMetadataService;
 	private final TemperatureValueService temperatureValueService;
 	private final PowerConsumptionValueService powerConsumptionValueService;
 	private static final long DEFAULT_MINUS_MINUTES = 15;
@@ -77,8 +79,8 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 	// 	value = CacheDefinition._HOME_VIEW_ROOM_GATEWAY_COUNT,
 	// 	key = "#a0 + T(com.iviet.ivshs.util.LocalContextUtil).getCurrentLangCodeFromRequest() + T(com.iviet.ivshs.util.SecurityContextUtil).getCurrentUsername()"
 	// )
-	public Long getGatewayCountForRoom(Long roomId) {
-		return deviceControlService.countByRoomId(roomId);
+	public Long getDeviceCountByRoom(Long roomId) {
+		return deviceMetadataService.getCountByRoomId(roomId);
 	}
 	
 	@Override

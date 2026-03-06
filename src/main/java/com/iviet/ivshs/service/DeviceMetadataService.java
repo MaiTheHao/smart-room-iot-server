@@ -11,4 +11,8 @@ public interface DeviceMetadataService {
   List<DeviceMetadataDto> getAllByRoomId(Long roomId);
   
   List<DeviceMetadataDto> getAllByClientId(Long clientId);
+
+  Long getCountByRoomId(Long roomId);
+
+  Long getCountByClientId(Long clientId);
 }

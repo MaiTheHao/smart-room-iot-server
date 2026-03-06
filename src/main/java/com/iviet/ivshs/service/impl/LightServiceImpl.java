@@ -292,4 +292,10 @@ public class LightServiceImpl implements LightService {
             if (cid == null || !e.getId().equals(cid)) throw new BadRequestException("Natural ID already exists: " + nid);
         });
     }
+
+    @Override
+    public Long countByRoomId(Long roomId) {
+        if (roomId == null) throw new BadRequestException("Room ID is required");
+        return lightDao.countByRoomId(roomId);
+    }
 }
