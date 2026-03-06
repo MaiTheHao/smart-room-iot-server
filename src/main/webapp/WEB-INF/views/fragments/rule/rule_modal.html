@@ -1,0 +1,430 @@
+<th:block th:fragment="modal_content" xmlns:th="http://www.thymeleaf.org">
+  <!-- Rule Create/Edit Modal -->
+  <div
+    class="modal fade"
+    id="ruleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="ruleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="ruleModalLabel">
+            <i class="fas fa-code-branch mr-2"></i>
+            <span id="ruleModalTitleText" th:text="#{rule.modal.create.title}"
+              >Create New Rule</span
+            >
+          </h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body bg-light p-0">
+          <form id="ruleForm" novalidate>
+            <input type="hidden" id="ruleId" />
+
+            <!-- Card 1: Basic Info -->
+            <div class="card card-outline card-primary m-3 mb-2 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-primary">
+                  <i class="fas fa-info-circle mr-1"></i> Basic Info
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-7">
+                    <div class="form-group mb-2">
+                      <label
+                        for="ruleName"
+                        class="small font-weight-bold"
+                        th:text="#{rule.modal.name}"
+                        >Rule Name</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        id="ruleName"
+                        th:placeholder="#{rule.modal.name.placeholder}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group mb-2">
+                      <label
+                        for="rulePriority"
+                        class="small font-weight-bold"
+                        th:text="#{rule.modal.priority}"
+                        >Priority</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control form-control-sm"
+                        id="rulePriority"
+                        min="0"
+                        value="0"
+                        required
+                      />
+                      <small class="form-text text-muted" th:text="#{rule.modal.priority.hint}"
+                        >Higher = larger number</small
+                      >
+                    </div>
+                  </div>
+                  <div class="col-md-2 d-flex align-items-center">
+                    <div class="form-group mb-0 mt-1 text-center w-100">
+                      <label class="small font-weight-bold d-block" th:text="#{rule.modal.active}"
+                        >Active</label
+                      >
+                      <div class="custom-control custom-switch">
+                        <input
+                          type="checkbox"
+                          class="custom-control-input"
+                          id="ruleIsActive"
+                          checked
+                        />
+                        <label class="custom-control-label" for="ruleIsActive"></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Target Device & Room -->
+            <div class="card card-outline card-info m-3 mt-0 mb-2 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-info">
+                  <i class="fas fa-microchip mr-1"></i>
+                  <span th:text="#{rule.modal.section.target}">Target Device & Room</span>
+                </h6>
+              </div>
+              <div class="card-body">
+                <!-- Edit mode: readonly display -->
+                <div id="ruleTargetDisplay" style="display: none">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.modal.category}"
+                          >Category</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control form-control-sm bg-light"
+                          id="ruleCategoryDisplay"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.table.device}"
+                          >Target Device</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control form-control-sm bg-light"
+                          id="ruleDeviceDisplay"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <small class="text-muted"
+                    ><i class="fas fa-info-circle mr-1"></i>Room and device cannot be changed after
+                    creation.</small
+                  >
+                </div>
+
+                <!-- Create mode: drill-down selection -->
+                <div id="ruleTargetSelection">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label
+                          for="ruleCategorySelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.modal.category}"
+                          >Category</label
+                        >
+                        <select class="form-control form-control-sm" id="ruleCategorySelect">
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.modal.category.select}"
+                          >
+                            Select category
+                          </option>
+                          <option value="LIGHT">LIGHT</option>
+                          <option value="FAN">FAN</option>
+                          <option value="AIR_CONDITION">AIR_CONDITION</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label
+                          for="ruleFloorSelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.modal.floor}"
+                          >Floor</label
+                        >
+                        <select class="form-control form-control-sm" id="ruleFloorSelect" disabled>
+                          <option value="" disabled selected th:text="#{rule.modal.floor.select}">
+                            Select floor
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label for="ruleRoomSelect" class="small font-weight-bold">Room</label>
+                        <select class="form-control form-control-sm" id="ruleRoomSelect" disabled>
+                          <option value="" disabled selected th:text="#{rule.modal.room.select}">
+                            Select room
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group mb-0">
+                    <label
+                      for="ruleDeviceSelect"
+                      class="small font-weight-bold"
+                      th:text="#{rule.table.device}"
+                      >Target Device</label
+                    >
+                    <select class="form-control form-control-sm" id="ruleDeviceSelect" disabled>
+                      <option value="" disabled selected th:text="#{rule.modal.device.select}">
+                        Select device
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Hidden fields -->
+                <input type="hidden" id="hiddenRuleCategory" />
+                <input type="hidden" id="hiddenRuleRoomId" />
+                <input type="hidden" id="hiddenRuleDeviceId" />
+              </div>
+            </div>
+
+            <!-- Card 3: Action Parameters -->
+            <div class="card card-outline card-warning m-3 mt-0 mb-3 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-warning">
+                  <i class="fas fa-sliders-h mr-1"></i>
+                  <span th:text="#{rule.modal.section.action}">Action Parameters</span>
+                </h6>
+                <small class="text-muted ml-4" th:text="#{rule.action.param.optional.hint}"
+                  >Leave blank to not change</small
+                >
+              </div>
+              <div class="card-body">
+                <!-- LIGHT params -->
+                <div id="ruleParamLight" style="display: none">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.power}"
+                          >Power</label
+                        >
+                        <select class="form-control form-control-sm" id="lightPower">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.level}"
+                          >Level (0-100)</label
+                        >
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          id="lightLevel"
+                          min="0"
+                          max="100"
+                          placeholder="-- not set --"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FAN params -->
+                <div id="ruleParamFan" style="display: none">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.power}"
+                          >Power</label
+                        >
+                        <select class="form-control form-control-sm" id="fanPower">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.mode}"
+                          >Mode</label
+                        >
+                        <select class="form-control form-control-sm" id="fanMode">
+                          <option value="">-- not set --</option>
+                          <option value="NORMAL">NORMAL</option>
+                          <option value="SLEEP">SLEEP</option>
+                          <option value="NATURAL">NATURAL</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.speed}"
+                          >Speed</label
+                        >
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          id="fanSpeed"
+                          min="0"
+                          max="9999"
+                          placeholder="-- not set --"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.swing}"
+                          >Swing</label
+                        >
+                        <select class="form-control form-control-sm" id="fanSwing">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.light}"
+                          >Light</label
+                        >
+                        <select class="form-control form-control-sm" id="fanLight">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AIR_CONDITION params -->
+                <div id="ruleParamAc" style="display: none">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.power}"
+                          >Power</label
+                        >
+                        <select class="form-control form-control-sm" id="acPower">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.temp}"
+                          >Temperature (°C)</label
+                        >
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          id="acTemp"
+                          min="16"
+                          max="32"
+                          placeholder="-- not set --"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.mode}"
+                          >Mode</label
+                        >
+                        <select class="form-control form-control-sm" id="acMode">
+                          <option value="">-- not set --</option>
+                          <option value="COOL">COOL</option>
+                          <option value="HEAT">HEAT</option>
+                          <option value="DRY">DRY</option>
+                          <option value="FAN">FAN</option>
+                          <option value="AUTO">AUTO</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label
+                          class="small font-weight-bold"
+                          th:text="#{rule.action.param.fan.speed}"
+                          >Fan Speed</label
+                        >
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          id="acFanSpeed"
+                          min="0"
+                          max="5"
+                          placeholder="-- not set --"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold" th:text="#{rule.action.param.swing}"
+                          >Swing</label
+                        >
+                        <select class="form-control form-control-sm" id="acSwing">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- No category selected placeholder -->
+                <div id="ruleParamPlaceholder" class="text-center text-muted py-3">
+                  <i class="fas fa-hand-point-up fa-2x mb-2 d-block"></i>
+                  <small>Select a device category to configure action parameters</small>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i>
+            <span th:text="#{common.btn.cancel}">Cancel</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnSaveRule">
+            <i class="fas fa-save mr-1"></i>
+            <span th:text="#{rule.modal.btn.save}">Save Rule</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

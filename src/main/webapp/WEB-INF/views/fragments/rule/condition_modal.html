@@ -1,0 +1,303 @@
+<th:block th:fragment="modal_content" xmlns:th="http://www.thymeleaf.org">
+  <!-- Condition Add/Edit Modal -->
+  <div
+    class="modal fade"
+    id="conditionModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="conditionModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="conditionModalLabel">
+            <i class="fas fa-filter mr-2"></i>
+            <span id="conditionModalTitleText" th:text="#{rule.conditions.modal.add.title}"
+              >Add Condition</span
+            >
+          </h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body bg-light p-0">
+          <form id="conditionForm" novalidate>
+            <input type="hidden" id="conditionLocalId" />
+
+            <!-- Card 1: Data Source -->
+            <div class="card card-outline card-success m-3 mb-2 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-success">
+                  <i class="fas fa-database mr-1"></i>
+                  <span th:text="#{rule.conditions.modal.datasource}">Data Source</span>
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="form-group mb-2">
+                  <label
+                    for="condDataSourceSelect"
+                    class="small font-weight-bold"
+                    th:text="#{rule.conditions.modal.datasource}"
+                    >Data Source</label
+                  >
+                  <select class="form-control form-control-sm" id="condDataSourceSelect" required>
+                    <option
+                      value=""
+                      disabled
+                      selected
+                      th:text="#{rule.conditions.modal.datasource.select}"
+                    >
+                      Select source
+                    </option>
+                    <option value="SYSTEM">SYSTEM</option>
+                    <option value="ROOM">ROOM</option>
+                    <option value="DEVICE">DEVICE</option>
+                    <option value="SENSOR">SENSOR</option>
+                  </select>
+                </div>
+
+                <!-- SYSTEM properties -->
+                <div id="condSectionSystem" style="display: none">
+                  <div class="form-group mb-0">
+                    <label
+                      for="condSystemProperty"
+                      class="small font-weight-bold"
+                      th:text="#{rule.conditions.modal.property}"
+                      >Property</label
+                    >
+                    <select class="form-control form-control-sm" id="condSystemProperty">
+                      <option
+                        value=""
+                        disabled
+                        selected
+                        th:text="#{rule.conditions.modal.property.select}"
+                      >
+                        Select property
+                      </option>
+                      <option value="current_time">current_time (hours + min/60)</option>
+                      <option value="day_of_week">day_of_week (1=Mon … 7=Sun)</option>
+                      <option value="day_of_month">day_of_month (1–31)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- ROOM properties -->
+                <div id="condSectionRoom" style="display: none">
+                  <div class="form-group mb-0">
+                    <label
+                      for="condRoomProperty"
+                      class="small font-weight-bold"
+                      th:text="#{rule.conditions.modal.property}"
+                      >Property</label
+                    >
+                    <select class="form-control form-control-sm" id="condRoomProperty">
+                      <option
+                        value=""
+                        disabled
+                        selected
+                        th:text="#{rule.conditions.modal.property.select}"
+                      >
+                        Select property
+                      </option>
+                      <option value="avg_temperature">avg_temperature (°C)</option>
+                      <option value="sum_watt">sum_watt (Watt)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- DEVICE / SENSOR drill-down -->
+                <div id="condSectionDeviceSensor" style="display: none">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label
+                          for="condCategorySelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.conditions.modal.category}"
+                          >Device Category</label
+                        >
+                        <select class="form-control form-control-sm" id="condCategorySelect">
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.category.select}"
+                          >
+                            Select category
+                          </option>
+                          <!-- DEVICE options (available for DEVICE datasource) -->
+                          <option value="LIGHT" data-for="DEVICE SENSOR">LIGHT</option>
+                          <option value="FAN" data-for="DEVICE SENSOR">FAN</option>
+                          <option value="AIR_CONDITION" data-for="DEVICE SENSOR">
+                            AIR_CONDITION
+                          </option>
+                          <option value="TEMPERATURE" data-for="SENSOR">TEMPERATURE</option>
+                          <option value="POWER_CONSUMPTION" data-for="SENSOR">
+                            POWER_CONSUMPTION
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label
+                          for="condPropertySelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.conditions.modal.property}"
+                          >Property</label
+                        >
+                        <select
+                          class="form-control form-control-sm"
+                          id="condPropertySelect"
+                          disabled
+                        >
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.property.select}"
+                          >
+                            Select property
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label
+                          for="condFloorSelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.modal.floor}"
+                          >Floor</label
+                        >
+                        <select class="form-control form-control-sm" id="condFloorSelect" disabled>
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.floor.select}"
+                          >
+                            Select floor
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label for="condRoomSelect" class="small font-weight-bold">Room</label>
+                        <select class="form-control form-control-sm" id="condRoomSelect" disabled>
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.room.select}"
+                          >
+                            Select room
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group mb-0">
+                    <label for="condDeviceSelect" class="small font-weight-bold"
+                      >Device / Sensor</label
+                    >
+                    <select class="form-control form-control-sm" id="condDeviceSelect" disabled>
+                      <option
+                        value=""
+                        disabled
+                        selected
+                        th:text="#{rule.conditions.modal.device.select}"
+                      >
+                        Select device/sensor
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Operator & Value -->
+            <div class="card card-outline card-warning m-3 mt-0 mb-3 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-warning">
+                  <i class="fas fa-not-equal mr-1"></i>
+                  Operator &amp; Value
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group mb-2">
+                      <label
+                        for="condOperatorSelect"
+                        class="small font-weight-bold"
+                        th:text="#{rule.conditions.modal.operator}"
+                        >Operator</label
+                      >
+                      <select class="form-control form-control-sm" id="condOperatorSelect" required>
+                        <option value="" disabled selected>Select operator</option>
+                        <option value="=">=&nbsp;(equal)</option>
+                        <option value="!=">!=&nbsp;(not equal)</option>
+                        <option value=">">&gt;&nbsp;(greater than)</option>
+                        <option value="<">&lt;&nbsp;(less than)</option>
+                        <option value=">=">&gt;=&nbsp;(greater or equal)</option>
+                        <option value="<=">&lt;=&nbsp;(less or equal)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group mb-2">
+                      <label
+                        for="condValue"
+                        class="small font-weight-bold"
+                        th:text="#{rule.conditions.modal.value}"
+                        >Comparison Value</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control form-control-sm"
+                        id="condValue"
+                        th:placeholder="#{rule.conditions.modal.value.placeholder}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group mb-2">
+                      <label
+                        for="condNextLogicSelect"
+                        class="small font-weight-bold"
+                        th:text="#{rule.conditions.modal.next.logic}"
+                        >Next Logic</label
+                      >
+                      <select class="form-control form-control-sm" id="condNextLogicSelect">
+                        <option value="AND" selected>AND</option>
+                        <option value="OR">OR</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i>
+            <span th:text="#{common.btn.cancel}">Cancel</span>
+          </button>
+          <button type="button" class="btn btn-success btn-sm" id="btnSaveCondition">
+            <i class="fas fa-check mr-1"></i>
+            <span th:text="#{rule.conditions.modal.btn.save}">Save Condition</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

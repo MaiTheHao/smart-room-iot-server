@@ -1,0 +1,105 @@
+<!doctype html>
+<html
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{main_layout.html}"
+>
+  <head>
+    <title th:text="#{rule.management.title}">Rule Management</title>
+    <th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
+  </head>
+  <body>
+    <th:block layout:fragment="header">
+      <th:block
+        th:replace="~{fragments/management.html :: page_header(#{rule.management.header})}"
+      ></th:block>
+    </th:block>
+
+    <section class="content" layout:fragment="content">
+      <div class="container-fluid">
+        <div class="card card-outline card-primary shadow-sm border-0">
+          <div class="card-header border-0 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="card-title font-weight-bold text-dark">
+                <i class="fas fa-code-branch mr-2 text-primary"></i>
+                <span th:text="#{rule.table.list.title}">Rules List</span>
+              </h3>
+              <div class="card-tools d-flex align-items-center">
+                <button
+                  type="button"
+                  class="btn btn-light btn-sm mr-2"
+                  id="btnReloadRules"
+                  th:title="#{rule.btn.reload.tooltip}"
+                >
+                  <i class="fas fa-sync-alt mr-1"></i>
+                  <span th:text="#{rule.btn.reload}">Reload Rules</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-warning btn-sm mr-2"
+                  id="btnScanRules"
+                  th:title="#{rule.btn.scan.tooltip}"
+                >
+                  <i class="fas fa-search mr-1"></i>
+                  <span th:text="#{rule.btn.scan}">Scan Rules</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm font-weight-bold shadow-sm"
+                  id="btnCreateRule"
+                >
+                  <i class="fas fa-plus mr-1"></i>
+                  <span th:text="#{rule.btn.add}">Add Rule</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <table id="rulesTable" class="table table-hover table-borderless text-nowrap w-100">
+              <thead class="bg-light text-muted small text-uppercase">
+                <tr>
+                  <th th:text="#{rule.table.id}">ID</th>
+                  <th th:text="#{rule.table.name}">Name</th>
+                  <th th:text="#{rule.table.priority}">Priority</th>
+                  <th th:text="#{rule.table.room}">Room</th>
+                  <th th:text="#{rule.table.device}">Target Device</th>
+                  <th th:text="#{rule.table.category}">Category</th>
+                  <th th:text="#{rule.table.status}">Status</th>
+                  <th th:text="#{rule.table.conditions}">Conditions</th>
+                  <th class="text-right" th:text="#{rule.table.actions}">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Populated by DataTable / JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Rule Modal Fragment -->
+        <th:block th:replace="~{fragments/rule/rule_modal.html :: modal_content}"></th:block>
+      </div>
+    </section>
+
+    <th:block layout:fragment="optional">
+      <script defer th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+      <script defer th:src="@{/webjars/datatables/js/dataTables.bootstrap4.min.js}"></script>
+
+      <script defer th:src="@{/scripts/common/const.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/rule_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/floor_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/device_metadata_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/pages/rule/rules.js}"></script>
+
+      <script defer th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+          RuleManager.init();
+        });
+        /*]]>*/
+      </script>
+    </th:block>
+  </body>
+</html>

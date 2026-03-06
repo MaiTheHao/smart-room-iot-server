@@ -94,7 +94,7 @@ public class AirConditionController {
 			@RequestBody @Valid AirConditionControlRequestBody params
     ) {
 			airConditionControlService.control(naturalId, params);
-			return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Controlled successfully"));
+			return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
 	}
 
 	@Deprecated

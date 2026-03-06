@@ -66,6 +66,8 @@
           RuleCondition condition = ruleConditionMapper.fromCreateDto(condDto);
           rule.addCondition(condition);
         });
+      } else {
+        rule.setConditions(Collections.emptyList());
       }
 
       return rule;
@@ -77,16 +79,12 @@
         return;
       }
 
-      rule.setName(dto.name());
-      rule.setPriority(dto.priority());
-      rule.setTargetDeviceId(dto.targetDeviceId());
-      rule.setTargetDeviceCategory(dto.targetDeviceCategory());
-      rule.setActionParams(dto.actionParams());
-
-      if (dto.isActive() != null) {
-        rule.setIsActive(dto.isActive());
-      }
-
+      rule.setName(dto.name() != null ? dto.name() : rule.getName());
+      rule.setPriority(dto.priority() != null ? dto.priority() : rule.getPriority());
+      rule.setTargetDeviceId(dto.targetDeviceId() != null ? dto.targetDeviceId() : rule.getTargetDeviceId());
+      rule.setTargetDeviceCategory(dto.targetDeviceCategory() != null ? dto.targetDeviceCategory() : rule.getTargetDeviceCategory());
+      rule.setActionParams(dto.actionParams() != null ? dto.actionParams() : rule.getActionParams());
+      rule.setIsActive(dto.isActive() != null ? dto.isActive() : rule.getIsActive());
       rule.getConditions().clear();
 
       if (dto.conditions() != null) {

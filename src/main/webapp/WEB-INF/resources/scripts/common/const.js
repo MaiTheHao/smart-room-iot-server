@@ -97,8 +97,6 @@ const SMRC_API_V1 = {
     DETAIL: (id) => `/api/v1/lights/${id}`,
     BY_ROOM: (roomId) => `/api/v1/lights/room/${roomId}`,
     ALL_BY_ROOM: (roomId) => `/api/v1/lights/room/${roomId}/all`,
-    TOGGLE: (id) => `/api/v1/lights/${id}/toggle-state`,
-    LEVEL: (id, newLevel) => `/api/v1/lights/${id}/level/${newLevel}`,
     CONTROL: (naturalId) => `/api/v1/lights/${naturalId}/control`,
   },
 
@@ -117,11 +115,6 @@ const SMRC_API_V1 = {
     DETAIL: (id) => `/api/v1/air-conditions/${id}`,
     BY_ROOM: (roomId) => `/api/v1/air-conditions/room/${roomId}`,
     ALL_BY_ROOM: (roomId) => `/api/v1/air-conditions/room/${roomId}/all`,
-    POWER: (id) => `/api/v1/air-conditions/${id}/power`,
-    TEMPERATURE: (id) => `/api/v1/air-conditions/${id}/temperature`,
-    MODE: (id) => `/api/v1/air-conditions/${id}/mode`,
-    FAN_SPEED: (id) => `/api/v1/air-conditions/${id}/fan`,
-    SWING: (id) => `/api/v1/air-conditions/${id}/swing`,
     CONTROL: (naturalId) => `/api/v1/air-conditions/${naturalId}/control`,
   },
 
@@ -131,6 +124,15 @@ const SMRC_API_V1 = {
     BY_ROOM: (roomCode) => `/api/v1/telemetries/room/${roomCode}`,
     TEMPERATURE: (naturalId) => `/api/v1/telemetries/temperature/${naturalId}`,
     POWER_CONSUMPTION: (naturalId) => `/api/v1/telemetries/power-consumption/${naturalId}`,
+  },
+
+  RULE: {
+    PATH: '/api/v1/rules',
+    ALL: '/api/v1/rules/all',
+    DETAIL: (id) => `/api/v1/rules/${id}`,
+    STATUS: (id) => `/api/v1/rules/${id}/status`,
+    SCAN: '/api/v1/rules/scan',
+    RELOAD: '/api/v1/rules/reload',
   },
 };
 

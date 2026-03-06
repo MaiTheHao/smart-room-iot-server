@@ -26,7 +26,7 @@ Mỗi quy tắc có:
 | targetDeviceId        | Long     | Có       | ID của thiết bị mục tiêu sẽ bị tác động khi quy tắc thỏa mãn             |
 | targetDeviceCategory  | string   | Có       | Loại thiết bị mục tiêu (xem DeviceCategory dưới Enumerations)            |
 | actionParams          | JsonNode | Có       | Tham số điều khiển gửi xuống thiết bị mục tiêu (JSON format, phụ thuộc vào targetDeviceCategory) |
-| conditions            | array    | Có       | Danh sách điều kiện (ít nhất 1 điều kiện, xem chi tiết bên dưới)         |
+| conditions            | array    | Không       | Danh sách điều kiện (ít nhất 1 điều kiện, xem chi tiết bên dưới)         |
 
 #### Cấu trúc chi tiết của mỗi phần tử trong `conditions`
 
@@ -369,13 +369,13 @@ Mỗi quy tắc có:
 
 | Tên trường            | Loại     | Bắt buộc | Mô tả                                                               |
 | :-------------------- | :------- | :------- | :------------------------------------------------------------------ |
-| name                  | string   | Có       | Tên quy tắc (không rỗng)                                           |
-| priority              | integer  | Có       | Độ ưu tiên (>= 0)                                                  |
-| targetDeviceId        | Long     | Có       | ID của thiết bị mục tiêu                                           |
-| targetDeviceCategory  | string   | Có       | Loại thiết bị. Nếu đổi, bắt buộc gửi kèm `actionParams` mới       |
-| actionParams          | JsonNode | Có       | Tham số điều khiển thiết bị mục tiêu (JSON format)                |
+| name                  | string   | Không       | Tên quy tắc (không rỗng)                                           |
+| priority              | integer  | Không       | Độ ưu tiên (>= 0)                                                  |
+| targetDeviceId        | Long     | Không       | ID của thiết bị mục tiêu                                           |
+| targetDeviceCategory  | string   | Không       | Loại thiết bị. Nếu đổi, bắt buộc gửi kèm `actionParams` mới       |
+| actionParams          | JsonNode | Không       | Tham số điều khiển thiết bị mục tiêu (JSON format)                |
 | isActive              | boolean  | Không    | Trạng thái hoạt động của quy tắc                                   |
-| conditions            | array    | Có       | Danh sách điều kiện mới/cập nhật (ít nhất 1 điều kiện)            |
+| conditions            | array    | Không       | Danh sách điều kiện mới/cập nhật (ít nhất 1 điều kiện)            |
 
 #### Cấu trúc chi tiết của mỗi phần tử trong `conditions` (khi Update)
 
@@ -566,14 +566,16 @@ Mỗi quy tắc có:
 <details>
 <summary><b>POST</b> <code>/api/v1/rules/scan</code> - Quét quy tắc (toàn cục)</summary>
 
-> Thực thi quét toàn cục tất cả các quy tắc đang hoạt động.
+> Kích hoạt thủ công một lượt quét toàn cục — đánh giá tất cả quy tắc đang hoạt động và **thực thi ngay lập tức** lệnh điều khiển xuống thiết bị nếu điều kiện thỏa mãn.
+
+> ⚠️ Gọi endpoint này tương đương với việc scheduler tự động chạy, nhưng theo yêu cầu thủ công, **không** phụ thuộc vào lịch.
 
 **Quá trình quét:**
 1. Lấy tất cả các quy tắc đang hoạt động (`isActive = true`)
 2. Nhóm các quy tắc theo thiết bị mục tiêu (`category:id`)
 3. Đánh giá điều kiện của từng quy tắc trong mỗi nhóm
 4. Chọn quy tắc có độ ưu tiên cao nhất (Winner-Takes-All)
-5. Thực thi hành động của quy tắc chiến thắng
+5. Thực thi hành động của quy tắc chiến thắng → gửi lệnh xuống thiết bị
 
 ### Response (200 OK)
 
@@ -593,9 +595,14 @@ Mỗi quy tắc có:
 <details>
 <summary><b>POST</b> <code>/api/v1/rules/reload</code> - Tải lại cấu hình quy tắc</summary>
 
-> Tái tải cấu hình tất cả các quy tắc từ cơ sở dữ liệu.
+> Tải lại danh sách toàn bộ quy tắc từ cơ sở dữ liệu vào bộ nhớ đệm (in-memory) của hệ thống. **Không đánh giá điều kiện, không thực thi hành động, không gửi lệnh xuống thiết bị.**
 
-Sử dụng trong trường hợp cần đồng bộ hóa cấu hình quy tắc sau khi có thay đổi trong database.
+**Khi nào cần dùng?**
+- Sau khi thêm/sửa/xóa rule qua API để đảm bảo scheduler đang dùng cấu hình mới nhất.
+- Sau khi chỉnh sửa trực tiếp trong database mà không qua API.
+- Khi cần đồng bộ lại cấu hình rule mà không muốn kích hoạt quét ngay.
+
+> ⚠️ Endpoint này chỉ **cập nhật cấu hình trong bộ nhớ**, không ảnh hưởng đến trạng thái thiết bị. Để chạy rule ngay sau khi reload, hãy gọi thêm `/scan`.
 
 ### Response (200 OK)
 

@@ -33,6 +33,5 @@ public record CreateRuleDto(
     JsonNode actionParams,
 
     @Valid
-    @NotNull(message = "At least one condition is required")
     List<CreateRuleConditionDto> conditions
 ) {}

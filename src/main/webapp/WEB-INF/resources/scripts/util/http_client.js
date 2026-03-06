@@ -1,112 +1,118 @@
 (() => {
-	'use strict';
+  'use strict';
 
-	class HttpClient {
-		#logger;
+  class HttpClient {
+    #logger;
 
-		constructor(
-			options = {
-				baseUrl: null,
-				headers: null,
-			},
-		) {
-			this.headers = {
-				Accept: 'application/json',
-				'Content-Type': 'application/json; charset=utf-8',
-				...(options.headers || {}),
-			};
+    constructor(
+      options = {
+        baseUrl: null,
+        headers: null,
+      },
+    ) {
+      this.headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+        ...(options.headers || {}),
+      };
 
-			this.baseUrl = options.baseUrl || window.location.origin;
+      this.baseUrl = options.baseUrl || window.location.origin;
 
-			this.#logger = window.logger('HttpClient') || console;
+      this.#logger = window.logger('HttpClient') || console;
 
-			this.#logger.info(`HttpClient initialized with baseUrl: ${this.baseUrl}`);
-		}
+      this.#logger.info(`HttpClient initialized with baseUrl: ${this.baseUrl}`);
+    }
 
-		#normalizeEndpoint(endpoint) {
-			if (typeof endpoint !== 'string') return '';
-			return endpoint.trim().replace(/^\/+/, '');
-		}
+    #normalizeEndpoint(endpoint) {
+      if (typeof endpoint !== 'string') return '';
+      return endpoint.trim().replace(/^\/+/, '');
+    }
 
-		get(endpoint, params = null) {
-			return this.request('GET', endpoint, params);
-		}
+    get(endpoint, params = null) {
+      return this.request('GET', endpoint, params);
+    }
 
-		post(endpoint, body = null, params = null) {
-			return this.request('POST', endpoint, params, body);
-		}
+    post(endpoint, body = null, params = null) {
+      return this.request('POST', endpoint, params, body);
+    }
 
-		put(endpoint, body = null, params = null) {
-			return this.request('PUT', endpoint, params, body);
-		}
+    put(endpoint, body = null, params = null) {
+      return this.request('PUT', endpoint, params, body);
+    }
 
-		delete(endpoint, params = null) {
-			return this.request('DELETE', endpoint, params);
-		}
+    patch(endpoint, body = null, params = null) {
+      return this.request('PATCH', endpoint, params, body);
+    }
 
-		async request(method, endpoint, params = null, body = null) {
-			const cleanEndpoint = this.#normalizeEndpoint(endpoint);
-			let url = `${this.baseUrl}/${cleanEndpoint}`;
+    delete(endpoint, params = null) {
+      return this.request('DELETE', endpoint, params);
+    }
 
-			if (params && Object.keys(params).length) {
-				const query = new URLSearchParams(params).toString();
-				url += `${url.includes('?') ? '&' : '?'}${query}`;
-			}
+    async request(method, endpoint, params = null, body = null) {
+      const cleanEndpoint = this.#normalizeEndpoint(endpoint);
+      let url = `${this.baseUrl}/${cleanEndpoint}`;
 
-			this.#logger.debug(`${method} ${url} body: ${body ? JSON.stringify(body) : 'N/A'} params: ${params ? JSON.stringify(params) : 'N/A'}`);
+      if (params && Object.keys(params).length) {
+        const query = new URLSearchParams(params).toString();
+        url += `${url.includes('?') ? '&' : '?'}${query}`;
+      }
 
-			const config = {
-				method,
-				headers: this.headers,
-				credentials: 'include',
-			};
+      this.#logger.debug(
+        `${method} ${url} body: ${body ? JSON.stringify(body) : 'N/A'} params: ${params ? JSON.stringify(params) : 'N/A'}`,
+      );
 
-			if (body) {
-				config.body = JSON.stringify(body);
-			}
+      const config = {
+        method,
+        headers: this.headers,
+        credentials: 'include',
+      };
 
-			try {
-				const response = await fetch(url, config);
+      if (body) {
+        config.body = JSON.stringify(body);
+      }
 
-				if (response.status === 204) {
-					return {};
-				}
+      try {
+        const response = await fetch(url, config);
 
-				let result;
-				const contentType = response.headers.get('content-type');
+        if (response.status === 204) {
+          return {};
+        }
 
-				if (contentType && contentType.includes('application/json')) {
-					result = await response.json();
-				} else {
-					const text = await response.text();
-					result = text ? { message: text } : {};
-				}
+        let result;
+        const contentType = response.headers.get('content-type');
 
-				if (!response.ok) {
-					throw {
-						status: response.status,
-						message: result.message || result.error || 'Server Error',
-						data: result,
-						timestamp: new Date().toISOString(),
-					};
-				}
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json();
+        } else {
+          const text = await response.text();
+          result = text ? { message: text } : {};
+        }
 
-				return result;
-			} catch (error) {
-				const safeError = error.status
-					? error
-					: {
-							status: 0,
-							message: error.message || 'Network Error',
-							timestamp: new Date().toISOString(),
-						};
+        if (!response.ok) {
+          throw {
+            status: response.status,
+            message: result.message || result.error || 'Server Error',
+            data: result,
+            timestamp: new Date().toISOString(),
+          };
+        }
 
-				this.#logger.error(`${method} ${url} FAILED`, safeError);
-				throw safeError;
-			}
-		}
-	}
+        return result;
+      } catch (error) {
+        const safeError = error.status
+          ? error
+          : {
+              status: 0,
+              message: error.message || 'Network Error',
+              timestamp: new Date().toISOString(),
+            };
 
-	window.HttpClient = HttpClient;
-	window.http = new HttpClient();
+        this.#logger.error(`${method} ${url} FAILED`, safeError);
+        throw safeError;
+      }
+    }
+  }
+
+  window.HttpClient = HttpClient;
+  window.http = new HttpClient();
 })();

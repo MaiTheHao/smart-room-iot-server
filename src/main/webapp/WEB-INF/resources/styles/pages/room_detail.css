@@ -1,210 +1,222 @@
 /* =========================================
-   HEADER COMPONENT STYLES (Minimal Custom)
+   CUSTOM SPINNER
    ========================================= */
-
-.card-primary.card-outline {
-  border-top: 3px solid var(--color-brand-active) !important;
+@keyframes custom-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
-
-.text-brand {
-  color: var(--color-brand-active) !important;
-}
-
-/* =========================================
-   DEVICE LIST STYLES
-   ========================================= */
-
-.light-item {
-  position: relative;
-  transition: background-color 0.3s;
-}
-
-.light-item.is-loading {
-  background-color: #f8f9fa;
-}
-
-.light-item.is-loading .icon-box {
-  background-color: #e2e8f0 !important;
-}
-
-.icon-box {
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
 .custom-spin {
   animation: custom-rotate 1s infinite ease-in-out;
 }
 
-@keyframes custom-rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+/* =========================================
+   DEVICE ITEM - SHARED
+   (light-item / fan-item / ac-item)
+   Bootstrap handles: spacing, flex, text colours
+   We only add what Bootstrap cannot do
+   ========================================= */
+
+/* Scoped loading state - swap icon ↔ spinner */
+.light-item,
+.fan-item,
+.ac-item {
+  transition: background-color 0.2s;
+}
+.light-item.is-loading,
+.fan-item.is-loading,
+.ac-item.is-loading {
+  background-color: #f8f9fa; /* Bootstrap bg-light equivalent */
 }
 
+/* Hide spinner by default; show when parent is-loading */
 .loading-icon {
-  display: none;
+  display: none !important;
 }
 .is-loading .loading-icon {
-  display: inline-block;
+  display: inline-block !important;
 }
 .is-loading .default-icon {
-  display: none;
+  display: none !important;
 }
 
+/* =========================================
+   ICON BOX  (device avatar square)
+   ========================================= */
+.icon-box {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  transition:
+    background-color 0.25s,
+    color 0.25s;
+}
+
+/* Active colour variants - one class per device type */
 .icon-box.active-ac {
   background-color: #eff6ff;
-  color: var(--color-primary);
+  color: #3b82f6;
 }
-
-.icon-box.active-light {
-  background-color: #fffbeb;
-  color: var(--color-warning);
-}
-
 .icon-box.active-fan {
   background-color: #f0fdf4;
   color: #16a34a;
 }
+.icon-box.active-light {
+  background-color: #fffbeb;
+  color: #f59e0b;
+}
 
+/* =========================================
+   COLLAPSE EXPAND CHEVRON
+   Bootstrap data-toggle handles aria; we animate
+   ========================================= */
+.btn-expand i {
+  transition: transform 0.25s;
+}
+.btn-expand[aria-expanded='true'] i {
+  transform: rotate(180deg);
+}
+
+/* =========================================
+   DISABLED OVERLAY  (collapse panel when device OFF)
+   ========================================= */
+.disabled-overlay {
+  opacity: 0.45;
+  pointer-events: none;
+  filter: grayscale(60%);
+  transition: opacity 0.3s;
+}
+
+/* =========================================
+   CUSTOM SWITCH SCALE
+   ========================================= */
+.scale-125 {
+  transform: scale(1.25);
+}
+
+/* =========================================
+   TEMPERATURE DISPLAY  (AC only)
+   ========================================= */
 .temp-display {
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: var(--text-main);
   line-height: 1;
+  user-select: none;
 }
-
-.temp-display .unit {
-  font-size: 1.5rem;
-  vertical-align: super;
-  color: var(--text-muted);
+.temp-display .ac-temp-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+.temp-display .temp-unit {
+  font-size: 1.4rem;
   font-weight: 400;
+  color: #64748b;
+  vertical-align: super;
 }
 
-.btn-mode {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  display: flex;
+/* =========================================
+   MODE BUTTONS  (AC)
+   Shape is handled by Bootstrap btn + rounded-circle
+   We only define active colour variants
+   ========================================= */
+.ac-mode-btn {
+  /* ensure icon is centred even without flex util in older BS */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e2e8f0;
-  color: var(--text-muted);
-  transition: all 0.2s;
-  background-color: #fff;
+  transition:
+    transform 0.15s,
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
 }
-
-.btn-mode:hover {
+.ac-mode-btn:hover:not(:disabled) {
   transform: translateY(-2px);
 }
 
-.btn-mode.active-cool {
-  background-color: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
+/* Active states - named by semantic mode, not by colour */
+.ac-mode-btn.active-mode-cool {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #fff !important;
+}
+.ac-mode-btn.active-mode-heat {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #fff !important;
+}
+.ac-mode-btn.active-mode-dry {
+  background-color: #0ea5e9 !important;
+  border-color: #0ea5e9 !important;
+  color: #fff !important;
+}
+.ac-mode-btn.active-mode-fan {
+  background-color: #6b7280 !important;
+  border-color: #6b7280 !important;
+  color: #fff !important;
+}
+.ac-mode-btn.active-mode-auto {
+  background-color: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #fff !important;
 }
 
-.btn-mode.active-heat {
-  background-color: var(--color-danger);
-  color: white;
-  border-color: var(--color-danger);
+/* =========================================
+   MODE BUTTONS  (Fan)
+   Same shape rules; only active override needed
+   ========================================= */
+.fan-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.15s,
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.fan-mode-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+.fan-mode-btn.active-mode {
+  background-color: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #fff !important;
 }
 
-.btn-mode.active-dry {
-  background-color: #0ea5e9;
-  color: white;
-  border-color: #0ea5e9;
-}
-
-.btn-mode.active-fan {
-  background-color: var(--text-muted);
-  color: white;
-  border-color: var(--text-muted);
-}
-
-.btn-mode.active-mode {
-  background-color: #16a34a;
-  color: white;
-  border-color: #16a34a;
-}
-
-.custom-range {
-  height: 6px;
-  border-radius: 5px;
-  background: #e2e8f0;
-}
-
+/* =========================================
+   RANGE SLIDER  (shared AC & Fan)
+   ========================================= */
 .custom-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: #3b82f6;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   margin-top: -6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .custom-range::-webkit-slider-runnable-track {
   height: 6px;
-  border-radius: 5px;
+  border-radius: 4px;
+  background: #e2e8f0;
 }
-
-.device-row {
-  border-bottom: 1px solid #f1f5f9;
-  padding: 1rem 1.25rem;
-  background: #fff;
+.custom-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
 }
-
-.device-row:last-child {
-  border-bottom: none;
-}
-
-.btn-expand i {
-  transition: transform 0.3s;
-}
-
-.btn-expand[aria-expanded='true'] i {
-  transform: rotate(180deg);
-}
-
-.disabled-overlay {
-  opacity: 0.5;
-  pointer-events: none;
-  filter: grayscale(100%);
-}
-
-.ac-item {
-  position: relative;
-  transition: background-color 0.3s;
-}
-
-.ac-item.is-loading {
-  background-color: #f8f9fa;
-}
-fan-item {
-  position: relative;
-  transition: background-color 0.3s;
-}
-
-.fan-item.is-loading {
-  background-color: #f8f9fa;
-}
-
-.fan-item.is-loading .icon-box {
-  background-color: #e2e8f0 !important;
-}
-
-. .ac-item.is-loading .icon-box {
-  background-color: #e2e8f0 !important;
-}
-
-.scale-125 {
-  transform: scale(1.25);
+.custom-range::-moz-range-track {
+  height: 6px;
+  border-radius: 4px;
+  background: #e2e8f0;
 }

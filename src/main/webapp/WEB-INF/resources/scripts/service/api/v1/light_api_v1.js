@@ -64,22 +64,6 @@ class LightApiV1Service {
     }
   }
 
-  async toggleState(id) {
-    try {
-      return await window.http.put(this.api.TOGGLE(id));
-    } catch (error) {
-      this.#handleError(`toggle state for light ${id}`, error);
-    }
-  }
-
-  async setLevel(id, newLevel) {
-    try {
-      return await window.http.put(this.api.LEVEL(id, newLevel));
-    } catch (error) {
-      this.#handleError(`set level for light ${id} to ${newLevel}`, error);
-    }
-  }
-
   async control(naturalId, { power, level }) {
     try {
       return await window.http.put(this.api.CONTROL(naturalId), { power, level });

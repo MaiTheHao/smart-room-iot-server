@@ -4,6 +4,9 @@ class RoomDetailPage {
   CONFIG = {
     DATE_FORMAT: 'HH:mm DD/MM/YYYY',
     DEFAULT_RANGE_MONTHS: 1,
+    TEMP_RANGE_MIN: 16,
+    TEMP_RANGE_MAX: 32,
+    DEBOUNCE_DELAY: 500,
   };
 
   constructor(roomId, initialTempData, initialPowerData) {
@@ -52,6 +55,23 @@ class RoomDetailPage {
       temp: ChartFactory.createTemperatureChart('tempChart'),
       power: ChartFactory.createPowerChart('powerChart'),
     };
+  }
+
+  initDateRangePicker() {
+    $('#date-range-picker').daterangepicker(
+      {
+        timePicker: true,
+        timePicker24Hour: true,
+        startDate: this.state.start,
+        endDate: this.state.end,
+        locale: { format: this.CONFIG.DATE_FORMAT },
+      },
+      (start, end) => {
+        this.state.start = start;
+        this.state.end = end;
+        this._navigateToCurrentRange();
+      },
+    );
   }
 
   renderInitialData() {
@@ -122,7 +142,7 @@ class RoomDetailPage {
     $('.ac-swing-switch').on('change', (e) => this.handleAcSwingToggle($(e.currentTarget)));
 
     $('.fan-master-switch').on('change', (e) => this.handleFanMasterToggle($(e.currentTarget)));
-    $('.btn-mode').on('click', (e) => this.handleFanModeChange($(e.currentTarget)));
+    $('.fan-mode-btn').on('click', (e) => this.handleFanModeChange($(e.currentTarget)));
     $('.fan-speed-slider').on('input', (e) => this.handleFanSpeedChange($(e.currentTarget)));
     $('.fan-swing-switch').on('change', (e) => this.handleFanSwingToggle($(e.currentTarget)));
     $('.fan-light-switch').on('change', (e) => this.handleFanLightToggle($(e.currentTarget)));
@@ -130,52 +150,87 @@ class RoomDetailPage {
 
   async handleLightToggle($input) {
     const lightId = $input.data('light-id');
+    const naturalId = $input.data('light-natural-id');
     const isChecked = $input.is(':checked');
     const $item = $input.closest('.light-item');
-    const lightName = $item.find('h6').text() || 'Light';
+    const $icon = $item.find('.default-icon');
+    const $controls = $item.find(`#lightControls${lightId}`);
+    const $statusText = $item.find('.light-status-text');
+    const lightName = $item.find('h6').text().trim() || 'Light';
 
+    $item.addClass('is-loading');
     $input.prop('disabled', true);
 
     try {
-      await this.lightService.toggleState(lightId);
-      notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
+      const response = await this.lightService.control(naturalId, {
+        power: isChecked ? 'ON' : 'OFF',
+      });
+
+      if (response && response.status === 202) {
+        if (isChecked) {
+          $icon.addClass('active-light');
+          $controls.removeClass('disabled-overlay');
+          $statusText.text($statusText.data('text-on') || 'On');
+        } else {
+          $icon.removeClass('active-light');
+          $controls.addClass('disabled-overlay');
+          if ($controls.hasClass('show')) {
+            $controls.collapse('hide');
+          }
+          $statusText.text($statusText.data('text-off') || 'Off');
+        }
+        notify.success(`${lightName} turned ${isChecked ? 'ON' : 'OFF'}`);
+      } else {
+        $input.prop('checked', !isChecked);
+        notify.warning('Command sent but no confirmation received');
+      }
     } catch (error) {
       notify.error(error.message || `Failed to toggle ${lightName}`);
       $input.prop('checked', !isChecked);
     } finally {
+      $item.removeClass('is-loading');
       $input.prop('disabled', false);
     }
   }
 
   async handleAcMasterToggle($input) {
     const acId = $input.data('ac-id');
+    const naturalId = $input.data('ac-natural-id');
     const isChecked = $input.is(':checked');
     const $acItem = $(`.ac-item[data-ac-id="${acId}"]`);
-    const $controls = $acItem.find('.collapse');
-    const $status = $acItem.find('.ac-status-text');
+    const $controls = $acItem.find(`#acControls${acId}`);
     const $icon = $acItem.find('.default-icon');
-    const acName = $acItem.find('h6').text() || 'AC';
+    const $statusText = $acItem.find('.ac-status-text');
+    const acName = $acItem.find('h6').first().text().trim() || 'AC';
 
     $acItem.addClass('is-loading');
     $input.prop('disabled', true);
 
     try {
-      const response = await this.acService.setPower(acId, isChecked ? 'ON' : 'OFF');
+      const response = await this.acService.control(naturalId, {
+        power: isChecked ? 'ON' : 'OFF',
+      });
 
       if (response && response.status === 202) {
-        notify.success(`${acName} turned ${isChecked ? 'ON' : 'OFF'}`);
-
         if (isChecked) {
-          $controls.removeClass('disabled-overlay');
           $icon.addClass('active-ac');
-          const temp = $acItem.find('.ac-temp-value').text();
-          $status.text(`Cooling • ${temp}°C`);
+          $controls.removeClass('disabled-overlay');
+          const temp = $acItem.find('.ac-temp-value').text().trim();
+          const $activeMode = $acItem.find('.ac-mode-btn.active-mode');
+          const mode = $activeMode.length ? $activeMode.data('mode') : 'N/A';
+          $statusText.text(`${mode} • ${temp}°C`);
         } else {
-          $controls.addClass('disabled-overlay');
-          $controls.collapse('hide');
           $icon.removeClass('active-ac');
-          $status.text('Đã tắt');
+          $controls.addClass('disabled-overlay');
+          if ($controls.hasClass('show')) {
+            $controls.collapse('hide');
+          }
+          $statusText.text($statusText.data('text-off') || 'Off');
         }
+        notify.success(`${acName} turned ${isChecked ? 'ON' : 'OFF'}`);
+      } else {
+        $input.prop('checked', !isChecked);
+        notify.warning('Command sent but no confirmation received');
       }
     } catch (error) {
       notify.error(error.message || `Failed to toggle ${acName}`);
@@ -186,44 +241,9 @@ class RoomDetailPage {
     }
   }
 
-  async handleAcTempChange($btn, delta) {
-    const acId = $btn.data('ac-id');
-    const $acItem = $(`.ac-item[data-ac-id="${acId}"]`);
-    const $tempEl = $acItem.find('.ac-temp-value');
-    const $status = $acItem.find('.ac-status-text');
-    const currentTemp = parseInt($tempEl.text());
-    const newTemp = currentTemp + delta;
-
-    if (newTemp < 16 || newTemp > 32) {
-      notify.warning('Temperature must be between 16°C and 32°C');
-      return;
-    }
-
-    $tempEl.text(newTemp);
-    $status.text(`Cooling • ${newTemp}°C`);
-
-    clearTimeout(this._tempChangeDebounce);
-    this._tempChangeDebounce = setTimeout(async () => {
-      $acItem.addClass('is-loading');
-
-      try {
-        const response = await this.acService.setTemperature(acId, newTemp);
-
-        if (response && response.status === 202) {
-          notify.success(`Temperature set to ${newTemp}°C`);
-        }
-      } catch (error) {
-        notify.error(error.message || 'Failed to change temperature');
-        $tempEl.text(currentTemp);
-        $status.text(`Cooling • ${currentTemp}°C`);
-      } finally {
-        $acItem.removeClass('is-loading');
-      }
-    }, 500);
-  }
-
   async handleAcModeChange($btn) {
     const acId = $btn.data('ac-id');
+    const naturalId = $btn.data('ac-natural-id');
     const mode = $btn.data('mode');
     const $acItem = $(`.ac-item[data-ac-id="${acId}"]`);
 
@@ -231,80 +251,54 @@ class RoomDetailPage {
     $btn.prop('disabled', true);
 
     try {
-      const response = await this.acService.setMode(acId, mode);
+      const response = await this.acService.control(naturalId, { mode });
 
       if (response && response.status === 202) {
-        $acItem.find('.ac-mode-btn').removeClass('active-cool active-heat active-dry active-fan');
+        $acItem
+          .find('.ac-mode-btn')
+          .removeClass(
+            'active-mode-cool active-mode-heat active-mode-dry active-mode-fan active-mode-auto',
+          );
 
-        switch (mode) {
-          case 'COOL':
-            $btn.addClass('active-cool');
-            break;
-          case 'HEAT':
-            $btn.addClass('active-heat');
-            break;
-          case 'DRY':
-            $btn.addClass('active-dry');
-            break;
-          case 'FAN':
-            $btn.addClass('active-fan');
-            break;
-        }
+        const modeClassMap = {
+          COOL: 'active-mode-cool',
+          HEAT: 'active-mode-heat',
+          DRY: 'active-mode-dry',
+          FAN: 'active-mode-fan',
+          AUTO: 'active-mode-auto',
+        };
+        $btn.addClass(modeClassMap[mode] ?? 'active-mode-auto');
 
-        notify.success(`Mode changed to ${mode}`);
+        const temp = $acItem.find('.ac-temp-value').text().trim();
+        $acItem.find('.ac-status-text').text(`${mode} • ${temp}°C`);
+
+        notify.success(`Mode → ${mode}`);
       }
     } catch (error) {
-      notify.error(error.message || 'Failed to change mode');
+      notify.error(error.message || 'Failed to change AC mode');
     } finally {
       $acItem.removeClass('is-loading');
       $btn.prop('disabled', false);
     }
   }
 
-  async handleAcFanSpeedChange($slider) {
-    const acId = $slider.data('ac-id');
-    const speed = parseInt($slider.val());
-    const $acItem = $(`.ac-item[data-ac-id="${acId}"]`);
-    const $badge = $acItem.find('.ac-fan-badge');
-
-    const text = speed === 0 ? 'AUTO' : 'Mức ' + speed;
-    $badge.text(text);
-
-    clearTimeout(this._fanSpeedDebounce);
-    this._fanSpeedDebounce = setTimeout(async () => {
-      try {
-        const response = await this.acService.setFanSpeed(acId, speed);
-
-        if (response && response.status === 202) {
-          notify.success(`Fan speed set to ${text}`);
-        }
-      } catch (error) {
-        notify.error(error.message || 'Failed to change fan speed');
-      }
-    }, 500);
-  }
-
   async handleAcSwingToggle($input) {
     const acId = $input.data('ac-id');
+    const naturalId = $input.data('ac-natural-id');
     const isChecked = $input.is(':checked');
-    const $acItem = $(`.ac-item[data-ac-id="${acId}"]`);
-    const $label = $acItem.find('.ac-swing-label');
 
     $input.prop('disabled', true);
 
     try {
-      const response = await this.acService.setSwing(acId, isChecked ? 'ON' : 'OFF');
+      const response = await this.acService.control(naturalId, {
+        swing: isChecked ? 'ON' : 'OFF',
+      });
 
       if (response && response.status === 202) {
-        $label.text(isChecked ? 'ON' : 'OFF');
-
-        if (isChecked) {
-          $label.addClass('text-success');
-        } else {
-          $label.removeClass('text-success');
-        }
-
         notify.success(`Swing turned ${isChecked ? 'ON' : 'OFF'}`);
+      } else {
+        $input.prop('checked', !isChecked);
+        notify.warning('Command sent but no confirmation received');
       }
     } catch (error) {
       notify.error(error.message || 'Failed to toggle swing');
@@ -319,10 +313,10 @@ class RoomDetailPage {
     const naturalId = $input.data('fan-natural-id');
     const isChecked = $input.is(':checked');
     const $fanItem = $(`.fan-item[data-fan-id="${fanId}"]`);
-    const $controls = $fanItem.find('.collapse');
+    const $controls = $fanItem.find(`#fanControls${fanId}`);
     const $status = $fanItem.find('.fan-status-text');
     const $icon = $fanItem.find('.default-icon');
-    const fanName = $fanItem.find('h6').text() || 'Fan';
+    const fanName = $fanItem.find('h6').text().trim() || 'Fan';
 
     $fanItem.addClass('is-loading');
     $input.prop('disabled', true);
@@ -338,13 +332,22 @@ class RoomDetailPage {
         if (isChecked) {
           $controls.removeClass('disabled-overlay');
           $icon.addClass('active-fan');
-          $status.text('Đang bật');
+          const $activeMode = $fanItem.find('.fan-mode-btn.active-mode');
+          const mode = $activeMode.length ? $activeMode.data('mode') : null;
+          const speed = $fanItem.find('.fan-speed-display').text().trim();
+          const prefix = $status.data('speed-prefix') || '';
+          $status.text(
+            mode && speed ? `${mode} • ${prefix} ${speed}`.trim() : $status.data('text-on') || 'On',
+          );
         } else {
           $controls.addClass('disabled-overlay');
           $controls.collapse('hide');
           $icon.removeClass('active-fan');
-          $status.text('Đã tắt');
+          $status.text($status.data('text-off') || 'Off');
         }
+      } else {
+        $input.prop('checked', !isChecked);
+        notify.warning('Command sent but no confirmation received');
       }
     } catch (error) {
       notify.error(error.message || `Failed to toggle ${fanName}`);
@@ -368,12 +371,12 @@ class RoomDetailPage {
       const response = await this.fanService.control(naturalId, { mode });
 
       if (response && response.status === 202) {
-        $fanItem.find('.btn-mode').removeClass('active-mode');
+        $fanItem.find('.fan-mode-btn').removeClass('active-mode');
         $btn.addClass('active-mode');
-        notify.success(`Mode changed to ${mode}`);
+        notify.success(`Mode → ${mode}`);
       }
     } catch (error) {
-      notify.error(error.message || 'Failed to change mode');
+      notify.error(error.message || 'Failed to change fan mode');
     } finally {
       $fanItem.removeClass('is-loading');
       $btn.prop('disabled', false);
@@ -400,7 +403,7 @@ class RoomDetailPage {
       } catch (error) {
         notify.error(error.message || 'Failed to change fan speed');
       }
-    }, 500);
+    }, this.CONFIG.DEBOUNCE_DELAY);
   }
 
   async handleFanSwingToggle($input) {
@@ -475,23 +478,6 @@ class RoomDetailPage {
       endedAt: this.state.end.toISOString(),
     });
     window.location.href = `${window.location.pathname}?${query.toString()}`;
-  }
-
-  initDateRangePicker() {
-    $('#date-range-picker').daterangepicker(
-      {
-        timePicker: true,
-        timePicker24Hour: true,
-        startDate: this.state.start,
-        endDate: this.state.end,
-        locale: { format: this.CONFIG.DATE_FORMAT },
-      },
-      (start, end) => {
-        this.state.start = start;
-        this.state.end = end;
-        this._navigateToCurrentRange();
-      },
-    );
   }
 }
 

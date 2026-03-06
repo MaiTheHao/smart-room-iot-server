@@ -64,46 +64,6 @@ class AirConditionApiV1Service {
     }
   }
 
-  async setPower(acId, state) {
-    try {
-      return await window.http.post(this.api.POWER(acId), null, { state });
-    } catch (error) {
-      this.#handleError(`set power ${state} for AC ${acId}`, error);
-    }
-  }
-
-  async setTemperature(acId, value) {
-    try {
-      return await window.http.post(this.api.TEMPERATURE(acId), null, { value });
-    } catch (error) {
-      this.#handleError(`set temperature ${value} for AC ${acId}`, error);
-    }
-  }
-
-  async setMode(acId, value) {
-    try {
-      return await window.http.post(this.api.MODE(acId), null, { value });
-    } catch (error) {
-      this.#handleError(`set mode ${value} for AC ${acId}`, error);
-    }
-  }
-
-  async setFanSpeed(acId, speed) {
-    try {
-      return await window.http.post(this.api.FAN_SPEED(acId), null, { speed });
-    } catch (error) {
-      this.#handleError(`set fan speed ${speed} for AC ${acId}`, error);
-    }
-  }
-
-  async setSwing(acId, state) {
-    try {
-      return await window.http.post(this.api.SWING(acId), null, { state });
-    } catch (error) {
-      this.#handleError(`set swing ${state} for AC ${acId}`, error);
-    }
-  }
-
   async control(naturalId, { power, temperature, mode, fanSpeed, swing }) {
     try {
       return await window.http.put(this.api.CONTROL(naturalId), {

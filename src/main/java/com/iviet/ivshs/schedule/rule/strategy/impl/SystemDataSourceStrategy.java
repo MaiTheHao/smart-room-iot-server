@@ -33,7 +33,7 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
 
     try {
       String property = condition.getResourceParam().path("property").asText(null);
-
+      
       if (property == null) {
         log.warn("Property is missing in SYSTEM resourceParam for condition {}", condition.getId());
         return null;
