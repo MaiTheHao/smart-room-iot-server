@@ -164,7 +164,6 @@ Table "device_control" {
   "room_id" bigint [not null]
 
   Indexes {
-    (client_id, gpio_pin, ble_mac_address) [unique, name: "idx_device_control_client_gpio_ble"]
     room_id [name: "idx_device_control_room_id"]
   }
 }

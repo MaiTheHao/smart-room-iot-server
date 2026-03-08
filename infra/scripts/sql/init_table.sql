@@ -173,7 +173,6 @@ CREATE TABLE
     `client_id` bigint NOT NULL,
     `room_id` bigint NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_device_control_client_gpio_ble` (`client_id`, `gpio_pin`, `ble_mac_address`),
     KEY `idx_device_control_room_id` (`room_id`),
     CONSTRAINT `fk_device_control_client` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
     CONSTRAINT `fk_device_control_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)

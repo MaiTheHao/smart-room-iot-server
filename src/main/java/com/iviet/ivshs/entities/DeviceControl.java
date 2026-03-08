@@ -7,7 +7,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.CascadeType;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -21,9 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "device_control", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"client_id", "gpio_pin", "ble_mac_address"}),
-})
+@Table(name = "device_control")
 @Getter
 @Setter
 @NoArgsConstructor
