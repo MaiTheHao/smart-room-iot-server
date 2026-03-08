@@ -514,7 +514,7 @@ Table "rule" {
   "room_id" bigint [not null]
   "target_device_id" bigint [not null]
   "target_device_category" varchar(256) [not null, note: 'Enum: AIR_CONDITION, LIGHT']
-  "action_params" json [default: NULL]
+  "action_params" text [default: NULL]
 
   Indexes {
     room_id [name: "idx_rule_room"]
@@ -532,7 +532,7 @@ Table "rule_condition" {
   "rule_id" bigint [not null]
   "sort_order" int [not null]
   "data_source" varchar(256) [not null, note: 'Enum: SYSTEM, ROOM, DEVICE, SENSOR']
-  "resource_param" json [default: NULL, note: 'JSON: { "deviceId": 1, "category": "FAN", "property": "level" }']
+  "resource_param" text [default: NULL, note: 'JSON: { "deviceId": 1, "category": "FAN", "property": "level" }']
   "operator" varchar(5) [not null]
   "value_param" varchar(256) [not null]
   "next_logic" varchar(3) [default: NULL]

@@ -137,7 +137,6 @@ public class AppConfig implements EnvironmentAware {
     private Properties createJpaProperties() {
         Properties props = new Properties();
         
-        props.put("hibernate.dialect", env.getProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect"));
         props.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto", "validate"));
         props.put("hibernate.show_sql", env.getProperty("hibernate.show_sql", "false"));
         props.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "false"));

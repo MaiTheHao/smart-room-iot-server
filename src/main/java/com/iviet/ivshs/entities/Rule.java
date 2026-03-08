@@ -51,7 +51,7 @@ public class Rule extends BaseAuditEntity {
     @Column(name = "target_device_category", nullable = false, length = 256)
     private DeviceCategory targetDeviceCategory;
 
-    @JdbcTypeCode(SqlTypes.JSON)
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
     @Column(name = "action_params")
     private JsonNode actionParams;
 

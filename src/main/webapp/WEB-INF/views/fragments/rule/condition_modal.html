@@ -258,13 +258,21 @@
                         th:text="#{rule.conditions.modal.value}"
                         >Comparison Value</label
                       >
+                      <!-- Text input: shown for numeric/string properties -->
                       <input
                         type="text"
                         class="form-control form-control-sm"
                         id="condValue"
                         th:placeholder="#{rule.conditions.modal.value.placeholder}"
-                        required
                       />
+                      <!-- Enum dropdown: shown when selected property is an enum type -->
+                      <select
+                        class="form-control form-control-sm"
+                        id="condValueEnum"
+                        style="display: none"
+                      >
+                        <option value="" disabled selected>Select value</option>
+                      </select>
                     </div>
                   </div>
                   <div class="col-md-4">

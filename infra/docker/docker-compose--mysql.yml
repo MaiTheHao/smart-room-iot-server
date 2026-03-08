@@ -1,0 +1,33 @@
+name: iuhsmrc-compose--mysql
+services:
+  mysql-iot:
+    image: mysql:8.3.0
+    container_name: iuhsmrc-mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: smart_room_iot
+      MYSQL_ROOT_PASSWORD: 'root'
+      TZ: Asia/Ho_Chi_Minh
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    ports:
+      - '3306:3306'
+    restart: always
+    volumes:
+      - ../../local/mysql_data:/var/lib/mysql
+      # Khởi tạo tables trong DB
+      - ../scripts/sql/init_table.sql:/docker-entrypoint-initdb.d/01-init_tables.sql:ro
+      # Khởi tạo data trong DB
+      - ../scripts/sql/init_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql:ro
+    networks:
+      - default
+
+networks:
+  default:
+    name: iuhsmrc-network--mysql

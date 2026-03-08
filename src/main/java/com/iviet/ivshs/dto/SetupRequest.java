@@ -45,7 +45,8 @@ public class SetupRequest {
 
             @JsonSetter(nulls = Nulls.AS_EMPTY)
             private DeviceCategory category;
-            
+            private String specificType;
+
             private DeviceControlType controlType;
             private Integer gpioPin;
             private String bleMac;
@@ -56,9 +57,6 @@ public class SetupRequest {
             @JsonProperty("isActive")
             @Builder.Default
             private boolean isActive = true;
-
-            @JsonSetter(nulls = Nulls.AS_EMPTY)
-            private FanType fanType;
 
             @Data
             @Builder

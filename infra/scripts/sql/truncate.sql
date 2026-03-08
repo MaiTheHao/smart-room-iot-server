@@ -50,6 +50,10 @@ TRUNCATE TABLE `light`;
 
 TRUNCATE TABLE `light_lan`;
 
+TRUNCATE TABLE `fan`;
+
+TRUNCATE TABLE `fan_lan`;
+
 TRUNCATE TABLE `temperature`;
 
 TRUNCATE TABLE `temperature_lan`;
@@ -68,6 +72,10 @@ TRUNCATE TABLE `power_consumption_value`;
 TRUNCATE TABLE `automation`;
 
 TRUNCATE TABLE `automation_action`;
+
+TRUNCATE TABLE `rule`;
+
+TRUNCATE TABLE `rule_condition`;
 
 -- ----------------------------
 -- Module: Quartz Scheduler

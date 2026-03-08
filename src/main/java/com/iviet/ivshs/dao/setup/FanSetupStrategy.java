@@ -28,7 +28,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         Room room,
         DeviceControl deviceControl
     ) {
-        FanType fanType = device.getFanType();
+        FanType fanType = FanType.fromString(device.getSpecificType());
 
         if (fanType == null) {
             log.warn("[SETUP:FAN] fanType is null for naturalId={}, defaulting to GPIO", device.getNaturalId());

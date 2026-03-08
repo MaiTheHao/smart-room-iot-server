@@ -1,4 +1,40 @@
 class ConditionManager {
+  static PROPERTY_META = {
+    FAN: {
+      power: { type: 'enum', values: ['ON', 'OFF'] },
+      mode: { type: 'enum', values: ['NORMAL', 'SLEEP', 'NATURAL'] },
+      speed: { type: 'number' },
+      swing: { type: 'enum', values: ['ON', 'OFF'] },
+      light: { type: 'enum', values: ['ON', 'OFF'] },
+    },
+    AIR_CONDITION: {
+      power: { type: 'enum', values: ['ON', 'OFF'] },
+      temp: { type: 'number' },
+      mode: { type: 'enum', values: ['COOL', 'HEAT', 'DRY', 'FAN', 'AUTO'] },
+      fan_speed: { type: 'number' },
+      swing: { type: 'enum', values: ['ON', 'OFF'] },
+    },
+    LIGHT: {
+      power: { type: 'enum', values: ['ON', 'OFF'] },
+      level: { type: 'number' },
+    },
+    TEMPERATURE: {
+      temperature: { type: 'number' },
+    },
+    POWER_CONSUMPTION: {
+      watt: { type: 'number' },
+    },
+    SYSTEM: {
+      current_time: { type: 'number' },
+      day_of_week: { type: 'number' },
+      day_of_month: { type: 'number' },
+    },
+    ROOM: {
+      avg_temperature: { type: 'number' },
+      sum_watt: { type: 'number' },
+    },
+  };
+
   static init(ruleData) {
     if (typeof window === 'undefined')
       throw new Error('ConditionManager can only be initialized in a browser environment');
@@ -11,7 +47,6 @@ class ConditionManager {
     this.ruleData = ruleData;
     this.ruleId = ruleData.id;
 
-    // Clone conditions with local IDs
     let counter = 1;
     this.conditions = (ruleData.conditions || []).map((c) => ({
       ...c,
@@ -26,7 +61,6 @@ class ConditionManager {
     this.bindEvents();
   }
 
-  // ===== Dirty tracking =====
   static markDirty() {
     this.isDirty = true;
     $('#dirtyBadge').addClass('visible');
@@ -37,9 +71,7 @@ class ConditionManager {
     $('#dirtyBadge').removeClass('visible');
   }
 
-  // ===== Table Rendering =====
   static renderTable() {
-    // Always render sorted by sortOrder
     this.conditions.sort((a, b) => a.sortOrder - b.sortOrder);
 
     const $tbody = $('#conditionsTableBody');
@@ -89,7 +121,6 @@ class ConditionManager {
       $tbody.append($row);
     });
 
-    // Bind sortOrder input change
     $tbody.find('.order-input').on('change', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       const newValue = parseInt(e.currentTarget.value);
@@ -133,16 +164,9 @@ class ConditionManager {
       .replace(/"/g, '&quot;');
   }
 
-  // ===== Sort Order Input reorder =====
-  /**
-   * Free-value algorithm:
-   *   Chỉ gán thẳng sortOrder mới cho item được chỉnh — các item khác giữ nguyên.
-   *   Sau đó sort mảng theo sortOrder để re-render đúng thứ tự.
-   *   Ví dụ: [1, 2, 3] → đổi item #2 thành 55 → [1, 3, 55] (item #3 lên vị trí 2 về mặt hiển thị)
-   */
   static handleSortOrderInput(localId, newOrder) {
     if (isNaN(newOrder) || newOrder < 0) {
-      this.renderTable(); // reset display về giá trị cũ
+      this.renderTable();
       return;
     }
 
@@ -156,7 +180,46 @@ class ConditionManager {
     this.markDirty();
   }
 
-  // ===== Event Bindings =====
+  static getPropertyMeta(category, property) {
+    return (this.PROPERTY_META[category] || {})[property] || { type: 'string' };
+  }
+
+  static updateOperatorAndValueByProperty(category, property) {
+    const meta = this.getPropertyMeta(category, property);
+    const $operatorSelect = $('#condOperatorSelect');
+    const $valueInput = $('#condValue');
+    const $valueEnum = $('#condValueEnum');
+    const ENUM_OPERATORS = ['=', '!='];
+
+    if (meta.type === 'enum') {
+      $operatorSelect.find('option[value]').each(function () {
+        if (!ENUM_OPERATORS.includes($(this).val())) {
+          $(this).prop('disabled', true).hide();
+        } else {
+          $(this).prop('disabled', false).show();
+        }
+      });
+      if (!ENUM_OPERATORS.includes($operatorSelect.val())) {
+        $operatorSelect.val('=');
+      }
+
+      $valueInput.hide().val('');
+      $valueEnum.show().empty().append('<option value="" disabled selected>Select value</option>');
+      (meta.values || []).forEach((v) => $valueEnum.append(`<option value="${v}">${v}</option>`));
+    } else {
+      $operatorSelect.find('option[value]').prop('disabled', false).show();
+
+      $valueEnum.hide().val('');
+      $valueInput.show();
+    }
+  }
+
+  static getCondValue() {
+    const $valueEnum = $('#condValueEnum');
+    if ($valueEnum.is(':visible')) return $valueEnum.val() || '';
+    return $('#condValue').val()?.trim() || '';
+  }
+
   static bindEvents() {
     $('#btnAddCondition, #btnAddConditionEmpty').on('click', () => this.openConditionModal());
     $('#btnSaveCondition').on('click', () => this.handleModalSave());
@@ -176,6 +239,7 @@ class ConditionManager {
     $('#condCategorySelect').on('change', (e) => {
       this.updateCondPropertyOptions(e.target.value, $('#condDataSourceSelect').val());
       this.resetCondDeviceSelection();
+      this.updateOperatorAndValueByProperty('', '');
       if ($('#condFloorSelect option').length <= 1) {
         this.loadCondFloors();
       } else {
@@ -186,21 +250,33 @@ class ConditionManager {
     $('#condRoomSelect').on('change', (e) => {
       this.loadCondDevices(e.target.value, $('#condDataSourceSelect').val());
     });
+
+    $('#condPropertySelect').on('change', (e) => {
+      const category = $('#condCategorySelect').val();
+      this.updateOperatorAndValueByProperty(category, e.target.value);
+    });
+
+    $('#condSystemProperty').on('change', (e) => {
+      this.updateOperatorAndValueByProperty('SYSTEM', e.target.value);
+    });
+
+    $('#condRoomProperty').on('change', (e) => {
+      this.updateOperatorAndValueByProperty('ROOM', e.target.value);
+    });
   }
 
-  // ===== Condition Modal =====
   static async openConditionModal(localId = null) {
     const isEdit = localId !== null;
     $('#conditionForm')[0].reset();
     $('#conditionLocalId').val('');
 
-    // Hide all sections
     $('#condSectionSystem, #condSectionRoom, #condSectionDeviceSensor').hide();
 
     if (!isEdit) {
       $('#conditionModalTitleText').text('Add Condition');
       $('#condDataSourceSelect').val('');
       $('#condNextLogicSelect').val('AND');
+      this.updateOperatorAndValueByProperty('', '');
     } else {
       const c = this.conditions.find((x) => x._localId === localId);
       if (!c) return;
@@ -209,31 +285,37 @@ class ConditionManager {
       $('#conditionLocalId').val(localId);
       $('#condDataSourceSelect').val(c.dataSource);
       $('#condOperatorSelect').val(c.operator);
-      $('#condValue').val(c.value);
       $('#condNextLogicSelect').val(c.nextLogic || 'AND');
 
-      // Trigger section display
       this.handleDataSourceChange(c.dataSource);
 
       const rp = c.resourceParam || {};
       if (c.dataSource === 'SYSTEM') {
         $('#condSystemProperty').val(rp.property || '');
+        this.updateOperatorAndValueByProperty('SYSTEM', rp.property || '');
+        $('#condValue').val(c.value);
       } else if (c.dataSource === 'ROOM') {
         $('#condRoomProperty').val(rp.property || '');
+        this.updateOperatorAndValueByProperty('ROOM', rp.property || '');
+        $('#condValue').val(c.value);
       } else if (c.dataSource === 'DEVICE' || c.dataSource === 'SENSOR') {
-        // Populate category, property
         const category = rp.category || '';
         $('#condCategorySelect').val(category);
         this.updateCondPropertyOptions(category, c.dataSource);
         $('#condPropertySelect').val(rp.property || '');
+        this.updateOperatorAndValueByProperty(category, rp.property || '');
+        const propMeta = this.getPropertyMeta(category, rp.property || '');
+        if (propMeta.type === 'enum') {
+          $('#condValueEnum').val(c.value);
+        } else {
+          $('#condValue').val(c.value);
+        }
 
-        // Load floors for re-selection
         if ($('#condFloorSelect option').length <= 1) {
           await this.loadCondFloors();
         }
         $('#condFloorSelect').prop('disabled', false);
 
-        // Show device ID hint
         const idKey = c.dataSource === 'SENSOR' ? 'sensorId' : 'deviceId';
         const deviceId = rp[idKey];
         if (deviceId) {
@@ -274,7 +356,6 @@ class ConditionManager {
     } else if (dataSource === 'DEVICE' || dataSource === 'SENSOR') {
       $('#condSectionDeviceSensor').show();
 
-      // Filter category options by dataSource
       $('#condCategorySelect option[value]').each(function () {
         const forAttr = $(this).data('for') || '';
         $(this).toggle(forAttr.includes(dataSource));
@@ -322,7 +403,7 @@ class ConditionManager {
       floors.forEach((f) => $select.append(`<option value="${f.id}">${f.name}</option>`));
       $select.prop('disabled', false);
     } catch (error) {
-      console.error('[ConditionManager] loadCondFloors error:', error);
+      console.error(error);
       notify.error('Failed to load floors');
     }
   }
@@ -342,7 +423,7 @@ class ConditionManager {
         .prop('disabled', true)
         .html('<option value="" disabled selected>Select device/sensor</option>');
     } catch (error) {
-      console.error('[ConditionManager] loadCondRooms error:', error);
+      console.error(error);
       notify.error('Failed to load rooms');
       $('#condRoomSelect')
         .prop('disabled', false)
@@ -370,7 +451,7 @@ class ConditionManager {
       }
       $select.prop('disabled', false);
     } catch (error) {
-      console.error('[ConditionManager] loadCondDevices error:', error);
+      console.error(error);
       notify.error('Failed to load devices');
       $('#condDeviceSelect')
         .prop('disabled', false)
@@ -378,15 +459,13 @@ class ConditionManager {
     }
   }
 
-  // ===== Modal Save =====
   static handleModalSave() {
     const localId = $('#conditionLocalId').val() ? parseInt($('#conditionLocalId').val()) : null;
     const dataSource = $('#condDataSourceSelect').val();
     const operator = $('#condOperatorSelect').val();
-    const value = $('#condValue').val()?.trim();
+    const value = this.getCondValue();
     const nextLogic = $('#condNextLogicSelect').val();
 
-    // Validation
     if (!dataSource) {
       notify.warning('Please select a data source');
       return;
@@ -400,13 +479,11 @@ class ConditionManager {
       return;
     }
 
-    // Build resourceParam
     const resourceParam = this.buildResourceParam(dataSource);
-    if (!resourceParam) return; // validation failed inside
+    if (!resourceParam) return;
 
     const isEdit = localId !== null;
     if (isEdit) {
-      // Update existing condition in state
       const c = this.conditions.find((x) => x._localId === localId);
       if (!c) return;
       c.dataSource = dataSource;
@@ -415,7 +492,6 @@ class ConditionManager {
       c.value = value;
       c.nextLogic = nextLogic;
     } else {
-      // Add new condition
       const maxOrder = this.conditions.reduce((m, c) => Math.max(m, c.sortOrder || 0), 0);
       const newCondition = {
         dataSource,
@@ -467,12 +543,10 @@ class ConditionManager {
         return null;
       }
 
-      // If no device selected, check if editing and keep existing
       const localId = $('#conditionLocalId').val() ? parseInt($('#conditionLocalId').val()) : null;
       let deviceId = deviceSelect ? parseInt(deviceSelect) : null;
 
       if (!deviceId && localId !== null) {
-        // Keep existing device ID from current condition
         const existing = this.conditions.find((c) => c._localId === localId);
         if (existing) {
           const rp = existing.resourceParam || {};
@@ -497,7 +571,6 @@ class ConditionManager {
     return {};
   }
 
-  // ===== Delete Condition =====
   static async handleDeleteCondition(localId) {
     if (!(await notify.confirm('Delete Condition', 'Remove this condition?'))) return;
     this.conditions = this.conditions.filter((c) => c._localId !== localId);
@@ -505,7 +578,6 @@ class ConditionManager {
     this.markDirty();
   }
 
-  // ===== Save All (PUT full rule) =====
   static async handleSaveAll() {
     if (
       !(await notify.confirm(
@@ -520,9 +592,7 @@ class ConditionManager {
     try {
       $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
 
-      // Only send conditions — API now accepts partial update (other fields unchanged)
       const conditionsPayload = this.conditions.map((c, index) => {
-        // resourceParam must be a plain object (JsonNode on BE) — never stringify
         const resourceParam =
           typeof c.resourceParam === 'string' ? JSON.parse(c.resourceParam) : c.resourceParam || {};
 
@@ -534,7 +604,6 @@ class ConditionManager {
           value: String(c.value),
           nextLogic: c.nextLogic || 'AND',
         };
-        // Include DB id only if condition already exists on server
         if (c.id) item.id = c.id;
         return item;
       });
@@ -542,7 +611,6 @@ class ConditionManager {
       await this.ruleService.update(this.ruleId, { conditions: conditionsPayload });
       notify.success('Conditions saved successfully');
 
-      // Refresh to sync server IDs onto new conditions
       const refreshed = await this.ruleService.getById(this.ruleId);
       if (refreshed?.data) {
         let counter = 1;
@@ -564,7 +632,7 @@ class ConditionManager {
     } catch (error) {
       const msg = error.responseJSON?.message || error.message || 'Unknown error';
       notify.error('Failed to save: ' + msg);
-      console.error('[ConditionManager] handleSaveAll error:', error);
+      console.error(error);
     } finally {
       $btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save All Changes');
     }

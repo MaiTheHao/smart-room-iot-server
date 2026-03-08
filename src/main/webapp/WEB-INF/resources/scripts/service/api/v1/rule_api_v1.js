@@ -59,7 +59,7 @@ class RuleApiV1Service {
   async patchStatus(id, isActive) {
     try {
       const url = this.api.STATUS(id);
-      return await window.http.patch(url, null, { params: { isActive } });
+      return await window.http.patch(url, { isActive });
     } catch (error) {
       this.#handleError(`patch status rule ${id}`, error);
     }

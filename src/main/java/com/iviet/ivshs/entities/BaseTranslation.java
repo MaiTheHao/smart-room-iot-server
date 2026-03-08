@@ -2,6 +2,9 @@ package com.iviet.ivshs.entities;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -20,7 +23,8 @@ public abstract class BaseTranslation<T extends BaseTranslatableEntity<?>> exten
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "description")
     private String description;
 
     @Column(name = "lang_code", length = 10, nullable = false) 

@@ -149,6 +149,8 @@ const SMRC_TYPES = {
   },
 };
 
+const SMRC_DEVICES = {};
+
 if (typeof window !== 'undefined') {
   window.SMRC_API_V1 = SMRC_API_V1;
   window.SMRC_TYPES = SMRC_TYPES;

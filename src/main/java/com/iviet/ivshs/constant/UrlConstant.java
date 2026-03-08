@@ -10,7 +10,7 @@ import java.net.URI;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UrlConstant {
 
-    private static final int DEFAULT_PORT = 8080;
+    private static final int DEFAULT_PORT = 9090;
     private static final String SCHEME = "http";
     private static final String API_V1 = "/api/v1";
     private static final String API_V2 = "/api/v2";

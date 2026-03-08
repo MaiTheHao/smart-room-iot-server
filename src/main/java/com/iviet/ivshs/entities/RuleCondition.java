@@ -38,8 +38,8 @@ public class RuleCondition extends BaseAuditEntity {
     @Column(name = "data_source", nullable = false, length = 256)
     private RuleDataSource dataSource;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "resource_param", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "resource_param")
     private JsonNode resourceParam; // JSON: { "deviceId": 1, "category": "FAN", "property": "level" }
 
     @Column(name = "operator", nullable = false, length = 5)
