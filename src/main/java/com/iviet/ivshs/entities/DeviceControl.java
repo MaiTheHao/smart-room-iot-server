@@ -8,6 +8,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.CascadeType;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -48,14 +49,20 @@ public class DeviceControl extends BaseAuditEntity {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Light light;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Temperature temperature;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private PowerConsumption powerConsumption;
+
+    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Fan fan;
+
+    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private AirCondition airCondition;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
