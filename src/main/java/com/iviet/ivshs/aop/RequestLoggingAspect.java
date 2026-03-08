@@ -1,9 +1,7 @@
 package com.iviet.ivshs.aop;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,135 +25,82 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class RequestLoggingAspect {
 
-    private static final Logger log = LogManager.getLogger(RequestLoggingAspect.class);
-    
-    private static final String LOG_TYPE_REST = "REST";
-    private static final String LOG_TYPE_VIEW = "VIEW";
+  private static final Logger log = LogManager.getLogger(RequestLoggingAspect.class);
+  private static final String LOG_TYPE_REST = "REST";
+  private static final String LOG_TYPE_VIEW = "VIEW";
 
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter
-            .ofPattern("dd/MM/yy - HH:mm:ss")
-            .withZone(ZoneId.systemDefault());
+  @Pointcut("within(com.iviet.ivshs.controller.api..*)")
+  public void restfulControllerMethods() {
+  }
 
-    @Pointcut("within(com.iviet.ivshs.controller.api..*)")
-    public void restfulControllerMethods() {
+  @Pointcut("within(com.iviet.ivshs.controller.view..*)")
+  public void viewControllerMethods() {
+  }
+
+  @Around("restfulControllerMethods()")
+  public Object logAroundRest(ProceedingJoinPoint joinPoint) throws Throwable {
+    return logRequestAndProceed(joinPoint, LOG_TYPE_REST);
+  }
+
+  @Around("viewControllerMethods()")
+  public Object logAroundView(ProceedingJoinPoint joinPoint) throws Throwable {
+    return logRequestAndProceed(joinPoint, LOG_TYPE_VIEW);
+  }
+
+  private Object logRequestAndProceed(ProceedingJoinPoint joinPoint, String logType) throws Throwable {
+    String requestId = UUID.randomUUID().toString().substring(0, 8);
+    ThreadContext.put("requestId", requestId);
+    ThreadContext.put("logType", logType);
+
+    Instant start = Instant.now();
+    ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+    if (attributes == null) {
+      return joinPoint.proceed();
     }
 
-    @Pointcut("within(com.iviet.ivshs.controller.view..*)")
-    public void viewControllerMethods() {
+    HttpServletRequest request = attributes.getRequest();
+    String method = joinPoint.getSignature().toShortString();
+
+    log.info(">>> [{}] START | ID: {} | Method: {} | URI: {} | Remote: {}",
+        logType, requestId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
+
+		log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}", 
+				logType, getHeadersInfo(request), request.getParameterMap());
+
+    Object result = null;
+    try {
+      result = joinPoint.proceed();
+    } catch (Throwable throwable) {
+      log.error("[{}] FAILED | ID: {} | Error: {}", logType, requestId, throwable.getMessage());
+      throw throwable;
+    } finally {
+      long duration = Duration.between(start, Instant.now()).toMillis();
+      Integer status = getResponseStatus(attributes);
+
+      log.info("<<< [{}] END | ID: {} | Status: {} | Duration: {}ms | Target: {}",
+          logType, requestId, status, duration, method);
+
+      if (log.isDebugEnabled()) {
+        log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, result);
+      }
+      ThreadContext.clearAll();
     }
+    return result;
+  }
 
-    @Around("restfulControllerMethods()")
-    public Object logAroundRest(ProceedingJoinPoint joinPoint) throws Throwable {
-        return logRequestAndProceed(joinPoint, LOG_TYPE_REST);
+  private Integer getResponseStatus(ServletRequestAttributes attributes) {
+    HttpServletResponse response = attributes.getResponse();
+    return (response != null) ? response.getStatus() : null;
+  }
+
+  private Map<String, String> getHeadersInfo(HttpServletRequest request) {
+    Map<String, String> headers = new HashMap<>();
+    Enumeration<String> headerNames = request.getHeaderNames();
+    while (headerNames != null && headerNames.hasMoreElements()) {
+      String name = headerNames.nextElement();
+      headers.put(name, request.getHeader(name));
     }
-
-    @Around("viewControllerMethods()")
-    public Object logAroundView(ProceedingJoinPoint joinPoint) throws Throwable {
-        return logRequestAndProceed(joinPoint, LOG_TYPE_VIEW);
-    }
-
-    private Object logRequestAndProceed(ProceedingJoinPoint joinPoint, String logType) throws Throwable {
-        String requestId = UUID.randomUUID().toString();
-        ThreadContext.put("requestId", requestId);
-        ThreadContext.put("logType", logType);
-        
-        try {
-            Instant startTime = Instant.now();
-            
-            if (RequestContextHolder.getRequestAttributes() == null) {
-                return joinPoint.proceed();
-            }
-            
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            
-            String className = joinPoint.getSignature().getDeclaringTypeName();
-            String methodName = joinPoint.getSignature().getName();
-            String formattedTime = TIME_FORMATTER.format(startTime);
-            String prefix = "[" + logType + "]";
-
-            log.info("\n========================= Start of {} Request ========================", logType);
-
-            log.info(String.format(
-                    "\n%s REQUEST\n" +
-                    "* Class.Method : %s.%s\n" +
-                    "* URL          : %s\n" +
-                    "* HTTP Method  : %s\n" +
-                    "* Start Time   : %s",
-                    prefix,
-                    className,
-                    methodName,
-                    request.getRequestURL(),
-                    request.getMethod(),
-                    formattedTime
-            ));
-
-            if (log.isDebugEnabled()) {
-                log.debug(String.format(
-                        "\n%s Request Details:\n" +
-                        "* Headers : %s\n" +
-                        "* Params  : %s",
-                        prefix,
-                        getHeadersInfo(request),
-                        request.getParameterMap()
-                ));
-            }
-
-            Object result = joinPoint.proceed();
-
-            long duration = Instant.now().toEpochMilli() - startTime.toEpochMilli();
-            Integer status = getResponseStatus();
-
-            log.info(String.format(
-                    "\n%s RESPONSE\n" +
-                    "* Class.Method : %s.%s\n" +
-                    "* Status       : %s\n" +
-                    "* Duration     : %s ms",
-                    prefix,
-                    className,
-                    methodName,
-                    status != null ? status : "unknown",
-                    duration
-            ));
-
-            if (log.isDebugEnabled()) {
-                if (LOG_TYPE_REST.equals(logType)) {
-                    log.debug("\n{} Response Body: {}", prefix, result);
-                } else {
-                    log.debug("\n{} Response (View Name / Model): {}", prefix, result);
-                }
-            }
-
-            log.info("\n========================== End of {} Request =========================\n", logType);
-
-            return result;
-        } finally {
-            ThreadContext.clearAll();
-        }
-    }
-
-    private Integer getResponseStatus() {
-        try {
-            if (RequestContextHolder.getRequestAttributes() == null) {
-                return null;
-            }
-            HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
-            return (response != null) ? response.getStatus() : null;
-        } catch (Exception e) {
-            log.warn("Can't get HTTP response status. {}", e.getMessage());
-            return null;
-        }
-    }
-    
-    private Map<String, String> getHeadersInfo(HttpServletRequest request) {
-        if (request == null) {
-            return Collections.emptyMap();
-        }
-        Map<String, String> headers = new HashMap<>();
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            headers.put(headerName, request.getHeader(headerName));
-        }
-        return headers;
-    }
+    return headers;
+  }
 }

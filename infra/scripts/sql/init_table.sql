@@ -513,20 +513,6 @@ CREATE TABLE
   ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
 
 CREATE TABLE
-  `sys_client_function_cache` (
-    `client_id` bigint NOT NULL,
-    `function_code` varchar(100) NOT NULL,
-    `group_id` bigint NOT NULL,
-    PRIMARY KEY (`client_id`, `function_code`, `group_id`),
-    KEY `idx_cache_client_function` (`client_id`, `function_code`),
-    KEY `idx_cache_client` (`client_id`),
-    KEY `idx_cache_group` (`group_id`),
-    KEY `idx_cache_function` (`function_code`),
-    CONSTRAINT `fk_cache_sys_group` FOREIGN KEY (`group_id`) REFERENCES `sys_group` (`id`),
-    CONSTRAINT `fk_cache_client` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`)
-  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE
   `sys_function` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `created_at` datetime(6) DEFAULT NULL,

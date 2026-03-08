@@ -12,43 +12,55 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.iviet.ivshs.dao.ClientDao;
-import com.iviet.ivshs.dao.SysClientFunctionCacheDao;
+import com.iviet.ivshs.dao.SysFunctionDao;
 import com.iviet.ivshs.dto.CustomUserDetails;
 import com.iviet.ivshs.entities.Client;
 
-@Slf4j(topic = "USER_DETAILS_SERVICE")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final ClientDao clientDao;
-    private final SysClientFunctionCacheDao clientFunctionCacheDao;
+  private final ClientDao clientDao;
+  private final SysFunctionDao functionDao;
 
-    @Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        String cleanUsername = username != null ? username.trim() : null;
-        if (cleanUsername == null || cleanUsername.isEmpty()) {
-            throw new UsernameNotFoundException("Username cannot be null or empty");
-        }
-
-        Client client = clientDao.findByUsername(cleanUsername)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + cleanUsername));
-
-        return buildUserDetails(client);
+  @Override
+  @Transactional(readOnly = true)
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    if (!StringUtils.hasText(username)) {
+      log.warn("Authentication failed: Attempted login with empty username");
+      throw new UsernameNotFoundException("Username cannot be null or empty");
     }
 
-    private CustomUserDetails buildUserDetails(Client client) {
-        List<String> functionCodes = clientFunctionCacheDao.getFunctionCodesByClient(client.getId());
+    String cleanUsername = username.trim();
+    log.trace("Searching for user: {}", cleanUsername);
 
-        Set<SimpleGrantedAuthority> authorities = functionCodes.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+    Client client = clientDao.findByUsername(cleanUsername)
+        .orElseGet(() -> {
+          log.warn("Authentication failed: User [{}] not found", cleanUsername);
+          throw new UsernameNotFoundException("User not found: " + cleanUsername);
+        });
 
-        log.info("Authenticated: {} [ID: {}] - Permissions: {}", client.getUsername(), client.getId(), authorities.size());
+    return buildUserDetails(client);
+  }
 
-        return new CustomUserDetails(client, authorities);
-    }
+  private CustomUserDetails buildUserDetails(Client client) {
+    List<String> functionCodes = functionDao.findAllByClientId(client.getId(), "null")
+        .stream()
+        .map(func -> func.functionCode())
+        .collect(Collectors.toList());
+
+    Set<SimpleGrantedAuthority> authorities = functionCodes.stream()
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toSet());
+
+    log.info("User authenticated: ID={}, Username={}, AuthoritiesCount={}", 
+        client.getId(), client.getUsername(), authorities.size());
+    log.debug("Granting authorities to [{}]: {}", client.getUsername(), functionCodes);
+
+    return new CustomUserDetails(client, authorities);
+  }
 }

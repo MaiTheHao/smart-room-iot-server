@@ -7,48 +7,43 @@ import java.util.List;
 
 public interface SysGroupService {
 
-    PaginatedResponse<SysGroupDto> getList(int page, int size);
+  List<SysGroupDto> getAll();
 
-    List<SysGroupDto> getAll();
+  PaginatedResponse<SysGroupDto> getList(int page, int size);
 
-    SysGroupDto getById(Long id);
+  SysGroupDto getById(Long id);
 
-    SysGroupDto getByCode(String groupCode);
+  SysGroupDto getByCode(String groupCode);
 
-    SysGroupDto create(CreateSysGroupDto dto);
+  List<SysGroupDto> getAllByClientId(Long clientId);
 
-    SysGroupDto update(Long id, UpdateSysGroupDto dto);
+  PaginatedResponse<SysGroupDto> getListByClientId(Long clientId, int page, int size);
 
-    void delete(Long id);
+  List<SysGroup> getAllGroupsByClientId(Long clientId);
 
-    long count();
+  PaginatedResponse<SysGroup> getListGroupsByClientId(Long clientId, int page, int size);
 
-    List<SysGroupDto> getAllByClientId(Long clientId);
+  List<SysFunctionDto> getAllFunctionsByGroupId(Long groupId);
 
-    PaginatedResponse<SysGroupDto> getAllByClientId(Long clientId, int page, int size);
+  PaginatedResponse<SysFunctionDto> getListFunctionsByGroupId(Long groupId, int page, int size);
 
-    List<SysGroup> getEntitiesByClientId(Long clientId);
-    
-    PaginatedResponse<SysGroup> getEntitiesByClientId(Long clientId, int page, int size);
+  List<ClientDto> getAllClientsByGroupId(Long groupId);
 
-    List<SysFunctionDto> getFunctionsByGroupId(Long groupId);
+  PaginatedResponse<ClientDto> getListClientsByGroupId(Long groupId, int page, int size);
 
-    PaginatedResponse<SysFunctionDto> getFunctionsByGroupId(Long groupId, int page, int size);
+  List<SysGroupWithClientStatusDto> getAllWithClientStatus(Long clientId);
 
-    long countFunctionsByGroupId(Long groupId);
+  SysGroupDto create(CreateSysGroupDto dto);
 
-    List<ClientDto> getClientsByGroupId(Long groupId);
+  SysGroupDto update(Long id, UpdateSysGroupDto dto);
 
-    PaginatedResponse<ClientDto> getClientsByGroupId(Long groupId, int page, int size);
+  void delete(Long id);
 
-    long countClientsByGroupId(Long groupId);
+  long count();
 
-    long countByClient(Long clientId);
+  long countByClientId(Long clientId);
 
-    /**
-     * Lấy tất cả Groups với trạng thái đã assign cho Client hay chưa
-     * @param clientId ID của Client
-     * @return List các Groups với status
-     */
-    List<SysGroupWithClientStatusDto> getAllWithClientStatus(Long clientId);
+  long countFunctionsByGroupId(Long groupId);
+
+  long countClientsByGroupId(Long groupId);
 }

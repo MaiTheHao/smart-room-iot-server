@@ -5,22 +5,34 @@ import com.iviet.ivshs.dto.*;
 import java.util.List;
 
 public interface SysFunctionService {
-    
-    PaginatedResponse<SysFunctionDto> getList(int page, int size);
 
-    List<SysFunctionDto> getAll();
+  List<SysFunctionDto> getAll();
 
-    SysFunctionDto getById(Long id);
+  PaginatedResponse<SysFunctionDto> getList(int page, int size);
 
-    SysFunctionDto getByCode(String functionCode);
+  SysFunctionDto getById(Long id);
 
-    List<SysFunctionWithGroupStatusDto> getAllWithGroupStatus(Long groupId);
+  SysFunctionDto getByCode(String functionCode);
 
-    SysFunctionDto create(CreateSysFunctionDto dto);
+  List<SysFunctionDto> getAllByGroupId(Long groupId);
 
-    SysFunctionDto update(Long id, UpdateSysFunctionDto dto);
+  PaginatedResponse<SysFunctionDto> getListByGroupId(Long groupId, int page, int size);
 
-    void delete(Long id);
+  List<SysFunctionDto> getAllByGroupCode(String groupCode);
 
-    long count();
+  PaginatedResponse<SysFunctionDto> getListByGroupCode(String groupCode, int page, int size);
+
+  List<SysFunctionDto> getAllByClientId(Long clientId);
+
+  PaginatedResponse<SysFunctionDto> getListByClientId(Long clientId, int page, int size);
+
+  List<SysFunctionWithGroupStatusDto> getAllWithGroupStatus(Long groupId);
+
+  SysFunctionDto create(CreateSysFunctionDto dto);
+
+  SysFunctionDto update(Long id, UpdateSysFunctionDto dto);
+
+  void delete(Long id);
+
+  long count();
 }

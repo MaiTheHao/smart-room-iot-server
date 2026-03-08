@@ -25,7 +25,7 @@ public class ClientController {
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
         PaginatedResponse<ClientDto> paginated = 
-            clientService.getAll(page, size);
+            clientService.getList(page, size);
         return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 
@@ -43,7 +43,7 @@ public class ClientController {
                 @RequestParam(name = "page", defaultValue = "0") int page,
                 @RequestParam(name = "size", defaultValue = "10") int size) {
         PaginatedResponse<ClientDto> paginated = 
-            clientService.getAllGatewaysByRoomId(roomId, page, size);
+            clientService.getListGatewaysByRoomId(roomId, page, size);
         return ResponseEntity.ok(ApiResponse.ok(paginated));
     }
 

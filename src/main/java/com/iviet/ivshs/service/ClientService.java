@@ -1,53 +1,52 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.entities.Client;
-
-import java.util.List;
-
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateClientDto;
+import com.iviet.ivshs.entities.Client;
+
+import java.util.List;
 
 public interface ClientService {
 
-    PaginatedResponse<ClientDto> getAll(int page, int size);
+  List<ClientDto> getAll();
 
-    List<ClientDto> getAll();
+  PaginatedResponse<ClientDto> getList(int page, int size);
 
-    List<Client> getAllEntities();
+  List<Client> getAllEntities();
 
-    Client getFromSecurityContext();
+  Client getFromSecurityContext();
 
-    ClientDto getById(Long clientId);
+  ClientDto getById(Long clientId);
 
-    Client getEntityById(Long clientId);
+  Client getEntityById(Long clientId);
 
-    ClientDto getByUsername(String username);
+  ClientDto getByUsername(String username);
 
-    Client getEntityByUsername(String username);
+  Client getEntityByUsername(String username);
 
-    ClientDto getUserById(Long userId);
+  ClientDto getUserById(Long userId);
 
-    ClientDto getGatewayById(Long gatewayId);
+  ClientDto getGatewayById(Long gatewayId);
 
-    ClientDto getUserByUsername(String username);
+  ClientDto getUserByUsername(String username);
 
-    ClientDto getUserByIpAddress(String ipAddress);
+  ClientDto getUserByIpAddress(String ipAddress);
 
-    ClientDto getGatewayByUsername(String username);
+  ClientDto getGatewayByUsername(String username);
 
-    ClientDto getGatewayByIpAddress(String ipAddress);
+  ClientDto getGatewayByIpAddress(String ipAddress);
 
-    ClientDto create(CreateClientDto createDto);
+  PaginatedResponse<ClientDto> getListGatewaysByRoomId(Long roomId, int page, int size);
 
-    ClientDto update(Long clientId, UpdateClientDto updateDto);
+  ClientDto create(CreateClientDto createDto);
 
-    void delete(Long clientId);
+  ClientDto update(Long clientId, UpdateClientDto updateDto);
 
-    PaginatedResponse<ClientDto> getAllGatewaysByRoomId(Long roomId, int page, int size);
-    
-    Long countGateWayByRoomId(Long roomId);
+  void delete(Long clientId);
 
-    boolean existsByUsername(String username);
+  long countGatewaysByRoomId(Long roomId);
+
+  boolean existsByUsername(String username);
 }

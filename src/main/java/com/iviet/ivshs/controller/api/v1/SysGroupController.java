@@ -73,7 +73,7 @@ public class SysGroupController {
     public ResponseEntity<ApiResponse<List<SysFunctionDto>>> getFunctionsByGroup(
             @PathVariable(name = "groupId") Long groupId) {
         
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getFunctionsByGroupId(groupId)));
+        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllFunctionsByGroupId(groupId)));
     }
 
     @GetMapping("/groups/{groupId}/functions")
@@ -83,7 +83,7 @@ public class SysGroupController {
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(
-            groupService.getFunctionsByGroupId(groupId, page, size)
+            groupService.getListFunctionsByGroupId(groupId, page, size)
         ));
     }
 
@@ -91,7 +91,7 @@ public class SysGroupController {
     public ResponseEntity<ApiResponse<List<ClientDto>>> getClientsByGroup(
             @PathVariable(name = "groupId") Long groupId) {
         
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getClientsByGroupId(groupId)));
+        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllClientsByGroupId(groupId)));
     }
 
     @GetMapping("/groups/{groupId}/clients")
@@ -101,7 +101,7 @@ public class SysGroupController {
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(
-            groupService.getClientsByGroupId(groupId, page, size)
+            groupService.getListClientsByGroupId(groupId, page, size)
         ));
     }
 
@@ -128,7 +128,7 @@ public class SysGroupController {
     public ResponseEntity<ApiResponse<Long>> countGroupsByClient(
             @PathVariable(name = "clientId") Long clientId) {
         
-        return ResponseEntity.ok(ApiResponse.ok(groupService.countByClient(clientId)));
+        return ResponseEntity.ok(ApiResponse.ok(groupService.countByClientId(clientId)));
     }
 
     @GetMapping("/clients/{clientId}/groups/all")
@@ -145,7 +145,7 @@ public class SysGroupController {
             @RequestParam(name = "size", defaultValue = "10") int size) {
         
         return ResponseEntity.ok(ApiResponse.ok(
-            groupService.getAllByClientId(clientId, page, size)
+            groupService.getListByClientId(clientId, page, size)
         ));
     }
 

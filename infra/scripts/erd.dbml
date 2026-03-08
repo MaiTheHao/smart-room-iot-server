@@ -542,20 +542,6 @@ Table "rule_condition" {
   }
 }
 
-Table "sys_client_function_cache" {
-  "client_id" bigint [not null]
-  "function_code" varchar(100) [not null]
-  "group_id" bigint [not null]
-
-  Indexes {
-    (client_id, function_code, group_id) [pk]
-    (client_id, function_code) [name: "idx_cache_client_function"]
-    client_id [name: "idx_cache_client"]
-    group_id [name: "idx_cache_group"]
-    function_code [name: "idx_cache_function"]
-  }
-}
-
 Table "sys_function" {
   "id" bigint [pk, not null, increment]
   "created_at" datetime(6) [default: NULL]
@@ -738,10 +724,6 @@ Ref "fk_room_lan_room":"room"."id" < "room_lan"."owner_id"
 Ref "fk_rule_room":"room"."id" < "rule"."room_id"
 
 Ref "fk_rule_condition_rule":"rule"."id" < "rule_condition"."rule_id"
-
-Ref "fk_cache_sys_group":"sys_group"."id" < "sys_client_function_cache"."group_id"
-
-Ref "fk_cache_client":"client"."id" < "sys_client_function_cache"."client_id"
 
 Ref "fk_sys_function_lan_sys_function":"sys_function"."id" < "sys_function_lan"."owner_id"
 

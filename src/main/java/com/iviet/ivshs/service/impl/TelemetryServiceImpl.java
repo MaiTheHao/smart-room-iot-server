@@ -71,7 +71,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 
     @Override
     public void takeByRoom(Long roomId) {
-        List<ClientDto> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
+        List<ClientDto> gateways = clientService.getListGatewaysByRoomId(roomId, 0, 1000).content();
         if (gateways == null || gateways.isEmpty()) return;
 
         long start = System.currentTimeMillis();
@@ -99,7 +99,7 @@ public class TelemetryServiceImpl implements TelemetryService {
     public void takeByRoom(String roomCode) {
         if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
         Long roomId = roomService.getEntityByCode(roomCode).getId();
-        List<ClientDto> gateways = clientService.getAllGatewaysByRoomId(roomId, 0, 1000).content();
+        List<ClientDto> gateways = clientService.getListGatewaysByRoomId(roomId, 0, 1000).content();
         if (gateways == null || gateways.isEmpty()) return;
 
         long start = System.currentTimeMillis();

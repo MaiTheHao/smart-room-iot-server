@@ -11,7 +11,6 @@ import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.entities.SysRole;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.service.ClientFunctionService;
 import com.iviet.ivshs.service.SysRoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,6 @@ public class SysRoleServiceImpl implements SysRoleService {
     private final SysGroupDao groupDao;
     private final SysFunctionDao functionDao;
     private final ClientDao clientDao;
-    private final ClientFunctionService cacheService;
 
     @Override
     public BatchOperationResultDto addFunctionsToGroup(BatchAddFunctionsToGroupDto dto) {
@@ -46,7 +44,6 @@ public class SysRoleServiceImpl implements SysRoleService {
         int successCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
-        boolean hasChanges = false;
 
         for (String functionCode : dto.getFunctionCodes()) {
             try {
@@ -64,17 +61,12 @@ public class SysRoleServiceImpl implements SysRoleService {
                 
                 roleDao.save(role);
                 successCount++;
-                hasChanges = true;
 
             } catch (Exception e) {
                 String errorMsg = String.format("Failed to add function %s: %s", functionCode, e.getMessage());
                 errors.add(errorMsg);
                 log.error("Error adding function {} to group {}", functionCode, group.getId(), e);
             }
-        }
-
-        if (hasChanges) {
-            cacheService.rebuildCacheForGroup(group.getId());
         }
 
         return buildBatchResult(successCount, skippedCount, errors, "added");
@@ -93,7 +85,6 @@ public class SysRoleServiceImpl implements SysRoleService {
         int successCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
-        boolean hasChanges = false;
 
         for (String functionCode : dto.getFunctionCodes()) {
             try {
@@ -104,7 +95,6 @@ public class SysRoleServiceImpl implements SysRoleService {
                 
                 if (deleted > 0) {
                     successCount++;
-                    hasChanges = true;
                 } else {
                     skippedCount++;
                 }
@@ -114,11 +104,6 @@ public class SysRoleServiceImpl implements SysRoleService {
                 errors.add(errorMsg);
                 log.error("Error removing function {} from group {}", functionCode, dto.getGroupId(), e);
             }
-        }
-
-        if (hasChanges) {
-            cacheService.clearCacheForGroup(dto.getGroupId());
-            cacheService.rebuildCacheForGroup(dto.getGroupId());
         }
 
         return buildBatchResult(successCount, skippedCount, errors, "removed");
@@ -136,7 +121,6 @@ public class SysRoleServiceImpl implements SysRoleService {
         int processedCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
-        boolean hasChanges = false;
 
         for (Map.Entry<String, Boolean> entry : dto.getFunctionToggles().entrySet()) {
             String functionCode = entry.getKey();
@@ -154,7 +138,6 @@ public class SysRoleServiceImpl implements SysRoleService {
                         role.setGroup(group);
                         role.setFunction(function);
                         roleDao.save(role);
-                        hasChanges = true;
                         processedCount++;
                     } else {
                         skippedCount++;
@@ -162,7 +145,6 @@ public class SysRoleServiceImpl implements SysRoleService {
                 } else {
                     if (exists) {
                         roleDao.deleteByGroupAndFunction(group.getId(), function.getId());
-                        hasChanges = true;
                         processedCount++;
                     } else {
                         skippedCount++;
@@ -174,11 +156,6 @@ public class SysRoleServiceImpl implements SysRoleService {
                 errors.add(errorMsg);
                 log.error("Error toggling function {} for group {}", functionCode, group.getId(), e);
             }
-        }
-
-        if (hasChanges) {
-            cacheService.clearCacheForGroup(group.getId());
-            cacheService.rebuildCacheForGroup(group.getId());
         }
 
         String message = String.format("Processed %d, skipped %d function(s)", processedCount, skippedCount);
@@ -215,8 +192,6 @@ public class SysRoleServiceImpl implements SysRoleService {
         role.setFunction(function);
         
         roleDao.save(role);
-
-        cacheService.rebuildCacheForGroup(groupId);
     }
 
     @Override
@@ -233,8 +208,6 @@ public class SysRoleServiceImpl implements SysRoleService {
         }
 
         roleDao.deleteByGroupAndFunction(groupId, function.getId());
-
-        cacheService.rebuildCacheForGroup(groupId);
     }
 
     @Override
@@ -249,7 +222,6 @@ public class SysRoleServiceImpl implements SysRoleService {
         int successCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
-        boolean hasChanges = false;
 
         for (Long groupId : dto.getGroupIds()) {
             try {
@@ -263,7 +235,6 @@ public class SysRoleServiceImpl implements SysRoleService {
 
                 client.getGroups().add(group);
                 successCount++;
-                hasChanges = true;
 
             } catch (Exception e) {
                 String errorMsg = String.format("Failed to assign group %d: %s", groupId, e.getMessage());
@@ -272,9 +243,8 @@ public class SysRoleServiceImpl implements SysRoleService {
             }
         }
 
-        if (hasChanges) {
+        if (successCount > 0) {
             clientDao.save(client);
-            cacheService.rebuildCacheForClient(client.getId());
         }
 
         return buildBatchResult(successCount, skippedCount, errors, "assigned");
@@ -298,9 +268,6 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         client.getGroups().remove(group);
         clientDao.save(client);
-
-        cacheService.clearCacheForClientGroup(clientId, groupId);
-        cacheService.rebuildCacheForClient(clientId);
     }
 
     @Override
@@ -321,7 +288,6 @@ public class SysRoleServiceImpl implements SysRoleService {
 
                 if (client.getGroups().remove(group)) {
                     hasChanges = true;
-                    cacheService.clearCacheForClientGroup(client.getId(), groupId);
                 }
 
             } catch (Exception e) {
@@ -331,7 +297,6 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         if (hasChanges) {
             clientDao.save(client);
-            cacheService.rebuildCacheForClient(client.getId());
         }
     }
 
