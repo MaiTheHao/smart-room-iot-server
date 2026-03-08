@@ -52,6 +52,7 @@ public class DeviceSetupOrchestrator {
 
         int successCount = 0;
         int failCount = 0;
+        boolean sessionCorrupted = false;
 
         for (int i = 0; i < devices.size(); i++) {
             SetupRequest.BodyData.DeviceConfig device = devices.get(i);
@@ -84,12 +85,16 @@ public class DeviceSetupOrchestrator {
 
             } catch (Exception e) {
                 failCount++;
+                sessionCorrupted = true;
                 log.error("[SETUP:ORCH:ERROR] Failed: index={}, naturalId={}, category={}: {}", 
                     i, device.getNaturalId(), device.getCategory(), e.getMessage(), e);
+                break;
             }
         }
 
-        entityManager.flush();
+        if (!sessionCorrupted) {
+            entityManager.flush();
+        }
 
         log.info("[SETUP:ORCH] Done: total={}, success={}, failed={}, roomId={}", 
             devices.size(), successCount, failCount, room.getId());

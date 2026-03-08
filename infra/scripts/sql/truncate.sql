@@ -20,8 +20,6 @@ TRUNCATE TABLE `sys_function_lan`;
 
 TRUNCATE TABLE `sys_role`;
 
-TRUNCATE TABLE `sys_client_function_cache`;
-
 TRUNCATE TABLE `persistent_logins`;
 
 TRUNCATE TABLE `language`;

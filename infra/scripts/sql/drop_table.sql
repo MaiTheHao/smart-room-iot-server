@@ -20,8 +20,6 @@ DROP TABLE IF EXISTS `sys_function_lan`;
 
 DROP TABLE IF EXISTS `sys_role`;
 
-DROP TABLE IF EXISTS `sys_client_function_cache`;
-
 DROP TABLE IF EXISTS `persistent_logins`;
 
 DROP TABLE IF EXISTS `language`;

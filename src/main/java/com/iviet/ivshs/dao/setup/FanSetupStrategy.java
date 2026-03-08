@@ -37,8 +37,9 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
 
         Fan fan = createFanByType(fanType);
         setupBaseIoTProperties(fan, device, room, deviceControl);
-        attachTranslations(fan, device.getTranslations(), FanLan::new);
         entityManager.persist(fan);
+        entityManager.flush();
+        attachTranslations(fan, device.getTranslations(), FanLan::new);
 
         if (log.isDebugEnabled()) {
             log.debug("[SETUP:FAN] created: naturalId={}, type={}", device.getNaturalId(), fanType);

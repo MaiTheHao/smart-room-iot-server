@@ -8,7 +8,6 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j
