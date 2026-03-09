@@ -8,4 +8,5 @@ public interface TelemetryService {
 	void takeByRoom(Long roomId);
 	void takeTemperatureData(String roomCode);
 	void takePowerConsumptionData(String roomCode);
+	void takeGlobalTelemetry();
 }

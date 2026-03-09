@@ -35,6 +35,13 @@ public class ClientServiceImpl implements ClientService {
   }
 
   @Override
+  public List<ClientDto> getAllGateways() {
+    return clientDao.findAllGateways().stream()
+      .map(ClientDto::from)
+      .toList();
+  }
+
+  @Override
   public PaginatedResponse<ClientDto> getList(int page, int size) {
     List<ClientDto> clients = clientDao.findAll(page, size).stream()
       .map(ClientDto::from)

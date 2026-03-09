@@ -171,6 +171,28 @@ public class TelemetryServiceImpl implements TelemetryService {
         powerConsumptionValueService.createWithSensor(sensor, createDto);
     }
 
+    @Override
+    public void takeGlobalTelemetry() {
+        log.info("[TELEMETRY] Starting global telemetry collection");
+        long start = System.currentTimeMillis();
+
+        try {
+            List<ClientDto> gateways = clientService.getAllGateways();
+
+            for (ClientDto gateway : gateways) {
+                try {
+                    processTakeByGateway(gateway);
+                } catch (Exception e) {
+                    log.error("[TELEMETRY] Failed to process gateway [{}]: {}", gateway.username(), e.getMessage());
+                }
+            }
+
+            log.info("[TELEMETRY] Finished global telemetry collection in {}ms", System.currentTimeMillis() - start);
+        } catch (Exception e) {
+            log.error("[TELEMETRY] Failed to collect global telemetry: {}", e.getMessage(), e);
+        }
+    }
+
     private void processTakeByGateway(ClientDto gateway) {
         String url = UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress());
         var response = HttpClientUtil.get(url);

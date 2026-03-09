@@ -145,4 +145,14 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
                 .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .getResultList();
     }
+
+    // ======= Find All Gateways =======
+    public List<Client> findAllGateways() {
+        String jpql = "SELECT c FROM Client c " +
+                      "WHERE c.clientType = :clientType " +
+                      "ORDER BY c.createdAt DESC";
+        return entityManager.createQuery(jpql, Client.class)
+                .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
+                .getResultList();
+    }
 }

@@ -12,6 +12,8 @@ public interface ClientService {
 
   List<ClientDto> getAll();
 
+  List<ClientDto> getAllGateways();
+
   PaginatedResponse<ClientDto> getList(int page, int size);
 
   List<Client> getAllEntities();
