@@ -200,10 +200,10 @@ public class AirConditionServiceImpl implements AirConditionService {
 	@Override
 	@Transactional
 	public void delete(Long id) {
-			AirCondition ac = airConditionDao.findById(id)
-							.orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
-
-			airConditionDao.delete(ac);
+		if (!airConditionDao.existsById(id)) throw new NotFoundException("Air Condition not found");
+		AirCondition target = airConditionDao.findById(id).orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
+		DeviceControl targetDeviceControl = target.getDeviceControl();
+		deviceControlDao.delete(targetDeviceControl);
 	}
 
 	@Override

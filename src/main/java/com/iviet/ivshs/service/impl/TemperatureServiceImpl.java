@@ -19,10 +19,10 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class TemperatureServiceImpl implements TemperatureService {
 
-    private final TemperatureDao temperatureDao;
     private final RoomDao roomDao;
-    private final DeviceControlDao deviceControlDao;
     private final LanguageDao languageDao;
+    private final TemperatureDao temperatureDao;
+    private final DeviceControlDao deviceControlDao;
 
     // --- CRUD SENSOR ---
 
@@ -141,6 +141,8 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Transactional
     public void delete(Long tempSensorId) {
         if (!temperatureDao.existsById(tempSensorId)) throw new NotFoundException("Sensor not found");
-        temperatureDao.deleteById(tempSensorId);
+        Temperature target = temperatureDao.findById(tempSensorId).orElseThrow(() -> new NotFoundException("Sensor not found"));
+        DeviceControl targetDeviceControl = target.getDeviceControl();
+        deviceControlDao.delete(targetDeviceControl);
     }
 }

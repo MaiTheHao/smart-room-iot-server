@@ -15,7 +15,8 @@ public record LightDto(
     Boolean isActive,
     ActuatorPower power,
     Integer level,
-    Long roomId
+    Long roomId,
+    Long deviceControlId
 ) {
     public static LightDto from(Light entity, LightLan lan) {
         if (entity == null) {
@@ -30,6 +31,7 @@ public record LightDto(
                 .power(entity.getPower())
                 .level(entity.getLevel())
                 .roomId((entity.getRoom() != null) ? entity.getRoom().getId() : null)
+                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
                 .build();
     }
 }

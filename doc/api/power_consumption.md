@@ -37,7 +37,8 @@
 				"isActive": true,
 				"currentWatt": 120.5,
 				"naturalId": "P001",
-				"roomId": 10
+				"roomId": 10,
+				"deviceControlId": 5
 			}
 		],
 		"page": 0,
@@ -77,7 +78,8 @@
 		"isActive": true,
 		"currentWatt": 120.5,
 		"naturalId": "P001",
-		"roomId": 10
+		"roomId": 10,
+		"deviceControlId": 5
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }
@@ -131,7 +133,8 @@
 		"isActive": true,
 		"currentWatt": null,
 		"naturalId": "P001",
-		"roomId": 10
+		"roomId": 10,
+		"deviceControlId": 5
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }
@@ -189,7 +192,8 @@
 		"isActive": false,
 		"currentWatt": 120.5,
 		"naturalId": "P001U",
-		"roomId": 10
+		"roomId": 10,
+		"deviceControlId": 6
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }

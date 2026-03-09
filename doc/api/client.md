@@ -249,6 +249,31 @@
 
 </details>
 
+<details>
+<summary><b>DELETE</b> <code>/api/v1/clients/{id}/device-controls</code> - Delete All Device Controls of a Client</summary>
+
+> Xóa tất cả các thiết bị điều khiển của một client theo ID.
+
+### Path Parameters
+
+| Tên | Loại | Mô tả         | Bắt buộc/Mặc định |
+| :-- | :--- | :------------ | :---------------- |
+| id  | Long | ID của client | Có                |
+
+### Response (204 No Content)
+
+```json
+{
+	"status": 204,
+	"message": "All device controls deleted successfully",
+	"data": null,
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+
 <br>
 
 ## Enumerations

@@ -22,7 +22,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -42,7 +42,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -62,7 +62,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -81,7 +81,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -99,7 +99,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -115,7 +115,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -135,7 +135,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode

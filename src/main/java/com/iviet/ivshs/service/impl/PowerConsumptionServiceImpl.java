@@ -14,6 +14,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
+import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
@@ -203,10 +204,9 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		if (powerSensorId == null) {
 			throw new BadRequestException("Power sensor ID is required");
 		}
-
-		PowerConsumption powerConsumption = powerConsumptionDao.findById(powerSensorId).orElseThrow(() -> new NotFoundException("Power sensor not found"));
-		
-
-		powerConsumptionDao.delete(powerConsumption);
+		if (!powerConsumptionDao.existsById(powerSensorId)) throw new NotFoundException("Power sensor not found");
+		PowerConsumption target = powerConsumptionDao.findById(powerSensorId).orElseThrow(() -> new NotFoundException("Power sensor not found"));
+		DeviceControl targetDeviceControl = target.getDeviceControl();
+		deviceControlDao.delete(targetDeviceControl);
 	}
 }

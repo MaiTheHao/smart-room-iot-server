@@ -46,6 +46,8 @@ public interface ClientService {
 
   void delete(Long clientId);
 
+  void deleteAllDeviceControl(Long clientId);
+
   long countGatewaysByRoomId(Long roomId);
 
   boolean existsByUsername(String username);

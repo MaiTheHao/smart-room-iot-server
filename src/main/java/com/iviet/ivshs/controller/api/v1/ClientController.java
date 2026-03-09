@@ -71,4 +71,13 @@ public class ClientController {
             .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
                 "Deleted successfully"));
     }
+
+    @DeleteMapping("/{id}/device-controls")
+    public ResponseEntity<ApiResponse<Void>> deleteAllDeviceControl(
+            @PathVariable(name = "id") Long id) {
+        clientService.deleteAllDeviceControl(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
+                "All device controls deleted successfully"));
+    }
 }

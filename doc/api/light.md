@@ -30,7 +30,8 @@
 				"description": "Đèn LED trần",
 				"isActive": true,
 				"level": 80,
-				"roomId": 10
+				"roomId": 10,
+				"deviceControlId": 1
 			}
 		],
 		"page": 0,
@@ -78,7 +79,8 @@
 				"description": "Đèn bàn học",
 				"isActive": false,
 				"level": 0,
-				"roomId": 10
+				"roomId": 10,
+				"deviceControlId": 2
 			}
 		],
 		"page": 0,
@@ -117,7 +119,8 @@
 		"description": "Đèn LED trần",
 		"isActive": true,
 		"level": 80,
-		"roomId": 10
+		"roomId": 10,
+		"deviceControlId": 1
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }
@@ -170,7 +173,8 @@
 		"description": "Đèn LED trần",
 		"isActive": true,
 		"level": 80,
-		"roomId": 10
+		"roomId": 10,
+		"deviceControlId": 5
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }
@@ -229,7 +233,8 @@
 		"description": "Đèn LED cao cấp",
 		"isActive": false,
 		"level": 50,
-		"roomId": 11
+		"roomId": 11,
+		"deviceControlId": 6
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }

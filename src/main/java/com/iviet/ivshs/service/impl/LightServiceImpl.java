@@ -185,7 +185,9 @@ public class LightServiceImpl implements LightService {
     @Transactional
     public void delete(Long lightId) {
         if (!lightDao.existsById(lightId)) throw new NotFoundException("Light not found");
-        lightDao.deleteById(lightId);
+        Light target = lightDao.findById(lightId).orElseThrow(() -> new NotFoundException("Light not found"));
+        DeviceControl targetDeviceControl = target.getDeviceControl();
+        deviceControlDao.delete(targetDeviceControl);
     }
 
     

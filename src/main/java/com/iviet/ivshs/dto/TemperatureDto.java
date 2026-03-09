@@ -12,7 +12,8 @@ public record TemperatureDto(
     Boolean isActive,
     Double currentValue,
     String naturalId,
-    Long roomId
+    Long roomId,
+    Long deviceControlId
 ) {
     public static TemperatureDto from(Temperature entity, TemperatureLan temperatureLan) {
         return TemperatureDto.builder()
@@ -23,6 +24,7 @@ public record TemperatureDto(
             .currentValue(entity.getCurrentValue())
             .naturalId(entity.getNaturalId())
             .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
+            .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
             .build();
     }
 }

@@ -12,7 +12,8 @@ public record PowerConsumptionDto(
     Boolean isActive,
     Double currentWatt,
     String naturalId,
-    Long roomId
+    Long roomId,
+    Long deviceControlId
 ) {
     public static PowerConsumptionDto from(PowerConsumption entity, PowerConsumptionLan powerLan) {
         return PowerConsumptionDto.builder()
@@ -23,6 +24,7 @@ public record PowerConsumptionDto(
             .currentWatt(entity.getCurrentWatt())
             .naturalId(entity.getNaturalId())
             .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
+            .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
             .build();
     }
 }

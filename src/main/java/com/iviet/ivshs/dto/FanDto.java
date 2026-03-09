@@ -25,7 +25,8 @@ public record FanDto(
     Integer speed,
     ActuatorMode mode,
     ActuatorState light,
-    ActuatorSwing swing
+    ActuatorSwing swing,
+    Long deviceControlId
 ) {
 
     public static FanDto from(Fan entity) {
@@ -36,14 +37,15 @@ public record FanDto(
                 .naturalId(entity.getNaturalId())
                 .isActive(entity.getIsActive())
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
-                .power(entity.getPower());
+                .power(entity.getPower())
+                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null);
                 
         if (entity instanceof FanIr fanIr) {
             builder.type(FanType.IR)
-                   .speed(fanIr.getSpeed())
-                   .mode(fanIr.getMode())
-                   .light(fanIr.getLight())
-                   .swing(fanIr.getSwing());
+									.speed(fanIr.getSpeed())
+									.mode(fanIr.getMode())
+									.light(fanIr.getLight())
+									.swing(fanIr.getSwing());
         } else {
             builder.type(FanType.GPIO);
         }

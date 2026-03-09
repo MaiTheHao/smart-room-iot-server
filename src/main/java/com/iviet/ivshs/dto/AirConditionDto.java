@@ -21,7 +21,8 @@ public record AirConditionDto(
     Integer temperature,
     ActuatorMode mode,
     Integer fanSpeed,
-    ActuatorSwing swing
+    ActuatorSwing swing,
+    Long deviceControlId
 ) {
 
     public static AirConditionDto from(AirCondition entity) {
@@ -36,6 +37,7 @@ public record AirConditionDto(
                 .mode(entity.getMode())
                 .fanSpeed(entity.getFanSpeed())
                 .swing(entity.getSwing())
+                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
                 .build();
     }
 

@@ -9,6 +9,8 @@ import com.iviet.ivshs.dto.FanDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateFanDto;
 import com.iviet.ivshs.dto.UpdateFanIrDto;
+import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.enumeration.FanType;
@@ -180,8 +182,10 @@ public class FanServiceImpl implements FanService {
     @Override
     @Transactional
     public void delete(Long id) {
-        var fan = fanDao.findById(id).orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
-        fanDao.delete(fan);
+        if (!fanDao.existsById(id)) throw new NotFoundException("Fan not found");
+        Fan target = fanDao.findById(id).orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
+        DeviceControl targetDeviceControl = target.getDeviceControl();
+        deviceControlDao.delete(targetDeviceControl);
     }
 
     @Override

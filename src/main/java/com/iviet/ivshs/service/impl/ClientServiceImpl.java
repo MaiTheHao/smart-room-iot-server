@@ -200,10 +200,6 @@ public class ClientServiceImpl implements ClientService {
   @Override
   @Transactional
   public void delete(Long clientId) {
-    if (clientId == null) {
-      throw new BadRequestException("Client ID is required");
-    }
-
     Client client = clientDao.findById(clientId)
       .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
@@ -212,6 +208,18 @@ public class ClientServiceImpl implements ClientService {
     }
 
     clientDao.delete(client);
+  }
+
+  @Override
+  @Transactional
+  public void deleteAllDeviceControl(Long clientId) {
+    Client client = clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+
+    if (client.getDeviceControls() != null && !client.getDeviceControls().isEmpty()) {
+      client.getDeviceControls().clear();
+    }
+
+    clientDao.update(client);
   }
 
   @Override

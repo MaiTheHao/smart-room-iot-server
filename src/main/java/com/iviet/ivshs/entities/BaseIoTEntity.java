@@ -24,7 +24,7 @@ public abstract class BaseIoTEntity<L extends BaseTranslation<?>> extends BaseTr
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "device_control_id", unique = true)
     private DeviceControl deviceControl;
 }

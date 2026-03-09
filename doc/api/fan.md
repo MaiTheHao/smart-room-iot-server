@@ -40,7 +40,8 @@
 				"speed": 3,
 				"mode": "NORMAL",
 				"swing": "ON",
-				"light": "OFF"
+				"light": "OFF",
+				"deviceControlId": 1
 			}
 		],
 		"page": 0,
@@ -80,7 +81,8 @@
 			"speed": 3,
 			"mode": "NORMAL",
 			"swing": "ON",
-			"light": "OFF"
+			"light": "OFF",
+			"deviceControlId": 1
 		},
 		{
 			"id": 2,
@@ -94,7 +96,8 @@
 			"speed": null,
 			"mode": null,
 			"swing": null,
-			"light": null
+			"light": null,
+			"deviceControlId": 2
 		}
 	],
 	"timestamp": "2026-02-28T10:00:00Z"
@@ -143,7 +146,8 @@
 				"speed": 3,
 				"mode": "NORMAL",
 				"swing": "ON",
-				"light": "OFF"
+				"light": "OFF",
+				"deviceControlId": 1
 			}
 		],
 		"page": 0,
@@ -189,7 +193,8 @@
 			"speed": 3,
 			"mode": "NORMAL",
 			"swing": "ON",
-			"light": "OFF"
+			"light": "OFF",
+			"deviceControlId": 1
 		},
 		{
 			"id": 3,
@@ -203,7 +208,8 @@
 			"speed": null,
 			"mode": null,
 			"swing": null,
-			"light": null
+			"light": null,
+			"deviceControlId": 1
 		}
 	],
 	"timestamp": "2026-02-28T10:00:00Z"
@@ -244,7 +250,8 @@
 		"speed": 3,
 		"mode": "NORMAL",
 		"swing": "ON",
-		"light": "OFF"
+		"light": "OFF",
+		"deviceControlId": 1
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -283,7 +290,8 @@
 		"speed": 3,
 		"mode": "NORMAL",
 		"swing": "ON",
-		"light": "OFF"
+		"light": "OFF",
+		"deviceControlId": 1
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -410,7 +418,8 @@
 		"speed": 1,
 		"mode": "NORMAL",
 		"swing": "OFF",
-		"light": "OFF"
+		"light": "OFF",
+		"deviceControlId": 3
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -527,7 +536,8 @@
 		"speed": 3,
 		"mode": "NORMAL",
 		"swing": "ON",
-		"light": "OFF"
+		"light": "OFF",
+		"deviceControlId": 1
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
