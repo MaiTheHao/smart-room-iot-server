@@ -65,54 +65,6 @@ class UserManager {
     });
   }
 
-  renderAvatar(data, type, row) {
-    const avatar = row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data)}`;
-    return `<div class="d-flex align-items-center">
-					<img src="${avatar}" class="img-circle elevation-1 mr-2" width="35" height="35" 
-						onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data)}'">
-					<strong>${data}</strong>
-				</div>`;
-  }
-
-  renderStatus(data) {
-    return data === 'USER'
-      ? '<span class="badge badge-user"><i class="fas fa-user mr-1"></i>User</span>'
-      : '<span class="badge badge-gateway"><i class="fas fa-network-wired mr-1"></i>Gateway</span>';
-  }
-
-  renderActions(data, type, row) {
-    // Base buttons (always visible)
-    let buttons = `
-			<button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
-				<i class="fas fa-users"></i>
-			</button>
-			<button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
-				<i class="fas fa-edit"></i>
-			</button>
-		`;
-
-    // Setup button (only for HARDWARE_GATEWAY)
-    if (row.clientType === 'HARDWARE_GATEWAY') {
-      buttons += `
-				<button class="btn btn-primary action-btn btn-setup-gateway" data-id="${row.id}" data-username="${row.username}" title="Setup Configuration">
-					<i class="fas fa-cogs"></i>
-				</button>
-			`;
-    }
-
-    // Reset & Delete buttons
-    buttons += `
-			<button class="btn btn-secondary action-btn btn-reset-password" data-id="${row.id}" data-username="${row.username}" title="Reset Password">
-				<i class="fas fa-key"></i>
-			</button>
-			<button class="btn btn-danger action-btn btn-delete-user" data-id="${row.id}" data-username="${row.username}" title="Delete User">
-				<i class="fas fa-trash"></i>
-			</button>
-		`;
-
-    return `<div class="btn-group btn-group-sm" role="group">${buttons}</div>`;
-  }
-
   bindEvents() {
     $('#filterClientType').on('change', (e) => this.table.column(2).search(e.target.value).draw());
     $('#createUserBtn').on('click', () => this.handleCreateUser());
@@ -123,8 +75,59 @@ class UserManager {
       .on('click', '.btn-manage-roles', (e) => this.openRolesModal($(e.currentTarget)))
       .on('click', '.btn-edit-user', (e) => this.openEditModal($(e.currentTarget).data('id')))
       .on('click', '.btn-setup-gateway', (e) => this.handleSetupGateway($(e.currentTarget)))
+      .on('click', '.btn-delete-all-device-controls', (e) =>
+        this.handleDeleteAllDeviceControls($(e.currentTarget).data('id')),
+      )
       .on('click', '.btn-reset-password', (e) => this.handleResetPassword($(e.currentTarget)))
       .on('click', '.btn-delete-user', (e) => this.handleDeleteUser($(e.currentTarget)));
+  }
+
+  renderAvatar(data, type, row) {
+    const avatar = row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data)}`;
+    return `<div class="d-flex align-items-center">
+          <img src="${avatar}" class="img-circle elevation-1 mr-2" width="35" height="35" 
+            onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(data)}'">
+          <strong>${data}</strong>
+        </div>`;
+  }
+
+  renderStatus(data) {
+    return data === 'USER'
+      ? '<span class="badge badge-user"><i class="fas fa-user mr-1"></i>User</span>'
+      : '<span class="badge badge-gateway"><i class="fas fa-network-wired mr-1"></i>Gateway</span>';
+  }
+
+  renderActions(data, type, row) {
+    let buttons = `
+      <button class="btn btn-info action-btn btn-manage-roles" data-id="${row.id}" data-username="${row.username}" title="Manage Roles">
+        <i class="fas fa-users"></i>
+      </button>
+      <button class="btn btn-warning action-btn btn-edit-user" data-id="${row.id}" title="Edit User">
+        <i class="fas fa-edit"></i>
+      </button>
+    `;
+
+    if (row.clientType === 'HARDWARE_GATEWAY') {
+      buttons += `
+        <button class="btn btn-primary action-btn btn-setup-gateway" data-id="${row.id}" data-username="${row.username}" title="Setup Configuration">
+          <i class="fas fa-cogs"></i>
+        </button>
+        <button class="btn btn-secondary action-btn btn-delete-all-device-controls" data-id="${row.id}" data-username="${row.username}" title="Delete All Device Controls">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      `;
+    }
+
+    buttons += `
+      <button class="btn btn-secondary action-btn btn-reset-password" data-id="${row.id}" data-username="${row.username}" title="Reset Password">
+        <i class="fas fa-key"></i>
+      </button>
+      <button class="btn btn-danger action-btn btn-delete-user" data-id="${row.id}" data-username="${row.username}" title="Delete User">
+        <i class="fas fa-trash"></i>
+      </button>
+    `;
+
+    return `<div class="btn-group btn-group-sm" role="group">${buttons}</div>`;
   }
 
   async handleCreateUser() {
@@ -264,20 +267,20 @@ class UserManager {
       const html = groups
         .map(
           (group) => `
-				<div class="selection-list-item">
-					<div class="custom-control custom-checkbox">
-						<input type="checkbox" class="custom-control-input role-checkbox scale-checkbox" 
-							id="group_${group.id}" 
-							data-group-id="${group.id}" 
-							data-initial-state="${group.isAssignedToClient}"
-							${group.isAssignedToClient ? 'checked' : ''}>
-						<label class="custom-control-label" for="group_${group.id}">
-							<strong>${group.name}</strong> <span class="badge badge-secondary">${group.groupCode}</span>
-							${group.description ? `<br><small class="text-muted">${group.description}</small>` : ''}
-						</label>
-					</div>
-				</div>
-			`,
+        <div class="selection-list-item">
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input role-checkbox scale-checkbox" 
+              id="group_${group.id}" 
+              data-group-id="${group.id}" 
+              data-initial-state="${group.isAssignedToClient}"
+              ${group.isAssignedToClient ? 'checked' : ''}>
+            <label class="custom-control-label" for="group_${group.id}">
+              <strong>${group.name}</strong> <span class="badge badge-secondary">${group.groupCode}</span>
+              ${group.description ? `<br><small class="text-muted">${group.description}</small>` : ''}
+            </label>
+          </div>
+        </div>
+      `,
         )
         .join('');
 
@@ -366,6 +369,18 @@ class UserManager {
       this.#showSetupErrorModal(username, errorMsg, error);
     } finally {
       $btn.prop('disabled', false).html('<i class="fas fa-cogs"></i>');
+    }
+  }
+
+  async handleDeleteAllDeviceControls(clientId) {
+    const confirmed = await notify.confirmDelete('All Device Controls');
+    if (!confirmed) return;
+
+    try {
+      await this.clientService.deleteAllDeviceControls(clientId);
+      notify.success('All device controls deleted successfully');
+    } catch (error) {
+      notify.error(error.message || 'Failed to delete device controls');
     }
   }
 

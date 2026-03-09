@@ -39,6 +39,7 @@ const SMRC_API_V1 = {
     BY_GROUP: (groupId) => `/api/v1/groups/${groupId}/clients`,
     BY_GROUP_ALL: (groupId) => `/api/v1/groups/${groupId}/clients/all`,
     BY_GROUP_COUNT: (groupId) => `/api/v1/groups/${groupId}/clients/count`,
+    DELETE_ALL_DEVICE_CONTROLS: (clientId) => `/api/v1/clients/${clientId}/device-controls`,
   },
 
   SETUP: {
