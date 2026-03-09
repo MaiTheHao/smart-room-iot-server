@@ -14,4 +14,8 @@ public interface DeviceSetupStrategy {
         Room room,
         DeviceControl deviceControl
     );
+
+    void rollback(
+        Long deviceId
+    );
 }

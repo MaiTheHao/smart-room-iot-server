@@ -5,6 +5,8 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.exception.domain.InternalServerErrorException;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -34,7 +36,7 @@ public class DeviceSetupOrchestrator {
     private void init() {
         strategyMap = new EnumMap<>(DeviceCategory.class);
         strategies.forEach(s -> strategyMap.put(s.getSupportedCategory(), s));
-        log.info("[SETUP:ORCH] Initialized with {} strategies: {}", strategyMap.size(), strategyMap.keySet());
+        log.info("[ORCH] Initialized with {} strategies", strategyMap.size());
     }
 
     public int persistAll(
@@ -43,63 +45,63 @@ public class DeviceSetupOrchestrator {
         Room room
     ) {
         if (devices == null || devices.isEmpty()) {
-            log.warn("[SETUP:ORCH] No devices to persist for roomId={}", room.getId());
+            log.warn("[ORCH] No devices to persist");
             return 0;
         }
 
-        log.info("[SETUP:ORCH] Starting persistence: total={}, roomId={}, clientId={}", 
+        log.info("[ORCH] Starting persistence: count={}, roomId={}, clientId={}", 
             devices.size(), room.getId(), client.getId());
 
-        int successCount = 0;
-        int failCount = 0;
-        boolean sessionCorrupted = false;
+        int processedCount = 0;
 
         for (int i = 0; i < devices.size(); i++) {
             SetupRequest.BodyData.DeviceConfig device = devices.get(i);
 
             if (device.getCategory() == null) {
-                log.warn("[SETUP:ORCH:SKIP] category is null: index={}, naturalId={}", i, device.getNaturalId());
-                failCount++;
-                continue;
+                log.error("[ORCH] Missing category at index {}: naturalId={}", i, device.getNaturalId());
+                throw new InternalServerErrorException(
+                    String.format("Device at index %d has no category: %s", i, device.getNaturalId())
+                );
             }
 
             DeviceSetupStrategy strategy = strategyMap.get(device.getCategory());
-
             if (strategy == null) {
-                log.warn("[SETUP:ORCH:SKIP] No strategy for category={}: index={}, naturalId={}", 
+                log.error("[ORCH] No strategy for category {} at index {}: naturalId={}", 
                     device.getCategory(), i, device.getNaturalId());
-                failCount++;
-                continue;
+                throw new InternalServerErrorException(
+                    String.format("Unsupported device category '%s' for device: %s", 
+                        device.getCategory(), device.getNaturalId())
+                );
             }
 
             try {
                 DeviceControl deviceControl = createDeviceControl(device, room, client);
                 strategy.persist(device, room, deviceControl);
-                successCount++;
+                processedCount++;
 
-                if (successCount % BATCH_SIZE == 0) {
+                if (processedCount % BATCH_SIZE == 0) {
                     entityManager.flush();
                     entityManager.clear();
-                    log.info("[SETUP:ORCH:BATCH] Flushed: processed={}/{}", successCount, devices.size());
+                    log.info("[ORCH] Batch checkpoint: {}/{}", processedCount, devices.size());
                 }
 
+            } catch (InternalServerErrorException e) {
+                throw e;
             } catch (Exception e) {
-                failCount++;
-                sessionCorrupted = true;
-                log.error("[SETUP:ORCH:ERROR] Failed: index={}, naturalId={}, category={}: {}", 
-                    i, device.getNaturalId(), device.getCategory(), e.getMessage(), e);
-                break;
+                log.error("[ORCH] Persistence failed at index {}: naturalId={}, category={}", 
+                    i, device.getNaturalId(), device.getCategory(), e);
+                throw new InternalServerErrorException(
+                    String.format("Failed to persist device '%s' (category: %s): %s", 
+                        device.getNaturalId(), device.getCategory(), e.getMessage()), 
+                    e
+                );
             }
         }
 
-        if (!sessionCorrupted) {
-            entityManager.flush();
-        }
+        entityManager.flush();
+        log.info("[ORCH] All devices persisted successfully: count={}", processedCount);
 
-        log.info("[SETUP:ORCH] Done: total={}, success={}, failed={}, roomId={}", 
-            devices.size(), successCount, failCount, room.getId());
-
-        return successCount;
+        return processedCount;
     }
 
     private DeviceControl createDeviceControl(
@@ -117,11 +119,8 @@ public class DeviceSetupOrchestrator {
 
         entityManager.persist(dc);
         entityManager.flush();
-
-        if (log.isDebugEnabled()) {
-            log.debug("[SETUP:ORCH:CTRL] DeviceControl created: id={}, type={}, naturalId={}", 
-                dc.getId(), device.getControlType(), device.getNaturalId());
-        }
+        log.debug("[ORCH] Control created: id={}, type={}, naturalId={}", 
+            dc.getId(), device.getControlType(), device.getNaturalId());
 
         return dc;
     }

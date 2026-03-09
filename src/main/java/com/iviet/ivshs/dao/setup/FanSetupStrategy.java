@@ -1,5 +1,6 @@
 package com.iviet.ivshs.dao.setup;
 
+import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.DeviceControl;
 import com.iviet.ivshs.entities.Fan;
@@ -10,12 +11,17 @@ import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.FanType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
+
+    private final FanDao fanDao;
 
     @Override
     public DeviceCategory getSupportedCategory() {
@@ -31,7 +37,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         FanType fanType = FanType.fromString(device.getSpecificType());
 
         if (fanType == null) {
-            log.warn("[SETUP:FAN] fanType is null for naturalId={}, defaulting to GPIO", device.getNaturalId());
+            log.warn("[FAN] Type unknown, defaulting to GPIO: {}", device.getNaturalId());
             fanType = FanType.GPIO;
         }
 
@@ -40,9 +46,16 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         entityManager.persist(fan);
         entityManager.flush();
         attachTranslations(fan, device.getTranslations(), FanLan::new);
+        log.debug("[FAN] Device created: {}, type: {}", device.getNaturalId(), fanType);
+    }
 
-        if (log.isDebugEnabled()) {
-            log.debug("[SETUP:FAN] created: naturalId={}, type={}", device.getNaturalId(), fanType);
+    @Override
+    public void rollback(Long deviceId) {
+        try {
+            fanDao.deleteById(deviceId);
+            log.debug("[FAN] Rolled back: {}", deviceId);
+        } catch (Exception e) {
+            log.error("[FAN] Rollback failed: {}", deviceId, e);
         }
     }
 
