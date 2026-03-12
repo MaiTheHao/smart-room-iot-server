@@ -5,7 +5,9 @@ import com.iviet.ivshs.dao.TemperatureDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.CreateTemperatureValueDto;
+import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.Temperature;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.TemperatureValueService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,28 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   private final TemperatureValueDao temperatureValueDao;
 
   @Override
+  public DeviceCategory getSupportedCategory() {
+    return DeviceCategory.TEMPERATURE;
+  }
+
+  @Override
+  public void create(TelemetryResponseDto.Data data) {
+    Double tempC = data.getData().get("tempC") != null ? data.getData().get("tempC").asDouble() : null;
+    if (tempC == null) return;
+
+    var sensor = temperatureDao.findByNaturalId(data.getNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + data.getNaturalId()));
+    var record = CreateTemperatureValueDto.builder()
+        .sensorNaturalId(data.getNaturalId())
+        .tempC(tempC)
+        .timestamp(Instant.now())
+        .build()
+        .toEntity();
+        
+    record.setSensor(sensor);
+    temperatureValueDao.save(record);
+  }
+
+  @Override
   @Transactional(readOnly = true)
   public List<AverageTemperatureValueDto> getAverageTemperatureByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
     return temperatureValueDao.getAverageHistoryByRoom(
@@ -36,6 +60,8 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   @Override
   @Transactional
   public void create(CreateTemperatureValueDto dto) {
+    if (dto.tempC() == null) return;
+    
     var sensor = temperatureDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + dto.sensorNaturalId()));
     var record = dto.toEntity();
     record.setSensor(sensor);
@@ -48,6 +74,8 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   @Override
   @Transactional
   public void createWithSensor(Temperature sensor, CreateTemperatureValueDto dto) {
+    if (dto.tempC() == null) return;
+
     var record = dto.toEntity();
     record.setSensor(sensor);
     temperatureValueDao.saveAndForget(sensor.getId(), record);
@@ -64,7 +92,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     }
 
     List<CreateTemperatureValueDto> sortedByTimestampLatestFirst = dtoList.stream()
-        .filter(dto -> dto != null)
+        .filter(dto -> dto != null && dto.tempC() != null)
         .sorted((dto1, dto2) -> dto2.timestamp().compareTo(dto1.timestamp()))
         .toList();
 

@@ -15,7 +15,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FetchTelemetryByGatewayResponseDto {
+public class TelemetryResponseDto {
 	private int status;
 	private String message;
 	private Instant timestamp;

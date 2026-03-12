@@ -30,17 +30,17 @@ public class TelemetryController {
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}
 
-	@PostMapping("/temperature/{naturalId}")
-	public ResponseEntity<ApiResponse<?>> fetchTemperature(@PathVariable(name = "naturalId") String naturalId) {
-		log.info("Fetching temperature data for sensor: {}", naturalId);
-		telemetryService.takeTemperatureData(naturalId);
-		return ResponseEntity.ok(ApiResponse.ok(null));
-	}
+	// @PostMapping("/temperature/{naturalId}")
+	// public ResponseEntity<ApiResponse<?>> fetchTemperature(@PathVariable(name = "naturalId") String naturalId) {
+	// 	log.info("Fetching temperature data for sensor: {}", naturalId);
+	// 	telemetryService.takeTemperatureData(naturalId);
+	// 	return ResponseEntity.ok(ApiResponse.ok(null));
+	// }
 
-	@PostMapping("/power-consumption/{naturalId}")
-	public ResponseEntity<ApiResponse<?>> fetchPowerConsumption(@PathVariable(name = "naturalId") String naturalId) {
-		log.info("Fetching power consumption data for sensor: {}", naturalId);
-		telemetryService.takePowerConsumptionData(naturalId);
-		return ResponseEntity.ok(ApiResponse.ok(null));
-	}
+	// @PostMapping("/power-consumption/{naturalId}")
+	// public ResponseEntity<ApiResponse<?>> fetchPowerConsumption(@PathVariable(name = "naturalId") String naturalId) {
+	// 	log.info("Fetching power consumption data for sensor: {}", naturalId);
+	// 	telemetryService.takePowerConsumptionData(naturalId);
+	// 	return ResponseEntity.ok(ApiResponse.ok(null));
+	// }
 }

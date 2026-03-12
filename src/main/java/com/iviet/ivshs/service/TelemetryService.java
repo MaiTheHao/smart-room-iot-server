@@ -6,7 +6,5 @@ public interface TelemetryService {
 	void takeByIpAddress(String gatewayIpAddress);
 	void takeByRoom(String roomCode);
 	void takeByRoom(Long roomId);
-	void takeTemperatureData(String roomCode);
-	void takePowerConsumptionData(String roomCode);
 	void takeGlobalTelemetry();
 }
