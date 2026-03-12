@@ -21,63 +21,63 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TemperatureValueServiceImpl implements TemperatureValueService {
 
-    private final RoomDao roomDao;
-    private final TemperatureDao temperatureDao;
-    private final TemperatureValueDao temperatureValueDao;
+  private final RoomDao roomDao;
+  private final TemperatureDao temperatureDao;
+  private final TemperatureValueDao temperatureValueDao;
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<AverageTemperatureValueDto> getAverageTemperatureByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
-        return temperatureValueDao.getAverageHistoryByRoom(
-            roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId()
-            , fromTimestamp, toTimestamp);
+  @Override
+  @Transactional(readOnly = true)
+  public List<AverageTemperatureValueDto> getAverageTemperatureByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
+    return temperatureValueDao.getAverageHistoryByRoom(
+        roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId()
+        , fromTimestamp, toTimestamp);
+  }
+
+  @Override
+  @Transactional
+  public void create(CreateTemperatureValueDto dto) {
+    var sensor = temperatureDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + dto.sensorNaturalId()));
+    var record = dto.toEntity();
+    record.setSensor(sensor);
+    temperatureValueDao.save(record);
+
+    sensor.setCurrentValue(record.getTempC());
+    temperatureDao.save(sensor);
+  }
+
+  @Override
+  @Transactional
+  public void createWithSensor(Temperature sensor, CreateTemperatureValueDto dto) {
+    var record = dto.toEntity();
+    record.setSensor(sensor);
+    temperatureValueDao.saveAndForget(sensor.getId(), record);
+
+    sensor.setCurrentValue(record.getTempC());
+    temperatureDao.save(sensor);
+  }
+
+  @Override
+  @Transactional
+  public void createBatchWithSensor(Temperature sensor, List<CreateTemperatureValueDto> dtoList) {
+    if (dtoList == null || dtoList.isEmpty()) {
+      return;
     }
 
-    @Override
-    @Transactional
-    public void create(CreateTemperatureValueDto dto) {
-        var sensor = temperatureDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + dto.sensorNaturalId()));
-        var record = dto.toEntity();
-        record.setSensor(sensor);
-        temperatureValueDao.save(record);
+    List<CreateTemperatureValueDto> sortedByTimestampLatestFirst = dtoList.stream()
+        .filter(dto -> dto != null)
+        .sorted((dto1, dto2) -> dto2.timestamp().compareTo(dto1.timestamp()))
+        .toList();
 
-        sensor.setCurrentValue(record.getTempC());
-        temperatureDao.save(sensor);
+    if (sortedByTimestampLatestFirst.isEmpty()) {
+      return;
     }
 
-    @Override
-    @Transactional
-    public void createWithSensor(Temperature sensor, CreateTemperatureValueDto dto) {
-        var record = dto.toEntity();
-        record.setSensor(sensor);
-        temperatureValueDao.saveAndForget(sensor.getId(), record);
+    temperatureValueDao.saveAndForget(sensor.getId(), sortedByTimestampLatestFirst.stream()
+        .map(CreateTemperatureValueDto::toEntity)
+        .toList()
+    );
 
-        sensor.setCurrentValue(record.getTempC());
-        temperatureDao.save(sensor);
-    }
-
-    @Override
-    @Transactional
-    public void createBatchWithSensor(Temperature sensor, List<CreateTemperatureValueDto> dtoList) {
-        if (dtoList == null || dtoList.isEmpty()) {
-            return;
-        }
-
-        List<CreateTemperatureValueDto> sortedByTimestampLatestFirst = dtoList.stream()
-            .filter(dto -> dto != null)
-            .sorted((dto1, dto2) -> dto2.timestamp().compareTo(dto1.timestamp()))
-            .toList();
-
-        if (sortedByTimestampLatestFirst.isEmpty()) {
-            return;
-        }
-
-        temperatureValueDao.saveAndForget(sensor.getId(), sortedByTimestampLatestFirst.stream()
-            .map(CreateTemperatureValueDto::toEntity)
-            .toList()
-        );
-
-        sensor.setCurrentValue(sortedByTimestampLatestFirst.get(0).tempC());
-        temperatureDao.save(sensor);
-    }
+    sensor.setCurrentValue(sortedByTimestampLatestFirst.get(0).tempC());
+    temperatureDao.save(sensor);
+  }
 }

@@ -1,7 +1,7 @@
 name: iuhsmrc-compose--mysql
 services:
   mysql-iot:
-    image: mysql:8.3.0
+    image: mysql:8.3
     container_name: iuhsmrc-mysql
     command:
       - --character-set-server=utf8mb4

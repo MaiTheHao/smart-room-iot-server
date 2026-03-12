@@ -25,9 +25,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FanIr extends Fan {
-
-	public static final Integer MIN_SPEED = 0;
-	public static final Integer MAX_SPEED = 9999;
 	
 	public static final HashSet<ActuatorMode> SUPPORTED_MODES = new HashSet<>(Set.of(
 		ActuatorMode.NATURAL,
@@ -52,9 +49,6 @@ public class FanIr extends Fan {
 	@Column(name = "light", length = 256)
 	private ActuatorState light;
 
-	@Column(name = "speed")
-	private Integer speed;
-
 	public void setMode(ActuatorMode mode) {
 		if (mode != null && !SUPPORTED_MODES.contains(mode)) {
 			throw new IllegalArgumentException("Unsupported mode: " + mode + ". Supported modes are: " + SUPPORTED_MODES);
@@ -67,12 +61,5 @@ public class FanIr extends Fan {
 			throw new IllegalArgumentException("Unsupported swing: " + swing + ". Supported swings are: " + SUPPORTED_SWINGS);
 		}
 		this.swing = swing;
-	}
-
-	public void setSpeed(Integer speed) {
-		if (speed != null && (speed < MIN_SPEED || speed > MAX_SPEED)) {
-			throw new IllegalArgumentException("Speed must be between " + MIN_SPEED + " and " + MAX_SPEED);
-		}
-		this.speed = speed;
 	}
 }

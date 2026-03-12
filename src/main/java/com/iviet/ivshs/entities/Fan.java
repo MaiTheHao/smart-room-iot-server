@@ -19,10 +19,10 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "fan",
-    indexes = {
-        @Index(name = "idx_fan_room_id", columnList = "room_id", unique = false),
-        @Index(name = "idx_fan_natural_id", columnList = "natural_id", unique = true)
-    }
+	indexes = {
+		@Index(name = "idx_fan_room_id", columnList = "room_id", unique = false),
+		@Index(name = "idx_fan_natural_id", columnList = "natural_id", unique = true)
+	}
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
@@ -30,13 +30,29 @@ import lombok.Setter;
 @Setter
 public abstract class Fan extends BaseIoTActuator<FanLan> {
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "type", length = 256, insertable = false, updatable = false)
-    FanType type;
-    
-    @Override 
-    public void addTranslation(FanLan translation) {
-        translation.setOwner(this);
-        this.getTranslations().add(translation);
-    }
+
+	public static final Integer MIN_SPEED = 0;
+	public static final Integer MAX_SPEED = 5;
+
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	@Column(name = "type", length = 256, insertable = false, updatable = false)
+	FanType type;
+
+	@Column(name = "speed")
+	private Integer speed;
+	
+
+	public void setSpeed(Integer speed) {
+		if (speed != null && (speed < MIN_SPEED || speed > MAX_SPEED)) {
+			throw new IllegalArgumentException("Speed must be between " + MIN_SPEED + " and " + MAX_SPEED);
+		}
+		this.speed = speed;
+	}
+
+	@Override 
+	public void addTranslation(FanLan translation) {
+		translation.setOwner(this);
+		this.getTranslations().add(translation);
+	}
+
 }

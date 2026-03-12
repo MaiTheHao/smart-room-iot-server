@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dto.ClientDto;
@@ -37,202 +38,204 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TelemetryServiceImpl implements TelemetryService {
 
-    // Temperature
-    private final TemperatureService temperatureService;
-    private final TemperatureValueService temperatureValueService;
+  private final TemperatureService temperatureService;
+  private final TemperatureValueService temperatureValueService;
 
-    // Power Consumption
-    private final PowerConsumptionService powerConsumptionService;
-    private final PowerConsumptionValueService powerConsumptionValueService;
+  private final PowerConsumptionService powerConsumptionService;
+  private final PowerConsumptionValueService powerConsumptionValueService;
 
-    // Client
-    private final ClientService clientService;
+  private final ClientService clientService;
 
-    // Room
-    private final RoomService roomService;
+  private final RoomService roomService;
 
-    @Override 
-    public void takeByGateway(String gatewayUsername) {
-        ClientDto gateway = clientService.getGatewayByUsername(gatewayUsername);
-        processTakeByGateway(gateway);
-    }
+  @Override
+  public void takeByGateway(String gatewayUsername) {
+    ClientDto gateway = clientService.getGatewayByUsername(gatewayUsername);
+    processTakeByGateway(gateway);
+  }
 
-    @Override
-    public void takeByGateway(Long gatewayId) {
-        ClientDto gateway = clientService.getGatewayById(gatewayId);
-        processTakeByGateway(gateway);
-    }
+  @Override
+  public void takeByGateway(Long gatewayId) {
+    ClientDto gateway = clientService.getGatewayById(gatewayId);
+    processTakeByGateway(gateway);
+  }
 
-    @Override
-    public void takeByIpAddress(String gatewayIpAddress) {
-        ClientDto gateway = clientService.getGatewayByIpAddress(gatewayIpAddress);
-        processTakeByGateway(gateway);
-    }
+  @Override
+  public void takeByIpAddress(String gatewayIpAddress) {
+    ClientDto gateway = clientService.getGatewayByIpAddress(gatewayIpAddress);
+    processTakeByGateway(gateway);
+  }
 
-    @Override
-    public void takeByRoom(Long roomId) {
-        List<ClientDto> gateways = clientService.getListGatewaysByRoomId(roomId, 0, 1000).content();
-        if (gateways == null || gateways.isEmpty()) return;
+  @Override
+  public void takeByRoom(Long roomId) {
+    List<ClientDto> gateways = clientService.getListGatewaysByRoomId(roomId, 0, 1000).content();
+    if (gateways == null || gateways.isEmpty()) return;
 
-        long start = System.currentTimeMillis();
-        log.info("[TELEMETRY] Starting batch telemetry collection for room [{}] - {} gateways", roomId, gateways.size());
+    long start = System.currentTimeMillis();
+    log.info("[TELEMETRY] Starting batch telemetry collection for room [{}] - {} gateways", roomId, gateways.size());
 
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<CompletableFuture<Void>> futures = gateways.stream()
-                    .map(gateway -> CompletableFuture.runAsync(() -> {
-                        try {
-                            processTakeByGateway(gateway);
-                        } catch (Exception e) {
-                            log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}", 
-                                    gateway.username(), roomId, e.getMessage());
-                        }
-                    }, executor))
-                    .toList();
-
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            log.info("[TELEMETRY] Finished batch telemetry collection for room [{}] in {}ms", 
-                    roomId, System.currentTimeMillis() - start);
-        }
-    }
-
-    @Override
-    public void takeByRoom(String roomCode) {
-        if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
-        Long roomId = roomService.getEntityByCode(roomCode).getId();
-        List<ClientDto> gateways = clientService.getListGatewaysByRoomId(roomId, 0, 1000).content();
-        if (gateways == null || gateways.isEmpty()) return;
-
-        long start = System.currentTimeMillis();
-        log.info("[TELEMETRY] Starting batch telemetry collection for room [{}] - {} gateways", roomCode, gateways.size());
-
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<CompletableFuture<Void>> futures = gateways.stream()
-                    .map(gateway -> CompletableFuture.runAsync(() -> {
-                        try {
-                            processTakeByGateway(gateway);
-                        } catch (Exception e) {
-                            log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}", 
-                                    gateway.username(), roomCode, e.getMessage());
-                        }
-                    }, executor))
-                    .toList();
-
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-            log.info("[TELEMETRY] Finished batch telemetry collection for room [{}] in {}ms", 
-                    roomCode, System.currentTimeMillis() - start);
-        }
-    }
-
-    @Override
-    public void takeTemperatureData(String naturalId) {
-        // Stage 1: READ
-        Temperature sensor = temperatureService.getEntityByNaturalId(naturalId);
-        DeviceControl deviceControl = sensor.getDeviceControl();
-        Client client = deviceControl.getClient();
-
-        // Stage 2: FETCH
-        String url = UrlConstant.getTelemetryTempV1(client.getIpAddress(), naturalId);
-        
-        var response = HttpClientUtil.get(url);
-        HttpClientUtil.handleThrowException(response);
-
-        // Stage 3: PROCESS & SAVE
-        FetchTempValueResponseDto responseBody = JsonUtil.fromJson(response.getBody(), FetchTempValueResponseDto.class);
-        CreateTemperatureValueDto createDto = CreateTemperatureValueDto.builder()
-            .sensorNaturalId(naturalId)
-            .tempC(responseBody.getData().getTempC())
-            .timestamp(responseBody.getTimestamp())
-            .build();
-
-        temperatureValueService.createWithSensor(sensor, createDto);
-    }
-
-    @Override
-    public void takePowerConsumptionData(String naturalId) {
-        // Stage 1: READ
-        var sensor = powerConsumptionService.getEntityByNaturalId(naturalId);
-        var deviceControl = sensor.getDeviceControl();
-        var client = deviceControl.getClient();
-
-        // Stage 2: FETCH
-        String url = UrlConstant.getTelemetryPowerV1(client.getIpAddress(), naturalId);
-        
-        var response = HttpClientUtil.get(url);
-        HttpClientUtil.handleThrowException(response);
-
-        // Stage 3: PROCESS & SAVE
-        var responseBody = JsonUtil.fromJson(response.getBody(), FetchPowerConsumpValueResponseDto.class);
-        var createDto = CreatePowerConsumptionValueDto.builder()
-            .sensorNaturalId(naturalId)
-            .watt(responseBody.getData().getWatt())
-            .timestamp(responseBody.getTimestamp())
-            .build();
-
-        powerConsumptionValueService.createWithSensor(sensor, createDto);
-    }
-
-    @Override
-    public void takeGlobalTelemetry() {
-        log.info("[TELEMETRY] Starting global telemetry collection");
-        long start = System.currentTimeMillis();
-
-        try {
-            List<ClientDto> gateways = clientService.getAllGateways();
-
-            for (ClientDto gateway : gateways) {
-                try {
-                    processTakeByGateway(gateway);
-                } catch (Exception e) {
-                    log.error("[TELEMETRY] Failed to process gateway [{}]: {}", gateway.username(), e.getMessage());
-                }
-            }
-
-            log.info("[TELEMETRY] Finished global telemetry collection in {}ms", System.currentTimeMillis() - start);
-        } catch (Exception e) {
-            log.error("[TELEMETRY] Failed to collect global telemetry: {}", e.getMessage(), e);
-        }
-    }
-
-    private void processTakeByGateway(ClientDto gateway) {
-        String url = UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress());
-        var response = HttpClientUtil.get(url);
-        HttpClientUtil.handleThrowException(response);
-
-        var responseBody = JsonUtil.fromJson(response.getBody(), FetchTelemetryByGatewayResponseDto.class);
-        Instant timestamp = responseBody.getTimestamp();
-        List<FetchTelemetryByGatewayResponseDto.Data> telemetryData = responseBody.getData();
-
-        int processedCount = 0;
-        for (var data : telemetryData) {
-            String naturalId = data.getNaturalId();
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      List<CompletableFuture<Void>> futures = gateways.stream()
+          .map(gateway -> CompletableFuture.runAsync(() -> {
             try {
-                switch (data.getCategory()) {
-                    case TEMPERATURE -> {
-                        var createDto = CreateTemperatureValueDto.builder()
-                                .sensorNaturalId(naturalId)
-                                .tempC(data.getData().get("tempC").asDouble())
-                                .timestamp(timestamp)
-                                .build();
-                        temperatureValueService.createWithSensor(
-                            temperatureService.getEntityByNaturalId(naturalId), createDto);
-                    }
-                    case POWER_CONSUMPTION -> {
-                        var createDto = CreatePowerConsumptionValueDto.builder()
-                                .sensorNaturalId(naturalId)
-                                .watt(data.getData().get("watt").asDouble())
-                                .timestamp(timestamp)
-                                .build();
-                        powerConsumptionValueService.createWithSensor(
-                            powerConsumptionService.getEntityByNaturalId(naturalId), createDto);
-                    }
-                    default -> log.warn("Unknown category {} for sensor {}", data.getCategory(), naturalId);
-                }
-                processedCount++;
+              processTakeByGateway(gateway);
             } catch (Exception e) {
-                log.error("Failed to process sensor {} for gateway {}: {}", naturalId, gateway.username(), e.getMessage());
+              log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}",
+                  gateway.username(), roomId, e.getMessage());
             }
-        }
+          }, executor))
+          .toList();
 
-        log.info("Gateway {}: Processed {}/{} telemetry records", gateway.username(), processedCount, telemetryData.size());
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+      log.info("[TELEMETRY] Finished batch telemetry collection for room [{}] in {}ms",
+          roomId, System.currentTimeMillis() - start);
     }
+  }
+
+  @Override
+  public void takeByRoom(String roomCode) {
+    if (roomCode == null || roomCode.isBlank()) throw new BadRequestException("Room code is required");
+    Long roomId = roomService.getEntityByCode(roomCode).getId();
+    List<ClientDto> gateways = clientService.getListGatewaysByRoomId(roomId, 0, 1000).content();
+    if (gateways == null || gateways.isEmpty()) return;
+
+    long start = System.currentTimeMillis();
+    log.info("[TELEMETRY] Starting batch telemetry collection for room [{}] - {} gateways", roomCode, gateways.size());
+
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      List<CompletableFuture<Void>> futures = gateways.stream()
+          .map(gateway -> CompletableFuture.runAsync(() -> {
+            try {
+              processTakeByGateway(gateway);
+            } catch (Exception e) {
+              log.error("[TELEMETRY] Failed to process gateway [{}] in room [{}]: {}",
+                  gateway.username(), roomCode, e.getMessage());
+            }
+          }, executor))
+          .toList();
+
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+      log.info("[TELEMETRY] Finished batch telemetry collection for room [{}] in {}ms",
+          roomCode, System.currentTimeMillis() - start);
+    }
+  }
+
+  @Override
+  @Transactional
+  public void takeTemperatureData(String naturalId) {
+    Temperature sensor = temperatureService.getEntityByNaturalId(naturalId);
+    DeviceControl deviceControl = sensor.getDeviceControl();
+    Client client = deviceControl.getClient();
+
+    String url = UrlConstant.getTelemetryTempV1(client.getIpAddress(), naturalId);
+
+    var response = HttpClientUtil.get(url);
+    HttpClientUtil.handleThrowException(response);
+
+    FetchTempValueResponseDto responseBody = JsonUtil.fromJson(response.getBody(), FetchTempValueResponseDto.class);
+    CreateTemperatureValueDto createDto = CreateTemperatureValueDto.builder()
+        .sensorNaturalId(naturalId)
+        .tempC(responseBody.getData().getTempC())
+        .timestamp(responseBody.getTimestamp())
+        .build();
+
+    temperatureValueService.createWithSensor(sensor, createDto);
+  }
+
+  @Override
+  @Transactional
+  public void takePowerConsumptionData(String naturalId) {
+    var sensor = powerConsumptionService.getEntityByNaturalId(naturalId);
+    var deviceControl = sensor.getDeviceControl();
+    var client = deviceControl.getClient();
+
+    String url = UrlConstant.getTelemetryPowerV1(client.getIpAddress(), naturalId);
+
+    var response = HttpClientUtil.get(url);
+    HttpClientUtil.handleThrowException(response);
+
+    var responseBody = JsonUtil.fromJson(response.getBody(), FetchPowerConsumpValueResponseDto.class);
+    var createDto = CreatePowerConsumptionValueDto.builder()
+        .sensorNaturalId(naturalId)
+        .watt(responseBody.getData().getWatt())
+        .timestamp(responseBody.getTimestamp())
+        .build();
+
+    powerConsumptionValueService.createWithSensor(sensor, createDto);
+  }
+
+  @Override
+  public void takeGlobalTelemetry() {
+    log.info("[TELEMETRY] Starting global telemetry collection");
+    long start = System.currentTimeMillis();
+
+    try {
+      List<ClientDto> gateways = clientService.getAllGateways();
+
+      for (ClientDto gateway : gateways) {
+        try {
+          processTakeByGateway(gateway);
+        } catch (Exception e) {
+          log.error("[TELEMETRY] Failed to process gateway [{}]: {}", gateway.username(), e.getMessage());
+        }
+      }
+
+      log.info("[TELEMETRY] Finished global telemetry collection in {}ms", System.currentTimeMillis() - start);
+    } catch (Exception e) {
+      log.error("[TELEMETRY] Failed to collect global telemetry: {}", e.getMessage(), e);
+    }
+  }
+
+  protected void processTakeByGateway(ClientDto gateway) {
+    String url = UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress());
+    var response = HttpClientUtil.get(url);
+    HttpClientUtil.handleThrowException(response);
+
+    var responseBody = JsonUtil.fromJson(response.getBody(), FetchTelemetryByGatewayResponseDto.class);
+    Instant timestamp = responseBody.getTimestamp();
+    List<FetchTelemetryByGatewayResponseDto.Data> telemetryData = responseBody.getData();
+
+    int processedCount = 0;
+    for (var data : telemetryData) {
+      String naturalId = data.getNaturalId();
+      try {
+        /*
+        * QUAN TRỌNG: Tại đây KHÔNG fetch Entity (Sensor) để truyền vào Service.
+        * * 1. Spring Proxy & Self-invocation: Phương thức này được gọi nội bộ trong class 
+        * nên @Transactional bị bỏ qua. Nếu fetch Entity tại đây, nó sẽ ở trạng thái 
+        * 'Detached' ngay lập tức.
+        * * 2. Virtual Threads: Việc xử lý chạy trên Virtual Thread riêng biệt, không kế thừa 
+        * Transaction context từ thread cha. 
+        * * 3. Giải pháp: Chỉ truyền DTO/NaturalId vào Service. Để Service đích tự mở 
+        * Transaction riêng và fetch Entity bên trong đó để đảm bảo thực thể luôn 
+        * nằm trong Persistence Context (Managed State), tránh lỗi 'detached entity passed to persist'.
+        */
+        switch (data.getCategory()) {
+          case TEMPERATURE -> {
+            var createDto = CreateTemperatureValueDto.builder()
+                .sensorNaturalId(naturalId)
+                .tempC(data.getData().has("tempC") ? data.getData().get("tempC").asDouble() : 0.0)
+                .timestamp(timestamp)
+                .build();
+            // Để service tự tìm sensor dựa trên naturalId trong transaction của nó
+            temperatureValueService.create(createDto); 
+          }
+          case POWER_CONSUMPTION -> {
+            var createDto = CreatePowerConsumptionValueDto.builder()
+                .sensorNaturalId(naturalId)
+                .watt(data.getData().has("watt") ? data.getData().get("watt").asDouble() : 0.0)
+                .timestamp(timestamp)
+                .build();
+            powerConsumptionValueService.create(createDto);
+          }
+          default -> log.warn("Unknown category {} for sensor {}", data.getCategory(), naturalId);
+        }
+        processedCount++;
+      } catch (Exception e) {
+        log.error("Failed to process sensor {} for gateway {}: {}", naturalId, gateway.username(), e.getMessage());
+      }
+    }
+
+    log.info("Gateway {}: Processed {}/{} telemetry records", gateway.username(), processedCount, telemetryData.size());
+  }
 }
