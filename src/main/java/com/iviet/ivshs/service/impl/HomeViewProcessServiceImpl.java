@@ -76,11 +76,6 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 				: Optional.of(history.getLast().getSumWatt());
 	}
 
-	@Override
-	public void evictAllCaches() {
-		log.debug("[HOME-VIEW] Cache eviction triggered");
-	}
-
 	private TimeRange calculateDefaultTimeRange() {
 		Instant now = Instant.now();
 		return new TimeRange(now.minus(DEFAULT_MINUS_MINUTES, ChronoUnit.MINUTES), now);

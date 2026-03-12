@@ -30,9 +30,4 @@ public class RoomViewProcessServiceImpl implements RoomViewProcessService {
 	public List<LightDto> getLightsForRoom(Long roomId) {
 		return lightService.getListByRoomId(roomId, 0, 1000).content();
 	}
-
-	@Override
-	public void evictAllCaches() {
-		log.debug("[ROOM-VIEW-PROCESS] Evicting all caches for room view");
-	}
 }

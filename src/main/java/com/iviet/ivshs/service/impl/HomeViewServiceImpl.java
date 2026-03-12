@@ -45,12 +45,7 @@ public class HomeViewServiceImpl implements HomeViewService {
 			.roomLatestSumWattMap(getLatestPowerConsumptionsForRooms(allRoomIds))
 			.build();
 	}
-
-	@Override
-	public void refreshDashboardData() {
-		cacheService.evictAllCaches();
-	}
-
+	
 	private Map<Long, Long> getGatewayCountsForRooms(List<Long> roomIds) {
 		return roomIds.stream().collect(Collectors.toMap(
 			id -> id,

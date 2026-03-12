@@ -18,6 +18,4 @@ public interface HomeViewProcessService {
 	Optional<Double> getLatestTemperatureForRoom(Long roomId);
 
 	Optional<Double> getLatestPowerConsumptionForRoom(Long roomId);
-
-	void evictAllCaches();
 }

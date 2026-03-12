@@ -10,6 +10,4 @@ public interface RoomViewProcessService {
 	RoomDto getRoomMetadata(Long roomId);
 	
 	List<LightDto> getLightsForRoom(Long roomId);
-
-	void evictAllCaches();
 }
