@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -36,46 +36,39 @@ public class HomeViewServiceImpl implements HomeViewService {
 			.map(RoomDto::id)
 			.toList();
 
-		Map<Long, Long> gatewayCountMap = getGatewayCountsForRooms(allRoomIds);
-		Map<Long, Optional<Double>> avgTempMap = getLatestTemperaturesForRooms(allRoomIds);
-		Map<Long, Optional<Double>> sumWattMap = getLatestPowerConsumptionsForRooms(allRoomIds);
-
 		return HomeViewModel.builder()
 			.welcomeMessage(i18nMessageService.getMessage(I18nMessageConstant.WELCOME_MSG))
 			.floorsMap(floorsMap)
 			.floorRoomsMap(floorRoomsMap)
-			.roomGatewayCountMap(gatewayCountMap)
-			.roomLatestAvgTempMap(avgTempMap)
-			.roomLatestSumWattMap(sumWattMap)
+			.roomGatewayCountMap(getGatewayCountsForRooms(allRoomIds))
+			.roomLatestAvgTempMap(getLatestTemperaturesForRooms(allRoomIds))
+			.roomLatestSumWattMap(getLatestPowerConsumptionsForRooms(allRoomIds))
 			.build();
 	}
 
+	@Override
 	public void refreshDashboardData() {
 		cacheService.evictAllCaches();
 	}
-	
+
 	private Map<Long, Long> getGatewayCountsForRooms(List<Long> roomIds) {
-		Map<Long, Long> result = new HashMap<>();
-		for (Long roomId : roomIds) {
-			result.put(roomId, cacheService.getDeviceCountByRoom(roomId));
-		}
-		return result;
+		return roomIds.stream().collect(Collectors.toMap(
+			id -> id,
+			cacheService::getDeviceCountByRoom
+		));
 	}
-	
+
 	private Map<Long, Optional<Double>> getLatestTemperaturesForRooms(List<Long> roomIds) {
-		Map<Long, Optional<Double>> result = new HashMap<>();
-		for (Long roomId : roomIds) {
-			result.put(roomId, cacheService.getLatestTemperatureForRoom(roomId));
-		}
-		return result;
+		return roomIds.stream().collect(Collectors.toMap(
+			id -> id,
+			cacheService::getLatestTemperatureForRoom
+		));
 	}
-	
+
 	private Map<Long, Optional<Double>> getLatestPowerConsumptionsForRooms(List<Long> roomIds) {
-		Map<Long, Optional<Double>> result = new HashMap<>();
-		for (Long roomId : roomIds) {
-			result.put(roomId, cacheService.getLatestPowerConsumptionForRoom(roomId));
-		}
-		return result;
+		return roomIds.stream().collect(Collectors.toMap(
+			id -> id,
+			cacheService::getLatestPowerConsumptionForRoom
+		));
 	}
 }
-
