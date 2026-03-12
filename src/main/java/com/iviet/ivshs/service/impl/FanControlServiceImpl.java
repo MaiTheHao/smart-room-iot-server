@@ -30,189 +30,170 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class FanControlServiceImpl implements FanControlService {
 
-    private final FanDao fanDao;
+  private final FanDao fanDao;
 
-    @Override
-    public DeviceCategory getSupportedCategory() {
-        return DeviceCategory.FAN;
+  @Override
+  public DeviceCategory getSupportedCategory() {
+    return DeviceCategory.FAN;
+  }
+
+  @Override
+  public Class<FanControlRequestBody> getControlDtoClass() {
+    return FanControlRequestBody.class;
+  }
+
+  @Override
+  @Transactional
+  public void handlePowerControl(String naturalId, ActuatorPower power) {
+    Fan fan = getOrThrow(naturalId);
+    String gatewayIp = extractClientIpAddress(fan);
+    fan.setPower(power);
+    fanDao.save(fan);
+    handlePowerControlCall(gatewayIp, fan.getNaturalId(), power);
+  }
+
+  @Override
+  @Transactional
+  public void handleTogglePowerControl(String naturalId) {
+    Fan fan = getOrThrow(naturalId);
+    ActuatorPower newPowerState = (fan.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
+    String gatewayIp = extractClientIpAddress(fan);
+    fan.setPower(newPowerState);
+    fanDao.save(fan);
+    handlePowerControlCall(gatewayIp, fan.getNaturalId(), newPowerState);
+  }
+
+  @Override
+  @Transactional
+  public void handleModeControl(String naturalId, ActuatorMode mode) {
+    Fan fan = getOrThrow(naturalId);
+    String gatewayIp = extractClientIpAddress(fan);
+    if (fan instanceof FanIr fanIr) {
+      fanIr.setMode(mode);
+      fanDao.save(fanIr);
     }
+    handleModeControlCall(gatewayIp, fan.getNaturalId(), mode);
+  }
 
-    @Override
-    public Class<FanControlRequestBody> getControlDtoClass() {
-        return FanControlRequestBody.class;
+  @Override
+  @Transactional
+  public void handleSpeedControl(String naturalId, int speed) {
+    Fan fan = getOrThrow(naturalId);
+    String gatewayIp = extractClientIpAddress(fan);
+    if (fan instanceof FanIr fanIr) {
+      fanIr.setSpeed(speed);
+      fanDao.save(fanIr);
     }
+    handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
+  }
 
-    @Override
-    @Transactional
-    public void handlePowerControl(String naturalId, ActuatorPower power) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        String gatewayIp = extractClientIpAddress(fan);
-
-        fan.setPower(power);
-        fanDao.save(fan);
-        
-        handlePowerControlCall(gatewayIp, fan.getNaturalId(), power);
+  @Override
+  @Transactional
+  public void handleSwingControl(String naturalId, ActuatorSwing swing) {
+    Fan fan = getOrThrow(naturalId);
+    String gatewayIp = extractClientIpAddress(fan);
+    if (fan instanceof FanIr fanIr) {
+      fanIr.setSwing(swing);
+      fanDao.save(fanIr);
     }
+    handleSwingControlCall(gatewayIp, fan.getNaturalId(), swing);
+  }
 
-    private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-        String url = UrlConstant.getControlFanPowerUrlV2(gatewayIp, naturalId);
-        Map<String, Object> payload = Map.of("data", power);
-        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+  @Override
+  @Transactional
+  public void handleLightControl(String naturalId, ActuatorState light) {
+    Fan fan = getOrThrow(naturalId);
+    String gatewayIp = extractClientIpAddress(fan);
+    if (fan instanceof FanIr fanIr) {
+      fanIr.setLight(light);
+      fanDao.save(fanIr);
     }
+    handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
+  }
 
-    @Override
-    @Transactional
-    public void handleTogglePowerControl(String naturalId) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        ActuatorPower newPowerState = (fan.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-        String gatewayIp = extractClientIpAddress(fan);
+  @Override
+  @Transactional
+  public void control(String naturalId, FanControlRequestBody body) {
+    Fan fan = getOrThrow(naturalId);
+    applyControlParams(fan, body);
+  }
 
-        fan.setPower(newPowerState);
-        fanDao.save(fan);
+  @Override
+  @Transactional
+  public void control(Long id, FanControlRequestBody body) {
+    Fan fan = fanDao.findById(id)
+      .orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
+    applyControlParams(fan, body);
+  }
 
-        handlePowerControlCall(gatewayIp, fan.getNaturalId(), newPowerState);
+  private void applyControlParams(Fan fan, FanControlRequestBody body) {
+    String gatewayIp = extractClientIpAddress(fan);
+    if (body.power() != null) {
+      fan.setPower(body.power());
+      handlePowerControlCall(gatewayIp, fan.getNaturalId(), body.power());
     }
-
-    @Override
-    @Transactional
-    public void handleModeControl(String naturalId, ActuatorMode mode) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        String gatewayIp = extractClientIpAddress(fan);
-
-        if (fan instanceof FanIr fanIr) {
-            fanIr.setMode(mode);
-            fanDao.save(fanIr);
-        }
-        
-        handleModeControlCall(gatewayIp, fan.getNaturalId(), mode);
+    if (body.speed() != null && fan instanceof FanIr fanIr) {
+      fanIr.setSpeed(body.speed());
+      handleSpeedControlCall(gatewayIp, fan.getNaturalId(), body.speed());
     }
-
-    private void handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
-        String url = UrlConstant.getControlFanModeUrlV2(gatewayIp, naturalId);
-        Map<String, Object> payload = Map.of("data", mode);
-        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    if (body.mode() != null && fan instanceof FanIr fanIr) {
+      fanIr.setMode(body.mode());
+      handleModeControlCall(gatewayIp, fan.getNaturalId(), body.mode());
     }
-
-    @Override
-    @Transactional
-    public void handleSpeedControl(String naturalId, int speed) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        String gatewayIp = extractClientIpAddress(fan);
-
-        if (fan instanceof FanIr fanIr) {
-            fanIr.setSpeed(speed);
-            fanDao.save(fanIr);
-        }
-        
-        handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
+    if (body.swing() != null && fan instanceof FanIr fanIr) {
+      fanIr.setSwing(body.swing());
+      handleSwingControlCall(gatewayIp, fan.getNaturalId(), body.swing());
     }
-
-    private void handleSpeedControlCall(String gatewayIp, String naturalId, int speed) {
-        String url = UrlConstant.getControlFanSpeedUrlV2(gatewayIp, naturalId);
-        Map<String, Object> payload = Map.of("data", speed);
-        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    if (body.light() != null && fan instanceof FanIr fanIr) {
+      fanIr.setLight(body.light());
+      handleLightControlCall(gatewayIp, fan.getNaturalId(), body.light());
     }
+    fanDao.save(fan);
+  }
 
-    @Override
-    @Transactional
-    public void handleSwingControl(String naturalId, ActuatorSwing swing) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        String gatewayIp = extractClientIpAddress(fan);
+  private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
+    String url = UrlConstant.getControlFanPowerUrlV2(gatewayIp, naturalId);
+    HttpClientUtil.putAsync(url, Map.of("data", power)).exceptionally(ex -> null);
+  }
 
-        if (fan instanceof FanIr fanIr) {
-            fanIr.setSwing(swing);
-            fanDao.save(fanIr);
-        }
-        
-        handleSwingControlCall(gatewayIp, fan.getNaturalId(), swing);
+  private void handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
+    String url = UrlConstant.getControlFanModeUrlV2(gatewayIp, naturalId);
+    HttpClientUtil.putAsync(url, Map.of("data", mode)).exceptionally(ex -> null);
+  }
+
+  private void handleSpeedControlCall(String gatewayIp, String naturalId, int speed) {
+    String url = UrlConstant.getControlFanSpeedUrlV2(gatewayIp, naturalId);
+    HttpClientUtil.putAsync(url, Map.of("data", speed)).exceptionally(ex -> null);
+  }
+
+  private void handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
+    String url = UrlConstant.getControlFanSwingUrlV2(gatewayIp, naturalId);
+    HttpClientUtil.putAsync(url, Map.of("data", swing)).exceptionally(ex -> null);
+  }
+
+  private void handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
+    String url = UrlConstant.getControlFanLightUrlV2(gatewayIp, naturalId);
+    HttpClientUtil.putAsync(url, Map.of("data", light)).exceptionally(ex -> null);
+  }
+
+  private Fan getOrThrow(String naturalId) {
+    return fanDao.findByNaturalId(naturalId)
+      .orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
+  }
+
+  private String extractClientIpAddress(Fan fan) {
+    DeviceControl control = fan.getDeviceControl();
+    if (control == null) {
+      throw new BadRequestException("DeviceControl not found for Fan: " + fan.getId());
     }
-
-    private void handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
-        String url = UrlConstant.getControlFanSwingUrlV2(gatewayIp, naturalId);
-        Map<String, Object> payload = Map.of("data", swing);
-        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
+    Client client = control.getClient();
+    if (client == null) {
+      throw new BadRequestException("Client not found for DeviceControl: " + control.getId());
     }
-
-    @Override
-    @Transactional
-    public void handleLightControl(String naturalId, ActuatorState light) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        String gatewayIp = extractClientIpAddress(fan);
-
-        if (fan instanceof FanIr fanIr) {
-            fanIr.setLight(light);
-            fanDao.save(fanIr);
-        }
-        
-        handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
+    String gatewayIp = client.getIpAddress();
+    if (gatewayIp == null || gatewayIp.isBlank()) {
+      throw new BadRequestException("IP Address not found for Client: " + client.getId());
     }
-
-    private void handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
-        String url = UrlConstant.getControlFanLightUrlV2(gatewayIp, naturalId);
-        Map<String, Object> payload = Map.of("data", light);
-        HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-    }
-
-    @Override
-    @Transactional
-    public void control(String naturalId, FanControlRequestBody body) {
-        Fan fan = fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
-        applyControlParams(fan, body);
-    }
-
-    @Override
-    @Transactional
-    public void control(Long id, FanControlRequestBody body) {
-        Fan fan = fanDao.findById(id).orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
-        applyControlParams(fan, body);
-    }
-
-    private void applyControlParams(Fan fan, FanControlRequestBody body) {
-        String gatewayIp = extractClientIpAddress(fan);
-
-        if (body.power() != null) {
-            fan.setPower(body.power());
-            handlePowerControlCall(gatewayIp, fan.getNaturalId(), body.power());
-        }
-
-        if (body.speed() != null) {
-            if (fan instanceof FanIr fanIr) {
-                fanIr.setSpeed(body.speed());
-            }
-            handleSpeedControlCall(gatewayIp, fan.getNaturalId(), body.speed());
-        }
-
-        if (body.mode() != null) {
-            if (fan instanceof FanIr fanIr) {
-                fanIr.setMode(body.mode());
-            }
-            handleModeControlCall(gatewayIp, fan.getNaturalId(), body.mode());
-        }
-
-        if (body.swing() != null) {
-            if (fan instanceof FanIr fanIr) {
-                fanIr.setSwing(body.swing());
-            }
-            handleSwingControlCall(gatewayIp, fan.getNaturalId(), body.swing());
-        }
-        
-        if (body.light() != null) {
-            if (fan instanceof FanIr fanIr) {
-                fanIr.setLight(body.light());
-            }
-            handleLightControlCall(gatewayIp, fan.getNaturalId(), body.light());
-        }
-        
-        fanDao.save(fan);
-    }
-
-    private String extractClientIpAddress(Fan fan) {
-        DeviceControl control = fan.getDeviceControl();
-        if (control == null) throw new BadRequestException("Device control not found for fan with id: " + fan.getId());
-        Client client = control.getClient();
-        if (client == null) throw new BadRequestException("Client not found for device control with id: " + control.getId());
-        String gatewayIp = client.getIpAddress();
-        if (gatewayIp == null || gatewayIp.isBlank()) throw new BadRequestException("Gateway IP not found for client with id: " + client.getId());
-        return gatewayIp;
-    }
+    return gatewayIp;
+  }
 }

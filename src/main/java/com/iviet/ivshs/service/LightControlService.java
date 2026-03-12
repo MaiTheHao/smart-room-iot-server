@@ -2,8 +2,9 @@ package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.LightControlRequestBody;
 import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
-public interface LightControlService extends DeviceControlStrategy<LightControlRequestBody> {
+public interface LightControlService extends DeviceControlServiceStrategy<LightControlRequestBody> {
     
     void handlePowerControl(String naturalId, ActuatorPower power);
 

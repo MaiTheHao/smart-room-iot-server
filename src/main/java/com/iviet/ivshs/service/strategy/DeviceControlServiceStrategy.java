@@ -1,7 +1,7 @@
-package com.iviet.ivshs.service;
+package com.iviet.ivshs.service.strategy;
 
 import com.iviet.ivshs.enumeration.DeviceCategory;
-public interface DeviceControlStrategy<T> {
+public interface DeviceControlServiceStrategy<T> {
 
   DeviceCategory getSupportedCategory();
   

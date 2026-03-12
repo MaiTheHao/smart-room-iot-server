@@ -13,8 +13,8 @@ import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.RuleMapper;
 import com.iviet.ivshs.schedule.rule.RuleJob;
 import com.iviet.ivshs.schedule.rule.RuleProcessor;
-import com.iviet.ivshs.service.DeviceControlStrategy;
 import com.iviet.ivshs.service.RuleService;
+import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 import com.iviet.ivshs.util.QuartzUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
@@ -39,15 +39,15 @@ public class RuleServiceImpl implements RuleService {
 	private final ObjectMapper objectMapper;
 	private final QuartzUtil quartzUtil;
 	private final Validator validator;
-	private final List<DeviceControlStrategy<?>> controlStrategies;
+	private final List<DeviceControlServiceStrategy<?>> controlStrategies;
 
-	private Map<DeviceCategory, DeviceControlStrategy<?>> strategyMap;
+	private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
 	@PostConstruct
 	private void initStrategyMap() {
 			strategyMap = controlStrategies.stream()
 							.collect(Collectors.toUnmodifiableMap(
-											DeviceControlStrategy::getSupportedCategory,
+											DeviceControlServiceStrategy::getSupportedCategory,
 											Function.identity()
 							));
 			log.info("RuleEngine initialized with categories: {}", strategyMap.keySet());
@@ -71,7 +71,7 @@ public class RuleServiceImpl implements RuleService {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private void executeRuleAction(Rule rule) {
-			DeviceControlStrategy strategy = strategyMap.get(rule.getTargetDeviceCategory());
+			DeviceControlServiceStrategy strategy = strategyMap.get(rule.getTargetDeviceCategory());
 			
 			if (strategy == null) {
 				log.error("Missing strategy for category: {}", rule.getTargetDeviceCategory());
@@ -126,7 +126,7 @@ public class RuleServiceImpl implements RuleService {
 	}
 
 	private void validateActionParams(DeviceCategory category, JsonNode params) {
-		DeviceControlStrategy<?> strategy = Optional.ofNullable(strategyMap.get(category))
+		DeviceControlServiceStrategy<?> strategy = Optional.ofNullable(strategyMap.get(category))
 						.orElseThrow(() -> new BadRequestException("Unsupported category: " + category));
 
 		try {

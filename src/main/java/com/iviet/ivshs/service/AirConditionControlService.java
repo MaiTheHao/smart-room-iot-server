@@ -4,8 +4,9 @@ import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
-public interface AirConditionControlService extends DeviceControlStrategy<AirConditionControlRequestBody> {
+public interface AirConditionControlService extends DeviceControlServiceStrategy<AirConditionControlRequestBody> {
 
   void handlePowerControl(String naturalId, ActuatorPower power);
 
