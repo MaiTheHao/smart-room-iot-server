@@ -21,10 +21,9 @@ services:
     restart: always
     volumes:
       - ../../local/mysql_data:/var/lib/mysql
-      # Khởi tạo tables trong DB
       - ../scripts/sql/init_table.sql:/docker-entrypoint-initdb.d/01-init_tables.sql:ro
-      # Khởi tạo data trong DB
-      - ../scripts/sql/init_data.sql:/docker-entrypoint-initdb.d/02-init_data.sql:ro
+      - ../scripts/sql/seeds/01_init_system_data.sql:/docker-entrypoint-initdb.d/02-init_system_data.sql:ro
+      - ../scripts/sql/seeds/02_init_location_data.sql:/docker-entrypoint-initdb.d/03-init_location_data.sql:ro
     networks:
       - default
 
