@@ -64,4 +64,8 @@ CREATE TABLE IF NOT EXISTS
     PRIMARY KEY (`id`),
     KEY `idx_rule_action_v2_rule_id` (`rule_v2_id`),
     KEY `idx_rule_action_v2_target_device` (`target_device_id`),
+    CONSTRAINT `fk_rule_action_v2_rule` FOREIGN KEY (`rule_v2_id`) REFERENCES `rule_v2` (`id`) ON DELETE CASCADE
+  ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+
+SET
   FOREIGN_KEY_CHECKS = 1;
