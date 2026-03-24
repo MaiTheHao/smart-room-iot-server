@@ -234,6 +234,64 @@ Table rule_condition {
   next_logic varchar(3) [default: NULL]
 }
 
+Table rule_v2 {
+  id bigint [pk, increment]
+  created_at datetime(6) [default: NULL]
+  created_by varchar(256) [default: NULL]
+  updated_at datetime(6) [default: NULL]
+  updated_by varchar(256) [default: NULL]
+  v bigint [not null]
+  name varchar(256) [not null]
+  priority int [not null]
+  is_active bit(1) [not null, default: `1`]
+  room_id bigint [not null]
+  cron_expression varchar(256) [default: NULL]
+
+  Indexes {
+    room_id [name: "idx_rule_v2_room"]
+    is_active [name: "idx_rule_v2_status"]
+  }
+}
+
+Table rule_condition_v2 {
+  id bigint [pk, increment]
+  created_at datetime(6) [default: NULL]
+  created_by varchar(256) [default: NULL]
+  updated_at datetime(6) [default: NULL]
+  updated_by varchar(256) [default: NULL]
+  v bigint [not null]
+  rule_v2_id bigint [not null]
+  sort_order int [not null]
+  data_source varchar(256) [not null, note: 'SYSTEM, ROOM, DEVICE, SENSOR']
+  resource_param text [note: 'JSON storage']
+  operator varchar(5) [not null]
+  value_param varchar(256) [not null]
+  next_logic varchar(3) [default: NULL]
+
+  Indexes {
+    rule_v2_id [name: "idx_rule_condition_v2_rule_id"]
+  }
+}
+
+Table rule_action_v2 {
+  id bigint [pk, increment]
+  created_at datetime(6) [default: NULL]
+  created_by varchar(256) [default: NULL]
+  updated_at datetime(6) [default: NULL]
+  updated_by varchar(256) [default: NULL]
+  v bigint [not null]
+  rule_v2_id bigint [not null]
+  execution_order int [default: NULL]
+  target_device_id bigint [not null]
+  target_device_category varchar(256) [not null, note: 'AIR_CONDITION, LIGHT, FAN']
+  action_params text [default: NULL]
+
+  Indexes {
+    rule_v2_id [name: "idx_rule_action_v2_rule_id"]
+    target_device_id [name: "idx_rule_action_v2_target_device"]
+  }
+}
+
 // --- Người dùng và Bảo mật (Users & Security) ---
 
 Table client {
@@ -334,6 +392,10 @@ Ref: power_consumption_value.sensor_id > power_consumption.id
 Ref: automation_action.automation_id > automation.id
 Ref: rule.room_id > room.id
 Ref: rule_condition.rule_id > rule.id
+
+Ref: rule_v2.room_id > room.id
+Ref: rule_condition_v2.rule_v2_id > rule_v2.id
+Ref: rule_action_v2.rule_v2_id > rule_v2.id
 
 Ref: client_group.client_id > client.id
 Ref: client_group.group_id > sys_group.id

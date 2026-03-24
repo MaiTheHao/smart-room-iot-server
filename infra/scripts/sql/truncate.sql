@@ -75,6 +75,12 @@ TRUNCATE TABLE `rule`;
 
 TRUNCATE TABLE `rule_condition`;
 
+TRUNCATE TABLE `rule_v2`;
+
+TRUNCATE TABLE `rule_condition_v2`;
+
+TRUNCATE TABLE `rule_action_v2`;
+
 -- ----------------------------
 -- Module: Quartz Scheduler
 -- ----------------------------
