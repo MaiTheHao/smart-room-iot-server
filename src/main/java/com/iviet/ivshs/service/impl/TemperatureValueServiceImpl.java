@@ -1,5 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dao.TemperatureDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TemperatureValueServiceImpl implements TemperatureValueService {
 
   private final RoomDao roomDao;
@@ -33,9 +35,11 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   }
 
   @Override
+  @Transactional
   public void create(TelemetryResponseDto.Data data) {
-    Double tempC = data.getData().get("tempC") != null ? data.getData().get("tempC").asDouble() : null;
-    if (tempC == null) return;
+    JsonNode tempCNode = data.getData().get("tempC");
+    if (tempCNode == null || !tempCNode.isNumber()) return;
+    Double tempC = tempCNode.asDouble();
 
     var sensor = temperatureDao.findByNaturalId(data.getNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + data.getNaturalId()));
     var record = CreateTemperatureValueDto.builder()
@@ -47,6 +51,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
         
     record.setSensor(sensor);
     temperatureValueDao.save(record);
+    sensor.setCurrentValue(record.getTempC());
   }
 
   @Override

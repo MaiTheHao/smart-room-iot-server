@@ -3,6 +3,7 @@ package com.iviet.ivshs.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.PowerConsumptionDao;
 import com.iviet.ivshs.dao.PowerConsumptionValueDao;
 import com.iviet.ivshs.dao.RoomDao;
@@ -22,6 +23,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueService {
 
   private final RoomDao roomDao;
@@ -34,9 +36,11 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   }
 
   @Override
+  @Transactional
   public void create(TelemetryResponseDto.Data data) {
-    Double watt = data.getData().get("watt") != null ? data.getData().get("watt").asDouble() : null;
-    if (watt == null) return;
+    JsonNode wattNode = data.getData().get("watt");
+    if (wattNode == null || !wattNode.isNumber()) return;
+    Double watt = wattNode.asDouble();
 
     var sensor = powerConsumptionDao.findByNaturalId(data.getNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + data.getNaturalId()));
     var record = CreatePowerConsumptionValueDto.builder()
@@ -48,9 +52,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
         
     record.setSensor(sensor);
     powerConsumptionValueDao.save(record);
-
     sensor.setCurrentWatt(record.getWatt());
-    powerConsumptionDao.save(sensor);
   }
 
   @Override
