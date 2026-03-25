@@ -4,10 +4,6 @@
 
 Table floor {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   code varchar(256) [unique, not null]
   level int [default: NULL]
@@ -15,10 +11,6 @@ Table floor {
 
 Table floor_lan {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   description text
   lang_code varchar(10) [not null]
@@ -32,10 +24,6 @@ Table floor_lan {
 
 Table room {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   code varchar(256) [unique, not null]
   floor_id bigint [not null]
@@ -61,10 +49,6 @@ Table room_lan {
 
 Table device_control {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   api_endpoint varchar(256) [default: NULL]
   ble_mac_address varchar(100) [default: NULL]
@@ -196,7 +180,9 @@ Table power_consumption_value {
 
 Table automation {
   id bigint [pk, increment]
-  cron_expression varchar(256) [not null]
+  is_interval bit(1) [not null, default: `0`]
+  interval_seconds int [default: NULL]
+  cron_expression varchar(256) [default: NULL]
   is_active bit(1) [default: NULL]
   name varchar(256) [not null]
   Indexes { is_active [name: "idx_auto_status"] }
@@ -236,15 +222,13 @@ Table rule_condition {
 
 Table rule_v2 {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   name varchar(256) [not null]
   priority int [not null]
   is_active bit(1) [not null, default: `1`]
   room_id bigint [not null]
+  is_interval bit(1) [not null, default: `0`]
+  interval_seconds int [default: NULL]
   cron_expression varchar(256) [default: NULL]
 
   Indexes {
@@ -255,10 +239,6 @@ Table rule_v2 {
 
 Table rule_condition_v2 {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   rule_v2_id bigint [not null]
   sort_order int [not null]
@@ -275,10 +255,6 @@ Table rule_condition_v2 {
 
 Table rule_action_v2 {
   id bigint [pk, increment]
-  created_at datetime(6) [default: NULL]
-  created_by varchar(256) [default: NULL]
-  updated_at datetime(6) [default: NULL]
-  updated_by varchar(256) [default: NULL]
   v bigint [not null]
   rule_v2_id bigint [not null]
   execution_order int [default: NULL]

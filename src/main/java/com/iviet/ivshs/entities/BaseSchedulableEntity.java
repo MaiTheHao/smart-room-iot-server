@@ -14,8 +14,14 @@ import lombok.Setter;
 @Setter
 public abstract class BaseSchedulableEntity extends BaseAuditEntity {
 
-  @Column(name = "cron_expression", nullable = false)
+  @Column(name = "is_interval", nullable = false)
+  private Boolean isInterval;
+
+  @Column(name = "cron_expression", nullable = true)
   private String cronExpression;
+
+  @Column(name = "interval_seconds", nullable = true)
+  private Integer intervalSeconds;
 
   @Column(name = "is_active", nullable = false)
   private Boolean isActive;
