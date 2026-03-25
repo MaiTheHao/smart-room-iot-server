@@ -19,10 +19,10 @@ services:
       - '3306:3306'
     restart: always
     volumes:
-      - ../../local/mariadb_data:/var/lib/mysql
-      - ../scripts/sql/init_table.sql:/docker-entrypoint-initdb.d/01-init_tables.sql:ro
-      - ../scripts/sql/seeds/01_init_system_data.sql:/docker-entrypoint-initdb.d/02-init_system_data.sql:ro
-      - ../scripts/sql/seeds/02_init_location_data.sql:/docker-entrypoint-initdb.d/03-init_location_data.sql:ro
+      - ../../local/data/mariadb_data:/var/lib/mysql
+      - ../scripts/database/init_table.sql:/docker-entrypoint-initdb.d/01-init_tables.sql:ro
+      - ../scripts/database/seeds/01_init_system_data.sql:/docker-entrypoint-initdb.d/02-init_system_data.sql:ro
+      - ../scripts/database/seeds/02_init_location_data.sql:/docker-entrypoint-initdb.d/03-init_location_data.sql:ro
     networks:
       - default
 
