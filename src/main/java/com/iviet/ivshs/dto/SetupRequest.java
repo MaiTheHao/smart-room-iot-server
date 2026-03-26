@@ -48,7 +48,7 @@ public class SetupRequest {
             private String specificType;
 
             private DeviceControlType controlType;
-            private Integer gpioPin;
+            private List<Integer> gpioPin;
             private String bleMac;
             private String apiEndpoint;
             private String name;
@@ -65,6 +65,22 @@ public class SetupRequest {
             public static class TranslationDetail {
                 private String name;
                 private String description;
+            }
+
+            @JsonSetter("gpioPin")
+            public void setGpioPin(Object value) {
+                if (value == null) {
+                    this.gpioPin = null;
+                    return;
+                }
+
+                if (value instanceof List<?> list) {
+                    this.gpioPin = list.stream()
+                            .map(item -> Integer.parseInt(item.toString()))
+                            .toList();
+                } else {
+                    this.gpioPin = List.of(Integer.parseInt(value.toString()));
+                }
             }
         }
     }

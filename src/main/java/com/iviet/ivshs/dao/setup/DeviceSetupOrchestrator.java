@@ -111,7 +111,7 @@ public class DeviceSetupOrchestrator {
     ) {
         DeviceControl dc = new DeviceControl();
         dc.setDeviceControlType(device.getControlType());
-        dc.setGpioPin(device.getGpioPin());
+        dc.setGpioPin(device.getGpioPin().getFirst());
         dc.setBleMacAddress(device.getBleMac());
         dc.setApiEndpoint(device.getApiEndpoint());
         dc.setClient(client);

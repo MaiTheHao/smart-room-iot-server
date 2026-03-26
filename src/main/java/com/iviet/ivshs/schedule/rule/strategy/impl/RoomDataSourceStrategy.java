@@ -53,9 +53,15 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
     try {
       String property = condition.getResourceParam().path("property").asText(null);
+      Long roomId = condition.getResourceParam().path("roomId").asLong(0L);
 
       if (property == null) {
         log.warn("Property is missing in ROOM resourceParam for condition {}", condition.getId());
+        return null;
+      }
+
+      if (roomId == 0L) {
+        log.warn("roomId is missing or 0 in ROOM resourceParam for condition {}", condition.getId());
         return null;
       }
 
@@ -64,13 +70,13 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
       return switch (property.toLowerCase()) {
         case PROP_AVG_TEMPERATURE -> {
-          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(contextId, startTime, now);
-          log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), contextId, lookbackMinutes, condition.getId());
+          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, startTime, now);
+          log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
         }
         case PROP_SUM_WATT -> {
-          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(contextId, startTime, now);
-          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), contextId, lookbackMinutes, condition.getId());
+          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime, now);
+          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
         }
         default -> {

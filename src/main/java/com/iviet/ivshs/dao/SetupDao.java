@@ -94,7 +94,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 		
 		DeviceControl deviceControl = new DeviceControl();
 		deviceControl.setDeviceControlType(device.getControlType());
-		deviceControl.setGpioPin(device.getGpioPin());
+		deviceControl.setGpioPin(device.getGpioPin().getFirst());
 		deviceControl.setBleMacAddress(device.getBleMac());
 		deviceControl.setApiEndpoint(device.getApiEndpoint());
 		deviceControl.setClient(client);

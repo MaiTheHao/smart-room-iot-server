@@ -701,9 +701,9 @@ Sử dụng để tạo điều kiện liên quan đến thời gian thực tế
 
 #### 2. ROOM (Thông số phòng)
 
-Sử dụng để lấy thông số trung bình/tổng hợp của căn phòng (dựa vào `roomId` trong Rule).
+Sử dụng để lấy thông số trung bình/tổng hợp của căn phòng (dựa vào `roomId` cung cấp trong `resourceParam`).
 
-**Cấu trúc:** `{"property": "<tên_thuộc_tính>"}`
+**Cấu trúc:** `{"roomId": <id>, "property": "<tên_thuộc_tính>"}`
 
 **Các property hỗ trợ:**
 
@@ -712,12 +712,13 @@ Sử dụng để lấy thông số trung bình/tổng hợp của căn phòng (
 | avg_temperature | Nhiệt độ trung bình (`avgTempC`) của phòng              |
 | sum_watt        | Tổng điện năng tiêu thụ (`sumWatt`) của phòng           |
 
-**Ví dụ:** Nếu nhiệt độ trung bình của phòng > 30°C
+**Ví dụ:** Nếu nhiệt độ trung bình của phòng (ID: 10) > 30°C
 ```json
 {
   "sortOrder": 1,
   "dataSource": "ROOM",
   "resourceParam": {
+    "roomId": 10,
     "property": "avg_temperature"
   },
   "operator": ">",
@@ -815,7 +816,8 @@ Ngữ cảnh: "Vào thứ 2 hàng tuần (SYSTEM), nếu nhiệt độ phòng > 
       "sortOrder": 1,
       "dataSource": "ROOM",
       "resourceParam": {
-        "property": "temperature"
+        "roomId": 10,
+        "property": "avg_temperature"
       },
       "operator": ">",
       "value": "28",
