@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -169,7 +170,7 @@ public class RuleV2ServiceImpl implements RuleV2Service {
   }
 
   @Override
-  @Transactional
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public void executeRuleLogic(Long ruleId) {
     RuleV2 rule = ruleV2Dao.findByIdWithConditionsAndActions(ruleId)
         .orElseThrow(() -> new NotFoundException("RuleV2 not found: " + ruleId));

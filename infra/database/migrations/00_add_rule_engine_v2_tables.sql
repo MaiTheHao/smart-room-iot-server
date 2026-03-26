@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS
     `created_at` datetime(6) DEFAULT NULL,
     `created_by` varchar(256) DEFAULT NULL,
     `updated_at` datetime(6) DEFAULT NULL,
-    `updated_by?` varchar(256) DEFAULT NULL,
+    `updated_by` varchar(256) DEFAULT NULL,
     `v` bigint NOT NULL,
     `rule_v2_id` bigint NOT NULL,
     `sort_order` int NOT NULL,

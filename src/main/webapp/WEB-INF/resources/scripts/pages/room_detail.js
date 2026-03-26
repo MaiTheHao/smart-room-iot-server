@@ -22,7 +22,6 @@ class RoomDetailPage {
     this.lightService = window.lightApiV1Service;
     this.acService = window.airConditionApiV1Service;
     this.fanService = window.fanApiV1Service;
-    this.telemetryService = window.telemetryApiV1Service;
 
     this.logger = window.logger('RoomDetailPage');
 
@@ -111,15 +110,6 @@ class RoomDetailPage {
       this.logger.warn('Room code not found, skipping telemetry fetch');
       return;
     }
-
-    this.telemetryService
-      .fetchByRoom(roomCode)
-      .then(() => {
-        this.logger.info(`Telemetry data fetched successfully for room: ${roomCode}`);
-      })
-      .catch((error) => {
-        this.logger.error('Failed to fetch telemetry data:', error);
-      });
 
     this.logger.debug(`Telemetry fetch initiated for room: ${roomCode}`);
   }

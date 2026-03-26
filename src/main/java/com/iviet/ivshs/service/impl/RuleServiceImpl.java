@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobKey;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -70,6 +71,7 @@ public class RuleServiceImpl implements RuleService {
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	private void executeRuleAction(Rule rule) {
 			DeviceControlServiceStrategy strategy = strategyMap.get(rule.getTargetDeviceCategory());
 			
