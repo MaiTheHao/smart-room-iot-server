@@ -11,7 +11,7 @@ public record RuleV2Dto(
 	Integer priority,
 	Boolean isActive,
 	Long roomId,
-	String cronExpression,
+	Integer intervalSeconds,
 	List<RuleConditionV2Dto> conditions,
 	List<RuleActionV2Dto> actions,
 	Instant createdAt,

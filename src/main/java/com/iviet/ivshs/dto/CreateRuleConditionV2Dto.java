@@ -26,7 +26,7 @@ public record CreateRuleConditionV2Dto(
 	ConditionOperator operator,
 
 	@NotBlank(message = "Value parameter is required")
-	String valueParam,
+	String value,
 
 	ConditionLogic nextLogic
 ) {}

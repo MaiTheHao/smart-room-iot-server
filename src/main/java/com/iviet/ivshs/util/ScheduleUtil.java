@@ -20,43 +20,25 @@ public class ScheduleUtil {
     @Value("${app.timezone:Asia/Ho_Chi_Minh}")
     private String appTimezone;
 
-    /**
-     * Syncs the entity's schedule with the Quartz scheduler.
-     * Logic:
-     * 1. If inactive -> Delete job.
-     * 2. If valid cron -> Schedule or Reschedule.
-     */
     public void sync(BaseSchedulableEntity entity) {
-        String jobName = entity.getJobName();
-        String jobGroup = entity.getJobGroup();
+        JobKey jobKey = JobKey.jobKey(entity.getJobName(), entity.getJobGroup());
+        TriggerKey triggerKey = TriggerKey.triggerKey("Trigger_" + entity.getJobName(), entity.getJobGroup());
 
         if (Boolean.FALSE.equals(entity.getIsActive())) {
-            quartzUtil.deleteJob(JobKey.jobKey(jobName, jobGroup));
+            quartzUtil.deleteJob(jobKey);
             return;
         }
 
-        if (!CronExpression.isValidExpression(entity.getCronExpression())) {
-            log.error("Invalid Cron Expression for job '{}': {}", jobName, entity.getCronExpression());
-            throw new InternalServerErrorException("Invalid Cron Expression: " + entity.getCronExpression());
-        }
-
-        JobKey jobKey = JobKey.jobKey(jobName, jobGroup);
-        TriggerKey triggerKey = TriggerKey.triggerKey("Trigger_" + jobName, jobGroup);
+        Trigger trigger = buildTrigger(entity, triggerKey);
 
         if (quartzUtil.checkExists(triggerKey)) {
-            // Update existing trigger
-            Trigger newTrigger = buildCronTrigger(entity, triggerKey);
-            quartzUtil.rescheduleJob(triggerKey, newTrigger);
+            quartzUtil.rescheduleJob(triggerKey, trigger);
         } else {
-            // Create new job
             JobDetail jobDetail = JobBuilder.newJob(entity.getJobClass())
                     .withIdentity(jobKey)
-                    .withDescription("Scheduled by ScheduleUtil")
                     .usingJobData(entity.getJobDataMap())
                     .storeDurably()
                     .build();
-
-            Trigger trigger = buildCronTrigger(entity, triggerKey);
             quartzUtil.scheduleJob(jobDetail, trigger);
         }
     }
@@ -77,13 +59,37 @@ public class ScheduleUtil {
         quartzUtil.triggerJob(JobKey.jobKey(entity.getJobName(), entity.getJobGroup()), entity.getJobDataMap());
     }
 
-    private Trigger buildCronTrigger(BaseSchedulableEntity entity, TriggerKey triggerKey) {
-        return TriggerBuilder.newTrigger()
-                .withIdentity(triggerKey)
-                .withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression())
+    private Trigger buildTrigger(BaseSchedulableEntity entity, TriggerKey triggerKey) {
+        TriggerBuilder<Trigger> builder = TriggerBuilder.newTrigger().withIdentity(triggerKey);
+
+        if (Boolean.TRUE.equals(entity.getIsInterval())) {
+            validateInterval(entity);
+            return builder.withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withIntervalInSeconds(entity.getIntervalSeconds())
+                            .repeatForever()
+                            .withMisfireHandlingInstructionNextWithExistingCount())
+                    .build();
+        }
+
+        validateCron(entity);
+        return builder.withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression())
                         .inTimeZone(TimeZone.getTimeZone(appTimezone))
                         .withMisfireHandlingInstructionFireAndProceed())
                 .build();
+    }
+
+    private void validateInterval(BaseSchedulableEntity entity) {
+        if (entity.getIntervalSeconds() == null || entity.getIntervalSeconds() <= 0) {
+            log.error("Invalid Interval Seconds for job '{}': {}", entity.getJobName(), entity.getIntervalSeconds());
+            throw new InternalServerErrorException("Invalid Interval Seconds: " + entity.getIntervalSeconds());
+        }
+    }
+
+    private void validateCron(BaseSchedulableEntity entity) {
+        if (!CronExpression.isValidExpression(entity.getCronExpression())) {
+            log.error("Invalid Cron Expression for job '{}': {}", entity.getJobName(), entity.getCronExpression());
+            throw new InternalServerErrorException("Invalid Cron Expression: " + entity.getCronExpression());
+        }
     }
 
     public void deleteJobGroup(String groupName) {

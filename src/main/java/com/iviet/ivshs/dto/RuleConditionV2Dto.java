@@ -13,6 +13,6 @@ public record RuleConditionV2Dto(
         RuleDataSource dataSource,
         JsonNode resourceParam,
         ConditionOperator operator,
-        String valueParam,
+        String value,
         ConditionLogic nextLogic
 ) {}

@@ -49,7 +49,7 @@ public class RuleConditionV2 extends BaseAuditEntity {
     private ConditionOperator operator;
 
     @Column(name = "value_param", nullable = false, length = 256)
-    private String valueParam;
+    private String value;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "next_logic", length = 3)

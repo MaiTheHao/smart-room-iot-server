@@ -6,8 +6,6 @@ import lombok.Builder;
 
 @Builder
 public record UpdateRuleActionV2Dto(
-  Long id,
-
   Long targetDeviceId,
 
   DeviceCategory targetDeviceCategory,

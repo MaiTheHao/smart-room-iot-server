@@ -123,6 +123,10 @@ public class ApiGlobalExceptionHandler {
                             fieldName, validValues, detailMsg);
                 } else if (vie.getCause() != null) {
                     msg = vie.getCause().getMessage();
+                } else {
+                    String typeName = targetType != null ? targetType.getSimpleName() : "unknown type";
+                    msg = String.format("Invalid format for field '%s'. Expected type: %s, but got: %s",
+                            fieldName, typeName, vie.getMessage());
                 }
             }
         } 

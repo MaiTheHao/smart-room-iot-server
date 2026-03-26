@@ -11,24 +11,22 @@ import lombok.Builder;
 
 @Builder
 public record UpdateRuleConditionDto(
-    Long id,
+	@NotNull(message = "Sort order is required")
+	@Min(value = 0, message = "Sort order must be at least 0")
+	Integer sortOrder,
 
-    @NotNull(message = "Sort order is required")
-    @Min(value = 0, message = "Sort order must be at least 0")
-    Integer sortOrder,
+	@NotNull(message = "Data source is required")
+	RuleDataSource dataSource,
 
-    @NotNull(message = "Data source is required")
-    RuleDataSource dataSource,
+	@NotNull(message = "Resource parameters are required")
+	JsonNode resourceParam,
 
-    @NotNull(message = "Resource parameters are required")
-    JsonNode resourceParam,
+	@NotNull(message = "Operator is required")
+	ConditionOperator operator,
 
-    @NotNull(message = "Operator is required")
-    ConditionOperator operator,
+	@NotBlank(message = "Value parameter is required")
+	String value,
 
-    @NotBlank(message = "Value parameter is required")
-    String value,
-
-    ConditionLogic nextLogic
+	ConditionLogic nextLogic
 ) {
 }

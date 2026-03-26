@@ -14,7 +14,7 @@ public class RuleConditionV2Dao extends BaseAuditEntityDao<RuleConditionV2> {
     }
 
     public List<RuleConditionV2> findByRuleId(Long ruleId) {
-        String jpql = "SELECT c FROM RuleConditionV2 c WHERE c.rule.id = :ruleId ORDER BY c.id ASC";
+        String jpql = "SELECT c FROM RuleConditionV2 c WHERE c.ruleV2.id = :ruleId ORDER BY c.sortOrder ASC";
         return entityManager.createQuery(jpql, RuleConditionV2.class)
                 .setParameter("ruleId", ruleId)
                 .getResultList();

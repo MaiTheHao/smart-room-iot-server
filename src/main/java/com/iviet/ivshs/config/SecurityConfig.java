@@ -90,7 +90,7 @@ public class SecurityConfig {
         configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/v1/**", configuration);
+        source.registerCorsConfiguration("/api/**", configuration);
         return source;
     }
 
@@ -98,14 +98,14 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher(new AntPathRequestMatcher("/api/v1/**"))
+            .securityMatcher(new AntPathRequestMatcher("/api/**"))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/**")).authenticated()
+                .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
             )
             .logout(logout -> logout
             .logoutUrl("/api/v1/auth/logout")

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -17,7 +16,6 @@ public record CreateRuleDto(
     String name,
 
     @NotNull(message = "Priority is required")
-    @Min(value = 0, message = "Priority must be at least 0")
     Integer priority,
 
     @NotNull(message = "Room ID is required")

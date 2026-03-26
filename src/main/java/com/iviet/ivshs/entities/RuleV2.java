@@ -31,7 +31,7 @@ import lombok.Setter;
 })
 public class RuleV2 extends BaseSchedulableEntity {
 
-    public static final String JOB_GROUP = "RULE_ENGINE_SYSTEM";
+    public static final String JOB_GROUP = "RULEV2_ENGINE_SYSTEM";
 
     @Column(name = "name", nullable = false, length = 256)
     private String name;
@@ -42,10 +42,10 @@ public class RuleV2 extends BaseSchedulableEntity {
     @Column(name = "room_id", nullable = false)
     private Long roomId;
 
-    @OneToMany(mappedBy = "ruleV2", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ruleV2", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RuleConditionV2> conditions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "ruleV2", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "ruleV2", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RuleActionV2> actions = new ArrayList<>();
 
     public void addCondition(RuleConditionV2 condition) {

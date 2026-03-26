@@ -19,20 +19,20 @@ import lombok.Setter;
 public abstract class BaseAuditEntity extends BaseEntity {
 
     @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+    protected Instant createdAt;
 
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    protected Instant updatedAt;
 
     @CreatedBy
     @Column(name = "created_by", length = 256, updatable = false)
-    private String createdBy;
+    protected String createdBy;
 
     @LastModifiedBy
     @Column(name = "updated_by", length = 256)
-    private String updatedBy;
+    protected String updatedBy;
 
     @Version
     @Column(name = "v", nullable = false)
-    private Long version = 0L;
+    protected Long version = 0L;
 }

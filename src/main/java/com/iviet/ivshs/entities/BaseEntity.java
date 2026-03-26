@@ -12,12 +12,12 @@ import java.util.Objects;
 @Setter
 public abstract class BaseEntity implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    protected static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     @Column(name = "id", updatable = false, nullable = false)
-    private Long id;
+    protected Long id;
 
     @Override
     public boolean equals(Object o) {
