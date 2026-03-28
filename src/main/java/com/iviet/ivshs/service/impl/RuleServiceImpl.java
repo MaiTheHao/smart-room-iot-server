@@ -92,9 +92,7 @@ public class RuleServiceImpl implements RuleService {
 	@Override
 	@Transactional
 	public RuleDto create(CreateRuleDto request) {
-			if (ruleDao.existsByName(request.name())) {
-				throw new BadRequestException("Rule name already exists");
-			}
+			_checkDuplicated(request.name());
 			validateActionParams(request.targetDeviceCategory(), request.actionParams());
 			
 			Rule saved = ruleDao.save(ruleMapper.fromCreateDto(request));
@@ -162,5 +160,11 @@ public class RuleServiceImpl implements RuleService {
 	@Override @Transactional public void delete(Long id) { if (!ruleDao.existsById(id)) throw new NotFoundException("Rule not found"); ruleDao.deleteById(id); }
 	@Override public PaginatedResponse<RuleDto> getList(int page, int size) { 
 			return new PaginatedResponse<>(ruleMapper.toDtoList(ruleDao.findAll(page, size)), page, size, ruleDao.count()); 
+	}
+
+	private void _checkDuplicated(String name) {
+		if (ruleDao.existsByName(name)) {
+			throw new BadRequestException("Rule name already exists");
+		}
 	}
 }
