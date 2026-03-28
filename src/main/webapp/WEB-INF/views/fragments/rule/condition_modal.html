@@ -85,25 +85,77 @@
 
                 <!-- ROOM properties -->
                 <div id="condSectionRoom" style="display: none">
-                  <div class="form-group mb-0">
-                    <label
-                      for="condRoomProperty"
-                      class="small font-weight-bold"
-                      th:text="#{rule.conditions.modal.property}"
-                      >Property</label
-                    >
-                    <select class="form-control form-control-sm" id="condRoomProperty">
-                      <option
-                        value=""
-                        disabled
-                        selected
-                        th:text="#{rule.conditions.modal.property.select}"
-                      >
-                        Select property
-                      </option>
-                      <option value="avg_temperature">avg_temperature (°C)</option>
-                      <option value="sum_watt">sum_watt (Watt)</option>
-                    </select>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label
+                          for="condRoomProperty"
+                          class="small font-weight-bold"
+                          th:text="#{rule.conditions.modal.property}"
+                          >Property</label
+                        >
+                        <select class="form-control form-control-sm" id="condRoomProperty">
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.property.select}"
+                          >
+                            Select property
+                          </option>
+                          <option value="avg_temperature">avg_temperature (°C)</option>
+                          <option value="sum_watt">sum_watt (Watt)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label
+                          for="condRoomFloorSelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.modal.floor}"
+                          >Floor</label
+                        >
+                        <select
+                          class="form-control form-control-sm"
+                          id="condRoomFloorSelect"
+                          disabled
+                        >
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.floor.select}"
+                          >
+                            Select floor
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label
+                          for="condRoomRoomSelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.modal.room}"
+                          >Room</label
+                        >
+                        <select
+                          class="form-control form-control-sm"
+                          id="condRoomRoomSelect"
+                          disabled
+                        >
+                          <option
+                            value=""
+                            disabled
+                            selected
+                            th:text="#{rule.conditions.modal.room.select}"
+                          >
+                            Select room
+                          </option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -188,7 +240,12 @@
                     </div>
                     <div class="col-md-6">
                       <div class="form-group mb-2">
-                        <label for="condRoomSelect" class="small font-weight-bold">Room</label>
+                        <label
+                          for="condRoomSelect"
+                          class="small font-weight-bold"
+                          th:text="#{rule.modal.room}"
+                          >Room</label
+                        >
                         <select class="form-control form-control-sm" id="condRoomSelect" disabled>
                           <option
                             value=""
@@ -203,7 +260,10 @@
                     </div>
                   </div>
                   <div class="form-group mb-0">
-                    <label for="condDeviceSelect" class="small font-weight-bold"
+                    <label
+                      for="condDeviceSelect"
+                      class="small font-weight-bold"
+                      th:text="#{rule.conditions.info.device}"
                       >Device / Sensor</label
                     >
                     <select class="form-control form-control-sm" id="condDeviceSelect" disabled>
@@ -226,7 +286,7 @@
               <div class="card-header py-2">
                 <h6 class="card-title m-0 font-weight-bold text-warning">
                   <i class="fas fa-not-equal mr-1"></i>
-                  Operator &amp; Value
+                  <span th:text="#{rule.conditions.modal.operator.title}">Operator & Value</span>
                 </h6>
               </div>
               <div class="card-body">
@@ -240,7 +300,14 @@
                         >Operator</label
                       >
                       <select class="form-control form-control-sm" id="condOperatorSelect" required>
-                        <option value="" disabled selected>Select operator</option>
+                        <option
+                          value=""
+                          disabled
+                          selected
+                          th:text="#{rule.conditions.modal.operator}"
+                        >
+                          Select operator
+                        </option>
                         <option value="=">=&nbsp;(equal)</option>
                         <option value="!=">!=&nbsp;(not equal)</option>
                         <option value=">">&gt;&nbsp;(greater than)</option>
@@ -271,7 +338,14 @@
                         id="condValueEnum"
                         style="display: none"
                       >
-                        <option value="" disabled selected>Select value</option>
+                        <option
+                          value=""
+                          disabled
+                          selected
+                          th:text="#{rule.conditions.modal.value.select}"
+                        >
+                          Select value
+                        </option>
                       </select>
                     </div>
                   </div>

@@ -80,10 +80,8 @@ public class FanControlServiceImpl implements FanControlService {
   public void handleSpeedControl(String naturalId, int speed) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
-    if (fan instanceof FanIr fanIr) {
-      fanIr.setSpeed(speed);
-      fanDao.save(fanIr);
-    }
+    fan.setSpeed(speed);
+    fanDao.save(fan);
     handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
   }
 
@@ -132,8 +130,8 @@ public class FanControlServiceImpl implements FanControlService {
       fan.setPower(body.power());
       handlePowerControlCall(gatewayIp, fan.getNaturalId(), body.power());
     }
-    if (body.speed() != null && fan instanceof FanIr fanIr) {
-      fanIr.setSpeed(body.speed());
+    if (body.speed() != null) {
+      fan.setSpeed(body.speed());
       handleSpeedControlCall(gatewayIp, fan.getNaturalId(), body.speed());
     }
     if (body.mode() != null && fan instanceof FanIr fanIr) {
