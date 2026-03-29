@@ -67,11 +67,11 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
       devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
     }
 
-      // Get Fan by Room
-      List<FanDto> fan = fanService.getAllByRoomId(roomId);
-      if (fan != null) {
-          devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
-      }
+    // Get Fan by Room
+    List<FanDto> fan = fanService.getAllByRoomId(roomId);
+    if (fan != null) {
+        devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
+    }
 
     return devices;
   }

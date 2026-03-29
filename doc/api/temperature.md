@@ -5,7 +5,60 @@
 ---
 
 <details>
-<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/temperatures</code> - Lấy cảm biến nhiệt độ theo phòng</summary>
+<summary><b>GET</b> <code>/api/v1/temperatures</code> - Lấy danh sách cảm biến nhiệt độ (phân trang)</summary>
+
+> Lấy danh sách tất cả cảm biến nhiệt độ, có phân trang.
+
+### Query Parameters
+
+| Tên  | Loại | Mô tả            | Mặc định |
+| :--- | :--- | :--------------- | :------- |
+| page | int  | Trang hiện tại   | 0        |
+| size | int  | Số phần tử/trang | 20       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"content": [...],
+		"page": 0,
+		"size": 20,
+		"totalElements": 1,
+		"totalPages": 1
+	},
+	"timestamp": "..."
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/temperatures/all</code> - Lấy tất cả cảm biến nhiệt độ</summary>
+
+> Lấy danh sách tất cả cảm biến nhiệt độ (không phân trang).
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [...],
+	"timestamp": "..."
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/temperatures</code> - Lấy cảm biến nhiệt độ theo phòng (phân trang)</summary>
 
 > Lấy danh sách cảm biến nhiệt độ theo phòng, có phân trang.
 
@@ -47,6 +100,32 @@
 		"totalPages": 1
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/temperatures/all</code> - Lấy tất cả cảm biến nhiệt độ theo phòng</summary>
+
+> Lấy danh sách tất cả cảm biến nhiệt độ theo phòng (không phân trang).
+
+### Path Parameters
+
+| Tên    | Loại | Mô tả    | Bắt buộc |
+| :----- | :--- | :------- | :------- |
+| roomId | Long | ID phòng | Có       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [...],
+	"timestamp": "..."
 }
 ```
 
@@ -125,7 +204,7 @@
 ```json
 {
 	"status": 201,
-	"message": "Created",
+	"message": "Created successfully",
 	"data": {
 		"id": 1,
 		"name": "Sensor 1",

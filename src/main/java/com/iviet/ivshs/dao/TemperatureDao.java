@@ -33,6 +33,34 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         .findFirst();
   }
 
+  public List<TemperatureDto> findAll(int page, int size, String langCode) {
+    String jpql = """
+        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.deviceControl.id)
+        FROM Temperature t
+        LEFT JOIN t.translations tl ON tl.langCode = :langCode
+        ORDER BY t.id ASC
+        """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, TemperatureDto.class)
+        .setParameter("langCode", langCode)
+        .setFirstResult(page * size)
+        .setMaxResults(size)
+        .getResultList();
+  }
+
+  public List<TemperatureDto> findAll(String langCode) {
+    String jpql = """
+        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.deviceControl.id)
+        FROM Temperature t
+        LEFT JOIN t.translations tl ON tl.langCode = :langCode
+        ORDER BY t.id ASC
+        """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, TemperatureDto.class)
+        .setParameter("langCode", langCode)
+        .getResultList();
+  }
+
   public List<TemperatureDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
     String jpql = """
         SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.deviceControl.id)
@@ -47,6 +75,21 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
         .setMaxResults(size)
+        .getResultList();
+  }
+
+  public List<TemperatureDto> findAllByRoomId(Long roomId, String langCode) {
+    String jpql = """
+        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.deviceControl.id)
+        FROM Temperature t
+        LEFT JOIN t.translations tl ON tl.langCode = :langCode
+        WHERE t.room.id = :roomId
+        ORDER BY t.id ASC
+        """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, TemperatureDto.class)
+        .setParameter("roomId", roomId)
+        .setParameter("langCode", langCode)
         .getResultList();
   }
 

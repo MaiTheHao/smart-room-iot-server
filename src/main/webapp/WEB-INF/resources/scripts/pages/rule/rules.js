@@ -23,8 +23,8 @@ class RuleManager {
       this.handleCategoryChange(e.target.value);
       this.resetDeviceSelection();
     });
-    $('#ruleFloorSelect').on('change', (e) => this.loadRooms(e.target.value));
-    $('#ruleRoomSelect').on('change', (e) => this.loadDevices(e.target.value));
+    $('#ruleFloorSelect').on('change', (e) => RuleCommon.loadRooms(e.target.value, '#ruleRoomSelect', '#ruleDeviceSelect'));
+    $('#ruleRoomSelect').on('change', (e) => RuleCommon.loadDevices(e.target.value, $('#ruleCategorySelect').val(), '#ruleDeviceSelect'));
 
     const $tbody = $('#rulesTable tbody');
     $tbody.on('click', '.btn-edit', (e) => this.handleEdit($(e.currentTarget).data('id')));
@@ -156,7 +156,7 @@ class RuleManager {
 
       // Preload floors if needed
       if ($('#ruleFloorSelect option').length <= 1) {
-        await this.loadFloors();
+        await RuleCommon.loadFloors('#ruleFloorSelect');
       }
     } else {
       $('#ruleModalTitleText').text('Edit Rule');
@@ -217,72 +217,7 @@ class RuleManager {
     $('#hiddenRuleDeviceId').val('');
   }
 
-  static async loadFloors() {
-    try {
-      const res = await this.floorService.getAllWithoutPagination();
-      const floors = res?.data || [];
-      const $select = $('#ruleFloorSelect');
-      $select.empty().append('<option value="" disabled selected>Select floor</option>');
-      floors.forEach((f) => $select.append(`<option value="${f.id}">${f.name}</option>`));
-      $select.prop('disabled', false);
-    } catch (error) {
-      console.error('[RuleManager] loadFloors error:', error);
-      notify.error('Failed to load floors');
-    }
-  }
 
-  static async loadRooms(floorId) {
-    if (!floorId) return;
-    try {
-      const $select = $('#ruleRoomSelect');
-      $select.prop('disabled', true).html('<option>Loading...</option>');
-      const res = await this.roomService.getAllByFloor(floorId);
-      const rooms = res?.data || [];
-      $select.empty().append('<option value="" disabled selected>Select room</option>');
-      rooms.forEach((r) => $select.append(`<option value="${r.id}">${r.name}</option>`));
-      $select.prop('disabled', false);
-
-      $('#ruleDeviceSelect')
-        .prop('disabled', true)
-        .html('<option value="" disabled selected>Select device</option>');
-      $('#hiddenRuleDeviceId').val('');
-    } catch (error) {
-      console.error('[RuleManager] loadRooms error:', error);
-      notify.error('Failed to load rooms');
-      $('#ruleRoomSelect')
-        .prop('disabled', false)
-        .html('<option value="" disabled selected>Select room</option>');
-    }
-  }
-
-  static async loadDevices(roomId) {
-    if (!roomId) return;
-    const category = $('#ruleCategorySelect').val();
-    try {
-      const $select = $('#ruleDeviceSelect');
-      $select.prop('disabled', true).html('<option>Loading...</option>');
-      const res = await this.deviceMetadataService.getAllByRoom(roomId);
-      const devices = (res?.data || []).filter((d) => !category || d.category === category);
-      $select.empty().append('<option value="" disabled selected>Select device</option>');
-      if (devices.length === 0) {
-        $select.append(`<option disabled>No ${category || ''} devices in this room</option>`);
-      } else {
-        devices.forEach((d) => {
-          $select.append(
-            `<option value="${d.id}" data-category="${d.category}">${d.name} (ID: ${d.id})</option>`,
-          );
-        });
-      }
-      $select.prop('disabled', false);
-      $('#hiddenRuleRoomId').val(roomId);
-    } catch (error) {
-      console.error('[RuleManager] loadDevices error:', error);
-      notify.error('Failed to load devices');
-      $('#ruleDeviceSelect')
-        .prop('disabled', false)
-        .html('<option value="" disabled selected>Select device</option>');
-    }
-  }
 
   static buildActionParams(category) {
     const params = {};

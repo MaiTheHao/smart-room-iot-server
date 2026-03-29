@@ -1,5 +1,7 @@
 package com.iviet.ivshs.service;
 
+import java.util.List;
+
 import com.iviet.ivshs.dto.CreatePowerConsumptionDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
@@ -8,13 +10,19 @@ import com.iviet.ivshs.entities.PowerConsumption;
 
 public interface PowerConsumptionService {
 
-    PaginatedResponse<PowerConsumptionDto> getListByRoom(Long roomId, int page, int size);
+    PaginatedResponse<PowerConsumptionDto> getList(int page, int size);
 
-    PaginatedResponse<PowerConsumption> getListEntityByRoom(Long roomId, int page, int size);
+    List<PowerConsumptionDto> getAll();
 
-    PowerConsumptionDto getById(Long powerSensorId);
+    PaginatedResponse<PowerConsumptionDto> getListByRoomId(Long roomId, int page, int size);
 
-    PowerConsumption getEntityById(Long powerSensorId);
+    List<PowerConsumptionDto> getAllByRoomId(Long roomId);
+
+    PaginatedResponse<PowerConsumption> getListEntityByRoomId(Long roomId, int page, int size);
+
+    PowerConsumptionDto getById(Long id);
+
+    PowerConsumption getEntityById(Long id);
 
     PowerConsumptionDto getByNaturalId(String naturalId);
 
@@ -22,7 +30,9 @@ public interface PowerConsumptionService {
 
     PowerConsumptionDto create(CreatePowerConsumptionDto dto);
 
-    PowerConsumptionDto update(Long powerSensorId, UpdatePowerConsumptionDto dto);
+    PowerConsumptionDto update(Long id, UpdatePowerConsumptionDto dto);
 
-    void delete(Long powerSensorId);
+    void delete(Long id);
+
+    Long countByRoomId(Long roomId);
 }

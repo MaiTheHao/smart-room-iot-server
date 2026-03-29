@@ -5,7 +5,60 @@
 ---
 
 <details>
-<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/power-consumptions</code> - Lấy cảm biến điện năng theo phòng</summary>
+<summary><b>GET</b> <code>/api/v1/power-consumptions</code> - Lấy danh sách cảm biến điện năng (phân trang)</summary>
+
+> Lấy danh sách tất cả cảm biến tiêu thụ điện năng, có phân trang.
+
+### Query Parameters
+
+| Tên  | Loại | Mô tả            | Mặc định |
+| :--- | :--- | :--------------- | :------- |
+| page | int  | Trang hiện tại   | 0        |
+| size | int  | Số phần tử/trang | 20       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"content": [...],
+		"page": 0,
+		"size": 20,
+		"totalElements": 1,
+		"totalPages": 1
+	},
+	"timestamp": "..."
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/power-consumptions/all</code> - Lấy tất cả cảm biến điện năng</summary>
+
+> Lấy danh sách tất cả cảm biến tiêu thụ điện năng (không phân trang).
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [...],
+	"timestamp": "..."
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/power-consumptions</code> - Lấy cảm biến điện năng theo phòng (phân trang)</summary>
 
 > Lấy danh sách cảm biến tiêu thụ điện năng theo phòng, có phân trang.
 
@@ -47,6 +100,32 @@
 		"totalPages": 1
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/power-consumptions/all</code> - Lấy tất cả cảm biến điện năng theo phòng</summary>
+
+> Lấy danh sách tất cả cảm biến tiêu thụ điện năng theo phòng (không phân trang).
+
+### Path Parameters
+
+| Tên    | Loại | Mô tả    | Bắt buộc |
+| :----- | :--- | :------- | :------- |
+| roomId | Long | ID phòng | Có       |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [...],
+	"timestamp": "..."
 }
 ```
 
@@ -125,7 +204,7 @@
 ```json
 {
 	"status": 201,
-	"message": "Created",
+	"message": "Created successfully",
 	"data": {
 		"id": 1,
 		"name": "Power Sensor 1",

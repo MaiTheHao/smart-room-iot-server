@@ -135,6 +135,22 @@ const SMRC_API_V1 = {
     SCAN: '/api/v1/rules/scan',
     RELOAD: '/api/v1/rules/reload',
   },
+
+  TEMPERATURE: {
+    PATH: '/api/v1/temperatures',
+    ALL: '/api/v1/temperatures/all',
+    DETAIL: (id) => `/api/v1/temperatures/${id}`,
+    BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/temperatures`,
+    ALL_BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/temperatures/all`,
+  },
+
+  POWER_CONSUMPTION: {
+    PATH: '/api/v1/power-consumptions',
+    ALL: '/api/v1/power-consumptions/all',
+    DETAIL: (id) => `/api/v1/power-consumptions/${id}`,
+    BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/power-consumptions`,
+    ALL_BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/power-consumptions/all`,
+  },
 };
 
 const SMRC_TYPES = {

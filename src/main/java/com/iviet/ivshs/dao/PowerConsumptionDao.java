@@ -50,6 +50,34 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         .findFirst();
   }
 
+  public List<PowerConsumptionDto> findAll(int page, int size, String langCode) {
+    String jpql = """
+        SELECT new %s(pc.id, pcl.name, pcl.description, pc.isActive, pc.currentWatt, pc.naturalId, pc.room.id, pc.deviceControl.id)
+        FROM PowerConsumption pc
+        LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
+        ORDER BY pc.createdAt DESC
+        """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+        .setParameter("langCode", langCode)
+        .setFirstResult(page * size)
+        .setMaxResults(size)
+        .getResultList();
+  }
+
+  public List<PowerConsumptionDto> findAll(String langCode) {
+    String jpql = """
+        SELECT new %s(pc.id, pcl.name, pcl.description, pc.isActive, pc.currentWatt, pc.naturalId, pc.room.id, pc.deviceControl.id)
+        FROM PowerConsumption pc
+        LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
+        ORDER BY pc.createdAt DESC
+        """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+        .setParameter("langCode", langCode)
+        .getResultList();
+  }
+
   public List<PowerConsumptionDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
     String jpql = """
         SELECT new %s(pc.id, pcl.name, pcl.description, pc.isActive, pc.currentWatt, pc.naturalId, pc.room.id, pc.deviceControl.id)
@@ -64,6 +92,21 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
         .setMaxResults(size)
+        .getResultList();
+  }
+
+  public List<PowerConsumptionDto> findAllByRoomId(Long roomId, String langCode) {
+    String jpql = """
+        SELECT new %s(pc.id, pcl.name, pcl.description, pc.isActive, pc.currentWatt, pc.naturalId, pc.room.id, pc.deviceControl.id)
+        FROM PowerConsumption pc
+        LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
+        WHERE pc.room.id = :roomId
+        ORDER BY pc.createdAt DESC
+        """.formatted(DTO_CLASS);
+
+    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+        .setParameter("roomId", roomId)
+        .setParameter("langCode", langCode)
         .getResultList();
   }
 

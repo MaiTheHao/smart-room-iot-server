@@ -1,45 +1,6 @@
 class ConditionManager {
   // =========================================================================
-  // 1. CONSTANTS & METADATA
-  // =========================================================================
-  static PROPERTY_META = {
-    FAN: {
-      power: { type: 'enum', values: ['ON', 'OFF'] },
-      mode: { type: 'enum', values: ['NORMAL', 'SLEEP', 'NATURAL'] },
-      speed: { type: 'number' },
-      swing: { type: 'enum', values: ['ON', 'OFF'] },
-      light: { type: 'enum', values: ['ON', 'OFF'] },
-    },
-    AIR_CONDITION: {
-      power: { type: 'enum', values: ['ON', 'OFF'] },
-      temp: { type: 'number' },
-      mode: { type: 'enum', values: ['COOL', 'HEAT', 'DRY', 'FAN', 'AUTO'] },
-      fan_speed: { type: 'number' },
-      swing: { type: 'enum', values: ['ON', 'OFF'] },
-    },
-    LIGHT: {
-      power: { type: 'enum', values: ['ON', 'OFF'] },
-      level: { type: 'number' },
-    },
-    TEMPERATURE: {
-      temperature: { type: 'number' },
-    },
-    POWER_CONSUMPTION: {
-      watt: { type: 'number' },
-    },
-    SYSTEM: {
-      current_time: { type: 'number' },
-      day_of_week: { type: 'number' },
-      day_of_month: { type: 'number' },
-    },
-    ROOM: {
-      avg_temperature: { type: 'number' },
-      sum_watt: { type: 'number' },
-    },
-  };
-
-  // =========================================================================
-  // 2. INITIALIZATION & STATE MANAGEMENT
+  // 1. INITIALIZATION & STATE MANAGEMENT
   // =========================================================================
   static init(ruleData) {
     if (typeof window === 'undefined')
@@ -82,7 +43,7 @@ class ConditionManager {
   }
 
   static getPropertyMeta(category, property) {
-    return (this.PROPERTY_META[category] || {})[property] || { type: 'string' };
+    return (RuleCommon.PROPERTY_META[category] || {})[property] || { type: 'string' };
   }
 
   // =========================================================================
@@ -105,36 +66,17 @@ class ConditionManager {
       const operatorDisplay = this.escapeHtml(c.operator || '');
       const nextLogicColor = c.nextLogic === 'OR' ? 'danger' : 'primary';
 
-      const $row = $(`
-        <tr data-local-id="${c._localId}">
-          <td class="align-middle" style="width:80px;">
-            <input type="number" class="form-control form-control-sm order-input text-center"
-              value="${c.sortOrder}" min="1" data-local-id="${c._localId}" />
-          </td>
-          <td class="align-middle">
-            <span class="badge badge-secondary">${this.escapeHtml(c.dataSource || '')}</span>
-          </td>
-          <td class="align-middle small text-break" style="max-width:220px;white-space:normal;">
-            ${resourceDisplay}
-          </td>
-          <td class="align-middle">
-            <span class="badge badge-light border font-weight-bold">${operatorDisplay}</span>
-          </td>
-          <td class="align-middle font-weight-bold">${this.escapeHtml(c.value || '')}</td>
-          <td class="align-middle">
-            <span class="badge badge-${nextLogicColor}">${this.escapeHtml(c.nextLogic || 'AND')}</span>
-          </td>
-          <td class="align-middle text-right">
-            <button class="btn btn-sm btn-default btn-edit-cond" data-local-id="${c._localId}" title="Edit">
-              <i class="fas fa-pen text-primary"></i>
-            </button>
-            <button class="btn btn-sm btn-default btn-delete-cond" data-local-id="${c._localId}" title="Delete">
-              <i class="fas fa-trash text-danger"></i>
-            </button>
-          </td>
-        </tr>
-      `);
-      $tbody.append($row);
+      const rowHtml = $('#conditionRowTemplate').html()
+        .replace(/{localId}/g, c._localId)
+        .replace(/{sortOrder}/g, c.sortOrder)
+        .replace(/{dataSource}/g, RuleCommon.escapeHtml(c.dataSource || ''))
+        .replace(/{resourceDisplay}/g, resourceDisplay)
+        .replace(/{operatorDisplay}/g, operatorDisplay)
+        .replace(/{value}/g, RuleCommon.escapeHtml(c.value || ''))
+        .replace(/{nextLogicColor}/g, nextLogicColor)
+        .replace(/{nextLogic}/g, RuleCommon.escapeHtml(c.nextLogic || 'AND'));
+      
+      $tbody.append($(rowHtml));
     });
 
     $tbody.find('.order-input').on('change', (e) => {
@@ -179,14 +121,6 @@ class ConditionManager {
     }
 
     return `<code>${JSON.stringify(rp)}</code>`;
-  }
-
-  static escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
   }
 
   static handleSortOrderInput(localId, newOrder) {
@@ -234,7 +168,7 @@ class ConditionManager {
       this.updateOperatorAndValueByProperty('', '');
 
       if ($('#condFloorSelect option').length <= 1) {
-        this.loadCondFloors('#condFloorSelect');
+        RuleCommon.loadFloors('#condFloorSelect');
       } else {
         $('#condFloorSelect').prop('disabled', false);
       }
@@ -242,13 +176,13 @@ class ConditionManager {
 
     // Device / Sensor Selects
     $('#condFloorSelect').on('change', (e) =>
-      this.loadCondRooms(e.target.value, '#condRoomSelect', '#condDeviceSelect'),
+      RuleCommon.loadRooms(e.target.value, '#condRoomSelect', '#condDeviceSelect'),
     );
-    $('#condRoomSelect').on('change', (e) => this.loadCondDevices(e.target.value));
+    $('#condRoomSelect').on('change', (e) => RuleCommon.loadDevices(e.target.value, $('#condCategorySelect').val(), '#condDeviceSelect'));
 
     // Room Data Source Selects
     $('#condRoomFloorSelect').on('change', (e) =>
-      this.loadCondRooms(e.target.value, '#condRoomRoomSelect'),
+      RuleCommon.loadRooms(e.target.value, '#condRoomRoomSelect'),
     );
 
     // Property Selects
@@ -266,7 +200,7 @@ class ConditionManager {
 
       // Fix: Mở khóa chọn Tầng cho ROOM sau khi chọn Property
       if ($('#condRoomFloorSelect option').length <= 1) {
-        this.loadCondFloors('#condRoomFloorSelect');
+        RuleCommon.loadFloors('#condRoomFloorSelect');
       } else {
         $('#condRoomFloorSelect').prop('disabled', false);
       }
@@ -315,7 +249,7 @@ class ConditionManager {
 
         // Fix: Tải danh sách Tầng và mở khóa khi Edit
         if ($('#condRoomFloorSelect option').length <= 1) {
-          await this.loadCondFloors('#condRoomFloorSelect');
+          await RuleCommon.loadFloors('#condRoomFloorSelect');
         }
         $('#condRoomFloorSelect').prop('disabled', false);
 
@@ -344,7 +278,7 @@ class ConditionManager {
         }
 
         if ($('#condFloorSelect option').length <= 1) {
-          await this.loadCondFloors('#condFloorSelect');
+          await RuleCommon.loadFloors('#condFloorSelect');
         }
         $('#condFloorSelect').prop('disabled', false);
 
@@ -392,7 +326,7 @@ class ConditionManager {
       $('#condSectionSystem').show();
     } else if (dataSource === 'ROOM') {
       $('#condSectionRoom').show();
-      this.loadCondFloors('#condRoomFloorSelect');
+      RuleCommon.loadFloors('#condRoomFloorSelect');
     } else if (dataSource === 'DEVICE' || dataSource === 'SENSOR') {
       $('#condSectionDeviceSensor').show();
 
@@ -401,7 +335,7 @@ class ConditionManager {
         $(this).toggle(forAttr.includes(dataSource));
       });
       $('#condCategorySelect').val('');
-      this.loadCondFloors('#condFloorSelect');
+      RuleCommon.loadFloors('#condFloorSelect');
     }
   }
 
@@ -471,87 +405,7 @@ class ConditionManager {
   }
 
   // =========================================================================
-  // =========================================================================
-  // 6. API CALLS (DATA LOADING - REUSABLE)
-  // =========================================================================
 
-  static async loadCondFloors(targetSelector) {
-    try {
-      const res = await this.floorService.getAllWithoutPagination();
-      const floors = res?.data || [];
-      const $select = $(targetSelector);
-
-      $select.empty().append('<option value="" disabled selected>Select floor</option>');
-      floors.forEach((f) => $select.append(`<option value="${f.id}">${f.name}</option>`));
-      $select.prop('disabled', false);
-    } catch (error) {
-      console.error(`API Error (loadCondFloors for ${targetSelector}):`, error);
-      notify.error('Failed to load floors');
-    }
-  }
-
-  static async loadCondRooms(floorId, targetRoomSelector, targetDeviceSelector = null) {
-    if (!floorId) return;
-    try {
-      const $select = $(targetRoomSelector);
-      $select.prop('disabled', true).html('<option>Loading...</option>');
-
-      const res = await this.roomService.getAllByFloor(floorId);
-      const rooms = res?.data || [];
-
-      $select.empty().append('<option value="" disabled selected>Select room</option>');
-      rooms.forEach((r) => $select.append(`<option value="${r.id}">${r.name}</option>`));
-      $select.prop('disabled', false);
-
-      // Nếu có truyền ID của ô Device (cho nhánh DEVICE/SENSOR), ta sẽ reset nó
-      if (targetDeviceSelector) {
-        $(targetDeviceSelector)
-          .prop('disabled', true)
-          .html('<option value="" disabled selected>Select device/sensor</option>');
-      }
-    } catch (error) {
-      console.error(`API Error (loadCondRooms for ${targetRoomSelector}):`, error);
-      notify.error('Failed to load rooms');
-      $(targetRoomSelector)
-        .prop('disabled', false)
-        .html('<option value="" disabled selected>Select room</option>');
-    }
-  }
-
-  static async loadCondDevices(roomId) {
-    if (!roomId) return;
-    const category = $('#condCategorySelect').val();
-    try {
-      const $select = $('#condDeviceSelect');
-      $select.prop('disabled', true).html('<option>Loading...</option>');
-
-      const res = await this.deviceMetadataService.getAllByRoom(roomId);
-      const devices = (res?.data || []).filter((d) => !category || d.category === category);
-
-      $select.empty().append('<option value="" disabled selected>Select device/sensor</option>');
-
-      if (devices.length === 0) {
-        $select.append(`<option disabled>No devices found</option>`);
-      } else {
-        devices.forEach((d) =>
-          $select.append(
-            `<option value="${d.id}" data-natural-id="${d.naturalId || ''}">${d.name} (#${d.id})</option>`,
-          ),
-        );
-      }
-      $select.prop('disabled', false);
-    } catch (error) {
-      console.error('API Error (loadCondDevices):', error);
-      notify.error('Failed to load devices');
-      $('#condDeviceSelect')
-        .prop('disabled', false)
-        .html('<option value="" disabled selected>Select device/sensor</option>');
-    }
-  }
-
-  // =========================================================================
-  // 7. CRUD OPERATIONS (SAVE, DELETE, UPDATE)
-  // =========================================================================
   static handleModalSave() {
     const localId = $('#conditionLocalId').val() ? parseInt($('#conditionLocalId').val()) : null;
     const dataSource = $('#condDataSourceSelect').val();

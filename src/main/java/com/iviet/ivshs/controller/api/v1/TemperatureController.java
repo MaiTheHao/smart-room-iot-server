@@ -15,13 +15,33 @@ public class TemperatureController {
 
     private final TemperatureService temperatureService;
 
+    @GetMapping("/temperatures")
+    public ResponseEntity<ApiResponse<PaginatedResponse<TemperatureDto>>> getList(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "20") int size) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getList(page, size)));
+    }
+
+    @GetMapping("/temperatures/all")
+    public ResponseEntity<ApiResponse<java.util.List<TemperatureDto>>> getAll() {
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getAll()));
+    }
+
     @GetMapping("/rooms/{roomId}/temperatures")
-    public ResponseEntity<ApiResponse<PaginatedResponse<TemperatureDto>>> getListByRoom(
+    public ResponseEntity<ApiResponse<PaginatedResponse<TemperatureDto>>> getListByRoomId(
             @PathVariable(name = "roomId") Long roomId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size) {
         
-        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getListByRoom(roomId, page, size)));
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getListByRoomId(roomId, page, size)));
+    }
+
+    @GetMapping("/rooms/{roomId}/temperatures/all")
+    public ResponseEntity<ApiResponse<java.util.List<TemperatureDto>>> getAllByRoomId(
+            @PathVariable(name = "roomId") Long roomId) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(temperatureService.getAllByRoomId(roomId)));
     }
 
     @GetMapping("/temperatures/{id}")
