@@ -153,44 +153,48 @@
 
         <!-- Condition Modal Fragment -->
         <th:block th:replace="~{fragments/rule/condition_modal.html :: modal_content}"></th:block>
+
+        <template id="conditionRowTemplate">
+          <tr data-local-id="{localId}">
+            <td class="align-middle" style="width:80px;">
+              <input type="number" class="form-control form-control-sm order-input text-center"
+                value="{sortOrder}" min="1" data-local-id="{localId}" />
+            </td>
+            <td class="align-middle">
+              <span class="badge badge-secondary">{dataSource}</span>
+            </td>
+            <td class="align-middle small text-break" style="max-width:220px;white-space:normal;">
+              {resourceDisplay}
+            </td>
+            <td class="align-middle">
+              <span class="badge badge-light border font-weight-bold">{operatorDisplay}</span>
+            </td>
+            <td class="align-middle font-weight-bold">{value}</td>
+            <td class="align-middle">
+              <span class="badge badge-{nextLogicColor}">{nextLogic}</span>
+            </td>
+            <td class="align-middle text-right">
+              <button class="btn btn-sm btn-default btn-edit-cond" data-local-id="{localId}" title="Edit">
+                <i class="fas fa-pen text-primary"></i>
+              </button>
+              <button class="btn btn-sm btn-default btn-delete-cond" data-local-id="{localId}" title="Delete">
+                <i class="fas fa-trash text-danger"></i>
+              </button>
+            </td>
+          </tr>
+        </template>
       </div>
     </section>
 
-    <template id="conditionRowTemplate">
-      <tr data-local-id="{localId}">
-        <td class="align-middle" style="width:80px;">
-          <input type="number" class="form-control form-control-sm order-input text-center"
-            value="{sortOrder}" min="1" data-local-id="{localId}" />
-        </td>
-        <td class="align-middle">
-          <span class="badge badge-secondary">{dataSource}</span>
-        </td>
-        <td class="align-middle small text-break" style="max-width:220px;white-space:normal;">
-          {resourceDisplay}
-        </td>
-        <td class="align-middle">
-          <span class="badge badge-light border font-weight-bold">{operatorDisplay}</span>
-        </td>
-        <td class="align-middle font-weight-bold">{value}</td>
-        <td class="align-middle">
-          <span class="badge badge-{nextLogicColor}">{nextLogic}</span>
-        </td>
-        <td class="align-middle text-right">
-          <button class="btn btn-sm btn-default btn-edit-cond" data-local-id="{localId}" title="Edit">
-            <i class="fas fa-pen text-primary"></i>
-          </button>
-          <button class="btn btn-sm btn-default btn-delete-cond" data-local-id="{localId}" title="Delete">
-            <i class="fas fa-trash text-danger"></i>
-          </button>
-        </td>
-      </tr>
-    </template>
+
 
     <th:block layout:fragment="optional">
       <script defer th:src="@{/scripts/service/api/v1/rule_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/floor_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/device_metadata_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/temperature_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/power_consumption_api_v1.js}"></script>
       <script defer th:src="@{/scripts/pages/rule/rule_common.js}"></script>
       <script defer th:src="@{/scripts/pages/rule/conditions.js}"></script>
 

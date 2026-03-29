@@ -63,10 +63,11 @@ class ConditionManager {
 
     this.conditions.forEach((c) => {
       const resourceDisplay = this.formatResourceParam(c.dataSource, c.resourceParam);
-      const operatorDisplay = this.escapeHtml(c.operator || '');
+      const operatorDisplay = RuleCommon.escapeHtml(c.operator || '');
       const nextLogicColor = c.nextLogic === 'OR' ? 'danger' : 'primary';
 
-      const rowHtml = $('#conditionRowTemplate').html()
+      const rowHtml = $('#conditionRowTemplate')
+        .html()
         .replace(/{localId}/g, c._localId)
         .replace(/{sortOrder}/g, c.sortOrder)
         .replace(/{dataSource}/g, RuleCommon.escapeHtml(c.dataSource || ''))
@@ -75,7 +76,7 @@ class ConditionManager {
         .replace(/{value}/g, RuleCommon.escapeHtml(c.value || ''))
         .replace(/{nextLogicColor}/g, nextLogicColor)
         .replace(/{nextLogic}/g, RuleCommon.escapeHtml(c.nextLogic || 'AND'));
-      
+
       $tbody.append($(rowHtml));
     });
 
@@ -90,7 +91,7 @@ class ConditionManager {
     if (!rp) return '<span class="text-muted">—</span>';
 
     if (dataSource === 'SYSTEM') {
-      return `<code class="text-dark">${this.escapeHtml(rp.property || '')}</code>`;
+      return `<code class="text-dark">${RuleCommon.escapeHtml(rp.property || '')}</code>`;
     }
 
     if (dataSource === 'ROOM') {
@@ -99,7 +100,7 @@ class ConditionManager {
       return `<span class="badge badge-secondary mr-1">ROOM</span>
         <span class="text-muted">#${roomId}</span>
         <i class="fas fa-angle-right mx-1 text-muted small"></i>
-        <code class="text-dark">${this.escapeHtml(prop)}</code>`;
+        <code class="text-dark">${RuleCommon.escapeHtml(prop)}</code>`;
     }
 
     if (dataSource === 'DEVICE' || dataSource === 'SENSOR') {
@@ -114,10 +115,10 @@ class ConditionManager {
         POWER_CONSUMPTION: 'success',
       };
       const c = catColors[cat] || 'secondary';
-      return `<span class="badge badge-${c} mr-1">${this.escapeHtml(cat)}</span>
+      return `<span class="badge badge-${c} mr-1">${RuleCommon.escapeHtml(cat)}</span>
         <span class="text-muted">#${deviceId}</span>
         <i class="fas fa-angle-right mx-1 text-muted small"></i>
-        <code class="text-dark">${this.escapeHtml(prop)}</code>`;
+        <code class="text-dark">${RuleCommon.escapeHtml(prop)}</code>`;
     }
 
     return `<code>${JSON.stringify(rp)}</code>`;
@@ -164,6 +165,8 @@ class ConditionManager {
 
     $('#condCategorySelect').on('change', (e) => {
       this.updateCondPropertyOptions(e.target.value, $('#condDataSourceSelect').val());
+
+      $('#condFloorSelect').val('');
       this.resetCondDeviceSelection();
       this.updateOperatorAndValueByProperty('', '');
 
@@ -178,7 +181,15 @@ class ConditionManager {
     $('#condFloorSelect').on('change', (e) =>
       RuleCommon.loadRooms(e.target.value, '#condRoomSelect', '#condDeviceSelect'),
     );
-    $('#condRoomSelect').on('change', (e) => RuleCommon.loadDevices(e.target.value, $('#condCategorySelect').val(), '#condDeviceSelect'));
+    $('#condRoomSelect').on('change', (e) => {
+      const dataSource = $('#condDataSourceSelect').val();
+      RuleCommon.loadDevices(
+        e.target.value,
+        dataSource,
+        $('#condCategorySelect').val(),
+        '#condDeviceSelect',
+      );
+    });
 
     // Room Data Source Selects
     $('#condRoomFloorSelect').on('change', (e) =>

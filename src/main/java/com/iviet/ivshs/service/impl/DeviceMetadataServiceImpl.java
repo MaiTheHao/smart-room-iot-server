@@ -52,25 +52,31 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
   }
 
   @Override
-  public List<DeviceMetadataDto> getAllByRoomId(Long roomId) {
+  public List<DeviceMetadataDto> getAllByRoomId(Long roomId, DeviceCategory category) {
     List<DeviceMetadataDto> devices = new ArrayList<>();
 
     // Get Lights by Room
-    List<LightDto> lights = lightService.getAllByRoomId(roomId);
-    if (lights != null) {
-      devices.addAll(lights.stream().map(this::mapLightToMetadata).toList());
+    if (category == null || category == DeviceCategory.LIGHT) {
+      List<LightDto> lights = lightService.getAllByRoomId(roomId);
+      if (lights != null) {
+        devices.addAll(lights.stream().map(this::mapLightToMetadata).toList());
+      }
     }
 
     // Get Air Conditions by Room
-    List<AirConditionDto> airConditions = airConditionService.getAllByRoomId(roomId);
-    if (airConditions != null) {
-      devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
+    if (category == null || category == DeviceCategory.AIR_CONDITION) {
+      List<AirConditionDto> airConditions = airConditionService.getAllByRoomId(roomId);
+      if (airConditions != null) {
+        devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
+      }
     }
 
     // Get Fan by Room
-    List<FanDto> fan = fanService.getAllByRoomId(roomId);
-    if (fan != null) {
-        devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
+    if (category == null || category == DeviceCategory.FAN) {
+      List<FanDto> fan = fanService.getAllByRoomId(roomId);
+      if (fan != null) {
+          devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
+      }
     }
 
     return devices;

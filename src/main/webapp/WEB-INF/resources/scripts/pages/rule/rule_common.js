@@ -75,14 +75,26 @@ class RuleCommon {
     }
   }
 
-  static async loadDevices(roomId, category, targetDeviceSelector) {
+  static async loadDevices(roomId, dataSource, category, targetDeviceSelector) {
     if (!roomId) return;
     try {
       const $select = $(targetDeviceSelector);
       $select.prop('disabled', true).html('<option>Loading...</option>');
 
-      const res = await window.deviceMetadataApiV1Service.getAllByRoom(roomId);
-      const devices = (res?.data || []).filter((d) => !category || d.category === category);
+      let devices = [];
+      if (dataSource === 'SENSOR') {
+        if (category === 'TEMPERATURE') {
+          const res = await window.temperatureApiV1Service.getAllByRoom(roomId);
+          devices = (res?.data || []).map(d => ({ ...d, category: 'TEMPERATURE' }));
+        } else if (category === 'POWER_CONSUMPTION') {
+          const res = await window.powerConsumptionApiV1Service.getAllByRoom(roomId);
+          devices = (res?.data || []).map(d => ({ ...d, category: 'POWER_CONSUMPTION' }));
+        }
+      } else {
+        const res = await window.deviceMetadataApiV1Service.getAllByRoom(roomId, category);
+        devices = res?.data || [];
+      }
+
       $select.empty().append('<option value="" disabled selected>Select device/sensor</option>');
 
       if (devices.length === 0) {
@@ -97,7 +109,7 @@ class RuleCommon {
       $select.prop('disabled', false);
     } catch (error) {
       console.error('API Error (loadDevices):', error);
-      if (window.notify) window.notify.error('Failed to load devices');
+      if (window.notify) window.notify.error('Failed to load devices/sensors');
       $(targetDeviceSelector)
         .prop('disabled', false)
         .html('<option value="" disabled selected>Select device/sensor</option>');

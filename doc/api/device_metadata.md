@@ -54,6 +54,12 @@
 | :----- | :--- | :------- | :------- |
 | roomId | Long | ID phòng | Có       |
 
+### Query Parameters
+
+| Tên      | Loại   | Mô tả                                                          | Bắt buộc |
+| :------- | :----- | :------------------------------------------------------------- | :------- |
+| category | string | Lọc thiết bị theo loại (`LIGHT`, `FAN`, `AIR_CONDITION`)      | Không    |
+
 ### Response (200 OK)
 
 ```json

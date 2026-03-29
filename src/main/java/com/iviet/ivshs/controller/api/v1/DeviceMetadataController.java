@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.DeviceMetadataDto;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.service.DeviceMetadataService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,8 +30,10 @@ public class DeviceMetadataController {
     }
 
     @GetMapping("/rooms/{roomId}/devices")
-    public ResponseEntity<ApiResponse<List<DeviceMetadataDto>>> getAllByRoomId(@PathVariable(name = "roomId") Long roomId) {
-        List<DeviceMetadataDto> devices = deviceMetadataService.getAllByRoomId(roomId);
+    public ResponseEntity<ApiResponse<List<DeviceMetadataDto>>> getAllByRoomId(
+            @PathVariable(name = "roomId") Long roomId,
+            @RequestParam(name = "category", required = false) DeviceCategory category) {
+        List<DeviceMetadataDto> devices = deviceMetadataService.getAllByRoomId(roomId, category);
         return ResponseEntity.ok(ApiResponse.ok(devices));
     }
 

@@ -16,9 +16,10 @@ class DeviceMetadataApiV1Service {
     }
   }
 
-  async getAllByRoom(roomId) {
+  async getAllByRoom(roomId, category = null) {
     try {
-      return await window.http.get(this.api.BY_ROOM(roomId));
+      const params = category ? { category } : {};
+      return await window.http.get(this.api.BY_ROOM(roomId), params);
     } catch (error) {
       this.#handleError(`get all devices for room ${roomId}`, error);
     }

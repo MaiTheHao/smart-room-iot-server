@@ -21,10 +21,16 @@ class RuleManager {
 
     $('#ruleCategorySelect').on('change', (e) => {
       this.handleCategoryChange(e.target.value);
+      $('#ruleFloorSelect').val('');
       this.resetDeviceSelection();
+      if ($('#ruleFloorSelect option').length <= 1) {
+        RuleCommon.loadFloors('#ruleFloorSelect');
+      } else {
+        $('#ruleFloorSelect').prop('disabled', false);
+      }
     });
     $('#ruleFloorSelect').on('change', (e) => RuleCommon.loadRooms(e.target.value, '#ruleRoomSelect', '#ruleDeviceSelect'));
-    $('#ruleRoomSelect').on('change', (e) => RuleCommon.loadDevices(e.target.value, $('#ruleCategorySelect').val(), '#ruleDeviceSelect'));
+    $('#ruleRoomSelect').on('change', (e) => RuleCommon.loadDevices(e.target.value, 'DEVICE', $('#ruleCategorySelect').val(), '#ruleDeviceSelect'));
 
     const $tbody = $('#rulesTable tbody');
     $tbody.on('click', '.btn-edit', (e) => this.handleEdit($(e.currentTarget).data('id')));
@@ -133,7 +139,6 @@ class RuleManager {
     $('#hiddenRuleRoomId').val('');
     $('#hiddenRuleDeviceId').val('');
 
-    // Reset action params visibility
     $('#ruleParamLight, #ruleParamFan, #ruleParamAc').hide();
     $('#ruleParamPlaceholder').show();
 
@@ -142,7 +147,6 @@ class RuleManager {
       $('#ruleTargetSelection').show();
       $('#ruleTargetDisplay').hide();
 
-      // Reset cascades
       $('#ruleFloorSelect')
         .prop('disabled', true)
         .html('<option value="" disabled selected>Select floor</option>');
@@ -154,7 +158,6 @@ class RuleManager {
         .html('<option value="" disabled selected>Select device</option>');
       $('#ruleCategorySelect').val('');
 
-      // Preload floors if needed
       if ($('#ruleFloorSelect option').length <= 1) {
         await RuleCommon.loadFloors('#ruleFloorSelect');
       }
@@ -165,7 +168,6 @@ class RuleManager {
       $('#rulePriority').val(data.priority);
       $('#ruleIsActive').prop('checked', data.isActive);
 
-      // Readonly display for target device
       $('#ruleTargetSelection').hide();
       $('#ruleTargetDisplay').show();
       $('#ruleCategoryDisplay').val(data.targetDeviceCategory);
@@ -174,7 +176,6 @@ class RuleManager {
       $('#hiddenRuleRoomId').val(data.roomId);
       $('#hiddenRuleDeviceId').val(data.targetDeviceId);
 
-      // Show correct action params
       this.handleCategoryChange(data.targetDeviceCategory);
       this.populateActionParams(data.targetDeviceCategory, data.actionParams || {});
     }
@@ -196,7 +197,6 @@ class RuleManager {
       $('#ruleParamPlaceholder').show();
     }
 
-    // Enable floor select on category chosen
     if (
       category &&
       $('#ruleFloorSelect').prop('disabled') &&
@@ -319,11 +319,11 @@ class RuleManager {
       targetDeviceCategory: category,
       targetDeviceId: deviceId,
       actionParams,
-      conditions: [],
     };
 
     if (!isEdit) {
       dto.roomId = roomId;
+      dto.conditions = [];
     }
 
     try {
