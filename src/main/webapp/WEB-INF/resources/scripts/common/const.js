@@ -153,6 +153,17 @@ const SMRC_API_V1 = {
   },
 };
 
+const SMRC_API_V2 = {
+  RULE: {
+    PATH: '/api/v2/rules',
+    ALL: '/api/v2/rules/all',
+    DETAIL: (id) => `/api/v2/rules/${id}`,
+    STATUS: (id) => `/api/v2/rules/${id}/status`,
+    RELOAD: '/api/v2/rules/reload',
+    EXECUTE: (id) => `/api/v2/rules/${id}/execute`,
+  },
+};
+
 const SMRC_TYPES = {
   CLIENT_TYPE: {
     USER: 'USER',
@@ -170,5 +181,6 @@ const SMRC_DEVICES = {};
 
 if (typeof window !== 'undefined') {
   window.SMRC_API_V1 = SMRC_API_V1;
+  window.SMRC_API_V2 = SMRC_API_V2;
   window.SMRC_TYPES = SMRC_TYPES;
 }
