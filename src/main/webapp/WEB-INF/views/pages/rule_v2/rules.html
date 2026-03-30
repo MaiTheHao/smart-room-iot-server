@@ -1,0 +1,94 @@
+<!doctype html>
+<html
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{main_layout.html}"
+>
+  <head>
+    <title>Rule Management V2</title>
+    <th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
+  </head>
+  <body>
+    <th:block layout:fragment="header">
+      <th:block
+        th:replace="~{fragments/management.html :: page_header('Rule Management V2 (Interval Automation)')}"
+      ></th:block>
+    </th:block>
+
+    <section class="content" layout:fragment="content">
+      <div class="container-fluid">
+        <div class="card card-outline card-primary shadow-sm border-0">
+          <div class="card-header border-0 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h3 class="card-title font-weight-bold text-dark">
+                <i class="fas fa-cogs mr-2 text-primary"></i>
+                <span>Rules List V2</span>
+              </h3>
+              <div class="card-tools d-flex align-items-center">
+                <button
+                  type="button"
+                  class="btn btn-light btn-sm mr-2"
+                  id="btnReloadRules"
+                  title="Reload all active rules from database"
+                >
+                  <i class="fas fa-sync-alt mr-1"></i>
+                  <span>Reload Rules</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm font-weight-bold shadow-sm"
+                  id="btnCreateRule"
+                >
+                  <i class="fas fa-plus mr-1"></i>
+                  <span>Add Rule V2</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <table id="rulesTable" class="table table-hover table-borderless text-nowrap w-100">
+              <thead class="bg-light text-muted small text-uppercase">
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Priority</th>
+                  <th>Interval (s)</th>
+                  <th>Status</th>
+                  <th>Conditions</th>
+                  <th>Actions</th>
+                  <th class="text-right">Manage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Populated by DataTable / JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Rule V2 Modal Fragment -->
+        <th:block th:replace="~{fragments/rule_v2/rule_modal.html :: modal_content}"></th:block>
+      </div>
+    </section>
+
+    <th:block layout:fragment="optional">
+      <script defer th:src="@{/webjars/datatables/js/jquery.dataTables.min.js}"></script>
+      <script defer th:src="@{/webjars/datatables/js/dataTables.bootstrap4.min.js}"></script>
+
+      <script defer th:src="@{/scripts/service/api/v2/rule_api_v2.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/floor_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/pages/rule/rule_common.js}"></script>
+      <script defer th:src="@{/scripts/pages/rule_v2/rules.js}"></script>
+
+      <script defer th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+          RuleV2Manager.init();
+        });
+        /*]]>*/
+      </script>
+    </th:block>
+  </body>
+</html>

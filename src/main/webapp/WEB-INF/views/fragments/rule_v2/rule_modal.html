@@ -1,0 +1,73 @@
+<th:block th:fragment="modal_content" xmlns:th="http://www.thymeleaf.org">
+  <!-- Rule V2 Create/Edit Modal -->
+  <div class="modal fade" id="ruleModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-code-branch mr-2"></i>
+            <span id="ruleModalTitleText">Create New Rule V2</span>
+          </h5>
+          <button type="button" class="close text-white" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body bg-light p-0">
+          <form id="ruleForm" novalidate>
+            <input type="hidden" id="ruleId" />
+
+            <!-- Card 1: Basic Info -->
+            <div class="card card-outline card-primary m-3 mb-2 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-primary">
+                  <i class="fas fa-info-circle mr-1"></i> Basic Info
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group mb-2">
+                      <label for="ruleName" class="small font-weight-bold">Rule Name</label>
+                      <input type="text" class="form-control form-control-sm" id="ruleName" placeholder="e.g. Turn on lights at 6PM" required />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group mb-2">
+                      <label for="rulePriority" class="small font-weight-bold">Priority</label>
+                      <input type="number" class="form-control form-control-sm" id="rulePriority" min="0" value="0" required />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group mb-2">
+                      <label for="ruleInterval" class="small font-weight-bold text-danger">Interval (seconds)</label>
+                      <input type="number" class="form-control form-control-sm" id="ruleInterval" min="60" value="60" required />
+                    </div>
+                  </div>
+                  <div class="col-md-12 d-flex align-items-center mt-2">
+                    <div class="form-group mb-0">
+                      <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="ruleIsActive" checked />
+                        <label class="custom-control-label small font-weight-bold" for="ruleIsActive">Active</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i> Cancel
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnSaveRule">
+            <i class="fas fa-save mr-1"></i> Save Rules V2
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

@@ -53,6 +53,9 @@ logs/
 # Local configuration files
 local/
 
+# Agent
+skills/
+
 # Other
 *.dbdiagram
 .agent/

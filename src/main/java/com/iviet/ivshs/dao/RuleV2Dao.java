@@ -95,15 +95,4 @@ public class RuleV2Dao extends BaseAuditEntityDao<RuleV2> {
                 .getResultList();
     }
 
-    public List<RuleV2> findByRoomId(Long roomId, int page, int size) {
-        return findAll(
-            root -> entityManager.getCriteriaBuilder().equal(root.get("roomId"), roomId),
-            (root, cq) -> {
-                var cb = entityManager.getCriteriaBuilder();
-                cq.orderBy(cb.desc(root.get("priority")), cb.desc(root.get("updatedAt")));
-            },
-            page,
-            size
-        );
-    }
 }

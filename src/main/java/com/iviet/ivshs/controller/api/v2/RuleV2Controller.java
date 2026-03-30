@@ -40,7 +40,7 @@ public class RuleV2Controller {
      * TẠO MỚI RULE V2
      * 
      * @apiNote API để tạo một Rule mới. Yêu cầu payload chuẩn xác gồm các thuộc tính cơ bản 
-     * (name, priority, roomId, intervalSeconds) và đi kèm mảng conditions, actions.
+     * (name, priority, intervalSeconds) và đi kèm mảng conditions, actions.
      * @param request Payload DTO CreateRuleV2Dto chứa thông tin khởi tạo rule.
      * @return RuleV2Dto cấu trúc Rule vừa được tạo cùng với ID mới.
      */

@@ -16,9 +16,6 @@ public record CreateRuleV2Dto(
 	@NotNull(message = "Priority cannot be null")
 	Integer priority,
 	
-	@NotNull(message = "Room ID cannot be null")
-	Long roomId,
-	
 	@NotNull(message = "Interval seconds cannot be null")
 	@Min(value = 60, message = "Interval seconds must be at least 60")
 	Integer intervalSeconds,

@@ -10,7 +10,6 @@ public record RuleV2Dto(
 	String name,
 	Integer priority,
 	Boolean isActive,
-	Long roomId,
 	Integer intervalSeconds,
 	List<RuleConditionV2Dto> conditions,
 	List<RuleActionV2Dto> actions,

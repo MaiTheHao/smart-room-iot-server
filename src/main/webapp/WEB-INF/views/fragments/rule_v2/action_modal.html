@@ -1,0 +1,232 @@
+<th:block th:fragment="modal_content" xmlns:th="http://www.thymeleaf.org">
+  <!-- Action Create/Edit Modal -->
+  <div class="modal fade" id="actionModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-bolt mr-2"></i>
+            <span id="actionModalTitleText">Add Action</span>
+          </h5>
+          <button type="button" class="close text-white" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body bg-light p-0">
+          <form id="actionForm" novalidate>
+            <input type="hidden" id="actionLocalId" />
+
+            <!-- Card 1: Target Device -->
+            <div class="card card-outline card-info m-3 mb-2 shadow-sm">
+              <div class="card-header py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="card-title m-0 font-weight-bold text-info">
+                    <i class="fas fa-microchip mr-1"></i> Target Device
+                  </h6>
+                  <div class="form-group mb-0 d-flex align-items-center">
+                    <label for="actExecutionOrder" class="small font-weight-bold mr-2 mb-0">Order:</label>
+                    <input type="number" class="form-control form-control-sm text-center" id="actExecutionOrder" style="width: 70px;" min="0" value="0" />
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="actTargetSelection">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Category</label>
+                        <select class="form-control form-control-sm" id="actCategorySelect">
+                          <option value="" disabled selected>Select category</option>
+                          <option value="LIGHT">LIGHT</option>
+                          <option value="FAN">FAN</option>
+                          <option value="AIR_CONDITION">AIR_CONDITION</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Floor</label>
+                        <select class="form-control form-control-sm" id="actFloorSelect" disabled>
+                          <option value="" disabled selected>Select floor</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Room</label>
+                        <select class="form-control form-control-sm" id="actRoomSelect" disabled>
+                          <option value="" disabled selected>Select room</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Device</label>
+                        <select class="form-control form-control-sm" id="actDeviceSelect" disabled>
+                          <option value="" disabled selected>Select device</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 2: Action Parameters -->
+            <div class="card card-outline card-warning m-3 mt-0 mb-3 shadow-sm">
+              <div class="card-header py-2">
+                <h6 class="card-title m-0 font-weight-bold text-warning">
+                  <i class="fas fa-sliders-h mr-1"></i> Action Parameters
+                </h6>
+                <small class="text-muted ml-4">Leave fields blank to not change device state</small>
+              </div>
+              <div class="card-body">
+                <!-- LIGHT params -->
+                <div id="actParamLight" style="display: none">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Power</label>
+                        <select class="form-control form-control-sm" id="actLightPower">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Level (0-100)</label>
+                        <input type="number" class="form-control form-control-sm" id="actLightLevel" min="0" max="100" placeholder="-- not set --" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FAN params -->
+                <div id="actParamFan" style="display: none">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Power</label>
+                        <select class="form-control form-control-sm" id="actFanPower">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Mode</label>
+                        <select class="form-control form-control-sm" id="actFanMode">
+                          <option value="">-- not set --</option>
+                          <option value="NORMAL">NORMAL</option>
+                          <option value="SLEEP">SLEEP</option>
+                          <option value="NATURAL">NATURAL</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Speed</label>
+                        <input type="number" class="form-control form-control-sm" id="actFanSpeed" min="0" placeholder="-- not set --" />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Swing</label>
+                        <select class="form-control form-control-sm" id="actFanSwing">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Light</label>
+                        <select class="form-control form-control-sm" id="actFanLight">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AIR_CONDITION params -->
+                <div id="actParamAc" style="display: none">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Power</label>
+                        <select class="form-control form-control-sm" id="actAcPower">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Temperature (°C)</label>
+                        <input type="number" class="form-control form-control-sm" id="actAcTemp" min="16" max="32" placeholder="-- not set --" />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Mode</label>
+                        <select class="form-control form-control-sm" id="actAcMode">
+                          <option value="">-- not set --</option>
+                          <option value="COOL">COOL</option>
+                          <option value="HEAT">HEAT</option>
+                          <option value="DRY">DRY</option>
+                          <option value="FAN">FAN</option>
+                          <option value="AUTO">AUTO</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Fan Speed</label>
+                        <input type="number" class="form-control form-control-sm" id="actAcFanSpeed" min="0" max="5" placeholder="-- not set --" />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group mb-2">
+                        <label class="small font-weight-bold">Swing</label>
+                        <select class="form-control form-control-sm" id="actAcSwing">
+                          <option value="">-- not set --</option>
+                          <option value="ON">ON</option>
+                          <option value="OFF">OFF</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Placeholder -->
+                <div id="actParamPlaceholder" class="text-center text-muted py-3">
+                  <i class="fas fa-hand-point-up fa-2x mb-2 d-block"></i>
+                  <small>Select a device category to configure action parameters</small>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i> Cancel
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" id="btnSaveAction">
+            <i class="fas fa-save mr-1"></i> Save Action
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

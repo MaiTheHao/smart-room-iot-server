@@ -26,7 +26,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "rule_v2", indexes = {
-        @Index(name = "idx_rule_v2_room", columnList = "room_id"),
         @Index(name = "idx_rule_v2_status", columnList = "is_active")
 })
 public class RuleV2 extends BaseSchedulableEntity {
@@ -38,9 +37,6 @@ public class RuleV2 extends BaseSchedulableEntity {
 
     @Column(name = "priority", nullable = false)
     private Integer priority = 0;
-
-    @Column(name = "room_id", nullable = false)
-    private Long roomId;
 
     @OneToMany(mappedBy = "ruleV2", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RuleConditionV2> conditions = new ArrayList<>();

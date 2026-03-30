@@ -64,7 +64,6 @@ public class RuleV2Processor {
         log.info("Evaluating RuleV2 {} with {} conditions", rule.getId(), conditions.size());
 
         EvaluationContext initCtx = new EvaluationContext();
-        initCtx.setRoomId(rule.getRoomId());
         
         boolean isMatched = conditions.stream()
                 .sorted(Comparator.comparingInt(RuleConditionV2::getSortOrder))
@@ -83,7 +82,7 @@ public class RuleV2Processor {
         tempCond.setOperator(condV2.getOperator());
         tempCond.setValue(condV2.getValue());
 
-        boolean isMet = evaluateCondition(tempCond, ctx.getRoomId());
+        boolean isMet = evaluateCondition(tempCond);
         
         if (ctx.isFirst()) {
             ctx.setFinalResult(isMet);
@@ -100,13 +99,13 @@ public class RuleV2Processor {
         return ctx;
     }
 
-    private boolean evaluateCondition(RuleCondition cond, Long roomId) {
+    private boolean evaluateCondition(RuleCondition cond) {
         return ruleDataSourceStrategies.stream()
                 .filter(s -> s.supports(cond.getDataSource()))
                 .findFirst()
                 .map(strategy -> {
                     try {
-                        Object val = strategy.fetchValue(cond, roomId);
+                        Object val = strategy.fetchValue(cond, null);
                         return val != null && compareValues(val.toString(), cond.getValue(), cond.getOperator());
                     } catch (Exception e) {
                         log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
@@ -182,6 +181,5 @@ public class RuleV2Processor {
         private boolean finalResult = true;
         private boolean isFirst = true;
         private ConditionLogic prevLogic;
-        private Long roomId;
     }
 }

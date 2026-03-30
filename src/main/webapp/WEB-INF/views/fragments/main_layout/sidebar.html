@@ -245,10 +245,29 @@
                 <p>Rules List</p>
               </a>
             </li>
+            <li class="nav-item">
+              <a
+                th:href="@{/view/v2/rules}"
+                class="nav-link"
+                th:classappend="${request.requestURI.contains('/view/v2/rules') && !request.requestURI.contains('/conditions') && !request.requestURI.contains('/actions') ? 'active' : ''}"
+              >
+                <i
+                  class="nav-icon far"
+                  th:classappend="${request.requestURI.contains('/view/v2/rules') && !request.requestURI.contains('/conditions') && !request.requestURI.contains('/actions') ? 'fa-dot-circle' : 'fa-circle'}"
+                ></i>
+                <p>Rules V2 (Interval)</p>
+              </a>
+            </li>
             <li class="nav-item" th:if="${request.requestURI.contains('/conditions')}">
               <a href="#" class="nav-link active">
                 <i class="far fa-dot-circle nav-icon"></i>
                 <p>Conditions</p>
+              </a>
+            </li>
+            <li class="nav-item" th:if="${request.requestURI.contains('/actions')}">
+              <a href="#" class="nav-link active">
+                <i class="far fa-dot-circle nav-icon"></i>
+                <p>Actions</p>
               </a>
             </li>
           </ul>

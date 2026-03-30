@@ -34,7 +34,6 @@ public class RuleV2MapperImpl implements RuleV2Mapper {
         rule.setName(dto.name());
         rule.setPriority(dto.priority());
         rule.setIsActive(dto.isActive());
-        rule.setRoomId(dto.roomId());
         rule.setIntervalSeconds(dto.intervalSeconds());
         rule.setIsInterval(dto.intervalSeconds() != null && dto.intervalSeconds() > 0);
 
@@ -64,7 +63,6 @@ public class RuleV2MapperImpl implements RuleV2Mapper {
         RuleV2 rule = new RuleV2();
         rule.setName(dto.name());
         rule.setPriority(dto.priority());
-        rule.setRoomId(dto.roomId());
         rule.setIntervalSeconds(dto.intervalSeconds());
         rule.setIsInterval(dto.intervalSeconds() != null && dto.intervalSeconds() > 0);
         rule.setIsActive(true);
@@ -131,7 +129,6 @@ public class RuleV2MapperImpl implements RuleV2Mapper {
                 .name(entity.getName())
                 .priority(entity.getPriority())
                 .isActive(entity.getIsActive())
-                .roomId(entity.getRoomId())
                 .intervalSeconds(entity.getIntervalSeconds())
                 .conditions(ruleConditionMapper.toDtoList(entity.getConditions()))
                 .actions(ruleActionMapper.toDtoList(entity.getActions()))
