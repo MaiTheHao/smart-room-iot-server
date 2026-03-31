@@ -93,20 +93,20 @@ class RuleV2Manager {
           orderable: false,
           render: (_, __, row) =>
             `<div class="btn-group">
-							<a href="/view/v2/rules/${row.id}/conditions" class="btn btn-sm btn-default" title="Manage Conditions">
-								<i class="fas fa-filter text-success"></i>
+							<a href="/view/v2/rules/${row.id}/conditions" class="btn btn-sm btn-link text-success p-1" title="Manage Conditions">
+								<i class="fas fa-filter"></i>
 							</a>
-							<a href="/view/v2/rules/${row.id}/actions" class="btn btn-sm btn-default" title="Manage Actions">
-								<i class="fas fa-bolt text-warning"></i>
+							<a href="/view/v2/rules/${row.id}/actions" class="btn btn-sm btn-link text-warning p-1" title="Manage Actions">
+								<i class="fas fa-bolt"></i>
 							</a>
-							<button class="btn btn-sm btn-default btn-edit" data-id="${row.id}" title="Edit Rule Metadata">
-								<i class="fas fa-pen text-primary"></i>
+							<button class="btn btn-sm btn-link text-primary p-1 btn-edit" data-id="${row.id}" title="Edit Rule Metadata">
+								<i class="fas fa-edit"></i>
 							</button>
-							<button class="btn btn-sm btn-default btn-delete" data-id="${row.id}" title="Delete Rule">
-								<i class="fas fa-trash text-danger"></i>
+							<button class="btn btn-sm btn-link text-danger p-1 btn-delete" data-id="${row.id}" title="Delete Rule">
+								<i class="fas fa-trash-alt"></i>
 							</button>
-              <button class="btn btn-sm btn-default btn-execute" data-id="${row.id}" title="Trigger Immediately">
-								<i class="fas fa-play text-info"></i>
+              <button class="btn btn-sm btn-link text-info p-1 btn-execute" data-id="${row.id}" title="Trigger Immediately">
+								<i class="fas fa-play"></i>
 							</button>
 						</div>`,
         },

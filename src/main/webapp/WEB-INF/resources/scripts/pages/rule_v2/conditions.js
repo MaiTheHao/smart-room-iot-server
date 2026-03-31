@@ -46,23 +46,23 @@ class ConditionV2Manager {
 
     const $status = $('#headerRuleStatus');
     if (data.isActive) {
-      $status.addClass('badge-success').removeClass('badge-secondary').text('Active');
+      $status.addClass('text-success').removeClass('text-secondary').html('<i class="fas fa-circle mr-1" style="font-size: 8px"></i> Active');
     } else {
-      $status.addClass('badge-secondary').removeClass('badge-success').text('Inactive');
+      $status.addClass('text-secondary').removeClass('text-success').html('<i class="fas fa-circle mr-1" style="font-size: 8px"></i> Inactive');
     }
 
     $('#headerRulePriority').text(data.priority);
-    $('#headerRuleInterval').text(data.intervalSeconds);
+    $('#headerRuleInterval').text(data.intervalSeconds + 's');
   }
 
   static markDirty() {
     this.isDirty = true;
-    $('#dirtyBadge').addClass('visible');
+    $('#dirtyBadge, #unsavedStatus').addClass('visible').show();
   }
 
   static markClean() {
     this.isDirty = false;
-    $('#dirtyBadge').removeClass('visible');
+    $('#dirtyBadge, #unsavedStatus').removeClass('visible').hide();
   }
 
   static getPropertyMeta(category, property) {
@@ -72,14 +72,15 @@ class ConditionV2Manager {
   static renderTable() {
     this.conditions.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    const $tbody = $('#conditionsTableBody');
+    const $tbody = $('#conditionsTableBody, #conditionsList');
     $tbody.empty();
+    const $emptyState = $('#conditionsEmptyState, #emptyConditions');
 
     if (this.conditions.length === 0) {
-      $('#conditionsEmptyState').show();
+      $emptyState.show();
       return;
     }
-    $('#conditionsEmptyState').hide();
+    $emptyState.hide();
 
     this.conditions.forEach((c) => {
       const resourceDisplay = this.formatResourceParam(c.dataSource, c.resourceParam);
@@ -94,7 +95,6 @@ class ConditionV2Manager {
         .replace(/{resourceDisplay}/g, resourceDisplay)
         .replace(/{operatorDisplay}/g, operatorDisplay)
         .replace(/{value}/g, RuleCommon.escapeHtml(c.value || ''))
-        .replace(/{nextLogicColor}/g, nextLogicColor)
         .replace(/{nextLogic}/g, RuleCommon.escapeHtml(c.nextLogic || 'AND'));
 
       $tbody.append($(rowHtml));
@@ -110,32 +110,23 @@ class ConditionV2Manager {
   static formatResourceParam(dataSource, rp) {
     if (!rp) return '<span class="text-muted">—</span>';
     if (dataSource === 'SYSTEM') {
-      return `<code class="text-dark">${RuleCommon.escapeHtml(rp.property || '')}</code>`;
+      return `<code class="text-indigo">${RuleCommon.escapeHtml(rp.property || '')}</code>`;
     }
     if (dataSource === 'ROOM') {
       const prop = rp.property || '';
       const roomId = rp.roomId || '';
-      return `<span class="badge badge-secondary mr-1">ROOM</span>
-        <span class="text-muted">#${roomId}</span>
-        <i class="fas fa-angle-right mx-1 text-muted small"></i>
-        <code class="text-dark">${RuleCommon.escapeHtml(prop)}</code>`;
+      return `<span class="text-dark">Room #${roomId}</span>
+        <i class="fas fa-chevron-right mx-1 small text-muted"></i>
+        <code class="text-indigo">${RuleCommon.escapeHtml(prop)}</code>`;
     }
     if (dataSource === 'DEVICE' || dataSource === 'SENSOR') {
       const cat = rp.category || '';
       const deviceId = rp.deviceId || rp.sensorId || '';
       const prop = rp.property || '';
-      const catColors = {
-        LIGHT: 'warning',
-        FAN: 'info',
-        AIR_CONDITION: 'primary',
-        TEMPERATURE: 'danger',
-        POWER_CONSUMPTION: 'success',
-      };
-      const c = catColors[cat] || 'secondary';
-      return `<span class="badge badge-${c} mr-1">${RuleCommon.escapeHtml(cat)}</span>
-        <span class="text-muted">#${deviceId}</span>
-        <i class="fas fa-angle-right mx-1 text-muted small"></i>
-        <code class="text-dark">${RuleCommon.escapeHtml(prop)}</code>`;
+      
+      return `<span class="text-dark">${RuleCommon.escapeHtml(cat)} #${deviceId}</span>
+        <i class="fas fa-chevron-right mx-1 small text-muted"></i>
+        <code class="text-indigo">${RuleCommon.escapeHtml(prop)}</code>`;
     }
     return `<code>${JSON.stringify(rp)}</code>`;
   }
@@ -157,14 +148,14 @@ class ConditionV2Manager {
   static bindEvents() {
     $('#btnAddCondition, #btnAddConditionEmpty').on('click', () => this.openConditionModal());
     $('#btnSaveCondition').on('click', () => this.handleModalSave());
-    $('#btnSaveConditions').on('click', () => this.handleSaveAll());
+    $('#btnSaveAllConditions').on('click', () => this.handleSaveAll());
 
-    $('#conditionsTableBody').on('click', '.btn-edit-cond', (e) => {
+    $('#conditionsList').on('click', '.btn-edit-cond', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       this.openConditionModal(localId);
     });
 
-    $('#conditionsTableBody').on('click', '.btn-delete-cond', (e) => {
+    $('#conditionsList').on('click', '.btn-delete-cond', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       this.handleDeleteCondition(localId);
     });
@@ -592,3 +583,4 @@ class ConditionV2Manager {
 }
 
 window.ConditionV2Manager = ConditionV2Manager;
+window.ConditionManager = ConditionV2Manager;

@@ -6,7 +6,7 @@
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">
             <i class="fas fa-code-branch mr-2"></i>
-            <span id="ruleModalTitleText">Create New Rule V2</span>
+            <span id="ruleModalTitleText" th:text="#{rulev2.modal.rule.title.create}">Create New Rule V2</span>
           </h5>
           <button type="button" class="close text-white" data-dismiss="modal">
             <span aria-hidden="true">&times;</span>
@@ -21,26 +21,27 @@
             <div class="card card-outline card-primary m-3 mb-2 shadow-sm">
               <div class="card-header py-2">
                 <h6 class="card-title m-0 font-weight-bold text-primary">
-                  <i class="fas fa-info-circle mr-1"></i> Basic Info
+                  <i class="fas fa-info-circle mr-1"></i>
+                  <span th:text="#{rulev2.modal.rule.section.basic}">Basic Info</span>
                 </h6>
               </div>
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group mb-2">
-                      <label for="ruleName" class="small font-weight-bold">Rule Name</label>
+                      <label for="ruleName" class="small font-weight-bold" th:text="#{rulev2.modal.rule.label.name}">Rule Name</label>
                       <input type="text" class="form-control form-control-sm" id="ruleName" placeholder="e.g. Turn on lights at 6PM" required />
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group mb-2">
-                      <label for="rulePriority" class="small font-weight-bold">Priority</label>
+                      <label for="rulePriority" class="small font-weight-bold" th:text="#{rulev2.modal.rule.label.priority}">Priority</label>
                       <input type="number" class="form-control form-control-sm" id="rulePriority" min="0" value="0" required />
                     </div>
                   </div>
                   <div class="col-md-6">
                     <div class="form-group mb-2">
-                      <label for="ruleInterval" class="small font-weight-bold text-danger">Interval (seconds)</label>
+                      <label for="ruleInterval" class="small font-weight-bold text-danger" th:text="#{rulev2.modal.rule.label.interval}">Interval (seconds)</label>
                       <input type="number" class="form-control form-control-sm" id="ruleInterval" min="60" value="60" required />
                     </div>
                   </div>
@@ -48,7 +49,7 @@
                     <div class="form-group mb-0">
                       <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="ruleIsActive" checked />
-                        <label class="custom-control-label small font-weight-bold" for="ruleIsActive">Active</label>
+                        <label class="custom-control-label small font-weight-bold" for="ruleIsActive" th:text="#{rulev2.modal.rule.label.active}">Active</label>
                       </div>
                     </div>
                   </div>
@@ -61,10 +62,12 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
-            <i class="fas fa-times mr-1"></i> Cancel
+            <i class="fas fa-times mr-1"></i>
+            <span th:text="#{common.btn.cancel}">Cancel</span>
           </button>
           <button type="button" class="btn btn-primary btn-sm" id="btnSaveRule">
-            <i class="fas fa-save mr-1"></i> Save Rules V2
+            <i class="fas fa-save mr-1"></i>
+            <span th:text="#{rulev2.modal.rule.btn.save}">Save Rules V2</span>
           </button>
         </div>
       </div>

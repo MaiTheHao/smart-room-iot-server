@@ -44,19 +44,19 @@ class ActionV2Manager {
 
     const $status = $('#headerRuleStatus');
     if (data.isActive) {
-      $status.addClass('badge-success').removeClass('badge-secondary').text('Active');
+      $status.addClass('text-success').removeClass('text-secondary').html('<i class="fas fa-circle mr-1" style="font-size: 8px"></i> Active');
     } else {
-      $status.addClass('badge-secondary').removeClass('badge-success').text('Inactive');
+      $status.addClass('text-secondary').removeClass('text-success').html('<i class="fas fa-circle mr-1" style="font-size: 8px"></i> Inactive');
     }
 
     $('#headerRulePriority').text(data.priority);
-    $('#headerRuleRoom').text(data.roomId);
-    $('#headerRuleInterval').text(data.intervalSeconds);
+    $('#headerRuleRoom').text(data.roomId || 'General');
+    $('#headerRuleInterval').text(data.intervalSeconds + 's');
   }
 
   static markDirty() {
     this.isDirty = true;
-    $('#dirtyBadge').addClass('visible');
+    $('#dirtyBadge, #unsavedStatus').addClass('visible').show();
   }
 
   static markClean() {
@@ -67,21 +67,27 @@ class ActionV2Manager {
   static renderTable() {
     this.actions.sort((a, b) => a.executionOrder - b.executionOrder);
 
-    const $tbody = $('#actionsTableBody');
+    const $tbody = $('#actionsTableBody, #actionsList');
     $tbody.empty();
+    const $emptyState = $('#actionsEmptyState, #emptyActions');
 
     if (this.actions.length === 0) {
-      $('#actionsEmptyState').show();
+      $emptyState.show();
       return;
     }
-    $('#actionsEmptyState').hide();
+    $emptyState.hide();
 
     this.actions.forEach((a) => {
       const colors = { LIGHT: 'warning', FAN: 'info', AIR_CONDITION: 'primary' };
       const c = colors[a.targetDeviceCategory] || 'secondary';
       const categoryDisplay = `<span class="badge badge-${c}">${a.targetDeviceCategory}</span>`;
 
-      const paramsDisplay = `<code>${RuleCommon.escapeHtml(JSON.stringify(a.actionParams))}</code>`;
+      let paramEntries = Object.entries(a.actionParams || {})
+        .map(([k, v]) => `<span class="text-muted mr-1">${k}:</span><code class="text-indigo mr-2">${v}</code>`)
+        .join('');
+      if (!paramEntries) paramEntries = '<span class="text-muted">—</span>';
+      
+      const paramsDisplay = paramEntries;
 
       const rowHtml = $('#actionRowTemplate')
         .html()
@@ -118,14 +124,14 @@ class ActionV2Manager {
   static bindEvents() {
     $('#btnAddAction, #btnAddActionEmpty').on('click', () => this.openActionModal());
     $('#btnSaveAction').on('click', () => this.handleModalSave());
-    $('#btnSaveActions').on('click', () => this.handleSaveAll());
+    $('#btnSaveAllActions').on('click', () => this.handleSaveAll());
 
-    $('#actionsTableBody').on('click', '.btn-edit-act', (e) => {
+    $('#actionsList').on('click', '.btn-edit-act', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       this.openActionModal(localId);
     });
 
-    $('#actionsTableBody').on('click', '.btn-delete-act', (e) => {
+    $('#actionsList').on('click', '.btn-delete-act', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       this.handleDeleteAction(localId);
     });
@@ -390,3 +396,4 @@ class ActionV2Manager {
 }
 
 window.ActionV2Manager = ActionV2Manager;
+window.ActionManager = ActionV2Manager;

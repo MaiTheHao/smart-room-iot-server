@@ -5,34 +5,34 @@
   layout:decorate="~{main_layout.html}"
 >
   <head>
-    <title>Rule Management V2</title>
+    <title>Rule Management</title>
     <th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
   </head>
   <body>
     <th:block layout:fragment="header">
       <th:block
-        th:replace="~{fragments/management.html :: page_header('Rule Management V2 (Interval Automation)')}"
+        th:replace="~{fragments/management.html :: page_header('Rule Management')}"
       ></th:block>
     </th:block>
 
     <section class="content" layout:fragment="content">
       <div class="container-fluid">
-        <div class="card card-outline card-primary shadow-sm border-0">
-          <div class="card-header border-0 pb-0">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white border-bottom-0 pt-4">
             <div class="d-flex justify-content-between align-items-center">
-              <h3 class="card-title font-weight-bold text-dark">
-                <i class="fas fa-cogs mr-2 text-primary"></i>
-                <span>Rules List V2</span>
-              </h3>
+              <h5 class="m-0 font-weight-bold text-dark">
+                <i class="fas fa-list mr-2 text-primary opacity-75"></i>
+                <span th:text="#{rulev2.list.title}">Rules List</span>
+              </h5>
               <div class="card-tools d-flex align-items-center">
                 <button
                   type="button"
                   class="btn btn-light btn-sm mr-2"
                   id="btnReloadRules"
-                  title="Reload all active rules from database"
+                  th:title="#{rulev2.list.btn.reload}"
                 >
                   <i class="fas fa-sync-alt mr-1"></i>
-                  <span>Reload Rules</span>
+                  <span th:text="#{rulev2.list.btn.reload}">Reload Rules</span>
                 </button>
                 <button
                   type="button"
@@ -40,30 +40,32 @@
                   id="btnCreateRule"
                 >
                   <i class="fas fa-plus mr-1"></i>
-                  <span>Add Rule V2</span>
+                  <span th:text="#{rulev2.list.btn.add}">Add Rule</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="card-body">
-            <table id="rulesTable" class="table table-hover table-borderless text-nowrap w-100">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table id="rulesTable" class="table table-hover table-sm mb-0 text-nowrap w-100">
               <thead class="bg-light text-muted small text-uppercase">
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Priority</th>
-                  <th>Interval (s)</th>
-                  <th>Status</th>
-                  <th>Conditions</th>
-                  <th>Actions</th>
-                  <th class="text-right">Manage</th>
+                  <th th:text="#{rulev2.list.table.id}">ID</th>
+                  <th th:text="#{rulev2.list.table.name}">Name</th>
+                  <th th:text="#{rulev2.list.table.priority}">Priority</th>
+                  <th th:text="#{rulev2.list.table.interval}">Interval (s)</th>
+                  <th th:text="#{rulev2.list.table.status}">Status</th>
+                  <th th:text="#{rulev2.list.table.conditions}">Conditions</th>
+                  <th th:text="#{rulev2.list.table.actions}">Actions</th>
+                  <th class="text-right" th:text="#{rulev2.list.table.manage}">Manage</th>
                 </tr>
               </thead>
               <tbody>
                 <!-- Populated by DataTable / JS -->
-              </tbody>
-            </table>
+                  </tbody>
+              </table>
+            </div>
           </div>
         </div>
 

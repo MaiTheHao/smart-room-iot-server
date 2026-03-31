@@ -5,12 +5,13 @@
   layout:decorate="~{main_layout.html}"
 >
   <head>
-    <title>Condition Management V2</title>
+    <title>Condition Management</title>
     <th:block th:replace="~{fragments/management.html :: css_resources}"></th:block>
     <style>
       .order-input {
-        width: 60px;
+        width: 50px;
         text-align: center;
+        border-radius: 4px;
       }
       .dirty-indicator {
         display: none;
@@ -18,79 +19,100 @@
       .dirty-indicator.visible {
         display: inline;
       }
+      .meta-list {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0;
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+      .meta-item:not(:last-child)::after {
+        content: '|';
+        margin: 0 15px;
+        color: #dee2e6;
+        font-weight: 300;
+      }
+      .meta-label {
+        font-weight: 600;
+        color: #495057;
+        margin-right: 5px;
+      }
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
     </style>
   </head>
   <body>
     <th:block layout:fragment="header">
       <th:block
-        th:replace="~{fragments/management.html :: page_header('Condition Management V2')}"
+        th:replace="~{fragments/management.html :: page_header('Condition Management')}"
       ></th:block>
     </th:block>
 
     <section class="content" layout:fragment="content">
       <div class="container-fluid">
-        <!-- Rule Info Card (readonly) -->
-        <div class="card card-outline card-primary shadow-sm border-0 mb-3">
-          <div class="card-header border-0 pb-0">
-            <div class="d-flex justify-content-between align-items-center flex-wrap">
-              <h3 class="card-title font-weight-bold text-dark mb-1">
-                <i class="fas fa-code-branch mr-2 text-primary"></i>
-                <span id="headerRuleName">Loading...</span>
-                <span id="headerRuleStatus" class="badge badge-pill ml-2">...</span>
-              </h3>
-              <div class="card-tools">
-                <a th:href="@{/view/v2/rules}" class="btn btn-default btn-sm mr-2">
-                  <i class="fas fa-arrow-left mr-1"></i>
-                  <span>Back to Rules V2</span>
-                </a>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm font-weight-bold shadow-sm"
-                  id="btnAddCondition"
-                  disabled
-                >
-                  <i class="fas fa-plus mr-1"></i>
-                  <span>Add Condition</span>
-                </button>
+        <!-- Section 1: Minimal Rule Metadata Card -->
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <h4 class="mb-0 font-weight-bold text-dark" id="headerRuleName">Loading...</h4>
+                <span id="headerRuleStatus" class="ml-3 text-secondary small"><i class="fas fa-circle mr-1" style="font-size: 8px"></i> ...</span>
               </div>
+              <a th:href="@{/view/v2/rules}" class="btn btn-sm btn-back px-3">
+                <i class="fas fa-chevron-left mr-1 small"></i>
+                <span th:text="#{rulev2.condition.btn.back}">Back to Rules</span>
+              </a>
             </div>
-            <!-- Readonly rule meta -->
-            <div class="d-flex flex-wrap mt-1 mb-2 small text-muted">
-              <span class="mr-3">
-                <i class="fas fa-sort-amount-up mr-1"></i>
-                <span>Priority:</span>
-                <strong id="headerRulePriority">-</strong>
-              </span>
-              <span>
-                <i class="fas fa-stopwatch mr-1"></i>
-                <span>Interval (s):</span>
-                <strong id="headerRuleInterval" class="text-danger">-</strong>
-              </span>
+          </div>
+          <div class="card-body pt-2 pb-3">
+            <div class="meta-list">
+              <div class="meta-item">
+                <span class="meta-label">ID:</span>
+                <span>#<span th:text="${ruleId}">0</span></span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label" th:text="#{rulev2.condition.label.priority}">Priority:</span>
+                <span id="headerRulePriority">0</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label" th:text="#{rulev2.condition.label.interval}">Interval (s):</span>
+                <span id="headerRuleInterval">60s</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Conditions Table Card -->
-        <div class="card card-outline card-success shadow-sm border-0">
-          <div class="card-header border-0 pb-0">
+        <!-- Section 2: Conditions Datatable Card -->
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white border-bottom-0 pt-4">
             <div class="d-flex justify-content-between align-items-center">
-              <h3 class="card-title font-weight-bold text-dark">
-                <i class="fas fa-filter mr-2 text-success"></i>
-                <span>Conditions List</span>
-                <span class="badge badge-warning ml-2 dirty-indicator" id="dirtyBadge">
-                  <i class="fas fa-exclamation-triangle mr-1"></i>
-                  <span>Unsaved changes</span>
-                </span>
-              </h3>
-              <div class="card-tools">
+              <h5 class="m-0 font-weight-bold text-dark">
+                <i class="fas fa-layer-group mr-2 text-primary opacity-75"></i>
+                <span th:text="#{rulev2.condition.list.title}">Conditions List</span>
+              </h5>
+              <div class="card-tools d-flex align-items-center">
+                <div id="unsavedStatus" class="mr-3" style="display: none">
+                  <span class="text-warning small font-weight-bold">
+                    <i class="fas fa-sync-alt fa-spin mr-1"></i>
+                    <span th:text="#{rulev2.condition.unsaved}">Unsaved changes</span>
+                  </span>
+                </div>
                 <button
                   type="button"
-                  class="btn btn-success btn-sm font-weight-bold shadow-sm"
-                  id="btnSaveConditions"
-                  disabled
+                  class="btn btn-primary btn-sm px-3 font-weight-bold shadow-sm"
+                  id="btnAddCondition"
                 >
-                  <i class="fas fa-save mr-1"></i>
-                  <span>Save All Changes</span>
+                  <i class="fas fa-plus mr-1"></i>
+                  <span th:text="#{rulev2.condition.btn.add}">Add Condition</span>
                 </button>
               </div>
             </div>
@@ -98,42 +120,51 @@
 
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-hover table-borderless text-nowrap w-100 mb-0">
+              <table class="table table-hover table-sm mb-0" id="conditionsTable">
                 <thead class="bg-light text-muted small text-uppercase">
                   <tr>
-                    <th style="width: 50px">#</th>
-                    <th>Data Source</th>
-                    <th>Resource</th>
-                    <th>Operator</th>
-                    <th>Value</th>
-                    <th>Next Logic</th>
-                    <th class="text-right">Actions</th>
+                    <th class="pl-4 py-3" style="width: 80px" th:text="#{rule.conditions.table.order}">Order</th>
+                    <th class="py-3" th:text="#{rulev2.condition.table.datasource}">Data Source</th>
+                    <th class="py-3" th:text="#{rulev2.condition.table.resource}">Resource</th>
+                    <th class="py-3" th:text="#{rulev2.condition.table.operator}">Operator</th>
+                    <th class="py-3" th:text="#{rulev2.condition.table.value}">Value</th>
+                    <th class="py-3" th:text="#{rulev2.condition.table.next_logic}">Next Logic</th>
+                    <th class="text-right pr-4 py-3" th:text="#{rulev2.condition.table.actions}">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="conditionsTableBody">
-                  <!-- Populated by JS -->
+                <tbody id="conditionsList">
+                  <!-- Dynamic -->
                 </tbody>
               </table>
             </div>
 
-            <!-- Empty state -->
-            <div
-              id="conditionsEmptyState"
-              class="text-center py-5 text-muted"
-              style="display: none"
-            >
-              <i class="fas fa-filter fa-3x mb-3 d-block text-light"></i>
-              <p>No conditions yet. Add the first condition!</p>
+            <div id="emptyConditions" class="text-center py-5" style="display: none">
+              <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+              <p class="text-muted" th:text="#{rulev2.condition.list.empty}">
+                No conditions yet!
+              </p>
               <button
                 type="button"
-                class="btn btn-outline-success btn-sm"
+                class="btn btn-outline-primary btn-sm mt-2 font-weight-bold"
                 id="btnAddConditionEmpty"
               >
                 <i class="fas fa-plus mr-1"></i>
-                <span>Add Condition</span>
+                <span th:text="#{rulev2.condition.btn.add}">Add Condition</span>
               </button>
             </div>
           </div>
+
+          <div class="card-footer bg-white border-top-0 text-right py-4 pr-4">
+            <button
+              type="button"
+              class="btn btn-success px-5 font-weight-bold shadow-sm"
+              id="btnSaveAllConditions"
+            >
+              <i class="fas fa-check-circle mr-2"></i>
+              <span th:text="#{rulev2.condition.btn.save_all}">Save All Changes</span>
+            </button>
+          </div>
+        </div>
         </div>
 
         <!-- Condition Modal Fragment from V1 operates perfectly for V2 -->
@@ -141,42 +172,42 @@
 
         <template id="conditionRowTemplate">
           <tr data-local-id="{localId}">
-            <td class="align-middle" style="width: 80px">
+            <td class="align-middle pl-4">
               <input
                 type="number"
-                class="form-control form-control-sm order-input text-center"
+                class="form-control form-control-sm order-input"
                 value="{sortOrder}"
                 min="1"
                 data-local-id="{localId}"
               />
             </td>
             <td class="align-middle">
-              <span class="badge badge-secondary">{dataSource}</span>
+              <span class="text-muted font-weight-bold">{dataSource}</span>
             </td>
-            <td class="align-middle small text-break" style="max-width: 220px; white-space: normal">
+            <td class="align-middle">
               {resourceDisplay}
             </td>
-            <td class="align-middle">
-              <span class="badge badge-light border font-weight-bold">{operatorDisplay}</span>
+            <td class="align-middle text-center" style="width: 80px">
+              <span class="border rounded px-2 py-1 bg-white font-weight-bold">{operatorDisplay}</span>
             </td>
-            <td class="align-middle font-weight-bold">{value}</td>
+            <td class="align-middle font-weight-bold text-primary">{value}</td>
             <td class="align-middle">
-              <span class="badge badge-{nextLogicColor}">{nextLogic}</span>
+              <span class="badge badge-light px-2 border">{nextLogic}</span>
             </td>
-            <td class="align-middle text-right">
+            <td class="align-middle text-right pr-4">
               <button
-                class="btn btn-sm btn-default btn-edit-cond"
+                class="btn btn-sm btn-link text-primary p-1 btn-edit-cond"
                 data-local-id="{localId}"
                 title="Edit"
               >
-                <i class="fas fa-pen text-primary"></i>
+                <i class="fas fa-edit"></i>
               </button>
               <button
-                class="btn btn-sm btn-default btn-delete-cond"
+                class="btn btn-sm btn-link text-danger p-1 btn-delete-cond"
                 data-local-id="{localId}"
                 title="Delete"
               >
-                <i class="fas fa-trash text-danger"></i>
+                <i class="fas fa-trash-alt"></i>
               </button>
             </td>
           </tr>
