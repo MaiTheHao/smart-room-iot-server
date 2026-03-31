@@ -64,8 +64,27 @@ class ChartUtils {
 			scales: {
 				x: {
 					type: 'time',
-					time: { unit: 'hour', displayFormats: { hour: 'HH:mm', day: 'MMM DD' } },
+					time: {
+						displayFormats: {
+							millisecond: 'HH:mm:ss.SSS',
+							second: 'HH:mm:ss',
+							minute: 'HH:mm',
+							hour: 'HH:mm',
+							day: 'DD/MM',
+							week: 'DD/MM',
+							month: 'MM/YYYY',
+							quarter: '[Q]Q - YYYY',
+							year: 'YYYY',
+						},
+					},
 					title: { display: true, text: 'Time' },
+					min: overrides.min || undefined,
+					max: overrides.max || undefined,
+					ticks: {
+						autoSkip: true,
+						maxRotation: 0,
+						major: { enabled: true },
+					},
 				},
 				y: { beginAtZero: true, title: { display: true, text: 'Value' } },
 			},
@@ -165,12 +184,16 @@ class ChartManager {
 		}
 	}
 
-	renderLineChart({ label, data, colors }) {
+	renderLineChart({ label, data, colors, min, max }) {
 		const ctx = document.getElementById(this.canvasId)?.getContext('2d');
 		if (!ctx) return;
 
 		this.destroy();
-		const options = ChartUtils.getTimeSeriesOptions({ scales: { y: { title: { text: label } } } });
+		const options = ChartUtils.getTimeSeriesOptions({
+			min: min,
+			max: max,
+			scales: { y: { title: { text: label } } },
+		});
 		const dataset = ChartUtils.createLineDataset(label, data, colors);
 
 		this.chart = new Chart(ctx, {
@@ -187,10 +210,16 @@ class ChartFactory {
 		const manager = new ChartManager(canvasId, { theme: ChartThemes.TEMPERATURE });
 		return {
 			manager,
-			render(data) {
+			render(data, min, max) {
 				const chartData = ChartUtils.transformData(data, 'timestamp', 'avgTempC');
 				if (!chartData.length) return manager.setUIState(ChartUIState.EMPTY);
-				manager.renderLineChart({ label: 'Temp (°C)', data: chartData, colors: ChartThemes.TEMPERATURE });
+				manager.renderLineChart({
+					label: 'Temp (°C)',
+					data: chartData,
+					colors: ChartThemes.TEMPERATURE,
+					min,
+					max,
+				});
 			},
 		};
 	}
@@ -199,10 +228,16 @@ class ChartFactory {
 		const manager = new ChartManager(canvasId, { theme: ChartThemes.POWER });
 		return {
 			manager,
-			render(data) {
+			render(data, min, max) {
 				const chartData = ChartUtils.transformData(data, 'timestamp', 'sumWatt');
 				if (!chartData.length) return manager.setUIState(ChartUIState.EMPTY);
-				manager.renderLineChart({ label: 'Power (W)', data: chartData, colors: ChartThemes.POWER });
+				manager.renderLineChart({
+					label: 'Power (W)',
+					data: chartData,
+					colors: ChartThemes.POWER,
+					min,
+					max,
+				});
 			},
 		};
 	}
@@ -211,10 +246,16 @@ class ChartFactory {
 		const manager = new ChartManager(canvasId, { theme: ChartThemes.HUMIDITY });
 		return {
 			manager,
-			render(data) {
+			render(data, min, max) {
 				const chartData = ChartUtils.transformData(data, 'timestamp', 'avgHumidity');
 				if (!chartData.length) return manager.setUIState(ChartUIState.EMPTY);
-				manager.renderLineChart({ label: 'Humidity (%)', data: chartData, colors: ChartThemes.HUMIDITY });
+				manager.renderLineChart({
+					label: 'Humidity (%)',
+					data: chartData,
+					colors: ChartThemes.HUMIDITY,
+					min,
+					max,
+				});
 			},
 		};
 	}

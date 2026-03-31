@@ -75,8 +75,9 @@ class RoomDetailPage {
 
   renderInitialData() {
     const { temp, power } = this.charts;
-    if (this.initialTempData.length) temp.render(this.initialTempData, 'avgTempC');
-    if (this.initialPowerData.length) power.render(this.initialPowerData, 'sumWatt');
+    const { start, end } = this.state;
+    if (this.initialTempData.length) temp.render(this.initialTempData, start, end);
+    if (this.initialPowerData.length) power.render(this.initialPowerData, start, end);
   }
 
   async loadHealthScore() {
