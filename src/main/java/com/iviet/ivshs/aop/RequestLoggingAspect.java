@@ -28,6 +28,7 @@ public class RequestLoggingAspect {
   private static final Logger log = LogManager.getLogger(RequestLoggingAspect.class);
   private static final String LOG_TYPE_REST = "REST";
   private static final String LOG_TYPE_VIEW = "VIEW";
+  private static final int MAX_LOG_LENGTH = 500;
 
   @Pointcut("within(com.iviet.ivshs.controller.api..*)")
   public void restfulControllerMethods() {
@@ -65,8 +66,8 @@ public class RequestLoggingAspect {
     log.info(">>> [{}] START | ID: {} | Method: {} | URI: {} | Remote: {}",
         logType, requestId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
 
-		log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}", 
-				logType, getHeadersInfo(request), request.getParameterMap());
+    log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}", 
+        logType, getHeadersInfo(request), request.getParameterMap());
 
     Object result = null;
     try {
@@ -82,11 +83,20 @@ public class RequestLoggingAspect {
           logType, requestId, status, duration, method);
 
       if (log.isDebugEnabled()) {
-        log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, result);
+        log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, truncateResult(result));
       }
       ThreadContext.clearAll();
     }
     return result;
+  }
+
+  private String truncateResult(Object result) {
+    if (result == null) return "null";
+    String strResult = result.toString();
+    if (strResult.length() > MAX_LOG_LENGTH) {
+      return strResult.substring(0, MAX_LOG_LENGTH) + "... (truncated, total length: " + strResult.length() + ")";
+    }
+    return strResult;
   }
 
   private Integer getResponseStatus(ServletRequestAttributes attributes) {

@@ -170,20 +170,16 @@ public class RuleV2ServiceImpl implements RuleV2Service {
   }
 
   @Override
-  @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public void executeRuleLogic(Long ruleId) {
-    RuleV2 rule = ruleV2Dao.findByIdWithConditionsAndActions(ruleId)
-        .orElseThrow(() -> new NotFoundException("RuleV2 not found: " + ruleId));
+    RuleV2 rule = ruleV2Dao.findByIdWithConditionsAndActions(ruleId).orElseThrow(() -> new NotFoundException("RuleV2 not found: " + ruleId));
 
     if (Boolean.FALSE.equals(rule.getIsActive())) return;
     ruleV2Processor.process(rule);
   }
 
   @Override
-  @Transactional
   public void executeRuleImmediately(Long ruleId) {
-    RuleV2 rule = ruleV2Dao.findById(ruleId)
-        .orElseThrow(() -> new NotFoundException("RuleV2 not found: " + ruleId));
+    RuleV2 rule = ruleV2Dao.findById(ruleId).orElseThrow(() -> new NotFoundException("RuleV2 not found: " + ruleId));
     scheduleUtil.triggerNow(rule);
   }
 

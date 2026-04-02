@@ -2,7 +2,6 @@ package com.iviet.ivshs.service.impl;
 
 import java.util.List;
 
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.DeviceControlDao;

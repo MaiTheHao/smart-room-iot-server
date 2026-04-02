@@ -119,8 +119,7 @@ public class FanControlServiceImpl implements FanControlService {
   @Override
   @Transactional
   public void control(Long id, FanControlRequestBody body) {
-    Fan fan = fanDao.findById(id)
-      .orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
+    Fan fan = fanDao.findById(id).orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
     applyControlParams(fan, body);
   }
 
