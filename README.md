@@ -2,65 +2,62 @@
 
 # SMART ROOM IoT SERVER
 
-**An Advanced Orchestrator for Building & Device Management**
+**Nền tảng Điều phối Quản trị Tòa nhà & Thiết bị IoT Tiên tiến**
 
-[![Java Version](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
-[![Spring Version](https://img.shields.io/badge/Spring-6.x-green?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/)
+[![Phiên bản Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Phiên bản Spring](https://img.shields.io/badge/Spring-6.x-green?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/)
 [![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
-### _"The brain behind your building's infrastructure"_
+### _"Nền tảng IoT Plug-and-Play Đích thực"_
 
-_A high-performance stateless orchestrator designed to bridge the gap between human management and sensor-driven automation._
+_Tối ưu, Sạch và Được thiết kế để Mở rộng Dễ dàng._
 
 </div>
 
 ---
 
-> 📖 **Tài Liệu Đặc Tả Kiến Trúc (Architecture Specification):**  
-> Để xem phân tích chuyên sâu về luồng hệ thống, sơ đồ tuần tự (Sequence Diagram), chi tiết Package và thiết kế Frontend/Backend, xin vui lòng xem file đặc tả kỹ thuật chính tại **👉 [SYSTEM.md](./SYSTEM.md)**.
-
----
-
 ## 1. Project Overview (Tổng quan dự án)
 
-**Smart Room IoT Server** là hệ thống Web nguyên khối (Monolith) chạy trên Spring Framework. Nền tảng đóng vai trò cung cấp giao diện quản trị trung tâm và điều phối dữ liệu với phần cứng qua bộ API REST chuẩn hóa.
+**Smart Room IoT Server** là hệ thống Web nguyên khối (Monolith) chạy trên Spring Framework (Custom Spring 6 - Non Boot). Nền tảng đóng vai trò cung cấp giao diện quản trị trung tâm và điều phối dữ liệu với phần cứng qua bộ API REST chuẩn hóa.
+
+**Đặc điểm kiến trúc Monolith:** Hệ thống được xây dựng trên kiến trúc nguyên khối, trong đó khối Frontend (Web Admin) và Backend (Logic, API) được đóng gói chung trên cùng một cấu trúc mã nguồn và hoạt động tại một tiến trình Tomcat Server duy nhất. Toàn bộ giao tiếp từ ứng dụng Client và phần cứng IoT Gateway đều định tuyến trực tiếp qua Server để xử lý logic đồng bộ hai chiều.
 
 Hệ thống được thiết kế theo nguyên tắc **"Quản lý tập trung - Thực thi phân tán"**, đóng vai trò là "Bộ não trung tâm" chỉ đạo, nhưng không can thiệp sâu vào các tác vụ đòi hỏi thời gian thực (Real-time Mils) tại cấp độ thiết bị biên (Edge Devices). Toàn bộ hạ tầng có thể quản lý sâu theo cấu trúc: **Building (Tòa nhà) → Floor (Tầng) → Room (Phòng)**.
 
-## 2. Architecture Principles (Nguyên lý kiến trúc)
+### Công nghệ cốt lõi (Core Tech Stack):
 
-### 2.1 Stateless Orchestrator
-Máy chủ hoạt động ưu tiên cơ chế Stateless để tối ưu bộ nhớ băng thông:
-- **Độc lập:** Lệnh điều khiển không cần khởi tạo lại connection (Thông qua quy trình xác thực JWT).
-- **Ủy quyền:** Server chỉ mang trách nhiệm quản lý Rule Automation và lưu trữ thông số. Việc bật/tắt relay chính xác giao toàn quyền cho Gateway Local đảm bảo độ tin cậy.
+| Phân hệ | Công nghệ sử dụng |
+| :--- | :--- |
+| **Backend** | ![Java 21](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk&logoColor=white) ![Spring 6](https://img.shields.io/badge/Spring-6.2-green?style=flat-square&logo=spring&logoColor=white) ![Hibernate](https://img.shields.io/badge/Hibernate-6.4-59666C?style=flat-square&logo=hibernate&logoColor=white) ![Spring Security](https://img.shields.io/badge/Spring_Security-6.4-70B060?style=flat-square&logo=springsecurity&logoColor=white) ![Quartz](https://img.shields.io/badge/Quartz-2.5-white?style=flat-square&logo=quartz&logoColor=black) |
+| **Frontend** | ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1-005F0F?style=flat-square&logo=thymeleaf&logoColor=white) ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2-blueviolet?style=flat-square&logo=adminlte&logoColor=white) ![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-563D7C?style=flat-square&logo=bootstrap&logoColor=white) ![jQuery](https://img.shields.io/badge/jQuery-3.7-0769AD?style=flat-square&logo=jquery&logoColor=white) ![Chart.js](https://img.shields.io/badge/Chart.js-4.4-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![SweetAlert2](https://img.shields.io/badge/SweetAlert2-11.2-F8BB86?style=flat-square&logo=sweetalert2&logoColor=white) |
+| **Hạ tầng** | ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white) ![Apache Tomcat](https://img.shields.io/badge/Tomcat-10.1-F8DC75?style=flat-square&logo=apachetomcat&logoColor=black) |
 
-### 2.2 Hardware Agnostic Design
-- **Tách biệt Logic & Vật lý:** Tầng lập trình tại Server chỉ tương tác với các Class hướng đối tượng (`Light`, `Fan`, `Temperature Sensor`) một cách “mù lòa” với cấu trúc phần cứng. 
-- **Cơ chế Mapping:** Việc thiết bị kết nối bằng Bluetooth, Zigbee hay GPIO đều được xử lý và phiên dịch tại Gateway, giúp Backend sống bền vững kể cả khi thay máu hạ tầng phần cứng.
+---
 
-### 2.3 Data Normalization
-- **Tính trọn vẹn:** Các chuẩn dữ liệu truyền về như Nhiệt độ, Báo điện đều được Data Normalize quy hoạch chung 1 format tại DAO Layer, tôn trọng tuyệt đối Timestamp được dán nhãn từ dưới Hardware gửi lên để chống lỗi dội mạng (Network lag).
+## 2. Core Capabilities (Chức năng cốt lõi)
 
-## 3. System Capabilities (Chức năng cốt lõi)
+Hệ thống tập trung vào việc cung cấp một nền tảng vận hành IoT ổn định và dễ mở rộng với các nghiệp vụ chính:
 
-### Security & Authentication
-- Tách biệt kiểm soát Session cho người dùng Dashboard Web bằng Cookie và Token Bearer đối với thiết bị App/Gateway.
-- Áp dụng triệt để nền tảng **Role-Based Access Control (RBAC)** với cơ chế mapping User vào cấu trúc `SysGroup` gắn liền với vô hạn `SysFunction`.
+### Quản lý Hạ tầng & Thiết bị (Plug-and-Play Management)
+- **Quản lý phân cấp**: Tổ chức hạ tầng theo cấu trúc chuyên sâu: **Tòa nhà → Tầng → Phòng**, giúp quản lý hàng ngàn thiết bị một cách khoa học.
+- **Định nghĩa thiết bị linh hoạt**: Hỗ trợ đa dạng chủng loại thiết bị (Đèn, Quạt, Điều hòa, Cảm biến môi trường) với cơ chế cấu hình linh hoạt.
 
-### Telemetry & Automation
-- **Mô hình Pull (Chủ động Lên lịch):** Tự động gửi Dispatch lấy số đo môi trường định kỳ qua bộ lập lịch (Quartz Job Scheduler).
-- Bộ máy **Rule Engine V2** liên tục kiểm tra trạng thái lệch chuẩn so với dung sai `EPSILON` để kích hoạt thiết bị chạy tự động hoàn toàn lập trình độc lập.
+### Giám sát & Thu thập dữ liệu (Telemetry & Monitoring)
+- **Thu thập tự động**: Tích hợp Quartz Job Scheduler để tự động quét và thu thập dữ liệu từ các Gateway định kỳ.
+- **Thời gian thực**: Theo dõi biến động nhiệt độ, độ ẩm và điện năng tiêu thụ ngay lập tức trên giao diện quản trị AdminLTE.
 
-## 4. Database Organization (Phân nhóm cấu trúc DB)
+### Điều khiển & Tự động hóa (Control & Automation)
+- **Điều khiển từ xa**: Gửi lệnh bật/tắt và điều chỉnh thông số thiết bị tức thì qua REST API.
+- **Tự động hóa tác vụ**: Tận dụng sức mạnh của **Quartz Scheduler framework** để triển khai các engine phục vụ tự động hóa tác vụ và vận hành các quy luật hệ thống (Rules) một cách chính xác, linh hoạt.
 
-Hệ thống SQL được tổ chức theo tính chất dòng đời dữ liệu:
+### Bảo mật & Phân quyền (Security & RBAC)
+- **Bảo mật đa tầng**: Sử dụng JWT Token cho các ứng dụng Client/IoT và Session-based cho Dashboard Admin.
+- **Kiểm soát truy cập (RBAC)**: Hệ thống phân quyền dựa trên Group và Function, đảm bảo mỗi người dùng chỉ được phép tiếp cận đúng các tính năng và dữ liệu tương ứng.
 
-| Nhóm dữ liệu            | Nhóm bảng đại diện                                             | Đặc điểm truy xuất                                                      |
-| ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| **Hạ tầng & Vị trí**    | `floor`, `room`                                                | *Static* - Ít thay đổi, quy hoạch khung xương cấp cao.                  |
-| **Thiết bị & Cấu hình** | `client`, `device_control`, `light`, `fan`, `power_consumption`| *Configuration* - Cấu trúc đối tượng điều hướng vật lý ở dưới Gateway.  |
-| **Dữ liệu cảm biến**    | `temperature_value`, `power_consumption_value`                 | *Append-only* - Trữ lượng chuỗi thời gian, INSERT 1 chiều, cấm xóa.     |
-| **Tầng phân quyền**     | `client` (User), `sys_group`, `sys_role`, `sys_function`       | *Administrative* - Ràng buộc phân hạn quản trị Web.                     |
+## 4. Tài liệu liên quan (Reference Files)
+
+- **Chi tiết kỹ thuật:** [SYSTEM.md](./SYSTEM.md) - Phân tích đặc tả kiến trúc, sơ đồ thực thể và quy trình nghiệp vụ.
+- **Hướng dẫn vận hành:** [DEPLOYMENT.md](./DEPLOYMENT.md) - Quy trình triển khai, cấu hình môi trường và quản lý thư viện server.
+

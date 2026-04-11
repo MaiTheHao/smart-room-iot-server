@@ -41,6 +41,17 @@
 
 Toàn bộ các giao tiếp từ ứng dụng Client (Mobile App, Web Browser) và phần cứng IoT (Raspberry Pi Gateway) đều định tuyến trực tiếp qua Server. Server đảm nhận vai trò trung tâm xử lý logic đồng bộ dữ liệu hai chiều.
 
+### 1.2 Nền tảng công nghệ
+
+Đây là các công nghệ nền tảng được sử dụng xuyên suốt toàn bộ dự án:
+
+| Thành phần | Công nghệ |
+| :--- | :--- |
+| **Runtime** | ![Java 21](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk&logoColor=white) |
+| **Server** | ![Tomcat](https://img.shields.io/badge/Tomcat-10.1-F8DC75?style=flat-square&logo=apachetomcat&logoColor=black) |
+| **Database** | ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white) |
+| **Build Tool** | ![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white) |
+
 ```mermaid
 graph TD
     subgraph ClientLayer [Lớp Giao diện]
@@ -73,7 +84,17 @@ graph TD
 
 ## 2. Kiến trúc Backend
 
-Hệ thống sử dụng **Spring Framework 6.1.4 (Không cấu hình qua Spring Boot)** để đảm bảo quyền kiểm soát chi tiết vòng đời khởi tạo của các component.
+Hệ thống sử dụng **Spring Framework 6 (Custom Spring - Non Boot)** để đảm bảo quyền kiểm soát chi tiết vòng đời khởi tạo của các component.
+
+### 2.1 Công nghệ sử dụng
+
+| Thành phần | Công nghệ |
+| :--- | :--- |
+| **Framework** | ![Spring 6](https://img.shields.io/badge/Spring-6.2-green?style=flat-square&logo=spring&logoColor=white) |
+| **ORM** | ![Hibernate](https://img.shields.io/badge/Hibernate-6.4-59666C?style=flat-square&logo=hibernate&logoColor=white) |
+| **Security** | ![Spring Security](https://img.shields.io/badge/Spring_Security-6.4-70B060?style=flat-square&logo=springsecurity&logoColor=white) |
+| **Scheduler** | ![Quartz](https://img.shields.io/badge/Quartz-2.5-white?style=flat-square&logo=quartz&logoColor=black) |
+| **Utilities** | ![Lombok](https://img.shields.io/badge/Lombok-blue?style=flat-square) ![MapStruct](https://img.shields.io/badge/MapStruct-orange?style=flat-square) |
 
 ### 2.1 Danh sách package
 
@@ -123,10 +144,13 @@ Các file định nghĩa cấu trúc nền tảng chính:
 Mã nguồn Frontend (HTML, JS, CSS) được tích hợp trong cùng môi trường ứng dụng của Server gốc tại `./src/main/webapp/WEB-INF`.
 
 ### 3.1 Công nghệ sử dụng
-- **Ngôn ngữ**: Java 21
-- **Framework Core**: Spring 6.1.4
-- **Template Engine**: Thymeleaf 3.1.2.RELEASE (Kết hợp Layout Dialect 3.2.0, Spring Security Support 3.1.1).
-- **Web UI & CSS Libraries**: WebJars (Bootstrap 4.6.2, AdminLTE 3.2.0, Chart.js 4.4.3, Datatables 1.13.4).
+
+| Thành phần | Công nghệ |
+| :--- | :--- |
+| **Template Engine** | ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-3.1-005F0F?style=flat-square&logo=thymeleaf&logoColor=white) |
+| **Layout & UI** | ![AdminLTE](https://img.shields.io/badge/AdminLTE-3.2-blueviolet?style=flat-square&logo=adminlte&logoColor=white) ![Bootstrap](https://img.shields.io/badge/Bootstrap-4.6-563D7C?style=flat-square&logo=bootstrap&logoColor=white) |
+| **Interactivity** | ![jQuery](https://img.shields.io/badge/jQuery-3.7-0769AD?style=flat-square&logo=jquery&logoColor=white) ![SweetAlert2](https://img.shields.io/badge/SweetAlert2-11.2-F8BB86?style=flat-square&logo=sweetalert2&logoColor=white) |
+| **Visualization** | ![Chart.js](https://img.shields.io/badge/Chart.js-4.4-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![Datatables](https://img.shields.io/badge/Datatables-1.13-F5F5F5?style=flat-square&logo=datatables&logoColor=black) |
 
 ### 3.2 Cơ chế render (SSR + CSR)
 Quá trình phân giải UI được kết hợp từ hai cơ chế:
