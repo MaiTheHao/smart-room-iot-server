@@ -19,139 +19,48 @@ _A high-performance stateless orchestrator designed to bridge the gap between hu
 
 ---
 
+> 📖 **Tài Liệu Đặc Tả Kiến Trúc (Architecture Specification):**  
+> Để xem phân tích chuyên sâu về luồng hệ thống, sơ đồ tuần tự (Sequence Diagram), chi tiết Package và thiết kế Frontend/Backend, xin vui lòng xem file đặc tả kỹ thuật chính tại **👉 [SYSTEM.md](./SYSTEM.md)**.
+
+---
+
 ## 1. Project Overview (Tổng quan dự án)
 
-**Smart Room IoT Server** là ứng dụng web Spring MVC (WAR) cung cấp giao diện quản lý trung tâm cho hệ thống điều khiển thông minh.
+**Smart Room IoT Server** là hệ thống Web nguyên khối (Monolith) chạy trên Spring Framework. Nền tảng đóng vai trò cung cấp giao diện quản trị trung tâm và điều phối dữ liệu với phần cứng qua bộ API REST chuẩn hóa.
 
-Hệ thống được thiết kế theo nguyên tắc **"Quản lý tập trung - Thực thi phân tán"**, đóng vai trò là "Bộ não trung tâm" điều phối và lưu trữ, nhưng không can thiệp vào từng mili-giây vận hành tại thiết bị biên (Edge Devices).
-
-Hệ thống quản lý thực thể trực tiếp từ cấp độ **Floor** (tầng) và **Room** (phòng), đại diện cho toàn bộ hạ tầng của một **Building** (tòa nhà).
-
-### System Architecture (Kiến trúc hệ thống)
-
-Hệ thống IoT Smart Room hoạt động theo mô hình 3 lớp điển hình, trong đó Server đứng giữa để kết nối nhu cầu người dùng (Web/Mobile) và khả năng thực thi của thiết bị (Gateway).
-
-```mermaid
-flowchart TB
- subgraph Frontend["Frontend Layer"]
-  WebAdmin["<b>Web Admin SSR</b><br>RESTful API & Stateful"]
-  MobileApp["<b>Mobile App</b><br>RESTful API & Stateless"]
- end
- subgraph Server["Server Layer"]
-  Controller["Controller Layer"]
-  Service["Service Layer"]
-  DAO["DAO Layer"]
-  DB[("Database")]
- end
- subgraph Gateway["Edge Layer"]
-  RPI["Gateway | Raspberry Pi"]
- end
-    WebAdmin <-->|HTTPS| Controller
-    MobileApp <-->|HTTPS| Controller
-    Controller --> Service
-    Service --> DAO
-    DAO --> DB
-    Service <-->|Command / Telemetry| RPI
-
-     WebAdmin:::frontend
-     MobileApp:::frontend
-     Controller:::server
-     Service:::server
-     DAO:::server
-     DB:::persistence
-     RPI:::edge
-    classDef frontend fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
-    classDef server fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000
-    classDef edge fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
-    classDef persistence fill:#e1bee7,stroke:#4a148c,stroke-width:2px,color:#000
-
-```
+Hệ thống được thiết kế theo nguyên tắc **"Quản lý tập trung - Thực thi phân tán"**, đóng vai trò là "Bộ não trung tâm" chỉ đạo, nhưng không can thiệp sâu vào các tác vụ đòi hỏi thời gian thực (Real-time Mils) tại cấp độ thiết bị biên (Edge Devices). Toàn bộ hạ tầng có thể quản lý sâu theo cấu trúc: **Building (Tòa nhà) → Floor (Tầng) → Room (Phòng)**.
 
 ## 2. Architecture Principles (Nguyên lý kiến trúc)
 
-### Stateless Orchestrator
+### 2.1 Stateless Orchestrator
+Máy chủ hoạt động ưu tiên cơ chế Stateless để tối ưu bộ nhớ băng thông:
+- **Độc lập:** Lệnh điều khiển không cần khởi tạo lại connection (Thông qua quy trình xác thực JWT).
+- **Ủy quyền:** Server chỉ mang trách nhiệm quản lý Rule Automation và lưu trữ thông số. Việc bật/tắt relay chính xác giao toàn quyền cho Gateway Local đảm bảo độ tin cậy.
 
-Hệ thống sử dụng cơ chế **Stateless** thay vì duy trì kết nối liên tục để tối ưu tài nguyên:
+### 2.2 Hardware Agnostic Design
+- **Tách biệt Logic & Vật lý:** Tầng lập trình tại Server chỉ tương tác với các Class hướng đối tượng (`Light`, `Fan`, `Temperature Sensor`) một cách “mù lòa” với cấu trúc phần cứng. 
+- **Cơ chế Mapping:** Việc thiết bị kết nối bằng Bluetooth, Zigbee hay GPIO đều được xử lý và phiên dịch tại Gateway, giúp Backend sống bền vững kể cả khi thay máu hạ tầng phần cứng.
 
-- **Độc lập:** Mỗi request được xử lý riêng biệt, không phụ thuộc vào request trước đó.
-- **Ủy quyền:** Server chỉ nắm giữ "Luật & Cấu hình", việc thực thi logic thời gian thực được giao toàn quyền cho Gateway tại phòng.
+### 2.3 Data Normalization
+- **Tính trọn vẹn:** Các chuẩn dữ liệu truyền về như Nhiệt độ, Báo điện đều được Data Normalize quy hoạch chung 1 format tại DAO Layer, tôn trọng tuyệt đối Timestamp được dán nhãn từ dưới Hardware gửi lên để chống lỗi dội mạng (Network lag).
 
-### Hardware Agnostic Design
-
-- **Tách biệt Logic & Vật lý:** Server "mù" về phần cứng (dump server), chỉ quản lý các khái niệm nghiệp vụ (Logic).
-- **Cơ chế Mapping:** Việc thiết bị nối GPIO hay Bluetooth được định nghĩa qua bản đồ cấu hình, tách biệt hoàn toàn khỏi code xử lý logic.
-
-### Data Normalization
-
-- **Đồng nhất:** Dữ liệu từ nhiều loại cảm biến khác nhau (Temperature, Power, Light) đều được chuẩn hóa về cùng cấu trúc khi lưu trữ.
-- **Bền vững:** Đảm bảo báo cáo và thống kê chính xác ngay cả khi thay đổi loại thiết bị phần cứng.
-
-## 3. Tech Stack (Công nghệ sử dụng)
-
-### Backend & Core
-
-- **Java 21 LTS:** Hiệu năng tối ưu và cú pháp hiện đại.
-- **Spring Framework 6.1.x:** Hệ sinh thái toàn diện (MVC, Data JPA, Security).
-- **Spring Security + JWT:** Cơ chế xác thực mạnh mẽ và phân quyền chi tiết.
-- **Hibernate 6.4.x:** ORM Framework mạnh mẽ cho thao tác database.
-
-### Frontend (Server Side Rendering)
-
-- **AdminLTE 3:** Dashboard quản trị responsive, chuyên nghiệp.
-- **Thymeleaf:** Template engine mạnh mẽ tích hợp sâu với Spring.
-- **Bootstrap & jQuery:** Tương tác UI nhanh chóng và tương thích cao.
-
-### Database
-
-- **MySQL:** RDBMS lưu trữ dữ liệu quan hệ chặt chẽ (Building → Floor → Room → Device).
-
-## 4. System Capabilities (Chức năng hệ thống)
+## 3. System Capabilities (Chức năng cốt lõi)
 
 ### Security & Authentication
+- Tách biệt kiểm soát Session cho người dùng Dashboard Web bằng Cookie và Token Bearer đối với thiết bị App/Gateway.
+- Áp dụng triệt để nền tảng **Role-Based Access Control (RBAC)** với cơ chế mapping User vào cấu trúc `SysGroup` gắn liền với vô hạn `SysFunction`.
 
-- **JWT-based Auth:** Xác minh danh tính bảo mật cho cả User và Gateway.
-- **RBAC & Function-level:** Phân quyền chi tiết đến từng chức năng và tài nguyên.
+### Telemetry & Automation
+- **Mô hình Pull (Chủ động Lên lịch):** Tự động gửi Dispatch lấy số đo môi trường định kỳ qua bộ lập lịch (Quartz Job Scheduler).
+- Bộ máy **Rule Engine V2** liên tục kiểm tra trạng thái lệch chuẩn so với dung sai `EPSILON` để kích hoạt thiết bị chạy tự động hoàn toàn lập trình độc lập.
 
-### Infrastructure Management
+## 4. Database Organization (Phân nhóm cấu trúc DB)
 
-- **Hierarchical:** Quản lý cấu trúc cây: Building → Floor → Room.
-- **Device Lifecycle:** Đăng ký, quản lý, và theo dõi vòng đời thiết bị.
-- **Multi-protocol:** Hỗ trợ cấu hình GPIO, BLE, và Web API Integration.
+Hệ thống SQL được tổ chức theo tính chất dòng đời dữ liệu:
 
-### Data Collection & Monitoring
-
-- **Real-time Dashboard:** Theo dõi trạng thái thiết bị tức thời.
-- **Sensor Data:** Thu thập nhiệt độ, điện năng tiêu thụ.
-- **Trust the Edge:** Tôn trọng timestamp từ Gateway để đảm bảo tính toàn vẹn dữ liệu mạng lag.
-
-### Remote Control
-
-- **Command Execution:** Điều khiển Bật/Tắt, Dimming từ xa qua Web/Mobile.
-- **State Confirmation:** Cơ chế xác nhận trạng thái thực thi (Ack) từ Gateway.
-
-### Internationalization (i18n)
-
-- Hỗ trợ đa ngôn ngữ (Tiếng Việt / Tiếng Anh) từ cấu trúc dữ liệu đến giao diện hiển thị.
-
-## 5. Package Structure (Cấu trúc dự án)
-
-| Package      | Mô tả & Chức năng                                                             |
-| ------------ | ----------------------------------------------------------------------------- |
-| `config`     | **Configuration Hub** - Cấu hình Bean, Security, Database, CORS, Cache, i18n. |
-| `jwt`        | **Authentication Security** - Xử lý JWT Lifecycle và Security Filters.        |
-| `aop`        | **Cross-cutting Concerns** - Logging, Performance monitoring.                 |
-| `controller` | **Request Handler** - API Endpoints (JSON) và View Controllers (HTML).        |
-| `service`    | **Business Logic** - Xử lý nghiệp vụ, validation, transaction.                |
-| `dao`        | **Data Access** - Lớp giao tiếp trực tiếp với Database.                       |
-| `entities`   | **Persistent Model** - POJO ánh xạ bảng Database.                             |
-| `dto`        | **Data Transfer** - Object vận chuyển dữ liệu giữa các lớp.                   |
-| `util`       | **Utilities** - Các hàm hỗ trợ chung (Date, String, Encryption).              |
-
-## 6. Database Organization (Cấu trúc dữ liệu)
-
-| Nhóm dữ liệu            | Bảng chính                                                     | Đặc điểm kỹ thuật                                                       |
+| Nhóm dữ liệu            | Nhóm bảng đại diện                                             | Đặc điểm truy xuất                                                      |
 | ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| **Hạ tầng & Vị trí**    | `floor`, `room`                                                | **Static** - Ít thay đổi, định nghĩa khung xương tòa nhà.               |
-| **Thiết bị & Cấu hình** | `client` (Gateway), `device_control`, `light`, `temp`, `power` | **Configuration** - Ánh xạ thiết bị logic tới cổng vật lý.              |
-| **Dữ liệu cảm biến**    | `temperature_value`, `power_consumption_value`                 | **Append-only** - Dữ liệu chuỗi thời gian, chỉ thêm mới, không sửa/xóa. |
-| **Phân quyền**          | `client` (User), `sys_group`, `sys_role`, `sys_function`       | **Administrative** - Quản lý RBAC và Access Control.                    |
+| **Hạ tầng & Vị trí**    | `floor`, `room`                                                | *Static* - Ít thay đổi, quy hoạch khung xương cấp cao.                  |
+| **Thiết bị & Cấu hình** | `client`, `device_control`, `light`, `fan`, `power_consumption`| *Configuration* - Cấu trúc đối tượng điều hướng vật lý ở dưới Gateway.  |
+| **Dữ liệu cảm biến**    | `temperature_value`, `power_consumption_value`                 | *Append-only* - Trữ lượng chuỗi thời gian, INSERT 1 chiều, cấm xóa.     |
+| **Tầng phân quyền**     | `client` (User), `sys_group`, `sys_role`, `sys_function`       | *Administrative* - Ràng buộc phân hạn quản trị Web.                     |
