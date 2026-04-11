@@ -12,8 +12,8 @@ public final class UrlConstant {
 
     private static final int DEFAULT_PORT = 9090;
     private static final String SCHEME = "http";
-    private static final String API_V1 = "/api/v1";
-    private static final String API_V2 = "/api/v2";
+    private static final String API_V1 = "/smrsiot/api/v1";
+    private static final String API_V2 = "/smrsiot/api/v2";
 
     public static String getSetupUrlV1(String ip) {
         throwIfEmpty(ip, "IP address cannot be null or empty for setup API");
