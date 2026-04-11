@@ -42,7 +42,6 @@
 Toàn bộ các giao tiếp từ ứng dụng Client (Mobile App, Web Browser) và phần cứng IoT (Raspberry Pi Gateway) đều định tuyến trực tiếp qua Server. Server đảm nhận vai trò trung tâm xử lý logic đồng bộ dữ liệu hai chiều.
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 graph TD
     subgraph ClientLayer [Lớp Giao diện]
         Mobile([Mobile App])
@@ -103,7 +102,6 @@ Hệ thống sử dụng **Spring Framework 6.1.4 (Không cấu hình qua Spring
 Hệ thống tuân thủ nghiêm ngặt kiến trúc phân tầng (Layered Architecture). Controller không được truy cập trực tiếp tới tầng DAO.
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 flowchart LR
     Client([Client]) <--> Controller
     Controller <--> Service
@@ -158,7 +156,6 @@ Hệ thống quản lý quyền truy cập đơn giản và rõ ràng qua 3 cấ
 Bản chất quá trình phân quyền là: Khi Request tới Controller, Spring Security sẽ kiểm tra User thuộc **Group** nào, từ DB query ra danh sách **Function** tương ứng, nếu trùng khớp với yêu cầu của điểm API thì cho phép chạy lệnh.
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 sequenceDiagram
     autonumber
     participant App as Client (iOS/Web)
@@ -186,7 +183,6 @@ sequenceDiagram
 Cấu trúc luân chuyển dữ liệu dựa theo chuẩn 3 lớp của Spring Framework System.
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 sequenceDiagram
     autonumber
     participant App as Client Request
@@ -222,7 +218,6 @@ Hệ thống điều phối chia hai cấu trúc Endpoint độc lập:
 Hệ thống thiết lập cơ chế xử lý theo Quartz Job Schedule để tự động lấy data từ Gateway.
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 sequenceDiagram
     autonumber
     participant Quartz as Quartz Scheduler
@@ -262,7 +257,6 @@ sequenceDiagram
 Hỗ trợ mô hình Design Strategy Pattern nhằm giảm phụ thuộc logic xử lý Controller để thao tác dễ dàng xuống từng chuẩn Interface Implementation của Category. (ví dụ Quạt, Đèn, Cảm biến đa dạng).
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 sequenceDiagram
     autonumber
     participant App as Lệnh API UI Call
@@ -293,7 +287,6 @@ Hệ thống Rule Engine (được nâng cấp ở version V2) đóng vai trò n
 - **Khối kết xuất Action:** Khi thỏa mãn, `DeviceControlServiceStrategy` sẽ chịu trách nhiệm biến đổi Param tĩnh thành Object payload động để kích gọi lệnh thao tác phần cứng `control(deviceId, params)`.
 
 ```mermaid
-%%{init: {'theme': 'default', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'lineColor': '#000000'}}}%%
 sequenceDiagram
     autonumber
     participant Job as RuleV2Job
