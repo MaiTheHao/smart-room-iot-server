@@ -1,5 +1,4 @@
-// Version: 2026-03-09 (Post-Migration 02)
-
+// Version: 2026-04-16
 // --- Hệ thống Địa điểm (Location System) ---
 
 Table floor {
@@ -226,13 +225,11 @@ Table rule_v2 {
   name varchar(256) [not null]
   priority int [not null]
   is_active bit(1) [not null, default: `1`]
-  room_id bigint [not null]
   is_interval bit(1) [not null, default: `0`]
   interval_seconds int [default: NULL]
   cron_expression varchar(256) [default: NULL]
 
   Indexes {
-    room_id [name: "idx_rule_v2_room"]
     is_active [name: "idx_rule_v2_status"]
   }
 }
@@ -369,7 +366,6 @@ Ref: automation_action.automation_id > automation.id
 Ref: rule.room_id > room.id
 Ref: rule_condition.rule_id > rule.id
 
-Ref: rule_v2.room_id > room.id
 Ref: rule_condition_v2.rule_v2_id > rule_v2.id
 Ref: rule_action_v2.rule_v2_id > rule_v2.id
 
