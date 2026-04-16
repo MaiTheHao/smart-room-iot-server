@@ -418,6 +418,25 @@ CREATE TABLE `power_consumption_value` (
   CONSTRAINT `fk_power_consumption_value_power_consumption` FOREIGN KEY (`sensor_id`) REFERENCES `power_consumption` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- energy_metrics: Unified time-series table for 6-metric PZEM-004T data.
+-- Uses (category, target_id) to support LIGHT, FAN, AC, ROOM in a single table.
+-- @Immutable - append-only, indexed for charting queries.
+CREATE TABLE `energy_metrics` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `category` varchar(50) NOT NULL COMMENT 'Enum: LIGHT, FAN, AC, ROOM',
+  `target_id` bigint NOT NULL COMMENT 'ID of the target (lightId, fanId, acId, roomId depending on category)',
+  `timestamp` datetime(6) NOT NULL,
+  `voltage` double DEFAULT NULL,
+  `current` double DEFAULT NULL,
+  `power` double DEFAULT NULL,
+  `energy` double DEFAULT NULL,
+  `frequency` double DEFAULT NULL,
+  `power_factor` double DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_energy_metrics_target` (`category`, `target_id`, `timestamp`),
+  KEY `idx_energy_metrics_timestamp` (`timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ----------------------------
 -- 4. Automation & Rules Module (RELEASE VERSION)
 -- ----------------------------

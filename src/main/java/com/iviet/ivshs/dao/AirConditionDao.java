@@ -3,6 +3,8 @@ package com.iviet.ivshs.dao;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.criteria.JoinType;
+
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.AirConditionDto;
@@ -148,4 +150,21 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 				.getResultStream()
 				.findFirst();
 	}
-}
+
+	/**
+	 * Fetch all active AirCondition entities for a given gateway (client).
+	 * Used by energy metric collection job to iterate per-gateway devices.
+	 */
+	public List<AirCondition> findAllActiveByClientId(Long clientId) {
+		return findAll(
+			root -> entityManager.getCriteriaBuilder().and(
+				entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("client").get("id"), clientId),
+				entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
+			),
+			(root, cq) -> {
+				root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+				root.fetch("room", JoinType.LEFT);
+			}
+		);
+	}
+}

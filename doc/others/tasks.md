@@ -110,7 +110,7 @@ Mô tả luồng giao tiếp giữa Server và Raspberry Pi (Gateway) để lấ
 - **Mô tả:** Lấy bộ 6 chỉ số điện năng hiện tại.
 
 **2. API Reset chỉ số năng lượng (Energy Reset):**
-- **Endpoint:** `POST /api/v1/{device-domain}/{naturalId}/reset`
+- **Endpoint:** `POST /api/v1/power-consumption/reset`
 - **Mô tả:** Server gọi API này vào đúng **00:00 đầu ngày** để RSPI thực hiện lệnh reset thanh ghi `Energy` trên module PZEM-004T về 0.
 
 **Luồng xử lý (Sequence Diagram):**
