@@ -31,7 +31,8 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 
 	@Override
 	public Map<Long, FloorDto> getFloorsMap() {
-		return floorService.getList(0, 1000).content().stream()
+		List<FloorDto> floors = floorService.getList(0, 1000).content();
+		return floors.stream()
 				.collect(Collectors.toMap(
 						FloorDto::id,
 						Function.identity(),
@@ -42,18 +43,29 @@ public class HomeViewProcessServiceImpl implements HomeViewProcessService {
 
 	@Override
 	public Map<Long, List<RoomDto>> getFloorRoomsMap() {
-		return floorService.getList(0, 1000).content().stream()
-				.collect(Collectors.toMap(
-						FloorDto::id,
-						floor -> roomService.getListByFloor(floor.id(), 0, 1000).content(),
-						(oldValue, newValue) -> oldValue,
-						LinkedHashMap::new
+		List<RoomDto> allRooms = roomService.getAll();
+		return allRooms.stream()
+				.collect(Collectors.groupingBy(
+						RoomDto::floorId,
+						LinkedHashMap::new,
+						Collectors.toList()
 				));
 	}
 
 	@Override
 	public Long getDeviceCountByRoom(Long roomId) {
 		return deviceMetadataService.getCountByRoomId(roomId);
+	}
+
+	@Override
+	public Map<Long, Long> getDeviceCountMap(List<Long> roomIds) {
+		if (roomIds == null || roomIds.isEmpty()) return Map.of();
+		
+		var counts = roomService.getDeviceCountsByRoomIds(roomIds);
+		return counts.stream().collect(Collectors.toMap(
+			com.iviet.ivshs.dto.RoomDeviceCountDto::roomId,
+			dto -> dto.lightCount() + dto.acCount() + dto.fanCount()
+		));
 	}
 
 	@Override

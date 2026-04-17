@@ -15,6 +15,8 @@ public interface HomeViewProcessService {
 
 	Long getDeviceCountByRoom(Long roomId);
 
+	Map<Long, Long> getDeviceCountMap(List<Long> roomIds);
+
 	Optional<Double> getLatestTemperatureForRoom(Long roomId);
 
 	Optional<Double> getLatestPowerConsumptionForRoom(Long roomId);

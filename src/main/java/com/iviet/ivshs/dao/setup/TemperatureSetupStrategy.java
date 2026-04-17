@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Slf4j(topic = "SETUP-TEMP")
 @Component
 @RequiredArgsConstructor
 public class TemperatureSetupStrategy extends AbstractDeviceSetupStrategy {
@@ -35,16 +35,16 @@ public class TemperatureSetupStrategy extends AbstractDeviceSetupStrategy {
         entityManager.persist(temperature);
         entityManager.flush();
         attachTranslations(temperature, device.getTranslations(), TemperatureLan::new);
-        log.debug("[TEMP] Device created: {}", device.getNaturalId());
+        log.debug("Create: Device created: {}", device.getNaturalId());
     }
 
     @Override
     public void rollback(Long deviceId) {
         try {
             temperatureDao.deleteById(deviceId);
-            log.debug("[TEMP] Rolled back: {}", deviceId);
+            log.debug("Rollback: Rolled back: {}", deviceId);
         } catch (Exception e) {
-            log.error("[TEMP] Rollback failed: {}", deviceId, e);
+            log.error("Rollback: Failed for {}: {}", deviceId, e.getMessage(), e);
         }
     }
 }

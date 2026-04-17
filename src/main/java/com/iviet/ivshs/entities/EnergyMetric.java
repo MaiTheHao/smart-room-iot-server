@@ -1,5 +1,6 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
@@ -10,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -28,8 +31,9 @@ public class EnergyMetric extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "category", nullable = false, length = 50)
-    private String category;
+    private EnergyMetricCategory category;
 
     @Column(name = "target_id", nullable = false)
     private Long targetId;

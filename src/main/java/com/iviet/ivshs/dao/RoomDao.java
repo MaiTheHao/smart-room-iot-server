@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dto.RoomDeviceCountDto;
 import com.iviet.ivshs.entities.Room;
 
 @Repository
@@ -121,5 +122,25 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
 
     public long countByFloorId(Long floorId) {
         return count(root -> entityManager.getCriteriaBuilder().equal(root.get("floor").get("id"), floorId));
+    }
+
+    public List<RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds) {
+        if (roomIds == null || roomIds.isEmpty()) return List.of();
+
+        String dtoPath = RoomDeviceCountDto.class.getName();
+        String jpql = """
+                SELECT new %s(
+                    r.id,
+                    (SELECT COUNT(l) FROM Light l WHERE l.room.id = r.id),
+                    (SELECT COUNT(ac) FROM AirCondition ac WHERE ac.room.id = r.id),
+                    (SELECT COUNT(f) FROM Fan f WHERE f.room.id = r.id)
+                )
+                FROM Room r
+                WHERE r.id IN :roomIds
+                """.formatted(dtoPath);
+
+        return entityManager.createQuery(jpql, RoomDeviceCountDto.class)
+                .setParameter("roomIds", roomIds)
+                .getResultList();
     }
 }

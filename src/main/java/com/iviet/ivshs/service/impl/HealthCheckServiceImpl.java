@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-@Slf4j
+@Slf4j(topic = "HEALTH")
 @Service
 @RequiredArgsConstructor
 public class HealthCheckServiceImpl implements HealthCheckService {
@@ -43,26 +43,26 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 	public HealthCheckResponseDto checkByClient(String ipAddress) {
 		long start = System.currentTimeMillis();
 		String url = UrlConstant.getHealthUrlV1(ipAddress);
-		log.info("[HEALTH-CHECK] Starting health check for IP: {}", ipAddress);
+		log.info("Starting health check for IP: {}", ipAddress);
 
 		try {
 			var response = HttpClientUtil.get(url);
 
 			if (!response.isSuccess()) {
-				log.warn("[HEALTH-CHECK] Failed IP [{}] with status {}. Body: {}", ipAddress, response.getStatusCode(), response.getBody());
+				log.warn("Failed IP [{}] with status {}. Body: {}", ipAddress, response.getStatusCode(), response.getBody());
 				throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
 			}
 
 			HealthCheckResponseDto result = JsonUtil.fromJson(response.getBody(), HealthCheckResponseDto.class);
-			log.info("[HEALTH-CHECK] Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
+			log.info("Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
 			return result;
 		} catch (NetworkTimeoutException | ExternalServiceException e) {
 			throw e;
 		} catch (IllegalArgumentException e) {
-			log.error("[HEALTH-CHECK] Response deserialization error for IP [{}]: {}", ipAddress, e.getMessage());
+			log.error("Response deserialization error for IP [{}]: {}", ipAddress, e.getMessage());
 			throw new ExternalServiceException("Dữ liệu từ gateway không hợp lệ: " + ipAddress);
 		} catch (Exception e) {
-			log.error("[HEALTH-CHECK] Unexpected error for IP [{}]: {}", ipAddress, e.getMessage());
+			log.error("Unexpected error for IP [{}]: {}", ipAddress, e.getMessage());
 			throw new ExternalServiceException("Lỗi kết nối tới gateway: " + ipAddress);
 		}
 	}
@@ -86,7 +86,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 		}
 
 		long start = System.currentTimeMillis();
-		log.info("[HEALTH-CHECK] Starting batch health check for room [{}] - {} gateways", roomCode, ipAddresses.size());
+		log.info("Starting batch health check for room [{}] - {} gateways", roomCode, ipAddresses.size());
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			List<CompletableFuture<Map.Entry<String, HealthCheckResponseDto>>> futures = ipAddresses.stream()
@@ -108,7 +108,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 					.map(CompletableFuture::join)
 					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-			log.info("[HEALTH-CHECK] Finished batch health check for room [{}] in {}ms", roomCode, System.currentTimeMillis() - start);
+			log.info("Finished batch health check for room [{}] in {}ms", roomCode, System.currentTimeMillis() - start);
 			return results;
 		}
 	}
@@ -132,7 +132,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 			HealthCheckResponseDto result = checkByClient(clientId);
 			return calculateScore(result);
 		} catch (Exception e) {
-			log.warn("[HEALTH-SCORE] Client [{}] calculation failed: {}", clientId, e.getMessage());
+			log.warn("Client [{}] calculation failed: {}", clientId, e.getMessage());
 			return 0;
 		}
 	}
@@ -153,30 +153,30 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 	private int calculateScore(HealthCheckResponseDto dto) {
 		if (dto == null) {
-			log.debug("[HEALTH-SCORE] Response is null - gateway error");
+			log.debug("Response is null - gateway error");
 			return 0;
 		}
 
 		if (dto.getStatus() != 200) {
-			log.debug("[HEALTH-SCORE] Response status {} != 200: {}", dto.getStatus(), dto.getMessage());
+			log.debug("Response status {} != 200: {}", dto.getStatus(), dto.getMessage());
 			return 0;
 		}
 
 		List<DeviceDto> devices = dto.getData();
 		
 		if (devices == null) {
-			log.debug("[HEALTH-SCORE] Devices list is null - response format issue");
+			log.debug("Devices list is null - response format issue");
 			return 0;
 		}
 
 		if (devices.isEmpty()) {
-			log.debug("[HEALTH-SCORE] Room has no devices - empty room");
+			log.debug("Room has no devices - empty room");
 			return 100;
 		}
 
 		long activeCount = devices.stream().filter(DeviceDto::isActive).count();
 		int score = (int) (((double) activeCount / devices.size()) * 100);
-		log.debug("[HEALTH-SCORE] Calculated score: {}/{} devices active = {}%", 
+		log.debug("Calculated score: {}/{} devices active = {}%", 
 				activeCount, devices.size(), score);
 		return score;
 	}

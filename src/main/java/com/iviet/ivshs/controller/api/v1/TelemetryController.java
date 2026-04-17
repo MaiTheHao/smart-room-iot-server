@@ -8,7 +8,7 @@ import com.iviet.ivshs.service.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "TELEMETRY-CTRL")
 @RestController
 @RequestMapping("/api/v1/telemetries")
 @RequiredArgsConstructor
@@ -18,14 +18,14 @@ public class TelemetryController {
 
 	@PostMapping("/gateway/{gatewayUsername}")
 	public ResponseEntity<ApiResponse<?>> fetchByGateway(@PathVariable(name = "gatewayUsername") String gatewayUsername) {
-		log.info("Fetching telemetry for gateway: {}", gatewayUsername);
+		log.info("Fetch: Gateway={}", gatewayUsername);
 		telemetryService.takeByGateway(gatewayUsername);
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}
 
 	@PostMapping("/room/{roomCode}")
 	public ResponseEntity<ApiResponse<?>> fetchByRoom(@PathVariable(name = "roomCode") String roomCode) {
-		log.info("Fetching telemetry for room: {}", roomCode);
+		log.info("Fetch: Room={}", roomCode);
 		telemetryService.takeByRoom(roomCode);
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}

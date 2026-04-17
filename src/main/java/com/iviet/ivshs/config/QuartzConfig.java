@@ -17,7 +17,7 @@ import com.iviet.ivshs.component.AutowiringSpringBeanJobFactory;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "QUARTZ")
 @Configuration
 public class QuartzConfig {
 

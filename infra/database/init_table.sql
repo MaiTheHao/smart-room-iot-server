@@ -366,9 +366,11 @@ CREATE TABLE `temperature_value` (
   `timestamp` datetime(6) NOT NULL,
   `temp_c` double DEFAULT NULL,
   `sensor_id` bigint NOT NULL,
+  `unix_minute` int GENERATED ALWAYS AS (UNIX_TIMESTAMP(`timestamp`) DIV 60) STORED,
   PRIMARY KEY (`id`),
   KEY `idx_sensor_timestamp` (`sensor_id`, `timestamp`),
   KEY `idx_timestamp` (`timestamp`),
+  KEY `idx_tv_unix_minute` (`unix_minute`),
   CONSTRAINT `fk_temperature_value_temperature` FOREIGN KEY (`sensor_id`) REFERENCES `temperature` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -412,9 +414,11 @@ CREATE TABLE `power_consumption_value` (
   `timestamp` datetime(6) NOT NULL,
   `watt` double DEFAULT NULL,
   `sensor_id` bigint NOT NULL,
+  `unix_minute` int GENERATED ALWAYS AS (UNIX_TIMESTAMP(`timestamp`) DIV 60) STORED,
   PRIMARY KEY (`id`),
   KEY `idx_sensor_timestamp` (`sensor_id`, `timestamp`),
   KEY `idx_timestamp` (`timestamp`),
+  KEY `idx_pcv_unix_minute` (`unix_minute`),
   CONSTRAINT `fk_power_consumption_value_power_consumption` FOREIGN KEY (`sensor_id`) REFERENCES `power_consumption` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

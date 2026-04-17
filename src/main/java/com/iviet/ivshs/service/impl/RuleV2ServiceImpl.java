@@ -120,7 +120,7 @@ public class RuleV2ServiceImpl implements RuleV2Service {
 
   @Override
   public RuleV2Dto getById(Long ruleId) {
-    return ruleV2Dao.findById(ruleId)
+    return ruleV2Dao.findByIdWithConditionsAndActions(ruleId)
         .map(ruleV2Mapper::toDto)
         .orElseThrow(() -> new NotFoundException("RuleV2 not found: " + ruleId));
   }

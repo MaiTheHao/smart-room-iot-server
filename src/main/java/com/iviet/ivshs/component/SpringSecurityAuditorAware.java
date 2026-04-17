@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-@Slf4j(topic = "Auditing")
+@Slf4j(topic = "AUTH-AUDIT")
 @Component("auditorProvider")
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
 	private static final String SYSTEM_AUDITOR = "SYSTEM";

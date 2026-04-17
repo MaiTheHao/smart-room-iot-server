@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Slf4j(topic = "SETUP-LIGHT")
 @Component
 @RequiredArgsConstructor
 public class LightSetupStrategy extends AbstractDeviceSetupStrategy {
@@ -35,16 +35,16 @@ public class LightSetupStrategy extends AbstractDeviceSetupStrategy {
         entityManager.persist(light);
         entityManager.flush();
         attachTranslations(light, device.getTranslations(), LightLan::new);
-        log.debug("[LIGHT] Device created: {}", device.getNaturalId());
+        log.debug("Create: Device created: {}", device.getNaturalId());
     }
 
     @Override
     public void rollback(Long deviceId) {
         try {
             lightDao.deleteById(deviceId);
-            log.debug("[LIGHT] Rolled back: {}", deviceId);
+            log.debug("Rollback: Rolled back: {}", deviceId);
         } catch (Exception e) {
-            log.error("[LIGHT] Rollback failed: {}", deviceId, e);
+            log.error("Rollback: Failed for {}: {}", deviceId, e.getMessage(), e);
         }
     }
 }

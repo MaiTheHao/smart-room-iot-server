@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
-@Slf4j
+@Slf4j(topic = "CONTROL")
 @Service
 public class ControlServiceImpl implements ControlService {
 	
@@ -30,7 +30,7 @@ public class ControlServiceImpl implements ControlService {
 				.command(command)
 				.build();
 		
-		log.info("[CONTROL] Sending command [{}] to device [{}] at IP [{}]", command, targetNaturalId, gatewayIp);
+		log.info("Sending command [{}] to device [{}] at IP [{}]", command, targetNaturalId, gatewayIp);
 		
 		HttpClientUtil.postAsync(url, requestBody)
 			.exceptionally(ex -> null);

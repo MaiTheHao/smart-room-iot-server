@@ -22,7 +22,7 @@ import com.iviet.ivshs.util.JsonUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "SETUP")
 @Service
 public class SetupServiceImpl implements SetupService {
 
@@ -39,11 +39,11 @@ public class SetupServiceImpl implements SetupService {
     @Transactional
     public void setup(Long clientId) {
         long start = System.currentTimeMillis();
-        log.info("[SETUP] Starting setup process for clientId: {}", clientId);
+        log.info("Starting setup process for clientId: {}", clientId);
 
         try {
             Client client = validateAndGetGateway(clientId);
-            log.info("[SETUP] Validated gateway: id={}, username={}, ip={}", 
+            log.info("Validated gateway: id={}, username={}, ip={}", 
                 client.getId(), client.getUsername(), client.getIpAddress());
 
             SetupRequest setupRequest = fetchSetupData(client);
@@ -55,14 +55,14 @@ public class SetupServiceImpl implements SetupService {
                 clientId, duration);
                 
         } catch (BadRequestException | NotFoundException e) {
-            log.error("[SETUP] Validation error for clientId {}: {}", clientId, e.getMessage());
+            log.error("Validation error for clientId {}: {}", clientId, e.getMessage());
             throw e;
         } catch (NetworkTimeoutException | ExternalServiceException e) {
-            log.error("[SETUP] Gateway communication error for clientId {}: {}", 
+            log.error("Gateway communication error for clientId {}: {}", 
                 clientId, e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("[SETUP] Unexpected error during setup for clientId {}: {}", 
+            log.error("Unexpected error during setup for clientId {}: {}", 
                 clientId, e.getMessage(), e);
             throw new ExternalServiceException(
                 "Setup process failed: " + e.getMessage()
@@ -74,12 +74,12 @@ public class SetupServiceImpl implements SetupService {
         Client client = clientService.getEntityById(clientId); 
         
         if (client.getClientType() != ClientType.HARDWARE_GATEWAY) {
-            log.error("[SETUP] Client is not a gateway: id={}", clientId);
+            log.error("Client is not a gateway: id={}", clientId);
             throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
         }
         
         if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
-            log.error("[SETUP] Gateway missing IP address: id={}, username={}", 
+            log.error("Gateway missing IP address: id={}, username={}", 
                 clientId, client.getUsername());
             throw new BadRequestException(
                 "Gateway '" + client.getUsername() + "' does not have a configured IP address. " +
@@ -93,14 +93,14 @@ public class SetupServiceImpl implements SetupService {
     private SetupRequest fetchSetupData(Client client) {
         String url = UrlConstant.getSetupUrlV1(client.getIpAddress());
         
-        log.info("[SETUP] Fetching setup data from gateway: ip={}, url={}", 
+        log.info("Fetching setup data from gateway: ip={}, url={}", 
             client.getIpAddress(), url);
         
         try {
             var res = HttpClientUtil.get(url);
             
             if (!res.isSuccess()) {
-                log.error("[SETUP] Gateway rejected request: status={}, ip={}", 
+                log.error("Gateway rejected request: status={}, ip={}", 
                     res.getStatusCode(), client.getIpAddress());
                 throw new ExternalServiceException(
                     "Gateway rejected request. Status: " + res.getStatusCode() + 
@@ -111,21 +111,21 @@ public class SetupServiceImpl implements SetupService {
             SetupRequest req = JsonUtil.fromJson(res.getBody(), SetupRequest.class);
             validateData(req);
             
-            log.info("[SETUP] Successfully fetched setup data: roomCode={}, devices={}", 
+            log.info("Successfully fetched setup data: roomCode={}, devices={}", 
                 req.getData().getRoomCode(), 
                 req.getData().getDevices() != null ? req.getData().getDevices().size() : 0);
             
             return req;
 
         } catch (NetworkTimeoutException e) {
-            log.error("[SETUP] Timeout connecting to gateway: ip={}, error={}", 
+            log.error("Timeout connecting to gateway: ip={}, error={}", 
                 client.getIpAddress(), e.getMessage());
             throw new NetworkTimeoutException(
                 "Gateway connection timed out at " + client.getIpAddress() + ". " +
                 "Please verify gateway is online and network is accessible."
             );
         } catch (IllegalArgumentException e) {
-            log.error("[SETUP] Invalid JSON response from gateway: ip={}, error={}", 
+            log.error("Invalid JSON response from gateway: ip={}, error={}", 
                 client.getIpAddress(), e.getMessage());
             throw new ExternalServiceException(
                 "Gateway returned invalid data format. Please check gateway firmware version."
@@ -133,7 +133,7 @@ public class SetupServiceImpl implements SetupService {
         } catch (ExternalServiceException e) {
             throw e;
         } catch (Exception e) {
-            log.error("[SETUP] Unexpected error fetching setup data: ip={}, error={}", 
+            log.error("Unexpected error fetching setup data: ip={}, error={}", 
                 client.getIpAddress(), e.getMessage(), e);
             throw new ExternalServiceException(
                 "Failed to communicate with gateway: " + e.getMessage()
@@ -167,13 +167,13 @@ public class SetupServiceImpl implements SetupService {
                 room
             );
 
-            log.info("[SETUP] Persisted {} devices for room '{}'", processed, body.getRoomCode());
+            log.info("Persisted {} devices for room '{}'", processed, body.getRoomCode());
 
         } catch (NotFoundException e) {
-            log.error("[SETUP] Room not found in system: '{}'", body.getRoomCode());
+            log.error("Room not found in system: '{}'", body.getRoomCode());
             throw e;
         } catch (Exception e) {
-            log.error("[SETUP] Critical error during persistence: {}", e.getMessage(), e);
+            log.error("Critical error during persistence: {}", e.getMessage(), e);
             throw new ExternalServiceException("Persistence failed: " + e.getMessage());
         }
     }

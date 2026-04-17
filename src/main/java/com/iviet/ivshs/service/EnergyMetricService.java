@@ -1,6 +1,7 @@
 package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.EnergyMetricDto;
+import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,19 +13,19 @@ public interface EnergyMetricService {
      * Get history of energy metrics for a device.
      * Max range: 1 year.
      *
-     * @param category LIGHT, FAN, AC, ROOM
-     * @param targetId Device ID (lightId, fanId, acId, roomId)
+     * @param category LIGHT, FAN, AIR_CONDITION
+     * @param targetId Device ID (lightId, fanId, acId)
      */
-    List<EnergyMetricDto> getHistory(String category, Long targetId, Instant from, Instant to);
+    List<EnergyMetricDto> getHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to);
 
     /**
      * Get the most recent energy metric for a device.
-     * Only supported for LIGHT, FAN, AC.
+     * Only supported for LIGHT, FAN, AIR_CONDITION.
      *
-     * @param category LIGHT, FAN, or AC
+     * @param category LIGHT, FAN, or AIR_CONDITION
      * @param targetId Device ID
      */
-    Optional<EnergyMetricDto> getNewest(String category, Long targetId);
+    Optional<EnergyMetricDto> getNewest(EnergyMetricCategory category, Long targetId);
 
     /**
      * Fetch energy telemetry from all gateway RSPI clients for all active LIGHT/FAN/AC devices

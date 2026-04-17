@@ -12,10 +12,6 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 
 @Repository
 public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
-	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
-	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', tv.timestamp, '" + DATE_FORMAT + "') AS string)";
-	private final String DTO_CLASS = AverageTemperatureValueDto.class.getName();
-
 	public TemperatureValueDao() {
 		super(TemperatureValue.class);
 	}
@@ -49,31 +45,40 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = """
-						SELECT new %s(%s, AVG(tv.tempC))
-						FROM TemperatureValue tv
-						WHERE tv.sensor.room.id = :roomId 
-						AND tv.timestamp BETWEEN :startedAt AND :endedAt
-						GROUP BY %s
-						ORDER BY %s ASC
-						""".formatted(DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		String sql = """
+						SELECT 
+							(unix_minute * 60) as unix_seconds,
+							AVG(temp_c) as avg_temp
+						FROM temperature_value
+						WHERE sensor_id IN (SELECT id FROM temperature WHERE room_id = :roomId)
+						AND timestamp BETWEEN :startedAt AND :endedAt
+						GROUP BY unix_minute
+						ORDER BY unix_minute ASC
+						""";
 
-		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = entityManager.createNativeQuery(sql)
 						.setParameter("roomId", roomId)
-						.setParameter("startedAt", startedAt)
-						.setParameter("endedAt", endedAt)
+						.setParameter("startedAt", java.sql.Timestamp.from(startedAt))
+						.setParameter("endedAt", java.sql.Timestamp.from(endedAt))
 						.getResultList();
+
+		return results.stream()
+						.map(row -> new AverageTemperatureValueDto(
+								Instant.ofEpochSecond(((Number) row[0]).longValue()),
+								((Number) row[1]).doubleValue()))
+						.toList();
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-						SELECT new %s(%s, AVG(tv.tempC))
+						SELECT new %s(tv.unixMinute * 60L, AVG(tv.tempC))
 						FROM TemperatureValue tv
 						WHERE tv.sensor.deviceControl.client.id = :clientId
 						AND tv.timestamp BETWEEN :startedAt AND :endedAt
-						GROUP BY %s
-						ORDER BY %s ASC
-						""".formatted(DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+						GROUP BY tv.unixMinute
+						ORDER BY tv.unixMinute ASC
+						""".formatted(AverageTemperatureValueDto.class.getName());
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 						.setParameter("clientId", clientId)

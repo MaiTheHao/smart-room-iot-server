@@ -89,6 +89,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public List<com.iviet.ivshs.dto.RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds) {
+        return roomDao.getDeviceCountsByRoomIds(roomIds);
+    }
+
+    @Override
     public RoomDto getById(Long roomId) {
         RoomDto roomDto = roomDao.findById(roomId, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
         permissionService.requireAccessRoom(roomDto.code());

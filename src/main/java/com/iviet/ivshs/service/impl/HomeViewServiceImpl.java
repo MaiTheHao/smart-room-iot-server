@@ -47,10 +47,7 @@ public class HomeViewServiceImpl implements HomeViewService {
 	}
 	
 	private Map<Long, Long> getGatewayCountsForRooms(List<Long> roomIds) {
-		return roomIds.stream().collect(Collectors.toMap(
-			id -> id,
-			cacheService::getDeviceCountByRoom
-		));
+		return cacheService.getDeviceCountMap(roomIds);
 	}
 
 	private Map<Long, Optional<Double>> getLatestTemperaturesForRooms(List<Long> roomIds) {

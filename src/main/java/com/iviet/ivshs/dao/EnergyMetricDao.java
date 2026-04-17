@@ -2,6 +2,7 @@ package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
+import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,17 +17,13 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
         super(EnergyMetric.class);
     }
 
-    /**
-     * Each save is its own short-lived transaction — supports "Best Effort" pattern.
-     * Virtual Threads each get their own transaction without blocking each other.
-     */
     @Override
     @Transactional
     public EnergyMetric save(EnergyMetric entity) {
         return super.save(entity);
     }
 
-    public List<EnergyMetricDto> findHistory(String category, Long targetId, Instant from, Instant to) {
+    public List<EnergyMetricDto> findHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
         String jpql = """
             SELECT new com.iviet.ivshs.dto.EnergyMetricDto(
                 em.timestamp, em.voltage, em.current, em.power,
@@ -48,7 +45,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
             .getResultList();
     }
 
-    public Optional<EnergyMetricDto> findNewest(String category, Long targetId) {
+    public Optional<EnergyMetricDto> findNewest(EnergyMetricCategory category, Long targetId) {
         String jpql = """
             SELECT new com.iviet.ivshs.dto.EnergyMetricDto(
                 em.timestamp, em.voltage, em.current, em.power,

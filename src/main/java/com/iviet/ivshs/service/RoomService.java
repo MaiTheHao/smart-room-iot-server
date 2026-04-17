@@ -13,6 +13,7 @@ public interface RoomService {
     PaginatedResponse<RoomDto> getList(int page, int size);
     List<RoomDto> getAllByFloor(Long floorId);
     List<RoomDto> getAll();
+    List<com.iviet.ivshs.dto.RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds);
     RoomDto getById(Long roomId);
     Room getEntityById(Long roomId);
     RoomDto getByCode(String roomCode);

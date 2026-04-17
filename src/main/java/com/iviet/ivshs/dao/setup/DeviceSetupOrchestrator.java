@@ -18,7 +18,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
+@Slf4j(topic = "SETUP-ORCH")
 @Component
 @RequiredArgsConstructor
 public class DeviceSetupOrchestrator {
@@ -36,7 +36,7 @@ public class DeviceSetupOrchestrator {
     private void init() {
         strategyMap = new EnumMap<>(DeviceCategory.class);
         strategies.forEach(s -> strategyMap.put(s.getSupportedCategory(), s));
-        log.info("[ORCH] Initialized with {} strategies", strategyMap.size());
+        log.info("Init: Initialized with {} strategies", strategyMap.size());
     }
 
     public int persistAll(
@@ -45,11 +45,11 @@ public class DeviceSetupOrchestrator {
         Room room
     ) {
         if (devices == null || devices.isEmpty()) {
-            log.warn("[ORCH] No devices to persist");
+            log.warn("Persist: No devices to persist");
             return 0;
         }
 
-        log.info("[ORCH] Starting persistence: count={}, roomId={}, clientId={}", 
+        log.info("Persist: Starting persistence: count={}, roomId={}, clientId={}", 
             devices.size(), room.getId(), client.getId());
 
         int processedCount = 0;
@@ -58,7 +58,7 @@ public class DeviceSetupOrchestrator {
             SetupRequest.BodyData.DeviceConfig device = devices.get(i);
 
             if (device.getCategory() == null) {
-                log.error("[ORCH] Missing category at index {}: naturalId={}", i, device.getNaturalId());
+                log.error("Persist: Missing category at index {}: naturalId={}", i, device.getNaturalId());
                 throw new InternalServerErrorException(
                     String.format("Device at index %d has no category: %s", i, device.getNaturalId())
                 );
@@ -66,7 +66,7 @@ public class DeviceSetupOrchestrator {
 
             DeviceSetupStrategy strategy = strategyMap.get(device.getCategory());
             if (strategy == null) {
-                log.error("[ORCH] No strategy for category {} at index {}: naturalId={}", 
+                log.error("Persist: No strategy for category {} at index {}: naturalId={}", 
                     device.getCategory(), i, device.getNaturalId());
                 throw new InternalServerErrorException(
                     String.format("Unsupported device category '%s' for device: %s", 
@@ -82,13 +82,13 @@ public class DeviceSetupOrchestrator {
                 if (processedCount % BATCH_SIZE == 0) {
                     entityManager.flush();
                     entityManager.clear();
-                    log.info("[ORCH] Batch checkpoint: {}/{}", processedCount, devices.size());
+                    log.info("Persist: Batch checkpoint: {}/{}", processedCount, devices.size());
                 }
 
             } catch (InternalServerErrorException e) {
                 throw e;
             } catch (Exception e) {
-                log.error("[ORCH] Persistence failed at index {}: naturalId={}, category={}", 
+                log.error("Persist: Failed at index {}: naturalId={}, category={}", 
                     i, device.getNaturalId(), device.getCategory(), e);
                 throw new InternalServerErrorException(
                     String.format("Failed to persist device '%s' (category: %s): %s", 
@@ -99,7 +99,7 @@ public class DeviceSetupOrchestrator {
         }
 
         entityManager.flush();
-        log.info("[ORCH] All devices persisted successfully: count={}", processedCount);
+        log.info("Persist: All devices persisted successfully: count={}", processedCount);
 
         return processedCount;
     }
@@ -119,7 +119,7 @@ public class DeviceSetupOrchestrator {
 
         entityManager.persist(dc);
         entityManager.flush();
-        log.debug("[ORCH] Control created: id={}, type={}, naturalId={}", 
+        log.debug("Create: Control created: id={}, type={}, naturalId={}", 
             dc.getId(), device.getControlType(), device.getNaturalId());
 
         return dc;

@@ -11,7 +11,7 @@ import com.iviet.ivshs.service.RuleV2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "Startup")
+@Slf4j(topic = "INIT-RULE-V2")
 @Component
 @Order(21)
 @RequiredArgsConstructor

@@ -2,6 +2,7 @@ package com.iviet.ivshs.startup;
 
 import com.iviet.ivshs.schedule.energy.EnergyMetricResetJob;
 import com.iviet.ivshs.schedule.energy.EnergyMetricTelemetryJob;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.CronScheduleBuilder;
@@ -15,52 +16,56 @@ import org.quartz.TriggerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
-/**
- * Registers and starts the Energy Metric Quartz jobs at application startup:
- * - Telemetry collection: every 5 minutes (configurable, default 300s)
- * - Energy reset: daily at 00:00 UTC (cron: 0 0 0 * * ?)
- */
-@Slf4j(topic = "Startup")
+@Slf4j(topic = "ENERGY-INIT")
 @Component
 @Order(35)
 @RequiredArgsConstructor
 public class EnergyMetricInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final String TELEMETRY_INTERVAL_SECONDS_DEFAULT = "300"; // 5 minutes
-    
     private final SchedulerFactoryBean schedulerFactoryBean;
+    private final Environment env;
 
     private boolean isInitialized = false;
+    private int     telemetryIntervalSeconds;
+    private String  resetCron;
+
+    @PostConstruct
+    private void init() {
+        telemetryIntervalSeconds = env.getProperty("app.engine.energy.telemetry.intervalSeconds", Integer.class, 300);
+        resetCron                = env.getProperty("app.engine.energy.reset.cron", String.class, "0 0 0 * * ?");
+        log.info("Configured with telemetry interval: {}s, reset cron: {}", 
+            telemetryIntervalSeconds, resetCron);
+    }
 
     @Override
     public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
         if (isInitialized) return;
 
         try {
-            log.info("Module       : [Energy Metric Engine] -> [RUNNING]");
+            log.info("Module: [Energy Metric Engine] -> [RUNNING]");
             long start = System.currentTimeMillis();
 
             scheduleTelemetryJob();
             scheduleResetJob();
 
-            log.info("Module       : [Energy Metric Engine] -> [OK]");
-            log.info("  - Duration   : {} ms", System.currentTimeMillis() - start);
+            log.info("Module: [Energy Metric Engine] -> [OK]");
+            log.info("Duration: {} ms", System.currentTimeMillis() - start);
             isInitialized = true;
 
         } catch (Exception e) {
-            log.error("Module       : [Energy Metric Engine] -> [FAILED]");
-            log.error("  - Reason     : {}", e.getMessage(), e);
+            log.error("Module: [Energy Metric Engine] -> [FAILED]");
+            log.error("Reason: {}", e.getMessage(), e);
             log.warn("WARNING: Server proceeding without Energy Metric Engine");
         }
     }
 
     private void scheduleTelemetryJob() throws SchedulerException {
         Scheduler scheduler = schedulerFactoryBean.getScheduler();
-        int intervalSeconds = Integer.parseInt(TELEMETRY_INTERVAL_SECONDS_DEFAULT);
 
         JobDetail jobDetail = JobBuilder.newJob(EnergyMetricTelemetryJob.class)
             .withIdentity(EnergyMetricTelemetryJob.JOB_NAME, EnergyMetricTelemetryJob.JOB_GROUP)
@@ -75,12 +80,12 @@ public class EnergyMetricInitializer implements ApplicationListener<ContextRefre
             .withIdentity("EnergyMetricTelemetryTrigger", EnergyMetricTelemetryJob.JOB_GROUP)
             .startNow()
             .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInSeconds(intervalSeconds)
+                .withIntervalInSeconds(telemetryIntervalSeconds)
                 .repeatForever())
             .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
-        log.info("  - [EnergyMetricTelemetryJob] scheduled every {}s", intervalSeconds);
+        log.info("[EnergyMetricTelemetryJob] scheduled every {}s", telemetryIntervalSeconds);
     }
 
     private void scheduleResetJob() throws SchedulerException {
@@ -95,13 +100,12 @@ public class EnergyMetricInitializer implements ApplicationListener<ContextRefre
             scheduler.deleteJob(jobDetail.getKey());
         }
 
-        // Every day at 00:00:00 UTC
         Trigger trigger = TriggerBuilder.newTrigger()
             .withIdentity("EnergyMetricResetTrigger", EnergyMetricResetJob.JOB_GROUP)
-            .withSchedule(CronScheduleBuilder.cronSchedule("0 0 0 * * ?"))
+            .withSchedule(CronScheduleBuilder.cronSchedule(resetCron))
             .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
-        log.info("  - [EnergyMetricResetJob] scheduled at 00:00 UTC daily");
+        log.info("[EnergyMetricResetJob] scheduled at [{}] UTC daily", resetCron);
     }
 }

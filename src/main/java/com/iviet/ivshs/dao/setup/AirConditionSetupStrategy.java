@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Slf4j(topic = "SETUP-AC")
 @Component
 @RequiredArgsConstructor
 public class AirConditionSetupStrategy extends AbstractDeviceSetupStrategy {
@@ -42,16 +42,16 @@ public class AirConditionSetupStrategy extends AbstractDeviceSetupStrategy {
         entityManager.persist(ac);
         entityManager.flush();
         attachTranslations(ac, device.getTranslations(), AirConditionLan::new);
-        log.debug("[AC] Device created: {}", device.getNaturalId());
+        log.debug("Create: Device created: {}", device.getNaturalId());
     }
 
     @Override
     public void rollback(Long deviceId) {
         try {
             airConditionDao.deleteById(deviceId);
-            log.debug("[AC] Rolled back: {}", deviceId);
+            log.debug("Rollback: Rolled back: {}", deviceId);
         } catch (Exception e) {
-            log.error("[AC] Rollback failed: {}", deviceId, e);
+            log.error("Rollback: Failed for {}: {}", deviceId, e.getMessage(), e);
         }
     }
 }

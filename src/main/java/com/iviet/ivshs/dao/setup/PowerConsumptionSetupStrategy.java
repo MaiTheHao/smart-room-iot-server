@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Slf4j(topic = "SETUP-POWER")
 @Component
 @RequiredArgsConstructor
 public class PowerConsumptionSetupStrategy extends AbstractDeviceSetupStrategy {
@@ -35,16 +35,16 @@ public class PowerConsumptionSetupStrategy extends AbstractDeviceSetupStrategy {
         entityManager.persist(pc);
         entityManager.flush();
         attachTranslations(pc, device.getTranslations(), PowerConsumptionLan::new);
-        log.debug("[POWER] Device created: {}", device.getNaturalId());
+        log.debug("Create: Device created: {}", device.getNaturalId());
     }
 
     @Override
     public void rollback(Long deviceId) {
         try {
             powerConsumptionDao.deleteById(deviceId);
-            log.debug("[POWER] Rolled back: {}", deviceId);
+            log.debug("Rollback: Rolled back: {}", deviceId);
         } catch (Exception e) {
-            log.error("[POWER] Rollback failed: {}", deviceId, e);
+            log.error("Rollback: Failed for {}: {}", deviceId, e.getMessage(), e);
         }
     }
 }

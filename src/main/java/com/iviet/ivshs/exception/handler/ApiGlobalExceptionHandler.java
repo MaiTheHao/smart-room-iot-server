@@ -18,8 +18,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +33,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+@Slf4j(topic = "ERROR-API")
 @Order(2)
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiGlobalExceptionHandler {
-    private static final Logger log = LogManager.getLogger(ApiGlobalExceptionHandler.class);
 
     // ====== SPRING CONTROLLER AUTO-THROWN EXCEPTIONS ======
 

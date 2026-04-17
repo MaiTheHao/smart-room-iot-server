@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * resetting the PZEM-004T accumulated energy register back to 0.
  * Scheduled by {@link com.iviet.ivshs.startup.EnergyMetricInitializer}.
  */
-@Slf4j
+@Slf4j(topic = "ENERGY-RESET-JOB")
 @Component
 @DisallowConcurrentExecution
 public class EnergyMetricResetJob implements Job {
@@ -30,7 +30,7 @@ public class EnergyMetricResetJob implements Job {
         try {
             energyMetricService.resetGateways();
         } catch (Exception e) {
-            log.error("[ENERGY-RESET-JOB] Reset job failed: {}", e.getMessage(), e);
+            log.error("Exec: Reset job failed: {}", e.getMessage(), e);
         }
     }
 }

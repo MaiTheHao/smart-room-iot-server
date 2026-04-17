@@ -3,8 +3,7 @@ package com.iviet.ivshs.exception.handler;
 import com.iviet.ivshs.dto.ApiResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,10 +17,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j(topic = "ERROR-DB")
 @Order(1)
 @RestControllerAdvice(annotations = RestController.class)
 public class PersistenceExceptionHandler {
-    private static final Logger log = LogManager.getLogger(PersistenceExceptionHandler.class);
 
     // ====== DATA INTEGRITY & CONFLICT EXCEPTIONS ======
 

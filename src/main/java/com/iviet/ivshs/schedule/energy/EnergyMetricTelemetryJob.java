@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * all active LIGHT / FAN / AC devices across all RSPI gateways.
  * Scheduled every 5 minutes by {@link com.iviet.ivshs.startup.EnergyMetricInitializer}.
  */
-@Slf4j
+@Slf4j(topic = "ENERGY-JOB")
 @Component
 @DisallowConcurrentExecution
 public class EnergyMetricTelemetryJob implements Job {
@@ -30,7 +30,7 @@ public class EnergyMetricTelemetryJob implements Job {
         try {
             energyMetricService.fetchFromGateways();
         } catch (Exception e) {
-            log.error("[ENERGY-JOB] Telemetry collection failed: {}", e.getMessage(), e);
+            log.error("Exec: Telemetry collection failed: {}", e.getMessage(), e);
         }
     }
 }

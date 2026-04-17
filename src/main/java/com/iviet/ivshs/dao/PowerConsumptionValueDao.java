@@ -3,6 +3,7 @@ package com.iviet.ivshs.dao;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+
 import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.dto.AveragePowerConsumptionValueDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
@@ -11,11 +12,6 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 
 @Repository
 public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionValue> {
-
-	private static final String DATE_FORMAT = "%Y-%m-%d %H:%i";
-	private static final String DATE_FUNC = "CAST(FUNCTION('DATE_FORMAT', pcv.timestamp, '" + DATE_FORMAT + "') AS string)";
-	private final String AVG_DTO_CLASS = AveragePowerConsumptionValueDto.class.getName();
-	private final String SUM_DTO_CLASS = SumPowerConsumptionValueDto.class.getName();
 
 	public PowerConsumptionValueDao() {
 		super(PowerConsumptionValue.class);
@@ -50,30 +46,40 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = """
-				SELECT new %s(%s, AVG(pcv.watt))
-				FROM PowerConsumptionValue pcv
-				WHERE pcv.sensor.room.id = :roomId AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-				GROUP BY %s
-				ORDER BY %s ASC
-				""".formatted(AVG_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		String sql = """
+				SELECT 
+					(unix_minute * 60) as unix_seconds,
+					AVG(watt) as avg_watt
+				FROM power_consumption_value
+				WHERE sensor_id IN (SELECT id FROM power_consumption WHERE room_id = :roomId)
+				AND timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY unix_minute
+				ORDER BY unix_minute ASC
+				""";
 		
-		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = entityManager.createNativeQuery(sql)
 				.setParameter("roomId", roomId)
-				.setParameter("startedAt", startedAt)
-				.setParameter("endedAt", endedAt)
+				.setParameter("startedAt", java.sql.Timestamp.from(startedAt))
+				.setParameter("endedAt", java.sql.Timestamp.from(endedAt))
 				.getResultList();
+
+		return results.stream()
+				.map(row -> new AveragePowerConsumptionValueDto(
+						Instant.ofEpochSecond(((Number) row[0]).longValue()),
+						((Number) row[1]).doubleValue()))
+				.toList();
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-				SELECT new %s(%s, AVG(pcv.watt))
+				SELECT new %s(pcv.unixMinute * 60L, AVG(pcv.watt))
 				FROM PowerConsumptionValue pcv
 				WHERE pcv.sensor.deviceControl.client.id = :clientId
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-				GROUP BY %s
-				ORDER BY %s ASC
-				""".formatted(AVG_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+				GROUP BY pcv.unixMinute
+				ORDER BY pcv.unixMinute ASC
+				""".formatted(AveragePowerConsumptionValueDto.class.getName());
 		
 		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
 				.setParameter("clientId", clientId)
@@ -84,13 +90,13 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
 		String jpql = """
-				SELECT new %s(%s, SUM(pcv.watt))
+				SELECT new %s(pcv.unixMinute * 60L, SUM(pcv.watt))
 				FROM PowerConsumptionValue pcv
 				WHERE pcv.sensor.deviceControl.client.id = :clientId
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-				GROUP BY %s
-				ORDER BY %s ASC
-				""".formatted(SUM_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+				GROUP BY pcv.unixMinute
+				ORDER BY pcv.unixMinute ASC
+				""".formatted(SumPowerConsumptionValueDto.class.getName());
 		
 		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
 				.setParameter("clientId", clientId)
@@ -100,19 +106,29 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
-		String jpql = """
-				SELECT new %s(%s, SUM(pcv.watt))
-				FROM PowerConsumptionValue pcv
-				WHERE pcv.sensor.room.id = :roomId AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-				GROUP BY %s
-				ORDER BY %s ASC
-				""".formatted(SUM_DTO_CLASS, DATE_FUNC, DATE_FUNC, DATE_FUNC);
+		String sql = """
+				SELECT 
+					(unix_minute * 60) as unix_seconds,
+					SUM(watt) as sum_watt
+				FROM power_consumption_value
+				WHERE sensor_id IN (SELECT id FROM power_consumption WHERE room_id = :roomId)
+				AND timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY unix_minute
+				ORDER BY unix_minute ASC
+				""";
 		
-		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
+		@SuppressWarnings("unchecked")
+		List<Object[]> results = entityManager.createNativeQuery(sql)
 				.setParameter("roomId", roomId)
-				.setParameter("startedAt", startedAt)
-				.setParameter("endedAt", endedAt)
+				.setParameter("startedAt", java.sql.Timestamp.from(startedAt))
+				.setParameter("endedAt", java.sql.Timestamp.from(endedAt))
 				.getResultList();
+
+		return results.stream()
+				.map(row -> new SumPowerConsumptionValueDto(
+						Instant.ofEpochSecond(((Number) row[0]).longValue()),
+						((Number) row[1]).doubleValue()))
+				.toList();
 	}
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {

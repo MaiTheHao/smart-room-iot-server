@@ -40,11 +40,6 @@ public final class UrlConstant {
         return build(ip, API_V1, "telemetry");
     }
 
-    /**
-     * GET /api/v1/{device-domain}/{naturalId}/telemetry
-     * Used by energy metric job to fetch 6 PZEM-004T metrics per device from RSPI.
-     * deviceDomain: "lights", "fans", "air-conditions"
-     */
     public static String getEnergyTelemetryV1(String ip, String deviceDomain, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for energy telemetry API");
         throwIfEmpty(deviceDomain, "Device domain cannot be null or empty for energy telemetry API");
@@ -52,11 +47,6 @@ public final class UrlConstant {
         return build(ip, API_V1, deviceDomain + "/" + naturalId + "/telemetry");
     }
 
-    /**
-     * POST /api/v1/power-consumption/reset
-     * Instructs the RSPI gateway to reset all PZEM-004T energy registers to 0.
-     * Called by the energy reset job at 00:00 daily.
-     */
     public static String getEnergyResetV1(String ip) {
         throwIfEmpty(ip, "IP address cannot be null or empty for energy reset API");
         return build(ip, API_V1, "power-consumption/reset");

@@ -147,10 +147,12 @@ Table temperature_value {
   timestamp datetime(6) [not null]
   temp_c double [default: NULL]
   sensor_id bigint [not null]
+  unix_minute int
 
   Indexes {
     (sensor_id, timestamp) [name: "idx_sensor_timestamp"]
     timestamp [name: "idx_timestamp"]
+    unix_minute [name: "idx_tv_unix_minute"]
   }
 }
 
@@ -168,10 +170,12 @@ Table power_consumption_value {
   timestamp datetime(6) [not null]
   watt double [default: NULL]
   sensor_id bigint [not null]
+  unix_minute int
 
   Indexes {
     (sensor_id, timestamp) [name: "idx_sensor_timestamp"]
     timestamp [name: "idx_timestamp"]
+    unix_minute [name: "idx_pcv_unix_minute"]
   }
 }
 

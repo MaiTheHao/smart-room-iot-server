@@ -22,7 +22,7 @@ import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "CONTROL-AC")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

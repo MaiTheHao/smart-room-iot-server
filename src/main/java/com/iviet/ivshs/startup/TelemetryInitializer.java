@@ -21,7 +21,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "Startup")
+@Slf4j(topic = "INIT-TELEMETRY")
 @Component
 @Order(30)
 @RequiredArgsConstructor

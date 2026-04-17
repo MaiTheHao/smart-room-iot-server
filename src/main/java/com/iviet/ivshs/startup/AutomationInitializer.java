@@ -9,7 +9,7 @@ import com.iviet.ivshs.service.AutomationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "Startup")
+@Slf4j(topic = "INIT-AUTO")
 @Component
 @Order(20)
 @RequiredArgsConstructor

@@ -13,7 +13,7 @@ import com.iviet.ivshs.service.SetupService;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "SETUP-CTRL")
 @RestController
 @RequestMapping("/api/v1/setup")
 public class SetupController {
@@ -23,10 +23,10 @@ public class SetupController {
 	
 	@PostMapping("/{clientId}")
 	public ResponseEntity<ApiResponse<?>> setup(@PathVariable(name = "clientId") Long clientId) {
-		log.info("[SETUP_CTRL_TSTAR] Starting setup for clientId={}", clientId);
+		log.info("Start: clientId={}", clientId);
 		setupService.setup(clientId);
 		
-		log.info("[SETUP_CTRL_SUCCESS] Setup completed for clientId={}", clientId);
+		log.info("Success: clientId={}", clientId);
 		
 		return ResponseEntity.ok(ApiResponse.builder()
 			.status(HttpStatus.OK.value())

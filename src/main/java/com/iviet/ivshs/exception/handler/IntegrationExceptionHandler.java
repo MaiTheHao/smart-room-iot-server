@@ -7,8 +7,7 @@ import com.iviet.ivshs.exception.domain.RemoteResourceNotFoundException;
 
 import java.net.http.HttpConnectTimeoutException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +15,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j(topic = "ERROR-INTG")
 @Order(3)
 @RestControllerAdvice(annotations = RestController.class)
 public class IntegrationExceptionHandler {
-    private static final Logger log = LogManager.getLogger(IntegrationExceptionHandler.class);
 
     @ExceptionHandler({HttpConnectTimeoutException.class, NetworkTimeoutException.class})
     public ResponseEntity<ApiResponse<Void>> handleNetworkTimeout(Exception ex) {

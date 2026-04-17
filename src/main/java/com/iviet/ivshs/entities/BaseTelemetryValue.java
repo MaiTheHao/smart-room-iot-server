@@ -21,4 +21,7 @@ public abstract class BaseTelemetryValue<T extends BaseIoTSensor<?>> extends Bas
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sensor_id", nullable = false, updatable = false)
     private T sensor;
+
+    @Column(name = "unix_minute", insertable = false, updatable = false)
+    private Integer unixMinute;
 }

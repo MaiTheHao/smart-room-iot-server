@@ -29,7 +29,7 @@ import com.iviet.ivshs.util.ScheduleUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "AUTO")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

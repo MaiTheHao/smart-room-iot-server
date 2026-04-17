@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
-@Slf4j
+@Slf4j(topic = "TELEMETRY")
 @Service
 @RequiredArgsConstructor
 public class TelemetryServiceImpl implements TelemetryService {
@@ -35,7 +35,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 	@PostConstruct
 	private void init() {
 		strategies.forEach(s -> strategyMap.put(s.getSupportedCategory(), s));
-		log.info("[TELEMETRY] Initialized with {} strategies", strategyMap.size());
+		log.info("Initialized with {} strategies", strategyMap.size());
 	}
 
 	@Override
@@ -71,14 +71,14 @@ public class TelemetryServiceImpl implements TelemetryService {
 
 	@Override
 	public void takeGlobalTelemetry() {
-		log.info("[TELEMETRY] Starting global telemetry collection");
+		log.info("Starting global telemetry collection");
 		long start = System.currentTimeMillis();
 		try {
 			List<ClientDto> gateways = clientService.getAllGateways();
 			gateways.forEach(this::processSafeExecution);
-			log.info("[TELEMETRY] Finished global telemetry collection in {}ms", System.currentTimeMillis() - start);
+			log.info("Finished global telemetry collection in {}ms", System.currentTimeMillis() - start);
 		} catch (Exception e) {
-			log.error("[TELEMETRY] Failed to collect global telemetry: {}", e.getMessage(), e);
+			log.error("Failed to collect global telemetry: {}", e.getMessage(), e);
 		}
 	}
 
@@ -86,7 +86,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 		if (gateways == null || gateways.isEmpty()) return;
 
 		long start = System.currentTimeMillis();
-		log.info("[TELEMETRY] Starting batch collection for [{}] - {} gateways", identifier, gateways.size());
+		log.info("Starting batch collection for [{}] - {} gateways", identifier, gateways.size());
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			List<CompletableFuture<Void>> futures = gateways.stream()
@@ -94,7 +94,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 				.toList();
 
 			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-			log.info("[TELEMETRY] Finished batch collection for [{}] in {}ms", identifier, System.currentTimeMillis() - start);
+			log.info("Finished batch collection for [{}] in {}ms", identifier, System.currentTimeMillis() - start);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 		try {
 			processTakeByGateway(gateway);
 		} catch (Exception e) {
-			log.error("[TELEMETRY] Failed to process gateway [{}]: {}", gateway.username(), e.getMessage());
+			log.error("Failed to process gateway [{}]: {}", gateway.username(), e.getMessage());
 		}
 	}
 
@@ -121,13 +121,13 @@ public class TelemetryServiceImpl implements TelemetryService {
 					strategy.create(data);
 					processedCount++;
 				} else {
-					log.warn("[TELEMETRY] No strategy for category {} at sensor {}", data.getCategory(), data.getNaturalId());
+					log.warn("No strategy for category {} at sensor {}", data.getCategory(), data.getNaturalId());
 				}
 			} catch (Exception e) {
-				log.error("[TELEMETRY] Failed to process sensor {} for gateway {}: {}", 
+				log.error("Failed to process sensor {} for gateway {}: {}", 
 								data.getNaturalId(), gateway.username(), e.getMessage());
 			}
 		}
-		log.info("[TELEMETRY] Gateway {}: Processed {}/{} records", gateway.username(), processedCount, telemetryData.size());
+		log.info("Gateway {}: Processed {}/{} records", gateway.username(), processedCount, telemetryData.size());
 	}
 }

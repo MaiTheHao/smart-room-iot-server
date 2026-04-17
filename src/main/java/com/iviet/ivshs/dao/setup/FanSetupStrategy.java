@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j
+@Slf4j(topic = "SETUP-FAN")
 @Component
 @RequiredArgsConstructor
 public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
@@ -37,7 +37,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         FanType fanType = FanType.fromString(device.getSpecificType());
 
         if (fanType == null) {
-            log.warn("[FAN] Type unknown, defaulting to GPIO: {}", device.getNaturalId());
+            log.warn("Create: Type unknown, defaulting to GPIO: {}", device.getNaturalId());
             fanType = FanType.GPIO;
         }
 
@@ -46,16 +46,16 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         entityManager.persist(fan);
         entityManager.flush();
         attachTranslations(fan, device.getTranslations(), FanLan::new);
-        log.debug("[FAN] Device created: {}, type: {}", device.getNaturalId(), fanType);
+        log.debug("Create: Device created: {}, type: {}", device.getNaturalId(), fanType);
     }
 
     @Override
     public void rollback(Long deviceId) {
         try {
             fanDao.deleteById(deviceId);
-            log.debug("[FAN] Rolled back: {}", deviceId);
+            log.debug("Rollback: Rolled back: {}", deviceId);
         } catch (Exception e) {
-            log.error("[FAN] Rollback failed: {}", deviceId, e);
+            log.error("Rollback: Failed for {}: {}", deviceId, e.getMessage(), e);
         }
     }
 
