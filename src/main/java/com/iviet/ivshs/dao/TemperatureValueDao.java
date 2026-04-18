@@ -44,16 +44,16 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 		});
 	}
 
-	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt) {
+	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
 		String sql = """
 						SELECT 
-							(unix_minute * 60) as unix_seconds,
+							(unix_minute DIV :divisor) * :divisor * 60 as unix_seconds,
 							AVG(temp_c) as avg_temp
 						FROM temperature_value
 						WHERE sensor_id IN (SELECT id FROM temperature WHERE room_id = :roomId)
 						AND timestamp BETWEEN :startedAt AND :endedAt
-						GROUP BY unix_minute
-						ORDER BY unix_minute ASC
+						GROUP BY unix_seconds
+						ORDER BY unix_seconds ASC
 						""";
 
 		@SuppressWarnings("unchecked")
@@ -61,29 +61,31 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 						.setParameter("roomId", roomId)
 						.setParameter("startedAt", java.sql.Timestamp.from(startedAt))
 						.setParameter("endedAt", java.sql.Timestamp.from(endedAt))
+						.setParameter("divisor", divisor)
 						.getResultList();
 
 		return results.stream()
 						.map(row -> new AverageTemperatureValueDto(
-								Instant.ofEpochSecond(((Number) row[0]).longValue()),
+								((Number) row[0]).longValue(),
 								((Number) row[1]).doubleValue()))
 						.toList();
 	}
 
-	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt) {
+	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-						SELECT new %s(tv.unixMinute * 60L, AVG(tv.tempC))
+						SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
 						FROM TemperatureValue tv
 						WHERE tv.sensor.deviceControl.client.id = :clientId
 						AND tv.timestamp BETWEEN :startedAt AND :endedAt
-						GROUP BY tv.unixMinute
-						ORDER BY tv.unixMinute ASC
+						GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
+						ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC
 						""".formatted(AverageTemperatureValueDto.class.getName());
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 						.setParameter("clientId", clientId)
 						.setParameter("startedAt", startedAt)
 						.setParameter("endedAt", endedAt)
+						.setParameter("divisor", divisor)
 						.getResultList();
 	}
 

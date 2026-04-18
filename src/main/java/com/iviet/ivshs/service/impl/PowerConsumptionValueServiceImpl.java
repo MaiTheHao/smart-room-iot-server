@@ -12,6 +12,7 @@ import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
 import lombok.RequiredArgsConstructor;
@@ -55,10 +56,12 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
 
   @Override
   public List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
+    int divisor = TelemetryTimeGroup.getDivisorForRange(fromTimestamp, toTimestamp);
     return powerConsumptionValueDao.getSumHistoryByRoom(
         roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId(),
         fromTimestamp,
-        toTimestamp
+        toTimestamp,
+        divisor
     );
   }
 

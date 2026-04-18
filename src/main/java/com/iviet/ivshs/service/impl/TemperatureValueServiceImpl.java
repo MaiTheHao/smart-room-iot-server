@@ -9,6 +9,7 @@ import com.iviet.ivshs.dto.CreateTemperatureValueDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.TemperatureValueService;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +55,13 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   @Override
   @Transactional(readOnly = true)
   public List<AverageTemperatureValueDto> getAverageTemperatureByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
+    int divisor = TelemetryTimeGroup.getDivisorForRange(fromTimestamp, toTimestamp);
     return temperatureValueDao.getAverageHistoryByRoom(
-        roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId()
-        , fromTimestamp, toTimestamp);
+        roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId(),
+        fromTimestamp,
+        toTimestamp,
+        divisor
+    );
   }
 
   @Override

@@ -12,14 +12,14 @@ SET
 
 CREATE INDEX idx_tv_unix_minute ON temperature_value (unix_minute);
 
-DELIMITER / /
+DELIMITER //
 CREATE TRIGGER trg_tv_before_insert BEFORE
 INSERT
     ON temperature_value FOR EACH ROW BEGIN
 SET
     NEW.unix_minute = UNIX_TIMESTAMP(NEW.timestamp) DIV 60;
 
-END / / DELIMITER;
+END // DELIMITER;
 
 -- 2. power_consumption_value
 ALTER TABLE power_consumption_value
@@ -31,11 +31,11 @@ SET
 
 CREATE INDEX idx_pcv_unix_minute ON power_consumption_value (unix_minute);
 
-DELIMITER / /
+DELIMITER //
 CREATE TRIGGER trg_pcv_before_insert BEFORE
 INSERT
     ON power_consumption_value FOR EACH ROW BEGIN
 SET
     NEW.unix_minute = UNIX_TIMESTAMP(NEW.timestamp) DIV 60;
 
-END / / DELIMITER;
+END // DELIMITER;

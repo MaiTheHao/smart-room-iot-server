@@ -13,6 +13,7 @@ import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.enumeration.RuleDataSource;
+import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
 import jakarta.annotation.PostConstruct;
@@ -70,12 +71,14 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
       return switch (property.toLowerCase()) {
         case PROP_AVG_TEMPERATURE -> {
-          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, startTime, now);
+          int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
+          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, startTime, now, divisor);
           log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
         }
         case PROP_SUM_WATT -> {
-          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime, now);
+          int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
+          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime, now, divisor);
           log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
         }
