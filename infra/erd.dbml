@@ -1,4 +1,4 @@
-// Version: 2026-04-16
+// Version: 2026-04-18
 // --- Hệ thống Địa điểm (Location System) ---
 
 Table floor {
@@ -176,6 +176,26 @@ Table power_consumption_value {
     (sensor_id, timestamp) [name: "idx_sensor_timestamp"]
     timestamp [name: "idx_timestamp"]
     unix_minute [name: "idx_pcv_unix_minute"]
+  }
+}
+
+Table energy_metrics {
+  id bigint [pk, increment]
+  category varchar(50) [not null, note: 'LIGHT, FAN, AC, ROOM']
+  target_id bigint [not null]
+  timestamp datetime(6) [not null]
+  voltage double [default: NULL]
+  current double [default: NULL]
+  power double [default: NULL]
+  energy double [default: NULL]
+  frequency double [default: NULL]
+  power_factor double [default: NULL]
+  unix_minute int
+
+  Indexes {
+    (category, target_id, timestamp) [name: "idx_energy_metrics_target"]
+    timestamp [name: "idx_energy_metrics_timestamp"]
+    unix_minute [name: "idx_em_unix_minute"]
   }
 }
 

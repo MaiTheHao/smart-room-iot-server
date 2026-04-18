@@ -42,8 +42,20 @@ public class ApiGlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String msg = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s.",
-                ex.getValue(), ex.getName(), ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown");
+        Class<?> requiredType = ex.getRequiredType();
+        String msg;
+
+        if (requiredType != null && requiredType.isEnum()) {
+            String validValues = Arrays.stream(requiredType.getEnumConstants())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+            msg = String.format("Invalid value '%s' for parameter '%s'. Accepted values are: [%s].",
+                    ex.getValue(), ex.getName(), validValues);
+        } else {
+            msg = String.format("Invalid value '%s' for parameter '%s'. Expected type: %s.",
+                    ex.getValue(), ex.getName(), requiredType != null ? requiredType.getSimpleName() : "unknown");
+        }
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST, msg));
     }

@@ -19,7 +19,8 @@ import java.time.Instant;
 @Entity
 @Table(name = "energy_metrics", indexes = {
     @Index(name = "idx_energy_metrics_target", columnList = "category, target_id, timestamp"),
-    @Index(name = "idx_energy_metrics_timestamp", columnList = "timestamp")
+    @Index(name = "idx_energy_metrics_timestamp", columnList = "timestamp"),
+    @Index(name = "idx_em_unix_minute", columnList = "unix_minute")
 })
 @Immutable
 @Getter
@@ -40,6 +41,9 @@ public class EnergyMetric extends BaseEntity {
 
     @Column(name = "timestamp", nullable = false, updatable = false)
     private Instant timestamp;
+
+    @Column(name = "unix_minute", insertable = false, updatable = false)
+    private Integer unixMinute;
 
     @Column(name = "voltage")
     private Double voltage;

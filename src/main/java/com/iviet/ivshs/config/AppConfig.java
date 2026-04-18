@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @Import({ SecurityConfig.class, WebConfig.class, QuartzConfig.class })
 @PropertySource("classpath:application.properties")
+@PropertySource(value = "classpath:application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
 @ComponentScans(value = {
@@ -140,6 +141,7 @@ public class AppConfig implements EnvironmentAware {
         props.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto", "validate"));
         props.put("hibernate.show_sql", env.getProperty("hibernate.show_sql", "false"));
         props.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "true"));
+        props.put("hibernate.generate_statistics", env.getProperty("hibernate.generate_statistics", "false"));
         
         props.put("hibernate.jdbc.batch_size", env.getProperty("hibernate.jdbc.batch_size", "50"));
         props.put("hibernate.order_inserts", env.getProperty("hibernate.order_inserts", "true"));

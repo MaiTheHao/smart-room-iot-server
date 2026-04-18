@@ -1,4 +1,4 @@
-package com.iviet.ivshs.schedule.energy;
+package com.iviet.ivshs.schedule.metric.energy;
 
 import com.iviet.ivshs.service.EnergyMetricService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,11 +9,6 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Quartz job that collects energy telemetry (6 PZEM-004T metrics) from
- * all active LIGHT / FAN / AC devices across all RSPI gateways.
- * Scheduled every 5 minutes by {@link com.iviet.ivshs.startup.EnergyMetricInitializer}.
- */
 @Slf4j(topic = "ENERGY-JOB")
 @Component
 @DisallowConcurrentExecution

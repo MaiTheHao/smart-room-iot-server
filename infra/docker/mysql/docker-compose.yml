@@ -3,6 +3,11 @@ services:
   mysql-iot:
     image: mysql:8.3
     container_name: iuhsmrc-mysql
+    # Cấu hình giới hạn tài nguyên
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci

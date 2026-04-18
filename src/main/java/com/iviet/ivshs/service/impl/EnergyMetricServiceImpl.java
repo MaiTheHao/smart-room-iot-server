@@ -17,6 +17,8 @@ import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.EnergyMetricService;
+import com.iviet.ivshs.enumeration.MetricDomain;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.util.HttpClientUtil;
 import com.iviet.ivshs.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
@@ -47,16 +49,39 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     @Override
     @Transactional(readOnly = true)
     public List<EnergyMetricDto> getHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
-        if (Duration.between(from, to).toDays() > 365) {
-            throw new BadRequestException("Time range must not exceed 1 year");
-        }
-        return energyMetricDao.findHistory(category, targetId, from, to);
+        int divisor = com.iviet.ivshs.enumeration.TelemetryTimeGroup.getDivisorForRange(from, to);
+        return energyMetricDao.findHistory(category, targetId, from, to, divisor);
+    }
+
+    @Override
+    public MetricDomain getSupportedDomain() {
+        return MetricDomain.ENERGY;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<EnergyMetricDto> getNewest(EnergyMetricCategory category, Long targetId) {
-        return energyMetricDao.findNewest(category, targetId);
+    public Object getLatest(DeviceCategory category, Long targetId) {
+        return getLatest(mapToEnergyCategory(category), targetId).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<?> getHistory(DeviceCategory category, Long targetId, Instant from, Instant to) {
+        return getHistory(mapToEnergyCategory(category), targetId, from, to);
+    }
+
+    private EnergyMetricCategory mapToEnergyCategory(DeviceCategory category) {
+        try {
+            return EnergyMetricCategory.valueOf(category.name());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Device category " + category.name() + " is not supported for energy metrics.");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<EnergyMetricDto> getLatest(EnergyMetricCategory category, Long targetId) {
+        return energyMetricDao.findLatest(category, targetId);
     }
 
     @Override
