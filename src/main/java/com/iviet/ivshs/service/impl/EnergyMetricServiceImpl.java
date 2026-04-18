@@ -19,6 +19,7 @@ import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.EnergyMetricService;
 import com.iviet.ivshs.enumeration.MetricDomain;
 import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.util.HttpClientUtil;
 import com.iviet.ivshs.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +50,8 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     @Override
     @Transactional(readOnly = true)
     public List<EnergyMetricDto> getHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
-        int divisor = com.iviet.ivshs.enumeration.TelemetryTimeGroup.getDivisorForRange(from, to);
+        from = TelemetryTimeGroup.limitRange(from, to);
+        int divisor = TelemetryTimeGroup.getDivisorForRange(from, to);
         return energyMetricDao.findHistory(category, targetId, from, to, divisor);
     }
 

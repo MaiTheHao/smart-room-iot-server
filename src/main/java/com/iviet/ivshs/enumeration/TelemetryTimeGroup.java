@@ -18,6 +18,8 @@ public enum TelemetryTimeGroup {
     TWO_DAYS(2880),
     WEEK(10080);
 
+    private static final int MAX_RANGE_DAYS = 365;
+
     private final int divisor;
 
     TelemetryTimeGroup(int divisor) {
@@ -62,5 +64,18 @@ public enum TelemetryTimeGroup {
             // > 6 months
             return WEEK.getDivisor();
         }
+    }
+
+    public static Instant limitRange(Instant startedAt, Instant endedAt) {
+        if (startedAt == null || endedAt == null) {
+            return startedAt;
+        }
+
+        Instant minStartedAt = endedAt.minus(Duration.ofDays(MAX_RANGE_DAYS));
+        if (startedAt.isBefore(minStartedAt)) {
+            return minStartedAt;
+        }
+
+        return startedAt;
     }
 }
