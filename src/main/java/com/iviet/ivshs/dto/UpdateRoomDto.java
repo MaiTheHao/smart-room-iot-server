@@ -8,8 +8,8 @@ public record UpdateRoomDto(
     @Size(min = 1, max = 100, message = "Room name must be between 1 and 100 characters")
     String name,
 
-    @Size(max = 256)
-    String code,
+    // @Size(max = 256)
+    // String code,
 
     @Size(max = 255, message = "Description must not exceed 255 characters")
     String description,

@@ -152,11 +152,6 @@ public class RoomServiceImpl implements RoomService {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        if (StringUtils.hasText(dto.code()) && !dto.code().trim().equals(room.getCode())) {
-            _checkDuplicate(dto.code().trim(), roomId);
-            room.setCode(dto.code().trim());
-        }
-
         if (dto.floorId() != null && !dto.floorId().equals(room.getFloor().getId())) {
             Floor oldFloor = room.getFloor();
             oldFloor.touch();

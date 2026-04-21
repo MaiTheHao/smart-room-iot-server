@@ -1,10 +1,7 @@
-package com.iviet.ivshs.startup.metric;
+package com.iviet.ivshs.startup;
 
-import com.iviet.ivshs.schedule.metric.MetricJobProvider;
-import com.iviet.ivshs.schedule.metric.MetricJobRegistration;
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -20,7 +17,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import com.iviet.ivshs.schedule.metric.MetricJobProvider;
+import com.iviet.ivshs.schedule.metric.MetricJobRegistration;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "METRIC-INIT")
 @Component

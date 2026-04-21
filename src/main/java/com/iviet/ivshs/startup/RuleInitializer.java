@@ -41,7 +41,7 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
 
   @Override
   public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
-    if (isInitialized) {
+    if (isInitialized || ruleScanIntervalSeconds <= 0) {
       return;
     }
 

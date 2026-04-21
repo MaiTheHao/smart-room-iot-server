@@ -41,7 +41,7 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
 
   @Override
   public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
-    if (isInitialized) {
+    if (isInitialized || telemetryScanIntervalSeconds <= 0) {
       return;
     }
 
