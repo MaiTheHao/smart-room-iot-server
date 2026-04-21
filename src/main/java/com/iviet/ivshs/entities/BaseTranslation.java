@@ -14,6 +14,7 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
+
 @MappedSuperclass
 @Getter
 @Setter
@@ -34,6 +35,14 @@ public abstract class BaseTranslation<T extends BaseTranslatableEntity<?>> exten
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "owner_id", nullable = false)
     private T owner;
+
+    @Override
+    public void touch() {
+        super.touch();
+        if (this.owner != null) {
+            this.owner.touch();
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

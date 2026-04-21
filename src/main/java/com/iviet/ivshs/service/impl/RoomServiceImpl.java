@@ -134,7 +134,9 @@ public class RoomServiceImpl implements RoomService {
         roomLan.setOwner(room);
 
         room.getTranslations().add(roomLan);
+        room.touch();
         roomDao.save(room);
+        roomDao.flush();
 
         return RoomDto.from(room, roomLan);
     }
@@ -156,6 +158,9 @@ public class RoomServiceImpl implements RoomService {
         }
 
         if (dto.floorId() != null && !dto.floorId().equals(room.getFloor().getId())) {
+            Floor oldFloor = room.getFloor();
+            oldFloor.touch();
+            
             Floor newFloor = floorDao.findById(dto.floorId())
                     .orElseThrow(() -> new NotFoundException("Floor not found with ID: " + dto.floorId()));
             room.setFloor(newFloor);
@@ -171,15 +176,19 @@ public class RoomServiceImpl implements RoomService {
                     room.getTranslations().add(newLan);
                     return newLan;
                 });
-
+        
         if (StringUtils.hasText(dto.name())) {
             roomLan.setName(dto.name().trim());
         }
+
         if (dto.description() != null) {
             roomLan.setDescription(dto.description());
         }
 
+        room.touch();
+
         roomDao.save(room);
+        roomDao.flush();
         return RoomDto.from(room, roomLan);
     }
 
@@ -188,9 +197,12 @@ public class RoomServiceImpl implements RoomService {
     public void delete(Long roomId) {
         permissionService.requireManageRoom();
 
-        if (!roomDao.existsById(roomId)) throw new NotFoundException("Room not found");
-        
-        roomDao.deleteById(roomId);
+        Room room = roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found"));
+        if (room.getFloor() != null) {
+            room.getFloor().touch();
+        }
+        roomDao.delete(room);
+        roomDao.flush();
     }
 
     private void _checkDuplicate(String code, Long currentId) {

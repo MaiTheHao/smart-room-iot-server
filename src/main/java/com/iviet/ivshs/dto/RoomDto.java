@@ -11,7 +11,7 @@ public record RoomDto(
     String name,
     String description,
     Long floorId,
-    Long v
+    Long version
 ) {
     public static RoomDto from(Room entity, RoomLan lan) {
         if (entity == null) {

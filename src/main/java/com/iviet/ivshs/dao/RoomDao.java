@@ -24,7 +24,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         String dtoPath = RoomDto.class.getName();
 
         String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
                 FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.code = :code
@@ -42,7 +42,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         String dtoPath = RoomDto.class.getName();
 
         String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
                 FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.id = :roomId
@@ -60,7 +60,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         String dtoPath = RoomDto.class.getName();
 
         String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
                 FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.floor.id = :floorId
@@ -78,7 +78,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         String dtoPath = RoomDto.class.getName();
 
         String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
                 FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 WHERE r.floor.id = :floorId
@@ -94,7 +94,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         String dtoPath = RoomDto.class.getName();
 
         String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
                 FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 """.formatted(dtoPath);
@@ -108,7 +108,7 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         String dtoPath = RoomDto.class.getName();
 
         String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id)
+                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
                 FROM Room r
                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                 """.formatted(dtoPath);

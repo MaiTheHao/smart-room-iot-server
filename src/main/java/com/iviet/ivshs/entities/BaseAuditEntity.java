@@ -6,7 +6,9 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Version;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.Getter;
@@ -16,11 +18,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseAuditEntity extends BaseEntity {
+public abstract class BaseAuditEntity extends BaseEntity implements Versionable {
 
+    @CreatedDate
     @Column(name = "created_at", updatable = false)
     protected Instant createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at")
     protected Instant updatedAt;
 
@@ -33,6 +37,18 @@ public abstract class BaseAuditEntity extends BaseEntity {
     protected String updatedBy;
 
     @Version
-    @Column(name = "v", nullable = false)
+    @Column(name = "v", nullable = false, columnDefinition = "bigint default 0")
     protected Long version = 0L;
+
+    public Long getVersion() {
+        return version;
+    }
+
+    protected void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
 }

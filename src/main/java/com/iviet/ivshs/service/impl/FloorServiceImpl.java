@@ -12,6 +12,7 @@ import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class FloorServiceImpl implements FloorService {
 
     private final FloorDao floorDao;
@@ -97,6 +99,7 @@ public class FloorServiceImpl implements FloorService {
         
         floor.getTranslations().add(floorLan);
         floorDao.save(floor);
+        floorDao.flush();
 
         return FloorDto.from(floor, floorLan); 
     }
@@ -110,13 +113,18 @@ public class FloorServiceImpl implements FloorService {
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
 
+        boolean isModified = false;
         if (StringUtils.hasText(dto.code()) && !dto.code().trim().equals(floor.getCode())) {
             String newCode = dto.code().trim();
             _checkDuplicate(newCode, id);
             floor.setCode(newCode);
+            isModified = true;
         }
 
-        if (dto.level() != null) floor.setLevel(dto.level());
+        if (dto.level() != null && !dto.level().equals(floor.getLevel())) {
+            floor.setLevel(dto.level());
+            isModified = true;
+        }
 
         FloorLan floorLan = floor.getTranslations().stream()
                 .filter(lan -> langCode.equals(lan.getLangCode()))
@@ -129,10 +137,19 @@ public class FloorServiceImpl implements FloorService {
                     return newLan;
                 });
 
-        if (dto.name() != null) floorLan.setName(dto.name().trim());
-        if (dto.description() != null) floorLan.setDescription(dto.description());
+        if (dto.name() != null) {
+            floorLan.setName(dto.name().trim());
+            isModified = true;
+        }
+        if (dto.description() != null)  {
+            floorLan.setDescription(dto.description());
+            isModified = true;
+        }
 
+        if (isModified) floor.touch();
+        
         floorDao.save(floor);
+        floorDao.flush();
         return FloorDto.from(floor, floorLan);
     }
 
@@ -143,6 +160,7 @@ public class FloorServiceImpl implements FloorService {
 
         if (!floorDao.existsById(id)) throw new NotFoundException("Floor not found");
         floorDao.deleteById(id);
+        floorDao.flush();
     }
 
     private void _checkDuplicate(String code, Long currentId) {

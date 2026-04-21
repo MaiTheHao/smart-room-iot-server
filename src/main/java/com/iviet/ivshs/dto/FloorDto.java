@@ -12,7 +12,7 @@ public record FloorDto(
     String code,
     String description,
     Integer level,
-    Long v
+    Long version
 ) {
     public static FloorDto from(Floor entity, FloorLan lan) {
         return FloorDto.builder()
@@ -21,7 +21,7 @@ public record FloorDto(
             .name(lan.getName())
             .description(lan.getDescription())
             .level(entity.getLevel())
-            .v(entity.getVersion())
+            .version(entity.getVersion())
             .build();
     }
 
@@ -30,7 +30,6 @@ public record FloorDto(
         floor.setId(dto.id());
         floor.setCode(dto.code());
         floor.setLevel(dto.level());
-        floor.setVersion(dto.v());
         return floor;
     }
 }

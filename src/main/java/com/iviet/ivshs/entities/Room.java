@@ -50,6 +50,14 @@ public class Room extends BaseTranslatableEntity<RoomLan> {
     private Set<DeviceControl> deviceControls = new HashSet<>();
 
     @Override
+    public void touch() {
+        super.touch();
+        if (this.floor != null) {
+            this.floor.touch();
+        }
+    }
+
+    @Override
     public void addTranslation(RoomLan translation) {
         translation.setOwner(this);
         this.getTranslations().add(translation);

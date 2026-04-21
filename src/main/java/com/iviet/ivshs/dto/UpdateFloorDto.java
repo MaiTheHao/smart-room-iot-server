@@ -2,7 +2,6 @@ package com.iviet.ivshs.dto;
 
 import com.iviet.ivshs.entities.Floor;
 import lombok.Builder;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Builder
@@ -10,7 +9,6 @@ public record UpdateFloorDto(
     @Size(min = 1, max = 100, message = "Floor name must be between 1 and 100 characters")
     String name,
 
-    @NotBlank(message = "Floor code is required")
     @Size(max = 256, message = "Floor code must not exceed 256 characters")
     String code,
 

@@ -23,7 +23,7 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         String dtoClassPath = FloorDto.class.getName();
 
         String jpql = """
-                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
+                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level, f.version)
                 FROM Floor f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 WHERE f.code = :code
@@ -42,7 +42,7 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         String dtoClassPath = FloorDto.class.getName();
 
         String jpql = """
-                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
+                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level, f.version)
                 FROM Floor f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 WHERE f.id = :floorId
@@ -61,7 +61,7 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         String dtoClassPath = FloorDto.class.getName();
 
         String jpql = """
-                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
+                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level, f.version)
                 FROM Floor f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 """.formatted(dtoClassPath);
@@ -79,7 +79,7 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         String dtoClassPath = FloorDto.class.getName();
 
         String jpql = """
-                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level)
+                SELECT new %s(f.id, flan.name, f.code, flan.description, f.level, f.version)
                 FROM Floor f
                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                 """.formatted(dtoClassPath);
