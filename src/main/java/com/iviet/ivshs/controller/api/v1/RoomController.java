@@ -52,6 +52,11 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponse.ok(roomService.getById(roomId)));
     }
 
+    @GetMapping("/rooms/{roomId}/v")
+    public ResponseEntity<ApiResponse<Long>> getVersionById(@PathVariable(name = "roomId") Long roomId) {
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getVersionById(roomId)));
+    }
+
     @PostMapping("/floors/{floorId}/rooms")
     public ResponseEntity<ApiResponse<RoomDto>> createRoom(
             @PathVariable(name = "floorId") Long floorId,

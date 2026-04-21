@@ -15,6 +15,7 @@ public interface RoomService {
     List<RoomDto> getAll();
     List<com.iviet.ivshs.dto.RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds);
     RoomDto getById(Long roomId);
+    Long getVersionById(Long roomId);
     Room getEntityById(Long roomId);
     RoomDto getByCode(String roomCode);
     Room getEntityByCode(String roomCode);

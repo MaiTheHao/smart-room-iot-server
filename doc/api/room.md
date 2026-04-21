@@ -71,6 +71,30 @@
 </details>
 
 <details>
+<summary><b>GET</b> <code>/api/v1/rooms/{roomId}/v</code> - Lấy version của phòng</summary>
+
+> Lấy version hiện tại của phòng theo ID (dùng cho optimistic locking hoặc sync).
+
+### Path/Query Parameters (Nếu có)
+
+| Tên    | Loại | Mô tả        | Bắt buộc/Mặc định |
+| :----- | :--- | :----------- | :---------------- |
+| roomId | Long | ID của phòng | Có                |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 1,
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<details>
 <summary><b>POST</b> <code>/api/v1/floors/{floorId}/rooms</code> - Tạo mới phòng</summary>
 
 > Tạo mới một phòng thuộc tầng chỉ định.

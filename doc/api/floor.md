@@ -70,6 +70,30 @@
 </details>
 
 <details>
+<summary><b>GET</b> <code>/api/v1/floors/{floorId}/v</code> - Lấy version của tầng</summary>
+
+> Lấy version hiện tại của tầng theo ID (dùng cho optimistic locking hoặc sync).
+
+### Path Parameters
+
+| Tên     | Loại | Mô tả               | Bắt buộc/Mặc định |
+| :------ | :--- | :------------------ | :---------------- |
+| floorId | Long | ID của tầng cần lấy | Có                |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 1,
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<details>
 <summary><b>POST</b> <code>/api/v1/floors</code> - Tạo mới một tầng</summary>
 
 > Tạo mới một tầng trong hệ thống.

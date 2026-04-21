@@ -101,6 +101,11 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public Long getVersionById(Long roomId) {
+        return roomDao.findVersionById(roomId).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
+    }
+
+    @Override
     @Transactional
     public RoomDto create(Long floorId, CreateRoomDto dto) {
         Floor floor = floorService.getEntityById(floorId);

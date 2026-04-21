@@ -10,7 +10,8 @@ public record RoomDto(
     String code,
     String name,
     String description,
-    Long floorId
+    Long floorId,
+    Long v
 ) {
     public static RoomDto from(Room entity, RoomLan lan) {
         if (entity == null) {
@@ -21,7 +22,8 @@ public record RoomDto(
             entity.getCode(),
             lan != null ? lan.getName() : null,
             lan != null ? lan.getDescription() : null,
-            (entity.getFloor() != null) ? entity.getFloor().getId() : null
+            (entity.getFloor() != null) ? entity.getFloor().getId() : null,
+            entity.getVersion()
         );
     }
 }

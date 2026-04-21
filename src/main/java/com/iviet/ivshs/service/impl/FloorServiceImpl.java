@@ -62,6 +62,11 @@ public class FloorServiceImpl implements FloorService {
     }
 
     @Override
+    public Long getVersionById(Long id) {
+        return floorDao.findVersionById(id).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
+    }
+
+    @Override
     public Floor getEntityById(Long id) {
         Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
         permissionService.requireAccessFloor(floor.getCode());

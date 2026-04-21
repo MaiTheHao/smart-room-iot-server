@@ -3,7 +3,7 @@ class RoomDetailPage {
 
   CONFIG = {
     DATE_FORMAT: 'HH:mm DD/MM/YYYY',
-    DEFAULT_RANGE_MONTHS: 1,
+    DEFAULT_RANGE_DAYS: 3,
     TEMP_RANGE_MIN: 16,
     TEMP_RANGE_MAX: 32,
     DEBOUNCE_DELAY: 500,
@@ -454,7 +454,7 @@ class RoomDetailPage {
       isMissingParams: !startedAt || !endedAt,
       start: startedAt
         ? moment(startedAt)
-        : moment().subtract(this.CONFIG.DEFAULT_RANGE_MONTHS, 'months'),
+        : moment().subtract(this.CONFIG.DEFAULT_RANGE_DAYS, 'days'),
       end: endedAt ? moment(endedAt) : moment(),
     };
   }

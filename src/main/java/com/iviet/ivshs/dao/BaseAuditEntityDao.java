@@ -5,6 +5,7 @@ import com.iviet.ivshs.entities.BaseAuditEntity;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BaseAuditEntityDao<T extends BaseAuditEntity> extends BaseEntityDao<T> {
 
@@ -55,6 +56,14 @@ public abstract class BaseAuditEntityDao<T extends BaseAuditEntity> extends Base
             page,
             size
         );
+    }
+
+    public Optional<Long> findVersionById(Long id) {
+        String jpql = "SELECT e.v FROM " + clazz.getSimpleName() + " e WHERE e.id = :id"; 
+        return entityManager.createQuery(jpql, Long.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
     }
 
     public long countByCreatedBy(String username) {

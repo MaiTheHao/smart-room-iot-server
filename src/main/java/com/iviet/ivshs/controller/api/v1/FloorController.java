@@ -38,6 +38,13 @@ public class FloorController {
         return ResponseEntity.ok(ApiResponse.ok(floorService.getById(floorId)));
     }
 
+    @GetMapping("/{floorId}/v")
+    public ResponseEntity<ApiResponse<Long>> getVersionById(
+            @PathVariable(name = "floorId") Long floorId) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(floorService.getVersionById(floorId)));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<FloorDto>> createFloor(
             @RequestBody @Valid CreateFloorDto request) {
