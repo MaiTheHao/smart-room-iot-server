@@ -128,7 +128,9 @@ public class TemperatureServiceImpl implements TemperatureService {
         lan.setOwner(sensor);
 
         sensor.getTranslations().add(lan);
+        sensor.touch();
         temperatureDao.save(sensor);
+        temperatureDao.flush();
 
         return TemperatureDto.from(sensor, lan);
     }
@@ -156,7 +158,9 @@ public class TemperatureServiceImpl implements TemperatureService {
         if (dto.name() != null) lan.setName(dto.name().trim());
         if (dto.description() != null) lan.setDescription(dto.description());
 
+        sensor.touch();
         temperatureDao.save(sensor);
+        temperatureDao.flush();
         return TemperatureDto.from(sensor, lan);
     }
 

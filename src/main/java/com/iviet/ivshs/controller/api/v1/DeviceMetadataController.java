@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.dto.DeviceMetadataDto;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.service.DeviceMetadataService;
 
@@ -23,17 +22,12 @@ public class DeviceMetadataController {
 
     private final DeviceMetadataService deviceMetadataService;
 
-    @GetMapping("/devices/all")
-    public ResponseEntity<ApiResponse<List<DeviceMetadataDto>>> getAll() {
-        List<DeviceMetadataDto> devices = deviceMetadataService.getAll();
-        return ResponseEntity.ok(ApiResponse.ok(devices));
-    }
 
     @GetMapping("/rooms/{roomId}/devices")
-    public ResponseEntity<ApiResponse<List<DeviceMetadataDto>>> getAllByRoomId(
+    public ResponseEntity<ApiResponse<List<Object>>> getAllByRoomId(
             @PathVariable(name = "roomId") Long roomId,
             @RequestParam(name = "category", required = false) DeviceCategory category) {
-        List<DeviceMetadataDto> devices = deviceMetadataService.getAllByRoomId(roomId, category);
+        List<Object> devices = deviceMetadataService.getAllByRoomId(roomId, category);
         return ResponseEntity.ok(ApiResponse.ok(devices));
     }
 
@@ -43,15 +37,4 @@ public class DeviceMetadataController {
         return ResponseEntity.ok(ApiResponse.ok(count));
     }
 
-    // @GetMapping("/clients/{clientId}/devices")
-    // public ResponseEntity<ApiResponse<List<DeviceMetadataDto>>> getAllByClientId(@PathVariable(name = "clientId") Long clientId) {
-    //     List<DeviceMetadataDto> devices = deviceMetadataService.getAllByClientId(clientId);
-    //     return ResponseEntity.ok(ApiResponse.ok(devices));
-    // }
-
-    // @GetMapping("/clients/{clientId}/devices/count")
-    // public ResponseEntity<ApiResponse<Long>> getCountByClientId(@PathVariable(name = "clientId") Long clientId) {
-    //     Long count = deviceMetadataService.getCountByClientId(clientId);
-    //     return ResponseEntity.ok(ApiResponse.ok(count));
-    // }
 }

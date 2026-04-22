@@ -122,7 +122,9 @@ public class LightServiceImpl implements LightService {
     lightLan.setOwner(light);
 
     light.getTranslations().add(lightLan);
+    light.touch();
     lightDao.save(light);
+    lightDao.flush();
 
     return lightDao.findById(light.getId(), langCode)
       .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Light"));
@@ -177,7 +179,9 @@ public class LightServiceImpl implements LightService {
     if (dto.name() != null) lan.setName(dto.name().trim());
     if (dto.description() != null) lan.setDescription(dto.description());
 
+    light.touch();
     lightDao.save(light);
+    lightDao.flush();
 
     return lightDao.findById(lightId, langCode)
       .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Light"));
@@ -205,7 +209,9 @@ public class LightServiceImpl implements LightService {
 
     var actualPower = (power != null) ? power : ActuatorPower.OFF;
     light.setPower(actualPower);
+    light.touch();
     lightDao.save(light);
+    lightDao.flush();
 
     var url = UrlConstant.getControlLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
     var payload = Map.of("data", actualPower);
@@ -223,7 +229,9 @@ public class LightServiceImpl implements LightService {
     var newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
 
     light.setPower(newPower);
+    light.touch();
     lightDao.save(light);
+    lightDao.flush();
 
     var url = UrlConstant.getControlLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
     var payload = Map.of("data", newPower);
@@ -241,7 +249,9 @@ public class LightServiceImpl implements LightService {
     var client = light.getDeviceControl().getClient();
 
     light.setLevel(level);
+    light.touch();
     lightDao.save(light);
+    lightDao.flush();
 
     var url = UrlConstant.getControlLightLevelUrlV2(client.getIpAddress(), light.getNaturalId());
     var payload = Map.of("data", level);
@@ -263,7 +273,9 @@ public class LightServiceImpl implements LightService {
     );
     light.setPower(state);
     light.setIsActive(state == ActuatorPower.ON);
+    light.touch();
     lightDao.save(light);
+    lightDao.flush();
   }
 
   @Override

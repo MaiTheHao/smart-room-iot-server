@@ -129,7 +129,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     lan.setOwner(ac);
 
     ac.getTranslations().add(lan);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     return airConditionDao.findById(ac.getId(), langCode)
       .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Air Condition"));
@@ -139,17 +141,11 @@ public class AirConditionServiceImpl implements AirConditionService {
   @Transactional
   public AirConditionDto update(Long id, UpdateAirConditionDto dto) {
     var ac = getAirConditionOrThrow(id);
+    boolean isUpdated = false;
 
     var langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
       throw new NotFoundException("Language not found: " + langCode);
-    }
-
-    if (StringUtils.hasText(dto.naturalId()) && !dto.naturalId().trim().equals(ac.getNaturalId())) {
-      if (airConditionDao.existsByNaturalId(dto.naturalId().trim())) {
-        throw new BadRequestException("Natural ID already exists: " + dto.naturalId());
-      }
-      ac.setNaturalId(dto.naturalId().trim());
     }
 
     if (dto.roomId() != null && !dto.roomId().equals(ac.getRoom().getId())) {
@@ -187,7 +183,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     if (StringUtils.hasText(dto.name())) lan.setName(dto.name().trim());
     if (dto.description() != null) lan.setDescription(dto.description());
 
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     return airConditionDao.findById(id, langCode)
       .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Air Condition"));
@@ -213,7 +211,9 @@ public class AirConditionServiceImpl implements AirConditionService {
   public void controlPower(Long id, ActuatorPower state) {
     var ac = getAirConditionOrThrow(id);
     ac.setPower(state);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getAcPowerUrlV1(gatewayIp, ac.getNaturalId());
@@ -227,7 +227,9 @@ public class AirConditionServiceImpl implements AirConditionService {
   public void _v2api_handlePowerControl(Long id, ActuatorPower power) {
     var ac = getAirConditionOrThrow(id);
     ac.setPower(power);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, ac.getNaturalId());
@@ -244,7 +246,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     var newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
 
     ac.setPower(newPower);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, ac.getNaturalId());
@@ -269,7 +273,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     }
 
     ac.setTemperature(temperature);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = temperature > currentTemp
@@ -295,7 +301,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     }
 
     ac.setTemperature(temperature);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = temperature > currentTemp
@@ -312,7 +320,9 @@ public class AirConditionServiceImpl implements AirConditionService {
   public void controlMode(Long id, ActuatorMode mode) {
     var ac = getAirConditionOrThrow(id);
     ac.setMode(mode);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getAcModeUrlV1(gatewayIp, ac.getNaturalId());
@@ -326,7 +336,9 @@ public class AirConditionServiceImpl implements AirConditionService {
   public void _v2api_handleModeControl(Long id, ActuatorMode mode) {
     var ac = getAirConditionOrThrow(id);
     ac.setMode(mode);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getControlAcModeUrlV2(gatewayIp, ac.getNaturalId());
@@ -345,7 +357,9 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     var ac = getAirConditionOrThrow(id);
     ac.setFanSpeed(speed);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getAcFanUrlV1(gatewayIp, ac.getNaturalId());
@@ -363,7 +377,9 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     var ac = getAirConditionOrThrow(id);
     ac.setFanSpeed(speed);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getControlAcFanUrlV2(gatewayIp, ac.getNaturalId());
@@ -378,7 +394,9 @@ public class AirConditionServiceImpl implements AirConditionService {
   public void controlSwing(Long id, ActuatorSwing swing) {
     var ac = getAirConditionOrThrow(id);
     ac.setSwing(swing);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getAcSwingUrlV1(gatewayIp, ac.getNaturalId());
@@ -392,7 +410,9 @@ public class AirConditionServiceImpl implements AirConditionService {
   public void _v2api_handleSwingControl(Long id, ActuatorSwing swing) {
     var ac = getAirConditionOrThrow(id);
     ac.setSwing(swing);
+    ac.touch();
     airConditionDao.save(ac);
+    airConditionDao.flush();
 
     var gatewayIp = getGatewayIp(ac);
     var url = UrlConstant.getControlAcSwingUrlV2(gatewayIp, ac.getNaturalId());

@@ -9,7 +9,8 @@ public record DeviceMetadataDto(
 	String description,
 	Boolean isActive,
 	Long roomId,
-	DeviceCategory category
+	DeviceCategory category,
+	Object device
 ) {
 	public static DeviceMetadataDto from(
 			Long id,
@@ -18,8 +19,9 @@ public record DeviceMetadataDto(
 			String description,
 			Boolean isActive,
 			Long roomId,
-			DeviceCategory category
+			DeviceCategory category,
+			Object device
 	) {
-			return new DeviceMetadataDto(id, naturalId, name, description, isActive, roomId, category);
+			return new DeviceMetadataDto(id, naturalId, name, description, isActive, roomId, category, device);
 	}
 }

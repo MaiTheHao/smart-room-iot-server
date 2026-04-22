@@ -135,6 +135,9 @@ public class RoomServiceImpl implements RoomService {
 
         room.getTranslations().add(roomLan);
         room.touch();
+        if (room.getFloor() != null) {
+            room.getFloor().touch();
+        }
         roomDao.save(room);
         roomDao.flush();
 
@@ -181,6 +184,9 @@ public class RoomServiceImpl implements RoomService {
         }
 
         room.touch();
+        if (room.getFloor() != null) {
+            room.getFloor().touch();
+        }
 
         roomDao.save(room);
         roomDao.flush();

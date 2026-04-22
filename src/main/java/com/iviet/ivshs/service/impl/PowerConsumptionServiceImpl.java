@@ -148,8 +148,9 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		sensorLan.setOwner(powerConsumption);
 
 		powerConsumption.getTranslations().add(sensorLan);
-
+		powerConsumption.touch();
 		powerConsumptionDao.save(powerConsumption);
+		powerConsumptionDao.flush();
 
 		return powerConsumptionDao.findById(powerConsumption.getId(), langCode).orElseThrow(
 			() -> new NotFoundException("Power sensor not found with ID: " + powerConsumption.getId())
@@ -206,7 +207,9 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 			powerConsumption.setDeviceControl(deviceControl);
 		}
 
+		powerConsumption.touch();
 		powerConsumptionDao.update(powerConsumption);
+		powerConsumptionDao.flush();
 
 		return powerConsumptionDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(
 				() -> new NotFoundException("Power sensor not found with ID: " + id)

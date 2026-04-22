@@ -9,12 +9,12 @@ import com.iviet.ivshs.service.FanService;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.AirConditionDto;
-import com.iviet.ivshs.dto.DeviceMetadataDto;
 import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.service.AirConditionService;
 import com.iviet.ivshs.service.DeviceMetadataService;
 import com.iviet.ivshs.service.LightService;
+import com.iviet.ivshs.dao.DeviceMetadataDao;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,119 +22,40 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DeviceMetadataServiceImpl implements DeviceMetadataService {
 
+  private final DeviceMetadataDao deviceMetadataDao;
   private final LightService lightService;
-  private final AirConditionService airConditionService;
   private final FanService fanService;
+  private final AirConditionService airConditionService;
+
 
   @Override
-  public List<DeviceMetadataDto> getAll() {
-    List<DeviceMetadataDto> devices = new ArrayList<>();
+  public List<Object> getAllByRoomId(Long roomId, DeviceCategory category) {
+    java.util.concurrent.CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> lightService.getAllByRoomId(roomId))
+        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
 
-    // Get Lights
-    List<LightDto> lights = lightService.getAll();
-    if (lights != null) {
-      devices.addAll(lights.stream().map(this::mapLightToMetadata).toList());
-    }
+    java.util.concurrent.CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> fanService.getAllByRoomId(roomId))
+        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
 
-    // Get Air Conditions
-    List<AirConditionDto> airConditions = airConditionService.getAll();
-    if (airConditions != null) {
-      devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
-    }
+    java.util.concurrent.CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> airConditionService.getAllByRoomId(roomId))
+        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
 
-    // Get Fan
-      List<FanDto> fan = fanService.getAll();
-      if (fan != null) {
-          devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
-      }
-
-    return devices;
-  }
-
-  @Override
-  public List<DeviceMetadataDto> getAllByRoomId(Long roomId, DeviceCategory category) {
-    List<DeviceMetadataDto> devices = new ArrayList<>();
-
-    // Get Lights by Room
-    if (category == null || category == DeviceCategory.LIGHT) {
-      List<LightDto> lights = lightService.getAllByRoomId(roomId);
-      if (lights != null) {
-        devices.addAll(lights.stream().map(this::mapLightToMetadata).toList());
-      }
-    }
-
-    // Get Air Conditions by Room
-    if (category == null || category == DeviceCategory.AIR_CONDITION) {
-      List<AirConditionDto> airConditions = airConditionService.getAllByRoomId(roomId);
-      if (airConditions != null) {
-        devices.addAll(airConditions.stream().map(this::mapAirConditionToMetadata).toList());
-      }
-    }
-
-    // Get Fan by Room
-    if (category == null || category == DeviceCategory.FAN) {
-      List<FanDto> fan = fanService.getAllByRoomId(roomId);
-      if (fan != null) {
-          devices.addAll(fan.stream().map(this::mapFanToMetadata).toList());
-      }
-    }
-
-    return devices;
-  }
-
-  @Override
-  public List<DeviceMetadataDto> getAllByClientId(Long clientId) {
-    // Currently not supported/implemented for underlying services in this hardcoded version
-    return Collections.emptyList();
+    return java.util.concurrent.CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
+        .thenApply(v -> {
+          List<Object> all = new ArrayList<>();
+          all.addAll(lightFuture.join());
+          all.addAll(fanFuture.join());
+          all.addAll(acFuture.join());
+          return all;
+        }).join();
   }
 
   @Override
   public Long getCountByRoomId(Long roomId) {
-    long count = 0;
-    count += lightService.countByRoomId(roomId);
-    count += airConditionService.countByRoomId(roomId);
-    count += fanService.countByRoomId(roomId);
-    return count;
+    return deviceMetadataDao.countByRoomId(roomId);
   }
 
-  @Override
-  public Long getCountByClientId(Long clientId) {
-    // Currently not supported/implemented for underlying services in this hardcoded version
-    return 0L;
-  }
 
-  private DeviceMetadataDto mapLightToMetadata(LightDto light) {
-    return DeviceMetadataDto.from(
-        light.id(),
-        light.naturalId(),
-        light.name(),
-        light.description(),
-        light.isActive(),
-        light.roomId(),
-        DeviceCategory.LIGHT
-    );
-  }
-
-  private DeviceMetadataDto mapAirConditionToMetadata(AirConditionDto ac) {
-    return DeviceMetadataDto.from(
-        ac.id(),
-        ac.naturalId(),
-        ac.name(),
-        ac.description(),
-        ac.isActive(),
-        ac.roomId(),
-        DeviceCategory.AIR_CONDITION
-    );
-  }
-    private DeviceMetadataDto mapFanToMetadata(FanDto fan) {
-        return DeviceMetadataDto.from(
-                fan.id(),
-                fan.naturalId(),
-                fan.name(),
-                fan.description(),
-                fan.isActive(),
-                fan.roomId(),
-                DeviceCategory.FAN
-        );
-    }
 }

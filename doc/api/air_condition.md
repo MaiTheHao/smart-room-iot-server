@@ -37,7 +37,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 				"temperature": 25,
 				"mode": "COOL",
 				"fanSpeed": 3,
-				"swing": "OFF"
+				"swing": "OFF",
+				"deviceControlId": 3
 			}
 		],
 		"page": 0,
@@ -88,7 +89,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 				"temperature": 25,
 				"mode": "COOL",
 				"fanSpeed": 3,
-				"swing": "OFF"
+				"swing": "OFF",
+				"deviceControlId": 3
 			}
 		],
 		"page": 0,
@@ -130,7 +132,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"temperature": 25,
 		"mode": "COOL",
 		"fanSpeed": 3,
-		"swing": "OFF"
+		"swing": "OFF",
+		"deviceControlId": 3
 	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }
@@ -196,7 +199,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"temperature": 25,
 		"mode": "COOL",
 		"fanSpeed": 3,
-		"swing": "OFF"
+		"swing": "OFF",
+		"deviceControlId": 3
 	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }
@@ -264,7 +268,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"temperature": 24,
 		"mode": "COOL",
 		"fanSpeed": 4,
-		"swing": "OFF"
+		"swing": "OFF",
+		"deviceControlId": 3
 	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }

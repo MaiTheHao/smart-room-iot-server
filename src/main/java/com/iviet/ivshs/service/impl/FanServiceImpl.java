@@ -40,7 +40,7 @@ public class FanServiceImpl implements FanService {
     var langCode = LocalContextUtil.getCurrentLangCode();
     var data = fanDao.findAll(page, size, langCode);
     var totalElements = fanDao.count();
-    return new PaginatedResponse<>(data, page, data.size(), totalElements);
+    return new PaginatedResponse<>(data, page, size, totalElements);
   }
 
   @Override
@@ -53,7 +53,7 @@ public class FanServiceImpl implements FanService {
     var langCode = LocalContextUtil.getCurrentLangCode();
     var data = fanDao.findAllByRoomId(roomId, page, size, langCode);
     var totalElements = fanDao.countByRoomId(roomId);
-    return new PaginatedResponse<>(data, page, data.size(), totalElements);
+    return new PaginatedResponse<>(data, page, size, totalElements);
   }
 
   @Override
@@ -97,7 +97,9 @@ public class FanServiceImpl implements FanService {
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
+    fan.touch();
     fanDao.save(fan);
+    fanDao.flush();
 
     return fanDao.findById(fan.getId(), langCode)
       .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Fan"));
@@ -162,7 +164,9 @@ public class FanServiceImpl implements FanService {
     if (StringUtils.hasText(dto.name())) lan.setName(dto.name().trim());
     if (dto.description() != null) lan.setDescription(dto.description());
 
+    fan.touch();
     fanDao.save(fan);
+    fanDao.flush();
 
     return fanDao.findById(id, langCode)
       .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Fan"));

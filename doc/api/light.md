@@ -29,6 +29,7 @@
 				"name": "Đèn phòng khách",
 				"description": "Đèn LED trần",
 				"isActive": true,
+				"power": "ON",
 				"level": 80,
 				"roomId": 10,
 				"deviceControlId": 1
@@ -78,6 +79,7 @@
 				"name": "Đèn bàn",
 				"description": "Đèn bàn học",
 				"isActive": false,
+				"power": "OFF",
 				"level": 0,
 				"roomId": 10,
 				"deviceControlId": 2
@@ -118,6 +120,7 @@
 		"name": "Đèn phòng khách",
 		"description": "Đèn LED trần",
 		"isActive": true,
+		"power": "ON",
 		"level": 80,
 		"roomId": 10,
 		"deviceControlId": 1
@@ -172,6 +175,7 @@
 		"name": "Đèn phòng khách",
 		"description": "Đèn LED trần",
 		"isActive": true,
+		"power": "ON",
 		"level": 80,
 		"roomId": 10,
 		"deviceControlId": 5
@@ -232,6 +236,7 @@
 		"name": "Đèn phòng khách VIP",
 		"description": "Đèn LED cao cấp",
 		"isActive": false,
+		"power": "OFF",
 		"level": 50,
 		"roomId": 11,
 		"deviceControlId": 6

@@ -38,6 +38,8 @@ public record AirConditionDto(
                 .fanSpeed(entity.getFanSpeed())
                 .swing(entity.getSwing())
                 .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
+                .name(entity.getTranslations().isEmpty() ? null : entity.getTranslations().iterator().next().getName())
+                .description(entity.getTranslations().isEmpty() ? null : entity.getTranslations().iterator().next().getDescription())
                 .build();
     }
 

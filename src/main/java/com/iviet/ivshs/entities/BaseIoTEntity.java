@@ -27,4 +27,12 @@ public abstract class BaseIoTEntity<L extends BaseTranslation<?>> extends BaseTr
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "device_control_id", unique = true)
     private DeviceControl deviceControl;
+
+    @Override
+    public void touch() {
+        super.touch();
+        if (this.room != null) {
+            this.room.touch();
+        }
+    }
 }

@@ -4,44 +4,6 @@
 
 ---
 
-<details>
-<summary><b>GET</b> <code>/api/v1/devices/all</code> - Lấy tất cả thiết bị</summary>
-
-> Lấy danh sách tất cả các thiết bị trong hệ thống (Đèn, Điều hòa, ...).
-
-### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"id": 1,
-			"naturalId": "L001",
-			"name": "Đèn trần",
-			"description": "Đèn phòng khách",
-			"isActive": true,
-			"roomId": 10,
-			"category": "LIGHT"
-		},
-		{
-			"id": 2,
-			"naturalId": "AC001",
-			"name": "Điều hòa Panasonic",
-			"description": "Điều hòa phòng ngủ chính",
-			"isActive": true,
-			"roomId": 12,
-			"category": "AIR_CONDITION"
-		}
-	],
-	"timestamp": "2024-06-07T09:00:00Z"
-}
-```
-
-</details>
-
-<br>
 
 <details>
 <summary><b>GET</b> <code>/api/v1/rooms/{roomId}/devices</code> - Lấy thiết bị theo phòng</summary>
@@ -58,7 +20,7 @@
 
 | Tên      | Loại   | Mô tả                                                          | Bắt buộc |
 | :------- | :----- | :------------------------------------------------------------- | :------- |
-| category | string | Lọc thiết bị theo loại (`LIGHT`, `FAN`, `AIR_CONDITION`)      | Không    |
+| category | string | Lọc thiết bị theo loại (`LIGHT`, `FAN`, `AIR_CONDITION`) | Không    |
 
 ### Response (200 OK)
 
@@ -73,17 +35,25 @@
 			"name": "Đèn trần",
 			"description": "Đèn phòng khách",
 			"isActive": true,
+			"power": "ON",
+			"level": 80,
 			"roomId": 10,
-			"category": "LIGHT"
+			"deviceControlId": 1
 		},
 		{
 			"id": 3,
-			"naturalId": "L002",
-			"name": "Đèn ngủ",
-			"description": "Đèn ngủ cạnh giường",
-			"isActive": false,
+			"naturalId": "FAN001",
+			"name": "Quạt trần",
+			"description": "Quạt trần IR",
+			"isActive": true,
+			"power": "OFF",
+			"type": "IR",
+			"speed": 3,
+			"mode": "NORMAL",
+			"swing": "ON",
+			"light": "OFF",
 			"roomId": 10,
-			"category": "LIGHT"
+			"deviceControlId": 3
 		}
 	],
 	"timestamp": "2024-06-07T09:00:00Z"
@@ -92,7 +62,6 @@
 
 </details>
 
-<br>
 
 <details>
 <summary><b>GET</b> <code>/api/v1/rooms/{roomId}/devices/count</code> - Đếm số lượng thiết bị theo phòng</summary>
