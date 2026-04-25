@@ -27,13 +27,13 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.naturalId = :naturalId
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("naturalId", naturalId)
-		.setParameter("langCode", langCode)
-		.setMaxResults(1)
-		.getResultStream()
-		.findFirst();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("naturalId", naturalId)
+ 		.setParameter("langCode", langCode)
+ 		.setMaxResults(1)
+ 		.getResultStream()
+ 		.findFirst();
   }
 
   public Optional<LightDto> findById(Long id, String langCode) {
@@ -43,13 +43,13 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.id = :id
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("id", id)
-		.setParameter("langCode", langCode)
-		.setMaxResults(1)
-		.getResultStream()
-		.findFirst();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("id", id)
+ 		.setParameter("langCode", langCode)
+ 		.setMaxResults(1)
+ 		.getResultStream()
+ 		.findFirst();
   }
 
   public List<LightDto> findAll(int page, int size, String langCode) {
@@ -59,12 +59,12 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		ORDER BY l.id ASC
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("langCode", langCode)
-		.setFirstResult(page * size)
-		.setMaxResults(size)
-		.getResultList();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("langCode", langCode)
+ 		.setFirstResult(page * size)
+ 		.setMaxResults(size)
+ 		.getResultList();
   }
 
   public List<LightDto> findAll(String langCode) {
@@ -74,10 +74,10 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		ORDER BY l.id ASC
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("langCode", langCode)
-		.getResultList();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("langCode", langCode)
+ 		.getResultList();
   }
 
   public List<LightDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
@@ -88,13 +88,13 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		WHERE l.room.id = :roomId
 		ORDER BY l.id ASC
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("roomId", roomId)
-		.setParameter("langCode", langCode)
-		.setFirstResult(page * size)
-		.setMaxResults(size)
-		.getResultList();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("roomId", roomId)
+ 		.setParameter("langCode", langCode)
+ 		.setFirstResult(page * size)
+ 		.setMaxResults(size)
+ 		.getResultList();
   }
 
   public List<LightDto> findAllByRoomId(Long roomId, String langCode) {
@@ -105,11 +105,11 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		WHERE l.room.id = :roomId
 		ORDER BY l.id ASC
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("roomId", roomId)
-		.setParameter("langCode", langCode)
-		.getResultList();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("roomId", roomId)
+ 		.setParameter("langCode", langCode)
+ 		.getResultList();
   }
 
   @Override
@@ -120,14 +120,14 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.room.id = :roomId AND l.naturalId = :naturalId
 		""".formatted(DTO_CLASS);
-
-	return entityManager.createQuery(jpql, LightDto.class)
-		.setParameter("roomId", roomId)
-		.setParameter("naturalId", naturalId)
-		.setParameter("langCode", langCode)
-		.setMaxResults(1)
-		.getResultStream()
-		.findFirst();
+ 
+ 	return entityManager.createQuery(jpql, LightDto.class)
+ 		.setParameter("roomId", roomId)
+ 		.setParameter("naturalId", naturalId)
+ 		.setParameter("langCode", langCode)
+ 		.setMaxResults(1)
+ 		.getResultStream()
+ 		.findFirst();
   }
   /**
    * Fetch all active Light entities for a given gateway (client).

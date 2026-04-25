@@ -6,6 +6,8 @@ import com.iviet.ivshs.enumeration.ActuatorPower;
 
 import lombok.Builder;
 
+import com.iviet.ivshs.enumeration.DeviceCategory;
+
 @Builder
 public record LightDto(
     Long id,
@@ -16,8 +18,13 @@ public record LightDto(
     ActuatorPower power,
     Integer level,
     Long roomId,
-    Long deviceControlId
+    Long deviceControlId,
+    DeviceCategory category
 ) {
+    public LightDto(Long id, String naturalId, String name, String description, Boolean isActive, ActuatorPower power, Integer level, Long roomId, Long deviceControlId) {
+        this(id, naturalId, name, description, isActive, power, level, roomId, deviceControlId, DeviceCategory.LIGHT);
+    }
+
     public static LightDto from(Light entity, LightLan lan) {
         if (entity == null) {
             return null;
@@ -32,6 +39,7 @@ public record LightDto(
                 .level(entity.getLevel())
                 .roomId((entity.getRoom() != null) ? entity.getRoom().getId() : null)
                 .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
+                .category(DeviceCategory.LIGHT)
                 .build();
     }
 }

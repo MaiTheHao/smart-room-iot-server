@@ -12,6 +12,8 @@ import com.iviet.ivshs.enumeration.FanType;
 
 import lombok.Builder;
 
+import com.iviet.ivshs.enumeration.DeviceCategory;
+
 @Builder
 public record FanDto(
     Long id,
@@ -26,8 +28,12 @@ public record FanDto(
     ActuatorMode mode,
     ActuatorState light,
     ActuatorSwing swing,
-    Long deviceControlId
+    Long deviceControlId,
+    DeviceCategory category
 ) {
+    public FanDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId, ActuatorPower power, FanType type, Integer speed, ActuatorMode mode, ActuatorState light, ActuatorSwing swing, Long deviceControlId) {
+        this(id, naturalId, name, description, isActive, roomId, power, type, speed, mode, light, swing, deviceControlId, DeviceCategory.FAN);
+    }
 
     public static FanDto from(Fan entity) {
         if (entity == null) return null;
@@ -38,7 +44,8 @@ public record FanDto(
                 .isActive(entity.getIsActive())
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .power(entity.getPower())
-                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null);
+                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
+                .category(DeviceCategory.FAN);
                 
         if (entity instanceof FanIr fanIr) {
             builder.type(FanType.IR)
