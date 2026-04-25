@@ -37,4 +37,11 @@ public class DeviceMetadataController {
         return ResponseEntity.ok(ApiResponse.ok(count));
     }
 
+    @GetMapping("/devices/all")
+    public ResponseEntity<ApiResponse<List<Object>>> getAll(
+            @RequestParam(name = "category", required = false) DeviceCategory category) {
+        List<Object> devices = deviceMetadataService.getAll(category);
+        return ResponseEntity.ok(ApiResponse.ok(devices));
+    }
+
 }

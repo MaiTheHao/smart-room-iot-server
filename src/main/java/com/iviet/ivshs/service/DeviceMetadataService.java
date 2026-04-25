@@ -8,8 +8,8 @@ public interface DeviceMetadataService {
   
 
   List<Object> getAllByRoomId(Long roomId, DeviceCategory category);
-  
 
+  List<Object> getAll(DeviceCategory category);
 
   Long getCountByRoomId(Long roomId);
 

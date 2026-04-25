@@ -76,6 +76,53 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
   }
 
   @Override
+  public List<Object> getAll(DeviceCategory category) {
+    org.springframework.context.i18n.LocaleContext localeContext = org.springframework.context.i18n.LocaleContextHolder.getLocaleContext();
+
+    java.util.concurrent.CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+            try {
+                return lightService.getAll();
+            } finally {
+                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+            }
+        })
+        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+
+    java.util.concurrent.CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+            try {
+                return fanService.getAll();
+            } finally {
+                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+            }
+        })
+        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+
+    java.util.concurrent.CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+            try {
+                return airConditionService.getAll();
+            } finally {
+                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+            }
+        })
+        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+
+    return java.util.concurrent.CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
+        .thenApply(v -> {
+          List<Object> all = new ArrayList<>();
+          all.addAll(lightFuture.join());
+          all.addAll(fanFuture.join());
+          all.addAll(acFuture.join());
+          return all;
+        }).join();
+  }
+
+  @Override
   public Long getCountByRoomId(Long roomId) {
     return deviceMetadataDao.countByRoomId(roomId);
   }

@@ -87,5 +87,71 @@
 
 </details>
 
+
+<details>
+<summary><b>GET</b> <code>/api/v1/devices/all</code> - Lấy tất cả thiết bị</summary>
+
+> Lấy danh sách toàn bộ thiết bị trong hệ thống, không phân biệt phòng. Hỗ trợ lọc theo loại thiết bị.
+
+### Query Parameters
+
+| Tên      | Loại   | Mô tả                                                    | Bắt buộc |
+| :------- | :----- | :------------------------------------------------------- | :------- |
+| category | string | Lọc thiết bị theo loại (`LIGHT`, `FAN`, `AIR_CONDITION`) | Không    |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"id": 1,
+			"naturalId": "L001",
+			"name": "Đèn trần",
+			"description": "Đèn phòng khách",
+			"isActive": true,
+			"power": "ON",
+			"level": 80,
+			"roomId": 10,
+			"deviceControlId": 1
+		},
+		{
+			"id": 2,
+			"naturalId": "FAN002",
+			"name": "Quạt đứng",
+			"description": "Quạt phòng ngủ",
+			"isActive": false,
+			"power": "OFF",
+			"type": "IR",
+			"speed": 1,
+			"mode": "NORMAL",
+			"swing": "OFF",
+			"light": "OFF",
+			"roomId": 12,
+			"deviceControlId": 2
+		},
+		{
+			"id": 3,
+			"naturalId": "AC001",
+			"name": "Điều hoà phòng khách",
+			"description": "Điều hoà inverter 12000 BTU",
+			"isActive": true,
+			"power": "ON",
+			"temperature": 26,
+			"mode": "COOL",
+			"fanSpeed": "AUTO",
+			"swing": "ON",
+			"roomId": 10,
+			"deviceControlId": 3
+		}
+	],
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
 <br>
 ---
