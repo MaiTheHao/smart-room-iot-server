@@ -30,16 +30,39 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
 
   @Override
   public List<Object> getAllByRoomId(Long roomId, DeviceCategory category) {
+    org.springframework.context.i18n.LocaleContext localeContext = org.springframework.context.i18n.LocaleContextHolder.getLocaleContext();
+
     java.util.concurrent.CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> lightService.getAllByRoomId(roomId))
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+            try {
+                return lightService.getAllByRoomId(roomId);
+            } finally {
+                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+            }
+        })
         : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
 
     java.util.concurrent.CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> fanService.getAllByRoomId(roomId))
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+            try {
+                return fanService.getAllByRoomId(roomId);
+            } finally {
+                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+            }
+        })
         : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
 
     java.util.concurrent.CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> airConditionService.getAllByRoomId(roomId))
+        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+            try {
+                return airConditionService.getAllByRoomId(roomId);
+            } finally {
+                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+            }
+        })
         : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
 
     return java.util.concurrent.CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
