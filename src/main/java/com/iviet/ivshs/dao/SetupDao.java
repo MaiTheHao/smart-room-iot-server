@@ -84,11 +84,11 @@ public class SetupDao extends BaseDao<SetupDao> {
 			log.debug("[SETUP:PERSIST] name={}, category={}", device.getName(), device.getCategory());
 		}
 		
-		HardwareConfig hardwareConfig = createAndPersistDeviceControl(device, room, client);
+		HardwareConfig hardwareConfig = createAndPersistHardwareConfig(device, room, client);
 		buildDeviceEntity(device, room, hardwareConfig, device.getTranslations());
 	}
 
-	private HardwareConfig createAndPersistDeviceControl(
+	private HardwareConfig createAndPersistHardwareConfig(
 		SetupRequest.BodyData.DeviceConfig device, Room room, Client client) {
 		
 		HardwareConfig hardwareConfig = new HardwareConfig();

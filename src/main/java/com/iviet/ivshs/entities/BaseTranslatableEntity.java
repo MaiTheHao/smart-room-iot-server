@@ -20,8 +20,11 @@ public abstract class BaseTranslatableEntity<L extends BaseTranslation<? extends
 
     @SuppressWarnings("unchecked")
     public void addTranslation(L translation) {
-        if (translation == null || this.getTranslations().contains(translation)) return;
+        if (translation == null) return;
+        
         ((BaseTranslation<BaseTranslatableEntity<L>>) translation).setOwner(this);
+        if (this.getTranslations().contains(translation)) return;
+        
         this.getTranslations().add(translation);
     }
 }

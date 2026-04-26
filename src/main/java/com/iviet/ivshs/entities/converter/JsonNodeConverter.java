@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Converter(autoApply = true)
 @RequiredArgsConstructor
 public class JsonNodeConverter implements AttributeConverter<JsonNode, String> {
-
+  
   @Override
   public String convertToDatabaseColumn(JsonNode attribute) {
     return JsonUtil.stringify(attribute);

@@ -47,18 +47,26 @@ public abstract class BaseTranslation<T extends BaseTranslatableEntity<?>> exten
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof BaseTranslation)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         BaseTranslation<?> that = (BaseTranslation<?>) o;
-        boolean sameClass = getClass().equals(that.getClass());
-        boolean sameId = getId() != null && that.getId() != null && Objects.equals(getId(), that.getId());
-        boolean sameOwner = getOwner() != null && that.getOwner() != null && Objects.equals(getOwner().getId(), that.getOwner().getId());
-        boolean sameLang = getLangCode() != null && that.getLangCode() != null && Objects.equals(getLangCode(), that.getLangCode());
-        return sameOwner && sameLang && sameClass && sameId;
+        
+        if (getId() != null && that.getId() != null) {
+            return Objects.equals(getId(), that.getId());
+        }
+        
+        boolean sameOwner = Objects.equals(getOwner(), that.getOwner());
+        boolean sameLang = Objects.equals(getLangCode(), that.getLangCode());
+        
+        return sameOwner && sameLang;
     }
 
     @Override
     public int hashCode() {
+        if (getId() != null) {
+            return Objects.hash(getClass(), getId());
+        }
         String lang = getLangCode() != null ? getLangCode() : "";
-        return Objects.hash(getClass(), getOwner().getClass(), getId(), lang);
+        Object ownerKey = getOwner() != null ? getOwner().getClass() : null;
+        return Objects.hash(getClass(), ownerKey, lang);
     }
 }

@@ -8,13 +8,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.jwt.AuthErrorHandler.ErrorType;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 @Component
@@ -24,7 +25,7 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
     @Autowired
     private ObjectMapper objectMapper;
-
+    
     @Autowired
     private AuthErrorHandler authErrorHandler;
 

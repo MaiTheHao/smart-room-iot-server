@@ -37,7 +37,6 @@ public abstract class BaseDao<T> {
     protected EntityManager entityManager;
 
     /** JdbcTemplate được inject bởi Spring, dùng cho các truy vấn SQL raw nếu cần */
-    @Autowired
     protected JdbcTemplate jdbcTemplate;
 
     /** Lớp của entity T, được truyền vào constructor */
@@ -55,6 +54,11 @@ public abstract class BaseDao<T> {
      */
     protected BaseDao(Class<T> clazz) {
         this.clazz = Objects.requireNonNull(clazz, "Entity class must not be null");
+    }
+
+    @Autowired
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     /**

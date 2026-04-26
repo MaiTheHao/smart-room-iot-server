@@ -3,7 +3,6 @@ package com.iviet.ivshs.config;
 import java.util.Properties;
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,6 +29,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "CORE-CONFIG")
@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @PropertySource(value = "classpath:application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
+@RequiredArgsConstructor
 @ComponentScans(value = {
     @ComponentScan("com.iviet.ivshs.dao"),
     @ComponentScan("com.iviet.ivshs.engine"),
@@ -57,8 +58,7 @@ public class AppConfig implements EnvironmentAware {
     private static final String DEFAULT_JNDI_NAME = "java:comp/env/jdbc/smartroom_db";
     private static final String ENTITY_PACKAGES = "com.iviet.ivshs.entities";
 
-    @Autowired
-    private Environment env;
+    private final Environment env;
 
     @Override
     public void setEnvironment(@NonNull Environment env) {

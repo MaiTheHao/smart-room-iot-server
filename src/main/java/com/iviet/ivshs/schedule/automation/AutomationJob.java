@@ -3,19 +3,19 @@ package com.iviet.ivshs.schedule.automation;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.service.AutomationService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "AUTOMATION-JOB")
 @Component
+@RequiredArgsConstructor
 public class AutomationJob implements Job {
     
-    @Autowired
-    private AutomationService automationService;
+    private final AutomationService automationService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {

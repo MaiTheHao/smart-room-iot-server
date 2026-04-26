@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,16 +31,14 @@ import com.iviet.ivshs.service.ClientService;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
     
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final JwtUtils jwtUtils;
     
-    @Autowired
-    private ClientService clientService;
+    private final ClientService clientService;
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<JwtResponse>> signin(

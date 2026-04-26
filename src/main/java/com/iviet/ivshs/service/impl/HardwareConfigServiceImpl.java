@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,19 +14,16 @@ import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.HardwareConfigService;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class HardwareConfigServiceImpl implements HardwareConfigService {
 
-    @Autowired
-    private HardwareConfigDao deviceControlDao;
-    
-    @Autowired
-    private ClientDao clientDao;
-    
-    @Autowired
-    private RoomDao roomDao;
+    private final HardwareConfigDao deviceControlDao;
+    private final ClientDao clientDao;
+    private final RoomDao roomDao;
 
     @Override
     public DeviceControlDto getById(Long deviceControlId) {

@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,23 +16,18 @@ import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.SetupService;
 import com.iviet.ivshs.service.client.GatewaySystemClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "SETUP")
 @Service
+@RequiredArgsConstructor
 public class SetupServiceImpl implements SetupService {
 
-    @Autowired
-    private ClientService clientService;
-
-    @Autowired
-    private RoomService roomService;
-
-    @Autowired
-    private DeviceSetupOrchestrator deviceSetupOrchestrator;
-
-    @Autowired
-    private GatewaySystemClient gatewaySystemClient;
+    private final ClientService clientService;
+    private final RoomService roomService;
+    private final DeviceSetupOrchestrator deviceSetupOrchestrator;
+    private final GatewaySystemClient gatewaySystemClient;
 
     @Override
     @Transactional

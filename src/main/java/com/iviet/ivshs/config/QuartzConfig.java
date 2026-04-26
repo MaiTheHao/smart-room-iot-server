@@ -6,7 +6,6 @@ import java.util.concurrent.Executors;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,20 +14,19 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.iviet.ivshs.component.AutowiringSpringBeanJobFactory;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "QUARTZ")
 @Configuration
+@RequiredArgsConstructor
 public class QuartzConfig {
 
-	@Autowired
-	private ApplicationContext applicationContext;
+	private final ApplicationContext applicationContext;
 
-	@Autowired
-	private DataSource dataSource;
+	private final DataSource dataSource;
 
-	@Autowired
-	private PlatformTransactionManager transactionManager;
+	private final PlatformTransactionManager transactionManager;
 
 	@Bean(name = "quartzTaskExecutor")
 	public Executor quartzTaskExecutor() {

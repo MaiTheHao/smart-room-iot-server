@@ -17,7 +17,7 @@ public class HardwareConfigDao extends BaseEntityDao<HardwareConfig> {
     }
 
     public List<HardwareConfig> findByClientId(Long clientId, int page, int size) {
-        String idQuery = "SELECT dc.id FROM DeviceControl dc " +
+        String idQuery = "SELECT dc.id FROM HardwareConfig dc " +
                         "WHERE dc.client.id = :clientId " +
                         "ORDER BY dc.createdAt DESC";
         
@@ -31,7 +31,7 @@ public class HardwareConfigDao extends BaseEntityDao<HardwareConfig> {
             return List.of();
         }
         
-        String fetchQueryStr = "SELECT DISTINCT dc FROM DeviceControl dc " +
+        String fetchQueryStr = "SELECT DISTINCT dc FROM HardwareConfig dc " +
                            "LEFT JOIN FETCH dc.room " +
                            "LEFT JOIN FETCH dc.client " +
                            "LEFT JOIN FETCH dc.light " +
@@ -46,7 +46,7 @@ public class HardwareConfigDao extends BaseEntityDao<HardwareConfig> {
     }
 
     public List<HardwareConfig> findByRoomId(Long roomId, int page, int size) {
-        String jpql = "SELECT dc FROM DeviceControl dc " +
+        String jpql = "SELECT dc FROM HardwareConfig dc " +
                     "LEFT JOIN FETCH dc.room " +             
                     "LEFT JOIN FETCH dc.client " +           
                     "LEFT JOIN FETCH dc.light " +            
@@ -59,21 +59,21 @@ public class HardwareConfigDao extends BaseEntityDao<HardwareConfig> {
     }
 
     public List<HardwareConfig> findByDeviceControlType(DeviceControlType controlType) {
-        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.controlType = :controlType ORDER BY dc.createdAt DESC";
+        String jpql = "SELECT dc FROM HardwareConfig dc WHERE dc.controlType = :controlType ORDER BY dc.createdAt DESC";
         TypedQuery<HardwareConfig> query = entityManager.createQuery(jpql, HardwareConfig.class);
         query.setParameter("controlType", controlType);
         return query.getResultList();
     }
 
     public List<HardwareConfig> findByBleMacAddress(String bleMacAddress) {
-        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.bleMacAddress = :bleMacAddress ORDER BY dc.createdAt DESC";
+        String jpql = "SELECT dc FROM HardwareConfig dc WHERE dc.bleMacAddress = :bleMacAddress ORDER BY dc.createdAt DESC";
         TypedQuery<HardwareConfig> query = entityManager.createQuery(jpql, HardwareConfig.class);
         query.setParameter("bleMacAddress", bleMacAddress);
         return query.getResultList();
     }
 
     public HardwareConfig findByGpioPin(Integer gpioPin) {
-        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.gpioPin = :gpioPin";
+        String jpql = "SELECT dc FROM HardwareConfig dc WHERE dc.gpioPin = :gpioPin";
         TypedQuery<HardwareConfig> query = entityManager.createQuery(jpql, HardwareConfig.class);
         query.setParameter("gpioPin", gpioPin);
         List<HardwareConfig> results = query.getResultList();
@@ -105,7 +105,7 @@ public class HardwareConfigDao extends BaseEntityDao<HardwareConfig> {
     }
 
     public HardwareConfig findByClientIdAndGpioPin(Long clientId, Integer gpioPin) {
-        String jpql = "SELECT dc FROM DeviceControl dc WHERE dc.client.id = :clientId AND dc.gpioPin = :gpioPin";
+        String jpql = "SELECT dc FROM HardwareConfig dc WHERE dc.client.id = :clientId AND dc.gpioPin = :gpioPin";
         TypedQuery<HardwareConfig> query = entityManager.createQuery(jpql, HardwareConfig.class);
         query.setParameter("clientId", clientId);
         query.setParameter("gpioPin", gpioPin);
