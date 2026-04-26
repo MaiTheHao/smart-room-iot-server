@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.FanDao;
@@ -10,15 +9,16 @@ import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
+import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
+import com.iviet.ivshs.enumeration.MetricDomain;
+import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.EnergyMetricService;
-import com.iviet.ivshs.enumeration.MetricDomain;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
+import com.iviet.ivshs.service.client.GatewayMaintenanceClient;
+import com.iviet.ivshs.service.client.GatewayTelemetryClient;
 import com.iviet.ivshs.util.HttpClientUtil;
-import com.iviet.ivshs.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -43,6 +44,9 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     private final FanDao           fanDao;
     private final AirConditionDao  airConditionDao;
     private final PowerConsumptionDao powerConsumptionDao;
+
+    private final GatewayTelemetryClient   telemetryClient;
+    private final GatewayMaintenanceClient maintenanceClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -108,62 +112,81 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
     private void processGateway(ClientDto gateway) {
         log.debug("Fetch: Processing gateway [{}] ip={}", gateway.username(), gateway.ipAddress());
-        Instant now = Instant.now();
+        String ip = gateway.ipAddress();
+        List<EnergyMetric> metricsToSave = new ArrayList<>();
 
-        // LIGHT
+        // Fetch all LIGHT energy metrics and collect responses
         lightDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
-            fetchAndSave(UrlConstant.getLightEnergyTelemetryV1(gateway.ipAddress(), d.getNaturalId()), 
-                d.getNaturalId(), EnergyMetricCategory.LIGHT, d.getId(), now));
+            filterResponse(
+                telemetryClient.getLightEnergy(ip, d.getNaturalId()),
+                EnergyMetricCategory.LIGHT, d.getId(), d.getNaturalId(), metricsToSave
+            )
+        );
 
-        // FAN
+        // Fetch all FAN energy metrics and collect responses
         fanDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
-            fetchAndSave(UrlConstant.getFanEnergyTelemetryV1(gateway.ipAddress(), d.getNaturalId()), 
-                d.getNaturalId(), EnergyMetricCategory.FAN, d.getId(), now));
+            filterResponse(
+                telemetryClient.getFanEnergy(ip, d.getNaturalId()),
+                EnergyMetricCategory.FAN, d.getId(), d.getNaturalId(), metricsToSave
+            )
+        );
 
-        // AIR CONDITION
+        // Fetch all AIR CONDITION energy metrics and collect responses
         airConditionDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
-            fetchAndSave(UrlConstant.getAcEnergyTelemetryV1(gateway.ipAddress(), d.getNaturalId()), 
-                d.getNaturalId(), EnergyMetricCategory.AIR_CONDITION, d.getId(), now));
+            filterResponse(
+                telemetryClient.getAcEnergy(ip, d.getNaturalId()),
+                EnergyMetricCategory.AIR_CONDITION, d.getId(), d.getNaturalId(), metricsToSave
+            )
+        );
 
-        // ROOM (Power Consumption)
+        // Fetch all ROOM (Power Consumption) energy metrics and collect responses
         powerConsumptionDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
-            fetchAndSave(UrlConstant.getRoomEnergyTelemetryV1(gateway.ipAddress(), d.getNaturalId()), 
-                d.getNaturalId(), EnergyMetricCategory.ROOM, d.getId(), now));
+            filterResponse(
+                telemetryClient.getRoomEnergy(ip, d.getNaturalId()),
+                EnergyMetricCategory.ROOM, d.getId(), d.getNaturalId(), metricsToSave
+            )
+        );
+
+        if (!metricsToSave.isEmpty()) {
+            energyMetricDao.save(metricsToSave);
+            log.info("Save: Saved {} energy metrics for gateway [{}]", metricsToSave.size(), gateway.username());
+        } else {
+            log.warn("Save: No energy metrics collected for gateway [{}]", gateway.username());
+        }
     }
 
 
-    private void fetchAndSave(
-        String url, String naturalId,
-        EnergyMetricCategory category, Long targetId, Instant timestamp
+    private void filterResponse(
+        HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> response,
+        EnergyMetricCategory category, Long targetId, String naturalId,
+        List<EnergyMetric> metricsToSave
     ) {
         try {
-            HttpClientUtil.Response response = HttpClientUtil.get(url);
-
-            if (!response.isSuccess()) {
-                log.warn("Fetch: Non-2xx from RSPI for {}/{} (url={}): status={}", 
-                    category.name(), naturalId, url, response.getStatusCode());
+            if (response == null) {
+                log.warn("Fetch: Null response for {}/{}", category.name(), naturalId);
                 return;
             }
 
-            ApiResponse<EnergyMetricDto> apiResponse = JsonUtil.getMapper().readValue(
-                response.getBody(),
-                JsonUtil.getMapper().getTypeFactory()
-                    .constructParametricType(ApiResponse.class, EnergyMetricDto.class)
-            );
+            if (!response.isSuccess()) {
+                log.warn("Fetch: Failed response for {}/{} (status={})", 
+                    category.name(), naturalId, response.getStatusCode());
+                return;
+            }
 
+            ApiResponse<EnergyMetricDto> apiResponse = response.getBody();
             if (apiResponse == null || apiResponse.getData() == null) {
-                log.warn("Fetch: Empty data in RSPI response for {}/{}", category.name(), naturalId);
+                log.warn("Fetch: Empty body/data for {}/{}", category.name(), naturalId);
                 return;
             }
 
             EnergyMetricDto dto = apiResponse.getData();
             EnergyMetric metric = dto.toEntity(naturalId, targetId);
-            
-            energyMetricDao.save(metric);
-            log.debug("Save: Saved EnergyMetric category={} targetId={} power={}W",
-                category.name(), targetId, dto.getPower());
+            metricsToSave.add(metric);
+
+            log.debug("Fetch: Collected metric for {}/{} power={}W", 
+                category.name(), naturalId, dto.getPower());
         } catch (Exception e) {
-            log.error("Fetch: Failed to parse/save metric for {}/{}: {}", 
+            log.error("Fetch: Error processing metric for {}/{}: {}", 
                 category.name(), naturalId, e.getMessage());
         }
     }
@@ -189,30 +212,31 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
     private void processResetForGateway(ClientDto gateway) {
         log.debug("Reset: Processing gateway [{}] ip={}", gateway.username(), gateway.ipAddress());
+        String ip = gateway.ipAddress();
 
         // Reset ACs
         airConditionDao.findAllActiveByClientId(gateway.id()).forEach(ac -> 
-            callResetWithRetry(gateway.ipAddress(), ac.getNaturalId(), UrlConstant.getAcEnergyResetV1(gateway.ipAddress(), ac.getNaturalId()))
+            callResetWithRetry(() -> maintenanceClient.resetAcEnergy(ip, ac.getNaturalId()), ip, ac.getNaturalId())
         );
 
         // Reset Fans
         fanDao.findAllActiveByClientId(gateway.id()).forEach(fan -> 
-            callResetWithRetry(gateway.ipAddress(), fan.getNaturalId(), UrlConstant.getFanEnergyResetV1(gateway.ipAddress(), fan.getNaturalId()))
+            callResetWithRetry(() -> maintenanceClient.resetFanEnergy(ip, fan.getNaturalId()), ip, fan.getNaturalId())
         );
 
         // Reset Lights
         lightDao.findAllActiveByClientId(gateway.id()).forEach(light -> 
-            callResetWithRetry(gateway.ipAddress(), light.getNaturalId(), UrlConstant.getLightEnergyResetV1(gateway.ipAddress(), light.getNaturalId()))
+            callResetWithRetry(() -> maintenanceClient.resetLightEnergy(ip, light.getNaturalId()), ip, light.getNaturalId())
         );
 
         // Reset Power Consumptions (ROOM)
         powerConsumptionDao.findAllActiveByClientId(gateway.id()).forEach(pc -> 
-            callResetWithRetry(gateway.ipAddress(), pc.getNaturalId(), UrlConstant.getRoomEnergyResetV1(gateway.ipAddress(), pc.getNaturalId()))
+            callResetWithRetry(() -> maintenanceClient.resetRoomEnergy(ip, pc.getNaturalId()), ip, pc.getNaturalId())
         );
     }
 
-    private void callResetWithRetry(String ip, String naturalId, String url) {
-        HttpClientUtil.Response response = HttpClientUtil.post(url, "");
+    private void callResetWithRetry(java.util.function.Supplier<HttpClientUtil.Response<String>> resetCall, String ip, String naturalId) {
+        HttpClientUtil.Response<String> response = resetCall.get();
         if (response.isSuccess()) {
             log.info("Reset: Device [{}] on [{}] reset OK", naturalId, ip);
             return;
@@ -227,7 +251,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             Thread.currentThread().interrupt();
         }
 
-        HttpClientUtil.Response retry = HttpClientUtil.post(url, "");
+        HttpClientUtil.Response<String> retry = resetCall.get();
         if (retry.isSuccess()) {
             log.info("Reset: Device [{}] on [{}] reset OK on retry", naturalId, ip);
         } else {

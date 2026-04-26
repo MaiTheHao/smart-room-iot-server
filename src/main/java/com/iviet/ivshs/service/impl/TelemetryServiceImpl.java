@@ -107,8 +107,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 	}
 
 	protected void processTakeByGateway(ClientDto gateway) {
-		var response = HttpClientUtil.get(UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress()));
-		HttpClientUtil.handleThrowException(response);
+		var response = HttpClientUtil.get(UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress())).throwIfError();
 
 		var responseBody = JsonUtil.fromJson(response.getBody(), TelemetryResponseDto.class);
 		List<TelemetryResponseDto.Data> telemetryData = responseBody.getData();

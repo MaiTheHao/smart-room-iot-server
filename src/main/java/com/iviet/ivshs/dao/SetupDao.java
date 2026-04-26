@@ -16,7 +16,6 @@ import java.util.Map;
 @Repository
 public class SetupDao extends BaseDao<SetupDao> {
 
-	private static final int BATCH_SIZE = 50;
 
 	public SetupDao() {
 		super(SetupDao.class);

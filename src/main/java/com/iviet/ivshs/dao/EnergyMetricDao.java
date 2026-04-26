@@ -3,9 +3,13 @@ package com.iviet.ivshs.dao;
 import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
+
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.PreparedStatement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,43 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
     @Transactional
     public EnergyMetric save(EnergyMetric entity) {
         return super.save(entity);
+    }
+
+    @Override
+    public List<EnergyMetric> save(List<EnergyMetric> entities) {
+        String sql = """
+                INSERT INTO energy_metrics 
+                (target_category, target_id, timestamp, unix_minute, voltage, current, power, energy, frequency, power_factor)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try {
+            jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(@NonNull PreparedStatement ps, int i) throws java.sql.SQLException {
+                        EnergyMetric e = entities.get(i);
+                        ps.setString(1, e.getTargetCategory());
+                        ps.setLong(2, e.getTargetId());
+                        ps.setObject(3, e.getTimestamp());
+                        ps.setInt(4, e.getUnixMinute());
+                        ps.setObject(5, e.getVoltage());
+                        ps.setObject(6, e.getCurrent());
+                        ps.setObject(7, e.getPower());
+                        ps.setObject(8, e.getEnergy());
+                        ps.setObject(9, e.getFrequency());
+                        ps.setObject(10, e.getPowerFactor());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return entities.size();
+                    }
+                }
+            );
+            return entities;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to batch insert EnergyMetric entities", e);
+        }
     }
 
     public List<EnergyMetricDto> findHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to, int divisor) {

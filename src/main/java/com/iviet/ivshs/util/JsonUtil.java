@@ -1,6 +1,7 @@
 package com.iviet.ivshs.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -41,6 +42,16 @@ public class JsonUtil {
             return mapper.readValue(json, clazz);
         } catch (Exception e) {
             log.error("Failed to deserialize JSON to {}: {}", clazz.getSimpleName(), e.getMessage(), e);
+            throw new IllegalArgumentException("JSON deserialization error", e);
+        }
+    }
+
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        if (json == null || json.isEmpty()) return null;
+        try {
+            return mapper.readValue(json, typeReference);
+        } catch (Exception e) {
+            log.error("Failed to deserialize JSON using TypeReference: {}", e.getMessage(), e);
             throw new IllegalArgumentException("JSON deserialization error", e);
         }
     }

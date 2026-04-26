@@ -1,11 +1,8 @@
 package com.iviet.ivshs.service.impl;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dto.LightControlRequestBody;
 import com.iviet.ivshs.entities.Client;
@@ -15,10 +12,12 @@ import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.LightControlService;
-import com.iviet.ivshs.util.HttpClientUtil;
+import com.iviet.ivshs.service.client.GatewayControlClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j(topic = "CONTROL-LIGHT")
 @Service
@@ -27,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LightControlServiceImpl implements LightControlService {
 
   private final LightDao lightDao;
+  private final GatewayControlClient gatewayControlClient;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -98,13 +98,19 @@ public class LightControlServiceImpl implements LightControlService {
   }
 
   private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-    String url = UrlConstant.getControlLightPowerUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", power)).exceptionally(ex -> null);
+    CompletableFuture.supplyAsync(() -> gatewayControlClient.controlLightPowerV2(gatewayIp, naturalId, power))
+        .exceptionally(ex -> {
+          log.warn("Failed to control light power for naturalId: {}", naturalId, ex);
+          return null;
+        });
   }
 
   private void handleLevelControlCall(String gatewayIp, String naturalId, int level) {
-    String url = UrlConstant.getControlLightLevelUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", level)).exceptionally(ex -> null);
+    CompletableFuture.supplyAsync(() -> gatewayControlClient.controlLightLevelV2(gatewayIp, naturalId, level))
+        .exceptionally(ex -> {
+          log.warn("Failed to control light level for naturalId: {}", naturalId, ex);
+          return null;
+        });
   }
 
   private Light getOrThrow(String naturalId) {
