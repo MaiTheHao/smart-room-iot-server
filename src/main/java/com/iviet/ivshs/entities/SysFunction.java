@@ -35,9 +35,4 @@ public class SysFunction extends BaseTranslatableEntity<SysFunctionLan> {
 	@OneToMany(mappedBy = "function", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	private Set<SysRole> roles = new HashSet<>();
 
-	@Override
-	public void addTranslation(SysFunctionLan translation) {
-		translation.setOwner(this);
-		this.getTranslations().add(translation);
-	}
 }

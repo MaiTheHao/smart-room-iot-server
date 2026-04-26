@@ -29,7 +29,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AirCondition extends BaseIoTActuator<AirConditionLan>{
+public class AirCondition extends BaseIoTDevice<AirConditionLan>{
 	public static final int MIN_TEMP = 16;
 	public static final int MAX_TEMP = 32;
 	public static final int MIN_FAN_SPEED = 0;

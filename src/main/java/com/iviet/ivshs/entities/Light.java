@@ -21,18 +21,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Light extends BaseIoTActuator<LightLan>{
+public class Light extends BaseIoTDevice<LightLan>{
     public static final int MIN_LEVEL = 0;
     public static final int MAX_LEVEL = 100;
 
     @Column(name = "level")
     private Integer level;
 
-    @Override 
-    public void addTranslation(LightLan translation) {
-        translation.setOwner(this);
-        this.getTranslations().add(translation);
-    }
 
     public void setLevel(Integer level) {
         if (level != null && (level < MIN_LEVEL || level > MAX_LEVEL)) {

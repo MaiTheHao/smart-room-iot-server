@@ -40,16 +40,52 @@ public final class UrlConstant {
         return build(ip, API_V1, "telemetry");
     }
 
-    public static String getEnergyTelemetryV1(String ip, String deviceDomain, String naturalId) {
-        throwIfEmpty(ip, "IP address cannot be null or empty for energy telemetry API");
-        throwIfEmpty(deviceDomain, "Device domain cannot be null or empty for energy telemetry API");
-        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for energy telemetry API");
-        return build(ip, API_V1, deviceDomain + "/" + naturalId + "/telemetry");
+    public static String getAcEnergyTelemetryV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for AC energy telemetry API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for AC energy telemetry API");
+        return build(ip, API_V1, "air-conditions/" + naturalId + "/telemetry");
     }
 
-    public static String getEnergyResetV1(String ip) {
-        throwIfEmpty(ip, "IP address cannot be null or empty for energy reset API");
-        return build(ip, API_V1, "power-consumption/reset");
+    public static String getFanEnergyTelemetryV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for fan energy telemetry API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for fan energy telemetry API");
+        return build(ip, API_V1, "fans/" + naturalId + "/telemetry");
+    }
+
+    public static String getLightEnergyTelemetryV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for light energy telemetry API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for light energy telemetry API");
+        return build(ip, API_V1, "lights/" + naturalId + "/telemetry");
+    }
+
+    public static String getRoomEnergyTelemetryV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for room energy telemetry API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for room energy telemetry API");
+        return build(ip, API_V1, "power-consumptions/" + naturalId + "/telemetry");
+    }
+
+    public static String getAcEnergyResetV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for AC energy reset API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for AC energy reset API");
+        return build(ip, API_V1, "air-conditions/" + naturalId + "/reset");
+    }
+
+    public static String getFanEnergyResetV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for fan energy reset API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for fan energy reset API");
+        return build(ip, API_V1, "fans/" + naturalId + "/reset");
+    }
+
+    public static String getLightEnergyResetV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for light energy reset API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for light energy reset API");
+        return build(ip, API_V1, "lights/" + naturalId + "/reset");
+    }
+
+    public static String getRoomEnergyResetV1(String ip, String naturalId) {
+        throwIfEmpty(ip, "IP address cannot be null or empty for room energy reset API");
+        throwIfEmpty(naturalId, "Natural ID cannot be null or empty for room energy reset API");
+        return build(ip, API_V1, "power-consumptions/" + naturalId + "/reset");
     }
 
     public static String getControlUrlV1(String ip, String naturalId) {

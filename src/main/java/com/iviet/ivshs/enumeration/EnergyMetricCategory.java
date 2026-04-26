@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum EnergyMetricCategory {
     LIGHT("lights"),
     AIR_CONDITION("air-conditions"),
-    FAN("fans");
+    FAN("fans"),
+    ROOM("power-consumptions");
 
     private final String domain;
 

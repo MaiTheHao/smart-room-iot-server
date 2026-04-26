@@ -178,7 +178,7 @@ public class SetupDao extends BaseDao<SetupDao> {
 		entity.setRoom(room);
 		entity.setDeviceControl(deviceControl);
 
-		if (entity instanceof BaseIoTActuator<?> actuator) {
+		if (entity instanceof BaseIoTDevice<?> actuator) {
 			actuator.setPower(ActuatorPower.OFF);
 		}
 	}

@@ -12,7 +12,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseIoTEntity<L extends BaseTranslation<?>> extends BaseTranslatableEntity<L> {
+public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTranslatableEntity<T>>> extends BaseTranslatableEntity<T> {
 
     @Column(name = "natural_id", length = 256, unique = true, nullable = false)
     private String naturalId;

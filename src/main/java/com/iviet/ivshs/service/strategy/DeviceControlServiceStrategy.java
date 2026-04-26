@@ -8,5 +8,6 @@ public interface DeviceControlServiceStrategy<T> {
   Class<T> getControlDtoClass();
 
   void control(String naturalId, T controlDto);
+  
   void control(Long id, T controlDto);
 }

@@ -38,9 +38,4 @@ public class Floor extends BaseTranslatableEntity<FloorLan> {
     @OneToMany(mappedBy = "floor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Room> rooms = new HashSet<>();
 
-    @Override
-    public void addTranslation(FloorLan translation) {
-        translation.setOwner(this);
-        this.getTranslations().add(translation);
-    }
 }

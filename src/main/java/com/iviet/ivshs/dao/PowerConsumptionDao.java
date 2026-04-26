@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
+import jakarta.persistence.criteria.JoinType;
+
 @Repository
 public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
 
@@ -126,5 +128,22 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         .setMaxResults(1)
         .getResultStream()
         .findFirst();
+  }
+
+  /**
+   * Fetch all active PowerConsumption entities for a given gateway (client).
+   * Used by energy metric collection job to iterate per-gateway devices.
+   */
+  public List<PowerConsumption> findAllActiveByClientId(Long clientId) {
+    return findAll(
+      root -> entityManager.getCriteriaBuilder().and(
+        entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("client").get("id"), clientId),
+        entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
+      ),
+      (root, cq) -> {
+        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("room", JoinType.LEFT);
+      }
+    );
   }
 }

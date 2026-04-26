@@ -13,10 +13,15 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseTranslatableEntity<L extends BaseTranslation<?>> extends BaseAuditEntity {
+public abstract class BaseTranslatableEntity<L extends BaseTranslation<? extends BaseTranslatableEntity<L>>> extends BaseAuditEntity {
     
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<L> translations = new HashSet<>();
 
-    abstract public void addTranslation(L translation);
+    @SuppressWarnings("unchecked")
+    public void addTranslation(L translation) {
+        if (translation == null || this.getTranslations().contains(translation)) return;
+        ((BaseTranslation<BaseTranslatableEntity<L>>) translation).setOwner(this);
+        this.getTranslations().add(translation);
+    }
 }

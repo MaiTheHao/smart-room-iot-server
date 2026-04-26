@@ -28,7 +28,7 @@ import lombok.Setter;
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
-public abstract class Fan extends BaseIoTActuator<FanLan> {
+public abstract class Fan extends BaseIoTDevice<FanLan> {
 
 
 	public static final Integer MIN_SPEED = 0;
@@ -49,10 +49,5 @@ public abstract class Fan extends BaseIoTActuator<FanLan> {
 		this.speed = speed;
 	}
 
-	@Override 
-	public void addTranslation(FanLan translation) {
-		translation.setOwner(this);
-		this.getTranslations().add(translation);
-	}
 
 }
