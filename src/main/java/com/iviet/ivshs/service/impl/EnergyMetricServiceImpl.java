@@ -136,15 +136,15 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         String url, String naturalId,
         EnergyMetricCategory category, Long targetId, Instant timestamp
     ) {
-        HttpClientUtil.Response response = HttpClientUtil.get(url);
-
-        if (!response.isSuccess()) {
-            log.warn("Fetch: Non-2xx from RSPI for {}/{} (url={}): status={}", 
-                category.name(), naturalId, url, response.getStatusCode());
-            return;
-        }
-
         try {
+            HttpClientUtil.Response response = HttpClientUtil.get(url);
+
+            if (!response.isSuccess()) {
+                log.warn("Fetch: Non-2xx from RSPI for {}/{} (url={}): status={}", 
+                    category.name(), naturalId, url, response.getStatusCode());
+                return;
+            }
+
             ApiResponse<EnergyMetricDto> apiResponse = JsonUtil.getMapper().readValue(
                 response.getBody(),
                 JsonUtil.getMapper().getTypeFactory()
@@ -157,18 +157,8 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             }
 
             EnergyMetricDto dto = apiResponse.getData();
-            EnergyMetric metric = EnergyMetric.builder()
-                .category(category)
-                .targetId(targetId)
-                .timestamp(timestamp)
-                .voltage(dto.getVoltage())
-                .current(dto.getCurrent())
-                .power(dto.getPower())
-                .energy(dto.getEnergy())
-                .frequency(dto.getFrequency())
-                .powerFactor(dto.getPowerFactor())
-                .build();
-
+            EnergyMetric metric = dto.toEntity(naturalId, targetId);
+            
             energyMetricDao.save(metric);
             log.debug("Save: Saved EnergyMetric category={} targetId={} power={}W",
                 category.name(), targetId, dto.getPower());

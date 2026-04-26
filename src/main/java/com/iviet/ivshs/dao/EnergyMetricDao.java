@@ -34,7 +34,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
                 AVG(frequency) as avg_frequency,
                 AVG(power_factor) as avg_power_factor
             FROM energy_metrics
-            WHERE category = :category
+            WHERE target_category = :category
               AND target_id = :targetId
               AND timestamp BETWEEN :from AND :to
             GROUP BY unix_seconds
@@ -70,7 +70,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
                 em.energy, em.frequency, em.powerFactor
             )
             FROM EnergyMetric em
-            WHERE em.category = :category
+            WHERE em.targetCategory = :category
               AND em.targetId = :targetId
             ORDER BY em.timestamp DESC
             """;

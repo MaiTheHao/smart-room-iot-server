@@ -180,7 +180,7 @@ Table power_consumption_value {
 
 Table energy_metrics {
   id bigint [pk, increment]
-  category varchar(50) [not null, note: 'LIGHT, FAN, AC, ROOM']
+  target_category varchar(50) [not null, note: 'LIGHT, FAN, AC, ROOM']
   target_id bigint [not null]
   timestamp datetime(6) [not null]
   voltage double [default: NULL]
@@ -192,7 +192,7 @@ Table energy_metrics {
   unix_minute int
 
   Indexes {
-    (category, target_id, timestamp) [name: "idx_energy_metrics_target"]
+    (target_category, target_id, timestamp) [name: "idx_energy_metrics_target"]
     timestamp [name: "idx_energy_metrics_timestamp"]
     unix_minute [name: "idx_em_unix_minute"]
   }

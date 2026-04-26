@@ -1,6 +1,8 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.entities.BaseIoTEntity;
+import com.iviet.ivshs.entities.Fan;
+
 import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +101,19 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
         root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
+      }
+    );
+  }
+
+  public List<T> findAllActiveByClientId(Long clientId) {
+    return findAll(
+      root -> entityManager.getCriteriaBuilder().and(
+        entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
+        entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
+      ),
+      (root, cq) -> {
+        root.fetch("hardwareConfig", JoinType.INNER).fetch("client", JoinType.INNER);
+        root.fetch("room", JoinType.LEFT);
       }
     );
   }

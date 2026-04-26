@@ -150,21 +150,4 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 				.getResultStream()
 				.findFirst();
 	}
-
-	/**
-	 * Fetch all active AirCondition entities for a given gateway (client).
-	 * Used by energy metric collection job to iterate per-gateway devices.
-	 */
-	public List<AirCondition> findAllActiveByClientId(Long clientId) {
-		return findAll(
-			root -> entityManager.getCriteriaBuilder().and(
-				entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
-				entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
-			),
-			(root, cq) -> {
-				root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
-				root.fetch("room", JoinType.LEFT);
-			}
-		);
-	}
 }

@@ -424,7 +424,7 @@ CREATE TABLE `power_consumption_value` (
 
 CREATE TABLE `energy_metrics` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `category` varchar(50) NOT NULL COMMENT 'Enum: LIGHT, FAN, AC, ROOM',
+  `target_category` varchar(50) NOT NULL COMMENT 'Enum: LIGHT, FAN, AC, ROOM',
   `target_id` bigint NOT NULL COMMENT 'ID of the target (lightId, fanId, acId, roomId depending on category)',
   `timestamp` datetime(6) NOT NULL,
   `voltage` double DEFAULT NULL,
@@ -435,7 +435,7 @@ CREATE TABLE `energy_metrics` (
   `power_factor` double DEFAULT NULL,
   `unix_minute` int GENERATED ALWAYS AS (UNIX_TIMESTAMP(`timestamp`) DIV 60) STORED,
   PRIMARY KEY (`id`),
-  KEY `idx_energy_metrics_target` (`category`, `target_id`, `timestamp`),
+  KEY `idx_energy_metrics_target` (`target_category`, `target_id`, `timestamp`),
   KEY `idx_energy_metrics_timestamp` (`timestamp`),
   KEY `idx_em_unix_minute` (`unix_minute`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
