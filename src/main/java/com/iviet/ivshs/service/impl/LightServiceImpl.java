@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dao.RoomDao;
@@ -36,7 +36,7 @@ public class LightServiceImpl implements LightService {
   private final LightDao lightDao;
   private final RoomDao roomDao;
   private final LanguageDao languageDao;
-  private final DeviceControlDao deviceControlDao;
+  private final HardwareConfigDao deviceControlDao;
   private final ControlService controlService;
 
   @Override
@@ -93,7 +93,7 @@ public class LightServiceImpl implements LightService {
     var room = roomDao.findById(dto.roomId())
       .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
-    var deviceControl = dto.deviceControlId() != null
+    var hardwareConfig = dto.deviceControlId() != null
       ? deviceControlDao.findById(dto.deviceControlId())
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()))
       : null;
@@ -111,7 +111,7 @@ public class LightServiceImpl implements LightService {
     light.setNaturalId(naturalId);
     light.setIsActive(dto.isActive() != null ? dto.isActive() : false);
     light.setRoom(room);
-    light.setDeviceControl(deviceControl);
+    light.setHardwareConfig(hardwareConfig);
     light.setPower(dto.power() != null ? dto.power() : ActuatorPower.OFF);
     light.setLevel(dto.level() != null ? dto.level() : 0);
 
@@ -151,10 +151,10 @@ public class LightServiceImpl implements LightService {
       light.setRoom(room);
     }
 
-    if (dto.deviceControlId() != null && (light.getDeviceControl() == null || !dto.deviceControlId().equals(light.getDeviceControl().getId()))) {
+    if (dto.deviceControlId() != null && (light.getHardwareConfig() == null || !dto.deviceControlId().equals(light.getHardwareConfig().getId()))) {
       var dc = deviceControlDao.findById(dto.deviceControlId())
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
-      light.setDeviceControl(dc);
+      light.setHardwareConfig(dc);
     }
 
     if (dto.level() != null && (dto.level() < Light.MIN_LEVEL || dto.level() > Light.MAX_LEVEL)) {
@@ -191,8 +191,8 @@ public class LightServiceImpl implements LightService {
   @Transactional
   public void delete(Long lightId) {
     var light = getLightOrThrow(lightId);
-    var deviceControl = light.getDeviceControl();
-    deviceControlDao.delete(deviceControl);
+    var hardwareConfig = light.getHardwareConfig();
+    deviceControlDao.delete(hardwareConfig);
   }
 
   @Override
@@ -205,7 +205,7 @@ public class LightServiceImpl implements LightService {
   @Transactional
   public void _v2api_handlePowerControl(Long lightId, ActuatorPower power) {
     var light = getLightOrThrow(lightId);
-    var client = light.getDeviceControl().getClient();
+    var client = light.getHardwareConfig().getClient();
 
     var actualPower = (power != null) ? power : ActuatorPower.OFF;
     light.setPower(actualPower);
@@ -223,7 +223,7 @@ public class LightServiceImpl implements LightService {
   @Transactional
   public void _v2api_handleTogglePowerControl(Long lightId) {
     var light = getLightOrThrow(lightId);
-    var client = light.getDeviceControl().getClient();
+    var client = light.getHardwareConfig().getClient();
 
     var currentPower = light.getPower() != null ? light.getPower() : ActuatorPower.OFF;
     var newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
@@ -246,7 +246,7 @@ public class LightServiceImpl implements LightService {
       throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
     }
     var light = getLightOrThrow(lightId);
-    var client = light.getDeviceControl().getClient();
+    var client = light.getHardwareConfig().getClient();
 
     light.setLevel(level);
     light.touch();
@@ -264,7 +264,7 @@ public class LightServiceImpl implements LightService {
   @Deprecated
   public void controlPower(Long id, ActuatorPower state) {
     var light = getLightOrThrow(id);
-    var client = light.getDeviceControl().getClient();
+    var client = light.getHardwareConfig().getClient();
 
     controlService.sendCommand(
       client.getIpAddress(),

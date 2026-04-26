@@ -43,7 +43,7 @@ public record AirConditionDto(
                 .mode(entity.getMode())
                 .fanSpeed(entity.getFanSpeed())
                 .swing(entity.getSwing())
-                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
+                .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
                 .name(entity.getTranslations().isEmpty() ? null : entity.getTranslations().iterator().next().getName())
                 .description(entity.getTranslations().isEmpty() ? null : entity.getTranslations().iterator().next().getDescription())
                 .category(DeviceCategory.AIR_CONDITION)

@@ -66,7 +66,7 @@ public class Client extends BaseAuditEntity {
     private Date lastLoginAt;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<DeviceControl> deviceControls = new HashSet<>();
+    private Set<HardwareConfig> deviceControls = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(

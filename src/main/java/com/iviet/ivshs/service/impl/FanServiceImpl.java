@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.RoomDao;
@@ -32,7 +32,7 @@ public class FanServiceImpl implements FanService {
 
   private final FanDao fanDao;
   private final RoomDao roomDao;
-  private final DeviceControlDao deviceControlDao;
+  private final HardwareConfigDao deviceControlDao;
   private final LanguageDao languageDao;
 
   @Override
@@ -93,7 +93,7 @@ public class FanServiceImpl implements FanService {
     fan.setRoom(room);
 
     if (dto.deviceControlId() != null) {
-      fan.setDeviceControl(deviceControlDao.findById(dto.deviceControlId())
+      fan.setHardwareConfig(deviceControlDao.findById(dto.deviceControlId())
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
@@ -136,7 +136,7 @@ public class FanServiceImpl implements FanService {
     }
 
     if (dto.deviceControlId() != null) {
-      fan.setDeviceControl(deviceControlDao.findById(dto.deviceControlId())
+      fan.setHardwareConfig(deviceControlDao.findById(dto.deviceControlId())
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
@@ -176,8 +176,8 @@ public class FanServiceImpl implements FanService {
   @Transactional
   public void delete(Long id) {
     var fan = getFanOrThrow(id);
-    var deviceControl = fan.getDeviceControl();
-    deviceControlDao.delete(deviceControl);
+    var hardwareConfig = fan.getHardwareConfig();
+    deviceControlDao.delete(hardwareConfig);
   }
 
   @Override

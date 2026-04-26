@@ -47,6 +47,6 @@ public class Room extends BaseTranslatableEntity<RoomLan> {
     private Set<PowerConsumption> powerConsumptions = new HashSet<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-    private Set<DeviceControl> deviceControls = new HashSet<>();
+    private Set<HardwareConfig> deviceControls = new HashSet<>();
 
 }

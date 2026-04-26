@@ -2,7 +2,7 @@ package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dto.SetupRequest;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanGpio;
 import com.iviet.ivshs.entities.FanIr;
@@ -32,7 +32,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
     public void persist(
         SetupRequest.BodyData.DeviceConfig device,
         Room room,
-        DeviceControl deviceControl
+        HardwareConfig hardwareConfig
     ) {
         FanType fanType = FanType.fromString(device.getSpecificType());
 
@@ -42,7 +42,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         }
 
         Fan fan = createFanByType(fanType);
-        setupBaseIoTProperties(fan, device, room, deviceControl);
+        setupBaseIoTProperties(fan, device, room, hardwareConfig);
         entityManager.persist(fan);
         entityManager.flush();
         attachTranslations(fan, device.getTranslations(), FanLan::new);

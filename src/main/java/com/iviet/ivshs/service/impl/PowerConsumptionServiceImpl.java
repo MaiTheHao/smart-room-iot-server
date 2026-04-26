@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.PowerConsumptionDao;
 import com.iviet.ivshs.dao.RoomDao;
@@ -13,7 +13,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
@@ -29,7 +29,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	private final PowerConsumptionDao powerConsumptionDao;
 	private final LanguageDao languageDao;
 	private final RoomDao roomDao;
-	private final DeviceControlDao deviceControlDao;
+	private final HardwareConfigDao deviceControlDao;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -131,7 +131,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 
 		var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found"));
 
-		var deviceControl = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
+		var hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
 		String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 		if (!languageDao.existsByCode(langCode)) {
 			throw new BadRequestException("Language with code " + langCode + " not found");
@@ -139,7 +139,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 
 		var powerConsumption = dto.toEntity();
 		powerConsumption.setRoom(room);
-		powerConsumption.setDeviceControl(deviceControl);
+		powerConsumption.setHardwareConfig(hardwareConfig);
 
 		var sensorLan = new PowerConsumptionLan();
 		sensorLan.setLangCode(langCode);
@@ -203,8 +203,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		}
 
 		if (dto.deviceControlId() != null) {
-			var deviceControl = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
-			powerConsumption.setDeviceControl(deviceControl);
+			var hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
+			powerConsumption.setHardwareConfig(hardwareConfig);
 		}
 
 		powerConsumption.touch();
@@ -224,7 +224,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		}
 		if (!powerConsumptionDao.existsById(id)) throw new NotFoundException("Power sensor not found");
 		PowerConsumption target = powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found"));
-		DeviceControl targetDeviceControl = target.getDeviceControl();
+		HardwareConfig targetDeviceControl = target.getHardwareConfig();
 		deviceControlDao.delete(targetDeviceControl);
 	}
 

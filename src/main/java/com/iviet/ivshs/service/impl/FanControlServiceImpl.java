@@ -9,7 +9,7 @@ import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.enumeration.ActuatorMode;
@@ -179,7 +179,7 @@ public class FanControlServiceImpl implements FanControlService {
   }
 
   private String extractClientIpAddress(Fan fan) {
-    DeviceControl control = fan.getDeviceControl();
+    HardwareConfig control = fan.getHardwareConfig();
     if (control == null) {
       throw new BadRequestException("DeviceControl not found for Fan: " + fan.getId());
     }

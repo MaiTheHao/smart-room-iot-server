@@ -75,7 +75,7 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 		String jpql = """
 						SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
 						FROM TemperatureValue tv
-						WHERE tv.sensor.deviceControl.client.id = :clientId
+						WHERE tv.sensor.hardwareConfig.client.id = :clientId
 						AND tv.timestamp BETWEEN :startedAt AND :endedAt
 						GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
 						ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC

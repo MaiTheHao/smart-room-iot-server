@@ -2,7 +2,7 @@ package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.AirConditionDao;
-import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.AirConditionDto;
@@ -11,7 +11,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAirConditionDto;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
@@ -36,7 +36,7 @@ public class AirConditionServiceImpl implements AirConditionService {
 
   private final AirConditionDao airConditionDao;
   private final RoomDao roomDao;
-  private final DeviceControlDao deviceControlDao;
+  private final HardwareConfigDao deviceControlDao;
   private final LanguageDao languageDao;
 
   @Override
@@ -98,9 +98,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     var room = roomDao.findById(dto.roomId())
       .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
-    DeviceControl deviceControl = null;
+    HardwareConfig hardwareConfig = null;
     if (dto.deviceControlId() != null) {
-      deviceControl = deviceControlDao.findById(dto.deviceControlId())
+      hardwareConfig = deviceControlDao.findById(dto.deviceControlId())
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
     }
 
@@ -115,7 +115,7 @@ public class AirConditionServiceImpl implements AirConditionService {
     ac.setNaturalId(naturalId);
     ac.setIsActive(dto.isActive() != null ? dto.isActive() : false);
     ac.setRoom(room);
-    ac.setDeviceControl(deviceControl);
+    ac.setHardwareConfig(hardwareConfig);
     ac.setPower(dto.power() != null ? dto.power() : ActuatorPower.OFF);
     ac.setTemperature(dto.temperature() != null ? dto.temperature() : 25);
     ac.setMode(dto.mode() != null ? dto.mode() : ActuatorMode.COOL);
@@ -157,7 +157,7 @@ public class AirConditionServiceImpl implements AirConditionService {
     if (dto.deviceControlId() != null) {
       var dc = deviceControlDao.findById(dto.deviceControlId())
         .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
-      ac.setDeviceControl(dc);
+      ac.setHardwareConfig(dc);
     }
 
     validateControlValues(dto.temperature(), dto.fanSpeed());
@@ -195,8 +195,8 @@ public class AirConditionServiceImpl implements AirConditionService {
   @Transactional
   public void delete(Long id) {
     var ac = getAirConditionOrThrow(id);
-    var deviceControl = ac.getDeviceControl();
-    deviceControlDao.delete(deviceControl);
+    var hardwareConfig = ac.getHardwareConfig();
+    deviceControlDao.delete(hardwareConfig);
   }
 
   @Override
@@ -427,7 +427,7 @@ public class AirConditionServiceImpl implements AirConditionService {
   }
 
   private String getGatewayIp(AirCondition ac) {
-    var dc = ac.getDeviceControl();
+    var dc = ac.getHardwareConfig();
     if (dc == null) {
       throw new BadRequestException("No Device Control associated with Air Condition: " + ac.getNaturalId());
     }

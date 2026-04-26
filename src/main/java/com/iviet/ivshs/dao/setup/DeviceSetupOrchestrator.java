@@ -2,7 +2,7 @@ package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
@@ -75,8 +75,8 @@ public class DeviceSetupOrchestrator {
             }
 
             try {
-                DeviceControl deviceControl = createDeviceControl(device, room, client);
-                strategy.persist(device, room, deviceControl);
+                HardwareConfig hardwareConfig = createDeviceControl(device, room, client);
+                strategy.persist(device, room, hardwareConfig);
                 processedCount++;
 
                 if (processedCount % BATCH_SIZE == 0) {
@@ -104,13 +104,13 @@ public class DeviceSetupOrchestrator {
         return processedCount;
     }
 
-    private DeviceControl createDeviceControl(
+    private HardwareConfig createDeviceControl(
         SetupRequest.BodyData.DeviceConfig device,
         Room room,
         Client client
     ) {
-        DeviceControl dc = new DeviceControl();
-        dc.setDeviceControlType(device.getControlType());
+        HardwareConfig dc = new HardwareConfig();
+        dc.setControlType(device.getControlType());
         dc.setGpioPin(device.getGpioPin().getFirst());
         dc.setBleMacAddress(device.getBleMac());
         dc.setApiEndpoint(device.getApiEndpoint());

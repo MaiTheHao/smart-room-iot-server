@@ -22,7 +22,7 @@ TRUNCATE TABLE `floor`;
 TRUNCATE TABLE `floor_lan`;
 TRUNCATE TABLE `room`;
 TRUNCATE TABLE `room_lan`;
-TRUNCATE TABLE `device_control`;
+TRUNCATE TABLE `hardware_config`;
 
 -- ----------------------------
 -- Module: Devices & Sensors

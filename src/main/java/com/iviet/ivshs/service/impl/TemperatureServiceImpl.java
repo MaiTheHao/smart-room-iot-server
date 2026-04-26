@@ -22,7 +22,7 @@ public class TemperatureServiceImpl implements TemperatureService {
     private final RoomDao roomDao;
     private final LanguageDao languageDao;
     private final TemperatureDao temperatureDao;
-    private final DeviceControlDao deviceControlDao;
+    private final HardwareConfigDao deviceControlDao;
 
     // --- CRUD SENSOR ---
 
@@ -119,7 +119,7 @@ public class TemperatureServiceImpl implements TemperatureService {
 
         var sensor = dto.toEntity();
         sensor.setRoom(room);
-        sensor.setDeviceControl(dc);
+        sensor.setHardwareConfig(dc);
 
         var lan = new TemperatureLan();
         lan.setLangCode(langCode);
@@ -169,7 +169,7 @@ public class TemperatureServiceImpl implements TemperatureService {
     public void delete(Long id) {
         if (!temperatureDao.existsById(id)) throw new NotFoundException("Sensor not found");
         Temperature target = temperatureDao.findById(id).orElseThrow(() -> new NotFoundException("Sensor not found"));
-        DeviceControl targetDeviceControl = target.getDeviceControl();
+        HardwareConfig targetDeviceControl = target.getHardwareConfig();
         deviceControlDao.delete(targetDeviceControl);
     }
 

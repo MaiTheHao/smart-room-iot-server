@@ -85,46 +85,46 @@ public class SetupDao extends BaseDao<SetupDao> {
 			log.debug("[SETUP:PERSIST] name={}, category={}", device.getName(), device.getCategory());
 		}
 		
-		DeviceControl deviceControl = createAndPersistDeviceControl(device, room, client);
-		buildDeviceEntity(device, room, deviceControl, device.getTranslations());
+		HardwareConfig hardwareConfig = createAndPersistDeviceControl(device, room, client);
+		buildDeviceEntity(device, room, hardwareConfig, device.getTranslations());
 	}
 
-	private DeviceControl createAndPersistDeviceControl(
+	private HardwareConfig createAndPersistDeviceControl(
 		SetupRequest.BodyData.DeviceConfig device, Room room, Client client) {
 		
-		DeviceControl deviceControl = new DeviceControl();
-		deviceControl.setDeviceControlType(device.getControlType());
-		deviceControl.setGpioPin(device.getGpioPin().getFirst());
-		deviceControl.setBleMacAddress(device.getBleMac());
-		deviceControl.setApiEndpoint(device.getApiEndpoint());
-		deviceControl.setClient(client);
-		deviceControl.setRoom(room);
+		HardwareConfig hardwareConfig = new HardwareConfig();
+		hardwareConfig.setControlType(device.getControlType());
+		hardwareConfig.setGpioPin(device.getGpioPin().getFirst());
+		hardwareConfig.setBleMacAddress(device.getBleMac());
+		hardwareConfig.setApiEndpoint(device.getApiEndpoint());
+		hardwareConfig.setClient(client);
+		hardwareConfig.setRoom(room);
 		
-		entityManager.persist(deviceControl);
+		entityManager.persist(hardwareConfig);
 		entityManager.flush();
 		
 		if (log.isDebugEnabled()) {
-			log.debug("[SETUP:CTRL] deviceControl created: id={}, name={}, type={}", 
-				deviceControl.getId(), device.getName(), device.getControlType());
+			log.debug("[SETUP:CTRL] hardwareConfig created: id={}, name={}, type={}", 
+				hardwareConfig.getId(), device.getName(), device.getControlType());
 		}
 		
-		return deviceControl;
+		return hardwareConfig;
 	}
 
 	private void buildDeviceEntity(SetupRequest.BodyData.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
+		HardwareConfig hardwareConfig, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		switch (device.getCategory()) {
-			case LIGHT -> createLight(device, room, deviceControl, translations);
-			case TEMPERATURE -> createTemperature(device, room, deviceControl, translations);
-			case POWER_CONSUMPTION -> createPowerConsumption(device, room, deviceControl, translations);
-			case AIR_CONDITION -> createAirCondition(device, room, deviceControl, translations);
+			case LIGHT -> createLight(device, room, hardwareConfig, translations);
+			case TEMPERATURE -> createTemperature(device, room, hardwareConfig, translations);
+			case POWER_CONSUMPTION -> createPowerConsumption(device, room, hardwareConfig, translations);
+			case AIR_CONDITION -> createAirCondition(device, room, hardwareConfig, translations);
 		}
 	}
 
 	private void createLight(SetupRequest.BodyData.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
+		HardwareConfig hardwareConfig, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Light light = new Light();
-		setupBaseIoTProperties(light, device, room, deviceControl);
+		setupBaseIoTProperties(light, device, room, hardwareConfig);
 		attachTranslations(light, translations, LightLan::new);
 		
 		entityManager.persist(light);
@@ -133,9 +133,9 @@ public class SetupDao extends BaseDao<SetupDao> {
 	}
 
 	private void createTemperature(SetupRequest.BodyData.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
+		HardwareConfig hardwareConfig, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		Temperature temperature = new Temperature();
-		setupBaseIoTProperties(temperature, device, room, deviceControl);
+		setupBaseIoTProperties(temperature, device, room, hardwareConfig);
 		attachTranslations(temperature, translations, TemperatureLan::new);
 		
 		entityManager.persist(temperature);
@@ -144,9 +144,9 @@ public class SetupDao extends BaseDao<SetupDao> {
 	}
 
 	private void createPowerConsumption(SetupRequest.BodyData.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
+		HardwareConfig hardwareConfig, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		PowerConsumption powerConsumption = new PowerConsumption();
-		setupBaseIoTProperties(powerConsumption, device, room, deviceControl);
+		setupBaseIoTProperties(powerConsumption, device, room, hardwareConfig);
 		attachTranslations(powerConsumption, translations, PowerConsumptionLan::new);
 		
 		entityManager.persist(powerConsumption);
@@ -155,9 +155,9 @@ public class SetupDao extends BaseDao<SetupDao> {
 	}
 
 	private void createAirCondition(SetupRequest.BodyData.DeviceConfig device, Room room, 
-		DeviceControl deviceControl, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
+		HardwareConfig hardwareConfig, Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations) {
 		AirCondition ac = new AirCondition();
-		setupBaseIoTProperties(ac, device, room, deviceControl);
+		setupBaseIoTProperties(ac, device, room, hardwareConfig);
 		
 		ac.setTemperature(26);
 		ac.setMode(ActuatorMode.COOL);
@@ -172,11 +172,11 @@ public class SetupDao extends BaseDao<SetupDao> {
 	}
 
 	private void setupBaseIoTProperties(BaseIoTEntity<?> entity, 
-		SetupRequest.BodyData.DeviceConfig device, Room room, DeviceControl deviceControl) {
+		SetupRequest.BodyData.DeviceConfig device, Room room, HardwareConfig hardwareConfig) {
 		entity.setIsActive(device.isActive());
 		entity.setNaturalId(device.getNaturalId());
 		entity.setRoom(room);
-		entity.setDeviceControl(deviceControl);
+		entity.setHardwareConfig(hardwareConfig);
 
 		if (entity instanceof BaseIoTDevice<?> actuator) {
 			actuator.setPower(ActuatorPower.OFF);

@@ -20,18 +20,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "device_control")
+@Table(name = "hardware_config")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeviceControl extends BaseAuditEntity {
+public class HardwareConfig extends BaseAuditEntity {
 
     private static final long serialVersionUID = 1L;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "device_control_type", length = 256, nullable = false)
-    private DeviceControlType deviceControlType;
+    @Column(name = "control_type", length = 256, nullable = false)
+    private DeviceControlType controlType;
 
     @Column(name = "gpio_pin", nullable = false)
     private Integer gpioPin;
@@ -46,19 +46,19 @@ public class DeviceControl extends BaseAuditEntity {
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Light light;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Temperature temperature;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private PowerConsumption powerConsumption;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Fan fan;
 
-    @OneToOne(mappedBy = "deviceControl", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private AirCondition airCondition;
 
     @ManyToOne(fetch = FetchType.LAZY)

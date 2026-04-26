@@ -190,7 +190,7 @@ CREATE TABLE `room_lan` (
   CONSTRAINT `fk_room_lan_room` FOREIGN KEY (`owner_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `device_control` (
+CREATE TABLE `hardware_config` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
@@ -199,13 +199,13 @@ CREATE TABLE `device_control` (
   `v` bigint NOT NULL,
   `api_endpoint` varchar(256) DEFAULT NULL,
   `ble_mac_address` varchar(100) DEFAULT NULL,
-  `device_control_type` varchar(256) NOT NULL,
+  `control_type` varchar(256) NOT NULL,
   `gpio_pin` int NOT NULL,
   `client_id` bigint NOT NULL,
   `room_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_device_control_client` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
-  CONSTRAINT `fk_device_control_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
+  CONSTRAINT `fk_hardware_config_client` FOREIGN KEY (`client_id`) REFERENCES `client` (`id`),
+  CONSTRAINT `fk_hardware_config_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
@@ -225,12 +225,12 @@ CREATE TABLE `air_condition` (
   `power` varchar(256) DEFAULT NULL,
   `swing` varchar(256) DEFAULT NULL,
   `temperature` int DEFAULT NULL,
-  `device_control_id` bigint DEFAULT NULL,
+  `hardware_config_id` bigint DEFAULT NULL,
   `room_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_air_condition_natural_id` (`natural_id`),
-  UNIQUE KEY `idx_air_condition_device_control_id` (`device_control_id`),
-  CONSTRAINT `fk_air_condition_device_control` FOREIGN KEY (`device_control_id`) REFERENCES `device_control` (`id`),
+  UNIQUE KEY `idx_air_condition_hardware_config_id` (`hardware_config_id`),
+  CONSTRAINT `fk_air_condition_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_air_condition_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -265,12 +265,12 @@ CREATE TABLE `fan` (
   `mode` varchar(256) DEFAULT NULL,
   `light` varchar(256) DEFAULT NULL,
   `swing` varchar(256) DEFAULT NULL,
-  `device_control_id` bigint DEFAULT NULL,
+  `hardware_config_id` bigint DEFAULT NULL,
   `room_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_fan_natural_id` (`natural_id`),
-  UNIQUE KEY `idx_fan_device_control_id` (`device_control_id`),
-  CONSTRAINT `fk_fan_device_control` FOREIGN KEY (`device_control_id`) REFERENCES `device_control` (`id`),
+  UNIQUE KEY `idx_fan_hardware_config_id` (`hardware_config_id`),
+  CONSTRAINT `fk_fan_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_fan_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -301,13 +301,13 @@ CREATE TABLE `light` (
   `natural_id` varchar(256) NOT NULL,
   `power` varchar(256) DEFAULT NULL,
   `level` int DEFAULT NULL,
-  `device_control_id` bigint DEFAULT NULL,
+  `hardware_config_id` bigint DEFAULT NULL,
   `room_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_light_natural_id` (`natural_id`),
-  UNIQUE KEY `idx_light_device_control_id` (`device_control_id`),
+  UNIQUE KEY `idx_light_hardware_config_id` (`hardware_config_id`),
   CONSTRAINT `fk_light_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`),
-  CONSTRAINT `fk_light_device_control` FOREIGN KEY (`device_control_id`) REFERENCES `device_control` (`id`)
+  CONSTRAINT `fk_light_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `light_lan` (
@@ -336,12 +336,12 @@ CREATE TABLE `temperature` (
   `is_active` bit(1) NOT NULL,
   `natural_id` varchar(256) NOT NULL,
   `current_value` double DEFAULT NULL,
-  `device_control_id` bigint DEFAULT NULL,
+  `hardware_config_id` bigint DEFAULT NULL,
   `room_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_temperature_natural_id` (`natural_id`),
-  UNIQUE KEY `idx_temperature_device_control_id` (`device_control_id`),
-  CONSTRAINT `fk_temperature_device_control` FOREIGN KEY (`device_control_id`) REFERENCES `device_control` (`id`),
+  UNIQUE KEY `idx_temperature_hardware_config_id` (`hardware_config_id`),
+  CONSTRAINT `fk_temperature_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_temperature_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -384,12 +384,12 @@ CREATE TABLE `power_consumption` (
   `is_active` bit(1) NOT NULL,
   `natural_id` varchar(256) NOT NULL,
   `current_watt` double DEFAULT NULL,
-  `device_control_id` bigint DEFAULT NULL,
+  `hardware_config_id` bigint DEFAULT NULL,
   `room_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_power_consumption_natural_id` (`natural_id`),
-  UNIQUE KEY `idx_power_consumption_device_control_id` (`device_control_id`),
-  CONSTRAINT `fk_power_consumption_device_control` FOREIGN KEY (`device_control_id`) REFERENCES `device_control` (`id`),
+  UNIQUE KEY `idx_power_consumption_hardware_config_id` (`hardware_config_id`),
+  CONSTRAINT `fk_power_consumption_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_power_consumption_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

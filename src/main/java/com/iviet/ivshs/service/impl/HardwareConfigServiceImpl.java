@@ -5,23 +5,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.ClientDao;
-import com.iviet.ivshs.dao.DeviceControlDao;
+import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.CreateDeviceControlDto;
 import com.iviet.ivshs.dto.DeviceControlDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateDeviceControlDto;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.service.DeviceControlService;
+import com.iviet.ivshs.service.HardwareConfigService;
 
 @Service
 @Transactional(readOnly = true)
-public class DeviceControlServiceImpl implements DeviceControlService {
+public class HardwareConfigServiceImpl implements HardwareConfigService {
 
     @Autowired
-    private DeviceControlDao deviceControlDao;
+    private HardwareConfigDao deviceControlDao;
     
     @Autowired
     private ClientDao clientDao;
@@ -34,9 +34,9 @@ public class DeviceControlServiceImpl implements DeviceControlService {
         if (deviceControlId == null) 
             throw new BadRequestException("Device Control ID is required");
         
-        var deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        var hardwareConfig = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
         
-        return DeviceControlDto.from(deviceControl);
+        return DeviceControlDto.from(hardwareConfig);
     }
 
     @Override
@@ -50,11 +50,11 @@ public class DeviceControlServiceImpl implements DeviceControlService {
         
         var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
-        var deviceControl = dto.toEntity();
-        deviceControl.setClient(client);
-        deviceControl.setRoom(room);
+        var hardwareConfig = dto.toEntity();
+        hardwareConfig.setClient(client);
+        hardwareConfig.setRoom(room);
 
-        var savedDeviceControl = deviceControlDao.save(deviceControl);
+        var savedDeviceControl = deviceControlDao.save(hardwareConfig);
 
         return DeviceControlDto.from(savedDeviceControl);
     }
@@ -65,25 +65,25 @@ public class DeviceControlServiceImpl implements DeviceControlService {
         if (deviceControlId == null) throw new BadRequestException("Device Control ID is required");
         if (dto == null) throw new BadRequestException("Update data is required");
 
-        var deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        var hardwareConfig = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
 
         if (dto.clientId() != null) {
-            Long currentClientId = deviceControl.getClient() != null ? deviceControl.getClient().getId() : null;
+            Long currentClientId = hardwareConfig.getClient() != null ? hardwareConfig.getClient().getId() : null;
             if (!dto.clientId().equals(currentClientId)) {
                 var client = clientDao.findById(dto.clientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
-                deviceControl.setClient(client);
+                hardwareConfig.setClient(client);
             }
         }
 
-        if (dto.roomId() != null && !dto.roomId().equals(deviceControl.getRoom().getId())) {
+        if (dto.roomId() != null && !dto.roomId().equals(hardwareConfig.getRoom().getId())) {
             var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
-            deviceControl.setRoom(room);
+            hardwareConfig.setRoom(room);
         }
 
-        dto.applyTo(deviceControl);
-        deviceControlDao.update(deviceControl);
+        dto.applyTo(hardwareConfig);
+        deviceControlDao.update(hardwareConfig);
 
-        return DeviceControlDto.from(deviceControl);
+        return DeviceControlDto.from(hardwareConfig);
     }
 
     @Override
@@ -91,9 +91,9 @@ public class DeviceControlServiceImpl implements DeviceControlService {
     public void delete(Long deviceControlId) {
         if (deviceControlId == null) throw new BadRequestException("Device Control ID is required");
 
-        DeviceControl deviceControl = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        HardwareConfig hardwareConfig = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
         
-        deviceControlDao.delete(deviceControl);
+        deviceControlDao.delete(hardwareConfig);
     }
 
     @Override

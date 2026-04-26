@@ -24,7 +24,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -43,7 +43,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -62,7 +62,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -80,7 +80,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -96,7 +96,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -116,7 +116,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -135,7 +135,7 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 		String jpql = """
 				SELECT new %s(
 						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.deviceControl.id
+						ac.power, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
 				)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
@@ -158,13 +158,13 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 	public List<AirCondition> findAllActiveByClientId(Long clientId) {
 		return findAll(
 			root -> entityManager.getCriteriaBuilder().and(
-				entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("client").get("id"), clientId),
+				entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
 				entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
 			),
 			(root, cq) -> {
-				root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+				root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
 				root.fetch("room", JoinType.LEFT);
 			}
 		);
 	}
-}
+}

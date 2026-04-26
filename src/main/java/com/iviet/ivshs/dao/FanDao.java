@@ -24,7 +24,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -44,7 +44,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -64,7 +64,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -83,7 +83,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -101,7 +101,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -117,7 +117,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -137,7 +137,7 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     String jpql = """
         SELECT new %s(
             f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.deviceControl.id
+            f.power, f.type, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
         )
         FROM Fan f
         LEFT JOIN f.translations tl ON tl.langCode = :langCode
@@ -158,11 +158,11 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
   public List<Fan> findAllActiveByClientId(Long clientId) {
     return findAll(
       root -> entityManager.getCriteriaBuilder().and(
-        entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("client").get("id"), clientId),
+        entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
         entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
       ),
       (root, cq) -> {
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
         root.fetch("room", JoinType.LEFT);
       }
     );

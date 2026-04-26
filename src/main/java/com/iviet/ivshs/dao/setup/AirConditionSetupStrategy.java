@@ -4,7 +4,7 @@ import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
@@ -30,10 +30,10 @@ public class AirConditionSetupStrategy extends AbstractDeviceSetupStrategy {
     public void persist(
         SetupRequest.BodyData.DeviceConfig device,
         Room room,
-        DeviceControl deviceControl
+        HardwareConfig hardwareConfig
     ) {
         AirCondition ac = new AirCondition();
-        setupBaseIoTProperties(ac, device, room, deviceControl);
+        setupBaseIoTProperties(ac, device, room, hardwareConfig);
 
         ac.setTemperature(26);
         ac.setMode(ActuatorMode.COOL);

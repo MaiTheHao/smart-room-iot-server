@@ -44,7 +44,7 @@ public record FanDto(
                 .isActive(entity.getIsActive())
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .power(entity.getPower())
-                .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
+                .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
                 .category(DeviceCategory.FAN);
                 
         if (entity instanceof FanIr fanIr) {

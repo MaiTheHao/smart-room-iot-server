@@ -76,7 +76,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 		String jpql = """
 				SELECT new %s((pcv.unixMinute / :divisor) * :divisor * 60L, AVG(pcv.watt))
 				FROM PowerConsumptionValue pcv
-				WHERE pcv.sensor.deviceControl.client.id = :clientId
+				WHERE pcv.sensor.hardwareConfig.client.id = :clientId
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY (pcv.unixMinute / :divisor) * :divisor * 60L
 				ORDER BY (pcv.unixMinute / :divisor) * :divisor * 60L ASC
@@ -94,7 +94,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 		String jpql = """
 				SELECT new %s((pcv.unixMinute / :divisor) * :divisor * 60L, SUM(pcv.watt))
 				FROM PowerConsumptionValue pcv
-				WHERE pcv.sensor.deviceControl.client.id = :clientId
+				WHERE pcv.sensor.hardwareConfig.client.id = :clientId
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY (pcv.unixMinute / :divisor) * :divisor * 60L
 				ORDER BY (pcv.unixMinute / :divisor) * :divisor * 60L ASC

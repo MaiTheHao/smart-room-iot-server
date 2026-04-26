@@ -46,20 +46,19 @@ Table room_lan {
 
 // --- Quản lý Thiết bị (Device Management) ---
 
-Table device_control {
+Table hardware_config {
   id bigint [pk, increment]
   v bigint [not null]
   api_endpoint varchar(256) [default: NULL]
   ble_mac_address varchar(100) [default: NULL]
-  device_control_type varchar(256) [not null]
+  control_type varchar(256) [not null]
   gpio_pin int [not null]
   client_id bigint [not null]
   room_id bigint [not null]
 
   Indexes {
-    client_id [name: "idx_device_control_client_id"] // Added in Migration 02
-    room_id [name: "idx_device_control_room_id"]
-    // idx_device_control_client_gpio_ble removed in Migration 02
+    client_id [name: "idx_hardware_config_client_id"]
+    room_id [name: "idx_hardware_config_room_id"]
   }
 }
 
@@ -72,7 +71,7 @@ Table air_condition {
   power varchar(256) [default: NULL]
   swing varchar(256) [default: NULL]
   temperature int [default: NULL]
-  device_control_id bigint [unique, default: NULL]
+  hardware_config_id bigint [unique, default: NULL]
   room_id bigint [not null]
 
   Indexes {
@@ -101,7 +100,7 @@ Table fan {
   mode varchar(256) [default: NULL]
   light varchar(256) [default: NULL]
   swing varchar(256) [default: NULL]
-  device_control_id bigint [unique, default: NULL]
+  hardware_config_id bigint [unique, default: NULL]
   room_id bigint [not null]
 }
 
@@ -119,7 +118,7 @@ Table light {
   natural_id varchar(256) [unique, not null]
   power varchar(256) [default: NULL]
   level int [default: NULL]
-  device_control_id bigint [unique, default: NULL]
+  hardware_config_id bigint [unique, default: NULL]
   room_id bigint [not null]
 }
 
@@ -138,7 +137,7 @@ Table temperature {
   is_active bit(1) [not null]
   natural_id varchar(256) [unique, not null]
   current_value double [default: NULL]
-  device_control_id bigint [unique, default: NULL]
+  hardware_config_id bigint [unique, default: NULL]
   room_id bigint [not null]
 }
 
@@ -161,7 +160,7 @@ Table power_consumption {
   is_active bit(1) [not null]
   natural_id varchar(256) [unique, not null]
   current_watt double [default: NULL]
-  device_control_id bigint [unique, default: NULL]
+  hardware_config_id bigint [unique, default: NULL]
   room_id bigint [not null]
 }
 
@@ -363,26 +362,26 @@ Table QRTZ_JOB_DETAILS {
 Ref: floor_lan.owner_id > floor.id
 Ref: room.floor_id > floor.id
 Ref: room_lan.owner_id > room.id
-Ref: device_control.client_id > client.id
-Ref: device_control.room_id > room.id
+Ref: hardware_config.client_id > client.id
+Ref: hardware_config.room_id > room.id
 
-Ref: air_condition.device_control_id - device_control.id
+Ref: air_condition.hardware_config_id - hardware_config.id
 Ref: air_condition.room_id > room.id
 Ref: air_condition_lan.owner_id > air_condition.id
 
-Ref: fan.device_control_id - device_control.id
+Ref: fan.hardware_config_id - hardware_config.id
 Ref: fan.room_id > room.id
 Ref: fan_lan.owner_id > fan.id
 
-Ref: light.device_control_id - device_control.id
+Ref: light.hardware_config_id - hardware_config.id
 Ref: light.room_id > room.id
 Ref: light_lan.owner_id > light.id
 
-Ref: temperature.device_control_id - device_control.id
+Ref: temperature.hardware_config_id - hardware_config.id
 Ref: temperature.room_id > room.id
 Ref: temperature_value.sensor_id > temperature.id
 
-Ref: power_consumption.device_control_id - device_control.id
+Ref: power_consumption.hardware_config_id - hardware_config.id
 Ref: power_consumption.room_id > room.id
 Ref: power_consumption_value.sensor_id > power_consumption.id
 

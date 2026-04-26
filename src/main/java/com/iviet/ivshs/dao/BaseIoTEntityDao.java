@@ -17,7 +17,7 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
       root -> entityManager.getCriteriaBuilder().equal(root.get("id"), id),
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
       }
     );
   }
@@ -47,7 +47,7 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
       ),
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
       }
     );
   }
@@ -59,7 +59,7 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
       root -> entityManager.getCriteriaBuilder().equal(root.get("naturalId"), naturalId),
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
       }
     );
   }
@@ -74,7 +74,7 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
       root -> root.get("naturalId").in(naturalIds),
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
         cq.orderBy(entityManager.getCriteriaBuilder().desc(root.get("createdAt")));
       }
     );
@@ -85,7 +85,7 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
       root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId),
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
         cq.orderBy(entityManager.getCriteriaBuilder().desc(root.get("createdAt")));
       },
       page,
@@ -95,10 +95,10 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
 
   public Optional<T> findByDeviceControlId(Long controlId) {
     return findOne(
-      root -> entityManager.getCriteriaBuilder().equal(root.get("deviceControl").get("id"), controlId),
+      root -> entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("id"), controlId),
       (root, cq) -> {
         root.fetch("room", JoinType.LEFT);
-        root.fetch("deviceControl", JoinType.LEFT).fetch("client", JoinType.LEFT);
+        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
       }
     );
   }

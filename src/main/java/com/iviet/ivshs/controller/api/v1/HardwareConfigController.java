@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.DeviceControlService;
+import com.iviet.ivshs.service.HardwareConfigService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/device-controls")
-public class DeviceControlController {
+public class HardwareConfigController {
 
     @Autowired
-    private DeviceControlService deviceControlService;
+    private HardwareConfigService deviceControlService;
 
     // --- CRUD DEVICE CONTROL ---
 

@@ -10,7 +10,7 @@ import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
@@ -174,7 +174,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   }
 
   private String extractClientIpAddress(AirCondition ac) {
-    DeviceControl control = ac.getDeviceControl();
+    HardwareConfig control = ac.getHardwareConfig();
     if (control == null) {
       throw new BadRequestException("DeviceControl not found for AirCondition: " + ac.getId());
     }

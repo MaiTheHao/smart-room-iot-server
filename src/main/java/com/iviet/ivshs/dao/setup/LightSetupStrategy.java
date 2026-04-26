@@ -2,7 +2,7 @@ package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dto.SetupRequest;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
 import com.iviet.ivshs.entities.Room;
@@ -28,10 +28,10 @@ public class LightSetupStrategy extends AbstractDeviceSetupStrategy {
     public void persist(
         SetupRequest.BodyData.DeviceConfig device,
         Room room,
-        DeviceControl deviceControl
+        HardwareConfig hardwareConfig
     ) {
         Light light = new Light();
-        setupBaseIoTProperties(light, device, room, deviceControl);
+        setupBaseIoTProperties(light, device, room, hardwareConfig);
         entityManager.persist(light);
         entityManager.flush();
         attachTranslations(light, device.getTranslations(), LightLan::new);

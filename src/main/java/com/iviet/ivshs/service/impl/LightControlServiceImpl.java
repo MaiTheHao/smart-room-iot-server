@@ -9,7 +9,7 @@ import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dto.LightControlRequestBody;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.DeviceCategory;
@@ -113,7 +113,7 @@ public class LightControlServiceImpl implements LightControlService {
   }
 
   private String extractClientIpAddress(Light light) {
-    DeviceControl control = light.getDeviceControl();
+    HardwareConfig control = light.getHardwareConfig();
     if (control == null) {
       throw new BadRequestException("DeviceControl not found for Light: " + light.getId());
     }

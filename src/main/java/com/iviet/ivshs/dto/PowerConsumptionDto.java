@@ -30,7 +30,7 @@ public record PowerConsumptionDto(
             .currentWatt(entity.getCurrentWatt())
             .naturalId(entity.getNaturalId())
             .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
-            .deviceControlId(entity.getDeviceControl() != null ? entity.getDeviceControl().getId() : null)
+            .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
             .category(DeviceCategory.POWER_CONSUMPTION)
             .build();
     }

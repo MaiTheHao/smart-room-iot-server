@@ -22,7 +22,7 @@ DROP TABLE IF EXISTS `floor`;
 DROP TABLE IF EXISTS `floor_lan`;
 DROP TABLE IF EXISTS `room`;
 DROP TABLE IF EXISTS `room_lan`;
-DROP TABLE IF EXISTS `device_control`;
+DROP TABLE IF EXISTS `hardware_config`;
 
 -- ----------------------------
 -- Module: Devices & Sensors

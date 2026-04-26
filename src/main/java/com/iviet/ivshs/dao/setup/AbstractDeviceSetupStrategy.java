@@ -18,12 +18,12 @@ public abstract class AbstractDeviceSetupStrategy implements DeviceSetupStrategy
         BaseIoTEntity<?> entity,
         SetupRequest.BodyData.DeviceConfig device,
         Room room,
-        DeviceControl deviceControl
+        HardwareConfig hardwareConfig
     ) {
         entity.setIsActive(device.isActive());
         entity.setNaturalId(device.getNaturalId());
         entity.setRoom(room);
-        entity.setDeviceControl(deviceControl);
+        entity.setHardwareConfig(hardwareConfig);
 
         if (entity instanceof BaseIoTDevice<?> actuator) {
             actuator.setPower(ActuatorPower.OFF);

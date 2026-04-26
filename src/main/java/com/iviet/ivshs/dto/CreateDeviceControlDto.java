@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.entities.DeviceControl;
+import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.enumeration.DeviceControlType;
 import lombok.Builder;
 
@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Size;
 @Builder
 public record CreateDeviceControlDto(
     @NotNull(message = "Device control type is required")
-    DeviceControlType deviceControlType,
+    DeviceControlType controlType,
 
     @Min(value = 0, message = "GPIO pin must be at least 0")
     @Max(value = 40, message = "GPIO pin must not exceed 40")
@@ -39,12 +39,12 @@ public record CreateDeviceControlDto(
     @NotNull(message = "Room ID is required")
     Long roomId
 ) {
-    public DeviceControl toEntity() {
-        var deviceControl = new DeviceControl();
-        deviceControl.setDeviceControlType(deviceControlType);
-        deviceControl.setGpioPin(gpioPin);
-        deviceControl.setBleMacAddress(bleMacAddress);
-        deviceControl.setApiEndpoint(apiEndpoint);
-        return deviceControl;
+    public HardwareConfig toEntity() {
+        var hardwareConfig = new HardwareConfig();
+        hardwareConfig.setControlType(controlType);
+        hardwareConfig.setGpioPin(gpioPin);
+        hardwareConfig.setBleMacAddress(bleMacAddress);
+        hardwareConfig.setApiEndpoint(apiEndpoint);
+        return hardwareConfig;
     }
 }
