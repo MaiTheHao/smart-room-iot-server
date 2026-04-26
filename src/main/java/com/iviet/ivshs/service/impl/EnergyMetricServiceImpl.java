@@ -118,7 +118,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         // Fetch all LIGHT energy metrics and collect responses
         lightDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
             filterResponse(
-                telemetryClient.getLightEnergy(ip, d.getNaturalId()),
+                telemetryClient.fetchLightEnergyMetric(ip, d.getNaturalId()),
                 EnergyMetricCategory.LIGHT, d.getId(), d.getNaturalId(), metricsToSave
             )
         );
@@ -126,7 +126,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         // Fetch all FAN energy metrics and collect responses
         fanDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
             filterResponse(
-                telemetryClient.getFanEnergy(ip, d.getNaturalId()),
+                telemetryClient.fetchFanEnergyMetric(ip, d.getNaturalId()),
                 EnergyMetricCategory.FAN, d.getId(), d.getNaturalId(), metricsToSave
             )
         );
@@ -134,7 +134,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         // Fetch all AIR CONDITION energy metrics and collect responses
         airConditionDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
             filterResponse(
-                telemetryClient.getAcEnergy(ip, d.getNaturalId()),
+                telemetryClient.fetchAcEnergyMetric(ip, d.getNaturalId()),
                 EnergyMetricCategory.AIR_CONDITION, d.getId(), d.getNaturalId(), metricsToSave
             )
         );
@@ -142,7 +142,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         // Fetch all ROOM (Power Consumption) energy metrics and collect responses
         powerConsumptionDao.findAllActiveByClientId(gateway.id()).forEach(d -> 
             filterResponse(
-                telemetryClient.getRoomEnergy(ip, d.getNaturalId()),
+                telemetryClient.fetchRoomEnergyMetric(ip, d.getNaturalId()),
                 EnergyMetricCategory.ROOM, d.getId(), d.getNaturalId(), metricsToSave
             )
         );

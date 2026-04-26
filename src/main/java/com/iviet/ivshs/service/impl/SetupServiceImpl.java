@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.setup.DeviceSetupOrchestrator;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
@@ -17,9 +16,7 @@ import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.SetupService;
-import com.iviet.ivshs.util.HttpClientUtil;
-import com.iviet.ivshs.util.JsonUtil;
-
+import com.iviet.ivshs.service.client.GatewaySystemClient;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "SETUP")
@@ -34,6 +31,9 @@ public class SetupServiceImpl implements SetupService {
 
     @Autowired
     private DeviceSetupOrchestrator deviceSetupOrchestrator;
+
+    @Autowired
+    private GatewaySystemClient gatewaySystemClient;
 
     @Override
     @Transactional
@@ -91,24 +91,13 @@ public class SetupServiceImpl implements SetupService {
     }
 
     private SetupRequest fetchSetupData(Client client) {
-        String url = UrlConstant.getSetupUrlV1(client.getIpAddress());
-        
-        log.info("Fetching setup data from gateway: ip={}, url={}", 
-            client.getIpAddress(), url);
+        log.info("Fetching setup data from gateway: ip={}", client.getIpAddress());
         
         try {
-            var res = HttpClientUtil.get(url);
-            
-            if (!res.isSuccess()) {
-                log.error("Gateway rejected request: status={}, ip={}", 
-                    res.getStatusCode(), client.getIpAddress());
-                throw new ExternalServiceException(
-                    "Gateway rejected request. Status: " + res.getStatusCode() + 
-                    ". Please check gateway service health."
-                );
-            }
+            SetupRequest req = gatewaySystemClient.fetchSetup(client.getIpAddress())
+                .throwIfError()
+                .getBody();
 
-            SetupRequest req = JsonUtil.fromJson(res.getBody(), SetupRequest.class);
             validateData(req);
             
             log.info("Successfully fetched setup data: roomCode={}, devices={}", 
@@ -124,13 +113,8 @@ public class SetupServiceImpl implements SetupService {
                 "Gateway connection timed out at " + client.getIpAddress() + ". " +
                 "Please verify gateway is online and network is accessible."
             );
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid JSON response from gateway: ip={}, error={}", 
-                client.getIpAddress(), e.getMessage());
-            throw new ExternalServiceException(
-                "Gateway returned invalid data format. Please check gateway firmware version."
-            );
         } catch (ExternalServiceException e) {
+            log.error("Gateway error: ip={}, error={}", client.getIpAddress(), e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error("Unexpected error fetching setup data: ip={}, error={}", 

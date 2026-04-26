@@ -79,7 +79,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
     // ======= Find Gateways by Room ID =======
     public List<Client> findGatewaysByRoomId(Long roomId, int page, int size) {
         String jpql = "SELECT DISTINCT c FROM Client c " +
-                      "JOIN c.deviceControls dc " +
+                      "JOIN c.hardwareConfigs dc " +
                       "WHERE dc.room.id = :roomId " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
@@ -94,7 +94,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
     public List<Client> findGatewaysByRoomId(Long roomId) {
         String jpql = "SELECT DISTINCT c FROM Client c " +
-                      "JOIN c.deviceControls dc " +
+                      "JOIN c.hardwareConfigs dc " +
                       "WHERE dc.room.id = :roomId " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
@@ -107,7 +107,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
     public long countGatewaysByRoomId(Long roomId) {
         String jpql = "SELECT COUNT(DISTINCT c) FROM Client c " +
-                      "JOIN c.deviceControls dc " +
+                      "JOIN c.hardwareConfigs dc " +
                       "WHERE dc.room.id = :roomId " +
                       "AND c.clientType = :clientType";
 
@@ -120,7 +120,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
     // ======= Find Gateways by Room Code =======
     public List<Client> findGatewaysByRoomCode(String roomCode, int page, int size) {
         String jpql = "SELECT DISTINCT c FROM Client c " +
-                      "JOIN c.deviceControls dc " +
+                      "JOIN c.hardwareConfigs dc " +
                       "WHERE dc.room.code = :roomCode " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";
@@ -135,7 +135,7 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
 
     public List<Client> findGatewaysByRoomCode(String roomCode) {
         String jpql = "SELECT DISTINCT c FROM Client c " +
-                      "JOIN c.deviceControls dc " +
+                      "JOIN c.hardwareConfigs dc " +
                       "WHERE dc.room.code = :roomCode " +
                       "AND c.clientType = :clientType " +
                       "ORDER BY c.createdAt DESC";

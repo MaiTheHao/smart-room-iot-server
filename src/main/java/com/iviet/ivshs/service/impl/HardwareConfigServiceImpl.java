@@ -100,8 +100,8 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
     public PaginatedResponse<DeviceControlDto> getListByClientId(Long clientId, int page, int size) {
         if (clientId == null) throw new BadRequestException("Client ID is required");
         
-        var deviceControls = deviceControlDao.findByClientId(clientId, page, size);
-        var content = deviceControls.stream().map(DeviceControlDto::from).toList();
+        var hardwareConfigs = deviceControlDao.findByClientId(clientId, page, size);
+        var content = hardwareConfigs.stream().map(DeviceControlDto::from).toList();
         Long totalElements = deviceControlDao.countByClientId(clientId);
         
         return new PaginatedResponse<>(content, page, size, totalElements);
@@ -111,8 +111,8 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
     public PaginatedResponse<DeviceControlDto> getListByRoomId(Long roomId, int page, int size) {
         if (roomId == null) throw new BadRequestException("Room ID is required");
         
-        var deviceControls = deviceControlDao.findByRoomId(roomId, page, size);
-        var content = deviceControls.stream().map(DeviceControlDto::from).toList();
+        var hardwareConfigs = deviceControlDao.findByRoomId(roomId, page, size);
+        var content = hardwareConfigs.stream().map(DeviceControlDto::from).toList();
         Long totalElements = deviceControlDao.countByRoomId(roomId);
         
         return new PaginatedResponse<>(content, page, size, totalElements);

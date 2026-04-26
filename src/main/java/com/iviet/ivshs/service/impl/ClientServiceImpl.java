@@ -222,8 +222,8 @@ public class ClientServiceImpl implements ClientService {
   public void deleteAllDeviceControl(Long clientId) {
     Client client = clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
-    if (client.getDeviceControls() != null && !client.getDeviceControls().isEmpty()) {
-      client.getDeviceControls().clear();
+    if (client.getHardwareConfigs() != null && !client.getHardwareConfigs().isEmpty()) {
+      client.getHardwareConfigs().clear();
     }
 
     clientDao.update(client);

@@ -892,8 +892,6 @@ public class HttpClientUtil {
 			}
 		});
 
-		log.info("HTTP response returned status code: {}", response.statusCode());
-
 		if (typeReference != null) {
 			return new Response<>(response.statusCode(), response.body(), responseHeaders, typeReference);
 		}

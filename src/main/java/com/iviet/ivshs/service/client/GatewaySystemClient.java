@@ -1,5 +1,8 @@
 package com.iviet.ivshs.service.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.iviet.ivshs.dto.HealthCheckResponseDto;
+import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.util.HttpClientUtil;
 import org.springframework.stereotype.Service;
 
@@ -9,13 +12,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class GatewaySystemClient extends GatewayBaseClient {
 
-    public HttpClientUtil.Response<String> setup(String ip, Object setupData) {
+    public HttpClientUtil.Response<SetupRequest> fetchSetup(String ip) {
         String url = build(ip, API_V1, "setup");
-        return HttpClientUtil.post(url, setupData);
+        return HttpClientUtil.get(url, new TypeReference<SetupRequest>() {});
     }
 
-    public HttpClientUtil.Response<String> healthCheck(String ip) {
+    public HttpClientUtil.Response<HealthCheckResponseDto> fetchHealthCheck(String ip) {
         String url = build(ip, API_V1, "health-check");
-        return HttpClientUtil.get(url);
+        return HttpClientUtil.get(url, new TypeReference<HealthCheckResponseDto>() {}) ;
     }
 }

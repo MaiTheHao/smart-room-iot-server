@@ -14,35 +14,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class GatewayTelemetryClient extends GatewayBaseClient {
 
-    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> getLightEnergy(String ip, String naturalId) {
+    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> fetchLightEnergyMetric(String ip, String naturalId) {
         String url = build(ip, API_V1, "lights/" + naturalId + "/telemetry");
-        return fetchEnergyMetric(url);
+        return HttpClientUtil.get(url, new TypeReference<ApiResponse<EnergyMetricDto>>() {});
     }
 
-    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> getFanEnergy(String ip, String naturalId) {
+    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> fetchFanEnergyMetric(String ip, String naturalId) {
         String url = build(ip, API_V1, "fans/" + naturalId + "/telemetry");
-        return fetchEnergyMetric(url);
+        return HttpClientUtil.get(url, new TypeReference<ApiResponse<EnergyMetricDto>>() {});
     }
 
-    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> getAcEnergy(String ip, String naturalId) {
+    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> fetchAcEnergyMetric(String ip, String naturalId) {
         String url = build(ip, API_V1, "air-conditions/" + naturalId + "/telemetry");
-        return fetchEnergyMetric(url);
+        return HttpClientUtil.get(url, new TypeReference<ApiResponse<EnergyMetricDto>>() {});
     }
 
-    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> getRoomEnergy(String ip, String naturalId) {
+    public HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> fetchRoomEnergyMetric(String ip, String naturalId) {
         String url = build(ip, API_V1, "power-consumptions/" + naturalId + "/telemetry");
-        return fetchEnergyMetric(url);
+        return HttpClientUtil.get(url, new TypeReference<ApiResponse<EnergyMetricDto>>() {});
     }
-
-    private HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> fetchEnergyMetric(String url) {
-        try {
-            var typeRef = new TypeReference<ApiResponse<EnergyMetricDto>>() {};
-            var response = HttpClientUtil.get(url, typeRef);
-            return response;
-        } catch (Exception e) {
-            log.error("Failed to fetch EnergyMetric from {}: {}", url, e.getMessage());
-            return null;
-        }
-    }
-
 }
