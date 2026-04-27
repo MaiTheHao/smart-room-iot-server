@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import java.util.List;
 import com.iviet.ivshs.jwt.AuthEntryPointJwt;
 import com.iviet.ivshs.jwt.AuthTokenFilter;
+import com.iviet.ivshs.jwt.RateLimitFilter;
 import com.iviet.ivshs.jwt.JwtUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,6 +53,11 @@ public class SecurityConfig {
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
+    }
+
+    @Bean
+    public RateLimitFilter rateLimitFilter() {
+        return new RateLimitFilter();
     }
 
     @Bean
@@ -120,6 +126,7 @@ public class SecurityConfig {
             })
         )
             .authenticationProvider(authenticationProvider())
+            .addFilterBefore(rateLimitFilter(), org.springframework.security.web.authentication.logout.LogoutFilter.class)
             .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
