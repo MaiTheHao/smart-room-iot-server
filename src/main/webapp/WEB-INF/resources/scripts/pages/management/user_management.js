@@ -66,7 +66,7 @@ class UserManager {
 		$('#createUserBtn').on('click', () => this.handleCreateUser());
 		$('#saveEditBtn').on('click', () => this.handleUpdateUser());
 		$('#saveGroupsBtn').on('click', () => this.handleSaveRoles());
-
+		
 		$('#usersTable tbody')
 			.on('click', '.btn-manage-roles', (e) => this.openRolesModal($(e.currentTarget)))
 			.on('click', '.btn-edit-user', (e) => this.openEditModal($(e.currentTarget).data('id')))
@@ -136,6 +136,7 @@ class UserManager {
 			ipAddress: $('#createIpAddress').val() || null,
 			macAddress: $('#createMacAddress').val() || null,
 			avatarUrl: $('#createAvatarUrl').val() || null,
+			gatewayPassword: $('#createGatewayPassword').val() || null,
 		};
 
 		try {
@@ -159,7 +160,9 @@ class UserManager {
 			$('#editIpAddress').val(user.ipAddress || '');
 			$('#editMacAddress').val(user.macAddress || '');
 			$('#editAvatarUrl').val(user.avatarUrl || '');
+			$('#editGatewayPassword').val(user.gatewayPassword || ''); 
 			$('#editModalTitle').text(`Edit User: ${user.username}`);
+
 			$('#editUserModal').modal('show');
 		} catch (error) {
 			notify.error(error.message || 'Failed to load user data');
@@ -181,6 +184,7 @@ class UserManager {
 			ipAddress: $('#editIpAddress').val() || null,
 			macAddress: $('#editMacAddress').val() || null,
 			avatarUrl: $('#editAvatarUrl').val() || null,
+			gatewayPassword: $('#editGatewayPassword').val() || null,
 		};
 
 		try {

@@ -13,7 +13,8 @@ public record ClientDto(
     String ipAddress,
     String macAddress,
     String avatarUrl,
-    Date lastLoginAt
+    Date lastLoginAt,
+    String gatewayPassword
 ) {
     public static ClientDto from(Client entity) {
         if (entity == null) return null;
@@ -25,6 +26,7 @@ public record ClientDto(
                 .macAddress(entity.getMacAddress())
                 .avatarUrl(entity.getAvatarUrl())
                 .lastLoginAt(entity.getLastLoginAt())
+                .gatewayPassword(entity.getGatewayPassword())
                 .build();
     }
 
@@ -38,6 +40,7 @@ public record ClientDto(
         entity.setMacAddress(dto.macAddress());
         entity.setAvatarUrl(dto.avatarUrl());
         entity.setLastLoginAt(dto.lastLoginAt());
+        entity.setGatewayPassword(dto.gatewayPassword());
         return entity;
     }
 }

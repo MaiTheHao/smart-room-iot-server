@@ -192,6 +192,20 @@
                       </div>
                     </div>
                   </div>
+                  <div class="row" id="createGatewayPasswordContainer">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="createGatewayPassword" th:text="#{user.modal.gateway.password}">Gateway Password</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="createGatewayPassword"
+                          maxlength="255"
+                          th:placeholder="#{user.modal.gateway.password.hint}"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </form>
               </div>
               <th:block
@@ -251,6 +265,20 @@
                       <div class="form-group">
                         <label for="editAvatarUrl" th:text="#{user.modal.avatar}">Avatar URL</label>
                         <input type="url" class="form-control" id="editAvatarUrl" maxlength="255" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row" id="editGatewayPasswordContainer">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label for="editGatewayPassword" th:text="#{user.modal.gateway.password}">Gateway Password</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="editGatewayPassword"
+                          maxlength="255"
+                          th:placeholder="#{user.modal.gateway.password.hint}"
+                        />
                       </div>
                     </div>
                   </div>

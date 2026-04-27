@@ -135,8 +135,9 @@
 | password   | string       | Có       | Mật khẩu (6-100 ký tự)                   |
 | clientType | ClientTypeV1 | Có       | Loại client (`USER`, `HARDWARE_GATEWAY`) |
 | ipAddress  | string       | Không    | Địa chỉ IP (IPv4/IPv6, tối đa 45 ký tự)  |
-| macAddress | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
-| avatarUrl  | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
+| macAddress      | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
+| avatarUrl       | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
+| gatewayPassword | string       | Không    | Mật khẩu Gateway (tối đa 255 ký tự)      |
 
 ### Request Example
 
@@ -147,7 +148,8 @@
 	"clientType": "USER",
 	"ipAddress": "192.168.1.12",
 	"macAddress": "22:33:44:55:66:77",
-	"avatarUrl": "https://example.com/avatar3.png"
+	"avatarUrl": "https://example.com/avatar3.png",
+	"gatewayPassword": "gateway_secret"
 }
 ```
 
@@ -191,8 +193,9 @@
 | password   | string       | Không    | Mật khẩu (6-100 ký tự)                   |
 | clientType | ClientTypeV1 | Không    | Loại client (`USER`, `HARDWARE_GATEWAY`) |
 | ipAddress  | string       | Không    | Địa chỉ IP (IPv4/IPv6, tối đa 45 ký tự)  |
-| macAddress | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
-| avatarUrl  | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
+| macAddress      | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
+| avatarUrl       | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
+| gatewayPassword | string       | Không    | Mật khẩu Gateway (tối đa 255 ký tự)      |
 
 ### Request Example
 
@@ -200,7 +203,8 @@
 {
 	"username": "updatedclient",
 	"clientType": "HARDWARE_GATEWAY",
-	"avatarUrl": "https://example.com/avatar4.png"
+	"avatarUrl": "https://example.com/avatar4.png",
+	"gatewayPassword": "new_gateway_secret"
 }
 ```
 

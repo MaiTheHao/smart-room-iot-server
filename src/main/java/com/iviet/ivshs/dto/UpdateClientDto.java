@@ -31,7 +31,10 @@ public record UpdateClientDto(
 
     @URL(message = "Invalid avatar URL")
     @Size(max = 255, message = "Avatar URL must not exceed 255 characters")
-    String avatarUrl
+    String avatarUrl,
+
+    @Size(max = 255, message = "Gateway password too long")
+    String gatewayPassword
 ) {
     public static void applyToEntity(UpdateClientDto dto, Client entity) {
         if (dto == null || entity == null) return;

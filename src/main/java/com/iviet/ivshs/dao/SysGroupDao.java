@@ -76,7 +76,7 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
   }
 
   public List<ClientDto> findClientsByGroupId(Long groupId, int page, int size) {
-    String jpql = "SELECT new %s(c.id, c.username, c.clientType, c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt) " +
+    String jpql = "SELECT new %s(c.id, c.username, c.clientType, c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt, c.gatewayPassword) " +
           "FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId ORDER BY c.username ASC";
     return entityManager.createQuery(String.format(jpql, CLIENT_DTO), ClientDto.class)
         .setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();

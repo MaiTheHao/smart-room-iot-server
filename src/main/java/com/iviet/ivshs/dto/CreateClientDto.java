@@ -38,7 +38,10 @@ public record CreateClientDto(
 
     @URL(message = "Invalid avatar URL")
     @Size(max = 255, message = "Avatar URL must not exceed 255 characters")
-    String avatarUrl
+    String avatarUrl,
+
+    @Size(max = 255, message = "Gateway password too long")
+    String gatewayPassword
 ) {
     public static Client toEntity(CreateClientDto dto) {
         if (dto == null) return null;

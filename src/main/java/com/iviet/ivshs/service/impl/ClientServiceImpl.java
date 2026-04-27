@@ -198,7 +198,12 @@ public class ClientServiceImpl implements ClientService {
       if (ip != null && !ip.contains(":")) {
         client.setIpAddress(ip + ":" + defaultGatewayPort);
       }
-      client.setGatewayPassword(createDto.password()); // Store plain text for gateway auth
+      
+      if (createDto.gatewayPassword() != null && !createDto.gatewayPassword().trim().isEmpty()) {
+        client.setGatewayPassword(createDto.gatewayPassword().trim());
+      } else {
+        client.setGatewayPassword(createDto.password()); // Default to password
+      }
     }
 
     Client savedClient = clientDao.save(client);
@@ -226,9 +231,13 @@ public class ClientServiceImpl implements ClientService {
 
     if (updateDto.password() != null && !updateDto.password().trim().isEmpty()) {
       client.setPasswordHash(passwordEncoder.encode(updateDto.password()));
-      if (client.getClientType() == ClientType.HARDWARE_GATEWAY) {
-        client.setGatewayPassword(updateDto.password().trim());
-      }
+    }
+
+    if (updateDto.gatewayPassword() != null && !updateDto.gatewayPassword().trim().isEmpty()) {
+      client.setGatewayPassword(updateDto.gatewayPassword().trim());
+    } else if (updateDto.password() != null && !updateDto.password().trim().isEmpty() && client.getClientType() == ClientType.HARDWARE_GATEWAY) {
+      // Fallback: if gatewayPassword is not provided but password is, use password as gatewayPassword for gateways
+      client.setGatewayPassword(updateDto.password().trim());
     }
 
     clientDao.update(client);
