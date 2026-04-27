@@ -1,6 +1,7 @@
 package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ClientServiceImpl implements ClientService {
 
   private final ClientDao clientDao;
+  private final RoomDao roomDao;
   private final BCryptPasswordEncoder passwordEncoder;
 
   @org.springframework.beans.factory.annotation.Value("${app.gateway.port:9090}")
@@ -248,10 +250,11 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   @Transactional
-  public void deleteAllDeviceControl(Long clientId) {
+  public void deleteAllHardwareConfig(Long clientId) {
     Client client = clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
     if (client.getHardwareConfigs() != null && !client.getHardwareConfigs().isEmpty()) {
+      roomDao.touchRoomsByClientId(clientId);
       client.getHardwareConfigs().clear();
     }
 

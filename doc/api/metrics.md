@@ -116,6 +116,7 @@
 | LIGHT | Thiết bị chiếu sáng |
 | AIR_CONDITION | Điều hòa nhiệt độ |
 | FAN | Thiết bị quạt |
+| ROOM | Thiết bị đo tiêu thụ điện năng |
 
 </details>
 

@@ -143,4 +143,19 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 .setParameter("roomIds", roomIds)
                 .getResultList();
     }
+    
+    public void touchRoomsByClientId(Long clientId) {
+        String jpql = """
+                SELECT DISTINCT r 
+                FROM Room r 
+                JOIN HardwareConfig hc ON hc.room.id = r.id 
+                WHERE hc.client.id = :clientId
+                """;
+        
+        java.util.List<Room> rooms = entityManager.createQuery(jpql, Room.class)
+                .setParameter("clientId", clientId)
+                .getResultList();
+        
+        rooms.forEach(Room::touch);
+    }
 }

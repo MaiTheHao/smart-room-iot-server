@@ -52,7 +52,7 @@ public interface ClientService {
 
   void delete(Long clientId);
 
-  void deleteAllDeviceControl(Long clientId);
+  void deleteAllHardwareConfig(Long clientId);
 
   long countGatewaysByRoomId(Long roomId);
 

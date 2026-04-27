@@ -73,11 +73,11 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}/device-controls")
-    public ResponseEntity<ApiResponse<Void>> deleteAllDeviceControl(
+    public ResponseEntity<ApiResponse<Void>> deleteAllHardwareConfig(
             @PathVariable(name = "id") Long id) {
-        clientService.deleteAllDeviceControl(id);
+        clientService.deleteAllHardwareConfig(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
             .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
-                "All device controls deleted successfully"));
+                "All hardware configurations deleted successfully"));
     }
 }

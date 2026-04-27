@@ -99,7 +99,8 @@ public class DeviceSetupOrchestrator {
         }
 
         entityManager.flush();
-        log.info("Persist: All devices persisted successfully: count={}", processedCount);
+        room.touch();
+        log.info("Persist: All devices persisted successfully: count={}, roomId={}", processedCount, room.getId());
 
         return processedCount;
     }

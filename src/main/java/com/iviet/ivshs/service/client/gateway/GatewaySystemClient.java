@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.client.gateway;
 
-import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.HealthCheckResponseDto;
 import com.iviet.ivshs.dto.SetupRequest;
 import lombok.RequiredArgsConstructor;
