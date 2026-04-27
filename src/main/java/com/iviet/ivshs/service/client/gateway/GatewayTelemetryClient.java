@@ -21,23 +21,23 @@ public class GatewayTelemetryClient extends GatewayBaseClient {
     private final RestTemplate restTemplate;
 
     public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchLightEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, "lights", naturalId);
+        return executeGetTelemetry(ip, String.format("light/%s/telemetry", naturalId));
     }
 
     public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchFanEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, "fans", naturalId);
+        return executeGetTelemetry(ip, String.format("fan/%s/telemetry", naturalId));
     }
 
     public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchAcEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, "air-conditions", naturalId);
+        return executeGetTelemetry(ip, String.format("ac/%s/telemetry", naturalId));
     }
 
     public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchRoomEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, "power-consumptions", naturalId);
+        return executeGetTelemetry(ip, String.format("power-consumption/%s/telemetry", naturalId));
     }
 
     public ResponseEntity<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
-        String url = buildUri(ip, API_V1, "telemetry");
+        String url = buildUri(ip, API_V2, "telemetry");
         return restTemplate.exchange(
                 url, 
                 HttpMethod.GET, 
@@ -46,8 +46,8 @@ public class GatewayTelemetryClient extends GatewayBaseClient {
         );
     }
 
-    private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String resource, String naturalId) {
-        String url = buildUri(ip, API_V1, String.format("%s/%s/telemetry", resource, naturalId));
+    private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String endpoint) {
+        String url = buildUri(ip, API_V2, endpoint);
         return restTemplate.exchange(
                 url, 
                 HttpMethod.GET, 

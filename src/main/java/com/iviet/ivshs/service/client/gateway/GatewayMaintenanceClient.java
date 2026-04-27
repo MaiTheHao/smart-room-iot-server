@@ -19,24 +19,24 @@ public class GatewayMaintenanceClient extends GatewayBaseClient {
     private final RestTemplate restTemplate;
 
     public ResponseEntity<ApiResponse<String>> resetAcEnergy(String ip, String naturalId) {
-        return executeReset(ip, "air-conditions", naturalId);
+        return executeReset(ip, String.format("ac/%s/resetEnergy", naturalId));
     }
 
     public ResponseEntity<ApiResponse<String>> resetFanEnergy(String ip, String naturalId) {
-        return executeReset(ip, "fans", naturalId);
+        return executeReset(ip, String.format("fan/%s/resetEnergy", naturalId));
     }
 
     public ResponseEntity<ApiResponse<String>> resetLightEnergy(String ip, String naturalId) {
-        return executeReset(ip, "lights", naturalId);
+        return executeReset(ip, String.format("light/%s/resetEnergy", naturalId));
     }
 
     public ResponseEntity<ApiResponse<String>> resetRoomEnergy(String ip, String naturalId) {
-        return executeReset(ip, "power-consumptions", naturalId);
+        return executeReset(ip, String.format("power-consumption/resetEnergy/%s", naturalId));
     }
 
     // --- Private Helper Methods ---
-    private ResponseEntity<ApiResponse<String>> executeReset(String ip, String resource, String naturalId) {
-        String url = buildUri(ip, API_V1, String.format("%s/%s/reset", resource, naturalId));
-        return restTemplate.exchange(url, HttpMethod.POST, HttpEntity.EMPTY, new ParameterizedTypeReference<ApiResponse<String>>() {});
+    private ResponseEntity<ApiResponse<String>> executeReset(String ip, String endpoint) {
+        String url = buildUri(ip, API_V2, endpoint);
+        return restTemplate.exchange(url, HttpMethod.PUT, HttpEntity.EMPTY, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 }
