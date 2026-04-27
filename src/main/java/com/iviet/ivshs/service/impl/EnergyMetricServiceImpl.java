@@ -181,7 +181,11 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             }
 
             EnergyMetricDto dto = apiResponse.getData();
-            EnergyMetric metric = dto.toEntity(naturalId, targetId);
+            if (dto.getTimestamp() == null) {
+                dto.setTimestamp(apiResponse.getTimestamp() != null ? apiResponse.getTimestamp() : Instant.now());
+            }
+            
+            EnergyMetric metric = dto.toEntity(category.name(), targetId);
             metricsToSave.add(metric);
 
             log.debug("Fetch: Collected metric for {}/{} power={}W", 

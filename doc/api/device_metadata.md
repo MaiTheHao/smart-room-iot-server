@@ -9,6 +9,8 @@
 <summary><b>GET</b> <code>/api/v1/rooms/{roomId}/devices</code> - Lấy thiết bị theo phòng</summary>
 
 > Lấy danh sách thiết bị theo ID phòng.
+> 
+> **Lưu ý:** API này được tối ưu hóa bằng cách truy vấn song song (Asynchronous) các loại thiết bị khác nhau để giảm thời gian phản hồi.
 
 ### Path Parameters
 

@@ -56,11 +56,11 @@ class ClientApiV1Service {
     }
   }
 
-  async deleteAllDeviceControls(clientId) {
+  async deleteAllHardwareConfigs(clientId) {
     try {
-      return await window.http.delete(this.api.DELETE_ALL_DEVICE_CONTROLS(clientId));
+      return await window.http.delete(this.api.DELETE_ALL_HARDWARE_CONFIGS(clientId));
     } catch (error) {
-      this.#handleError(`delete all device controls for client ${clientId}`, error);
+      this.#handleError(`delete all hardware configs for client ${clientId}`, error);
     }
   }
 

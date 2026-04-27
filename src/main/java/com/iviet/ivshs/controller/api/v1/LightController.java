@@ -79,11 +79,11 @@ public class LightController {
     }
 
     @PutMapping("/{naturalId}/control")
-    public ResponseEntity<ApiResponse<Void>> controlLight(
+    public ResponseEntity<ApiResponse<ControlDeviceResult>> controlLight(
             @PathVariable(name = "naturalId") String naturalId,
             @RequestBody @Valid LightControlRequestBody request) {
         
-        lightControlService.control(naturalId, request);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
+        ControlDeviceResult result = lightControlService.control(naturalId, request);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
     }
 }

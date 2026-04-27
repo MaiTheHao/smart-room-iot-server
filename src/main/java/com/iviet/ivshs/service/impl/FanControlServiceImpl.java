@@ -19,6 +19,11 @@ import com.iviet.ivshs.service.FanControlService;
 
 import lombok.RequiredArgsConstructor;
 
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import org.springframework.http.ResponseEntity;
+import com.iviet.ivshs.dto.ApiResponse;
+import java.util.function.Supplier;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,138 +44,153 @@ public class FanControlServiceImpl implements FanControlService {
 
   @Override
   @Transactional
-  public void handlePowerControl(String naturalId, ActuatorPower power) {
+  public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
     fan.setPower(power);
     fanDao.save(fan);
-    handlePowerControlCall(gatewayIp, fan.getNaturalId(), power);
+    return handlePowerControlCall(gatewayIp, fan.getNaturalId(), power);
   }
 
   @Override
   @Transactional
-  public void handleTogglePowerControl(String naturalId) {
+  public ControlDeviceResult handleTogglePowerControl(String naturalId) {
     Fan fan = getOrThrow(naturalId);
     ActuatorPower newPowerState = (fan.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(fan);
     fan.setPower(newPowerState);
     fanDao.save(fan);
-    handlePowerControlCall(gatewayIp, fan.getNaturalId(), newPowerState);
+    return handlePowerControlCall(gatewayIp, fan.getNaturalId(), newPowerState);
   }
 
   @Override
   @Transactional
-  public void handleModeControl(String naturalId, ActuatorMode mode) {
+  public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
     if (fan instanceof FanIr fanIr) {
       fanIr.setMode(mode);
       fanDao.save(fanIr);
     }
-    handleModeControlCall(gatewayIp, fan.getNaturalId(), mode);
+    return handleModeControlCall(gatewayIp, fan.getNaturalId(), mode);
   }
 
   @Override
   @Transactional
-  public void handleSpeedControl(String naturalId, int speed) {
+  public ControlDeviceResult handleSpeedControl(String naturalId, int speed) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
     fan.setSpeed(speed);
     fanDao.save(fan);
-    handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
+    return handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
   }
 
   @Override
   @Transactional
-  public void handleSwingControl(String naturalId, ActuatorSwing swing) {
+  public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
     if (fan instanceof FanIr fanIr) {
       fanIr.setSwing(swing);
       fanDao.save(fanIr);
     }
-    handleSwingControlCall(gatewayIp, fan.getNaturalId(), swing);
+    return handleSwingControlCall(gatewayIp, fan.getNaturalId(), swing);
   }
 
   @Override
   @Transactional
-  public void handleLightControl(String naturalId, ActuatorState light) {
+  public ControlDeviceResult handleLightControl(String naturalId, ActuatorState light) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
     if (fan instanceof FanIr fanIr) {
       fanIr.setLight(light);
       fanDao.save(fanIr);
     }
-    handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
+    return handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
   }
 
   @Override
   @Transactional
-  public void control(String naturalId, FanControlRequestBody body) {
+  public ControlDeviceResult control(String naturalId, FanControlRequestBody body) {
     Fan fan = getOrThrow(naturalId);
-    applyControlParams(fan, body);
+    return applyControlParams(fan, body);
   }
 
   @Override
   @Transactional
-  public void control(Long id, FanControlRequestBody body) {
+  public ControlDeviceResult control(Long id, FanControlRequestBody body) {
     Fan fan = fanDao.findById(id).orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
-    applyControlParams(fan, body);
+    return applyControlParams(fan, body);
   }
 
-  private void applyControlParams(Fan fan, FanControlRequestBody body) {
+  private ControlDeviceResult applyControlParams(Fan fan, FanControlRequestBody body) {
     String gatewayIp = extractClientIpAddress(fan);
+    ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
       fan.setPower(body.power());
-      handlePowerControlCall(gatewayIp, fan.getNaturalId(), body.power());
+      executeControl(result, "power", () -> gatewayControlClient.controlFanPowerV2(gatewayIp, fan.getNaturalId(), body.power()));
     }
     if (body.speed() != null) {
       fan.setSpeed(body.speed());
-      handleSpeedControlCall(gatewayIp, fan.getNaturalId(), body.speed());
+      executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeedV2(gatewayIp, fan.getNaturalId(), body.speed()));
     }
     if (body.mode() != null && fan instanceof FanIr fanIr) {
       fanIr.setMode(body.mode());
-      handleModeControlCall(gatewayIp, fan.getNaturalId(), body.mode());
+      executeControl(result, "mode", () -> gatewayControlClient.controlFanModeV2(gatewayIp, fan.getNaturalId(), body.mode()));
     }
     if (body.swing() != null && fan instanceof FanIr fanIr) {
       fanIr.setSwing(body.swing());
-      handleSwingControlCall(gatewayIp, fan.getNaturalId(), body.swing());
+      executeControl(result, "swing", () -> gatewayControlClient.controlFanSwingV2(gatewayIp, fan.getNaturalId(), body.swing()));
     }
     if (body.light() != null && fan instanceof FanIr fanIr) {
       fanIr.setLight(body.light());
-      handleLightControlCall(gatewayIp, fan.getNaturalId(), body.light());
+      executeControl(result, "light", () -> gatewayControlClient.controlFanLightV2(gatewayIp, fan.getNaturalId(), body.light()));
     }
     fanDao.save(fan);
+    return result;
   }
 
-  private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlFanPowerV2(gatewayIp, naturalId, power)
-    ).exceptionally(ex -> null);
+  private void executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+    try {
+      ResponseEntity<ApiResponse<String>> response = call.get();
+      if (response.getStatusCode().is2xxSuccessful()) {
+        result.addDetail(parameter, true, "Success");
+      } else {
+        result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
+      }
+    } catch (Exception e) {
+      result.addDetail(parameter, false, e.getMessage());
+    }
   }
 
-  private void handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlFanModeV2(gatewayIp, naturalId, mode)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "power", () -> gatewayControlClient.controlFanPowerV2(gatewayIp, naturalId, power));
+    return result;
   }
 
-  private void handleSpeedControlCall(String gatewayIp, String naturalId, int speed) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlFanSpeedV2(gatewayIp, naturalId, speed)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "mode", () -> gatewayControlClient.controlFanModeV2(gatewayIp, naturalId, mode));
+    return result;
   }
 
-  private void handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlFanSwingV2(gatewayIp, naturalId, swing)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handleSpeedControlCall(String gatewayIp, String naturalId, int speed) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeedV2(gatewayIp, naturalId, speed));
+    return result;
   }
 
-  private void handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlFanLightV2(gatewayIp, naturalId, light)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "swing", () -> gatewayControlClient.controlFanSwingV2(gatewayIp, naturalId, swing));
+    return result;
+  }
+
+  private ControlDeviceResult handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "light", () -> gatewayControlClient.controlFanLightV2(gatewayIp, naturalId, light));
+    return result;
   }
 
   private Fan getOrThrow(String naturalId) {

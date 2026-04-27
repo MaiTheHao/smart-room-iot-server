@@ -39,7 +39,14 @@ const SMRC_API_V1 = {
     BY_GROUP: (groupId) => `/api/v1/groups/${groupId}/clients`,
     BY_GROUP_ALL: (groupId) => `/api/v1/groups/${groupId}/clients/all`,
     BY_GROUP_COUNT: (groupId) => `/api/v1/groups/${groupId}/clients/count`,
-    DELETE_ALL_DEVICE_CONTROLS: (clientId) => `/api/v1/clients/${clientId}/device-controls`,
+    DELETE_ALL_HARDWARE_CONFIGS: (clientId) => `/api/v1/clients/${clientId}/device-controls`,
+  },
+
+  HARDWARE_CONFIG: {
+    PATH: '/api/v1/device-controls',
+    DETAIL: (id) => `/api/v1/device-controls/${id}`,
+    BY_CLIENT: (clientId) => `/api/v1/device-controls/client/${clientId}`,
+    BY_ROOM: (roomId) => `/api/v1/device-controls/room/${roomId}`,
   },
 
   SETUP: {
@@ -91,6 +98,7 @@ const SMRC_API_V1 = {
   DEVICE_METADATA: {
     ALL: '/api/v1/devices/all',
     BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/devices`,
+    COUNT_BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/devices/count`,
   },
 
   LIGHT: {
@@ -105,9 +113,9 @@ const SMRC_API_V1 = {
     PATH: '/api/v1/fans',
     ALL: '/api/v1/fans/all',
     DETAIL: (id) => `/api/v1/fans/${id}`,
-    BY_ROOM: (roomId) => `/api/v1/room/${roomId}/fans`,
-    ALL_BY_ROOM: (roomId) => `/api/v1/room/${roomId}/fans/all`,
-    BY_ROOM_NATURAL_ID: (roomId, naturalId) => `/api/v1/room/${roomId}/fans/${naturalId}`,
+    BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/fans`,
+    ALL_BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/fans/all`,
+    BY_ROOM_NATURAL_ID: (roomId, naturalId) => `/api/v1/rooms/${roomId}/fans/${naturalId}`,
     CONTROL: (naturalId) => `/api/v1/fans/${naturalId}/control`,
   },
 
@@ -123,8 +131,6 @@ const SMRC_API_V1 = {
     PATH: '/api/v1/telemetries',
     BY_GATEWAY: (gatewayUsername) => `/api/v1/telemetries/gateway/${gatewayUsername}`,
     BY_ROOM: (roomCode) => `/api/v1/telemetries/room/${roomCode}`,
-    TEMPERATURE: (naturalId) => `/api/v1/telemetries/temperature/${naturalId}`,
-    POWER_CONSUMPTION: (naturalId) => `/api/v1/telemetries/power-consumption/${naturalId}`,
   },
 
   RULE: {

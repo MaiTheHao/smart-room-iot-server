@@ -39,3 +39,14 @@
 
 - [Language (Ngôn ngữ)](language.md)
 - [Health Check (Kiểm tra trạng thái hệ thống)](health_check.md)
+
+---
+
+## Common Error Responses
+
+| Mã lỗi | Ý nghĩa | Mô tả |
+| :--- | :--- | :--- |
+| 401 | Unauthorized | Token không hợp lệ hoặc hết hạn. |
+| 403 | Forbidden | Không có quyền truy cập endpoint này. |
+| 429 | Too Many Requests | Vượt quá giới hạn tần suất request (Rate limiting). |
+| 500 | Internal Error | Lỗi hệ thống hoặc lỗi kết nối Gateway. |

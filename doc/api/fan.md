@@ -41,7 +41,8 @@
 				"mode": "NORMAL",
 				"swing": "ON",
 				"light": "OFF",
-				"deviceControlId": 1
+				"deviceControlId": 1,
+				"category": "FAN"
 			}
 		],
 		"page": 0,
@@ -82,7 +83,8 @@
 			"mode": "NORMAL",
 			"swing": "ON",
 			"light": "OFF",
-			"deviceControlId": 1
+			"deviceControlId": 1,
+			"category": "FAN"
 		},
 		{
 			"id": 2,
@@ -97,7 +99,8 @@
 			"mode": null,
 			"swing": null,
 			"light": null,
-			"deviceControlId": 2
+			"deviceControlId": 2,
+			"category": "FAN"
 		}
 	],
 	"timestamp": "2026-02-28T10:00:00Z"
@@ -147,7 +150,8 @@
 				"mode": "NORMAL",
 				"swing": "ON",
 				"light": "OFF",
-				"deviceControlId": 1
+				"deviceControlId": 1,
+				"category": "FAN"
 			}
 		],
 		"page": 0,
@@ -194,7 +198,8 @@
 			"mode": "NORMAL",
 			"swing": "ON",
 			"light": "OFF",
-			"deviceControlId": 1
+			"deviceControlId": 1,
+			"category": "FAN"
 		},
 		{
 			"id": 3,
@@ -209,7 +214,8 @@
 			"mode": null,
 			"swing": null,
 			"light": null,
-			"deviceControlId": 1
+			"deviceControlId": 1,
+			"category": "FAN"
 		}
 	],
 	"timestamp": "2026-02-28T10:00:00Z"
@@ -251,7 +257,8 @@
 		"mode": "NORMAL",
 		"swing": "ON",
 		"light": "OFF",
-		"deviceControlId": 1
+		"deviceControlId": 1,
+		"category": "FAN"
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -291,7 +298,8 @@
 		"mode": "NORMAL",
 		"swing": "ON",
 		"light": "OFF",
-		"deviceControlId": 1
+		"deviceControlId": 1,
+		"category": "FAN"
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -419,7 +427,8 @@
 		"mode": "NORMAL",
 		"swing": "OFF",
 		"light": "OFF",
-		"deviceControlId": 3
+		"deviceControlId": 3,
+		"category": "FAN"
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -537,7 +546,8 @@
 		"mode": "NORMAL",
 		"swing": "ON",
 		"light": "OFF",
-		"deviceControlId": 1
+		"deviceControlId": 1,
+		"category": "FAN"
 	},
 	"timestamp": "2026-02-28T10:00:00Z"
 }
@@ -633,14 +643,24 @@
 }
 ```
 
-### Response (202 Accepted)
+### Response (200 OK)
 
 ```json
 {
-	"status": 202,
+	"status": 200,
 	"message": "Controlled successfully",
-	"data": null,
-	"timestamp": "2026-02-28T10:00:00Z"
+	"data": {
+		"successCount": 1,
+		"totalCount": 1,
+		"details": [
+			{
+				"parameter": "power",
+				"success": true,
+				"message": "Success"
+			}
+		]
+	},
+	"timestamp": "2026-01-28T10:00:00Z"
 }
 ```
 

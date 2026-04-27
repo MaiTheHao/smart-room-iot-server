@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.iviet.ivshs.dto.ControlDeviceResult;
 
 @RestController("AirConditionControllerV1")
 @RequiredArgsConstructor
@@ -86,11 +87,11 @@ public class AirConditionController {
     // === CONTROL ENDPOINTS ===
 
     @PutMapping("/{naturalId}/control")
-    public ResponseEntity<ApiResponse<Void>> control(
-			@PathVariable(name = "naturalId") String naturalId,
-			@RequestBody @Valid AirConditionControlRequestBody params
-    ) {
-			airConditionControlService.control(naturalId, params);
-			return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
-	}
+    public ResponseEntity<ApiResponse<ControlDeviceResult>> control(
+        @PathVariable(name = "naturalId") String naturalId,
+        @RequestBody @Valid AirConditionControlRequestBody params) {
+
+        ControlDeviceResult result = airConditionControlService.control(naturalId, params);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
+    }
 }

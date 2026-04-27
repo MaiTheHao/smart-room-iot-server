@@ -19,6 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
 
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import org.springframework.http.ResponseEntity;
+import com.iviet.ivshs.dto.ApiResponse;
+import java.util.function.Supplier;
+
 @Slf4j(topic = "CONTROL-LIGHT")
 @Service
 @RequiredArgsConstructor
@@ -40,87 +45,88 @@ public class LightControlServiceImpl implements LightControlService {
 
   @Override
   @Transactional
-  public void handlePowerControl(String naturalId, ActuatorPower power) {
+  public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     Light light = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(light);
     light.setPower(power);
     lightDao.save(light);
-    handlePowerControlCall(gatewayIp, light.getNaturalId(), power);
+    return handlePowerControlCall(gatewayIp, light.getNaturalId(), power);
   }
 
   @Override
   @Transactional
-  public void handleTogglePowerControl(String naturalId) {
+  public ControlDeviceResult handleTogglePowerControl(String naturalId) {
     Light light = getOrThrow(naturalId);
     ActuatorPower newPowerState = (light.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(light);
     light.setPower(newPowerState);
     lightDao.save(light);
-    handlePowerControlCall(gatewayIp, light.getNaturalId(), newPowerState);
+    return handlePowerControlCall(gatewayIp, light.getNaturalId(), newPowerState);
   }
 
   @Override
   @Transactional
-  public void handleLevelControl(String naturalId, int level) {
+  public ControlDeviceResult handleLevelControl(String naturalId, int level) {
     Light light = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(light);
     light.setLevel(level);
     lightDao.save(light);
-    handleLevelControlCall(gatewayIp, light.getNaturalId(), level);
+    return handleLevelControlCall(gatewayIp, light.getNaturalId(), level);
   }
 
   @Override
   @Transactional
-  public void control(String naturalId, LightControlRequestBody body) {
+  public ControlDeviceResult control(String naturalId, LightControlRequestBody body) {
     Light light = getOrThrow(naturalId);
-    applyControlParams(light, body);
+    return applyControlParams(light, body);
   }
 
   @Override
   @Transactional
-  public void control(Long id, LightControlRequestBody body) {
+  public ControlDeviceResult control(Long id, LightControlRequestBody body) {
     Light light = lightDao.findById(id)
       .orElseThrow(() -> new BadRequestException("Light not found with id: " + id));
-    applyControlParams(light, body);
+    return applyControlParams(light, body);
   }
 
-  private void applyControlParams(Light light, LightControlRequestBody body) {
+  private ControlDeviceResult applyControlParams(Light light, LightControlRequestBody body) {
     String gatewayIp = extractClientIpAddress(light);
+    ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
       light.setPower(body.power());
-      handlePowerControlCall(gatewayIp, light.getNaturalId(), body.power());
+      executeControl(result, "power", () -> gatewayControlClient.controlLightPowerV2(gatewayIp, light.getNaturalId(), body.power()));
     }
     if (body.level() != null) {
       light.setLevel(body.level());
-      handleLevelControlCall(gatewayIp, light.getNaturalId(), body.level());
+      executeControl(result, "level", () -> gatewayControlClient.controlLightLevelV2(gatewayIp, light.getNaturalId(), body.level()));
     }
     lightDao.save(light);
+    return result;
   }
 
-  private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-    CompletableFuture.supplyAsync(() -> gatewayControlClient.controlLightPowerV2(gatewayIp, naturalId, power))
-        .thenAccept(response -> {
-            if (response != null && response.getStatusCode().is2xxSuccessful()) {
-                log.debug("Successfully controlled light power for naturalId: {}", naturalId);
-            }
-        })
-        .exceptionally(ex -> {
-          log.warn("Failed to control light power for naturalId: {}", naturalId, ex);
-          return null;
-        });
+  private void executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+    try {
+      ResponseEntity<ApiResponse<String>> response = call.get();
+      if (response.getStatusCode().is2xxSuccessful()) {
+        result.addDetail(parameter, true, "Success");
+      } else {
+        result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
+      }
+    } catch (Exception e) {
+      result.addDetail(parameter, false, e.getMessage());
+    }
   }
 
-  private void handleLevelControlCall(String gatewayIp, String naturalId, int level) {
-    CompletableFuture.supplyAsync(() -> gatewayControlClient.controlLightLevelV2(gatewayIp, naturalId, level))
-        .thenAccept(response -> {
-            if (response != null && response.getStatusCode().is2xxSuccessful()) {
-                log.debug("Successfully controlled light level for naturalId: {}", naturalId);
-            }
-        })
-        .exceptionally(ex -> {
-          log.warn("Failed to control light level for naturalId: {}", naturalId, ex);
-          return null;
-        });
+  private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "power", () -> gatewayControlClient.controlLightPowerV2(gatewayIp, naturalId, power));
+    return result;
+  }
+
+  private ControlDeviceResult handleLevelControlCall(String gatewayIp, String naturalId, int level) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "level", () -> gatewayControlClient.controlLightLevelV2(gatewayIp, naturalId, level));
+    return result;
   }
 
   private Light getOrThrow(String naturalId) {

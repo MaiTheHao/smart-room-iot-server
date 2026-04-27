@@ -7,19 +7,21 @@ import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
+import com.iviet.ivshs.dto.ControlDeviceResult;
+
 public interface FanControlService extends DeviceControlServiceStrategy<FanControlRequestBody> {
 
-    void handlePowerControl(String naturalId, ActuatorPower power);
+    ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power);
 
-    void handleTogglePowerControl(String naturalId);
+    ControlDeviceResult handleTogglePowerControl(String naturalId);
 
-    void handleModeControl(String naturalId, ActuatorMode mode);
+    ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode);
 
-    void handleSpeedControl(String naturalId, int speed);
+    ControlDeviceResult handleSpeedControl(String naturalId, int speed);
 
-    void handleSwingControl(String naturalId, ActuatorSwing swing);
+    ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing);
 
-    void handleLightControl(String naturalId, ActuatorState light);
+    ControlDeviceResult handleLightControl(String naturalId, ActuatorState light);
 
-    void control(String naturalId, FanControlRequestBody body);
+    ControlDeviceResult control(String naturalId, FanControlRequestBody body);
 }

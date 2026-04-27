@@ -4,7 +4,7 @@ API Documentation for Air Condition Management (v1)
 
 Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Room. Tài liệu sử dụng định dạng đóng/mở (collapsible). Vui lòng click vào từng API để xem chi tiết.
 
-## Danh sách API
+## CRUD Operations
 
 <details>
 <summary><b>GET</b> <code>/api/v1/air-conditions</code> - Lấy danh sách tất cả các thiết bị</summary>
@@ -38,7 +38,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 				"mode": "COOL",
 				"fanSpeed": 3,
 				"swing": "OFF",
-				"deviceControlId": 3
+				"deviceControlId": 3,
+				"category": "AIR_CONDITION"
 			}
 		],
 		"page": 0,
@@ -51,6 +52,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 ```
 
 </details>
+
+<br>
 
 <details>
 <summary><b>GET</b> <code>/api/v1/air-conditions/room/{roomId}</code> - Lấy danh sách thiết bị theo phòng</summary>
@@ -90,7 +93,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 				"mode": "COOL",
 				"fanSpeed": 3,
 				"swing": "OFF",
-				"deviceControlId": 3
+				"deviceControlId": 3,
+				"category": "AIR_CONDITION"
 			}
 		],
 		"page": 0,
@@ -103,6 +107,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 ```
 
 </details>
+
+<br>
 
 <details>
 <summary><b>GET</b> <code>/api/v1/air-conditions/{id}</code> - Lấy thông tin chi tiết thiết bị</summary>
@@ -133,13 +139,16 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"mode": "COOL",
 		"fanSpeed": 3,
 		"swing": "OFF",
-		"deviceControlId": 3
+		"deviceControlId": 3,
+		"category": "AIR_CONDITION"
 	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }
 ```
 
 </details>
+
+<br>
 
 <details>
 <summary><b>POST</b> <code>/api/v1/air-conditions</code> - Tạo mới thiết bị</summary>
@@ -200,13 +209,16 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"mode": "COOL",
 		"fanSpeed": 3,
 		"swing": "OFF",
-		"deviceControlId": 3
+		"deviceControlId": 3,
+		"category": "AIR_CONDITION"
 	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }
 ```
 
 </details>
+
+<br>
 
 <details>
 <summary><b>PUT</b> <code>/api/v1/air-conditions/{id}</code> - Cập nhật thông tin cấu hình</summary>
@@ -269,13 +281,16 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"mode": "COOL",
 		"fanSpeed": 4,
 		"swing": "OFF",
-		"deviceControlId": 3
+		"deviceControlId": 3,
+		"category": "AIR_CONDITION"
 	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }
 ```
 
 </details>
+
+<br>
 
 <details>
 <summary><b>DELETE</b> <code>/api/v1/air-conditions/{id}</code> - Xóa thiết bị</summary>
@@ -301,198 +316,14 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 
 </details>
 
-<details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/power</code> - Bật/Tắt thiết bị (Theo ID) (Deprecated)</summary>
+<br>
 
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
->
-> Điều khiển nguồn điện của thiết bị điều hòa (Bật/Tắt).
+---
 
-### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| id | Long | ID của thiết bị cần điều khiển | Có |
-
-### Query Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| state | string | Trạng thái nguồn: ON hoặc OFF | Có |
-
-### Request Example
-
-```
-POST /api/v1/air-conditions/1/power?state=ON
-```
-
-### Response (202 Accepted)
-
-```json
-{
-	"status": 202,
-	"message": "Power controlled successfully",
-	"data": null,
-	"timestamp": "2026-01-28T10:00:00Z"
-}
-```
-
-</details>
+## Control Operations
 
 <details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/temperature</code> - Chỉnh nhiệt độ (Theo ID) (Deprecated)</summary>
-
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
->
-> Điều chỉnh nhiệt độ của thiết bị điều hòa.
-
-### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| id | Long | ID của thiết bị cần điều khiển | Có |
-
-### Query Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| value | int | Giá trị nhiệt độ (16-32°C) | Có |
-
-### Request Example
-
-```
-POST /api/v1/air-conditions/1/temperature?value=24
-```
-
-### Response (202 Accepted)
-
-```json
-{
-	"status": 202,
-	"message": "Temperature controlled successfully",
-	"data": null,
-	"timestamp": "2026-01-28T10:00:00Z"
-}
-```
-
-</details>
-
-<details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/mode</code> - Chỉnh chế độ (Theo ID) (Deprecated)</summary>
-
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
->
-> Thay đổi chế độ hoạt động của điều hòa.
-
-### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| id | Long | ID của thiết bị cần điều khiển | Có |
-
-### Query Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| value | string | Chế độ: COOL (Làm lạnh), HEAT (Sưởi), DRY (Hút ẩm), FAN (Quạt), AUTO | Có |
-
-### Request Example
-
-```
-POST /api/v1/air-conditions/1/mode?value=COOL
-```
-
-### Response (202 Accepted)
-
-```json
-{
-	"status": 202,
-	"message": "Mode controlled successfully",
-	"data": null,
-	"timestamp": "2026-01-28T10:00:00Z"
-}
-```
-
-</details>
-
-<details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/fan</code> - Chỉnh tốc độ quạt (Theo ID) (Deprecated)</summary>
-
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
->
-> Điều chỉnh tốc độ quạt của điều hòa.
-
-### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| id | Long | ID của thiết bị cần điều khiển | Có |
-
-### Query Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| speed | int | Tốc độ quạt (0-5) | Có |
-
-### Request Example
-
-```
-POST /api/v1/air-conditions/1/fan?speed=3
-```
-
-### Response (202 Accepted)
-
-```json
-{
-	"status": 202,
-	"message": "Fan speed controlled successfully",
-	"data": null,
-	"timestamp": "2026-01-28T10:00:00Z"
-}
-```
-
-</details>
-
-<details>
-<summary><b>POST</b> <code>/api/v1/air-conditions/{id}/swing</code> - Chỉnh đảo gió (Theo ID) (Deprecated)</summary>
-
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/{naturalId}/control` thay thế.**
->
-> Điều khiển chế độ đảo gió (swing) của điều hòa.
-
-### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| id | Long | ID của thiết bị cần điều khiển | Có |
-
-### Query Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :-- | :--- | :---- | :------- |
-| state | string | Trạng thái đảo gió: ON hoặc OFF | Có |
-
-### Request Example
-
-```
-POST /api/v1/air-conditions/1/swing?state=ON
-```
-
-### Response (202 Accepted)
-
-```json
-{
-	"status": 202,
-	"message": "Swing controlled successfully",
-	"data": null,
-	"timestamp": "2026-01-28T10:00:00Z"
-}
-```
-
-</details>
-
-<details>
-<summary><b>PUT</b> <code>/api/v1/air-conditions/{naturalId}/control</code> - Điều khiển cấu hình đa tham số [NEW]</summary>
+<summary><b>PUT</b> <code>/api/v1/air-conditions/{naturalId}/control</code> - Điều khiển cấu hình đa tham số (Unified Control Endpoint)</summary>
 
 > Gửi một lệnh điều khiển bao gồm nhiều trạng thái (Nguồn, Quạt, Chế độ, Đảo gió, Nhiệt độ) cùng lúc dựa trên mã định danh vật lý (naturalId).
 
@@ -525,13 +356,28 @@ Tất cả các trường đều là tùy chọn (chỉ gửi cấu hình cần 
 }
 ```
 
-### Response (202 Accepted)
+### Response (200 OK)
 
 ```json
 {
-	"status": 202,
-	"message": "Bulk control command sent successfully",
-	"data": null,
+	"status": 200,
+	"message": "Controlled successfully",
+	"data": {
+		"successCount": 2,
+		"totalCount": 2,
+		"details": [
+			{
+				"parameter": "power",
+				"success": true,
+				"message": "Success"
+			},
+			{
+				"parameter": "temperature",
+				"success": true,
+				"message": "Success"
+			}
+		]
+	},
 	"timestamp": "2026-01-28T10:00:00Z"
 }
 ```
@@ -548,6 +394,10 @@ Tất cả các trường đều là tùy chọn (chỉ gửi cấu hình cần 
 ```
 
 </details>
+
+<br>
+
+---
 
 ## Enumerations & Constraints
 

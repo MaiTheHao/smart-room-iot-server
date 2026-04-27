@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.iviet.ivshs.dto.ControlDeviceResult;
 
 @RestController
 @RequiredArgsConstructor
@@ -93,11 +94,11 @@ public class FanController {
     }
 
     @PutMapping("/fans/{naturalId}/control")
-    public ResponseEntity<ApiResponse<FanDto>> control(
+    public ResponseEntity<ApiResponse<ControlDeviceResult>> control(
         @PathVariable(name = "naturalId") String naturalId,
         @RequestBody @Valid FanControlRequestBody params) {
 
-        fanControlService.control(naturalId, params);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
+        ControlDeviceResult result = fanControlService.control(naturalId, params);
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
     }
 }

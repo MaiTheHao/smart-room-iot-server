@@ -8,9 +8,10 @@ class DeviceMetadataApiV1Service {
     this.api = SMRC_API_V1.DEVICE_METADATA;
   }
 
-  async getAll() {
+  async getAll(category = null) {
     try {
-      return await window.http.get(this.api.ALL);
+      const params = category ? { category } : {};
+      return await window.http.get(this.api.ALL, params);
     } catch (error) {
       this.#handleError('get all devices', error);
     }
@@ -22,6 +23,14 @@ class DeviceMetadataApiV1Service {
       return await window.http.get(this.api.BY_ROOM(roomId), params);
     } catch (error) {
       this.#handleError(`get all devices for room ${roomId}`, error);
+    }
+  }
+
+  async getCountByRoom(roomId) {
+    try {
+      return await window.http.get(this.api.COUNT_BY_ROOM(roomId));
+    } catch (error) {
+      this.#handleError(`get device count for room ${roomId}`, error);
     }
   }
 

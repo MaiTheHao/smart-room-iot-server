@@ -145,18 +145,23 @@ Không cần thay đổi gì trong `MetricController` hay `MetricOrchestratorSer
 
 - **Trả về `Object` / `List<?>`:** Vì các domain khác nhau có cấu trúc DTO hoàn toàn khác nhau (ví dụ: `EnergyMetricDto` so với `HealthDto`), giao diện Strategy dựa trên việc trả về `Object` generic. Lớp Spring Web vốn dĩ sẽ serialize bất kỳ Object nào được trả về thành JSON, cho phép Controller giữ được tính generic hoàn toàn.
 - **Nút bật tắt `latest`:** Các tính năng biểu đồ yêu cầu mảng dữ liệu lịch sử, trong khi các widget trạng thái trên dashboard yêu cầu một kết quả đọc mới nhất duy nhất. Việc sử dụng tham số truy vấn bật tắt (`latest=true/false`) giúp tránh việc cần hai đường dẫn API riêng biệt, đơn giản hóa việc tích hợp cho client.
+- **Tích hợp Năng lượng (EnergyMetric):** Hệ thống đã tích hợp `EnergyMetric` để theo dõi chi tiết điện năng tiêu thụ (Voltage, Current, Power, Energy) cho các thiết bị như Đèn, Quạt, Điều hòa.
 
 ## 5. Kiến trúc Lập lịch Công việc (Job Scheduler Architecture)
 
 Hệ thống Metric bao gồm một framework Lập lịch Công việc (Job Scheduler) tự động dựa trên Quartz. Điều này đảm bảo rằng bất kỳ tác vụ chạy ngầm nào được yêu cầu bởi một domain metric (ví dụ: lấy dữ liệu telemetry mỗi 5 phút, reset hàng ngày) đều được khởi tạo tự động.
 
-### 5.1 MetricJobRegistration
-Mỗi domain có thể tùy chọn cung cấp một danh sách các công việc (job) cần chạy. Domain thực hiện việc này bằng cách tạo một class triển khai `MetricJobProvider` và trả về một danh sách các đối tượng `MetricJobRegistration`, định nghĩa:
-- `name` và `group` (để Quartz định danh)
-- `jobClass` (logic thực tế của công việc)
-- `intervalSeconds` (để thực thi theo tốc độ cố định) HOẶC `cronExpression` (để lập lịch chính xác)
+### 5.1 Đăng ký công việc (`MetricJobRegistration`)
+Mỗi domain có thể tùy chọn cung cấp một danh sách các công việc (job) cần chạy. Domain thực hiện việc này bằng cách tạo một class triển khai `MetricJobProvider`. Một `MetricJobRegistration` bao gồm:
+- Định danh công việc (Job Key).
+- Logic thực thi (Job Class).
+- Cấu hình thời gian (Interval hoặc Cron).
 
-### 5.2 MetricSystemInitializer
-`MetricSystemInitializer` trung tâm lắng nghe sự kiện `ContextRefreshedEvent` của Spring. Nó duyệt qua tất cả các triển khai `MetricJobProvider` đã đăng ký, gọi `getMetricJobs()`, và lập lịch cho chúng một cách tự động.
+### 5.2 Khởi tạo hệ thống (`MetricSystemInitializer`)
+`MetricSystemInitializer` được di chuyển vào package `com.iviet.ivshs.service.initializer` để chuẩn hóa các tác vụ khởi động. Nó tự động quét và đăng ký các Job từ các Provider. 
 
-**Lợi ích:** Bằng cách giữ `MetricJobProvider` trong package domain của `schedule`, service nghiệp vụ (`MetricStrategy`) vẫn giữ được sự sạch sẽ và hoàn toàn tách biệt khỏi logic lập lịch Quartz. Khi thêm một domain mới như `HEALTH`, bạn chỉ cần tạo một `HealthMetricJobProvider` trong package `schedule/metric/health`. Hệ thống cốt lõi sẽ xử lý phần còn lại.
+**Cơ chế bảo vệ:** 
+- Tự động bỏ qua (skip) việc đăng ký telemetry nếu khoảng thời gian (interval) không hợp lệ (nhỏ hơn hoặc bằng 0).
+- Hỗ trợ giao diện `Versionable` với cơ chế "touch" để tự động cập nhật timestamp audit cho các thực thể liên quan (ví dụ: Room) khi có thay đổi trạng thái thiết bị, giúp đảm bảo tính toàn vẹn của dữ liệu audit.
+
+**Lợi ích:** Việc tách biệt `MetricJobProvider` giúp logic nghiệp vụ (`MetricStrategy`) không bị phụ thuộc vào Quartz.

@@ -19,6 +19,11 @@ import com.iviet.ivshs.service.AirConditionControlService;
 
 import lombok.RequiredArgsConstructor;
 
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import org.springframework.http.ResponseEntity;
+import com.iviet.ivshs.dto.ApiResponse;
+import java.util.function.Supplier;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,139 +44,163 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
 
   @Override
   @Transactional
-  public void handlePowerControl(String naturalId, ActuatorPower power) {
+  public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
     ac.setPower(power);
     airConditionDao.save(ac);
-    handlePowerControlCall(gatewayIp, ac.getNaturalId(), power);
+    return handlePowerControlCall(gatewayIp, ac.getNaturalId(), power);
   }
 
   @Override
   @Transactional
-  public void handleTogglePowerControl(String naturalId) {
+  public ControlDeviceResult handleTogglePowerControl(String naturalId) {
     AirCondition ac = getOrThrow(naturalId);
     ActuatorPower newPowerState = (ac.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(ac);
     ac.setPower(newPowerState);
     airConditionDao.save(ac);
-    handlePowerControlCall(gatewayIp, ac.getNaturalId(), newPowerState);
+    return handlePowerControlCall(gatewayIp, ac.getNaturalId(), newPowerState);
   }
 
   @Override
   @Transactional
-  public void handleTemperatureControl(String naturalId, int temperature) {
+  public ControlDeviceResult handleTemperatureControl(String naturalId, int temperature) {
     AirCondition ac = getOrThrow(naturalId);
     int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
     String gatewayIp = extractClientIpAddress(ac);
     ac.setTemperature(temperature);
     airConditionDao.save(ac);
-    handleTemperatureControlCall(gatewayIp, ac.getNaturalId(), temperature, currentTemp);
+    return handleTemperatureControlCall(gatewayIp, ac.getNaturalId(), temperature, currentTemp);
   }
 
   @Override
   @Transactional
-  public void handleModeControl(String naturalId, ActuatorMode mode) {
+  public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
     ac.setMode(mode);
     airConditionDao.save(ac);
-    handleModeControlCall(gatewayIp, ac.getNaturalId(), mode);
+    return handleModeControlCall(gatewayIp, ac.getNaturalId(), mode);
   }
 
   @Override
   @Transactional
-  public void handleFanSpeedControl(String naturalId, int speed) {
+  public ControlDeviceResult handleFanSpeedControl(String naturalId, int speed) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
     ac.setFanSpeed(speed);
     airConditionDao.save(ac);
-    handleFanSpeedControlCall(gatewayIp, ac.getNaturalId(), speed);
+    return handleFanSpeedControlCall(gatewayIp, ac.getNaturalId(), speed);
   }
 
   @Override
   @Transactional
-  public void handleSwingControl(String naturalId, ActuatorSwing swing) {
+  public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
     ac.setSwing(swing);
     airConditionDao.save(ac);
-    handleSwingControlCall(gatewayIp, ac.getNaturalId(), swing);
+    return handleSwingControlCall(gatewayIp, ac.getNaturalId(), swing);
   }
 
   @Override
   @Transactional
-  public void control(String naturalId, AirConditionControlRequestBody body) {
+  public ControlDeviceResult control(String naturalId, AirConditionControlRequestBody body) {
     AirCondition ac = getOrThrow(naturalId);
-    applyControlParams(ac, body);
+    return applyControlParams(ac, body);
   }
 
   @Override
   @Transactional
-  public void control(Long id, AirConditionControlRequestBody body) {
+  public ControlDeviceResult control(Long id, AirConditionControlRequestBody body) {
     AirCondition ac = airConditionDao.findById(id)
       .orElseThrow(() -> new BadRequestException("AirCondition not found with id: " + id));
-    applyControlParams(ac, body);
+    return applyControlParams(ac, body);
   }
 
-  private void applyControlParams(AirCondition ac, AirConditionControlRequestBody body) {
+  private ControlDeviceResult applyControlParams(AirCondition ac, AirConditionControlRequestBody body) {
     String gatewayIp = extractClientIpAddress(ac);
+    ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
       ac.setPower(body.power());
-      handlePowerControlCall(gatewayIp, ac.getNaturalId(), body.power());
+      executeControl(result, "power", () -> gatewayControlClient.controlAcPowerV2(gatewayIp, ac.getNaturalId(), body.power()));
     }
     if (body.temperature() != null) {
       int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
-      ac.setTemperature(body.temperature());
-      handleTemperatureControlCall(gatewayIp, ac.getNaturalId(), body.temperature(), currentTemp);
+      int targetTemp = body.temperature();
+      ac.setTemperature(targetTemp);
+      executeControl(result, "temperature", () -> {
+        if (targetTemp > currentTemp) {
+          return gatewayControlClient.controlAcTempUpV2(gatewayIp, ac.getNaturalId(), targetTemp);
+        } else {
+          return gatewayControlClient.controlAcTempDownV2(gatewayIp, ac.getNaturalId(), targetTemp);
+        }
+      });
     }
     if (body.mode() != null) {
       ac.setMode(body.mode());
-      handleModeControlCall(gatewayIp, ac.getNaturalId(), body.mode());
+      executeControl(result, "mode", () -> gatewayControlClient.controlAcModeV2(gatewayIp, ac.getNaturalId(), body.mode()));
     }
     if (body.fanSpeed() != null) {
       ac.setFanSpeed(body.fanSpeed());
-      handleFanSpeedControlCall(gatewayIp, ac.getNaturalId(), body.fanSpeed());
+      executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFanV2(gatewayIp, ac.getNaturalId(), body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()));
     }
     if (body.swing() != null) {
       ac.setSwing(body.swing());
-      handleSwingControlCall(gatewayIp, ac.getNaturalId(), body.swing());
+      executeControl(result, "swing", () -> gatewayControlClient.controlAcSwingV2(gatewayIp, ac.getNaturalId(), body.swing()));
     }
     airConditionDao.save(ac);
+    return result;
   }
 
-  private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlAcPowerV2(gatewayIp, naturalId, power)
-    ).exceptionally(ex -> null);
+  private void executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+    try {
+      ResponseEntity<ApiResponse<String>> response = call.get();
+      if (response.getStatusCode().is2xxSuccessful()) {
+        result.addDetail(parameter, true, "Success");
+      } else {
+        result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
+      }
+    } catch (Exception e) {
+      result.addDetail(parameter, false, e.getMessage());
+    }
   }
 
-  private void handleTemperatureControlCall(String gatewayIp, String naturalId, int temperature, int currentTemp) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> {
-        if (temperature > currentTemp) {
-            gatewayControlClient.controlAcTempUpV2(gatewayIp, naturalId, temperature);
-        } else {
-            gatewayControlClient.controlAcTempDownV2(gatewayIp, naturalId, temperature);
-        }
-    }).exceptionally(ex -> null);
+  private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "power", () -> gatewayControlClient.controlAcPowerV2(gatewayIp, naturalId, power));
+    return result;
   }
 
-  private void handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlAcModeV2(gatewayIp, naturalId, mode)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handleTemperatureControlCall(String gatewayIp, String naturalId, int temperature, int currentTemp) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "temperature", () -> {
+      if (temperature > currentTemp) {
+        return gatewayControlClient.controlAcTempUpV2(gatewayIp, naturalId, temperature);
+      } else {
+        return gatewayControlClient.controlAcTempDownV2(gatewayIp, naturalId, temperature);
+      }
+    });
+    return result;
   }
 
-  private void handleFanSpeedControlCall(String gatewayIp, String naturalId, int speed) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlAcFanV2(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "mode", () -> gatewayControlClient.controlAcModeV2(gatewayIp, naturalId, mode));
+    return result;
   }
 
-  private void handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
-    java.util.concurrent.CompletableFuture.runAsync(() -> 
-        gatewayControlClient.controlAcSwingV2(gatewayIp, naturalId, swing)
-    ).exceptionally(ex -> null);
+  private ControlDeviceResult handleFanSpeedControlCall(String gatewayIp, String naturalId, int speed) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFanV2(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed));
+    return result;
+  }
+
+  private ControlDeviceResult handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
+    ControlDeviceResult result = new ControlDeviceResult();
+    executeControl(result, "swing", () -> gatewayControlClient.controlAcSwingV2(gatewayIp, naturalId, swing));
+    return result;
   }
 
   private AirCondition getOrThrow(String naturalId) {

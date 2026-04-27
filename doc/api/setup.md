@@ -17,7 +17,7 @@
 | -------- | ---- | -------- | ------------------------ |
 | clientId | Long | Yes      | ID của gateway phần cứng |
 
-### Gateway Response Structure (SetupRequestV1)
+### Gateway Response Structure (SetupRequest)
 
 | Field    | Type           | Required | Description                 |
 | -------- | -------------- | -------- | --------------------------- |
@@ -29,9 +29,9 @@
 | Field        | Type                | Required | Description                               |
 | ------------ | ------------------- | -------- | ----------------------------------------- |
 | naturalId    | string              | No       | Mã tự nhiên của thiết bị                  |
-| category     | DeviceCategoryV1    | Yes      | LIGHT, TEMPERATURE, POWER_CONSUMPTION     |
-| controlType  | DeviceControlTypeV1 | Yes      | GPIO, BLUETOOTH, API                      |
-| gpioPin      | int                 | No       | Số chân GPIO (nếu controlType = GPIO)     |
+| category     | DeviceCategory      | Yes      | LIGHT, FAN, AIR_CONDITION, TEMPERATURE, ... |
+| controlType  | DeviceControlType   | Yes      | GPIO, BLUETOOTH, API                      |
+| gpioPin      | int/list            | No       | Số chân GPIO (nếu controlType = GPIO)     |
 | bleMac       | string              | No       | Địa chỉ MAC (nếu controlType = BLUETOOTH) |
 | apiEndpoint  | string              | No       | Endpoint API (nếu controlType = API)      |
 | name         | string              | No       | Tên thiết bị                              |
@@ -98,15 +98,17 @@
 
 ## Enumerations
 
-### DeviceCategoryV1
+### DeviceCategory
 
 | Value             | Description           |
 | ----------------- | --------------------- |
 | LIGHT             | Thiết bị chiếu sáng   |
+| FAN               | Thiết bị quạt         |
+| AIR_CONDITION     | Điều hòa nhiệt độ     |
 | TEMPERATURE       | Thiết bị đo nhiệt độ  |
 | POWER_CONSUMPTION | Thiết bị đo điện năng |
 
-### DeviceControlTypeV1
+### DeviceControlType
 
 | Value     | Description              |
 | --------- | ------------------------ |

@@ -4,6 +4,8 @@
 
 ---
 
+## CRUD Operations
+
 <details>
 <summary><b>GET</b> <code>/api/v1/lights</code> - Lấy danh sách đèn (phân trang)</summary>
 
@@ -32,7 +34,8 @@
 				"power": "ON",
 				"level": 80,
 				"roomId": 10,
-				"deviceControlId": 1
+				"deviceControlId": 1,
+				"category": "LIGHT"
 			}
 		],
 		"page": 0,
@@ -82,7 +85,8 @@
 				"power": "OFF",
 				"level": 0,
 				"roomId": 10,
-				"deviceControlId": 2
+				"deviceControlId": 2,
+				"category": "LIGHT"
 			}
 		],
 		"page": 0,
@@ -123,7 +127,8 @@
 		"power": "ON",
 		"level": 80,
 		"roomId": 10,
-		"deviceControlId": 1
+		"deviceControlId": 1,
+		"category": "LIGHT"
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }
@@ -178,7 +183,8 @@
 		"power": "ON",
 		"level": 80,
 		"roomId": 10,
-		"deviceControlId": 5
+		"deviceControlId": 5,
+		"category": "LIGHT"
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }
@@ -239,7 +245,8 @@
 		"power": "OFF",
 		"level": 50,
 		"roomId": 11,
-		"deviceControlId": 6
+		"deviceControlId": 6,
+		"category": "LIGHT"
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }
@@ -275,8 +282,12 @@
 
 <br>
 
+---
+
+## Control Operations
+
 <details>
-<summary><b>PUT</b> <code>/api/v1/lights/{naturalId}/control</code> - Điều khiển đèn (Power, Level)</summary>
+<summary><b>PUT</b> <code>/api/v1/lights/{naturalId}/control</code> - Điều khiển đèn (Power, Level) (Unified Control Endpoint)</summary>
 
 > Điều khiển thiết bị chiếu sáng bằng mã định danh vật lý (naturalId).
 >
@@ -308,40 +319,23 @@
 
 ```json
 {
-	"status": 202,
+	"status": 200,
 	"message": "Controlled successfully",
-	"data": null,
-	"timestamp": "2025-11-29T09:00:00Z"
-}
-```
-
-</details>
-
-<br>
-
-<details>
-<summary><b>PUT</b> <code>/api/v1/lights/{id}/toggle-state</code> - Bật tắt đèn (Deprecated)</summary>
-
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/control` thay thế.**
->
-> Bật/tắt thiết bị chiếu sáng.
-
-### Path Parameters
-
-| Tên | Loại | Mô tả       | Bắt buộc |
-| :-- | :--- | :---------- | :------- |
-| id  | Long | ID thiết bị | Có       |
-
-### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
 	"data": {
-		"status": "ON",
-		"message": "Light turned on successfully",
-		"error": null
+		"successCount": 2,
+		"totalCount": 2,
+		"details": [
+			{
+				"parameter": "power",
+				"success": true,
+				"message": "Success"
+			},
+			{
+				"parameter": "level",
+				"success": true,
+				"message": "Success"
+			}
+		]
 	},
 	"timestamp": "2025-11-29T09:00:00Z"
 }
@@ -351,36 +345,8 @@
 
 <br>
 
-<details>
-<summary><b>PUT</b> <code>/api/v1/lights/{id}/level/{newLevel}</code> - Đổi độ sáng (Deprecated)</summary>
+---
 
-> **Lưu ý: API này đã bị Deprecated. Vui lòng sử dụng API `/control` thay thế.**
->
-> Điều chỉnh độ sáng của thiết bị chiếu sáng.
-
-### Path Parameters
-
-| Tên      | Loại | Mô tả               | Bắt buộc |
-| :------- | :--- | :------------------ | :------- |
-| id       | Long | ID thiết bị         | Có       |
-| newLevel | int  | Độ sáng mới (0-100) | Có       |
-
-### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": {
-		"status": "OK",
-		"message": "Light level set to 75 successfully",
-		"error": null
-	},
-	"timestamp": "2025-11-29T09:00:00Z"
-}
-```
-
-</details>
 
 <br>
 

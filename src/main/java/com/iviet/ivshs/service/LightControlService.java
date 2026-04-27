@@ -4,11 +4,13 @@ import com.iviet.ivshs.dto.LightControlRequestBody;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
+import com.iviet.ivshs.dto.ControlDeviceResult;
+
 public interface LightControlService extends DeviceControlServiceStrategy<LightControlRequestBody> {
     
-    void handlePowerControl(String naturalId, ActuatorPower power);
+    ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power);
 
-    void handleTogglePowerControl(String naturalId);
+    ControlDeviceResult handleTogglePowerControl(String naturalId);
 
-    void handleLevelControl(String naturalId, int level);
+    ControlDeviceResult handleLevelControl(String naturalId, int level);
 }

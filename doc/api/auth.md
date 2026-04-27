@@ -52,6 +52,19 @@
 }
 ```
 
+### Response (429 Too Many Requests)
+
+> Hệ thống giới hạn số lượng request để ngăn chặn tấn công Brute-force/DDoS.
+
+```json
+{
+    "status": 429,
+    "message": "Too many requests. Please try again after 60 seconds.",
+    "data": null,
+    "timestamp": "2026-04-27T10:00:00Z"
+}
+```
+
 </details>
 
 <details>

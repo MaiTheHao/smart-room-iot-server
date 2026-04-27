@@ -34,32 +34,6 @@ class TelemetryApiV1Service {
 		}
 	}
 
-	/**
-	 * Fetch dữ liệu nhiệt độ từ cảm biến
-	 * @param {string} naturalId - Mã định danh cảm biến nhiệt độ
-	 * @returns {Promise<Object>} Response từ server
-	 */
-	async fetchTemperature(naturalId) {
-		try {
-			return await window.http.post(this.api.TEMPERATURE(naturalId));
-		} catch (error) {
-			this.#handleError(`fetch temperature data for sensor ${naturalId}`, error);
-		}
-	}
-
-	/**
-	 * Fetch dữ liệu tiêu thụ điện năng từ cảm biến
-	 * @param {string} naturalId - Mã định danh cảm biến tiêu thụ điện
-	 * @returns {Promise<Object>} Response từ server
-	 */
-	async fetchPowerConsumption(naturalId) {
-		try {
-			return await window.http.post(this.api.POWER_CONSUMPTION(naturalId));
-		} catch (error) {
-			this.#handleError(`fetch power consumption data for sensor ${naturalId}`, error);
-		}
-	}
-
 	#handleError(action, error) {
 		console.error(`[TelemetryApiV1Service] Failed to ${action}:`, error);
 		throw error;

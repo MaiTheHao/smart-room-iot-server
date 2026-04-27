@@ -1,13 +1,13 @@
-# Device Control Module
+# Hardware Config Module
 
-## Device Control API v1
+## Hardware Config API v1 (formerly Device Control)
 
 ---
 
 <details>
-<summary><b>GET</b> <code>/api/v1/device-controls/{id}</code> - Lấy chi tiết Device Control</summary>
+<summary><b>GET</b> <code>/api/v1/device-controls/{id}</code> - Lấy chi tiết cấu hình phần cứng</summary>
 
-> Lấy thông tin chi tiết một Device Control theo ID.
+> Lấy thông tin chi tiết một cấu hình phần cứng (Hardware Config) theo ID.
 
 ### Path Parameters
 
@@ -23,7 +23,7 @@
 	"message": "Success",
 	"data": {
 		"id": 1,
-		"deviceControlType": "GPIO",
+		"controlType": "GPIO",
 		"gpioPin": 12,
 		"bleMacAddress": null,
 		"apiEndpoint": null,
@@ -39,15 +39,15 @@
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/device-controls</code> - Tạo mới Device Control</summary>
+<summary><b>POST</b> <code>/api/v1/device-controls</code> - Tạo mới cấu hình phần cứng</summary>
 
-> Tạo mới một Device Control.
+> Tạo mới một cấu hình phần cứng (Hardware Config).
 
 ### Request Body
 
 | Tên trường        | Loại                | Bắt buộc | Mô tả                                     |
 | :---------------- | :------------------ | :------- | :---------------------------------------- |
-| deviceControlType | DeviceControlTypeV1 | Có       | Loại điều khiển (GPIO, BLUETOOTH, API)    |
+| controlType | DeviceControlType | Có       | Loại điều khiển (GPIO, BLUETOOTH, API)    |
 | gpioPin           | Integer             | Không    | Số chân GPIO (0-40, chỉ cho GPIO)         |
 | bleMacAddress     | String              | Không    | Địa chỉ MAC BLUETOOTH (chỉ cho BLUETOOTH) |
 | apiEndpoint       | String              | Không    | Endpoint API (chỉ cho API)                |
@@ -58,7 +58,7 @@
 
 ```json
 {
-	"deviceControlType": "GPIO",
+	"controlType": "GPIO",
 	"gpioPin": 12,
 	"clientId": 100,
 	"roomId": 200
@@ -73,7 +73,7 @@
 	"message": "Created",
 	"data": {
 		"id": 2,
-		"deviceControlType": "GPIO",
+		"controlType": "GPIO",
 		"gpioPin": 12,
 		"bleMacAddress": null,
 		"apiEndpoint": null,
@@ -89,21 +89,21 @@
 <br>
 
 <details>
-<summary><b>PUT</b> <code>/api/v1/device-controls/{id}</code> - Cập nhật Device Control</summary>
+<summary><b>PUT</b> <code>/api/v1/device-controls/{id}</code> - Cập nhật cấu hình phần cứng</summary>
 
-> Cập nhật thông tin một Device Control theo ID.
+> Cập nhật thông tin một cấu hình phần cứng (Hardware Config) theo ID.
 
 ### Path Parameters
 
 | Tên | Loại | Mô tả                 | Bắt buộc |
 | :-- | :--- | :-------------------- | :------- |
-| id  | Long | ID của Device Control | Có       |
+| id  | Long | ID của cấu hình phần cứng | Có       |
 
 ### Request Body
 
 | Tên trường        | Loại                | Bắt buộc | Mô tả                                     |
 | :---------------- | :------------------ | :------- | :---------------------------------------- |
-| deviceControlType | DeviceControlTypeV1 | Không    | Loại điều khiển (GPIO, BLUETOOTH, API)    |
+| controlType | DeviceControlType | Không    | Loại điều khiển (GPIO, BLUETOOTH, API)    |
 | gpioPin           | Integer             | Không    | Số chân GPIO (0-40, chỉ cho GPIO)         |
 | bleMacAddress     | String              | Không    | Địa chỉ MAC BLUETOOTH (chỉ cho BLUETOOTH) |
 | apiEndpoint       | String              | Không    | Endpoint API (chỉ cho API)                |
@@ -114,7 +114,7 @@
 
 ```json
 {
-	"deviceControlType": "BLUETOOTH",
+	"controlType": "BLUETOOTH",
 	"bleMacAddress": "AA:BB:CC:DD:EE:FF",
 	"clientId": 100,
 	"roomId": 200
@@ -129,7 +129,7 @@
 	"message": "Success",
 	"data": {
 		"id": 2,
-		"deviceControlType": "BLUETOOTH",
+		"controlType": "BLUETOOTH",
 		"gpioPin": null,
 		"bleMacAddress": "AA:BB:CC:DD:EE:FF",
 		"apiEndpoint": null,
@@ -145,15 +145,15 @@
 <br>
 
 <details>
-<summary><b>DELETE</b> <code>/api/v1/device-controls/{id}</code> - Xóa Device Control</summary>
+<summary><b>DELETE</b> <code>/api/v1/device-controls/{id}</code> - Xóa cấu hình phần cứng</summary>
 
-> Xóa một Device Control theo ID.
+> Xóa một cấu hình phần cứng (Hardware Config) theo ID.
 
 ### Path Parameters
 
 | Tên | Loại | Mô tả                 | Bắt buộc |
 | :-- | :--- | :-------------------- | :------- |
-| id  | Long | ID của Device Control | Có       |
+| id  | Long | ID của cấu hình phần cứng | Có       |
 
 ### Response (204 No Content)
 
@@ -173,7 +173,7 @@
 <details>
 <summary><b>GET</b> <code>/api/v1/device-controls/client/{clientId}</code> - Lấy theo Client ID</summary>
 
-> Lấy danh sách Device Control theo Client ID (có phân trang).
+> Lấy danh sách cấu hình phần cứng (Hardware Config) theo Client ID (có phân trang).
 
 ### Path Parameters
 
@@ -198,7 +198,7 @@
 		"content": [
 			{
 				"id": 1,
-				"deviceControlType": "GPIO",
+				"controlType": "GPIO",
 				"gpioPin": 12,
 				"bleMacAddress": null,
 				"apiEndpoint": null,
@@ -222,7 +222,7 @@
 <details>
 <summary><b>GET</b> <code>/api/v1/device-controls/room/{roomId}</code> - Lấy theo Room ID</summary>
 
-> Lấy danh sách Device Control theo Room ID (có phân trang).
+> Lấy danh sách cấu hình phần cứng (Hardware Config) theo Room ID (có phân trang).
 
 ### Path Parameters
 
@@ -247,7 +247,7 @@
 		"content": [
 			{
 				"id": 1,
-				"deviceControlType": "GPIO",
+				"controlType": "GPIO",
 				"gpioPin": 12,
 				"bleMacAddress": null,
 				"apiEndpoint": null,
