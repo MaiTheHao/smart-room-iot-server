@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
+import org.springframework.http.ResponseEntity;
+
 @Slf4j
 public class HttpClientUtil {
 
@@ -798,6 +800,37 @@ public class HttpClientUtil {
 	@Deprecated(since = "2.0", forRemoval = false)
 	public static void handleThrowException(Response<?> response) {
 		response.throwIfError();
+	}
+
+	/**
+	 * Wrapper to check ResponseEntity status code and throw domain exceptions,
+	 * replicating the behavior of the old Response.throwIfError().
+	 */
+	public static <T> ResponseEntity<T> throwIfError(ResponseEntity<T> response) {
+		if (response.getStatusCode().is2xxSuccessful()) {
+			return response;
+		}
+
+		int statusCode = response.getStatusCode().value();
+		String rawBody = "";
+		if (response.getBody() != null) {
+			rawBody = response.getBody().toString();
+		}
+
+		if (statusCode == 408 || statusCode == 504) {
+			throw new NetworkTimeoutException("Request timed out");
+		}
+		if (statusCode == 404) {
+			throw new RemoteResourceNotFoundException("Resource not found");
+		}
+		if (statusCode >= 500) {
+			throw new ExternalServiceException("Internal server error: " + rawBody);
+		}
+		if (statusCode >= 400) {
+			throw new BadRequestException("Bad request: " + rawBody);
+		}
+
+		return response;
 	}
 
 	// ===== Core Execution =====

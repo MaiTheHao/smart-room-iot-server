@@ -12,7 +12,7 @@ import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.LightControlService;
-import com.iviet.ivshs.service.client.GatewayControlClient;
+import com.iviet.ivshs.service.client.gateway.GatewayControlClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +99,11 @@ public class LightControlServiceImpl implements LightControlService {
 
   private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
     CompletableFuture.supplyAsync(() -> gatewayControlClient.controlLightPowerV2(gatewayIp, naturalId, power))
+        .thenAccept(response -> {
+            if (response != null && response.getStatusCode().is2xxSuccessful()) {
+                log.debug("Successfully controlled light power for naturalId: {}", naturalId);
+            }
+        })
         .exceptionally(ex -> {
           log.warn("Failed to control light power for naturalId: {}", naturalId, ex);
           return null;
@@ -107,6 +112,11 @@ public class LightControlServiceImpl implements LightControlService {
 
   private void handleLevelControlCall(String gatewayIp, String naturalId, int level) {
     CompletableFuture.supplyAsync(() -> gatewayControlClient.controlLightLevelV2(gatewayIp, naturalId, level))
+        .thenAccept(response -> {
+            if (response != null && response.getStatusCode().is2xxSuccessful()) {
+                log.debug("Successfully controlled light level for naturalId: {}", naturalId);
+            }
+        })
         .exceptionally(ex -> {
           log.warn("Failed to control light level for naturalId: {}", naturalId, ex);
           return null;

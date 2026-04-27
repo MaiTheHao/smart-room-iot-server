@@ -475,5 +475,5 @@ Tương tự thiết lập ở phần POST actions.
 
 | Tên Enum          | Giá trị hỗ trợ |
 | :---------------- | :------------- |
-| **JobTargetType** | `LIGHT`        |
+| **JobTargetType** | `LIGHT`, `FAN` |
 | **JobActionType** | `ON`, `OFF`    |

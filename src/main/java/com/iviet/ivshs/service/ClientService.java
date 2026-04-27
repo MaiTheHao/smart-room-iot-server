@@ -40,6 +40,10 @@ public interface ClientService {
 
   ClientDto getGatewayByIpAddress(String ipAddress);
 
+  Client getGatewayEntityByIpAddress(String ipAddress);
+
+  void updateAccessToken(Long clientId, String accessToken);
+
   PaginatedResponse<ClientDto> getListGatewaysByRoomId(Long roomId, int page, int size);
 
   ClientDto create(CreateClientDto createDto);

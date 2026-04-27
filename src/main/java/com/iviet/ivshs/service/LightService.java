@@ -6,7 +6,6 @@ import com.iviet.ivshs.dto.CreateLightDto;
 import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateLightDto;
-import com.iviet.ivshs.enumeration.ActuatorPower;
 
 public interface LightService {
 
@@ -25,24 +24,6 @@ public interface LightService {
     LightDto update(Long lightId, UpdateLightDto updateDto);
     
     void delete(Long lightId);
-    
-    @Deprecated
-    void controlPower(Long id, ActuatorPower state);
-    
-    @Deprecated
-    void togglePower(Long id);
-    
-    @Deprecated
-    void controlLevel(Long id, int level);
-    
-    // New
-    void _v2api_handlePowerControl(Long lightId, ActuatorPower power);
-    
-    // New
-    void _v2api_handleTogglePowerControl(Long lightId);
-    
-    // New
-    void _v2api_handleLevelControl(Long lightId, int level);
 
     Long countByRoomId(Long roomId);
 }

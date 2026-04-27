@@ -4,22 +4,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.setup.DeviceSetupOrchestrator;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.enumeration.ClientType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
-import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.SetupService;
-import com.iviet.ivshs.service.client.GatewaySystemClient;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.iviet.ivshs.service.client.gateway.GatewaySystemClient;
+import org.springframework.http.ResponseEntity;
 
-@Slf4j(topic = "SETUP")
+import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
 public class SetupServiceImpl implements SetupService {
@@ -32,35 +32,14 @@ public class SetupServiceImpl implements SetupService {
     @Override
     @Transactional
     public void setup(Long clientId) {
-        long start = System.currentTimeMillis();
-        log.info("Starting setup process for clientId: {}", clientId);
-
         try {
             Client client = validateAndGetGateway(clientId);
-            log.info("Validated gateway: id={}, username={}, ip={}", 
-                client.getId(), client.getUsername(), client.getIpAddress());
-
             SetupRequest setupRequest = fetchSetupData(client);
-
             executeDatabasePersistence(client, setupRequest.getData());
-
-            long duration = System.currentTimeMillis() - start;
-            log.info("[SETUP] Successfully completed setup for clientId: {} in {}ms", 
-                clientId, duration);
-                
-        } catch (BadRequestException | NotFoundException e) {
-            log.error("Validation error for clientId {}: {}", clientId, e.getMessage());
-            throw e;
-        } catch (NetworkTimeoutException | ExternalServiceException e) {
-            log.error("Gateway communication error for clientId {}: {}", 
-                clientId, e.getMessage());
+        } catch (BadRequestException | NotFoundException | ExternalServiceException e) {
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error during setup for clientId {}: {}", 
-                clientId, e.getMessage(), e);
-            throw new ExternalServiceException(
-                "Setup process failed: " + e.getMessage()
-            );
+            throw new ExternalServiceException("Setup process failed: " + e.getMessage());
         }
     }
 
@@ -68,13 +47,10 @@ public class SetupServiceImpl implements SetupService {
         Client client = clientService.getEntityById(clientId); 
         
         if (client.getClientType() != ClientType.HARDWARE_GATEWAY) {
-            log.error("Client is not a gateway: id={}", clientId);
             throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
         }
         
         if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
-            log.error("Gateway missing IP address: id={}, username={}", 
-                clientId, client.getUsername());
             throw new BadRequestException(
                 "Gateway '" + client.getUsername() + "' does not have a configured IP address. " +
                 "Please configure the IP address before running setup."
@@ -85,37 +61,24 @@ public class SetupServiceImpl implements SetupService {
     }
 
     private SetupRequest fetchSetupData(Client client) {
-        log.info("Fetching setup data from gateway: ip={}", client.getIpAddress());
-        
         try {
-            SetupRequest req = gatewaySystemClient.fetchSetup(client.getIpAddress())
-                .throwIfError()
-                .getBody();
+            ResponseEntity<SetupRequest> response = gatewaySystemClient.fetchSetup(client.getIpAddress());
+            
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                throw new ExternalServiceException("Gateway returned error status: " + response.getStatusCode());
+            }
+
+            SetupRequest req = response.getBody();
+            if (req.getData() == null) {
+                throw new ExternalServiceException("Gateway returned empty setup data");
+            }
 
             validateData(req);
-            
-            log.info("Successfully fetched setup data: roomCode={}, devices={}", 
-                req.getData().getRoomCode(), 
-                req.getData().getDevices() != null ? req.getData().getDevices().size() : 0);
-            
             return req;
-
-        } catch (NetworkTimeoutException e) {
-            log.error("Timeout connecting to gateway: ip={}, error={}", 
-                client.getIpAddress(), e.getMessage());
-            throw new NetworkTimeoutException(
-                "Gateway connection timed out at " + client.getIpAddress() + ". " +
-                "Please verify gateway is online and network is accessible."
-            );
         } catch (ExternalServiceException e) {
-            log.error("Gateway error: ip={}, error={}", client.getIpAddress(), e.getMessage());
             throw e;
         } catch (Exception e) {
-            log.error("Unexpected error fetching setup data: ip={}, error={}", 
-                client.getIpAddress(), e.getMessage(), e);
-            throw new ExternalServiceException(
-                "Failed to communicate with gateway: " + e.getMessage()
-            );
+            throw new ExternalServiceException("Failed to communicate with gateway: " + e.getMessage());
         }
     }
 
@@ -139,19 +102,14 @@ public class SetupServiceImpl implements SetupService {
         try {
             Room room = roomService.getEntityByCode(body.getRoomCode());
 
-            int processed = deviceSetupOrchestrator.persistAll(
+            deviceSetupOrchestrator.persistAll(
                 body.getDevices(),
                 client,
                 room
             );
-
-            log.info("Persisted {} devices for room '{}'", processed, body.getRoomCode());
-
         } catch (NotFoundException e) {
-            log.error("Room not found in system: '{}'", body.getRoomCode());
             throw e;
         } catch (Exception e) {
-            log.error("Critical error during persistence: {}", e.getMessage(), e);
             throw new ExternalServiceException("Persistence failed: " + e.getMessage());
         }
     }

@@ -1,11 +1,8 @@
 package com.iviet.ivshs.service.impl;
 
-import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
@@ -19,18 +16,16 @@ import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.FanControlService;
-import com.iviet.ivshs.util.HttpClientUtil;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "CONTROL-FAN")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class FanControlServiceImpl implements FanControlService {
 
   private final FanDao fanDao;
+  private final com.iviet.ivshs.service.client.gateway.GatewayControlClient gatewayControlClient;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -149,28 +144,33 @@ public class FanControlServiceImpl implements FanControlService {
   }
 
   private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-    String url = UrlConstant.getControlFanPowerUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", power)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlFanPowerV2(gatewayIp, naturalId, power)
+    ).exceptionally(ex -> null);
   }
 
   private void handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
-    String url = UrlConstant.getControlFanModeUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", mode)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlFanModeV2(gatewayIp, naturalId, mode)
+    ).exceptionally(ex -> null);
   }
 
   private void handleSpeedControlCall(String gatewayIp, String naturalId, int speed) {
-    String url = UrlConstant.getControlFanSpeedUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", speed)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlFanSpeedV2(gatewayIp, naturalId, speed)
+    ).exceptionally(ex -> null);
   }
 
   private void handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
-    String url = UrlConstant.getControlFanSwingUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", swing)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlFanSwingV2(gatewayIp, naturalId, swing)
+    ).exceptionally(ex -> null);
   }
 
   private void handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
-    String url = UrlConstant.getControlFanLightUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", light)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlFanLightV2(gatewayIp, naturalId, light)
+    ).exceptionally(ex -> null);
   }
 
   private Fan getOrThrow(String naturalId) {

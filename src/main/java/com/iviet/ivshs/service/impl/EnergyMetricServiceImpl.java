@@ -16,13 +16,14 @@ import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.EnergyMetricService;
-import com.iviet.ivshs.service.client.GatewayMaintenanceClient;
-import com.iviet.ivshs.service.client.GatewayTelemetryClient;
+import com.iviet.ivshs.service.client.gateway.GatewayMaintenanceClient;
+import com.iviet.ivshs.service.client.gateway.GatewayTelemetryClient;
 import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.ResponseEntity;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -157,7 +158,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
 
     private void filterResponse(
-        HttpClientUtil.Response<ApiResponse<EnergyMetricDto>> response,
+        ResponseEntity<ApiResponse<EnergyMetricDto>> response,
         EnergyMetricCategory category, Long targetId, String naturalId,
         List<EnergyMetric> metricsToSave
     ) {
@@ -167,9 +168,9 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
                 return;
             }
 
-            if (!response.isSuccess()) {
+            if (!response.getStatusCode().is2xxSuccessful()) {
                 log.warn("Fetch: Failed response for {}/{} (status={})", 
-                    category.name(), naturalId, response.getStatusCode());
+                    category.name(), naturalId, response.getStatusCode().value());
                 return;
             }
 
@@ -235,15 +236,15 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         );
     }
 
-    private void callResetWithRetry(java.util.function.Supplier<HttpClientUtil.Response<String>> resetCall, String ip, String naturalId) {
-        HttpClientUtil.Response<String> response = resetCall.get();
-        if (response.isSuccess()) {
+    private void callResetWithRetry(java.util.function.Supplier<ResponseEntity<ApiResponse<String>>> resetCall, String ip, String naturalId) {
+        ResponseEntity<ApiResponse<String>> response = resetCall.get();
+        if (response != null && response.getStatusCode().is2xxSuccessful()) {
             log.info("Reset: Device [{}] on [{}] reset OK", naturalId, ip);
             return;
         }
         
         log.warn("Reset: Device [{}] on [{}] failed (status={}), retrying once...",
-            naturalId, ip, response.getStatusCode());
+            naturalId, ip, response != null ? response.getStatusCode().value() : "NULL");
 
         try {
             Thread.sleep(RESET_RETRY_DELAY.toMillis());
@@ -251,12 +252,12 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             Thread.currentThread().interrupt();
         }
 
-        HttpClientUtil.Response<String> retry = resetCall.get();
-        if (retry.isSuccess()) {
+        ResponseEntity<ApiResponse<String>> retry = resetCall.get();
+        if (retry != null && retry.getStatusCode().is2xxSuccessful()) {
             log.info("Reset: Device [{}] on [{}] reset OK on retry", naturalId, ip);
         } else {
             log.error("Reset: Device [{}] on [{}] FAILED after retry (status={})",
-                naturalId, ip, retry.getStatusCode());
+                naturalId, ip, retry != null ? retry.getStatusCode().value() : "NULL");
         }
     }
 }

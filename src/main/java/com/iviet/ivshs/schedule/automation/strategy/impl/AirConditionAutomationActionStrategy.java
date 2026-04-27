@@ -2,12 +2,15 @@ package com.iviet.ivshs.schedule.automation.strategy.impl;
 
 import org.springframework.stereotype.Component;
 
+import com.iviet.ivshs.dao.AirConditionDao;
+import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.JobActionType;
 import com.iviet.ivshs.enumeration.JobTargetType;
+import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
-import com.iviet.ivshs.service.AirConditionService;
+import com.iviet.ivshs.service.AirConditionControlService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AirConditionAutomationActionStrategy implements AutomationActionStrategy {
 
-    private final AirConditionService service;
+    private final AirConditionControlService controlService;
+    private final AirConditionDao airConditionDao;
 
     @Override
     public JobTargetType getTargetType() {
@@ -29,7 +33,10 @@ public class AirConditionAutomationActionStrategy implements AutomationActionStr
         ActuatorPower newState = (action.getActionType() == JobActionType.ON) ? ActuatorPower.ON : ActuatorPower.OFF;
         
         try {
-            service.controlPower(action.getTargetId(), newState);
+            AirCondition ac = airConditionDao.findById(action.getTargetId())
+                    .orElseThrow(() -> new NotFoundException("Air Conditioner not found: " + action.getTargetId()));
+            
+            controlService.handlePowerControl(ac.getNaturalId(), newState);
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {
             log.warn("Failed: TargetId={}, Reason={}", action.getTargetId(), e.getMessage());

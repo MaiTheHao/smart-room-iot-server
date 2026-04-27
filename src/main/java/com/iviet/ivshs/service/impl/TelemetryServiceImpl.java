@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.enumeration.DeviceCategory;
@@ -9,8 +8,6 @@ import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.TelemetryService;
 import com.iviet.ivshs.service.strategy.TelemetryCRUDServiceStrategy;
-import com.iviet.ivshs.util.HttpClientUtil;
-import com.iviet.ivshs.util.JsonUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 	private final ClientService clientService;
 	private final RoomService roomService;
 	private final List<TelemetryCRUDServiceStrategy> strategies;
+	private final com.iviet.ivshs.service.client.gateway.GatewayTelemetryClient telemetryClient;
 	private final Map<DeviceCategory, TelemetryCRUDServiceStrategy> strategyMap = new EnumMap<>(DeviceCategory.class);
 
 	@PostConstruct
@@ -107,10 +105,14 @@ public class TelemetryServiceImpl implements TelemetryService {
 	}
 
 	protected void processTakeByGateway(ClientDto gateway) {
-		var response = HttpClientUtil.get(UrlConstant.getTelemetryByGatewayV1(gateway.ipAddress())).throwIfError();
+		var response = telemetryClient.fetchGlobalTelemetry(gateway.ipAddress());
 
-		var responseBody = JsonUtil.fromJson(response.getBody(), TelemetryResponseDto.class);
-		List<TelemetryResponseDto.Data> telemetryData = responseBody.getData();
+		if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+			log.warn("Failed to fetch telemetry for gateway [{}]: status={}", gateway.username(), response.getStatusCode());
+			return;
+		}
+
+		List<TelemetryResponseDto.Data> telemetryData = response.getBody().getData();
 
 		int processedCount = 0;
 		for (var data : telemetryData) {

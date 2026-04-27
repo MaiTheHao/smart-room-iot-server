@@ -34,6 +34,8 @@ CREATE TABLE `client` (
   `last_login_at` datetime(6) DEFAULT NULL,
   `mac_address` varchar(100) DEFAULT NULL,
   `password_hash` varchar(256) DEFAULT NULL,
+  `access_token` varchar(1024) DEFAULT NULL,
+  `gateway_password` varchar(255) DEFAULT NULL,
   `username` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_username` (`username`),

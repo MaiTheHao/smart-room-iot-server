@@ -65,6 +65,12 @@ public class Client extends BaseAuditEntity {
     @Column(name = "last_login_at")
     private Date lastLoginAt;
 
+    @Column(name = "access_token", length = 1024)
+    private String accessToken;
+
+    @Column(name = "gateway_password", length = 255)
+    private String gatewayPassword;
+
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<HardwareConfig> hardwareConfigs = new HashSet<>();
 

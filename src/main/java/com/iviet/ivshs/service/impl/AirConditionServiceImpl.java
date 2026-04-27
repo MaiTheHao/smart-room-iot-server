@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
@@ -19,7 +18,6 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.AirConditionService;
-import com.iviet.ivshs.util.HttpClientUtil;
 import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +35,6 @@ public class AirConditionServiceImpl implements AirConditionService {
   private final RoomDao roomDao;
   private final HardwareConfigDao deviceControlDao;
   private final LanguageDao languageDao;
-
   @Override
   public PaginatedResponse<AirConditionDto> getList(int page, int size) {
     var langCode = LocalContextUtil.getCurrentLangCode();
@@ -141,8 +137,6 @@ public class AirConditionServiceImpl implements AirConditionService {
   @Transactional
   public AirConditionDto update(Long id, UpdateAirConditionDto dto) {
     var ac = getAirConditionOrThrow(id);
-    boolean isUpdated = false;
-
     var langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
       throw new NotFoundException("Language not found: " + langCode);
@@ -205,243 +199,9 @@ public class AirConditionServiceImpl implements AirConditionService {
     return airConditionDao.countByRoomId(roomId);
   }
 
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlPower(Long id, ActuatorPower state) {
-    var ac = getAirConditionOrThrow(id);
-    ac.setPower(state);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getAcPowerUrlV1(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("power", state);
-
-    sendControlCommand(url, payload);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handlePowerControl(Long id, ActuatorPower power) {
-    var ac = getAirConditionOrThrow(id);
-    ac.setPower(power);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("data", power);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleTogglePowerControl(Long id) {
-    var ac = getAirConditionOrThrow(id);
-    var currentPower = ac.getPower() != null ? ac.getPower() : ActuatorPower.OFF;
-    var newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-
-    ac.setPower(newPower);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("data", newPower);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlTemperature(Long id, int temperature) {
-    if (temperature < AirCondition.MIN_TEMP || temperature > AirCondition.MAX_TEMP) {
-      throw new BadRequestException("Temperature must be between " + AirCondition.MIN_TEMP + " and " + AirCondition.MAX_TEMP);
-    }
-
-    var ac = getAirConditionOrThrow(id);
-    var currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
-
-    if (temperature == currentTemp) {
-      return;
-    }
-
-    ac.setTemperature(temperature);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = temperature > currentTemp
-      ? UrlConstant.getAcTempUpUrlV1(gatewayIp, ac.getNaturalId())
-      : UrlConstant.getAcTempDownUrlV1(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("temp", temperature);
-
-    sendControlCommand(url, payload);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleTemperatureControl(Long id, int temperature) {
-    if (temperature < AirCondition.MIN_TEMP || temperature > AirCondition.MAX_TEMP) {
-      throw new BadRequestException("Temperature must be between " + AirCondition.MIN_TEMP + " and " + AirCondition.MAX_TEMP);
-    }
-
-    var ac = getAirConditionOrThrow(id);
-    var currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
-
-    if (temperature == currentTemp) {
-      return;
-    }
-
-    ac.setTemperature(temperature);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = temperature > currentTemp
-      ? UrlConstant.getControlAcTempUpUrlV2(gatewayIp, ac.getNaturalId())
-      : UrlConstant.getControlAcTempDownUrlV2(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("data", temperature);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlMode(Long id, ActuatorMode mode) {
-    var ac = getAirConditionOrThrow(id);
-    ac.setMode(mode);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getAcModeUrlV1(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("mode", mode);
-
-    sendControlCommand(url, payload);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleModeControl(Long id, ActuatorMode mode) {
-    var ac = getAirConditionOrThrow(id);
-    ac.setMode(mode);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getControlAcModeUrlV2(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("data", mode);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlFanSpeed(Long id, int speed) {
-    if (speed < AirCondition.MIN_FAN_SPEED || speed > AirCondition.MAX_FAN_SPEED) {
-      throw new BadRequestException("Fan speed must be between " + AirCondition.MIN_FAN_SPEED + " and " + AirCondition.MAX_FAN_SPEED);
-    }
-
-    var ac = getAirConditionOrThrow(id);
-    ac.setFanSpeed(speed);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getAcFanUrlV1(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("fan", speed);
-
-    sendControlCommand(url, payload);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleFanSpeedControl(Long id, int speed) {
-    if (speed < AirCondition.MIN_FAN_SPEED || speed > AirCondition.MAX_FAN_SPEED) {
-      throw new BadRequestException("Fan speed must be between " + AirCondition.MIN_FAN_SPEED + " and " + AirCondition.MAX_FAN_SPEED);
-    }
-
-    var ac = getAirConditionOrThrow(id);
-    ac.setFanSpeed(speed);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getControlAcFanUrlV2(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("data", speed);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlSwing(Long id, ActuatorSwing swing) {
-    var ac = getAirConditionOrThrow(id);
-    ac.setSwing(swing);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getAcSwingUrlV1(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("swing", swing);
-
-    sendControlCommand(url, payload);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleSwingControl(Long id, ActuatorSwing swing) {
-    var ac = getAirConditionOrThrow(id);
-    ac.setSwing(swing);
-    ac.touch();
-    airConditionDao.save(ac);
-    airConditionDao.flush();
-
-    var gatewayIp = getGatewayIp(ac);
-    var url = UrlConstant.getControlAcSwingUrlV2(gatewayIp, ac.getNaturalId());
-    var payload = Map.of("data", swing);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
   private AirCondition getAirConditionOrThrow(Long id) {
     return airConditionDao.findById(id)
       .orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
-  }
-
-  private String getGatewayIp(AirCondition ac) {
-    var dc = ac.getHardwareConfig();
-    if (dc == null) {
-      throw new BadRequestException("No Device Control associated with Air Condition: " + ac.getNaturalId());
-    }
-
-    var gateway = dc.getClient();
-    if (gateway == null || gateway.getIpAddress() == null || gateway.getIpAddress().isEmpty()) {
-      throw new BadRequestException("Gateway IP not configured for Air Condition: " + ac.getNaturalId());
-    }
-
-    return gateway.getIpAddress();
-  }
-
-  private void sendControlCommand(String url, Map<String, ? extends Object> payload) {
-    HttpClientUtil.postAsync(url, payload).exceptionally(ex -> null);
   }
 
   private void validateControlValues(Integer temperature, Integer fanSpeed) {

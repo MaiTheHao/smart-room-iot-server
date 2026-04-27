@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.AutomationActionDao;
 import com.iviet.ivshs.dao.AutomationDao;
+import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dto.AutomationActionDto;
 import com.iviet.ivshs.dto.AutomationDto;
@@ -39,6 +40,7 @@ public class AutomationServiceImpl implements AutomationService {
 	private final AutomationActionDao automationActionDao;
 	private final LightDao lightDao;
 	private final AirConditionDao airConditionDao;
+	private final FanDao fanDao;
 	private final ScheduleUtil scheduleUtil;
 	private final AutomationProcessor processor;
 
@@ -264,6 +266,10 @@ public class AutomationServiceImpl implements AutomationService {
 			if (!lightDao.existsById(targetId)) {
 				throw new BadRequestException("Light not found: " + targetId);
 			}
+		} else if (targetType == JobTargetType.FAN) {
+			if (!fanDao.existsById(targetId)) {
+				throw new BadRequestException("Fan not found: " + targetId);
+			}
 		}
 	}
 
@@ -277,6 +283,10 @@ public class AutomationServiceImpl implements AutomationService {
 				return airConditionDao.findById(targetId)
 						.map(ac -> ac.getNaturalId())
 						.orElse("Unknown Air Conditioner");
+			} else if (targetType == JobTargetType.FAN) {
+				return fanDao.findById(targetId)
+						.map(fan -> fan.getNaturalId())
+						.orElse("Unknown Fan");
 			}
 			
 			return "Unknown Device";

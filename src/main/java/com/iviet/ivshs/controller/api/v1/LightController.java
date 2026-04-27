@@ -86,21 +86,4 @@ public class LightController {
         lightControlService.control(naturalId, request);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
     }
-    
-    @Deprecated
-    @PutMapping("/{id}/level/{level}")
-    public ResponseEntity<ApiResponse<Void>> handleLevelControl(
-            @PathVariable(name = "id") Long id,
-            @PathVariable(name = "level") int level) {
-        lightService.controlLevel(id, level);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Brightness level set successfully"));
-    }
-
-    @Deprecated
-    @PutMapping("/{id}/toggle-state")
-    public ResponseEntity<ApiResponse<ControlDeviceResponse>> handleToggleStateControl(
-            @PathVariable(name = "id") Long id) {
-        lightService.togglePower(id);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Toggled successfully"));
-    }
 }

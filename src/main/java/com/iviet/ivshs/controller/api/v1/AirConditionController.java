@@ -6,9 +6,6 @@ import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.CreateAirConditionDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAirConditionDto;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
-import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.service.AirConditionControlService;
 import com.iviet.ivshs.service.AirConditionService;
 import jakarta.validation.Valid;
@@ -96,54 +93,4 @@ public class AirConditionController {
 			airConditionControlService.control(naturalId, params);
 			return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Controlled successfully"));
 	}
-
-	@Deprecated
-    @PostMapping("/{id}/power")
-    public ResponseEntity<ApiResponse<Void>> controlPower(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "state") ActuatorPower state) {
-        
-        airConditionService.controlPower(id, state);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Power controlled successfully"));
-    }
-
-	@Deprecated
-    @PostMapping("/{id}/temperature")
-    public ResponseEntity<ApiResponse<Void>> controlTemperature(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "value") int temperature) {
-        
-        airConditionService.controlTemperature(id, temperature);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Temperature controlled successfully"));
-    }
-
-	@Deprecated
-    @PostMapping("/{id}/mode")
-    public ResponseEntity<ApiResponse<Void>> controlMode(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "value") ActuatorMode mode) {
-        
-        airConditionService.controlMode(id, mode);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Mode controlled successfully"));
-    }
-
-	@Deprecated
-    @PostMapping("/{id}/fan")
-    public ResponseEntity<ApiResponse<Void>> controlFanSpeed(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "speed") int speed) {
-        
-        airConditionService.controlFanSpeed(id, speed);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Fan speed controlled successfully"));
-    }
-
-	@Deprecated
-    @PostMapping("/{id}/swing")
-    public ResponseEntity<ApiResponse<Void>> controlSwing(
-            @PathVariable(name = "id") Long id,
-            @RequestParam(name = "state") ActuatorSwing swing) {
-        
-        airConditionService.controlSwing(id, swing);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.ACCEPTED, null, "Swing controlled successfully"));
-    }
 }

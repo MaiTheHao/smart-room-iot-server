@@ -11,22 +11,18 @@ import com.iviet.ivshs.dto.UpdateLightDto;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
 import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.GatewayCommand;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
-import com.iviet.ivshs.service.ControlService;
 import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.constant.UrlConstant;
-import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +33,6 @@ public class LightServiceImpl implements LightService {
   private final RoomDao roomDao;
   private final LanguageDao languageDao;
   private final HardwareConfigDao deviceControlDao;
-  private final ControlService controlService;
-
   @Override
   public PaginatedResponse<LightDto> getList(int page, int size) {
     var langCode = LocalContextUtil.getCurrentLangCode();
@@ -199,103 +193,6 @@ public class LightServiceImpl implements LightService {
   public Long countByRoomId(Long roomId) {
     if (roomId == null) throw new BadRequestException("Room ID is required");
     return lightDao.countByRoomId(roomId);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handlePowerControl(Long lightId, ActuatorPower power) {
-    var light = getLightOrThrow(lightId);
-    var client = light.getHardwareConfig().getClient();
-
-    var actualPower = (power != null) ? power : ActuatorPower.OFF;
-    light.setPower(actualPower);
-    light.touch();
-    lightDao.save(light);
-    lightDao.flush();
-
-    var url = UrlConstant.getControlLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
-    var payload = Map.of("data", actualPower);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleTogglePowerControl(Long lightId) {
-    var light = getLightOrThrow(lightId);
-    var client = light.getHardwareConfig().getClient();
-
-    var currentPower = light.getPower() != null ? light.getPower() : ActuatorPower.OFF;
-    var newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-
-    light.setPower(newPower);
-    light.touch();
-    lightDao.save(light);
-    lightDao.flush();
-
-    var url = UrlConstant.getControlLightPowerUrlV2(client.getIpAddress(), light.getNaturalId());
-    var payload = Map.of("data", newPower);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  public void _v2api_handleLevelControl(Long lightId, int level) {
-    if (level < Light.MIN_LEVEL || level > Light.MAX_LEVEL) {
-      throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
-    }
-    var light = getLightOrThrow(lightId);
-    var client = light.getHardwareConfig().getClient();
-
-    light.setLevel(level);
-    light.touch();
-    lightDao.save(light);
-    lightDao.flush();
-
-    var url = UrlConstant.getControlLightLevelUrlV2(client.getIpAddress(), light.getNaturalId());
-    var payload = Map.of("data", level);
-
-    HttpClientUtil.putAsync(url, payload).exceptionally(ex -> null);
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlPower(Long id, ActuatorPower state) {
-    var light = getLightOrThrow(id);
-    var client = light.getHardwareConfig().getClient();
-
-    controlService.sendCommand(
-      client.getIpAddress(),
-      light.getNaturalId(),
-      ((state == ActuatorPower.ON) ? GatewayCommand.ON : GatewayCommand.OFF)
-    );
-    light.setPower(state);
-    light.setIsActive(state == ActuatorPower.ON);
-    light.touch();
-    lightDao.save(light);
-    lightDao.flush();
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void togglePower(Long id) {
-    var light = getLightOrThrow(id);
-    var currentPower = light.getPower() != null ? light.getPower() : ActuatorPower.OFF;
-    var newPower = (currentPower == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-    controlPower(id, newPower);
-  }
-
-  @Override
-  @Transactional
-  @Deprecated
-  public void controlLevel(Long id, int level) {
-    if (level < Light.MIN_LEVEL || level > Light.MAX_LEVEL) {
-      throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
-    }
-    throw new UnsupportedOperationException("Legacy level control is not supported. Please use the new API endpoint for level control.");
   }
 
   private Light getLightOrThrow(Long lightId) {

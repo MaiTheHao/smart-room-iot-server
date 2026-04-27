@@ -5,7 +5,6 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.entities.AirCondition;
@@ -17,18 +16,16 @@ import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.AirConditionControlService;
-import com.iviet.ivshs.util.HttpClientUtil;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "CONTROL-AC")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AirConditionControlServiceImpl implements AirConditionControlService {
 
   private final AirConditionDao airConditionDao;
+  private final com.iviet.ivshs.service.client.gateway.GatewayControlClient gatewayControlClient;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -144,28 +141,37 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   }
 
   private void handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-    String url = UrlConstant.getControlAcPowerUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", power)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlAcPowerV2(gatewayIp, naturalId, power)
+    ).exceptionally(ex -> null);
   }
 
   private void handleTemperatureControlCall(String gatewayIp, String naturalId, int temperature, int currentTemp) {
-    String url = temperature > currentTemp ? UrlConstant.getControlAcTempUpUrlV2(gatewayIp, naturalId) : UrlConstant.getControlAcTempDownUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", temperature)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> {
+        if (temperature > currentTemp) {
+            gatewayControlClient.controlAcTempUpV2(gatewayIp, naturalId, temperature);
+        } else {
+            gatewayControlClient.controlAcTempDownV2(gatewayIp, naturalId, temperature);
+        }
+    }).exceptionally(ex -> null);
   }
 
   private void handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
-    String url = UrlConstant.getControlAcModeUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", mode)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlAcModeV2(gatewayIp, naturalId, mode)
+    ).exceptionally(ex -> null);
   }
 
   private void handleFanSpeedControlCall(String gatewayIp, String naturalId, int speed) {
-    String url = UrlConstant.getControlAcFanUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", speed == 0 ? "AUTO" : speed)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlAcFanV2(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed)
+    ).exceptionally(ex -> null);
   }
 
   private void handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
-    String url = UrlConstant.getControlAcSwingUrlV2(gatewayIp, naturalId);
-    HttpClientUtil.putAsync(url, Map.of("data", swing)).exceptionally(ex -> null);
+    java.util.concurrent.CompletableFuture.runAsync(() -> 
+        gatewayControlClient.controlAcSwingV2(gatewayIp, naturalId, swing)
+    ).exceptionally(ex -> null);
   }
 
   private AirCondition getOrThrow(String naturalId) {

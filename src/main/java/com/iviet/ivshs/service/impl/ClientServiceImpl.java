@@ -27,6 +27,9 @@ public class ClientServiceImpl implements ClientService {
   private final ClientDao clientDao;
   private final BCryptPasswordEncoder passwordEncoder;
 
+  @org.springframework.beans.factory.annotation.Value("${app.gateway.port:9090}")
+  private int defaultGatewayPort;
+
   @Override
   public List<ClientDto> getAll() {
     return clientDao.findAll().stream()
@@ -127,9 +130,23 @@ public class ClientServiceImpl implements ClientService {
 
   @Override
   public ClientDto getGatewayByIpAddress(String ipAddress) {
-    Client gateway = clientDao.findGatewayByIpAddress(ipAddress)
-      .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
+    Client gateway = getGatewayEntityByIpAddress(ipAddress);
     return ClientDto.from(gateway);
+  }
+
+  @Override
+  public Client getGatewayEntityByIpAddress(String ipAddress) {
+    return clientDao.findGatewayByIpAddress(ipAddress)
+      .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
+  }
+
+  @Override
+  @Transactional
+  public void updateAccessToken(Long clientId, String accessToken) {
+    Client client = clientDao.findById(clientId)
+      .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+    client.setAccessToken(accessToken);
+    clientDao.update(client);
   }
 
   @Override
@@ -173,6 +190,15 @@ public class ClientServiceImpl implements ClientService {
     client.setUsername(username);
     client.setPasswordHash(passwordEncoder.encode(createDto.password()));
 
+    // TODO: Temporary for gateway authentication
+    if (createDto.clientType() == ClientType.HARDWARE_GATEWAY) {
+      String ip = client.getIpAddress();
+      if (ip != null && !ip.contains(":")) {
+        client.setIpAddress(ip + ":" + defaultGatewayPort);
+      }
+      client.setGatewayPassword(createDto.password()); // Store plain text for gateway auth
+    }
+
     Client savedClient = clientDao.save(client);
     return ClientDto.from(savedClient);
   }
@@ -198,6 +224,9 @@ public class ClientServiceImpl implements ClientService {
 
     if (updateDto.password() != null && !updateDto.password().trim().isEmpty()) {
       client.setPasswordHash(passwordEncoder.encode(updateDto.password()));
+      if (client.getClientType() == ClientType.HARDWARE_GATEWAY) {
+        client.setGatewayPassword(updateDto.password().trim());
+      }
     }
 
     clientDao.update(client);

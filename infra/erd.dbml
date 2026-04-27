@@ -297,6 +297,8 @@ Table client {
   mac_address varchar(100) [default: NULL]
   username varchar(100) [unique, not null]
   password_hash varchar(256) [default: NULL]
+  access_token varchar(1024) [default: NULL]
+  gateway_password varchar(255) [default: NULL]
 
   Indexes {
     (client_type, ip_address) [unique, name: "idx_client_type_ip_address"]

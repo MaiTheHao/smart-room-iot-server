@@ -1,6 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.constant.UrlConstant;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.HealthCheckResponseDto;
@@ -10,8 +9,8 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.service.HealthCheckService;
-import com.iviet.ivshs.util.HttpClientUtil;
-import com.iviet.ivshs.util.JsonUtil;
+import com.iviet.ivshs.service.client.gateway.GatewaySystemClient;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 	private final ClientDao clientDao;
 	private final RoomDao roomDao;
+	private final GatewaySystemClient gatewaySystemClient;
 
 	@Override
 	public HealthCheckResponseDto checkByClient(Long clientId) {
@@ -42,25 +42,21 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 	@Override
 	public HealthCheckResponseDto checkByClient(String ipAddress) {
 		long start = System.currentTimeMillis();
-		String url = UrlConstant.getHealthUrlV1(ipAddress);
 		log.info("Starting health check for IP: {}", ipAddress);
 
 		try {
-			var response = HttpClientUtil.get(url);
+			var response = gatewaySystemClient.fetchHealthCheck(ipAddress);
 
-			if (!response.isSuccess()) {
+			if (!response.getStatusCode().is2xxSuccessful()) {
 				log.warn("Failed IP [{}] with status {}. Body: {}", ipAddress, response.getStatusCode(), response.getBody());
 				throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
 			}
 
-			HealthCheckResponseDto result = JsonUtil.fromJson(response.getBody(), HealthCheckResponseDto.class);
+			HealthCheckResponseDto result = response.getBody();
 			log.info("Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
 			return result;
-		} catch (NetworkTimeoutException | ExternalServiceException e) {
+		} catch (ExternalServiceException e) {
 			throw e;
-		} catch (IllegalArgumentException e) {
-			log.error("Response deserialization error for IP [{}]: {}", ipAddress, e.getMessage());
-			throw new ExternalServiceException("Dữ liệu từ gateway không hợp lệ: " + ipAddress);
 		} catch (Exception e) {
 			log.error("Unexpected error for IP [{}]: {}", ipAddress, e.getMessage());
 			throw new ExternalServiceException("Lỗi kết nối tới gateway: " + ipAddress);
