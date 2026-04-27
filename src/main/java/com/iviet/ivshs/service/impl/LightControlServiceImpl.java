@@ -48,9 +48,12 @@ public class LightControlServiceImpl implements LightControlService {
   public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     Light light = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(light);
-    light.setPower(power);
-    lightDao.save(light);
-    return handlePowerControlCall(gatewayIp, light.getNaturalId(), power);
+    ControlDeviceResult result = handlePowerControlCall(gatewayIp, light.getNaturalId(), power);
+    if (result.getSuccessCount() > 0) {
+      light.setPower(power);
+      lightDao.save(light);
+    }
+    return result;
   }
 
   @Override
@@ -59,9 +62,12 @@ public class LightControlServiceImpl implements LightControlService {
     Light light = getOrThrow(naturalId);
     ActuatorPower newPowerState = (light.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(light);
-    light.setPower(newPowerState);
-    lightDao.save(light);
-    return handlePowerControlCall(gatewayIp, light.getNaturalId(), newPowerState);
+    ControlDeviceResult result = handlePowerControlCall(gatewayIp, light.getNaturalId(), newPowerState);
+    if (result.getSuccessCount() > 0) {
+      light.setPower(newPowerState);
+      lightDao.save(light);
+    }
+    return result;
   }
 
   @Override
@@ -69,9 +75,12 @@ public class LightControlServiceImpl implements LightControlService {
   public ControlDeviceResult handleLevelControl(String naturalId, int level) {
     Light light = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(light);
-    light.setLevel(level);
-    lightDao.save(light);
-    return handleLevelControlCall(gatewayIp, light.getNaturalId(), level);
+    ControlDeviceResult result = handleLevelControlCall(gatewayIp, light.getNaturalId(), level);
+    if (result.getSuccessCount() > 0) {
+      light.setLevel(level);
+      lightDao.save(light);
+    }
+    return result;
   }
 
   @Override
@@ -93,27 +102,32 @@ public class LightControlServiceImpl implements LightControlService {
     String gatewayIp = extractClientIpAddress(light);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      light.setPower(body.power());
-      executeControl(result, "power", () -> gatewayControlClient.controlLightPowerV2(gatewayIp, light.getNaturalId(), body.power()));
+      if (executeControl(result, "power", () -> gatewayControlClient.controlLightPowerV2(gatewayIp, light.getNaturalId(), body.power()))) {
+        light.setPower(body.power());
+      }
     }
     if (body.level() != null) {
-      light.setLevel(body.level());
-      executeControl(result, "level", () -> gatewayControlClient.controlLightLevelV2(gatewayIp, light.getNaturalId(), body.level()));
+      if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevelV2(gatewayIp, light.getNaturalId(), body.level()))) {
+        light.setLevel(body.level());
+      }
     }
     lightDao.save(light);
     return result;
   }
 
-  private void executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+  private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
       if (response.getStatusCode().is2xxSuccessful()) {
         result.addDetail(parameter, true, "Success");
+        return true;
       } else {
         result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
+        return false;
       }
     } catch (Exception e) {
       result.addDetail(parameter, false, e.getMessage());
+      return false;
     }
   }
 

@@ -1,221 +1,97 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <body>
-    <div
-      th:fragment="fan(fan)"
-      class="d-flex justify-content-between align-items-start mb-3 fan-item"
-      th:data-fan-id="${fan.id}"
-      th:data-fan-type="${fan.type}"
-    >
-      <div class="flex-grow-1">
-        <div class="d-flex justify-content-between align-items-center">
-          <div
-            class="d-flex align-items-center flex-grow-1"
-            style="cursor: pointer"
-            th:onclick="|$(#btn-expand-fan-${fan.id}).click()|"
-          >
-            <div
-              class="icon-box mr-3 default-icon d-flex justify-content-center align-items-center"
-              th:classappend="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'active-fan' : ''}"
-            >
-              <i class="fas fa-fan"></i>
-            </div>
-            <i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
-            <div>
-              <h6 class="mb-0 font-weight-bold text-dark" th:text="${fan.name}"></h6>
-              <small
-                class="text-muted fan-status-text"
-                th:data-text-on="#{device_card.common.status.on}"
-                th:data-text-off="#{device_card.common.status.off}"
-                th:data-speed-prefix="#{device_card.fan.speed.prefix}"
-              >
-                <th:block th:if="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}">
-                  <th:block
-                    th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null}"
-                    th:text="|${fan.mode.name()} • #{device_card.fan.speed.prefix} ${fan.speed}|"
-                  ></th:block>
-                  <th:block
-                    th:unless="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null}"
-                    th:text="#{device_card.common.status.on}"
-                  ></th:block>
-                </th:block>
-                <th:block
-                  th:unless="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}"
-                  th:text="#{device_card.common.status.off}"
-                ></th:block>
-              </small>
-            </div>
-          </div>
-          <div class="d-flex align-items-center">
-            <div class="custom-control custom-switch scale-125 mr-3">
-              <input
-                type="checkbox"
-                class="custom-control-input fan-master-switch"
-                th:id="|fanMasterSwitch${fan.id}|"
-                th:data-fan-id="${fan.id}"
-                th:data-fan-natural-id="${fan.naturalId}"
-                th:checked="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}"
-              />
-              <label class="custom-control-label" th:for="|fanMasterSwitch${fan.id}|"></label>
-            </div>
-            <button
-              class="btn btn-link text-muted p-0 btn-expand"
-              th:id="|btn-expand-fan-${fan.id}|"
-              type="button"
-              th:data-target="|#fanControls${fan.id}|"
-              data-toggle="collapse"
-            >
-              <i class="fas fa-chevron-down"></i>
-            </button>
-          </div>
-        </div>
+	<body>
+		<div th:fragment="fan(fan)" class="d-flex justify-content-between align-items-start mb-3 fan-item" th:data-fan-id="${fan.id}" th:data-fan-type="${fan.type}" th:data-fan-natural-id="${fan.naturalId}">
+			<div class="flex-grow-1">
+				<div class="d-flex justify-content-between align-items-center">
+					<div class="d-flex align-items-center flex-grow-1" style="cursor: pointer" th:onclick="| $('#btn-expand-fan-${fan.id}').click() |">
+						<div class="icon-box mr-3 default-icon d-flex justify-content-center align-items-center" th:classappend="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'active-fan' : ''}">
+							<i class="fas fa-fan"></i>
+						</div>
+						<i class="fas fa-sync-alt text-info loading-icon custom-spin" style="display: none"></i>
+						<div>
+							<h6 class="mb-0 font-weight-bold text-dark" th:text="${fan.name}"></h6>
+							<small class="text-muted fan-status-text" th:data-text-on="#{device_card.common.status.on}" th:data-text-off="#{device_card.common.status.off}" th:data-speed-prefix="#{device_card.fan.speed.prefix}">
+								<th:block th:if="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}">
+									<th:block th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null}" th:text="|${fan.mode.name()} • #{device_card.fan.speed.prefix} ${fan.speed}|"></th:block>
+									<th:block th:unless="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR && fan.mode != null}" th:text="#{device_card.common.status.on}"></th:block>
+								</th:block>
+								<th:block th:unless="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}" th:text="#{device_card.common.status.off}"></th:block>
+							</small>
+						</div>
+					</div>
+					<div class="d-flex align-items-center">
+						<div class="custom-control custom-switch scale-125 mr-3">
+							<input type="checkbox" class="custom-control-input fan-master-switch" th:id="|fanMasterSwitch${fan.id}|" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" th:checked="${fan.power == T(com.iviet.ivshs.enumeration.ActuatorPower).ON}" />
+							<label class="custom-control-label" th:for="|fanMasterSwitch${fan.id}|"></label>
+						</div>
+						<button class="btn btn-link text-muted p-0 btn-expand" th:id="|btn-expand-fan-${fan.id}|" type="button" th:data-target="|#fanControls${fan.id}|" data-toggle="collapse">
+							<i class="fas fa-chevron-down"></i>
+						</button>
+					</div>
+				</div>
 
-        <div
-          class="collapse mt-3"
-          th:id="|fanControls${fan.id}|"
-          th:classappend="${fan.power != T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'disabled-overlay' : ''}"
-        >
-          <div class="bg-light rounded p-4">
-            <div class="mb-4">
-              <small
-                class="text-muted d-block mb-2 font-weight-bold text-uppercase"
-                style="font-size: 0.7rem"
-                th:text="#{device_card.common.description.label}"
-              ></small>
-              <p
-                class="text-dark mb-0"
-                style="font-size: 0.875rem"
-                th:text="${fan.description != null and !fan.description.isEmpty()} ? ${fan.description} : #{device_card.common.description.empty}"
-              ></p>
-            </div>
+				<div class="collapse mt-3" th:id="|fanControls${fan.id}|" th:classappend="${fan.power != T(com.iviet.ivshs.enumeration.ActuatorPower).ON ? 'disabled-overlay' : ''}">
+					<div class="bg-light rounded p-4">
+						<div class="mb-4">
+							<small class="text-muted d-block mb-2 font-weight-bold text-uppercase" style="font-size: 0.7rem" th:text="#{device_card.common.description.label}"></small>
+							<p class="text-dark mb-0" style="font-size: 0.875rem" th:text="${fan.description != null and !fan.description.isEmpty()} ? ${fan.description} : #{device_card.common.description.empty}"></p>
+						</div>
 
-            <div class="bg-white rounded p-3 border mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span
-                  class="text-xs font-weight-bold text-uppercase text-muted"
-                  th:text="#{device_card.fan.fan_speed}"
-                ></span>
-                <span
-                  class="badge badge-primary fan-speed-display"
-                  th:text="|#{device_card.ac.fan_speed.level} ${fan.speed != null ? fan.speed : 0}|"
-                ></span>
-              </div>
-              <input
-                type="range"
-                class="custom-range w-100 fan-speed-slider"
-                th:data-fan-id="${fan.id}"
-                th:data-fan-natural-id="${fan.naturalId}"
-                min="0"
-                max="3"
-                th:value="${fan.speed != null && fan.speed <= 3 ? fan.speed : 0}"
-              />
-            </div>
+						<div class="bg-white rounded p-3 border mb-3">
+							<div class="d-flex justify-content-between align-items-center mb-2">
+								<span class="text-xs font-weight-bold text-uppercase text-muted" th:text="#{device_card.fan.fan_speed}"></span>
+								<span class="badge badge-pill badge-primary fan-speed-display" th:data-text-level="#{device_card.ac.fan_speed.level}" th:text="|#{device_card.ac.fan_speed.level} ${fan.speed != null ? fan.speed : 0}|"></span>
+							</div>
+							<input type="range" class="custom-range w-100 fan-speed-slider" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" min="0" max="3" th:value="${fan.speed != null && fan.speed <= 3 ? fan.speed : 0}" />
+						</div>
 
-            <div th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR}">
-              <div class="mb-4">
-                <small
-                  class="text-muted d-block mb-3 font-weight-bold text-uppercase"
-                  style="font-size: 0.7rem"
-                  th:text="#{device_card.fan.mode.label}"
-                ></small>
-                <div class="d-flex justify-content-center">
-                  <div class="mx-2 text-center">
-                    <button
-                      class="btn btn-outline-secondary fan-mode-btn rounded-circle d-flex align-items-center justify-content-center"
-                      th:data-fan-id="${fan.id}"
-                      th:data-fan-natural-id="${fan.naturalId}"
-                      data-mode="NORMAL"
-                      th:classappend="${fan.mode != null && fan.mode.name() == 'NORMAL' ? 'active-mode' : ''}"
-                      style="width: 56px; height: 56px"
-                    >
-                      <i class="fas fa-wind fa-lg"></i>
-                    </button>
-                    <small
-                      class="text-muted d-block mt-2"
-                      style="font-size: 0.7rem"
-                      th:text="#{device_card.fan.mode.normal}"
-                    ></small>
-                  </div>
-                  <div class="mx-2 text-center">
-                    <button
-                      class="btn btn-outline-secondary fan-mode-btn rounded-circle d-flex align-items-center justify-content-center"
-                      th:data-fan-id="${fan.id}"
-                      th:data-fan-natural-id="${fan.naturalId}"
-                      data-mode="SLEEP"
-                      th:classappend="${fan.mode != null && fan.mode.name() == 'SLEEP' ? 'active-mode' : ''}"
-                      style="width: 56px; height: 56px"
-                    >
-                      <i class="fas fa-moon fa-lg"></i>
-                    </button>
-                    <small
-                      class="text-muted d-block mt-2"
-                      style="font-size: 0.7rem"
-                      th:text="#{device_card.fan.mode.sleep}"
-                    ></small>
-                  </div>
-                  <div class="mx-2 text-center">
-                    <button
-                      class="btn btn-outline-secondary fan-mode-btn rounded-circle d-flex align-items-center justify-content-center"
-                      th:data-fan-id="${fan.id}"
-                      th:data-fan-natural-id="${fan.naturalId}"
-                      data-mode="NATURAL"
-                      th:classappend="${fan.mode != null && fan.mode.name() == 'NATURAL' ? 'active-mode' : ''}"
-                      style="width: 56px; height: 56px"
-                    >
-                      <i class="fas fa-leaf fa-lg"></i>
-                    </button>
-                    <small
-                      class="text-muted d-block mt-2"
-                      style="font-size: 0.7rem"
-                      th:text="#{device_card.fan.mode.natural}"
-                    ></small>
-                  </div>
-                </div>
-              </div>
+						<div th:if="${fan.type == T(com.iviet.ivshs.enumeration.FanType).IR}">
+							<div class="mb-4">
+								<small class="text-muted d-block mb-3 font-weight-bold text-uppercase" style="font-size: 0.7rem" th:text="#{device_card.fan.mode.label}"></small>
+								<div class="d-flex justify-content-center">
+									<div class="mx-2 text-center">
+										<button class="btn btn-outline-secondary fan-mode-btn rounded-circle d-flex align-items-center justify-content-center" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" data-mode="NORMAL" th:classappend="${fan.mode != null && fan.mode.name() == 'NORMAL' ? 'active-mode' : ''}" style="width: 56px; height: 56px">
+											<i class="fas fa-wind fa-lg"></i>
+										</button>
+										<small class="text-muted d-block mt-2" style="font-size: 0.7rem" th:text="#{device_card.fan.mode.normal}"></small>
+									</div>
+									<div class="mx-2 text-center">
+										<button class="btn btn-outline-secondary fan-mode-btn rounded-circle d-flex align-items-center justify-content-center" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" data-mode="SLEEP" th:classappend="${fan.mode != null && fan.mode.name() == 'SLEEP' ? 'active-mode' : ''}" style="width: 56px; height: 56px">
+											<i class="fas fa-moon fa-lg"></i>
+										</button>
+										<small class="text-muted d-block mt-2" style="font-size: 0.7rem" th:text="#{device_card.fan.mode.sleep}"></small>
+									</div>
+									<div class="mx-2 text-center">
+										<button class="btn btn-outline-secondary fan-mode-btn rounded-circle d-flex align-items-center justify-content-center" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" data-mode="NATURAL" th:classappend="${fan.mode != null && fan.mode.name() == 'NATURAL' ? 'active-mode' : ''}" style="width: 56px; height: 56px">
+											<i class="fas fa-leaf fa-lg"></i>
+										</button>
+										<small class="text-muted d-block mt-2" style="font-size: 0.7rem" th:text="#{device_card.fan.mode.natural}"></small>
+									</div>
+								</div>
+							</div>
 
-              <div class="bg-white rounded p-3 border">
-                <div
-                  class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom"
-                >
-                  <span class="text-xs font-weight-bold text-uppercase text-muted">
-                    <i class="fas fa-random mr-2"></i
-                    ><span th:text="#{device_card.fan.swing}"></span>
-                  </span>
-                  <div class="custom-control custom-switch">
-                    <input
-                      type="checkbox"
-                      class="custom-control-input fan-swing-switch"
-                      th:id="|fanSwingSwitch${fan.id}|"
-                      th:data-fan-id="${fan.id}"
-                      th:data-fan-natural-id="${fan.naturalId}"
-                      th:checked="${fan.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON}"
-                    />
-                    <label class="custom-control-label" th:for="|fanSwingSwitch${fan.id}|"></label>
-                  </div>
-                </div>
+							<div class="bg-white rounded p-3 border">
+								<div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+									<span class="text-xs font-weight-bold text-uppercase text-muted"> <i class="fas fa-random mr-2"></i><span th:text="#{device_card.fan.swing}"></span> </span>
+									<div class="custom-control custom-switch">
+										<input type="checkbox" class="custom-control-input fan-swing-switch" th:id="|fanSwingSwitch${fan.id}|" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" th:checked="${fan.swing == T(com.iviet.ivshs.enumeration.ActuatorSwing).ON}" />
+										<label class="custom-control-label" th:for="|fanSwingSwitch${fan.id}|"></label>
+									</div>
+								</div>
 
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-xs font-weight-bold text-uppercase text-muted">
-                    <i class="fas fa-lightbulb mr-2"></i
-                    ><span th:text="#{device_card.fan.light}"></span>
-                  </span>
-                  <div class="custom-control custom-switch">
-                    <input
-                      type="checkbox"
-                      class="custom-control-input fan-light-switch"
-                      th:id="|fanLightSwitch${fan.id}|"
-                      th:data-fan-id="${fan.id}"
-                      th:data-fan-natural-id="${fan.naturalId}"
-                      th:checked="${fan.light == T(com.iviet.ivshs.enumeration.ActuatorState).ON}"
-                    />
-                    <label class="custom-control-label" th:for="|fanLightSwitch${fan.id}|"></label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
+								<div class="d-flex justify-content-between align-items-center">
+									<span class="text-xs font-weight-bold text-uppercase text-muted"> <i class="fas fa-lightbulb mr-2"></i><span th:text="#{device_card.fan.light}"></span> </span>
+									<div class="custom-control custom-switch">
+										<input type="checkbox" class="custom-control-input fan-light-switch" th:id="|fanLightSwitch${fan.id}|" th:data-fan-id="${fan.id}" th:data-fan-natural-id="${fan.naturalId}" th:checked="${fan.light == T(com.iviet.ivshs.enumeration.ActuatorState).ON}" />
+										<label class="custom-control-label" th:for="|fanLightSwitch${fan.id}|"></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

@@ -59,7 +59,7 @@ public abstract class BaseAuditEntityDao<T extends BaseAuditEntity> extends Base
     }
 
     public Optional<Long> findVersionById(Long id) {
-        String jpql = "SELECT e.v FROM " + clazz.getSimpleName() + " e WHERE e.id = :id"; 
+        String jpql = "SELECT e.version FROM " + clazz.getSimpleName() + " e WHERE e.id = :id"; 
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("id", id)
                 .getResultStream()

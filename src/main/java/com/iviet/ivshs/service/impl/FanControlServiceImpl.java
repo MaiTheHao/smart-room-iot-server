@@ -47,9 +47,12 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
-    fan.setPower(power);
-    fanDao.save(fan);
-    return handlePowerControlCall(gatewayIp, fan.getNaturalId(), power);
+    ControlDeviceResult result = handlePowerControlCall(gatewayIp, fan.getNaturalId(), power);
+    if (result.getSuccessCount() > 0) {
+      fan.setPower(power);
+      fanDao.save(fan);
+    }
+    return result;
   }
 
   @Override
@@ -58,9 +61,12 @@ public class FanControlServiceImpl implements FanControlService {
     Fan fan = getOrThrow(naturalId);
     ActuatorPower newPowerState = (fan.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(fan);
-    fan.setPower(newPowerState);
-    fanDao.save(fan);
-    return handlePowerControlCall(gatewayIp, fan.getNaturalId(), newPowerState);
+    ControlDeviceResult result = handlePowerControlCall(gatewayIp, fan.getNaturalId(), newPowerState);
+    if (result.getSuccessCount() > 0) {
+      fan.setPower(newPowerState);
+      fanDao.save(fan);
+    }
+    return result;
   }
 
   @Override
@@ -68,11 +74,12 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
-    if (fan instanceof FanIr fanIr) {
+    ControlDeviceResult result = handleModeControlCall(gatewayIp, fan.getNaturalId(), mode);
+    if (result.getSuccessCount() > 0 && fan instanceof FanIr fanIr) {
       fanIr.setMode(mode);
       fanDao.save(fanIr);
     }
-    return handleModeControlCall(gatewayIp, fan.getNaturalId(), mode);
+    return result;
   }
 
   @Override
@@ -80,9 +87,12 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleSpeedControl(String naturalId, int speed) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
-    fan.setSpeed(speed);
-    fanDao.save(fan);
-    return handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
+    ControlDeviceResult result = handleSpeedControlCall(gatewayIp, fan.getNaturalId(), speed);
+    if (result.getSuccessCount() > 0) {
+      fan.setSpeed(speed);
+      fanDao.save(fan);
+    }
+    return result;
   }
 
   @Override
@@ -90,11 +100,12 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
-    if (fan instanceof FanIr fanIr) {
+    ControlDeviceResult result = handleSwingControlCall(gatewayIp, fan.getNaturalId(), swing);
+    if (result.getSuccessCount() > 0 && fan instanceof FanIr fanIr) {
       fanIr.setSwing(swing);
       fanDao.save(fanIr);
     }
-    return handleSwingControlCall(gatewayIp, fan.getNaturalId(), swing);
+    return result;
   }
 
   @Override
@@ -102,11 +113,12 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleLightControl(String naturalId, ActuatorState light) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
-    if (fan instanceof FanIr fanIr) {
+    ControlDeviceResult result = handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
+    if (result.getSuccessCount() > 0 && fan instanceof FanIr fanIr) {
       fanIr.setLight(light);
       fanDao.save(fanIr);
     }
-    return handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
+    return result;
   }
 
   @Override
@@ -127,39 +139,47 @@ public class FanControlServiceImpl implements FanControlService {
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      fan.setPower(body.power());
-      executeControl(result, "power", () -> gatewayControlClient.controlFanPowerV2(gatewayIp, fan.getNaturalId(), body.power()));
+      if (executeControl(result, "power", () -> gatewayControlClient.controlFanPowerV2(gatewayIp, fan.getNaturalId(), body.power()))) {
+        fan.setPower(body.power());
+      }
     }
     if (body.speed() != null) {
-      fan.setSpeed(body.speed());
-      executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeedV2(gatewayIp, fan.getNaturalId(), body.speed()));
+      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeedV2(gatewayIp, fan.getNaturalId(), body.speed()))) {
+        fan.setSpeed(body.speed());
+      }
     }
     if (body.mode() != null && fan instanceof FanIr fanIr) {
-      fanIr.setMode(body.mode());
-      executeControl(result, "mode", () -> gatewayControlClient.controlFanModeV2(gatewayIp, fan.getNaturalId(), body.mode()));
+      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanModeV2(gatewayIp, fan.getNaturalId(), body.mode()))) {
+        fanIr.setMode(body.mode());
+      }
     }
     if (body.swing() != null && fan instanceof FanIr fanIr) {
-      fanIr.setSwing(body.swing());
-      executeControl(result, "swing", () -> gatewayControlClient.controlFanSwingV2(gatewayIp, fan.getNaturalId(), body.swing()));
+      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwingV2(gatewayIp, fan.getNaturalId(), body.swing()))) {
+        fanIr.setSwing(body.swing());
+      }
     }
     if (body.light() != null && fan instanceof FanIr fanIr) {
-      fanIr.setLight(body.light());
-      executeControl(result, "light", () -> gatewayControlClient.controlFanLightV2(gatewayIp, fan.getNaturalId(), body.light()));
+      if (executeControl(result, "light", () -> gatewayControlClient.controlFanLightV2(gatewayIp, fan.getNaturalId(), body.light()))) {
+        fanIr.setLight(body.light());
+      }
     }
     fanDao.save(fan);
     return result;
   }
 
-  private void executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+  private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
       if (response.getStatusCode().is2xxSuccessful()) {
         result.addDetail(parameter, true, "Success");
+        return true;
       } else {
         result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
+        return false;
       }
     } catch (Exception e) {
       result.addDetail(parameter, false, e.getMessage());
+      return false;
     }
   }
 

@@ -27,6 +27,7 @@ const SMRC_API_V1 = {
     HEALTH_CODE: '/api/v1/rooms/health',
     BY_FLOOR: (floorId) => `/api/v1/floors/${floorId}/rooms`,
     BY_FLOOR_ALL: (floorId) => `/api/v1/floors/${floorId}/rooms/all`,
+    VERSION: (id) => `/api/v1/rooms/${id}/v`,
   },
 
   CLIENT: {

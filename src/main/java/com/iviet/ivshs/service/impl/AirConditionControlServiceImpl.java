@@ -47,9 +47,12 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
-    ac.setPower(power);
-    airConditionDao.save(ac);
-    return handlePowerControlCall(gatewayIp, ac.getNaturalId(), power);
+    ControlDeviceResult result = handlePowerControlCall(gatewayIp, ac.getNaturalId(), power);
+    if (result.getSuccessCount() > 0) {
+      ac.setPower(power);
+      airConditionDao.save(ac);
+    }
+    return result;
   }
 
   @Override
@@ -58,9 +61,12 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     AirCondition ac = getOrThrow(naturalId);
     ActuatorPower newPowerState = (ac.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(ac);
-    ac.setPower(newPowerState);
-    airConditionDao.save(ac);
-    return handlePowerControlCall(gatewayIp, ac.getNaturalId(), newPowerState);
+    ControlDeviceResult result = handlePowerControlCall(gatewayIp, ac.getNaturalId(), newPowerState);
+    if (result.getSuccessCount() > 0) {
+      ac.setPower(newPowerState);
+      airConditionDao.save(ac);
+    }
+    return result;
   }
 
   @Override
@@ -69,9 +75,12 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     AirCondition ac = getOrThrow(naturalId);
     int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
     String gatewayIp = extractClientIpAddress(ac);
-    ac.setTemperature(temperature);
-    airConditionDao.save(ac);
-    return handleTemperatureControlCall(gatewayIp, ac.getNaturalId(), temperature, currentTemp);
+    ControlDeviceResult result = handleTemperatureControlCall(gatewayIp, ac.getNaturalId(), temperature, currentTemp);
+    if (result.getSuccessCount() > 0) {
+      ac.setTemperature(temperature);
+      airConditionDao.save(ac);
+    }
+    return result;
   }
 
   @Override
@@ -79,9 +88,12 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
-    ac.setMode(mode);
-    airConditionDao.save(ac);
-    return handleModeControlCall(gatewayIp, ac.getNaturalId(), mode);
+    ControlDeviceResult result = handleModeControlCall(gatewayIp, ac.getNaturalId(), mode);
+    if (result.getSuccessCount() > 0) {
+      ac.setMode(mode);
+      airConditionDao.save(ac);
+    }
+    return result;
   }
 
   @Override
@@ -89,9 +101,12 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult handleFanSpeedControl(String naturalId, int speed) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
-    ac.setFanSpeed(speed);
-    airConditionDao.save(ac);
-    return handleFanSpeedControlCall(gatewayIp, ac.getNaturalId(), speed);
+    ControlDeviceResult result = handleFanSpeedControlCall(gatewayIp, ac.getNaturalId(), speed);
+    if (result.getSuccessCount() > 0) {
+      ac.setFanSpeed(speed);
+      airConditionDao.save(ac);
+    }
+    return result;
   }
 
   @Override
@@ -99,9 +114,12 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     AirCondition ac = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(ac);
-    ac.setSwing(swing);
-    airConditionDao.save(ac);
-    return handleSwingControlCall(gatewayIp, ac.getNaturalId(), swing);
+    ControlDeviceResult result = handleSwingControlCall(gatewayIp, ac.getNaturalId(), swing);
+    if (result.getSuccessCount() > 0) {
+      ac.setSwing(swing);
+      airConditionDao.save(ac);
+    }
+    return result;
   }
 
   @Override
@@ -123,47 +141,55 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      ac.setPower(body.power());
-      executeControl(result, "power", () -> gatewayControlClient.controlAcPowerV2(gatewayIp, ac.getNaturalId(), body.power()));
+      if (executeControl(result, "power", () -> gatewayControlClient.controlAcPowerV2(gatewayIp, ac.getNaturalId(), body.power()))) {
+        ac.setPower(body.power());
+      }
     }
     if (body.temperature() != null) {
       int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
       int targetTemp = body.temperature();
-      ac.setTemperature(targetTemp);
-      executeControl(result, "temperature", () -> {
+      if (executeControl(result, "temperature", () -> {
         if (targetTemp > currentTemp) {
           return gatewayControlClient.controlAcTempUpV2(gatewayIp, ac.getNaturalId(), targetTemp);
         } else {
           return gatewayControlClient.controlAcTempDownV2(gatewayIp, ac.getNaturalId(), targetTemp);
         }
-      });
+      })) {
+        ac.setTemperature(targetTemp);
+      }
     }
     if (body.mode() != null) {
-      ac.setMode(body.mode());
-      executeControl(result, "mode", () -> gatewayControlClient.controlAcModeV2(gatewayIp, ac.getNaturalId(), body.mode()));
+      if (executeControl(result, "mode", () -> gatewayControlClient.controlAcModeV2(gatewayIp, ac.getNaturalId(), body.mode()))) {
+        ac.setMode(body.mode());
+      }
     }
     if (body.fanSpeed() != null) {
-      ac.setFanSpeed(body.fanSpeed());
-      executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFanV2(gatewayIp, ac.getNaturalId(), body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()));
+      if (executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFanV2(gatewayIp, ac.getNaturalId(), body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()))) {
+        ac.setFanSpeed(body.fanSpeed());
+      }
     }
     if (body.swing() != null) {
-      ac.setSwing(body.swing());
-      executeControl(result, "swing", () -> gatewayControlClient.controlAcSwingV2(gatewayIp, ac.getNaturalId(), body.swing()));
+      if (executeControl(result, "swing", () -> gatewayControlClient.controlAcSwingV2(gatewayIp, ac.getNaturalId(), body.swing()))) {
+        ac.setSwing(body.swing());
+      }
     }
     airConditionDao.save(ac);
     return result;
   }
 
-  private void executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+  private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
       if (response.getStatusCode().is2xxSuccessful()) {
         result.addDetail(parameter, true, "Success");
+        return true;
       } else {
         result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
+        return false;
       }
     } catch (Exception e) {
       result.addDetail(parameter, false, e.getMessage());
+      return false;
     }
   }
 

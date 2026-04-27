@@ -99,10 +99,17 @@
               <div class="input-group-append">
                 <button
                   class="btn btn-default"
-                  id="btn-refresh-chart"
-                  th:title="#{room_detail.analytics.refresh}"
+                  id="btn-sync-devices"
+                  th:title="#{room_detail.sync_devices}"
                 >
                   <i class="fas fa-sync-alt"></i>
+                </button>
+                <button
+                  class="btn btn-default"
+                  id="btn-refresh-chart"
+                  th:title="#{room_detail.refresh_chart}"
+                >
+                  <i class="fas fa-redo-alt"></i>
                 </button>
               </div>
             </div>
@@ -275,23 +282,18 @@
     </section>
 
     <th:block layout:fragment="optional">
-      <script defer th:src="@{/webjars/momentjs/min/moment.min.js}"></script>
-
       <script
         defer
         th:src="@{/webjars/bootstrap-daterangepicker/js/bootstrap-daterangepicker.js}"
       ></script>
 
-      <script
-        defer
-        th:src="@{/webjars/chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js}"
-      ></script>
       <script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/light_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/air_condition_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/fan_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/health_check_api_v1.js}"></script>
       <script defer th:src="@{/scripts/service/api/v1/telemetry_api_v1.js}"></script>
+      <script defer th:src="@{/scripts/service/api/v1/device_metadata_api_v1.js}"></script>
       <script defer th:src="@{/scripts/pages/room_detail.js}"></script>
 
       <script defer th:inline="javascript">

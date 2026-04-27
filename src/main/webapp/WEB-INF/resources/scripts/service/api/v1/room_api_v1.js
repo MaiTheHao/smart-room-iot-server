@@ -55,6 +55,15 @@ class RoomApiV1Service {
 			this.#handleError(`delete room ${roomId}`, error);
 		}
 	}
+	
+	async getVersion(roomId) {
+		try {
+			const response = await window.http.get(this.api.VERSION(roomId));
+			return response.data; // The version number
+		} catch (error) {
+			this.#handleError(`get version for room ${roomId}`, error);
+		}
+	}
 
 	#handleError(action, error) {
 		console.error(`[RoomApiV1Service] Failed to ${action}:`, error);
