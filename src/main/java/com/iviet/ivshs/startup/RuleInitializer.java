@@ -21,6 +21,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Deprecated
 @Slf4j(topic = "INIT-RULE")
 @Component
 @Order(20)
@@ -41,7 +42,8 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
 
   @Override
   public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
-    if (isInitialized || ruleScanIntervalSeconds <= 0) {
+    var isDepcreated = true;
+    if (isInitialized || ruleScanIntervalSeconds <= 0 || isDepcreated) {
       return;
     }
 

@@ -52,8 +52,8 @@ class RoomDetailPage {
 			this.bindEvents();
 
 			// Cache & Sync
-			await this.initCache();
-			this.initSync();
+			// await this.initCache();
+			// this.initSync();
 		} catch (error) {
 			this.logger.error('Init failed:', error);
 			notify.error('Failed to initialize dashboard');

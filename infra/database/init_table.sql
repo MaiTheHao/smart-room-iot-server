@@ -111,7 +111,7 @@ CREATE TABLE `sys_role` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
-  `updated_at?` datetime(6) DEFAULT NULL,
+  `updated_at` datetime(6) DEFAULT NULL,
   `updated_by` varchar(256) DEFAULT NULL,
   `v` bigint NOT NULL,
   `function_id` bigint NOT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE `room` (
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `updated_by?` varchar(256) DEFAULT NULL,
+  `updated_by` varchar(256) DEFAULT NULL,
   `v` bigint NOT NULL,
   `code` varchar(256) NOT NULL,
   `floor_id` bigint NOT NULL,
@@ -232,6 +232,7 @@ CREATE TABLE `air_condition` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_air_condition_natural_id` (`natural_id`),
   UNIQUE KEY `idx_air_condition_hardware_config_id` (`hardware_config_id`),
+  KEY `idx_air_condition_room_id` (`room_id`),
   CONSTRAINT `fk_air_condition_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_air_condition_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -272,6 +273,7 @@ CREATE TABLE `fan` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_fan_natural_id` (`natural_id`),
   UNIQUE KEY `idx_fan_hardware_config_id` (`hardware_config_id`),
+  KEY `idx_fan_room_id` (`room_id`),
   CONSTRAINT `fk_fan_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_fan_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -308,6 +310,7 @@ CREATE TABLE `light` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_light_natural_id` (`natural_id`),
   UNIQUE KEY `idx_light_hardware_config_id` (`hardware_config_id`),
+  KEY `idx_light_room_id` (`room_id`),
   CONSTRAINT `fk_light_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`),
   CONSTRAINT `fk_light_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -343,6 +346,7 @@ CREATE TABLE `temperature` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_temperature_natural_id` (`natural_id`),
   UNIQUE KEY `idx_temperature_hardware_config_id` (`hardware_config_id`),
+  KEY `idx_temperature_room_id` (`room_id`),
   CONSTRAINT `fk_temperature_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_temperature_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -391,6 +395,7 @@ CREATE TABLE `power_consumption` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_power_consumption_natural_id` (`natural_id`),
   UNIQUE KEY `idx_power_consumption_hardware_config_id` (`hardware_config_id`),
+  KEY `idx_power_consumption_room_id` (`room_id`),
   CONSTRAINT `fk_power_consumption_hardware_config` FOREIGN KEY (`hardware_config_id`) REFERENCES `hardware_config` (`id`),
   CONSTRAINT `fk_power_consumption_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -454,7 +459,7 @@ CREATE TABLE `automation` (
   `updated_at` datetime(6) DEFAULT NULL,
   `updated_by` varchar(256) DEFAULT NULL,
   `v` bigint NOT NULL,
-  `cron_expression` varchar(256) NOT NULL,
+  `cron_expression` varchar(256) DEFAULT NULL,
   `description` varchar(256) DEFAULT NULL,
   `is_active` bit(1) NOT NULL DEFAULT b'1',
   `is_interval` bit(1) NOT NULL DEFAULT b'0',
@@ -475,7 +480,7 @@ CREATE TABLE `automation_action` (
   `execution_order` int DEFAULT NULL,
   `parameter_value` varchar(256) DEFAULT NULL,
   `target_id` bigint NOT NULL,
-  `target_type` varchar(256) DEFAULT NULL,
+  `target_type` varchar(256) NOT NULL,
   `automation_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_automation_action_automation` FOREIGN KEY (`automation_id`) REFERENCES `automation` (`id`)
@@ -497,6 +502,8 @@ CREATE TABLE `rule` (
   `target_device_category` varchar(256) NOT NULL COMMENT 'Enum: AIR_CONDITION, LIGHT',
   `action_params` text DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `idx_rule_room` (`room_id`),
+  KEY `idx_rule_status` (`is_active`),
   CONSTRAINT `fk_rule_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -570,6 +577,7 @@ CREATE TABLE `rule_action_v2` (
   `action_params` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_rule_action_v2_rule_id` (`rule_v2_id`),
+  KEY `idx_rule_action_v2_target_device` (`target_device_id`),
   CONSTRAINT `fk_rule_action_v2_rule` FOREIGN KEY (`rule_v2_id`) REFERENCES `rule_v2` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -677,7 +685,7 @@ CREATE TABLE `QRTZ_FIRED_TRIGGERS` (
   `SCHED_NAME` varchar(120) NOT NULL,
   `ENTRY_ID` varchar(95) NOT NULL,
   `TRIGGER_NAME` varchar(200) NOT NULL,
-  `TRIGGER_GROUP" varchar(200) NOT NULL,
+  `TRIGGER_GROUP` varchar(200) NOT NULL,
   `INSTANCE_NAME` varchar(200) NOT NULL,
   `FIRED_TIME` bigint NOT NULL,
   `SCHED_TIME` bigint NOT NULL,
@@ -699,7 +707,7 @@ CREATE TABLE `QRTZ_SCHEDULER_STATE` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `QRTZ_LOCKS` (
-  `SCHED_NAME" varchar(120) NOT NULL,
+  `SCHED_NAME` varchar(120) NOT NULL,
   `LOCK_NAME` varchar(40) NOT NULL,
   PRIMARY KEY (`SCHED_NAME`,`LOCK_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
