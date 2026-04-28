@@ -89,7 +89,7 @@ public class GatewayControlClient extends GatewayBaseClient {
     }
 
     private ResponseEntity<ApiResponse<String>> executePut(String url, Object data) {
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(Map.of("data", data));
-        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(Map.of("data", data));
+            return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 }

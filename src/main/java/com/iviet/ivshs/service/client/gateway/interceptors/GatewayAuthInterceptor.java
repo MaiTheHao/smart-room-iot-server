@@ -6,6 +6,7 @@ import java.net.URI;
 import com.iviet.ivshs.dto.LoginDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.service.ClientService;
+import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.service.client.gateway.GatewayAuthClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Component;
 public class GatewayAuthInterceptor implements ClientHttpRequestInterceptor {
 
     private final ClientService clientService;
+    private final ClientDao clientDao;
     private final ObjectFactory<GatewayAuthClient> gatewayAuthClientFactory;
 
     @Override
@@ -31,10 +33,9 @@ public class GatewayAuthInterceptor implements ClientHttpRequestInterceptor {
         URI uri = request.getURI();
         String ip = uri.getAuthority(); // host:port
         
-        Client client = null;
-        try {
-            client = clientService.getGatewayEntityByIpAddress(ip);
-        } catch (Exception e) {
+        Client client = clientDao.findGatewayByIpAddress(ip).orElse(null);
+        
+        if (client == null) {
             log.trace("No registered gateway found for IP: {}", ip);
             return execution.execute(request, body);
         }

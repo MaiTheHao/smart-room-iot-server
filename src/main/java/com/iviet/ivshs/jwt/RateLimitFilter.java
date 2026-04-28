@@ -18,10 +18,14 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "RATE-LIMIT")
 public class RateLimitFilter extends OncePerRequestFilter {
+
+    @Value("${app.rate-limit.enabled:true}")
+    private boolean enabled;
 
     private final Cache<String, Bucket> cache = Caffeine.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -54,6 +58,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         
         if (path.startsWith("/api/")) {
+            if (!enabled) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             String ip = getClientIp(request);
             String type = isHighFrequencyPath(path) ? "iot" : "gen";
             String cacheKey = ip + ":" + type;

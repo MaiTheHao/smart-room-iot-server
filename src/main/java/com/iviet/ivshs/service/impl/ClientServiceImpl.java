@@ -192,13 +192,16 @@ public class ClientServiceImpl implements ClientService {
     client.setUsername(username);
     client.setPasswordHash(passwordEncoder.encode(createDto.password()));
 
-    // TODO: Temporary for gateway authentication
-    if (createDto.clientType() == ClientType.HARDWARE_GATEWAY) {
-      String ip = client.getIpAddress();
-      if (ip != null && !ip.contains(":")) {
-        client.setIpAddress(ip + ":" + defaultGatewayPort);
+    String ip = client.getIpAddress();
+    if (ip != null && !ip.trim().isEmpty()) {
+      ip = ip.trim();
+      if (!ip.matches(".*:\\d+$")) {
+        ip = ip + ":" + defaultGatewayPort;
       }
-      
+      client.setIpAddress(ip);
+    }
+
+    if (createDto.clientType() == ClientType.HARDWARE_GATEWAY) {
       if (createDto.gatewayPassword() != null && !createDto.gatewayPassword().trim().isEmpty()) {
         client.setGatewayPassword(createDto.gatewayPassword().trim());
       } else {
@@ -219,8 +222,12 @@ public class ClientServiceImpl implements ClientService {
     if (updateDto.clientType() != null) {
       client.setClientType(updateDto.clientType());
     }
-    if (updateDto.ipAddress() != null) {
-      client.setIpAddress(updateDto.ipAddress());
+    if (updateDto.ipAddress() != null && !updateDto.ipAddress().trim().isEmpty()) {
+      String updatedIp = updateDto.ipAddress().trim();
+      if (!updatedIp.matches(".*:\\d+$")) {
+        updatedIp = updatedIp + ":" + defaultGatewayPort;
+      }
+      client.setIpAddress(updatedIp);
     }
     if (updateDto.macAddress() != null) {
       client.setMacAddress(updateDto.macAddress());
@@ -236,7 +243,6 @@ public class ClientServiceImpl implements ClientService {
     if (updateDto.gatewayPassword() != null && !updateDto.gatewayPassword().trim().isEmpty()) {
       client.setGatewayPassword(updateDto.gatewayPassword().trim());
     } else if (updateDto.password() != null && !updateDto.password().trim().isEmpty() && client.getClientType() == ClientType.HARDWARE_GATEWAY) {
-      // Fallback: if gatewayPassword is not provided but password is, use password as gatewayPassword for gateways
       client.setGatewayPassword(updateDto.password().trim());
     }
 
