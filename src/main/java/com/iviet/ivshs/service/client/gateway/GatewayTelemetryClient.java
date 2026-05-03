@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @RequiredArgsConstructor
 public class GatewayTelemetryClient extends GatewayBaseClient {
 
-    @Qualifier("GatewayApiClient")
+    @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
 
     public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchLightEnergyMetric(String ip, String naturalId) {

@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GatewayControlClient extends GatewayBaseClient {
 
-    @Qualifier("GatewayApiClient")
+    @Qualifier("GatewayControlRestTemplate")
     private final RestTemplate restTemplate;
 
     // --- V1 Control ---

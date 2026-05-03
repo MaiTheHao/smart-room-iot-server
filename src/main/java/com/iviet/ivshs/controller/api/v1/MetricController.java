@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+
 import com.iviet.ivshs.enumeration.MetricDomain;
 import com.iviet.ivshs.service.MetricOrchestratorService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class MetricController {
     @GetMapping
     public ResponseEntity<ApiResponse<Object>> getMetrics(
             @RequestParam(name = "domain") MetricDomain domain,
-            @RequestParam(name = "category") DeviceCategory category,
+            @RequestParam(name = "category") String category,
             @RequestParam(name = "targetId") Long targetId,
             @RequestParam(name = "latest", defaultValue = "false") boolean latest,
             @RequestParam(name = "from", required = false) Instant from,

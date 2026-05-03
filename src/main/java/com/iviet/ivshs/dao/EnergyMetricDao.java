@@ -117,7 +117,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
             """;
 
         return entityManager.createQuery(jpql, EnergyMetricDto.class)
-            .setParameter("category", category)
+            .setParameter("category", category.name())
             .setParameter("targetId", targetId)
             .setMaxResults(1)
             .getResultList()

@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.enumeration.DeviceCategory;
+
 import com.iviet.ivshs.enumeration.MetricDomain;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.strategy.MetricServiceStrategy;
@@ -26,11 +26,11 @@ public class MetricOrchestratorService {
         return strategy;
     }
 
-    public Object getLatest(MetricDomain domain, DeviceCategory category, Long targetId) {
+    public Object getLatest(MetricDomain domain, String category, Long targetId) {
         return getStrategy(domain).getLatest(category, targetId);
     }
 
-    public List<?> getHistory(MetricDomain domain, DeviceCategory category, Long targetId, Instant from, Instant to) {
+    public List<?> getHistory(MetricDomain domain, String category, Long targetId, Instant from, Instant to) {
         if (from == null || to == null) {
             throw new BadRequestException("Parameters 'from' and 'to' are required for history queries");
         }

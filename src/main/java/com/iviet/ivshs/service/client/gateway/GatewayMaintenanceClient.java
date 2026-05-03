@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @RequiredArgsConstructor
 public class GatewayMaintenanceClient extends GatewayBaseClient {
 
-    @Qualifier("GatewayApiClient")
+    @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
 
     public ResponseEntity<ApiResponse<String>> resetAcEnergy(String ip, String naturalId) {

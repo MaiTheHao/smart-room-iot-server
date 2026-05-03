@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.strategy;
 
-import com.iviet.ivshs.enumeration.DeviceCategory;
+
 import com.iviet.ivshs.enumeration.MetricDomain;
 
 import java.time.Instant;
@@ -12,7 +12,7 @@ public interface MetricServiceStrategy {
     
     MetricDomain getSupportedDomain();
 
-    Object getLatest(DeviceCategory category, Long targetId);
+    Object getLatest(String category, Long targetId);
 
-    List<?> getHistory(DeviceCategory category, Long targetId, Instant from, Instant to);
+    List<?> getHistory(String category, Long targetId, Instant from, Instant to);
 }

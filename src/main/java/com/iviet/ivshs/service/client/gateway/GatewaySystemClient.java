@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @RequiredArgsConstructor
 public class GatewaySystemClient extends GatewayBaseClient {
 
-    @Qualifier("GatewayApiClient")
+    @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
 
     public ResponseEntity<SetupRequest> fetchSetup(String ip) {

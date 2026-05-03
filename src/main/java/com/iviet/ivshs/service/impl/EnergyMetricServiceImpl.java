@@ -9,7 +9,7 @@ import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.enumeration.MetricDomain;
 import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
@@ -28,9 +28,11 @@ import org.springframework.http.ResponseEntity;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Slf4j(topic = "ENERGY")
 @Service
@@ -64,24 +66,28 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public Object getLatest(DeviceCategory category, Long targetId) {
+    public Object getLatest(String category, Long targetId) {
         return getLatest(mapToEnergyCategory(category), targetId).orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<?> getHistory(DeviceCategory category, Long targetId, Instant from, Instant to) {
+    public List<?> getHistory(String category, Long targetId, Instant from, Instant to) {
         return getHistory(mapToEnergyCategory(category), targetId, from, to);
     }
 
-    private EnergyMetricCategory mapToEnergyCategory(DeviceCategory category) {
-        if (category == DeviceCategory.POWER_CONSUMPTION) {
-            return EnergyMetricCategory.ROOM;
+    private EnergyMetricCategory mapToEnergyCategory(String category) {
+        if (category == null || category.isBlank()) {
+            throw new BadRequestException("Category is required for energy metrics.");
         }
+        String upper = category.toUpperCase();
         try {
-            return EnergyMetricCategory.valueOf(category.name());
+            return EnergyMetricCategory.valueOf(upper);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Device category " + category.name() + " is not supported for energy metrics.");
+            String accepted = Arrays.stream(EnergyMetricCategory.values())
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+            throw new BadRequestException(String.format("Invalid category '%s' for energy metrics. Accepted values: [%s]", category, accepted));
         }
     }
 
