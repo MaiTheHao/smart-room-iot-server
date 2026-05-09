@@ -7,5 +7,5 @@ public interface TelemetryCRUDServiceStrategy {
 
   public DeviceCategory getSupportedCategory();
 
-  public void create(TelemetryResponseDto.Data data);
+  public void create(TelemetryResponseDto.DeviceDto data);
 }

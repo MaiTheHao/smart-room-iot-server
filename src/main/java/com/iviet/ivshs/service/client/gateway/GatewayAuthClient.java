@@ -19,7 +19,7 @@ public class GatewayAuthClient extends GatewayBaseClient {
     private final RestTemplate restTemplate;
 
     public ResponseEntity<ApiResponse<GatewayLoginResponse>> login(String ip, @NonNull LoginDto loginDto) {
-        String url = buildUri(ip, API_V1, "auth/login");
+        String url = buildUri(ip, API_V2, "auth/login");
         HttpEntity<LoginDto> request = new HttpEntity<>(loginDto);
         return restTemplate.exchange(url, HttpMethod.POST, request, new ParameterizedTypeReference<ApiResponse<GatewayLoginResponse>>() {});
     }

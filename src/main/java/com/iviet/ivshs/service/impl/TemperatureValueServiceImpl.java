@@ -34,7 +34,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
 
   @Override
   @Transactional
-  public void create(TelemetryResponseDto.Data data) {
+  public void create(TelemetryResponseDto.DeviceDto data) {
     JsonNode tempCNode = data.getData().get("tempC");
     if (tempCNode == null || !tempCNode.isNumber()) return;
     Double tempC = tempCNode.asDouble();

@@ -56,6 +56,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     public List<EnergyMetricDto> getHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
         from = TelemetryTimeGroup.limitRange(from, to);
         int divisor = TelemetryTimeGroup.getDivisorForRange(from, to);
+        log.debug("GetHistory: category={}, targetId={}, from={}, to={}, divisor={}", category.name(), targetId, from, to, divisor);
         return energyMetricDao.findHistory(category, targetId, from, to, divisor);
     }
 
@@ -67,28 +68,13 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     @Override
     @Transactional(readOnly = true)
     public Object getLatest(String category, Long targetId) {
-        return getLatest(mapToEnergyCategory(category), targetId).orElse(null);
+        return getLatest(EnergyMetricCategory.fromString(category), targetId).orElse(null);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<?> getHistory(String category, Long targetId, Instant from, Instant to) {
-        return getHistory(mapToEnergyCategory(category), targetId, from, to);
-    }
-
-    private EnergyMetricCategory mapToEnergyCategory(String category) {
-        if (category == null || category.isBlank()) {
-            throw new BadRequestException("Category is required for energy metrics.");
-        }
-        String upper = category.toUpperCase();
-        try {
-            return EnergyMetricCategory.valueOf(upper);
-        } catch (IllegalArgumentException e) {
-            String accepted = Arrays.stream(EnergyMetricCategory.values())
-                    .map(Object::toString)
-                    .collect(Collectors.joining(", "));
-            throw new BadRequestException(String.format("Invalid category '%s' for energy metrics. Accepted values: [%s]", category, accepted));
-        }
+        return getHistory(EnergyMetricCategory.fromString(category), targetId, from, to);
     }
 
     @Override
@@ -110,7 +96,13 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             for (ClientDto gateway : gateways) {
-                executor.submit(() -> processGateway(gateway));
+                executor.submit(() -> {
+                    try {
+                        processGateway(gateway);
+                    } catch (Exception e) {
+                        log.error("Error processing energy metrics for gateway [{}]: {}", gateway.username(), e.getMessage(), e);
+                    }
+                });
             }
         }
 

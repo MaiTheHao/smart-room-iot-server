@@ -36,7 +36,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
 
   @Override
   @Transactional
-  public void create(TelemetryResponseDto.Data data) {
+  public void create(TelemetryResponseDto.DeviceDto data) {
     JsonNode wattNode = data.getData().get("watt");
     if (wattNode == null || !wattNode.isNumber()) return;
     Double watt = wattNode.asDouble();

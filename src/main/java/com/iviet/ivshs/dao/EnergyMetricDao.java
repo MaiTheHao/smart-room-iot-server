@@ -43,7 +43,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
                         ps.setString(1, e.getTargetCategory());
                         ps.setLong(2, e.getTargetId());
                         ps.setObject(3, e.getTimestamp());
-                        ps.setInt(4, e.getUnixMinute());
+                        ps.setObject(4, e.getUnixMinute());
                         ps.setObject(5, e.getVoltage());
                         ps.setObject(6, e.getCurrent());
                         ps.setObject(7, e.getPower());
@@ -76,8 +76,8 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
                 AVG(power_factor) as avg_power_factor
             FROM energy_metrics
             WHERE target_category = :category
-              AND target_id = :targetId
-              AND timestamp BETWEEN :from AND :to
+                AND target_id = :targetId
+                AND timestamp BETWEEN :from AND :to
             GROUP BY unix_seconds
             ORDER BY unix_seconds ASC
             """;
@@ -112,7 +112,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
             )
             FROM EnergyMetric em
             WHERE em.targetCategory = :category
-              AND em.targetId = :targetId
+                AND em.targetId = :targetId
             ORDER BY em.timestamp DESC
             """;
 

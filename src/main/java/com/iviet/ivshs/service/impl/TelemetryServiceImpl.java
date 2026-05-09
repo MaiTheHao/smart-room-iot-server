@@ -112,7 +112,13 @@ public class TelemetryServiceImpl implements TelemetryService {
 			return;
 		}
 
-		List<TelemetryResponseDto.Data> telemetryData = response.getBody().getData();
+		var body = response.getBody();
+		if (body.getData() == null || body.getData().getDevices() == null) {
+			log.info("Gateway [{}]: No telemetry data available", gateway.username());
+			return;
+		}
+
+		List<TelemetryResponseDto.DeviceDto> telemetryData = body.getData().getDevices();
 
 		int processedCount = 0;
 		for (var data : telemetryData) {

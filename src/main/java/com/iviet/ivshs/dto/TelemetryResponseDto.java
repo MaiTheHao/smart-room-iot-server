@@ -19,15 +19,22 @@ public class TelemetryResponseDto {
 	private int status;
 	private String message;
 	private Instant timestamp;
-	private List<Data> data;
+	private RoomData data;
 
 	@Getter
 	@Builder
 	@Jacksonized
-	public static class Data {
+	public static class RoomData {
+		private String roomCode;
+		private List<DeviceDto> devices;
+	}
+
+	@Getter
+	@Builder
+	@Jacksonized
+	public static class DeviceDto {
 		private String naturalId;
 		private DeviceCategory category;
-		private boolean isActive;
 		private JsonNode data;
 	}
 }	
