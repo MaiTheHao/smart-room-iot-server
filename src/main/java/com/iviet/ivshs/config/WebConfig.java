@@ -184,9 +184,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/styles/**").addResourceLocations("/WEB-INF/resources/styles/").setCachePeriod(31556926);
-        registry.addResourceHandler("/images/**").addResourceLocations("/WEB-INF/resources/img/").setCachePeriod(31556926);
-        registry.addResourceHandler("/scripts/**").addResourceLocations("/WEB-INF/resources/scripts/").setCachePeriod(31556926);
+        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/styles/").setCachePeriod(31556926);
+        registry.addResourceHandler("/imgs/**").addResourceLocations("/WEB-INF/resources/img/").setCachePeriod(31556926);
+        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/scripts/").setCachePeriod(31556926);
         registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/resources/fonts/").setCachePeriod(31556926);
         registry.addResourceHandler("/files/**").addResourceLocations("/WEB-INF/resources/file/").setCachePeriod(31556926);
         registry.addResourceHandler("/webjars/**")

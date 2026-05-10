@@ -140,9 +140,9 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    new AntPathRequestMatcher("/styles/**"),
-                    new AntPathRequestMatcher("/images/**"),
-                    new AntPathRequestMatcher("/scripts/**"),
+                    new AntPathRequestMatcher("/css/**"),
+                    new AntPathRequestMatcher("/imgs/**"),
+                    new AntPathRequestMatcher("/js/**"),
                     new AntPathRequestMatcher("/fonts/**"),
                     new AntPathRequestMatcher("/webjars/**"),
                     new AntPathRequestMatcher("/static/**")
