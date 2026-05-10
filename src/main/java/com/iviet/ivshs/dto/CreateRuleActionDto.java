@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record CreateRuleActionV2Dto(
+public record CreateRuleActionDto(
 	@NotNull(message = "Target device ID cannot be null")
 	Long targetDeviceId,
 	

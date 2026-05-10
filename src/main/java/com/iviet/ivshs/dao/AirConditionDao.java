@@ -3,8 +3,6 @@ package com.iviet.ivshs.dao;
 import java.util.List;
 import java.util.Optional;
 
-import jakarta.persistence.criteria.JoinType;
-
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.AirConditionDto;

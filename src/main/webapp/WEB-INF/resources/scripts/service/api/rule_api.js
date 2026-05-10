@@ -1,9 +1,9 @@
-class RuleApiV1Service {
+class RuleApiService {
   static instance;
 
   constructor() {
-    if (RuleApiV1Service.instance) return RuleApiV1Service.instance;
-    RuleApiV1Service.instance = this;
+    if (RuleApiService.instance) return RuleApiService.instance;
+    RuleApiService.instance = this;
 
     this.api = SMRC_API_V1.RULE;
   }
@@ -12,11 +12,11 @@ class RuleApiV1Service {
     try {
       return await window.http.get(this.api.ALL);
     } catch (error) {
-      this.#handleError('fetch all rules', error);
+      this.#handleError('fetch all active rules', error);
     }
   }
 
-  async getList(page = 0, size = 20) {
+  async getList(page = 0, size = 10) {
     try {
       return await window.http.get(this.api.PATH, { page, size });
     } catch (error) {
@@ -42,7 +42,7 @@ class RuleApiV1Service {
 
   async update(id, dto) {
     try {
-      return await window.http.put(this.api.DETAIL(id), dto);
+      return await window.http.patch(this.api.DETAIL(id), dto);
     } catch (error) {
       this.#handleError(`update rule ${id}`, error);
     }
@@ -65,28 +65,28 @@ class RuleApiV1Service {
     }
   }
 
-  async scan() {
-    try {
-      return await window.http.post(this.api.SCAN);
-    } catch (error) {
-      this.#handleError('execute rule scan', error);
-    }
-  }
-
   async reload() {
     try {
       return await window.http.post(this.api.RELOAD);
     } catch (error) {
-      this.#handleError('reload rules', error);
+      this.#handleError('reload all rules', error);
+    }
+  }
+
+  async execute(id) {
+    try {
+      return await window.http.post(this.api.EXECUTE(id));
+    } catch (error) {
+      this.#handleError(`trigger rule ${id} immediately`, error);
     }
   }
 
   #handleError(action, error) {
-    console.error(`[RuleApiV1Service] Failed to ${action}:`, error);
+    console.error(`[RuleApiService] Failed to ${action}:`, error);
     throw error;
   }
 }
 
 if (typeof window == 'undefined')
-  throw new Error('RuleApiV1Service can only be initialized in a browser environment');
-window.ruleApiV1Service = new RuleApiV1Service();
+  throw new Error('RuleApiService can only be initialized in a browser environment');
+window.ruleApiService = new RuleApiService();

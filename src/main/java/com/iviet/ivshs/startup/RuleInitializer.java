@@ -1,97 +1,48 @@
 package com.iviet.ivshs.startup;
 
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.schedule.rule.RuleJob;
+import com.iviet.ivshs.service.RuleService;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Deprecated
-@Slf4j(topic = "INIT-RULE")
+@Slf4j(topic = "INIT-RULE-")
 @Component
-@Order(20)
+@Order(21)
 @RequiredArgsConstructor
 public class RuleInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
-  private final SchedulerFactoryBean schedulerFactoryBean;
-  private final Environment env;
-  private boolean isInitialized = false;
+    private final RuleService ruleService;
+    private boolean isInitialized = false;
 
-  private int ruleScanIntervalSeconds;
+    @Override
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
+        if (isInitialized) {
+            return;
+        }
 
-  @PostConstruct
-  private void init() {
-    ruleScanIntervalSeconds = env.getProperty("app.engine.rule.scanIntervalSeconds", Integer.class, 300);
-    log.info("RuleInitializer configured with scan interval: {} seconds", ruleScanIntervalSeconds);
-  }
+        try {
+            log.info("Module       : [Quartz Rule] -> [RUNNING]");
+            
+            long startTime = System.currentTimeMillis();
+            ruleService.reloadAllRules();
+            long duration = System.currentTimeMillis() - startTime;
 
-  @Override
-  public void onApplicationEvent(@NonNull ContextRefreshedEvent event) {
-    var isDepcreated = true;
-    if (isInitialized || ruleScanIntervalSeconds <= 0 || isDepcreated) {
-      return;
+            log.info("Module       : [Quartz Rule] -> [OK]");
+            log.info("  - Duration   : {} ms", duration);
+
+            isInitialized = true;
+
+        } catch (Exception e) {
+            log.error("Module       : [Quartz Rule] -> [FAILED]");
+            log.error("  - Reason     : {}", e.getMessage());
+            log.error("------------------------------------------------------------");
+            log.error("Stack trace:", e);
+        }
     }
-
-    try {
-      log.info("Module       : [Rule Engine] -> [RUNNING]");
-      
-      long startTime = System.currentTimeMillis();
-      scheduleGlobalRuleEngineJob();
-      long duration = System.currentTimeMillis() - startTime;
-
-      log.info("Module       : [Rule Engine] -> [OK]");
-      log.info("  - Duration   : {} ms", duration);
-
-      isInitialized = true;
-
-    } catch (Exception e) {
-      log.error("Module       : [Rule Engine] -> [FAILED]");
-      log.error("  - Reason     : {}", e.getMessage());
-      log.error("------------------------------------------------------------");
-      log.error("Stack trace:", e);
-      log.warn("WARNING: Server proceeding without rule engine");
-      log.warn("ACTION: Check logs and restart server if needed");
-    }
-  }
-
-  private void scheduleGlobalRuleEngineJob() throws SchedulerException {
-    Scheduler scheduler = schedulerFactoryBean.getScheduler();
-
-    log.info("Scheduling Rule Engine Job with interval: {} seconds", ruleScanIntervalSeconds);
-
-    JobDetail jobDetail = JobBuilder.newJob(RuleJob.class)
-        .withIdentity(RuleJob.JOB_NAME, RuleJob.JOB_GROUP)
-        .storeDurably()
-        .build();
-
-    if (scheduler.checkExists(jobDetail.getKey())) {
-      scheduler.deleteJob(jobDetail.getKey());
-    }
-
-    Trigger trigger = TriggerBuilder.newTrigger()
-        .withIdentity("RuleEngineTrigger", RuleJob.JOB_GROUP)
-        .startNow()
-        .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-            .withIntervalInSeconds(ruleScanIntervalSeconds)
-            .repeatForever())
-        .build();
-
-    scheduler.scheduleJob(jobDetail, trigger);
-    log.info("Rule Engine Job scheduled successfully (Interval: {}s).", ruleScanIntervalSeconds);
-  }
 }

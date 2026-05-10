@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.entities.Rule;
 
-import jakarta.persistence.TypedQuery;
-
 @Repository
 public class RuleDao extends BaseAuditEntityDao<Rule> {
 
@@ -22,71 +20,79 @@ public class RuleDao extends BaseAuditEntityDao<Rule> {
                 .getResultList();
     }
 
-    public Optional<Rule> findByIdWithConditions(Long ruleId) {
-        String jpql = """
-                SELECT DISTINCT r FROM Rule r
-                LEFT JOIN FETCH r.conditions
-                WHERE r.id = :id
-                """;
-        
-        List<Rule> results = entityManager.createQuery(jpql, Rule.class)
+    /**
+     * Tìm Rule theo ID và nạp đầy đủ Conditions + Actions (Sử dụng Double Fetch)
+     */
+    public Optional<Rule> findByIdWithConditionsAndActions(Long ruleId) {
+        String jpqlConditions = "SELECT r FROM Rule r LEFT JOIN FETCH r.conditions WHERE r.id = :id";
+        List<Rule> results = entityManager.createQuery(jpqlConditions, Rule.class)
                 .setParameter("id", ruleId)
                 .getResultList();
+
+        if (results.isEmpty()) return Optional.empty();
         
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        Rule rule = results.get(0);
+
+        String jpqlActions = "SELECT r FROM Rule r LEFT JOIN FETCH r.actions WHERE r.id = :id";
+        entityManager.createQuery(jpqlActions, Rule.class)
+                .setParameter("id", ruleId)
+                .getResultList();
+
+        return Optional.of(rule);
     }
 
-    public List<Rule> findAllActiveWithConditions() {
-        String jpql = """
-                SELECT DISTINCT r FROM Rule r
-                LEFT JOIN FETCH r.conditions
-                WHERE r.isActive = true
+    /**
+     * Lấy tất cả Rule đang Active kèm đầy đủ dữ liệu để Engine xử lý (Sử dụng Double Fetch)
+     */
+    public List<Rule> findAllActiveWithConditionsAndActions() {
+        String jpqlConditions = """
+                SELECT DISTINCT r FROM Rule r 
+                LEFT JOIN FETCH r.conditions 
+                WHERE r.isActive = true 
                 ORDER BY r.priority DESC, r.updatedAt DESC
                 """;
-        
-        return entityManager.createQuery(jpql, Rule.class)
+        List<Rule> rules = entityManager.createQuery(jpqlConditions, Rule.class)
                 .getResultList();
+
+        if (rules.isEmpty()) return rules;
+
+        String jpqlActions = "SELECT DISTINCT r FROM Rule r LEFT JOIN FETCH r.actions WHERE r IN :rules";
+        entityManager.createQuery(jpqlActions, Rule.class)
+                .setParameter("rules", rules)
+                .getResultList();
+
+        return rules;
     }
-    
-    public List<Rule> findAllByDeviceIdAndActive(Long deviceId) {
-        String jpql = """
-                SELECT DISTINCT r FROM Rule r
-                LEFT JOIN FETCH r.conditions
-                WHERE r.deviceId = :deviceId AND r.isActive = true
-                ORDER BY r.priority DESC, r.updatedAt DESC
-                """;
-        return entityManager.createQuery(jpql, Rule.class)
-                .setParameter("deviceId", deviceId)
-                .getResultList();
+
+    public void updateActiveStatus(Long id, boolean isActive) {
+        String jpql = "UPDATE Rule r SET r.isActive = :isActive WHERE r.id = :id";
+        entityManager.createQuery(jpql)
+                .setParameter("isActive", isActive)
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     public boolean existsByName(String name) {
         String jpql = "SELECT COUNT(r) FROM Rule r WHERE r.name = :name";
-        Long count = entityManager.createQuery(jpql, Long.class)
+        return entityManager.createQuery(jpql, Long.class)
                 .setParameter("name", name)
-                .getSingleResult();
-        return count > 0;
+                .getSingleResult() > 0;
     }
 
-    public boolean existsByNameAndIdNot(String name, Long excludeId) {
-        String jpql = "SELECT COUNT(r) FROM Rule r WHERE r.name = :name AND r.id != :excludeId";
-        Long count = entityManager.createQuery(jpql, Long.class)
+    public boolean existsByNameAndIdNot(String name, Long id) {
+        String jpql = "SELECT COUNT(r) FROM Rule r WHERE r.name = :name AND r.id != :id";
+        return entityManager.createQuery(jpql, Long.class)
                 .setParameter("name", name)
-                .setParameter("excludeId", excludeId)
-                .getSingleResult();
-        return count > 0;
+                .setParameter("id", id)
+                .getSingleResult() > 0;
     }
 
     public List<Rule> findAllPaginated(int page, int size) {
-        String jpql = "SELECT r FROM Rule r ORDER BY r.updatedAt DESC";
-        TypedQuery<Rule> query = entityManager.createQuery(jpql, Rule.class);
-        query.setFirstResult(page * size);
-        query.setMaxResults(size);
-        return query.getResultList();
+        String jpql = "SELECT r FROM Rule r ORDER BY r.priority DESC, r.updatedAt DESC";
+        return entityManager.createQuery(jpql, Rule.class)
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
     }
 
-    public long countAll() {
-        String jpql = "SELECT COUNT(r) FROM Rule r";
-        return entityManager.createQuery(jpql, Long.class).getSingleResult();
-    }
 }

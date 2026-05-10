@@ -1,29 +1,39 @@
 package com.iviet.ivshs.service;
 
+import java.util.List;
+
 import com.iviet.ivshs.dto.CreateRuleDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
-
-import java.util.List;
+import com.iviet.ivshs.entities.Rule;
 
 public interface RuleService {
+  
+  RuleDto create(CreateRuleDto dto);
 
-    void executeGlobalRuleScan();
+  RuleDto update(Long ruleId, UpdateRuleDto dto);
 
-    void reloadAllRules();
+  void delete(Long ruleId);
 
-    RuleDto create(CreateRuleDto request);
+  RuleDto getById(Long ruleId);
 
-    RuleDto update(Long id, UpdateRuleDto request);
+  PaginatedResponse<RuleDto> getAll(int page, int size);
 
-    void delete(Long id);
+  List<RuleDto> getAllActive();
 
-    RuleDto getById(Long id);
+	// SYSTEM / JOB CONTROL  
+	void toggleIsActive(Long ruleId, boolean isActive);
 
-    List<RuleDto> getAll();
+	void scheduleJob(Rule rule);
 
-    PaginatedResponse<RuleDto> getList(int page, int size);
+	void rescheduleJob(Rule rule);
 
-    void toggleIsActive(Long id, boolean isActive);
+	void unscheduleJob(Long ruleId);
+
+	void executeRuleLogic(Long ruleId);
+
+	void executeRuleImmediately(Long ruleId);
+
+	void reloadAllRules();
 }

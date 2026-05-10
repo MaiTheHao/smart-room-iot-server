@@ -1,27 +1,24 @@
 package com.iviet.ivshs.dto;
 
 import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.Builder;
 
 @Builder
 public record UpdateRuleDto(
-    String name,
+	String name,
+	
+	Integer priority,
+	
+	Boolean isActive,
+	
+	@Min(value = 60, message = "Interval seconds must be at least 60")
+	Integer intervalSeconds,
 
-    Integer priority,
-
-    Long targetDeviceId,
-
-    DeviceCategory targetDeviceCategory,
-
-    JsonNode actionParams,
-
-    Boolean isActive,
-
-    @Valid
-    List<UpdateRuleConditionDto> conditions
+	@Valid
+	List<UpdateRuleConditionDto> conditions,
+	
+	@Valid
+	List<UpdateRuleActionDto> actions
 ) {}

@@ -1,9 +1,9 @@
-class ActionV2Manager {
+class ActionManager {
   static async init(ruleId) {
     if (typeof window === 'undefined')
-      throw new Error('ActionV2Manager can only be initialized in a browser environment');
+      throw new Error('ActionManager can only be initialized in a browser environment');
 
-    this.ruleService = window.ruleApiV2Service;
+    this.ruleService = window.ruleApiService;
     this.floorService = window.floorApiV1Service;
     this.roomService = window.roomApiV1Service;
     this.deviceMetadataService = window.deviceMetadataApiV1Service;
@@ -34,7 +34,7 @@ class ActionV2Manager {
         this.bindEvents();
       }
     } catch (e) {
-      notify.error('Failed to load Rule V2 data');
+      notify.error('Failed to load Rule data');
       console.error(e);
     }
   }
@@ -223,8 +223,6 @@ class ActionV2Manager {
       this.handleCategoryChange(a.targetDeviceCategory);
       this.populateActionParams(a.targetDeviceCategory, a.actionParams || {});
 
-      // For edit, we will rely on deviceSelect having custom option inserted since fetching full path isn't easy without multiple calls,
-      // but to be clean, let's just insert the current device as the selected option.
       $('#actFloorSelect').prop('disabled', false);
       $('#actRoomSelect')
         .prop('disabled', false)
@@ -368,7 +366,6 @@ class ActionV2Manager {
         id: a.id,
       }));
 
-      // NOTE: We only send { actions }, ignores conditions
       await this.ruleService.update(this.ruleId, { actions: actionsPayload });
       notify.success('Actions saved successfully');
 
@@ -395,5 +392,4 @@ class ActionV2Manager {
   }
 }
 
-window.ActionV2Manager = ActionV2Manager;
-window.ActionManager = ActionV2Manager;
+window.ActionManager = ActionManager;

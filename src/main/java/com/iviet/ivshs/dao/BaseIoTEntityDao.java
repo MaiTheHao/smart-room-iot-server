@@ -1,8 +1,6 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.entities.BaseIoTEntity;
-import com.iviet.ivshs.entities.Fan;
-
 import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import java.util.Optional;

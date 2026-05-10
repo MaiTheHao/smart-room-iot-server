@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
 
 public interface RuleMapper extends 
-    BaseMapper<Rule, RuleDto>,
-    CreateMapper<Rule, CreateRuleDto>,
-    UpdateMapper<Rule, UpdateRuleDto> {
-}
+  BaseMapper<Rule, RuleDto>,
+  CreateMapper<Rule, CreateRuleDto>,
+  UpdateMapper<Rule, UpdateRuleDto>  
+{}

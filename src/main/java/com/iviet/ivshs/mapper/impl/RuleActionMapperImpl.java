@@ -1,10 +1,10 @@
 package com.iviet.ivshs.mapper.impl;
 
-import com.iviet.ivshs.dto.CreateRuleActionV2Dto;
-import com.iviet.ivshs.dto.RuleActionV2Dto;
-import com.iviet.ivshs.dto.UpdateRuleActionV2Dto;
-import com.iviet.ivshs.entities.RuleActionV2;
-import com.iviet.ivshs.mapper.RuleActionV2Mapper;
+import com.iviet.ivshs.dto.CreateRuleActionDto;
+import com.iviet.ivshs.dto.RuleActionDto;
+import com.iviet.ivshs.dto.UpdateRuleActionDto;
+import com.iviet.ivshs.entities.RuleAction;
+import com.iviet.ivshs.mapper.RuleActionMapper;
 
 import org.springframework.stereotype.Component;
 
@@ -12,15 +12,15 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
-public class RuleActionV2MapperImpl implements RuleActionV2Mapper {
+public class RuleActionMapperImpl implements RuleActionMapper {
 
     @Override
-    public RuleActionV2 toEntity(RuleActionV2Dto dto) {
+    public RuleAction toEntity(RuleActionDto dto) {
         if (dto == null) {
             return null;
         }
 
-        RuleActionV2 entity = new RuleActionV2();
+        RuleAction entity = new RuleAction();
         entity.setId(dto.id());
         entity.setExecutionOrder(dto.executionOrder());
         entity.setTargetDeviceId(dto.targetDeviceId());
@@ -31,12 +31,12 @@ public class RuleActionV2MapperImpl implements RuleActionV2Mapper {
     }
 
     @Override
-    public RuleActionV2 fromCreateDto(CreateRuleActionV2Dto dto) {
+    public RuleAction fromCreateDto(CreateRuleActionDto dto) {
         if (dto == null) {
             return null;
         }
 
-        RuleActionV2 entity = new RuleActionV2();
+        RuleAction entity = new RuleAction();
         entity.setExecutionOrder(dto.executionOrder());
         entity.setTargetDeviceId(dto.targetDeviceId());
         entity.setTargetDeviceCategory(dto.targetDeviceCategory());
@@ -46,7 +46,7 @@ public class RuleActionV2MapperImpl implements RuleActionV2Mapper {
     }
 
     @Override
-    public void updateFromDto(UpdateRuleActionV2Dto dto, RuleActionV2 entity) {
+    public void updateFromDto(UpdateRuleActionDto dto, RuleAction entity) {
         if (dto == null || entity == null) {
             return;
         }
@@ -66,12 +66,12 @@ public class RuleActionV2MapperImpl implements RuleActionV2Mapper {
     }
 
     @Override
-    public RuleActionV2Dto toDto(RuleActionV2 entity) {
+    public RuleActionDto toDto(RuleAction entity) {
         if (entity == null) {
             return null;
         }
 
-        return RuleActionV2Dto.builder()
+        return RuleActionDto.builder()
                 .id(entity.getId())
                 .executionOrder(entity.getExecutionOrder())
                 .targetDeviceId(entity.getTargetDeviceId())
@@ -81,7 +81,7 @@ public class RuleActionV2MapperImpl implements RuleActionV2Mapper {
     }
 
     @Override
-    public List<RuleActionV2Dto> toDtoList(List<RuleActionV2> entities) {
+    public List<RuleActionDto> toDtoList(List<RuleAction> entities) {
         if (entities == null) {
             return Collections.emptyList();
         }

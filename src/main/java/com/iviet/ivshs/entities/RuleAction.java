@@ -23,15 +23,15 @@ import com.iviet.ivshs.enumeration.DeviceCategory;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "rule_action_v2", indexes = {
-        @Index(name = "idx_rule_action_v2_rule_id", columnList = "rule_v2_id"),
-        @Index(name = "idx_rule_action_v2_target_device", columnList = "target_device_id")
+@Table(name = "rule_action", indexes = {
+        @Index(name = "idx_rule_action_rule_id", columnList = "rule_id"),
+        @Index(name = "idx_rule_action_target_device", columnList = "target_device_id")
 })
-public class RuleActionV2 extends BaseAuditEntity {
+public class RuleAction extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rule_v2_id", nullable = false, updatable = false)
-    private RuleV2 ruleV2;
+    @JoinColumn(name = "rule_id", nullable = false, updatable = false)
+    private Rule rule;
 
     @Column(name = "execution_order")
     private Integer executionOrder;

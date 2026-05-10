@@ -1,6 +1,5 @@
 package com.iviet.ivshs.schedule.rule;
 
-import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -8,26 +7,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.service.RuleService;
-
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
+@Slf4j(topic = "RULE-JOB")
 @Component
-@DisallowConcurrentExecution
 public class RuleJob implements Job {
 
-    public static final String JOB_NAME = "GLOBAL_RULE_SCAN_JOB";
-    public static final String JOB_GROUP = "RULE_ENGINE_SYSTEM";
+  @Autowired
+  private RuleService ruleService;
 
-    @Autowired
-    private RuleService ruleService;
+  @Override
+  public void execute(JobExecutionContext context) throws JobExecutionException {
+    Long ruleId = context.getJobDetail().getJobDataMap().getLong("id");
+    long start = System.currentTimeMillis();
 
-    @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-        try {
-            ruleService.executeGlobalRuleScan();
-        } catch (Exception e) {
-            log.error("Rule Engine Scan failed: {}", e.getMessage(), e);
-        }
+    log.info("Starting Rule execution for ID: {}", ruleId);
+
+    try {
+      ruleService.executeRuleLogic(ruleId);
+      log.info("Finished Rule execution for ID: {} in {}ms", ruleId, System.currentTimeMillis() - start);
+    } catch (Exception e) {
+      log.error("Execution failed for Rule ID {}: {}", ruleId, e.getMessage());
+      throw new JobExecutionException(e, false);
     }
+  }
+  
 }

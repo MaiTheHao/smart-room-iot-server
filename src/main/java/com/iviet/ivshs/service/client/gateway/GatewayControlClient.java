@@ -26,66 +26,66 @@ public class GatewayControlClient extends GatewayBaseClient {
         return executePut(url, data);
     }
 
-    // --- Light Control V2 ---
+    // --- Light Control  ---
 
-    public ResponseEntity<ApiResponse<String>> controlLightPowerV2(String ip, String naturalId, Object power) {
-        return executePut(buildV2Url(ip, "light", naturalId, "power"), power);
+    public ResponseEntity<ApiResponse<String>> controlLightPower(String ip, String naturalId, Object power) {
+        return executePut(buildUrl(ip, "light", naturalId, "power"), power);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlLightLevelV2(String ip, String naturalId, Object level) {
-        return executePut(buildV2Url(ip, "light", naturalId, "level"), level);
+    public ResponseEntity<ApiResponse<String>> controlLightLevel(String ip, String naturalId, Object level) {
+        return executePut(buildUrl(ip, "light", naturalId, "level"), level);
     }
 
-    // --- AC Control V2 ---
-    public ResponseEntity<ApiResponse<String>> controlAcPowerV2(String ip, String naturalId, Object power) {
-        return executePut(buildV2Url(ip, "ac", naturalId, "power"), power);
+    // --- AC Control  ---
+    public ResponseEntity<ApiResponse<String>> controlAcPower(String ip, String naturalId, Object power) {
+        return executePut(buildUrl(ip, "ac", naturalId, "power"), power);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcTempUpV2(String ip, String naturalId, Object temp) {
-        return executePut(buildV2Url(ip, "ac", naturalId, "temp_up"), temp);
+    public ResponseEntity<ApiResponse<String>> controlAcTempUp(String ip, String naturalId, Object temp) {
+        return executePut(buildUrl(ip, "ac", naturalId, "temp_up"), temp);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcTempDownV2(String ip, String naturalId, Object temp) {
-        return executePut(buildV2Url(ip, "ac", naturalId, "temp_down"), temp);
+    public ResponseEntity<ApiResponse<String>> controlAcTempDown(String ip, String naturalId, Object temp) {
+        return executePut(buildUrl(ip, "ac", naturalId, "temp_down"), temp);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcModeV2(String ip, String naturalId, Object mode) {
-        return executePut(buildV2Url(ip, "ac", naturalId, "mode"), mode);
+    public ResponseEntity<ApiResponse<String>> controlAcMode(String ip, String naturalId, Object mode) {
+        return executePut(buildUrl(ip, "ac", naturalId, "mode"), mode);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcFanV2(String ip, String naturalId, Object fan) {
-        return executePut(buildV2Url(ip, "ac", naturalId, "fan"), fan);
+    public ResponseEntity<ApiResponse<String>> controlAcFan(String ip, String naturalId, Object fan) {
+        return executePut(buildUrl(ip, "ac", naturalId, "fan"), fan);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcSwingV2(String ip, String naturalId, Object swing) {
-        return executePut(buildV2Url(ip, "ac", naturalId, "swing"), swing);
+    public ResponseEntity<ApiResponse<String>> controlAcSwing(String ip, String naturalId, Object swing) {
+        return executePut(buildUrl(ip, "ac", naturalId, "swing"), swing);
     }
 
-    // --- Fan Control V2 ---
-    public ResponseEntity<ApiResponse<String>> controlFanPowerV2(String ip, String naturalId, Object power) {
-        return executePut(buildV2Url(ip, "fan", naturalId, "power"), power);
+    // --- Fan Control  ---
+    public ResponseEntity<ApiResponse<String>> controlFanPower(String ip, String naturalId, Object power) {
+        return executePut(buildUrl(ip, "fan", naturalId, "power"), power);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlFanSpeedV2(String ip, String naturalId, Object speed) {
-        return executePut(buildV2Url(ip, "fan", naturalId, "speed"), speed);
+    public ResponseEntity<ApiResponse<String>> controlFanSpeed(String ip, String naturalId, Object speed) {
+        return executePut(buildUrl(ip, "fan", naturalId, "speed"), speed);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlFanModeV2(String ip, String naturalId, Object mode) {
-        return executePut(buildV2Url(ip, "fan", naturalId, "mode"), mode);
+    public ResponseEntity<ApiResponse<String>> controlFanMode(String ip, String naturalId, Object mode) {
+        return executePut(buildUrl(ip, "fan", naturalId, "mode"), mode);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlFanSwingV2(String ip, String naturalId, Object swing) {
-        return executePut(buildV2Url(ip, "fan", naturalId, "swing"), swing);
+    public ResponseEntity<ApiResponse<String>> controlFanSwing(String ip, String naturalId, Object swing) {
+        return executePut(buildUrl(ip, "fan", naturalId, "swing"), swing);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlFanLightV2(String ip, String naturalId, Object light) {
-        return executePut(buildV2Url(ip, "fan", naturalId, "light"), light);
+    public ResponseEntity<ApiResponse<String>> controlFanLight(String ip, String naturalId, Object light) {
+        return executePut(buildUrl(ip, "fan", naturalId, "light"), light);
     }
 
     // --- Private Helper Methods ---
 
-    private String buildV2Url(String ip, String deviceType, String naturalId, String action) {
-        return buildUri(ip, API_V2, String.format("%s/%s/%s", deviceType, naturalId, action));
+    private String buildUrl(String ip, String deviceType, String naturalId, String action) {
+        return buildUri(ip, API_, String.format("%s/%s/%s", deviceType, naturalId, action));
     }
 
     private ResponseEntity<ApiResponse<String>> executePut(String url, Object data) {

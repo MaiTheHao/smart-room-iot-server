@@ -3,11 +3,10 @@ package com.iviet.ivshs.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.quartz.Job;
+import org.quartz.JobDataMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.schedule.rule.RuleJob;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,39 +26,53 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "rule", indexes = {
-        @Index(name = "idx_rule_room", columnList = "room_id"),
         @Index(name = "idx_rule_status", columnList = "is_active")
 })
-public class Rule extends BaseAuditEntity {
+public class Rule extends BaseSchedulableEntity {
 
-    @Column(nullable = false)
+    public static final String JOB_GROUP = "RULE_ENGINE_SYSTEM";
+
+    @Column(name = "name", nullable = false, length = 256)
     private String name;
 
     @Column(name = "priority", nullable = false)
-    private Integer priority;
+    private Integer priority = 0;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
-
-    @Column(name = "room_id", nullable = false)
-    private Long roomId;
-
-    @Column(name = "target_device_id", nullable = false)
-    private Long targetDeviceId;
-    
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "target_device_category", nullable = false, length = 256)
-    private DeviceCategory targetDeviceCategory;
-
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
-    @Column(name = "action_params")
-    private JsonNode actionParams;
-
-    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RuleCondition> conditions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<RuleAction> actions = new ArrayList<>();
 
     public void addCondition(RuleCondition condition) {
         conditions.add(condition);
         condition.setRule(this);
+    }
+
+    public void addAction(RuleAction action) {
+        actions.add(action);
+        action.setRule(this);
+    }
+
+    @Override
+    public String getJobName() {
+        return "RuleJob-" + this.getId();
+    }
+
+    @Override
+    public String getJobGroup() {
+        return JOB_GROUP;
+    }
+
+    @Override
+    public Class<? extends Job> getJobClass() {
+        return RuleJob.class;
+    }
+
+    @Override
+    public JobDataMap getJobDataMap() {
+        JobDataMap dataMap = new JobDataMap();
+        dataMap.put("id", this.getId());
+        return dataMap;
     }
 }

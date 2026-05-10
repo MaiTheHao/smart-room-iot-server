@@ -67,9 +67,9 @@
                 <h4 class="mb-0 font-weight-bold text-dark" id="headerRuleName">Loading...</h4>
                 <span id="headerRuleStatus" class="ml-3 text-secondary small"><i class="fas fa-circle mr-1" style="font-size: 8px"></i> ...</span>
               </div>
-              <a th:href="@{/view/v2/rules}" class="btn btn-sm btn-back px-3">
+              <a th:href="@{/view/rules}" class="btn btn-sm btn-back px-3">
                 <i class="fas fa-chevron-left mr-1 small"></i>
-                <span th:text="#{rulev2.action.btn.back}">Back to Rules</span>
+                <span th:text="#{rule.action.btn.back}">Back to Rules</span>
               </a>
             </div>
           </div>
@@ -80,7 +80,7 @@
                 <span>#<span th:text="${ruleId}">0</span></span>
               </div>
               <div class="meta-item">
-                <span class="meta-label" th:text="#{rulev2.action.label.priority}">Priority:</span>
+                <span class="meta-label" th:text="#{rule.action.label.priority}">Priority:</span>
                 <span id="headerRulePriority">0</span>
               </div>
               <div class="meta-item">
@@ -88,7 +88,7 @@
                 <span id="headerRuleRoom">-</span>
               </div>
               <div class="meta-item">
-                <span class="meta-label" th:text="#{rulev2.action.label.interval}">Interval (s):</span>
+                <span class="meta-label" th:text="#{rule.action.label.interval}">Interval (s):</span>
                 <span id="headerRuleInterval">60s</span>
               </div>
             </div>
@@ -101,13 +101,13 @@
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="m-0 font-weight-bold text-dark">
                 <i class="fas fa-bolt mr-2 text-primary opacity-75"></i>
-                <span th:text="#{rulev2.action.list.title}">Actions List</span>
+                <span th:text="#{rule.action.list.title}">Actions List</span>
               </h5>
               <div class="card-tools d-flex align-items-center">
                 <div id="unsavedStatus" class="mr-3" style="display: none">
                   <span class="text-warning small font-weight-bold">
                     <i class="fas fa-sync-alt fa-spin mr-1"></i>
-                    <span th:text="#{rulev2.action.unsaved}">Unsaved changes</span>
+                    <span th:text="#{rule.action.unsaved}">Unsaved changes</span>
                   </span>
                 </div>
                 <button
@@ -116,7 +116,7 @@
                   id="btnAddAction"
                 >
                   <i class="fas fa-plus mr-1"></i>
-                  <span th:text="#{rulev2.action.btn.add}">Add Action</span>
+                  <span th:text="#{rule.action.btn.add}">Add Action</span>
                 </button>
               </div>
             </div>
@@ -127,11 +127,11 @@
               <table class="table table-hover table-sm mb-0" id="actionsTable">
                 <thead class="bg-light text-muted small text-uppercase">
                   <tr>
-                    <th class="pl-4 py-3" style="width: 80px" th:text="#{rulev2.action.table.order}">Order</th>
-                    <th class="py-3" th:text="#{rulev2.action.table.device}">Device</th>
-                    <th class="py-3" th:text="#{rulev2.action.table.category}">Category</th>
-                    <th class="py-3" th:text="#{rulev2.action.table.params}">Parameters</th>
-                    <th class="text-right pr-4 py-3" th:text="#{rulev2.action.table.actions}">Actions</th>
+                    <th class="pl-4 py-3" style="width: 80px" th:text="#{rule.action.table.order}">Order</th>
+                    <th class="py-3" th:text="#{rule.action.table.device}">Device</th>
+                    <th class="py-3" th:text="#{rule.action.table.category}">Category</th>
+                    <th class="py-3" th:text="#{rule.action.table.params}">Parameters</th>
+                    <th class="text-right pr-4 py-3" th:text="#{rule.action.table.actions}">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="actionsList">
@@ -142,14 +142,14 @@
 
             <div id="emptyActions" class="text-center py-5" style="display: none">
               <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
-              <p class="text-muted" th:text="#{rulev2.action.list.empty}">No actions yet!</p>
+              <p class="text-muted" th:text="#{rule.action.list.empty}">No actions yet!</p>
               <button
                 type="button"
                 class="btn btn-outline-primary btn-sm mt-2 font-weight-bold"
                 id="btnAddActionEmpty"
               >
                 <i class="fas fa-plus mr-1"></i>
-                <span th:text="#{rulev2.action.btn.add}">Add Action</span>
+                <span th:text="#{rule.action.btn.add}">Add Action</span>
               </button>
             </div>
           </div>
@@ -161,14 +161,15 @@
               id="btnSaveAllActions"
             >
               <i class="fas fa-check-circle mr-2"></i>
-              <span th:text="#{rulev2.action.btn.save_all}">Save All Changes</span>
+              <span th:text="#{rule.action.btn.save_all}">Save All Changes</span>
             </button>
+
           </div>
         </div>
         </div>
 
         <!-- Action Modal Fragment -->
-        <th:block th:replace="~{fragments/rule_v2/action_modal.html :: modal_content}"></th:block>
+        <th:block th:replace="~{fragments/rule/action_modal.html :: modal_content}"></th:block>
 
         <template id="actionRowTemplate">
           <tr data-local-id="{localId}">
@@ -208,19 +209,20 @@
     </section>
 
     <th:block layout:fragment="optional">
-      <script defer th:src="@{/scripts/service/api/v2/rule_api_v2.js}"></script>
-      <script defer th:src="@{/scripts/service/api/v1/floor_api_v1.js}"></script>
-      <script defer th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
-      <script defer th:src="@{/scripts/service/api/v1/device_metadata_api_v1.js}"></script>
-      <script defer th:src="@{/scripts/pages/rule/rule_common.js}"></script>
-      <script defer th:src="@{/scripts/pages/rule_v2/actions.js}"></script>
+      <script th:src="@{/scripts/service/api/rule_api.js}"></script>
+      <script th:src="@{/scripts/service/api/v1/floor_api_v1.js}"></script>
+      <script th:src="@{/scripts/service/api/v1/room_api_v1.js}"></script>
+      <script th:src="@{/scripts/service/api/v1/device_metadata_api_v1.js}"></script>
+      <script th:src="@{/scripts/pages/rule/rule_common.js}"></script>
+      <script th:src="@{/scripts/pages/rule/actions.js}"></script>
 
       <script defer th:inline="javascript">
         /*<![CDATA[*/
         $(document).ready(function () {
           var ruleId = /*[[${ruleId}]]*/ null;
-          ActionV2Manager.init(ruleId);
+          ActionManager.init(ruleId);
         });
+
         /*]]>*/
       </script>
     </th:block>

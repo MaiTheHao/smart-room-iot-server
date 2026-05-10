@@ -1,65 +1,86 @@
 class ConditionManager {
-  // =========================================================================
-  // 1. INITIALIZATION & STATE MANAGEMENT
-  // =========================================================================
-  static init(ruleData) {
+  static async init(ruleId) {
     if (typeof window === 'undefined')
       throw new Error('ConditionManager can only be initialized in a browser environment');
 
-    // Khởi tạo các Services
-    this.ruleService = window.ruleApiV1Service;
+    this.ruleService = window.ruleApiService;
     this.floorService = window.floorApiV1Service;
     this.roomService = window.roomApiV1Service;
     this.deviceMetadataService = window.deviceMetadataApiV1Service;
 
-    // Khởi tạo dữ liệu trạng thái
-    this.ruleData = ruleData;
-    this.ruleId = ruleData.id;
-
-    let counter = 1;
-    this.conditions = (ruleData.conditions || []).map((c) => ({
-      ...c,
-      resourceParam:
-        typeof c.resourceParam === 'string' ? JSON.parse(c.resourceParam) : c.resourceParam || {},
-      _localId: counter++,
-    }));
-
-    this._nextLocalId = counter;
+    this.ruleId = ruleId;
+    this.ruleData = null;
+    this.conditions = [];
+    this._nextLocalId = 1;
     this.isDirty = false;
 
-    // Chạy các luồng giao diện
-    this.renderTable();
-    this.bindEvents();
+    try {
+      const res = await this.ruleService.getById(ruleId);
+      if (res?.data) {
+        this.ruleData = res.data;
+        this.populateHeader(this.ruleData);
+
+        let counter = 1;
+        this.conditions = (this.ruleData.conditions || []).map((c) => ({
+          ...c,
+          resourceParam:
+            typeof c.resourceParam === 'string'
+              ? JSON.parse(c.resourceParam)
+              : c.resourceParam || {},
+          _localId: counter++,
+        }));
+        this._nextLocalId = counter;
+
+        $('#btnAddCondition, #btnSaveConditions').prop('disabled', false);
+        this.renderTable();
+        this.bindEvents();
+      }
+    } catch (e) {
+      notify.error('Failed to load Rule data');
+      console.error(e);
+    }
+  }
+
+  static populateHeader(data) {
+    $('#headerRuleName').text(data.name);
+
+    const $status = $('#headerRuleStatus');
+    if (data.isActive) {
+      $status.addClass('text-success').removeClass('text-secondary').html('<i class="fas fa-circle mr-1" style="font-size: 8px"></i> Active');
+    } else {
+      $status.addClass('text-secondary').removeClass('text-success').html('<i class="fas fa-circle mr-1" style="font-size: 8px"></i> Inactive');
+    }
+
+    $('#headerRulePriority').text(data.priority);
+    $('#headerRuleInterval').text(data.intervalSeconds + 's');
   }
 
   static markDirty() {
     this.isDirty = true;
-    $('#dirtyBadge').addClass('visible');
+    $('#dirtyBadge, #unsavedStatus').addClass('visible').show();
   }
 
   static markClean() {
     this.isDirty = false;
-    $('#dirtyBadge').removeClass('visible');
+    $('#dirtyBadge, #unsavedStatus').removeClass('visible').hide();
   }
 
   static getPropertyMeta(category, property) {
     return (RuleCommon.PROPERTY_META[category] || {})[property] || { type: 'string' };
   }
 
-  // =========================================================================
-  // 3. UI RENDERING & FORMATTING (TABLE)
-  // =========================================================================
   static renderTable() {
     this.conditions.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    const $tbody = $('#conditionsTableBody');
+    const $tbody = $('#conditionsTableBody, #conditionsList');
     $tbody.empty();
+    const $emptyState = $('#conditionsEmptyState, #emptyConditions');
 
     if (this.conditions.length === 0) {
-      $('#conditionsEmptyState').show();
+      $emptyState.show();
       return;
     }
-    $('#conditionsEmptyState').hide();
+    $emptyState.hide();
 
     this.conditions.forEach((c) => {
       const resourceDisplay = this.formatResourceParam(c.dataSource, c.resourceParam);
@@ -74,7 +95,6 @@ class ConditionManager {
         .replace(/{resourceDisplay}/g, resourceDisplay)
         .replace(/{operatorDisplay}/g, operatorDisplay)
         .replace(/{value}/g, RuleCommon.escapeHtml(c.value || ''))
-        .replace(/{nextLogicColor}/g, nextLogicColor)
         .replace(/{nextLogic}/g, RuleCommon.escapeHtml(c.nextLogic || 'AND'));
 
       $tbody.append($(rowHtml));
@@ -89,38 +109,25 @@ class ConditionManager {
 
   static formatResourceParam(dataSource, rp) {
     if (!rp) return '<span class="text-muted">—</span>';
-
     if (dataSource === 'SYSTEM') {
-      return `<code class="text-dark">${RuleCommon.escapeHtml(rp.property || '')}</code>`;
+      return `<code class="text-indigo">${RuleCommon.escapeHtml(rp.property || '')}</code>`;
     }
-
     if (dataSource === 'ROOM') {
       const prop = rp.property || '';
       const roomId = rp.roomId || '';
-      return `<span class="badge badge-secondary mr-1">ROOM</span>
-        <span class="text-muted">#${roomId}</span>
-        <i class="fas fa-angle-right mx-1 text-muted small"></i>
-        <code class="text-dark">${RuleCommon.escapeHtml(prop)}</code>`;
+      return `<span class="text-dark">Room #${roomId}</span>
+        <i class="fas fa-chevron-right mx-1 small text-muted"></i>
+        <code class="text-indigo">${RuleCommon.escapeHtml(prop)}</code>`;
     }
-
     if (dataSource === 'DEVICE' || dataSource === 'SENSOR') {
       const cat = rp.category || '';
       const deviceId = rp.deviceId || rp.sensorId || '';
       const prop = rp.property || '';
-      const catColors = {
-        LIGHT: 'warning',
-        FAN: 'info',
-        AIR_CONDITION: 'primary',
-        TEMPERATURE: 'danger',
-        POWER_CONSUMPTION: 'success',
-      };
-      const c = catColors[cat] || 'secondary';
-      return `<span class="badge badge-${c} mr-1">${RuleCommon.escapeHtml(cat)}</span>
-        <span class="text-muted">#${deviceId}</span>
-        <i class="fas fa-angle-right mx-1 text-muted small"></i>
-        <code class="text-dark">${RuleCommon.escapeHtml(prop)}</code>`;
+      
+      return `<span class="text-dark">${RuleCommon.escapeHtml(cat)} #${deviceId}</span>
+        <i class="fas fa-chevron-right mx-1 small text-muted"></i>
+        <code class="text-indigo">${RuleCommon.escapeHtml(prop)}</code>`;
     }
-
     return `<code>${JSON.stringify(rp)}</code>`;
   }
 
@@ -129,43 +136,34 @@ class ConditionManager {
       this.renderTable();
       return;
     }
-
     const moved = this.conditions.find((c) => c._localId === localId);
     if (!moved || moved.sortOrder === newOrder) return;
 
     moved.sortOrder = newOrder;
-
     this.conditions.sort((a, b) => a.sortOrder - b.sortOrder);
     this.renderTable();
     this.markDirty();
   }
 
-  // =========================================================================
-  // 4. DOM EVENTS BINDING
-  // =========================================================================
   static bindEvents() {
-    // Actions cơ bản
     $('#btnAddCondition, #btnAddConditionEmpty').on('click', () => this.openConditionModal());
     $('#btnSaveCondition').on('click', () => this.handleModalSave());
-    $('#btnSaveConditions').on('click', () => this.handleSaveAll());
+    $('#btnSaveAllConditions').on('click', () => this.handleSaveAll());
 
-    // Thao tác trên bảng
-    $('#conditionsTableBody').on('click', '.btn-edit-cond', (e) => {
+    $('#conditionsList').on('click', '.btn-edit-cond', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       this.openConditionModal(localId);
     });
 
-    $('#conditionsTableBody').on('click', '.btn-delete-cond', (e) => {
+    $('#conditionsList').on('click', '.btn-delete-cond', (e) => {
       const localId = parseInt($(e.currentTarget).data('local-id'));
       this.handleDeleteCondition(localId);
     });
 
-    // Thay đổi Data Source & Category
     $('#condDataSourceSelect').on('change', (e) => this.handleDataSourceChange(e.target.value));
 
     $('#condCategorySelect').on('change', (e) => {
       this.updateCondPropertyOptions(e.target.value, $('#condDataSourceSelect').val());
-
       $('#condFloorSelect').val('');
       this.resetCondDeviceSelection();
       this.updateOperatorAndValueByProperty('', '');
@@ -177,7 +175,6 @@ class ConditionManager {
       }
     });
 
-    // Device / Sensor Selects
     $('#condFloorSelect').on('change', (e) =>
       RuleCommon.loadRooms(e.target.value, '#condRoomSelect', '#condDeviceSelect'),
     );
@@ -191,12 +188,10 @@ class ConditionManager {
       );
     });
 
-    // Room Data Source Selects
     $('#condRoomFloorSelect').on('change', (e) =>
       RuleCommon.loadRooms(e.target.value, '#condRoomRoomSelect'),
     );
 
-    // Property Selects
     $('#condPropertySelect').on('change', (e) => {
       const category = $('#condCategorySelect').val();
       this.updateOperatorAndValueByProperty(category, e.target.value);
@@ -208,8 +203,6 @@ class ConditionManager {
 
     $('#condRoomProperty').on('change', (e) => {
       this.updateOperatorAndValueByProperty('ROOM', e.target.value);
-
-      // Fix: Mở khóa chọn Tầng cho ROOM sau khi chọn Property
       if ($('#condRoomFloorSelect option').length <= 1) {
         RuleCommon.loadFloors('#condRoomFloorSelect');
       } else {
@@ -218,9 +211,6 @@ class ConditionManager {
     });
   }
 
-  // =========================================================================
-  // 5. MODAL HANDLING & FORM LOGIC
-  // =========================================================================
   static async openConditionModal(localId = null) {
     const isEdit = localId !== null;
     $('#conditionForm')[0].reset();
@@ -229,13 +219,11 @@ class ConditionManager {
     $('#condSectionSystem, #condSectionRoom, #condSectionDeviceSensor').hide();
 
     if (!isEdit) {
-      // Chế độ thêm mới
       $('#conditionModalTitleText').text('Add Condition');
       $('#condDataSourceSelect').val('');
       $('#condNextLogicSelect').val('AND');
       this.updateOperatorAndValueByProperty('', '');
     } else {
-      // Chế độ chỉnh sửa
       const c = this.conditions.find((x) => x._localId === localId);
       if (!c) return;
 
@@ -248,7 +236,6 @@ class ConditionManager {
       this.handleDataSourceChange(c.dataSource);
 
       const rp = c.resourceParam || {};
-
       if (c.dataSource === 'SYSTEM') {
         $('#condSystemProperty').val(rp.property || '');
         this.updateOperatorAndValueByProperty('SYSTEM', rp.property || '');
@@ -258,7 +245,6 @@ class ConditionManager {
         this.updateOperatorAndValueByProperty('ROOM', rp.property || '');
         $('#condValue').val(c.value);
 
-        // Fix: Tải danh sách Tầng và mở khóa khi Edit
         if ($('#condRoomFloorSelect option').length <= 1) {
           await RuleCommon.loadFloors('#condRoomFloorSelect');
         }
@@ -340,7 +326,6 @@ class ConditionManager {
       RuleCommon.loadFloors('#condRoomFloorSelect');
     } else if (dataSource === 'DEVICE' || dataSource === 'SENSOR') {
       $('#condSectionDeviceSensor').show();
-
       $('#condCategorySelect option[value]').each(function () {
         const forAttr = $(this).data('for') || '';
         $(this).toggle(forAttr.includes(dataSource));
@@ -415,8 +400,6 @@ class ConditionManager {
     return $('#condValue').val()?.trim() || '';
   }
 
-  // =========================================================================
-
   static handleModalSave() {
     const localId = $('#conditionLocalId').val() ? parseInt($('#conditionLocalId').val()) : null;
     const dataSource = $('#condDataSourceSelect').val();
@@ -424,16 +407,8 @@ class ConditionManager {
     const value = this.getCondValue();
     const nextLogic = $('#condNextLogicSelect').val();
 
-    if (!dataSource) {
-      notify.warning('Please select a data source');
-      return;
-    }
-    if (!operator) {
-      notify.warning('Please select an operator');
-      return;
-    }
-    if (!value) {
-      notify.warning('Please enter a comparison value');
+    if (!dataSource || !operator || !value) {
+      notify.warning('Please complete all condition basic fields');
       return;
     }
 
@@ -451,7 +426,7 @@ class ConditionManager {
       c.nextLogic = nextLogic;
     } else {
       const maxOrder = this.conditions.reduce((m, c) => Math.max(m, c.sortOrder || 0), 0);
-      const newCondition = {
+      this.conditions.push({
         dataSource,
         resourceParam,
         operator,
@@ -459,13 +434,71 @@ class ConditionManager {
         nextLogic,
         sortOrder: maxOrder + 1,
         _localId: this._nextLocalId++,
-      };
-      this.conditions.push(newCondition);
+      });
     }
 
     $('#conditionModal').modal('hide');
     this.renderTable();
     this.markDirty();
+  }
+
+  static async handleDeleteCondition(localId) {
+    if (!(await notify.confirm('Delete Condition', 'Remove this condition?'))) return;
+    this.conditions = this.conditions.filter((c) => c._localId !== localId);
+    this.renderTable();
+    this.markDirty();
+  }
+
+  static async handleSaveAll() {
+    if (
+      !(await notify.confirm(
+        'Save Conditions',
+        'Overwrite conditions for this rule on server?',
+        'warning',
+      ))
+    )
+      return;
+
+    const $btn = $('#btnSaveConditions');
+    try {
+      $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
+
+      const conditionsPayload = this.conditions.map((c) => ({
+        sortOrder: c.sortOrder,
+        dataSource: c.dataSource,
+        resourceParam:
+          typeof c.resourceParam === 'string' ? JSON.parse(c.resourceParam) : c.resourceParam || {},
+        operator: c.operator,
+        value: String(c.value),
+        nextLogic: c.nextLogic || 'AND',
+        id: c.id,
+      }));
+
+      await this.ruleService.update(this.ruleId, { conditions: conditionsPayload });
+      notify.success('Conditions saved successfully');
+
+      const refreshed = await this.ruleService.getById(this.ruleId);
+      if (refreshed?.data) {
+        let counter = 1;
+        this.conditions = (refreshed.data.conditions || []).map((c) => ({
+          ...c,
+          resourceParam:
+            typeof c.resourceParam === 'string'
+              ? JSON.parse(c.resourceParam)
+              : c.resourceParam || {},
+          _localId: counter++,
+        }));
+        this._nextLocalId = counter;
+        this.ruleData = refreshed.data;
+        this.renderTable();
+        this.markClean();
+      }
+    } catch (error) {
+      const msg = error.responseJSON?.message || error.message || 'Unknown error';
+      notify.error('Failed to save conditions: ' + msg);
+    } finally {
+      $btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save All Changes');
+    }
   }
 
   static buildResourceParam(dataSource) {
@@ -545,73 +578,6 @@ class ConditionManager {
     }
 
     return {};
-  }
-
-  static async handleDeleteCondition(localId) {
-    if (!(await notify.confirm('Delete Condition', 'Remove this condition?'))) return;
-    this.conditions = this.conditions.filter((c) => c._localId !== localId);
-    this.renderTable();
-    this.markDirty();
-  }
-
-  static async handleSaveAll() {
-    if (
-      !(await notify.confirm(
-        'Save All Changes',
-        'This will overwrite all conditions on the server. Continue?',
-        'warning',
-      ))
-    )
-      return;
-
-    const $btn = $('#btnSaveConditions');
-    try {
-      $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
-
-      const conditionsPayload = this.conditions.map((c, index) => {
-        const resourceParam =
-          typeof c.resourceParam === 'string' ? JSON.parse(c.resourceParam) : c.resourceParam || {};
-
-        const item = {
-          sortOrder: c.sortOrder,
-          dataSource: c.dataSource,
-          resourceParam,
-          operator: c.operator,
-          value: String(c.value),
-          nextLogic: c.nextLogic || 'AND',
-        };
-        if (c.id) item.id = c.id;
-        return item;
-      });
-
-      await this.ruleService.update(this.ruleId, { conditions: conditionsPayload });
-      notify.success('Conditions saved successfully');
-
-      const refreshed = await this.ruleService.getById(this.ruleId);
-      if (refreshed?.data) {
-        let counter = 1;
-        this.conditions = (refreshed.data.conditions || []).map((c) => ({
-          ...c,
-          resourceParam:
-            typeof c.resourceParam === 'string'
-              ? JSON.parse(c.resourceParam)
-              : c.resourceParam || {},
-          _localId: counter++,
-        }));
-        this._nextLocalId = counter;
-        this.ruleData = refreshed.data;
-        this.renderTable();
-        this.markClean();
-      } else {
-        this.markClean();
-      }
-    } catch (error) {
-      const msg = error.responseJSON?.message || error.message || 'Unknown error';
-      notify.error('Failed to save: ' + msg);
-      console.error('API Error (handleSaveAll):', error);
-    } finally {
-      $btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save All Changes');
-    }
   }
 }
 

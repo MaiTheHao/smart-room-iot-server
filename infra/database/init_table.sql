@@ -486,48 +486,8 @@ CREATE TABLE `automation_action` (
   CONSTRAINT `fk_automation_action_automation` FOREIGN KEY (`automation_id`) REFERENCES `automation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Rule Engine V1
+-- Rule Engine (Standardized from V2)
 CREATE TABLE `rule` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `created_by` varchar(256) DEFAULT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
-  `updated_by` varchar(256) DEFAULT NULL,
-  `v` bigint NOT NULL,
-  `name` varchar(256) NOT NULL,
-  `priority` int NOT NULL,
-  `is_active` bit(1) NOT NULL DEFAULT b'1',
-  `room_id` bigint NOT NULL,
-  `target_device_id` bigint NOT NULL,
-  `target_device_category` varchar(256) NOT NULL COMMENT 'Enum: AIR_CONDITION, LIGHT',
-  `action_params` text DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_rule_room` (`room_id`),
-  KEY `idx_rule_status` (`is_active`),
-  CONSTRAINT `fk_rule_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `rule_condition` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `created_by` varchar(256) DEFAULT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
-  `updated_by` varchar(256) DEFAULT NULL,
-  `v` bigint NOT NULL,
-  `rule_id` bigint NOT NULL,
-  `sort_order` int NOT NULL,
-  `data_source` varchar(256) NOT NULL COMMENT 'Enum: SYSTEM, ROOM, DEVICE, SENSOR',
-  `resource_param` text DEFAULT NULL COMMENT 'JSON: { "deviceId": 1, "category": "FAN", "property": "level" }',
-  `operator` varchar(5) NOT NULL,
-  `value_param` varchar(256) NOT NULL,
-  `next_logic` varchar(3) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `fk_rule_condition_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Rule Engine V2 (RELEASE)
--- Hợp nhất thay đổi từ migration 00 (tạo), 01 (is_interval), và 02 (xóa room_id)
-CREATE TABLE `rule_v2` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
@@ -541,17 +501,17 @@ CREATE TABLE `rule_v2` (
   `interval_seconds` int DEFAULT NULL,
   `cron_expression` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_rule_v2_status` (`is_active`)
+  KEY `idx_rule_status` (`is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `rule_condition_v2` (
+CREATE TABLE `rule_condition` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `updated_by` varchar(256) DEFAULT NULL,
   `v` bigint NOT NULL,
-  `rule_v2_id` bigint NOT NULL,
+  `rule_id` bigint NOT NULL,
   `sort_order` int NOT NULL,
   `data_source` varchar(256) NOT NULL COMMENT 'Enum: SYSTEM, ROOM, DEVICE, SENSOR',
   `resource_param` text DEFAULT NULL COMMENT 'JSON storage',
@@ -559,26 +519,26 @@ CREATE TABLE `rule_condition_v2` (
   `value_param` varchar(256) NOT NULL,
   `next_logic` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_rule_condition_v2_rule_id` (`rule_v2_id`),
-  CONSTRAINT `fk_rule_condition_v2_rule` FOREIGN KEY (`rule_v2_id`) REFERENCES `rule_v2` (`id`) ON DELETE CASCADE
+  KEY `idx_rule_condition_rule_id` (`rule_id`),
+  CONSTRAINT `fk_rule_condition_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `rule_action_v2` (
+CREATE TABLE `rule_action` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `updated_by` varchar(256) DEFAULT NULL,
   `v` bigint NOT NULL,
-  `rule_v2_id` bigint NOT NULL,
+  `rule_id` bigint NOT NULL,
   `execution_order` int DEFAULT NULL,
   `target_device_id` bigint NOT NULL,
   `target_device_category` varchar(256) NOT NULL COMMENT 'Enum: AIR_CONDITION, LIGHT, FAN',
   `action_params` text DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_rule_action_v2_rule_id` (`rule_v2_id`),
-  KEY `idx_rule_action_v2_target_device` (`target_device_id`),
-  CONSTRAINT `fk_rule_action_v2_rule` FOREIGN KEY (`rule_v2_id`) REFERENCES `rule_v2` (`id`) ON DELETE CASCADE
+  KEY `idx_rule_action_rule_id` (`rule_id`),
+  KEY `idx_rule_action_target_device` (`target_device_id`),
+  CONSTRAINT `fk_rule_action_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------

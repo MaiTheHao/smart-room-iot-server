@@ -3,6 +3,7 @@ package com.iviet.ivshs.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -24,11 +25,13 @@ import com.iviet.ivshs.enumeration.RuleDataSource;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "rule_condition")
+@Table(name = "rule_condition", indexes = {
+        @Index(name = "idx_rule_condition_rule_id", columnList = "rule_id")
+})
 public class RuleCondition extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rule_id", nullable = false)
+    @JoinColumn(name = "rule_id", nullable = false, updatable = false)
     private Rule rule;
 
     @Column(name = "sort_order", nullable = false)
@@ -45,7 +48,7 @@ public class RuleCondition extends BaseAuditEntity {
     @Column(name = "operator", nullable = false, length = 5)
     private ConditionOperator operator;
 
-    @Column(name = "value_param", nullable = false)
+    @Column(name = "value_param", nullable = false, length = 256)
     private String value;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)

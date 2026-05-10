@@ -141,6 +141,7 @@ const SMRC_API_V1 = {
     STATUS: (id) => `/api/v1/rules/${id}/status`,
     SCAN: '/api/v1/rules/scan',
     RELOAD: '/api/v1/rules/reload',
+    EXECUTE: (id) => `/api/v1/rules/${id}/execute`,
   },
 
   TEMPERATURE: {
@@ -157,17 +158,6 @@ const SMRC_API_V1 = {
     DETAIL: (id) => `/api/v1/power-consumptions/${id}`,
     BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/power-consumptions`,
     ALL_BY_ROOM: (roomId) => `/api/v1/rooms/${roomId}/power-consumptions/all`,
-  },
-};
-
-const SMRC_API_V2 = {
-  RULE: {
-    PATH: '/api/v2/rules',
-    ALL: '/api/v2/rules/all',
-    DETAIL: (id) => `/api/v2/rules/${id}`,
-    STATUS: (id) => `/api/v2/rules/${id}/status`,
-    RELOAD: '/api/v2/rules/reload',
-    EXECUTE: (id) => `/api/v2/rules/${id}/execute`,
   },
 };
 
@@ -188,6 +178,5 @@ const SMRC_DEVICES = {};
 
 if (typeof window !== 'undefined') {
   window.SMRC_API_V1 = SMRC_API_V1;
-  window.SMRC_API_V2 = SMRC_API_V2;
   window.SMRC_TYPES = SMRC_TYPES;
 }

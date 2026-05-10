@@ -48,9 +48,8 @@ DROP TABLE IF EXISTS `automation`;
 DROP TABLE IF EXISTS `automation_action`;
 DROP TABLE IF EXISTS `rule`;
 DROP TABLE IF EXISTS `rule_condition`;
-DROP TABLE IF EXISTS `rule_v2`;
-DROP TABLE IF EXISTS `rule_condition_v2`;
-DROP TABLE IF EXISTS `rule_action_v2`;
+DROP TABLE IF EXISTS `rule_action`;
+
 
 -- ----------------------------
 -- Module: Quartz Scheduler

@@ -37,7 +37,7 @@ public class GatewayTelemetryClient extends GatewayBaseClient {
     }
 
     public ResponseEntity<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
-        String url = buildUri(ip, API_V2, "telemetry");
+        String url = buildUri(ip, API_, "telemetry");
         return restTemplate.exchange(
                 url, 
                 HttpMethod.GET, 
@@ -47,7 +47,7 @@ public class GatewayTelemetryClient extends GatewayBaseClient {
     }
 
     private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String endpoint) {
-        String url = buildUri(ip, API_V2, endpoint);
+        String url = buildUri(ip, API_, endpoint);
         return restTemplate.exchange(
                 url, 
                 HttpMethod.GET, 

@@ -1,48 +1,32 @@
 package com.iviet.ivshs.controller.view;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.iviet.ivshs.dto.RuleDto;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.service.PermissionService;
-import com.iviet.ivshs.service.RuleService;
-
-import lombok.RequiredArgsConstructor;
-
 @Controller
-@RequestMapping("/rule")
-@RequiredArgsConstructor
+@RequestMapping("/view/rules")
+@PreAuthorize("hasAuthority('F_MANAGE_RULE') || hasAuthority('F_MANAGE_ALL')")
 public class RuleViewController {
 
-	private final PermissionService permissionService;
-	private final RuleService ruleService;
-
-	@GetMapping
-	public String ruleIndex() {
-		return "redirect:/rule/rules";
-	}
-
-	@GetMapping("/rules")
-	public String ruleList(Model model) {
-		permissionService.requireManageAutomation();
-		model.addAttribute("pageTitle", "Rule Management");
-		model.addAttribute("activeTab", "rules");
+	@GetMapping("")
+	public String rulePage(Model model) {
 		return "pages/rule/rules.html";
 	}
 
-	@GetMapping("/rules/{id}/conditions")
-	public String ruleConditions(@PathVariable(name = "id") Long id, Model model) {
-		if (id == null) throw new BadRequestException("Rule ID is required");
-
-		permissionService.requireManageAutomation();
-		RuleDto rule = ruleService.getById(id);
-		model.addAttribute("rule", rule);
-		model.addAttribute("pageTitle", "Rule Conditions");
-		model.addAttribute("activeTab", "rules");
+	@GetMapping("/{id}/conditions")
+	public String ruleConditionsPage(@PathVariable("id") Long id, Model model) {
+		model.addAttribute("ruleId", id);
 		return "pages/rule/conditions.html";
 	}
+
+	@GetMapping("/{id}/actions")
+	public String ruleActionsPage(@PathVariable("id") Long id, Model model) {
+		model.addAttribute("ruleId", id);
+		return "pages/rule/actions.html";
+	}
 }
+

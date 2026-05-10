@@ -3,10 +3,7 @@ class RuleManager {
     if (typeof window === 'undefined')
       throw new Error('RuleManager can only be initialized in a browser environment');
 
-    this.ruleService = window.ruleApiV1Service;
-    this.floorService = window.floorApiV1Service;
-    this.roomService = window.roomApiV1Service;
-    this.deviceMetadataService = window.deviceMetadataApiV1Service;
+    this.ruleService = window.ruleApiService;
     this.table = null;
 
     this.initDataTable();
@@ -16,25 +13,12 @@ class RuleManager {
   static bindEvents() {
     $('#btnCreateRule').on('click', () => this.openModal());
     $('#btnSaveRule').on('click', () => this.handleSave());
-    $('#btnScanRules').on('click', () => this.handleScan());
     $('#btnReloadRules').on('click', () => this.handleReload());
-
-    $('#ruleCategorySelect').on('change', (e) => {
-      this.handleCategoryChange(e.target.value);
-      $('#ruleFloorSelect').val('');
-      this.resetDeviceSelection();
-      if ($('#ruleFloorSelect option').length <= 1) {
-        RuleCommon.loadFloors('#ruleFloorSelect');
-      } else {
-        $('#ruleFloorSelect').prop('disabled', false);
-      }
-    });
-    $('#ruleFloorSelect').on('change', (e) => RuleCommon.loadRooms(e.target.value, '#ruleRoomSelect', '#ruleDeviceSelect'));
-    $('#ruleRoomSelect').on('change', (e) => RuleCommon.loadDevices(e.target.value, 'DEVICE', $('#ruleCategorySelect').val(), '#ruleDeviceSelect'));
 
     const $tbody = $('#rulesTable tbody');
     $tbody.on('click', '.btn-edit', (e) => this.handleEdit($(e.currentTarget).data('id')));
     $tbody.on('click', '.btn-delete', (e) => this.handleDelete($(e.currentTarget).data('id')));
+    $tbody.on('click', '.btn-execute', (e) => this.handleExecute($(e.currentTarget).data('id')));
     $tbody.on('change', '.toggle-status', (e) => {
       const $chk = $(e.currentTarget);
       this.handleToggleStatus($chk.data('id'), $chk.is(':checked'), $chk);
@@ -73,23 +57,9 @@ class RuleManager {
           render: (p) => `<span class="badge badge-light border">${p}</span>`,
         },
         {
-          data: 'roomId',
-          className: 'align-middle text-center',
-          render: (id) => `<span class="text-muted">#${id}</span>`,
-        },
-        {
-          data: 'targetDeviceId',
-          className: 'align-middle text-center',
-          render: (id) => `<span class="text-muted">#${id}</span>`,
-        },
-        {
-          data: 'targetDeviceCategory',
-          className: 'align-middle',
-          render: (cat) => {
-            const colors = { LIGHT: 'warning', FAN: 'info', AIR_CONDITION: 'primary' };
-            const c = colors[cat] || 'secondary';
-            return `<span class="badge badge-${c}">${cat}</span>`;
-          },
+          data: 'intervalSeconds',
+          className: 'align-middle text-center font-weight-bold text-danger',
+          render: (sec) => `${sec}s`,
         },
         {
           data: 'isActive',
@@ -105,7 +75,15 @@ class RuleManager {
           className: 'text-center align-middle',
           render: (conds, _, row) => {
             const count = Array.isArray(conds) ? conds.length : 0;
-            return `<a href="/rule/rules/${row.id}/conditions" class="badge badge-pill badge-success" style="font-size:0.85em;">${count} conditions</a>`;
+            return `<a href="/view/rules/${row.id}/conditions" class="badge badge-pill badge-success" style="font-size:0.85em;">${count} conditions</a>`;
+          },
+        },
+        {
+          data: 'actions',
+          className: 'text-center align-middle',
+          render: (acts, _, row) => {
+            const count = Array.isArray(acts) ? acts.length : 0;
+            return `<a href="/view/rules/${row.id}/actions" class="badge badge-pill badge-primary" style="font-size:0.85em;">${count} actions</a>`;
           },
         },
         {
@@ -114,14 +92,20 @@ class RuleManager {
           orderable: false,
           render: (_, __, row) =>
             `<div class="btn-group">
-							<a href="/rule/rules/${row.id}/conditions" class="btn btn-sm btn-default" title="Manage Conditions">
-								<i class="fas fa-filter text-success"></i>
+							<a href="/view/rules/${row.id}/conditions" class="btn btn-sm btn-link text-success p-1" title="Manage Conditions">
+								<i class="fas fa-filter"></i>
 							</a>
-							<button class="btn btn-sm btn-default btn-edit" data-id="${row.id}" title="Edit Rule">
-								<i class="fas fa-pen text-primary"></i>
+							<a href="/view/rules/${row.id}/actions" class="btn btn-sm btn-link text-warning p-1" title="Manage Actions">
+								<i class="fas fa-bolt"></i>
+							</a>
+							<button class="btn btn-sm btn-link text-primary p-1 btn-edit" data-id="${row.id}" title="Edit Rule Metadata">
+								<i class="fas fa-edit"></i>
 							</button>
-							<button class="btn btn-sm btn-default btn-delete" data-id="${row.id}" title="Delete Rule">
-								<i class="fas fa-trash text-danger"></i>
+							<button class="btn btn-sm btn-link text-danger p-1 btn-delete" data-id="${row.id}" title="Delete Rule">
+								<i class="fas fa-trash-alt"></i>
+							</button>
+              <button class="btn btn-sm btn-link text-info p-1 btn-execute" data-id="${row.id}" title="Trigger Immediately">
+								<i class="fas fa-play"></i>
 							</button>
 						</div>`,
         },
@@ -135,142 +119,18 @@ class RuleManager {
     const isEdit = !!data;
     $('#ruleForm')[0].reset();
     $('#ruleId').val('');
-    $('#hiddenRuleCategory').val('');
-    $('#hiddenRuleRoomId').val('');
-    $('#hiddenRuleDeviceId').val('');
-
-    $('#ruleParamLight, #ruleParamFan, #ruleParamAc').hide();
-    $('#ruleParamPlaceholder').show();
-
     if (!isEdit) {
       $('#ruleModalTitleText').text('Create New Rule');
-      $('#ruleTargetSelection').show();
-      $('#ruleTargetDisplay').hide();
-
-      $('#ruleFloorSelect')
-        .prop('disabled', true)
-        .html('<option value="" disabled selected>Select floor</option>');
-      $('#ruleRoomSelect')
-        .prop('disabled', true)
-        .html('<option value="" disabled selected>Select room</option>');
-      $('#ruleDeviceSelect')
-        .prop('disabled', true)
-        .html('<option value="" disabled selected>Select device</option>');
-      $('#ruleCategorySelect').val('');
-
-      if ($('#ruleFloorSelect option').length <= 1) {
-        await RuleCommon.loadFloors('#ruleFloorSelect');
-      }
     } else {
-      $('#ruleModalTitleText').text('Edit Rule');
+      $('#ruleModalTitleText').text('Edit Rule Metadata');
       $('#ruleId').val(data.id);
       $('#ruleName').val(data.name);
       $('#rulePriority').val(data.priority);
+      $('#ruleInterval').val(data.intervalSeconds);
       $('#ruleIsActive').prop('checked', data.isActive);
-
-      $('#ruleTargetSelection').hide();
-      $('#ruleTargetDisplay').show();
-      $('#ruleCategoryDisplay').val(data.targetDeviceCategory);
-      $('#ruleDeviceDisplay').val(`#${data.targetDeviceId}`);
-      $('#hiddenRuleCategory').val(data.targetDeviceCategory);
-      $('#hiddenRuleRoomId').val(data.roomId);
-      $('#hiddenRuleDeviceId').val(data.targetDeviceId);
-
-      this.handleCategoryChange(data.targetDeviceCategory);
-      this.populateActionParams(data.targetDeviceCategory, data.actionParams || {});
     }
 
     $('#ruleModal').modal('show');
-  }
-
-  static handleCategoryChange(category) {
-    $('#ruleParamLight, #ruleParamFan, #ruleParamAc').hide();
-    $('#ruleParamPlaceholder').hide();
-
-    if (category === 'LIGHT') {
-      $('#ruleParamLight').show();
-    } else if (category === 'FAN') {
-      $('#ruleParamFan').show();
-    } else if (category === 'AIR_CONDITION') {
-      $('#ruleParamAc').show();
-    } else {
-      $('#ruleParamPlaceholder').show();
-    }
-
-    if (
-      category &&
-      $('#ruleFloorSelect').prop('disabled') &&
-      !$('#ruleTargetDisplay').is(':visible')
-    ) {
-      $('#ruleFloorSelect').prop('disabled', false);
-    }
-  }
-
-  static resetDeviceSelection() {
-    $('#ruleRoomSelect')
-      .prop('disabled', true)
-      .html('<option value="" disabled selected>Select room</option>');
-    $('#ruleDeviceSelect')
-      .prop('disabled', true)
-      .html('<option value="" disabled selected>Select device</option>');
-    $('#hiddenRuleRoomId').val('');
-    $('#hiddenRuleDeviceId').val('');
-  }
-
-
-
-  static buildActionParams(category) {
-    const params = {};
-
-    if (category === 'LIGHT') {
-      const power = $('#lightPower').val();
-      const level = $('#lightLevel').val();
-      if (power) params.power = power;
-      if (level !== '' && level !== null) params.level = parseInt(level);
-    } else if (category === 'FAN') {
-      const power = $('#fanPower').val();
-      const mode = $('#fanMode').val();
-      const speed = $('#fanSpeed').val();
-      const swing = $('#fanSwing').val();
-      const light = $('#fanLight').val();
-      if (power) params.power = power;
-      if (mode) params.mode = mode;
-      if (speed !== '' && speed !== null) params.speed = parseInt(speed);
-      if (swing) params.swing = swing;
-      if (light) params.light = light;
-    } else if (category === 'AIR_CONDITION') {
-      const power = $('#acPower').val();
-      const temp = $('#acTemp').val();
-      const mode = $('#acMode').val();
-      const fanSpeed = $('#acFanSpeed').val();
-      const swing = $('#acSwing').val();
-      if (power) params.power = power;
-      if (temp !== '' && temp !== null) params.temperature = parseInt(temp);
-      if (mode) params.mode = mode;
-      if (fanSpeed !== '' && fanSpeed !== null) params.fanSpeed = parseInt(fanSpeed);
-      if (swing) params.swing = swing;
-    }
-
-    return params;
-  }
-
-  static populateActionParams(category, actionParams) {
-    if (category === 'LIGHT') {
-      if (actionParams.power) $('#lightPower').val(actionParams.power);
-      if (actionParams.level !== undefined) $('#lightLevel').val(actionParams.level);
-    } else if (category === 'FAN') {
-      if (actionParams.power) $('#fanPower').val(actionParams.power);
-      if (actionParams.mode) $('#fanMode').val(actionParams.mode);
-      if (actionParams.speed !== undefined) $('#fanSpeed').val(actionParams.speed);
-      if (actionParams.swing) $('#fanSwing').val(actionParams.swing);
-      if (actionParams.light) $('#fanLight').val(actionParams.light);
-    } else if (category === 'AIR_CONDITION') {
-      if (actionParams.power) $('#acPower').val(actionParams.power);
-      if (actionParams.temperature !== undefined) $('#acTemp').val(actionParams.temperature);
-      if (actionParams.mode) $('#acMode').val(actionParams.mode);
-      if (actionParams.fanSpeed !== undefined) $('#acFanSpeed').val(actionParams.fanSpeed);
-      if (actionParams.swing) $('#acSwing').val(actionParams.swing);
-    }
   }
 
   static async handleSave() {
@@ -290,40 +150,22 @@ class RuleManager {
       return;
     }
 
-    let category, roomId, deviceId;
-    if (isEdit) {
-      category = $('#hiddenRuleCategory').val();
-      roomId = parseInt($('#hiddenRuleRoomId').val());
-      deviceId = parseInt($('#hiddenRuleDeviceId').val());
-    } else {
-      category = $('#ruleCategorySelect').val();
-      roomId = parseInt($('#hiddenRuleRoomId').val() || $('#ruleRoomSelect').val());
-      deviceId = parseInt($('#ruleDeviceSelect').val());
-    }
-
-    if (!category) {
-      notify.warning('Please select a device category');
+    const intervalSeconds = parseInt($('#ruleInterval').val());
+    if (isNaN(intervalSeconds) || intervalSeconds < 60) {
+      notify.warning('Interval must be at least 60 seconds');
       return;
     }
-    if (!deviceId || isNaN(deviceId)) {
-      notify.warning('Please select a target device');
-      return;
-    }
-
-    const actionParams = this.buildActionParams(category);
 
     const dto = {
       name,
       priority,
+      intervalSeconds,
       isActive: $('#ruleIsActive').is(':checked'),
-      targetDeviceCategory: category,
-      targetDeviceId: deviceId,
-      actionParams,
     };
 
     if (!isEdit) {
-      dto.roomId = roomId;
       dto.conditions = [];
+      dto.actions = [];
     }
 
     try {
@@ -331,7 +173,7 @@ class RuleManager {
 
       if (isEdit) {
         await this.ruleService.update(id, dto);
-        notify.success('Rule updated successfully');
+        notify.success('Rule metadata updated successfully');
       } else {
         await this.ruleService.create(dto);
         notify.success('Rule created successfully');
@@ -344,7 +186,7 @@ class RuleManager {
       notify.error('Failed to save rule: ' + msg);
       console.error('[RuleManager] handleSave error:', error);
     } finally {
-      $btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Rule');
+      $btn.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Save Rules');
     }
   }
 
@@ -380,20 +222,21 @@ class RuleManager {
       });
   }
 
-  static async handleScan() {
-    if (!(await notify.confirm('Run Rule Scan', 'Execute a global rule scan now?', 'question')))
-      return;
+  static async handleExecute(id) {
+    if (!(await notify.confirm('Trigger Rule', 'Execute this rule immediately?', 'info'))) return;
     try {
-      await this.ruleService.scan();
-      notify.success('Rule scan executed successfully');
+      await this.ruleService.execute(id);
+      notify.success('Rule triggered successfully');
     } catch (error) {
-      notify.error('Rule scan failed');
-      console.error('[RuleManager] handleScan error:', error);
+      notify.error('Execute failed');
+      console.error('[RuleManager] handleExecute error:', error);
     }
   }
 
   static async handleReload() {
-    if (!(await notify.confirm('Reload Rules', 'Reload all rules from database?', 'warning')))
+    if (
+      !(await notify.confirm('Reload Rules', 'Reload all active rules into Quartz?', 'warning'))
+    )
       return;
     try {
       await this.ruleService.reload();

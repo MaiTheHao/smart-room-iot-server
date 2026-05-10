@@ -36,7 +36,7 @@ public class GatewayMaintenanceClient extends GatewayBaseClient {
 
     // --- Private Helper Methods ---
     private ResponseEntity<ApiResponse<String>> executeReset(String ip, String endpoint) {
-        String url = buildUri(ip, API_V2, endpoint);
+        String url = buildUri(ip, API_, endpoint);
         return restTemplate.exchange(url, HttpMethod.PUT, HttpEntity.EMPTY, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 }

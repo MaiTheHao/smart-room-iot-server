@@ -86,6 +86,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         return resolver;
     }
 
+/*
     @Bean
     public ViewResolver javascriptViewResolver(MessageSource messageSource) {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
@@ -95,6 +96,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setViewNames(new String[]{"*.js"});
         return resolver;
     }
+*/
 
     @Bean
     public ViewResolver plainViewResolver(MessageSource messageSource) {
@@ -126,6 +128,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         return resolver;
     }
 
+/*
     private ITemplateResolver javascriptTemplateResolver() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
         resolver.setApplicationContext(applicationContext);
@@ -134,6 +137,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setCacheable(false);
         return resolver;
     }
+*/
 
     private ITemplateResolver plainTemplateResolver() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();

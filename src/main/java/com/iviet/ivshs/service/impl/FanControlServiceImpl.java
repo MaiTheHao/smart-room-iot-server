@@ -139,27 +139,27 @@ public class FanControlServiceImpl implements FanControlService {
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlFanPowerV2(gatewayIp, fan.getNaturalId(), body.power()))) {
+      if (executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), body.power()))) {
         fan.setPower(body.power());
       }
     }
     if (body.speed() != null) {
-      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeedV2(gatewayIp, fan.getNaturalId(), body.speed()))) {
+      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), body.speed()))) {
         fan.setSpeed(body.speed());
       }
     }
     if (body.mode() != null && fan instanceof FanIr fanIr) {
-      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanModeV2(gatewayIp, fan.getNaturalId(), body.mode()))) {
+      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), body.mode()))) {
         fanIr.setMode(body.mode());
       }
     }
     if (body.swing() != null && fan instanceof FanIr fanIr) {
-      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwingV2(gatewayIp, fan.getNaturalId(), body.swing()))) {
+      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), body.swing()))) {
         fanIr.setSwing(body.swing());
       }
     }
     if (body.light() != null && fan instanceof FanIr fanIr) {
-      if (executeControl(result, "light", () -> gatewayControlClient.controlFanLightV2(gatewayIp, fan.getNaturalId(), body.light()))) {
+      if (executeControl(result, "light", () -> gatewayControlClient.controlFanLight(gatewayIp, fan.getNaturalId(), body.light()))) {
         fanIr.setLight(body.light());
       }
     }
@@ -185,31 +185,31 @@ public class FanControlServiceImpl implements FanControlService {
 
   private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlFanPowerV2(gatewayIp, naturalId, power));
+    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, naturalId, power));
     return result;
   }
 
   private ControlDeviceResult handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "mode", () -> gatewayControlClient.controlFanModeV2(gatewayIp, naturalId, mode));
+    executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, naturalId, mode));
     return result;
   }
 
   private ControlDeviceResult handleSpeedControlCall(String gatewayIp, String naturalId, int speed) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeedV2(gatewayIp, naturalId, speed));
+    executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, naturalId, speed));
     return result;
   }
 
   private ControlDeviceResult handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "swing", () -> gatewayControlClient.controlFanSwingV2(gatewayIp, naturalId, swing));
+    executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, naturalId, swing));
     return result;
   }
 
   private ControlDeviceResult handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "light", () -> gatewayControlClient.controlFanLightV2(gatewayIp, naturalId, light));
+    executeControl(result, "light", () -> gatewayControlClient.controlFanLight(gatewayIp, naturalId, light));
     return result;
   }
 

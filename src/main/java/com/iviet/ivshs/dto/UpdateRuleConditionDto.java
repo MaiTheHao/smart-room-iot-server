@@ -28,5 +28,4 @@ public record UpdateRuleConditionDto(
 	String value,
 
 	ConditionLogic nextLogic
-) {
-}
+) {}

@@ -5,7 +5,7 @@ import com.iviet.ivshs.enumeration.DeviceCategory;
 import lombok.Builder;
 
 @Builder
-public record RuleActionV2Dto(
+public record RuleActionDto(
         Long id,
         Long targetDeviceId,
         DeviceCategory targetDeviceCategory,

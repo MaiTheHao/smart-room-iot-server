@@ -141,7 +141,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlAcPowerV2(gatewayIp, ac.getNaturalId(), body.power()))) {
+      if (executeControl(result, "power", () -> gatewayControlClient.controlAcPower(gatewayIp, ac.getNaturalId(), body.power()))) {
         ac.setPower(body.power());
       }
     }
@@ -150,26 +150,26 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
       int targetTemp = body.temperature();
       if (executeControl(result, "temperature", () -> {
         if (targetTemp > currentTemp) {
-          return gatewayControlClient.controlAcTempUpV2(gatewayIp, ac.getNaturalId(), targetTemp);
+          return gatewayControlClient.controlAcTempUp(gatewayIp, ac.getNaturalId(), targetTemp);
         } else {
-          return gatewayControlClient.controlAcTempDownV2(gatewayIp, ac.getNaturalId(), targetTemp);
+          return gatewayControlClient.controlAcTempDown(gatewayIp, ac.getNaturalId(), targetTemp);
         }
       })) {
         ac.setTemperature(targetTemp);
       }
     }
     if (body.mode() != null) {
-      if (executeControl(result, "mode", () -> gatewayControlClient.controlAcModeV2(gatewayIp, ac.getNaturalId(), body.mode()))) {
+      if (executeControl(result, "mode", () -> gatewayControlClient.controlAcMode(gatewayIp, ac.getNaturalId(), body.mode()))) {
         ac.setMode(body.mode());
       }
     }
     if (body.fanSpeed() != null) {
-      if (executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFanV2(gatewayIp, ac.getNaturalId(), body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()))) {
+      if (executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFan(gatewayIp, ac.getNaturalId(), body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()))) {
         ac.setFanSpeed(body.fanSpeed());
       }
     }
     if (body.swing() != null) {
-      if (executeControl(result, "swing", () -> gatewayControlClient.controlAcSwingV2(gatewayIp, ac.getNaturalId(), body.swing()))) {
+      if (executeControl(result, "swing", () -> gatewayControlClient.controlAcSwing(gatewayIp, ac.getNaturalId(), body.swing()))) {
         ac.setSwing(body.swing());
       }
     }
@@ -195,7 +195,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
 
   private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlAcPowerV2(gatewayIp, naturalId, power));
+    executeControl(result, "power", () -> gatewayControlClient.controlAcPower(gatewayIp, naturalId, power));
     return result;
   }
 
@@ -203,9 +203,9 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     ControlDeviceResult result = new ControlDeviceResult();
     executeControl(result, "temperature", () -> {
       if (temperature > currentTemp) {
-        return gatewayControlClient.controlAcTempUpV2(gatewayIp, naturalId, temperature);
+        return gatewayControlClient.controlAcTempUp(gatewayIp, naturalId, temperature);
       } else {
-        return gatewayControlClient.controlAcTempDownV2(gatewayIp, naturalId, temperature);
+        return gatewayControlClient.controlAcTempDown(gatewayIp, naturalId, temperature);
       }
     });
     return result;
@@ -213,19 +213,19 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
 
   private ControlDeviceResult handleModeControlCall(String gatewayIp, String naturalId, ActuatorMode mode) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "mode", () -> gatewayControlClient.controlAcModeV2(gatewayIp, naturalId, mode));
+    executeControl(result, "mode", () -> gatewayControlClient.controlAcMode(gatewayIp, naturalId, mode));
     return result;
   }
 
   private ControlDeviceResult handleFanSpeedControlCall(String gatewayIp, String naturalId, int speed) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFanV2(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed));
+    executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFan(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed));
     return result;
   }
 
   private ControlDeviceResult handleSwingControlCall(String gatewayIp, String naturalId, ActuatorSwing swing) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "swing", () -> gatewayControlClient.controlAcSwingV2(gatewayIp, naturalId, swing));
+    executeControl(result, "swing", () -> gatewayControlClient.controlAcSwing(gatewayIp, naturalId, swing));
     return result;
   }
 

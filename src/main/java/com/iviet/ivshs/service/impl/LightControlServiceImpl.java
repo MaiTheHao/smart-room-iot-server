@@ -102,12 +102,12 @@ public class LightControlServiceImpl implements LightControlService {
     String gatewayIp = extractClientIpAddress(light);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlLightPowerV2(gatewayIp, light.getNaturalId(), body.power()))) {
+      if (executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), body.power()))) {
         light.setPower(body.power());
       }
     }
     if (body.level() != null) {
-      if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevelV2(gatewayIp, light.getNaturalId(), body.level()))) {
+      if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), body.level()))) {
         light.setLevel(body.level());
       }
     }
@@ -133,13 +133,13 @@ public class LightControlServiceImpl implements LightControlService {
 
   private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlLightPowerV2(gatewayIp, naturalId, power));
+    executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, naturalId, power));
     return result;
   }
 
   private ControlDeviceResult handleLevelControlCall(String gatewayIp, String naturalId, int level) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "level", () -> gatewayControlClient.controlLightLevelV2(gatewayIp, naturalId, level));
+    executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, naturalId, level));
     return result;
   }
 
