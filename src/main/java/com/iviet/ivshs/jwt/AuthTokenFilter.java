@@ -19,11 +19,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+import org.springframework.stereotype.Component;
 import com.iviet.ivshs.constant.AppConstant;
-
 import io.jsonwebtoken.JwtException;
 
+@Component
 public class AuthTokenFilter extends OncePerRequestFilter {
 	private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 	private static final String BEARER_PREFIX = "Bearer ";

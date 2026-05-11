@@ -1,6 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.*;
+import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,14 @@ public class ClientController {
     private final ClientService clientService;
 
     // --- CRUD CLIENT ---
+    
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<ClientDto>> getMe() {
+        Client client = clientService.getFromSecurityContext();
+        ClientDto dto = clientService.getById(client.getId());
+        return ResponseEntity.ok(ApiResponse.ok(dto));
+    }
+
 
     @GetMapping
     public ResponseEntity<ApiResponse<PaginatedResponse<ClientDto>>> 

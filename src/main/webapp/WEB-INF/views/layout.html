@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">IUH Smart Home</title>
+
+		<!-- Local Fonts & Global Styles -->
+		<link rel="stylesheet" th:href="@{/css/global.css}" />
+		<!-- OverlayScrollbars -->
+		<link rel="stylesheet" th:href="@{/css/lib/overlayscrollbars.min.css}" />
+		<!-- AdminLTE 4 -->
+		<link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
+
+		<th:block layout:fragment="styles"></th:block>
+	</head>
+	<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+		<div class="app-wrapper">
+			<!-- Header (Navbar) -->
+			<nav class="app-header navbar navbar-expand bg-body" th:fragment="header">
+				<div class="container-fluid">
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+								<i data-lucide="menu"></i>
+							</a>
+						</li>
+					</ul>
+					<ul class="navbar-nav ms-auto">
+						<!-- User Menu Dropdown -->
+						<li class="nav-item dropdown user-menu">
+							<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+								<img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=random" class="user-image rounded-circle shadow" alt="User Image" />
+								<span id="userName" class="d-none d-md-inline">Tên người dùng</span>
+							</a>
+							<ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+								<!-- User image -->
+								<li class="user-header bg-primary">
+									<img id="userAvatarLarge" src="https://ui-avatars.com/api/?name=User&background=random" class="rounded-circle shadow" alt="User Image" />
+									<p>
+										<span id="userFullName">Tên người dùng</span>
+										<small id="userRoles">Roles: G_USER</small>
+									</p>
+								</li>
+								<!-- Menu Footer-->
+								<li class="user-footer">
+									<a href="#" class="btn btn-default btn-flat">Hồ sơ</a>
+									<a href="#" class="btn btn-default btn-flat float-end" id="logoutBtn"> <i data-lucide="log-out"></i> Đăng xuất </a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<!-- Sidebar -->
+			<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark" th:fragment="sidebar">
+				<div class="sidebar-brand">
+					<a href="/" class="brand-link">
+						<span class="brand-text fw-light">IUH SE-IoT</span>
+					</a>
+				</div>
+				<div class="sidebar-wrapper">
+					<nav class="mt-2">
+						<ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+							<li class="nav-item">
+								<a th:href="@{/}" class="nav-link">
+									<i class="nav-icon" data-lucide="gauge"></i>
+									<p>Dashboard</p>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</aside>
+
+			<!-- Main Content -->
+			<main class="app-main">
+				<div class="app-content-header">
+					<div class="container-fluid">
+						<div class="row">
+							<div class="col-sm-6">
+								<h3 class="mb-0" layout:fragment="header-title">Page Title</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="app-content">
+					<div class="container-fluid">
+						<div layout:fragment="content">
+							<!-- Body content will be inserted here -->
+						</div>
+					</div>
+				</div>
+			</main>
+
+			<!-- Footer -->
+			<footer class="app-footer" th:fragment="footer">
+				<div class="float-end d-none d-sm-inline">IUH SE-IoT Platform</div>
+				<strong>Copyright &copy; 2024 <a href="https://iuh.edu.vn">IUH</a>.</strong> All rights reserved.
+			</footer>
+		</div>
+
+		<!-- Required Scripts -->
+		<script th:src="@{/js/lib/overlayscrollbars.min.js}"></script>
+		<script th:src="@{/js/lib/popper.min.js}"></script>
+		<script th:src="@{/js/lib/bootstrap.min.js}"></script>
+		<!-- ApexCharts -->
+		<script th:src="@{/js/lib/apexcharts.min.js}"></script>
+		<!-- Lucide Icons -->
+		<script th:src="@{/js/lib/lucide.min.js}"></script>
+		<!-- SweetAlert2 -->
+		<script th:src="@{/js/lib/sweetalert2.min.js}"></script>
+		<!-- AdminLTE JS -->
+		<script th:src="@{/js/lib/adminlte.min.js}"></script>
+
+		<script>
+			window.renderIcons = () => {
+				if (typeof lucide !== 'undefined') {
+					lucide.createIcons();
+				}
+			};
+		</script>
+		<script type="module" th:src="@{/js/pages/layout.js}"></script>
+		<th:block layout:fragment="scripts"></th:block>
+	</body>
+</html>

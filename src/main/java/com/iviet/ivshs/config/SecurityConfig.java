@@ -9,7 +9,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,8 +26,6 @@ import java.util.List;
 import com.iviet.ivshs.jwt.AuthEntryPointJwt;
 import com.iviet.ivshs.jwt.AuthTokenFilter;
 import com.iviet.ivshs.jwt.RateLimitFilter;
-import com.iviet.ivshs.jwt.JwtUtils;
-
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -39,26 +36,9 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final DataSource dataSource;
     private final Environment env;
-
-    @Bean
-    public AuthEntryPointJwt unauthorizedHandler() {
-        return new AuthEntryPointJwt();
-    }
-
-    @Bean
-    public JwtUtils jwtUtils() {
-        return new JwtUtils();
-    }
-
-    @Bean
-    public AuthTokenFilter authenticationJwtTokenFilter() {
-        return new AuthTokenFilter();
-    }
-
-    @Bean
-    public RateLimitFilter rateLimitFilter() {
-        return new RateLimitFilter();
-    }
+    private final AuthEntryPointJwt unauthorizedHandler;
+    private final AuthTokenFilter authTokenFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -107,27 +87,25 @@ public class SecurityConfig {
             .securityMatcher(new AntPathRequestMatcher("/api/**"))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler()))
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
             )
             .logout(logout -> logout
-            .logoutUrl("/api/v1/auth/logout")
-            .addLogoutHandler((request, response, authentication) -> {
-            })
-            .invalidateHttpSession(true) 
-            .clearAuthentication(true)    
-            .deleteCookies("JSESSIONID") 
-            .logoutSuccessHandler((request, response, authentication) -> {
-                response.setStatus(HttpServletResponse.SC_OK); 
-                response.getWriter().flush();
-            })
-        )
+                .logoutUrl("/api/v1/auth/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getWriter().flush();
+                })
+            )
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(rateLimitFilter(), org.springframework.security.web.authentication.logout.LogoutFilter.class)
-            .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.logout.LogoutFilter.class)
+            .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -141,11 +119,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     new AntPathRequestMatcher("/css/**"),
-                    new AntPathRequestMatcher("/imgs/**"),
                     new AntPathRequestMatcher("/js/**"),
-                    new AntPathRequestMatcher("/fonts/**"),
-                    new AntPathRequestMatcher("/webjars/**"),
-                    new AntPathRequestMatcher("/static/**")
+                    new AntPathRequestMatcher("/fonts/**")
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -155,13 +130,13 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/loginAction")
-                .defaultSuccessUrl("/home", true)
+                .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/logout") 
-                .deleteCookies("JSESSIONID", "remember-me") 
+                .logoutUrl("/logout")
+                .deleteCookies("JSESSIONID", "remember-me")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .logoutSuccessUrl("/login?logout=true")
@@ -177,8 +152,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
-
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
@@ -186,3 +159,4 @@ public class SecurityConfig {
         return tokenRepository;
     }
 }
+

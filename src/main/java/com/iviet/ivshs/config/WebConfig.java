@@ -32,7 +32,6 @@ import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
-import org.webjars.WebJarAssetLocator;
 import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -179,25 +178,22 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Override
     public void addViewControllers(@NonNull ViewControllerRegistry registry) {
-        registry.addViewController("/login").setViewName("/pages/login.html");
+        // Handled by LoginViewController and IndexController
     }
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/styles/").setCachePeriod(31556926);
-        registry.addResourceHandler("/imgs/**").addResourceLocations("/WEB-INF/resources/img/").setCachePeriod(31556926);
-        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/scripts/").setCachePeriod(31556926);
+        registry.addResourceHandler("/resources/**")
+                .addResourceLocations("/WEB-INF/resources/")
+                .setCachePeriod(31556926);
+        
+        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/css/").setCachePeriod(31556926);
+        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/js/").setCachePeriod(31556926);
         registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/resources/fonts/").setCachePeriod(31556926);
-        registry.addResourceHandler("/files/**").addResourceLocations("/WEB-INF/resources/file/").setCachePeriod(31556926);
-        registry.addResourceHandler("/webjars/**")
-                    .addResourceLocations("classpath:/META-INF/resources/webjars/")
-                    .setCachePeriod(31556926)
-                    .resourceChain(false)
-                    .addResolver(new WebJarsResourceResolver(new WebJarAssetLocator()));
     }
 
     @Override
     public void configureDefaultServletHandling(@NonNull DefaultServletHandlerConfigurer configurer) {
-        // configurer.enable();
+        configurer.enable();
     }
 }

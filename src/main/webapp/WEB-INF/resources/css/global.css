@@ -1,0 +1,25 @@
+@import url('fonts.css');
+
+:root {
+	--bs-font-sans-serif: 'Rethink Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', 'Liberation Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+body {
+	font-family: var(--bs-font-sans-serif);
+}
+
+.lucide {
+	vertical-align: middle;
+	margin-top: -2px;
+}
+
+.nav-icon.lucide {
+	width: 1.2rem;
+	height: 1.2rem;
+	margin-right: 0.5rem;
+}
+
+.lucide-sm {
+	width: 1rem;
+	height: 1rem;
+}

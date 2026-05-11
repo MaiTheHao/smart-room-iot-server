@@ -93,15 +93,17 @@ public class HardwareConfigDao extends BaseEntityDao<HardwareConfig> {
     }
 
     public Long countByClientId(Long clientId) {
-        return count(
-            root -> entityManager.getCriteriaBuilder().equal(root.get("client").get("id"), clientId)
-        );
+        String jpql = "SELECT COUNT(hc) FROM HardwareConfig hc WHERE hc.client.id = :clientId";
+        TypedQuery<Long> query = entityManager.createQuery(jpql, Long.class);
+        query.setParameter("clientId", clientId);
+        return query.getSingleResult();
     }
 
     public Long countByRoomId(Long roomId) {
-        return count(
-            root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId)
-        );
+        String jpql = "SELECT COUNT(hc) FROM HardwareConfig hc WHERE hc.room.id = :roomId";
+        TypedQuery<Long> query = entityManager.createQuery(jpql, Long.class);
+        query.setParameter("roomId", roomId);
+        return query.getSingleResult();
     }
 
     public HardwareConfig findByClientIdAndGpioPin(Long clientId, Integer gpioPin) {
