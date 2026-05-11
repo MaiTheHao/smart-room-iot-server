@@ -18,7 +18,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 	}
 
 	private String getInsertSql() {
-		return "INSERT INTO %s (sensor_id, timestamp, watt) VALUES (?, ?, ?)".formatted(getTableName());
+		return "INSERT INTO %s (sensor_id, timestamp, watt, unix_minute) VALUES (?, ?, ?, ?)".formatted(getTableName());
 	}
 
 	@Override
@@ -42,6 +42,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 			if (entity.getWatt() != null) ps.setDouble(3, entity.getWatt());
 			else ps.setNull(3, java.sql.Types.DOUBLE);
+
+			ps.setObject(4, entity.getUnixMinute());
 		});
 	}
 
