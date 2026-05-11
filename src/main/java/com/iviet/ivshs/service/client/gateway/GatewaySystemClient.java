@@ -18,7 +18,7 @@ public class GatewaySystemClient extends GatewayBaseClient {
     private final RestTemplate restTemplate;
 
     public ResponseEntity<SetupRequest> fetchSetup(String ip) {
-        String url = buildUri(ip, API_, "setup");
+        String url = buildUri(ip, API_V2, "setup");
         return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<SetupRequest>() {});
     }
 

@@ -85,7 +85,7 @@ public class GatewayControlClient extends GatewayBaseClient {
     // --- Private Helper Methods ---
 
     private String buildUrl(String ip, String deviceType, String naturalId, String action) {
-        return buildUri(ip, API_, String.format("%s/%s/%s", deviceType, naturalId, action));
+        return buildUri(ip, API_V2, String.format("%s/%s/%s", deviceType, naturalId, action));
     }
 
     private ResponseEntity<ApiResponse<String>> executePut(String url, Object data) {

@@ -14,7 +14,7 @@ public final class UrlConstant {
     private static final int DEFAULT_PORT = 9090;
     private static final String SCHEME = "http";
     private static final String API_V1 = "/api/v1";
-    private static final String API_ = "/api/v2";
+    private static final String API_V2 = "/api/v2";
 
     public static String getSetupUrlV1(String ip) {
         throwIfEmpty(ip, "IP address cannot be null or empty for setup API");
@@ -96,12 +96,12 @@ public final class UrlConstant {
 
     public static String getControlLightPowerUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for light power control API");
-        return build(ip, API_, "light/" + naturalId + "/power");
+        return build(ip, API_V2, "light/" + naturalId + "/power");
     }
 
     public static String getControlLightLevelUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for light level control API");
-        return build(ip, API_, "light/" + naturalId + "/level");
+        return build(ip, API_V2, "light/" + naturalId + "/level");
     }
 
     public static String getAcPowerUrlV1(String ip, String naturalId) {
@@ -136,57 +136,57 @@ public final class UrlConstant {
 
     public static String getControlAcPowerUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC power control API");
-        return build(ip, API_, "ac/" + naturalId + "/power");
+        return build(ip, API_V2, "ac/" + naturalId + "/power");
     }
 
     public static String getControlAcTempUpUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC temperature up API");
-        return build(ip, API_, "ac/" + naturalId + "/temp_up");
+        return build(ip, API_V2, "ac/" + naturalId + "/temp_up");
     }
 
     public static String getControlAcTempDownUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC temperature down API");
-        return build(ip, API_, "ac/" + naturalId + "/temp_down");
+        return build(ip, API_V2, "ac/" + naturalId + "/temp_down");
     }
 
     public static String getControlAcSwingUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC swing control API");
-        return build(ip, API_, "ac/" + naturalId + "/swing");
+        return build(ip, API_V2, "ac/" + naturalId + "/swing");
     }
 
     public static String getControlAcModeUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC mode control API");
-        return build(ip, API_, "ac/" + naturalId + "/mode");
+        return build(ip, API_V2, "ac/" + naturalId + "/mode");
     }
 
     public static String getControlAcFanUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for AC fan control API");
-        return build(ip, API_, "ac/" + naturalId + "/fan");
+        return build(ip, API_V2, "ac/" + naturalId + "/fan");
     }
 
     public static String getControlFanPowerUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for fan power control API");
-        return build(ip, API_, "fan/" + naturalId + "/power");
+        return build(ip, API_V2, "fan/" + naturalId + "/power");
     }
 
     public static String getControlFanSpeedUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for fan speed control API");
-        return build(ip, API_, "fan/" + naturalId + "/speed");
+        return build(ip, API_V2, "fan/" + naturalId + "/speed");
     }
 
     public static String getControlFanModeUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for fan mode control API");
-        return build(ip, API_, "fan/" + naturalId + "/mode");
+        return build(ip, API_V2, "fan/" + naturalId + "/mode");
     }
 
     public static String getControlFanSwingUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for fan swing control API");
-        return build(ip, API_, "fan/" + naturalId + "/swing");
+        return build(ip, API_V2, "fan/" + naturalId + "/swing");
     }
 
     public static String getControlFanLightUrl(String ip, String naturalId) {
         throwIfEmpty(ip, "IP address cannot be null or empty for fan light control API");
-        return build(ip, API_, "fan/" + naturalId + "/light");
+        return build(ip, API_V2, "fan/" + naturalId + "/light");
     }
 
     private static void throwIfEmpty(String value, String errorMessage) {

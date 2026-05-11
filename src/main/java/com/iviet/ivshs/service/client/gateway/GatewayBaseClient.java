@@ -16,12 +16,12 @@ public abstract class GatewayBaseClient {
     protected String basePath;
 
     protected String API_V1;
-    protected String API_;
+    protected String API_V2;
 
     @PostConstruct
     private void init() {
         this.API_V1 = normalizePath(basePath + "/v1");
-        this.API_ = normalizePath(basePath + "/v2");
+        this.API_V2 = normalizePath(basePath + "/v2");
     }
 
     private String normalizePath(String path) {
