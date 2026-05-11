@@ -158,12 +158,13 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 			return 0;
 		}
 
-		List<DeviceDto> devices = dto.getData();
-		
-		if (devices == null) {
-			log.debug("Devices list is null - response format issue");
+		var healthData = dto.getData();
+		if (healthData == null || healthData.getDevices() == null) {
+			log.debug("Health data or devices list is null - response format issue");
 			return 0;
 		}
+
+		List<DeviceDto> devices = healthData.getDevices();
 
 		if (devices.isEmpty()) {
 			log.debug("Room has no devices - empty room");

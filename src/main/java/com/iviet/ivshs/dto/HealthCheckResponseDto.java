@@ -14,8 +14,16 @@ import lombok.extern.jackson.Jacksonized;
 public class HealthCheckResponseDto {
     private int status;
     private String message;
-    private List<DeviceDto> data;
+    private HealthDataDto data;
     private String timestamp;
+
+    @Builder
+    @lombok.Data
+    @Jacksonized
+    public static class HealthDataDto {
+        private List<DeviceDto> devices;
+        private String roomCode;
+    }
 
     @Builder
     @lombok.Data
@@ -23,9 +31,6 @@ public class HealthCheckResponseDto {
     public static class DeviceDto {
         private String naturalId;
         private String category;
-        // private String controlType;
-        // private String bleMac;
-        // private int gpioPin;
         private boolean isActive;
     }
 }

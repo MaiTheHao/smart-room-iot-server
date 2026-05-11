@@ -17,7 +17,7 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	}
 
 	private String getInsertSql() {
-		return "INSERT INTO %s (sensor_id, timestamp, temp_c) VALUES (?, ?, ?)".formatted(getTableName());
+		return "INSERT INTO %s (sensor_id, timestamp, temp_c, unix_minute) VALUES (?, ?, ?, ?)".formatted(getTableName());
 	}
 
 	@Override
@@ -41,6 +41,8 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 
 			if (entity.getTempC() != null) ps.setDouble(3, entity.getTempC());
 			else ps.setNull(3, java.sql.Types.DOUBLE);
+
+			ps.setObject(4, entity.getUnixMinute());
 		});
 	}
 

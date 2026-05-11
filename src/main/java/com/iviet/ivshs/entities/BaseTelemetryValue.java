@@ -22,6 +22,15 @@ public abstract class BaseTelemetryValue<T extends BaseIoTSensor<?>> extends Bas
     @JoinColumn(name = "sensor_id", nullable = false, updatable = false)
     private T sensor;
 
-    @Column(name = "unix_minute", insertable = false, updatable = false)
+    @Column(name = "unix_minute")
     private Integer unixMinute;
+
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+        if (timestamp != null) {
+            this.unixMinute = (int) (timestamp.getEpochSecond() / 60);
+        } else {
+            this.unixMinute = null;
+        }
+    }
 }
