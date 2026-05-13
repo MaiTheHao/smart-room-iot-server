@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
@@ -16,8 +17,10 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 		super(TemperatureValue.class);
 	}
 
+	@NonNull
 	private String getInsertSql() {
-		return "INSERT INTO %s (sensor_id, timestamp, temp_c, unix_minute) VALUES (?, ?, ?, ?)".formatted(getTableName());
+		String sql = "INSERT INTO %s (sensor_id, timestamp, temp_c, unix_minute) VALUES (?, ?, ?, ?)".formatted(getTableName());
+		return sql;
 	}
 
 	@Override
@@ -48,47 +51,38 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
 		String sql = """
-						SELECT 
-							(unix_minute DIV :divisor) * :divisor * 60 as unix_seconds,
-							AVG(temp_c) as avg_temp
-						FROM temperature_value
-						WHERE sensor_id IN (SELECT id FROM temperature WHERE room_id = :roomId)
-						AND timestamp BETWEEN :startedAt AND :endedAt
-						GROUP BY unix_seconds
-						ORDER BY unix_seconds ASC
-						""";
-
-		@SuppressWarnings("unchecked")
-		List<Object[]> results = entityManager.createNativeQuery(sql)
-						.setParameter("roomId", roomId)
-						.setParameter("startedAt", java.sql.Timestamp.from(startedAt))
-						.setParameter("endedAt", java.sql.Timestamp.from(endedAt))
-						.setParameter("divisor", divisor)
-						.getResultList();
-
-		return results.stream()
-						.map(row -> new AverageTemperatureValueDto(
-								((Number) row[0]).longValue(),
-								((Number) row[1]).doubleValue()))
-						.toList();
+			SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
+			FROM TemperatureValue tv
+			WHERE tv.sensor.room.id = :roomId
+			AND tv.timestamp BETWEEN :startedAt AND :endedAt
+			GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
+			ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC
+			""".formatted(AverageTemperatureValueDto.class.getName());
+			
+		return entityManager.createQuery(sql, AverageTemperatureValueDto.class)
+			.setParameter("roomId", roomId)
+			.setParameter("startedAt", startedAt)
+			.setParameter("endedAt", endedAt)
+			.setParameter("divisor", divisor)
+			.getResultList();
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-						SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
-						FROM TemperatureValue tv
-						WHERE tv.sensor.hardwareConfig.client.id = :clientId
-						AND tv.timestamp BETWEEN :startedAt AND :endedAt
-						GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
-						ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC
-						""".formatted(AverageTemperatureValueDto.class.getName());
+			SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
+			FROM TemperatureValue tv
+			WHERE tv.sensor.hardwareConfig.client.id = :clientId
+			AND tv.timestamp BETWEEN :startedAt AND :endedAt
+			GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
+			ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC
+			""".formatted(AverageTemperatureValueDto.class.getName());
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
-						.setParameter("clientId", clientId)
-						.setParameter("startedAt", startedAt)
-						.setParameter("endedAt", endedAt)
-						.setParameter("divisor", divisor)
-						.getResultList();
+			.setParameter("clientId", clientId)
+			.setParameter("startedAt", startedAt)
+			.setParameter("endedAt", endedAt)
+			.setParameter("divisor", divisor)
+			.getResultList();
 	}
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {

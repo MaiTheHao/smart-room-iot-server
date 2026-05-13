@@ -1,57 +1,55 @@
-import { authService } from '../services/auth.service.js';
+(function () {
+  'use strict';
 
-document.addEventListener('DOMContentLoaded', () => {
-	if (typeof lucide !== 'undefined') {
-		lucide.createIcons();
-	}
+  const i18n = {
+    loadingText: /*[[#{login.loading}]]*/ 'Processing...',
+    errorTitle: /*[[#{login.error.title}]]*/ 'Login Failed',
+  };
 
-	const loginForm = document.getElementById('loginForm');
-	if (loginForm) {
-		loginForm.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			const form = e.target;
-			const submitBtn = form.querySelector('button[type="submit"]');
-			if (!submitBtn) return;
+  function Login() {
+    function bindEvents() {
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', function () {
+          const submitBtn = this.querySelector('button[type="submit"]');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              ${i18n.loadingText}
+            `;
+          }
+        });
+      }
+    }
 
-			const originalBtnText = submitBtn.innerHTML;
+    function checkErrors() {
+      const error = window.INITIAL_ERROR;
+      if (error) {
+        Swal.fire({
+          icon: 'error',
+          title: i18n.errorTitle,
+          text: error,
+          confirmButtonColor: '#0d6efd',
+        });
+      }
+    }
 
-			try {
-				submitBtn.disabled = true;
-				submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
+    function init() {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+      checkErrors();
+      bindEvents();
+    }
 
-				const credentials = {
-					username: form.username.value,
-					password: form.password.value,
-				};
+    return {
+      init,
+    };
+  }
 
-				const [err, result] = await authService.login(credentials);
-
-				if (!err && result.status === 200) {
-					Swal.fire({
-						icon: 'success',
-						title: 'Đăng nhập thành công',
-						text: 'Đang chuyển hướng...',
-						timer: 1500,
-						showConfirmButton: false,
-						timerProgressBar: true,
-					}).then(() => {
-						window.location.href = '/';
-					});
-				} else {
-					const errorMsg = err?.message || result?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.';
-					Swal.fire({
-						icon: 'error',
-						title: 'Lỗi đăng nhập',
-						text: errorMsg,
-						confirmButtonColor: '#0d6efd',
-					});
-				}
-			} catch (error) {
-				console.error('Login process error:', error);
-			} finally {
-				submitBtn.disabled = false;
-				submitBtn.innerHTML = originalBtnText;
-			}
-		});
-	}
-});
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginPage = Login();
+    loginPage.init();
+  });
+})();

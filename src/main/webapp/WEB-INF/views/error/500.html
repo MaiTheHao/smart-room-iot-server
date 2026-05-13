@@ -1,0 +1,82 @@
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="#{error.500.title}">500 Server Error</title>
+
+    <!-- Local Fonts & Global Styles -->
+    <link rel="stylesheet" th:href="@{/css/global.css}" />
+    <!-- AdminLTE 4 -->
+    <link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
+  </head>
+  <body class="bg-body-tertiary vh-100 d-flex flex-column">
+    <!-- Lang Switcher -->
+    <div class="position-fixed top-0 end-0 p-3 z-3">
+      <div class="d-flex align-items-center gap-2 bg-body py-2 px-4 rounded-pill shadow-sm border">
+        <a
+          th:href="@{''(lang='vi')}"
+          class="d-flex align-items-center transition-all"
+          th:title="#{lang.vietnamese}"
+          th:style="${#locale.language == 'vi' ? 'opacity: 1' : 'opacity: 0.4'}"
+        >
+          <img th:src="@{/imgs/vietnam512x512.png}" alt="VI" style="width: 24px; height: 24px" />
+        </a>
+        <div class="vr mx-1" style="height: 16px"></div>
+        <a
+          th:href="@{''(lang='en')}"
+          class="d-flex align-items-center transition-all"
+          th:title="#{lang.english}"
+          th:style="${#locale.language == 'en' ? 'opacity: 1' : 'opacity: 0.4'}"
+        >
+          <img
+            th:src="@{/imgs/united-kingdom512x512.png}"
+            alt="EN"
+            style="width: 24px; height: 24px"
+          />
+        </a>
+      </div>
+    </div>
+
+    <!-- Error Content -->
+    <div class="m-auto text-center container px-4" style="max-width: 600px">
+      <div class="mb-4">
+        <div
+          class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-4"
+          style="width: 100px; height: 100px"
+        >
+          <i data-lucide="server-crash" class="text-danger" style="width: 48px; height: 48px"></i>
+        </div>
+      </div>
+      <h1 class="display-1 fw-black text-danger mb-0" style="letter-spacing: -4px">500</h1>
+      <h2 class="fw-bold mb-3 mt-n2" th:text="#{error.500.heading}">Server Error</h2>
+      <p class="text-muted mb-4 fs-5 lh-sm" th:text="#{error.500.desc}">
+        Our servers encountered an unexpected issue. Don't worry, our engineers have been notified
+        and are working on it.
+      </p>
+
+      <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-4">
+        <button
+          onclick="location.reload()"
+          class="btn btn-danger px-4 py-2 rounded-pill d-inline-flex align-items-center shadow-sm fw-bold"
+        >
+          <i data-lucide="refresh-cw" class="me-2" style="width: 18px"></i>
+          <span th:text="#{error.retry}">Try Again</span>
+        </button>
+        <a
+          th:href="@{/}"
+          class="btn btn-outline-secondary px-4 py-2 rounded-pill d-inline-flex align-items-center"
+        >
+          <i data-lucide="home" class="me-2" style="width: 18px"></i>
+          <span th:text="#{error.back.home}">Return Home</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script th:src="@{/js/lib/lucide.min.js}"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

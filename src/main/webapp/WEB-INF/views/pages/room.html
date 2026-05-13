@@ -1,0 +1,124 @@
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+	<head>
+		<title th:text="|#{room.title} - ${room.name}|">Room Detail</title>
+		<!-- Flatpickr CSS -->
+		<link rel="stylesheet" th:href="@{/css/lib/flatpickr.min.css}" />
+	</head>
+	<body class="room-page">
+		<div layout:fragment="header-title">
+			<span th:text="${room.name}">Room Name</span>
+		</div>
+
+		<div layout:fragment="content">
+			<div class="container-fluid">
+				<!-- 1. Room Identity Card -->
+				<div class="card rounded-4 border-0 shadow-sm mb-4">
+					<div class="card-body p-4">
+						<div class="row align-items-center">
+							<div class="col-md-12 d-flex align-items-center">
+								<div class="d-flex align-items-center justify-content-center rounded-4 shadow-sm me-4 bg-primary bg-opacity-10 text-primary" style="width: 64px; height: 64px; min-width: 64px">
+									<i data-lucide="door-open" style="width: 32px; height: 32px"></i>
+								</div>
+								<div>
+									<h3 class="fw-bold mb-1 text-dark" th:text="${room.name}">Phòng Máy Chủ</h3>
+									<p class="text-muted mb-3 small" th:text="${room.description}">Hệ thống quản trị trung tâm và hạ tầng mạng R-Lab</p>
+									<div class="d-flex align-items-center gap-2">
+										<span class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 border border-success border-opacity-25">
+											<span class="d-inline-block rounded-circle bg-success me-1" style="width: 8px; height: 8px"></span>
+											<span th:text="#{room.status.online}">Trực tuyến</span>
+										</span>
+										<span class="badge rounded-pill bg-info bg-opacity-10 text-info px-3 py-2 border border-info border-opacity-25">
+											<i data-lucide="thermometer" class="lucide-sm me-1"></i>
+											<span><span th:text="#{room.temp}">Temp</span>: <span class="fw-bold text-dark" th:text="${lastestAvgTemperature != null ? #numbers.formatDecimal(lastestAvgTemperature, 1, 1) + '°C' : '--'}">22.4°C</span></span>
+										</span>
+										<span class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-2 border border-warning border-opacity-25">
+											<i data-lucide="zap" class="lucide-sm me-1"></i>
+											<span><span th:text="#{room.power}">Power</span>: <span class="fw-bold text-dark" th:text="${lastestSumWatt != null ? #numbers.formatDecimal(lastestSumWatt, 1, 1) + 'W' : '0.0W'}">124.5W</span></span>
+										</span>
+										<span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-2 border border-secondary border-opacity-25">
+											<i data-lucide="hash" class="lucide-sm me-1"></i>
+											<span>ID: <span th:text="${room.id}">101</span></span>
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 2. Analytics Toolbar -->
+				<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 mt-5">
+					<h5 class="m-0 fw-bold text-dark d-flex align-items-center">
+						<i data-lucide="bar-chart-3" class="text-primary me-2"></i>
+						<span th:text="#{room.analytics.title}">Phân tích & Thống kê</span>
+					</h5>
+					<div class="d-flex gap-2 mt-2 mt-md-0">
+						<div class="input-group shadow-sm" style="max-width: 520px">
+							<span class="input-group-text bg-white border-end-0"><i data-lucide="calendar" class="lucide-sm"></i></span>
+							<input type="text" id="analyticsRange" class="form-control border-start-0 fw-medium" style="width: 32ch" readonly />
+						</div>
+					</div>
+				</div>
+
+				<!-- 3. Real-time Charts -->
+				<div class="row mb-4">
+					<div class="col-lg-6 mb-4 mb-lg-0">
+						<div class="card rounded-4 border-0 shadow-sm h-100">
+							<div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+								<h6 class="fw-bold m-0 flex-grow-1"><i data-lucide="thermometer" class="text-danger me-2 lucide-sm"></i><span th:text="#{room.chart.temp}">Nhiệt độ</span></h6>
+								<span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3" id="avgTempBadge">Avg: --°C</span>
+							</div>
+							<div class="card-body">
+								<div id="tempChart" style="min-height: 300px"></div>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div class="card rounded-4 border-0 shadow-sm h-100">
+							<div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+								<h6 class="fw-bold m-0 flex-grow-1"><i data-lucide="zap" class="text-warning me-2 lucide-sm"></i><span th:text="#{room.chart.power}">Công suất</span></h6>
+								<span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3" id="peakPowerBadge">Peak: --W</span>
+							</div>
+							<div class="card-body">
+								<div id="powerChart" style="min-height: 300px"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 4. Smart Controls Section (Dynamic) -->
+				<div id="controls-container">
+					<div class="text-center py-5">
+						<div class="spinner-border text-primary" role="status"></div>
+						<p class="mt-2 text-muted" th:text="#{room.loading.devices}">Đang tải thiết bị...</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<th:block layout:fragment="scripts">
+			<!-- Flatpickr JS -->
+			<script th:src="@{/js/lib/flatpickr.min.js}"></script>
+			
+			<!-- API Services -->
+			<script th:src="@{/js/api/temperature.api.js}"></script>
+			<script th:src="@{/js/api/metric.api.js}"></script>
+			<script th:src="@{/js/api/device.api.js}"></script>
+			
+			<!-- Page JS -->
+			<script th:src="@{/js/pages/room.js}"></script>
+			
+			<script th:inline="javascript">
+				document.addEventListener('DOMContentLoaded', () => {
+					const config = {
+						roomId: /*[[${room.id}]]*/ 0
+					};
+
+					const roomPage = RoomPage(config);
+					roomPage.init();
+				});
+			</script>
+		</th:block>
+	</body>
+</html>

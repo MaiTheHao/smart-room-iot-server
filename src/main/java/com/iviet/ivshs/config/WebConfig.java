@@ -82,10 +82,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setContentType("text/html");
         resolver.setCharacterEncoding("UTF-8");
         resolver.setViewNames(new String[]{"*.html"});
+        resolver.setOrder(1);
         return resolver;
     }
 
-/*
     @Bean
     public ViewResolver javascriptViewResolver(MessageSource messageSource) {
         ThymeleafViewResolver resolver = new ThymeleafViewResolver();
@@ -93,9 +93,9 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setContentType("application/javascript");
         resolver.setCharacterEncoding("UTF-8");
         resolver.setViewNames(new String[]{"*.js"});
+        resolver.setOrder(2);
         return resolver;
     }
-*/
 
     @Bean
     public ViewResolver plainViewResolver(MessageSource messageSource) {
@@ -123,27 +123,25 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setApplicationContext(applicationContext);
         resolver.setPrefix("/WEB-INF/views/");
         resolver.setTemplateMode(TemplateMode.HTML);
-        resolver.setCacheable(false);
+        resolver.setCacheable(true);
         return resolver;
     }
 
-/*
     private ITemplateResolver javascriptTemplateResolver() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
         resolver.setApplicationContext(applicationContext);
-        resolver.setPrefix("/WEB-INF/resources/scripts/");
+        resolver.setPrefix("/WEB-INF/resources/js/");
         resolver.setTemplateMode(TemplateMode.JAVASCRIPT);
-        resolver.setCacheable(false);
+        resolver.setCacheable(true);
         return resolver;
     }
-*/
 
     private ITemplateResolver plainTemplateResolver() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
         resolver.setApplicationContext(applicationContext);
         resolver.setPrefix("/WEB-INF/resources/txt/");
         resolver.setTemplateMode(TemplateMode.TEXT);
-        resolver.setCacheable(false);
+        resolver.setCacheable(true);
         return resolver;
     }
 
@@ -178,7 +176,10 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     @Override
     public void addViewControllers(@NonNull ViewControllerRegistry registry) {
-        // Handled by LoginViewController and IndexController
+        registry.addViewController("/error/401").setViewName("error/401.html");
+        registry.addViewController("/error/403").setViewName("error/403.html");
+        registry.addViewController("/error/404").setViewName("error/404.html");
+        registry.addViewController("/error/500").setViewName("error/500.html");
     }
 
     @Override
@@ -187,6 +188,8 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
                 .addResourceLocations("/WEB-INF/resources/")
                 .setCachePeriod(31556926);
         
+        registry.addResourceHandler("/static/**").addResourceLocations("/WEB-INF/resources/static/").setCachePeriod(31556926);
+        registry.addResourceHandler("/imgs/**").addResourceLocations("/WEB-INF/resources/imgs/").setCachePeriod(31556926);
         registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/css/").setCachePeriod(31556926);
         registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/js/").setCachePeriod(31556926);
         registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/resources/fonts/").setCachePeriod(31556926);

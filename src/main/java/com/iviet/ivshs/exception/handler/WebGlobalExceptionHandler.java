@@ -71,7 +71,8 @@ public class WebGlobalExceptionHandler {
         
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
         
-        ModelAndView mav = new ModelAndView("redirect:/login");
+        ModelAndView mav = new ModelAndView("error/401.html");
+        mav.setStatus(HttpStatus.UNAUTHORIZED);
         return mav;
     }
 

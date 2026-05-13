@@ -20,4 +20,9 @@ public class IndexViewController {
 		model.addAllAttributes(_model.toModelAttributes());
 		return "pages/index.html";
 	}
+
+	@GetMapping("/js/pages/index.js")
+	public String getIndexJs() {
+		return "pages/index.js";
+	}
 }

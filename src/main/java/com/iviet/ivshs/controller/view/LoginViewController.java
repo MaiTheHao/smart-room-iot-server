@@ -23,4 +23,9 @@ public class LoginViewController {
         model.addAllAttributes(loginPageData.toModelAttributes());
         return "pages/login.html";
     }
+
+    @GetMapping("/js/pages/login.js")
+    public String getLoginJs() {
+        return "pages/login.js";
+    }
 }

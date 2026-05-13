@@ -1,141 +1,103 @@
 <!doctype html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="#{login.title} + ' | ' + #{app.name}">Đăng nhập | IUH Smart Home</title>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title th:text="#{login.title} + ' | ' + #{app.name}">Đăng nhập | Smart Room</title>
 
-    <!-- Local Fonts & Global Styles -->
-    <link rel="stylesheet" th:href="@{/css/fonts.css}" />
-    <link rel="stylesheet" th:href="@{/css/global.css}" />
-    <!-- AdminLTE 4 -->
-    <link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
-  </head>
-  <body class="login-page bg-body-secondary">
-    <!-- Login Error Alert -->
-    <div
-      th:if="${errorMessage != null and !errorMessage.isEmpty()}"
-      class="position-fixed top-0 end-0 m-3 alert alert-danger alert-dismissible fade show shadow-sm"
-      role="alert"
-      style="z-index: 1060"
-    >
-      <div class="d-flex align-items-center">
-        <i data-lucide="alert-circle" class="me-2"></i>
-        <div>
-          <strong class="d-block" th:text="#{login.error.title}">Lỗi đăng nhập</strong>
-          <span th:text="${errorMessage}">Thông tin đăng nhập không hợp lệ</span>
-        </div>
-      </div>
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+		<!-- Local Fonts & Global Styles -->
+		<link rel="stylesheet" th:href="@{/css/fonts.css}" />
+		<link rel="stylesheet" th:href="@{/css/global.css}" />
+		<!-- AdminLTE 4 -->
+		<link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
 
-    <div class="login-box">
-      <div class="login-logo mb-4">
-        <a href="/" class="link-dark text-center text-decoration-none">
-          <h2 class="fw-bold mb-0">
-            <span class="text-primary">IUH</span> <span th:text="#{app.name}">Smart Home</span>
-          </h2>
-        </a>
-      </div>
-      <!-- /.login-logo -->
-      <div class="card card-outline card-primary shadow-lg border-0">
-        <div class="card-body login-card-body p-4">
-          <p class="login-box-msg text-muted mb-4" th:text="#{login.msg}">
-            Đăng nhập để bắt đầu phiên làm việc
-          </p>
+		<style>
+			body {
+				background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+				min-height: 100vh;
+			}
+			.login-card {
+				border: none;
+				border-radius: 1.25rem;
+				transition: all 0.3s ease;
+			}
+			.form-floating > .form-control {
+				border-radius: 0.75rem;
+				border: 1px solid rgba(0, 0, 0, 0.05);
+				background-color: #fcfcfc;
+			}
+			.form-floating > .form-control:focus {
+				background-color: #fff;
+				box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+			}
+			.btn-login {
+				border-radius: 0.75rem;
+				padding: 0.8rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+		</style>
+	</head>
+	<body class="d-flex align-items-center justify-content-center p-3">
+		<div class="w-100" style="max-width: 450px">
+			<div class="card login-card shadow-sm border-0">
+				<div class="card-body p-5">
+					<!-- Header -->
+					<div class="text-center mb-5">
+						<h2 class="fw-bold text-dark mb-2 fs-1">
+							<span th:text="#{app.name}">Smart Home</span>
+						</h2>
+						<p class="text-muted small px-3" th:text="#{login.msg}">Trải nghiệm cuộc sống tương lai</p>
+					</div>
 
-          <form th:action="@{/loginAction}" method="post">
-            <div class="input-group mb-3">
-              <div class="form-floating flex-grow-1">
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  class="form-control"
-                  th:placeholder="#{login.username}"
-                  required
-                  autocomplete="username"
-                />
-                <label for="username" th:text="#{login.username}">Tên đăng nhập</label>
-              </div>
-              <div class="input-group-text bg-body-tertiary border-start-0">
-                <i data-lucide="user"></i>
-              </div>
-            </div>
+					<!-- Login Form -->
+					<form th:action="@{/loginAction}" method="post" id="loginForm">
+						<div class="form-floating mb-3">
+							<input type="text" id="username" name="username" class="form-control" th:placeholder="#{login.username}" required autocomplete="username" />
+							<label for="username" class="text-muted" th:text="#{login.username}">Tên đăng nhập</label>
+						</div>
 
-            <div class="input-group mb-3">
-              <div class="form-floating flex-grow-1">
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  class="form-control"
-                  th:placeholder="#{login.password}"
-                  required
-                  autocomplete="current-password"
-                />
-                <label for="password" th:text="#{login.password}">Mật khẩu</label>
-              </div>
-              <div class="input-group-text bg-body-tertiary border-start-0">
-                <i data-lucide="lock"></i>
-              </div>
-            </div>
+						<div class="form-floating mb-4">
+							<input type="password" id="password" name="password" class="form-control" th:placeholder="#{login.password}" required autocomplete="current-password" />
+							<label for="password" class="text-muted" th:text="#{login.password}">Mật khẩu</label>
+						</div>
 
-            <!-- begin::Row -->
-            <div class="row align-items-center">
-              <div class="col-7">
-                <div class="form-check mb-0">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="remember"
-                    name="remember-me"
-                  />
-                  <label
-                    class="form-check-label text-muted"
-                    for="remember"
-                    th:text="#{login.remember_me}"
-                  >
-                    Ghi nhớ tôi
-                  </label>
-                </div>
-              </div>
-              <!-- /.col -->
-              <div class="col-5">
-                <div class="d-grid gap-2">
-                  <button
-                    type="submit"
-                    class="btn btn-primary fw-semibold py-2"
-                    th:text="#{login.button}"
-                  >
-                    Đăng nhập
-                  </button>
-                </div>
-              </div>
-              <!-- /.col -->
-            </div>
-            <!-- end::Row -->
-          </form>
-        </div>
-        <!-- /.login-card-body -->
-      </div>
-    </div>
-    <!-- /.login-box -->
+						<div class="d-flex justify-content-between align-items-center mb-4">
+							<div class="form-check">
+								<input class="form-check-input" type="checkbox" id="remember" name="remember-me" />
+								<label class="form-check-label text-muted small" for="remember" th:text="#{login.remember_me}"> Ghi nhớ tôi </label>
+							</div>
+						</div>
 
-    <!-- Required Scripts -->
-    <script th:src="@{/js/lib/popper.min.js}"></script>
-    <script th:src="@{/js/lib/bootstrap.min.js}"></script>
-    <script th:src="@{/js/lib/lucide.min.js}"></script>
-    <script th:src="@{/js/lib/adminlte.min.js}"></script>
+						<button type="submit" class="btn btn-primary w-100 btn-login shadow-sm" th:text="#{login.button}">Đăng nhập</button>
+					</form>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        if (typeof lucide !== 'undefined') {
-          lucide.createIcons();
-        }
-      });
-    </script>
-  </body>
+					<div class="mt-2 text-center pt-3 border-top border-light">
+						<div class="d-flex justify-content-center align-items-center gap-3">
+							<a th:href="@{''(lang='vi')}" class="lang-switcher-link" th:classappend="${#locale.language == 'vi' ? 'active' : ''}" th:title="#{lang.vietnamese}">
+								<img th:src="@{/imgs/vietnam512x512.png}" class="lang-flag" alt="VI" />
+							</a>
+							<a th:href="@{''(lang='en')}" class="lang-switcher-link" th:classappend="${#locale.language == 'en' ? 'active' : ''}" th:title="#{lang.english}">
+								<img th:src="@{/imgs/united-kingdom512x512.png}" class="lang-flag" alt="EN" />
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Required Scripts -->
+		<script th:src="@{/js/lib/popper.min.js}"></script>
+		<script th:src="@{/js/lib/bootstrap.min.js}"></script>
+		<script th:src="@{/js/lib/lucide.min.js}"></script>
+		<script th:src="@{/js/lib/sweetalert2.min.js}"></script>
+		<script th:src="@{/js/lib/adminlte.min.js}"></script>
+
+		<script th:inline="javascript">
+			// Pass SSR error message to CSM layer
+			window.INITIAL_ERROR = /*[[${errorMessage}]]*/ null;
+		</script>
+		<script th:src="@{/js/pages/login.js}"></script>
+	</body>
 </html>
-
-

@@ -1,8 +1,8 @@
-name: iuhsmrc-compose--mysql
+name: iuhsmc_mysql
 services:
   mysql-iot:
     image: mysql:8.3
-    container_name: iuhsmrc-mysql
+    container_name: iuhsmrc_mysql
     # Cấu hình giới hạn tài nguyên
     deploy:
       resources:
@@ -34,4 +34,4 @@ services:
 
 networks:
   default:
-    name: iuhsmrc-network--mysql
+    name: iuhsmrc_network

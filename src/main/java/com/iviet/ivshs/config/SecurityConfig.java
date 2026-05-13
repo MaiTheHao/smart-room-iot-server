@@ -120,7 +120,12 @@ public class SecurityConfig {
                 .requestMatchers(
                     new AntPathRequestMatcher("/css/**"),
                     new AntPathRequestMatcher("/js/**"),
-                    new AntPathRequestMatcher("/fonts/**")
+                    new AntPathRequestMatcher("/fonts/**"),
+                    new AntPathRequestMatcher("/imgs/**"),
+                    new AntPathRequestMatcher("/static/**"),
+                    new AntPathRequestMatcher("/resources/**"),
+                    new AntPathRequestMatcher("/login"),
+                    new AntPathRequestMatcher("/error/**")
                 ).permitAll()
                 .anyRequest().authenticated()
             )

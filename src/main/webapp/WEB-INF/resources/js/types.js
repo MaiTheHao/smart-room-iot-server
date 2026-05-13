@@ -1,6 +1,6 @@
 /**
  * @file types.js
- * @description JSDoc type definitions for IUH Smart Home based on Backend DTOs
+ * @description JSDoc type definitions for Smart Room IoT Server based on Backend DTOs
  */
 
 /**
@@ -71,6 +71,88 @@
  * @property {string} type - Usually "Bearer"
  * @property {string} username
  * @property {string[]} groups - User roles/groups (e.g., ["G_ADMIN", "G_USER"])
+ */
+
+/**
+ * @typedef {Object} TemperatureValueDto
+ * @property {string} timestamp - ISO timestamp
+ * @property {number} avgTempC - Average temperature in Celsius
+ */
+
+/**
+ * @typedef {Object} EnergyMetricDto
+ * @property {string} timestamp - ISO timestamp
+ * @property {number} [voltage]
+ * @property {number} [current]
+ * @property {number} [power]
+ * @property {number} [energy]
+ * @property {number} [frequency]
+ * @property {number} [powerFactor]
+ */
+
+/**
+ * @typedef {'LIGHT' | 'FAN' | 'AIR_CONDITION'} DeviceCategory
+ */
+
+/**
+ * @typedef {'ON' | 'OFF'} ActuatorPower
+ */
+
+/**
+ * @typedef {'COOL' | 'HEAT' | 'DRY' | 'FAN' | 'AUTO' | 'NORMAL' | 'SLEEP' | 'NATURAL'} ActuatorMode
+ */
+
+/**
+ * @typedef {'ON' | 'OFF'} ActuatorSwing
+ */
+
+/**
+ * @typedef {'ON' | 'OFF'} ActuatorState
+ */
+
+/**
+ * @typedef {Object} UnifiedDeviceDto
+ * @property {number} id
+ * @property {string} naturalId
+ * @property {string} name
+ * @property {string} [description]
+ * @property {boolean} isActive
+ * @property {ActuatorPower} power
+ * @property {number} roomId
+ * @property {number} deviceControlId
+ * @property {DeviceCategory} category
+ * @property {number} [level] - For Light
+ * @property {number} [speed] - For Fan (0-9999)
+ * @property {ActuatorMode} [mode] - For AC/Fan
+ * @property {ActuatorSwing} [swing] - For AC/Fan
+ * @property {ActuatorState} [light] - For Fan light
+ * @property {number} [temperature] - For AC (16-32)
+ * @property {number} [fanSpeed] - For AC (0-5)
+ * @property {string} [type] - For Fan (GPIO/IR)
+ */
+
+/**
+ * @typedef {Object} AirConditionControlRequestBody
+ * @property {ActuatorPower} [power]
+ * @property {number} [temperature]
+ * @property {ActuatorMode} [mode]
+ * @property {number} [fanSpeed]
+ * @property {ActuatorSwing} [swing]
+ */
+
+/**
+ * @typedef {Object} FanControlRequestBody
+ * @property {ActuatorPower} [power]
+ * @property {ActuatorMode} [mode]
+ * @property {number} [speed]
+ * @property {ActuatorSwing} [swing]
+ * @property {ActuatorState} [light]
+ */
+
+/**
+ * @typedef {Object} LightControlRequestBody
+ * @property {ActuatorPower} [power]
+ * @property {number} [level]
  */
 
 export {};

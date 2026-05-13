@@ -9,14 +9,9 @@ import org.springframework.lang.NonNull;
 import lombok.Builder;
 import lombok.Data;
 
-/**
- * DashboardViewModel contains summary information for the dashboard.
- * - Map of floors to their respective rooms.
- * - Detailed information for each room.
- * - Cumulative statistics: total floors, rooms, and hardwares.
- */
 public record IndexViewModel(
-  Map<FloorDto, List<RoomDto>> floorRoomMap,
+  List<FloorDto> floors,
+  Map<Long, List<RoomDto>> floorRoomMap,
   Map<Long, RoomInfo> roomInfoMap,
   Long totalFloors,
   Long totalRooms,
@@ -34,11 +29,12 @@ public record IndexViewModel(
   @NonNull
   public Map<String, Object> toModelAttributes() {
     HashMap<String, Object> attributes = new HashMap<>();
-    attributes.put("floorRoomMap", (floorRoomMap != null ? floorRoomMap : Map.of()));
-    attributes.put("roomInfoMap", (roomInfoMap != null ? roomInfoMap : Map.of()));
-    attributes.put("totalFloors", (totalFloors != null ? totalFloors : 0L));
-    attributes.put("totalRooms", (totalRooms != null ? totalRooms : 0L));
-    attributes.put("totalHardwares", (totalHardwares != null ? totalHardwares : 0L));
+    attributes.put("floors", floors);
+    attributes.put("floorRoomMap", floorRoomMap);
+    attributes.put("roomInfoMap", roomInfoMap);
+    attributes.put("totalFloors", totalFloors);
+    attributes.put("totalRooms", totalRooms);
+    attributes.put("totalHardwares", totalHardwares);
     return attributes;
   }
 }

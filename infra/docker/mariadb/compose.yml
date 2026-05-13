@@ -1,8 +1,8 @@
-name: iuhsmrc-compose--mariadb
+name: iuhsmrc_mariadb
 services:
   mariadb-iot:
     image: mariadb:11
-    container_name: iuhsmrc-mariadb
+    container_name: iuhsmrc_mariadb
     # Cấu hình giới hạn tài nguyên
     deploy:
       resources:
@@ -33,4 +33,4 @@ services:
 
 networks:
   default:
-    name: iuhsmrc-network
+    name: iuhsmrc_network

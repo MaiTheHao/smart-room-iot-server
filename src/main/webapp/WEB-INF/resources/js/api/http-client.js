@@ -6,7 +6,7 @@ const BASE_URL = '';
  * @param {Object} options - Fetch options
  * @returns {Promise<[Error|null, any]>}
  */
-export const request = async (endpoint, options = {}) => {
+const http_client = async (endpoint, options = {}) => {
 	const config = {
 		...options,
 		credentials: 'include',
@@ -33,4 +33,3 @@ export const request = async (endpoint, options = {}) => {
 		return [error, null];
 	}
 };
-

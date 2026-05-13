@@ -1,270 +1,61 @@
-<!DOCTYPE html>
-<html
-	lang="vi"
-	xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout.html}"
->
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
 	<head>
 		<title th:text="#{index.title}">Dashboard</title>
-		<style>
-			:root {
-				--card-border-radius: 1rem;
-				--transition-speed: 0.3s;
-			}
-
-			.room-card {
-				border: none;
-				border-radius: var(--card-border-radius);
-				transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
-				overflow: hidden;
-				text-decoration: none !important;
-				background: #fff;
-			}
-
-			.room-card:hover {
-				transform: translateY(-8px);
-				box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
-			}
-
-			.room-image-container {
-				height: 180px;
-				position: relative;
-				overflow: hidden;
-			}
-
-			.room-image {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				transition: transform var(--transition-speed) ease;
-			}
-
-			.room-card:hover .room-image {
-				transform: scale(1.05);
-			}
-
-			.status-badge {
-				position: absolute;
-				top: 12px;
-				right: 12px;
-				padding: 6px 12px;
-				border-radius: 50px;
-				font-size: 0.75rem;
-				font-weight: 600;
-				background: rgba(255, 255, 255, 0.9);
-				backdrop-filter: blur(4px);
-				display: flex;
-				align-items: center;
-				gap: 6px;
-				color: #198754;
-				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-			}
-
-			.dot-ping {
-				width: 8px;
-				height: 8px;
-				background-color: #198754;
-				border-radius: 50%;
-				position: relative;
-			}
-
-			.dot-ping::after {
-				content: '';
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				background-color: inherit;
-				border-radius: 50%;
-				animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-			}
-
-			@keyframes ping {
-				75%,
-				100% {
-					transform: scale(2.5);
-					opacity: 0;
-				}
-			}
-
-			.stat-icon-wrapper {
-				width: 38px;
-				height: 38px;
-				border-radius: 10px;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				margin-bottom: 8px;
-				transition: transform 0.2s ease;
-			}
-
-			.room-card:hover .stat-icon-wrapper {
-				transform: scale(1.1);
-			}
-
-			.bg-soft-info {
-				background-color: #e0f2fe;
-				color: #0284c7;
-			}
-			.bg-soft-warning {
-				background-color: #fef3c7;
-				color: #d97706;
-			}
-			.bg-soft-success {
-				background-color: #dcfce7;
-				color: #16a34a;
-			}
-
-			.stat-label {
-				font-size: 0.65rem;
-				font-weight: 700;
-				letter-spacing: 0.05em;
-				color: #94a3b8;
-				text-transform: uppercase;
-			}
-
-			.stat-value {
-				font-size: 1rem;
-				font-weight: 600;
-				color: #1e293b;
-			}
-
-			.transition-all {
-				transition: all 0.3s ease;
-			}
-
-			.floor-divider {
-				position: relative;
-				padding-bottom: 0.5rem;
-				margin-bottom: 1.5rem;
-				border-bottom: 2px solid #dee2e6;
-			}
-			.floor-divider::after {
-				content: '';
-				position: absolute;
-				bottom: -2px;
-				left: 0;
-				width: 50px;
-				height: 2px;
-				background-color: var(--bs-primary);
-			}
-		</style>
+		<link rel="stylesheet" th:href="@{/css/pages/dashboard.css}" />
 	</head>
-	<body>
+	<body class="dashboard-page">
 		<div layout:fragment="header-title">
 			<span th:text="#{index.title}">Dashboard</span>
 		</div>
 
 		<div layout:fragment="content">
-			<!-- Summary Widgets -->
-			<div class="row mb-4">
-				<div class="col-12 col-md-4 mb-3 mb-md-0">
-					<div class="card border-0 shadow-sm rounded-4 h-100 transition-all">
-						<div class="card-body p-4 d-flex align-items-center">
-							<div class="rounded-circle bg-primary bg-opacity-10 p-3 me-4 text-primary d-flex align-items-center justify-content-center" style="width: 64px; height: 64px">
-								<i data-lucide="layers" style="width: 32px; height: 32px"></i>
-							</div>
-							<div>
-								<p class="text-muted mb-1 fw-medium" th:text="#{index.summary.floors}">Total Floors</p>
-								<h2 class="mb-0 fw-bold" th:text="${totalFloors}">0</h2>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-12 col-md-4 mb-3 mb-md-0">
-					<div class="card border-0 shadow-sm rounded-4 h-100 transition-all">
-						<div class="card-body p-4 d-flex align-items-center">
-							<div class="rounded-circle bg-success bg-opacity-10 p-3 me-4 text-success d-flex align-items-center justify-content-center" style="width: 64px; height: 64px">
-								<i data-lucide="home" style="width: 32px; height: 32px"></i>
-							</div>
-							<div>
-								<p class="text-muted mb-1 fw-medium" th:text="#{index.summary.rooms}">Total Rooms</p>
-								<h2 class="mb-0 fw-bold" th:text="${totalRooms}">0</h2>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="col-12 col-md-4">
-					<div class="card border-0 shadow-sm rounded-4 h-100 transition-all">
-						<div class="card-body p-4 d-flex align-items-center">
-							<div class="rounded-circle bg-info bg-opacity-10 p-3 me-4 text-info d-flex align-items-center justify-content-center" style="width: 64px; height: 64px">
-								<i data-lucide="cpu" style="width: 32px; height: 32px"></i>
-							</div>
-							<div>
-								<p class="text-muted mb-1 fw-medium" th:text="#{index.summary.hardwares}">Total Devices</p>
-								<h2 class="mb-0 fw-bold" th:text="${totalHardwares}">0</h2>
-							</div>
-						</div>
-					</div>
-				</div>
+			<!-- Summary Metrics Row -->
+			<div id="summary-container" class="row mb-4">
+				<!-- Dynamically Rendered via index.js -->
 			</div>
 
 			<div class="row">
-				<!-- Main Column: Scenes & Floors -->
 				<div class="col-12">
-					<!-- Smart Scenes -->
+					<!-- Smart Scenes Row -->
 					<div class="card shadow-sm border-0 mb-4 rounded-4">
-						<div class="card-header bg-white border-0 py-3 rounded-top-4">
-							<h5 class="card-title mb-0 fw-bold">
-								<i data-lucide="sparkles" class="text-warning me-2" style="width: 20px"></i>
-								<span th:text="#{index.scenes.title}">Smart Scenes</span>
-							</h5>
-						</div>
-						<div class="card-body pt-0">
-							<p class="text-muted small mb-3" th:text="#{index.scenes.desc}">Quickly activate smart home modes:</p>
-							<div class="d-flex flex-wrap gap-3">
-								<button class="btn btn-outline-primary d-flex flex-column align-items-center p-3 transition-all scene-btn rounded-3" data-scene="in_home" style="min-width: 110px">
-									<i data-lucide="home" class="mb-2" style="width: 24px; height: 24px"></i>
-									<span class="small fw-bold" th:text="#{index.scenes.in_home}">In Home</span>
-								</button>
-								<button class="btn btn-outline-secondary d-flex flex-column align-items-center p-3 transition-all scene-btn rounded-3" data-scene="out_home" style="min-width: 110px">
-									<i data-lucide="log-out" class="mb-2" style="width: 24px; height: 24px"></i>
-									<span class="small fw-bold" th:text="#{index.scenes.out_home}">Out Home</span>
-								</button>
-								<button class="btn btn-outline-navy d-flex flex-column align-items-center p-3 transition-all scene-btn rounded-3" data-scene="sleep" style="min-width: 110px">
-									<i data-lucide="moon" class="mb-2" style="width: 24px; height: 24px"></i>
-									<span class="small fw-bold" th:text="#{index.scenes.sleep}">Sleep</span>
-								</button>
-								<button class="btn btn-outline-warning d-flex flex-column align-items-center p-3 transition-all scene-btn rounded-3" data-scene="morning" style="min-width: 110px">
-									<i data-lucide="sun" class="mb-2" style="width: 24px; height: 24px"></i>
-									<span class="small fw-bold" th:text="#{index.scenes.morning}">Morning</span>
-								</button>
+						<div class="card-body p-3">
+							<div id="scenes-container" class="d-flex flex-wrap gap-3">
+								<!-- Dynamically Rendered via index.js -->
 							</div>
 						</div>
 					</div>
 
 					<!-- Floors & Rooms -->
-					<div th:each="entry : ${floorRoomMap}">
-						<div class="floor-divider d-flex align-items-center justify-content-between">
-							<h4 class="m-0 fw-bold text-dark">
-								<i data-lucide="layout" class="text-muted me-2" style="width: 20px"></i>
-								<span th:text="${entry.key.name}">Floor Name</span>
-							</h4>
-							<span class="badge bg-secondary rounded-pill px-3" th:text="#{index.floor.level} + ' ' + ${entry.key.level}">Level 1</span>
-						</div>
-
-						<div class="row mb-4">
-							<div class="col-12" th:if="${#lists.isEmpty(entry.value)}">
-								<div class="alert alert-light text-center border shadow-sm rounded-4" th:text="#{index.room.no_rooms}">No rooms available.</div>
-							</div>
-
-							<div class="col-12 col-md-6 col-xl-4 mb-4" th:each="room : ${entry.value}">
-								<div th:replace="~{fragments/room_card.html :: room_card(
-									room=${room},
-									hardwareCount=${roomInfoMap.get(room.id).hardwareCount},
-									latestAvgTemperature=${roomInfoMap.get(room.id).latestAvgTemperature},
-									latestSumWatt=${roomInfoMap.get(room.id).latestSumWatt}
-								)}"></div>
-							</div>
-						</div>
-					</div>
+					<div id="floors-container"></div>
 				</div>
-			</div>
 			</div>
 		</div>
 
 		<th:block layout:fragment="scripts">
-			<script type="module" th:src="@{/js/pages/index.js}"></script>
+			<script th:src="@{/js/pages/index.js}"></script>
+			<script th:inline="javascript">
+				document.addEventListener('DOMContentLoaded', () => {
+					const floors = /*[[${floors}]]*/ [];
+					const floorRoomMap = /*[[${floorRoomMap}]]*/ {};
+					const roomInfoMap = /*[[${roomInfoMap}]]*/ {};
+					const totalFloors = /*[[${totalFloors}]]*/ 0;
+					const totalRooms = /*[[${totalRooms}]]*/ 0;
+					const totalHardwares = /*[[${totalHardwares}]]*/ 0;
+
+					const dashboardConfig = {
+						floors,
+						floorRoomMap,
+						roomInfoMap,
+						totalFloors,
+						totalRooms,
+						totalHardwares,
+					};
+
+					const dashboard = Dashboard(dashboardConfig);
+					dashboard.init();
+				});
+			</script>
 		</th:block>
 	</body>
 </html>

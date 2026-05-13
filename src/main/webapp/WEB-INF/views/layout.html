@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">IUH Smart Home</title>
+		<title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Smart Room</title>
 
 		<!-- Local Fonts & Global Styles -->
 		<link rel="stylesheet" th:href="@{/css/global.css}" />
@@ -16,7 +16,6 @@
 	</head>
 	<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 		<div class="app-wrapper">
-			<!-- Header (Navbar) -->
 			<nav class="app-header navbar navbar-expand bg-body" th:fragment="header">
 				<div class="container-fluid">
 					<ul class="navbar-nav">
@@ -25,27 +24,50 @@
 								<i data-lucide="menu"></i>
 							</a>
 						</li>
+						<li class="nav-item d-none d-md-block">
+							<a th:href="@{/}" class="nav-link" th:text="#{nav.home}">Home</a>
+						</li>
 					</ul>
 					<ul class="navbar-nav ms-auto">
-						<!-- User Menu Dropdown -->
-						<li class="nav-item dropdown user-menu">
-							<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-								<img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=random" class="user-image rounded-circle shadow" alt="User Image" />
-								<span id="userName" class="d-none d-md-inline">Tên người dùng</span>
+						<li class="nav-item d-flex align-items-center me-2">
+							<a th:href="@{''(lang='vi')}" class="lang-switcher-link" th:classappend="${#locale.language == 'vi' ? 'active' : ''}" th:title="#{lang.vietnamese}">
+								<img th:src="@{/imgs/vietnam512x512.png}" class="lang-flag" alt="VI" />
 							</a>
-							<ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-								<!-- User image -->
-								<li class="user-header bg-primary">
-									<img id="userAvatarLarge" src="https://ui-avatars.com/api/?name=User&background=random" class="rounded-circle shadow" alt="User Image" />
-									<p>
-										<span id="userFullName">Tên người dùng</span>
-										<small id="userRoles">Roles: G_USER</small>
+							<a th:href="@{''(lang='en')}" class="lang-switcher-link mx-2" th:classappend="${#locale.language == 'en' ? 'active' : ''}" th:title="#{lang.english}">
+								<img th:src="@{/imgs/united-kingdom512x512.png}" class="lang-flag" alt="EN" />
+							</a>
+						</li>
+						<li class="nav-item dropdown user-menu">
+							<a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+								<img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=random" class="user-image rounded-circle shadow-sm me-2" alt="User Image" style="width: 32px; height: 32px" />
+								<span id="userName" class="d-none d-md-inline small fw-semibold" th:text="#{user.default_name}">Tên người dùng</span>
+							</a>
+							<ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end border-0 shadow">
+								<li class="user-header text-bg-primary d-flex flex-column align-items-center justify-content-center p-3" style="height: auto">
+									<img id="userAvatarLarge" src="https://ui-avatars.com/api/?name=User&background=random" class="rounded-circle shadow-sm mb-2" alt="User Image" style="width: 64px; height: 64px" />
+									<p class="mb-0 fw-bold">
+										<span id="userFullName" th:text="#{user.default_name}">Tên người dùng</span>
 									</p>
 								</li>
-								<!-- Menu Footer-->
-								<li class="user-footer">
-									<a href="#" class="btn btn-default btn-flat">Hồ sơ</a>
-									<a href="#" class="btn btn-default btn-flat float-end" id="logoutBtn"> <i data-lucide="log-out"></i> Đăng xuất </a>
+								<li><hr class="dropdown-divider m-0" /></li>
+								<li>
+									<a href="#" class="dropdown-item py-2 d-flex align-items-center">
+										<i data-lucide="user" class="me-3 opacity-75" style="width: 18px"></i>
+										<span th:text="#{menu.profile}">Hồ sơ cá nhân</span>
+									</a>
+								</li>
+								<li>
+									<a href="#" class="dropdown-item py-2 d-flex align-items-center">
+										<i data-lucide="settings" class="me-3 opacity-75" style="width: 18px"></i>
+										<span th:text="#{menu.settings}">Cài đặt hệ thống</span>
+									</a>
+								</li>
+								<li><hr class="dropdown-divider m-0" /></li>
+								<li>
+									<a href="#" class="dropdown-item py-2 d-flex align-items-center text-danger" id="logoutBtn">
+										<i data-lucide="log-out" class="me-3 opacity-75" style="width: 18px"></i>
+										<span class="fw-bold" th:text="#{menu.logout}">Đăng xuất</span>
+									</a>
 								</li>
 							</ul>
 						</li>
@@ -53,28 +75,20 @@
 				</div>
 			</nav>
 
-			<!-- Sidebar -->
 			<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark" th:fragment="sidebar">
 				<div class="sidebar-brand">
-					<a href="/" class="brand-link">
-						<span class="brand-text fw-light">IUH SE-IoT</span>
+					<a th:href="@{/}" class="brand-link">
+						<i data-lucide="cpu" class="brand-image"></i>
+						<span class="brand-text fw-light">Smart Room</span>
 					</a>
 				</div>
 				<div class="sidebar-wrapper">
 					<nav class="mt-2">
-						<ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-							<li class="nav-item">
-								<a th:href="@{/}" class="nav-link">
-									<i class="nav-icon" data-lucide="gauge"></i>
-									<p>Dashboard</p>
-								</a>
-							</li>
-						</ul>
+						<ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false" id="sidebarMenu"></ul>
 					</nav>
 				</div>
 			</aside>
 
-			<!-- Main Content -->
 			<main class="app-main">
 				<div class="app-content-header">
 					<div class="container-fluid">
@@ -87,32 +101,22 @@
 				</div>
 				<div class="app-content">
 					<div class="container-fluid">
-						<div layout:fragment="content">
-							<!-- Body content will be inserted here -->
-						</div>
+						<div layout:fragment="content"></div>
 					</div>
 				</div>
 			</main>
 
-			<!-- Footer -->
-			<footer class="app-footer" th:fragment="footer">
-				<div class="float-end d-none d-sm-inline">IUH SE-IoT Platform</div>
-				<strong>Copyright &copy; 2024 <a href="https://iuh.edu.vn">IUH</a>.</strong> All rights reserved.
-			</footer>
+			<footer class="app-footer text-center" th:fragment="footer"><strong th:text="#{footer.copyright}">Copyright</strong> &copy; 2024 <span class="text-primary fw-bold">Smart Room</span>. <span th:text="#{footer.rights}">All rights reserved.</span></footer>
 		</div>
 
-		<!-- Required Scripts -->
 		<script th:src="@{/js/lib/overlayscrollbars.min.js}"></script>
 		<script th:src="@{/js/lib/popper.min.js}"></script>
 		<script th:src="@{/js/lib/bootstrap.min.js}"></script>
-		<!-- ApexCharts -->
 		<script th:src="@{/js/lib/apexcharts.min.js}"></script>
-		<!-- Lucide Icons -->
 		<script th:src="@{/js/lib/lucide.min.js}"></script>
-		<!-- SweetAlert2 -->
 		<script th:src="@{/js/lib/sweetalert2.min.js}"></script>
-		<!-- AdminLTE JS -->
 		<script th:src="@{/js/lib/adminlte.min.js}"></script>
+		<script th:src="@{/js/api/http-client.js}"></script>
 
 		<script>
 			window.renderIcons = () => {
@@ -121,7 +125,7 @@
 				}
 			};
 		</script>
-		<script type="module" th:src="@{/js/pages/layout.js}"></script>
+		<script th:src="@{/js/pages/layout.js}"></script>
 		<th:block layout:fragment="scripts"></th:block>
 	</body>
 </html>

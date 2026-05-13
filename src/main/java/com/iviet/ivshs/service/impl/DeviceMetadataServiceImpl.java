@@ -3,10 +3,14 @@ package com.iviet.ivshs.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.FanDto;
 import com.iviet.ivshs.service.FanService;
-import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.dto.LightDto;
@@ -30,42 +34,42 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
 
   @Override
   public List<Object> getAllByRoomId(Long roomId, DeviceCategory category) {
-    org.springframework.context.i18n.LocaleContext localeContext = org.springframework.context.i18n.LocaleContextHolder.getLocaleContext();
+    LocaleContext localeContext = LocaleContextHolder.getLocaleContext();
 
-    java.util.concurrent.CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+    CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
+        ? CompletableFuture.supplyAsync(() -> {
+            LocaleContextHolder.setLocaleContext(localeContext);
             try {
                 return lightService.getAllByRoomId(roomId);
             } finally {
-                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+                LocaleContextHolder.resetLocaleContext();
             }
         })
-        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        : CompletableFuture.completedFuture(Collections.emptyList());
 
-    java.util.concurrent.CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+    CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
+        ? CompletableFuture.supplyAsync(() -> {
+            LocaleContextHolder.setLocaleContext(localeContext);
             try {
                 return fanService.getAllByRoomId(roomId);
             } finally {
-                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+                LocaleContextHolder.resetLocaleContext();
             }
         })
-        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        : CompletableFuture.completedFuture(Collections.emptyList());
 
-    java.util.concurrent.CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+    CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
+        ? CompletableFuture.supplyAsync(() -> {
+            LocaleContextHolder.setLocaleContext(localeContext);
             try {
                 return airConditionService.getAllByRoomId(roomId);
             } finally {
-                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+                LocaleContextHolder.resetLocaleContext();
             }
         })
-        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        : CompletableFuture.completedFuture(Collections.emptyList());
 
-    return java.util.concurrent.CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
+    return CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
         .thenApply(v -> {
           List<Object> all = new ArrayList<>();
           all.addAll(lightFuture.join());
@@ -77,42 +81,42 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
 
   @Override
   public List<Object> getAll(DeviceCategory category) {
-    org.springframework.context.i18n.LocaleContext localeContext = org.springframework.context.i18n.LocaleContextHolder.getLocaleContext();
+    LocaleContext localeContext = LocaleContextHolder.getLocaleContext();
 
-    java.util.concurrent.CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+    CompletableFuture<List<LightDto>> lightFuture = (category == null || category == DeviceCategory.LIGHT)
+        ? CompletableFuture.supplyAsync(() -> {
+            LocaleContextHolder.setLocaleContext(localeContext);
             try {
                 return lightService.getAll();
             } finally {
-                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+                LocaleContextHolder.resetLocaleContext();
             }
         })
-        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        : CompletableFuture.completedFuture(Collections.emptyList());
 
-    java.util.concurrent.CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+    CompletableFuture<List<FanDto>> fanFuture = (category == null || category == DeviceCategory.FAN)
+        ? CompletableFuture.supplyAsync(() -> {
+            LocaleContextHolder.setLocaleContext(localeContext);
             try {
                 return fanService.getAll();
             } finally {
-                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+                LocaleContextHolder.resetLocaleContext();
             }
         })
-        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        : CompletableFuture.completedFuture(Collections.emptyList());
 
-    java.util.concurrent.CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
-        ? java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            org.springframework.context.i18n.LocaleContextHolder.setLocaleContext(localeContext);
+    CompletableFuture<List<AirConditionDto>> acFuture = (category == null || category == DeviceCategory.AIR_CONDITION)
+        ? CompletableFuture.supplyAsync(() -> {
+            LocaleContextHolder.setLocaleContext(localeContext);
             try {
                 return airConditionService.getAll();
             } finally {
-                org.springframework.context.i18n.LocaleContextHolder.resetLocaleContext();
+                LocaleContextHolder.resetLocaleContext();
             }
         })
-        : java.util.concurrent.CompletableFuture.completedFuture(Collections.emptyList());
+        : CompletableFuture.completedFuture(Collections.emptyList());
 
-    return java.util.concurrent.CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
+    return CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
         .thenApply(v -> {
           List<Object> all = new ArrayList<>();
           all.addAll(lightFuture.join());

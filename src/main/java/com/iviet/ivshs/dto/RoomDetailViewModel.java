@@ -1,37 +1,26 @@
 package com.iviet.ivshs.dto;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Collections;
+
+import org.springframework.lang.NonNull;
+
+import java.util.HashMap;
 
 import lombok.Builder;
 
 @Builder
 public record RoomDetailViewModel(
 	RoomDto room,
-	String pageTitle,
-	Optional<Double> currentTemp,
-	Optional<Double> currentPower,
-	List<?> tempChartData,
-	List<?> powerChartData,
-	List<LightDto> lights,
-	List<AirConditionDto> airConditions,
-	List<FanDto> fans,
-	String errorMessage
+	Double lastestAvgTemperature,
+	Double lastestSumWatt
 ) {
+
+	@NonNull
 	public Map<String, Object> toModelAttributes() {
-		return Map.of(
-			"room", room,
-			"pageTitle", pageTitle != null ? pageTitle : "",
-			"currentTemp", currentTemp != null ? currentTemp : Optional.empty(),
-			"currentPower", currentPower != null ? currentPower : Optional.empty(),
-			"tempChartData", tempChartData != null ? tempChartData : Collections.emptyList(),
-			"powerChartData", powerChartData != null ? powerChartData : Collections.emptyList(),
-			"lights", lights != null ? lights : Collections.emptyList(),
-			"airConditions", airConditions != null ? airConditions : Collections.emptyList(),
-			"fans", fans != null ? fans : Collections.emptyList(),
-			"errorMessage", errorMessage != null ? errorMessage : ""
-		);
+		HashMap<String, Object> attributes = new HashMap<>();
+		attributes.put("room", room);
+		attributes.put("lastestAvgTemperature", lastestAvgTemperature);
+		attributes.put("lastestSumWatt", lastestSumWatt);
+		return attributes;
 	}
 }
