@@ -2,6 +2,7 @@ package com.iviet.ivshs.config;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -158,6 +159,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setTimeZone(TimeZone.getTimeZone("UTC"));
         return mapper;
     }
 

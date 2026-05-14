@@ -6,7 +6,8 @@ import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.enumeration.RuleDataSource;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,19 +40,23 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
         return null;
       }
 
-      LocalDateTime now = LocalDateTime.now();
+      Instant now = Instant.now();
+      ZoneId utcZone = ZoneId.of("UTC");
 
       Object value = switch (property.toLowerCase()) {
-        case PROP_CURRENT_TIME -> now.getHour() + (now.getMinute() / 60.0);
-        case PROP_DAY_OF_WEEK -> now.getDayOfWeek().getValue();
-        case PROP_DAY_OF_MONTH -> now.getDayOfMonth();
+        case PROP_CURRENT_TIME -> {
+          var zonedDateTime = now.atZone(utcZone);
+          yield zonedDateTime.getHour() + (zonedDateTime.getMinute() / 60.0);
+        }
+        case PROP_DAY_OF_WEEK -> now.atZone(utcZone).getDayOfWeek().getValue();
+        case PROP_DAY_OF_MONTH -> now.atZone(utcZone).getDayOfMonth();
         default -> {
           log.warn("Property '{}' not supported for SYSTEM data source in condition {}", property, condition.getId());
           yield null;
         }
       };
       
-      log.debug("Fetched SYSTEM data for condition {}: {} = {}", condition.getId(), property, value);
+      log.debug("Fetched SYSTEM data [UTC]: {} = {}", property, value);
       return value;
 
     } catch (Exception e) {

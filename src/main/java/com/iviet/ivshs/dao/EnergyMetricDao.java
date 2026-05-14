@@ -65,29 +65,28 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
     }
 
     public List<EnergyMetricDto> findHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to, int divisor) {
-        String sql = """
+        String jpql = """
             SELECT
-                (unix_minute DIV :divisor) * :divisor * 60 as unix_seconds,
-                AVG(voltage) as avg_voltage,
-                AVG(current) as avg_current,
-                AVG(power) as avg_power,
-                MAX(energy) as max_energy,
-                AVG(frequency) as avg_frequency,
-                AVG(power_factor) as avg_power_factor
-            FROM energy_metrics
-            WHERE target_category = :category
-                AND target_id = :targetId
-                AND timestamp BETWEEN :from AND :to
-            GROUP BY unix_seconds
-            ORDER BY unix_seconds ASC
+                (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L,
+                AVG(e.voltage),
+                AVG(e.current),
+                AVG(e.power),
+                MAX(e.energy),
+                AVG(e.frequency),
+                AVG(e.powerFactor)
+            FROM EnergyMetric e
+            WHERE e.targetCategory = :category
+                AND e.targetId = :targetId
+                AND e.timestamp BETWEEN :from AND :to
+            GROUP BY (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L
+            ORDER BY (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L ASC
             """;
 
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = entityManager.createNativeQuery(sql)
+        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
             .setParameter("category", category.name())
             .setParameter("targetId", targetId)
-            .setParameter("from", java.sql.Timestamp.from(from))
-            .setParameter("to", java.sql.Timestamp.from(to))
+            .setParameter("from", from)
+            .setParameter("to", to)
             .setParameter("divisor", divisor)
             .getResultList();
 

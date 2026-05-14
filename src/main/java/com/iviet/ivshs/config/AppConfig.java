@@ -1,6 +1,8 @@
 package com.iviet.ivshs.config;
 
 import java.util.Properties;
+import java.util.TimeZone;
+
 import javax.sql.DataSource;
 
 import org.springframework.context.EnvironmentAware;
@@ -26,6 +28,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +62,11 @@ public class AppConfig implements EnvironmentAware {
     private static final String ENTITY_PACKAGES = "com.iviet.ivshs.entities";
 
     private final Environment env;
+
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
 
     @Override
     public void setEnvironment(@NonNull Environment env) {
@@ -149,6 +158,8 @@ public class AppConfig implements EnvironmentAware {
         props.put("hibernate.connection.characterEncoding", "utf8");
         props.put("hibernate.connection.useUnicode", "true");
         props.put("hibernate.connection.charSet", "UTF-8");
+
+        props.put("hibernate.jdbc.time_zone", "UTC");
 
         return props;
     }

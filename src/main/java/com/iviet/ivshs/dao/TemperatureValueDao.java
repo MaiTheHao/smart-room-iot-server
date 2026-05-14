@@ -39,7 +39,7 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 			} else throw new BadRequestException("Sensor ID cannot be null");
 
 			if (entity.getTimestamp() != null) {
-				ps.setTimestamp(2, java.sql.Timestamp.from(entity.getTimestamp()));
+				ps.setObject(2, entity.getTimestamp());
 			} else throw new BadRequestException("Timestamp cannot be null");
 
 			if (entity.getTempC() != null) ps.setDouble(3, entity.getTempC());
@@ -50,32 +50,32 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
-		String sql = """
-			SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
-			FROM TemperatureValue tv
-			WHERE tv.sensor.room.id = :roomId
-			AND tv.timestamp BETWEEN :startedAt AND :endedAt
-			GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
-			ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC
-			""".formatted(AverageTemperatureValueDto.class.getName());
-			
-		return entityManager.createQuery(sql, AverageTemperatureValueDto.class)
-			.setParameter("roomId", roomId)
-			.setParameter("startedAt", startedAt)
-			.setParameter("endedAt", endedAt)
-			.setParameter("divisor", divisor)
-			.getResultList();
+		String jpql = """
+						SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+						FROM TemperatureValue tv
+						WHERE tv.sensor.room.id = :roomId
+						AND tv.timestamp BETWEEN :startedAt AND :endedAt
+						GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
+						ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
+						""".formatted(AverageTemperatureValueDto.class.getName());
+
+		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
+						.setParameter("roomId", roomId)
+						.setParameter("startedAt", startedAt)
+						.setParameter("endedAt", endedAt)
+						.setParameter("divisor", divisor)
+						.getResultList();
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-			SELECT new %s((tv.unixMinute / :divisor) * :divisor * 60L, AVG(tv.tempC))
-			FROM TemperatureValue tv
-			WHERE tv.sensor.hardwareConfig.client.id = :clientId
-			AND tv.timestamp BETWEEN :startedAt AND :endedAt
-			GROUP BY (tv.unixMinute / :divisor) * :divisor * 60L
-			ORDER BY (tv.unixMinute / :divisor) * :divisor * 60L ASC
-			""".formatted(AverageTemperatureValueDto.class.getName());
+						SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+						FROM TemperatureValue tv
+						WHERE tv.sensor.hardwareConfig.client.id = :clientId
+						AND tv.timestamp BETWEEN :startedAt AND :endedAt
+						GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
+						ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
+						""".formatted(AverageTemperatureValueDto.class.getName());
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 			.setParameter("clientId", clientId)

@@ -23,12 +23,12 @@ public abstract class BaseTelemetryValue<T extends BaseIoTSensor<?>> extends Bas
     private T sensor;
 
     @Column(name = "unix_minute")
-    private Integer unixMinute;
+    private Long unixMinute;
 
     public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
         if (timestamp != null) {
-            this.unixMinute = (int) (timestamp.getEpochSecond() / 60);
+            this.unixMinute = timestamp.getEpochSecond() / 60;
         } else {
             this.unixMinute = null;
         }

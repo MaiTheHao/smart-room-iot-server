@@ -49,31 +49,31 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-			SELECT new %s((pcv.unixMinute / :divisor) * :divisor * 60L, AVG(pcv.watt))
-			FROM PowerConsumptionValue pcv
-			WHERE pcv.sensor.room.id = :roomId
-			AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-			GROUP BY (pcv.unixMinute / :divisor) * :divisor * 60L
-			ORDER BY (pcv.unixMinute / :divisor) * :divisor * 60L ASC
-			""".formatted(AveragePowerConsumptionValueDto.class.getName());
+				SELECT new %s((pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L, AVG(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.room.id = :roomId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
+				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
+				""".formatted(AveragePowerConsumptionValueDto.class.getName());
 		
 		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
-			.setParameter("roomId", roomId)
-			.setParameter("startedAt", startedAt)
-			.setParameter("endedAt", endedAt)
-			.setParameter("divisor", divisor)
-			.getResultList();
+				.setParameter("roomId", roomId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.setParameter("divisor", divisor)
+				.getResultList();
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-			SELECT new %s((pcv.unixMinute / :divisor) * :divisor * 60L, AVG(pcv.watt))
-			FROM PowerConsumptionValue pcv
-			WHERE pcv.sensor.hardwareConfig.client.id = :clientId
-			AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-			GROUP BY (pcv.unixMinute / :divisor) * :divisor * 60L
-			ORDER BY (pcv.unixMinute / :divisor) * :divisor * 60L ASC
-			""".formatted(AveragePowerConsumptionValueDto.class.getName());
+				SELECT new %s((pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L, AVG(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.hardwareConfig.client.id = :clientId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
+				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
+				""".formatted(AveragePowerConsumptionValueDto.class.getName());
 		
 		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
 			.setParameter("clientId", clientId)
@@ -85,13 +85,13 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-			SELECT new %s((pcv.unixMinute / :divisor) * :divisor * 60L, SUM(pcv.watt))
-			FROM PowerConsumptionValue pcv
-			WHERE pcv.sensor.hardwareConfig.client.id = :clientId
-			AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-			GROUP BY (pcv.unixMinute / :divisor) * :divisor * 60L
-			ORDER BY (pcv.unixMinute / :divisor) * :divisor * 60L ASC
-			""".formatted(SumPowerConsumptionValueDto.class.getName());
+				SELECT new %s((pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L, SUM(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.hardwareConfig.client.id = :clientId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
+				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
+				""".formatted(SumPowerConsumptionValueDto.class.getName());
 		
 		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
 			.setParameter("clientId", clientId)
@@ -103,20 +103,20 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-			SELECT new %s((pcv.unixMinute / :divisor) * :divisor * 60L, SUM(pcv.watt))
-			FROM PowerConsumptionValue pcv
-			WHERE pcv.sensor.room.id = :roomId
-			AND pcv.timestamp BETWEEN :startedAt AND :endedAt
-			GROUP BY (pcv.unixMinute / :divisor) * :divisor * 60L
-			ORDER BY (pcv.unixMinute / :divisor) * :divisor * 60L ASC
-			""".formatted(SumPowerConsumptionValueDto.class.getName());
+				SELECT new %s((pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L, SUM(pcv.watt))
+				FROM PowerConsumptionValue pcv
+				WHERE pcv.sensor.room.id = :roomId
+				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
+				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
+				""".formatted(SumPowerConsumptionValueDto.class.getName());
 		
 		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
-			.setParameter("roomId", roomId)
-			.setParameter("startedAt", startedAt)
-			.setParameter("endedAt", endedAt)
-			.setParameter("divisor", divisor)
-			.getResultList();
+				.setParameter("roomId", roomId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.setParameter("divisor", divisor)
+				.getResultList();
 	}
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {

@@ -6,6 +6,10 @@ import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j(topic = "Startup")
@@ -22,8 +26,9 @@ public class ContextRefreshedLogger implements ApplicationListener<ContextRefres
         }
 
         String port = event.getApplicationContext().getEnvironment().getProperty("server.port", "8080");
-        String timestamp = java.time.LocalDateTime.now()
-            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String timestamp = Instant.now()
+            .atZone(ZoneId.of("UTC"))
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z"));
 
         log.info("------------------------------------------------------------");
         log.info("SERVER READY");

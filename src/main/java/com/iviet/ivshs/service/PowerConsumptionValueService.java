@@ -9,7 +9,7 @@ import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.service.strategy.TelemetryCRUDServiceStrategy;
 
 public interface PowerConsumptionValueService extends TelemetryCRUDServiceStrategy {
-	List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp);
+	List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant from, Instant to);
 	void create(CreatePowerConsumptionValueDto dto);
 	void createWithSensor(PowerConsumption sensor, CreatePowerConsumptionValueDto dto);
 	void createBatchWithSensor(PowerConsumption sensor, List<CreatePowerConsumptionValueDto> dtoList);
