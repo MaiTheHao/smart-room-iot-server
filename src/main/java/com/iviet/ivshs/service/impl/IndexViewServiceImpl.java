@@ -18,7 +18,6 @@ import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.IndexViewService;
 import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.util.TimeUtil;
 
 import lombok.RequiredArgsConstructor;
 
