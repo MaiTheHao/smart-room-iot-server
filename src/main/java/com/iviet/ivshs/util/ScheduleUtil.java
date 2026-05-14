@@ -17,9 +17,6 @@ public class ScheduleUtil {
 
     private final QuartzUtil quartzUtil;
 
-    @Value("${app.timezone:Asia/Ho_Chi_Minh}")
-    private String appTimezone;
-
     public void sync(BaseSchedulableEntity entity) {
         JobKey jobKey = JobKey.jobKey(entity.getJobName(), entity.getJobGroup());
         TriggerKey triggerKey = TriggerKey.triggerKey("Trigger_" + entity.getJobName(), entity.getJobGroup());
@@ -73,7 +70,7 @@ public class ScheduleUtil {
 
         validateCron(entity);
         return builder.withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression())
-                        .inTimeZone(TimeZone.getTimeZone(appTimezone))
+                        .inTimeZone(TimeZone.getTimeZone("UTC"))
                         .withMisfireHandlingInstructionFireAndProceed())
                 .build();
     }

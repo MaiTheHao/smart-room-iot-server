@@ -113,7 +113,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 		}
 
 		var body = response.getBody();
-		if (body.getData() == null || body.getData().getDevices() == null) {
+		if (body == null || body.getData() == null || body.getData().getDevices() == null) {
 			log.info("Gateway [{}]: No telemetry data available", gateway.username());
 			return;
 		}

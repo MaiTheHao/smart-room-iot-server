@@ -4,9 +4,7 @@ package com.iviet.ivshs.service.strategy;
 import com.iviet.ivshs.enumeration.MetricDomain;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
-import com.iviet.ivshs.schedule.metric.MetricJobRegistration;
 
 public interface MetricServiceStrategy {
     

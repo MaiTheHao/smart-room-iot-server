@@ -13,12 +13,10 @@ import com.iviet.ivshs.entities.EnergyMetric;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.enumeration.MetricDomain;
 import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
-import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.EnergyMetricService;
 import com.iviet.ivshs.service.client.gateway.GatewayMaintenanceClient;
 import com.iviet.ivshs.service.client.gateway.GatewayTelemetryClient;
-import com.iviet.ivshs.util.HttpClientUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,11 +26,9 @@ import org.springframework.http.ResponseEntity;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 @Slf4j(topic = "ENERGY")
 @Service
@@ -54,7 +50,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     @Override
     @Transactional(readOnly = true)
     public List<EnergyMetricDto> getHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
-        from = TelemetryTimeGroup.limitRange(from, to);
+        // from = TelemetryTimeGroup.limitRange(from, to);
         int divisor = TelemetryTimeGroup.getDivisorForRange(from, to);
         log.debug("GetHistory: category={}, targetId={}, from={}, to={}, divisor={}", category.name(), targetId, from, to, divisor);
         return energyMetricDao.findHistory(category, targetId, from, to, divisor);
@@ -179,9 +175,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             }
 
             EnergyMetricDto dto = apiResponse.getData();
-            if (dto.getTimestamp() == null) {
-                dto.setTimestamp(apiResponse.getTimestamp() != null ? apiResponse.getTimestamp() : Instant.now());
-            }
+            dto.setTimestamp(Instant.now());
             
             EnergyMetric metric = dto.toEntity(category.name(), targetId);
             metricsToSave.add(metric);

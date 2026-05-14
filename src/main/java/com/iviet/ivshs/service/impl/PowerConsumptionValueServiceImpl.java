@@ -55,13 +55,13 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   }
 
   @Override
-  public List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant fromTimestamp, Instant toTimestamp) {
-    fromTimestamp = TelemetryTimeGroup.limitRange(fromTimestamp, toTimestamp);
-    int divisor = TelemetryTimeGroup.getDivisorForRange(fromTimestamp, toTimestamp);
+  public List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant from, Instant to) {
+    // from = TelemetryTimeGroup.limitRange(from, to);
+    int divisor = TelemetryTimeGroup.getDivisorForRange(from, to);
     return powerConsumptionValueDao.getSumHistoryByRoom(
         roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId(),
-        fromTimestamp,
-        toTimestamp,
+        from,
+        to,
         divisor
     );
   }

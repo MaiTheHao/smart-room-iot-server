@@ -2,7 +2,8 @@ USE smart_room_iot;
 
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES utf8mb4;
-SET TIME_ZONE = '+00:00';
+SET GLOBAL time_zone = '+00:00';
+SET time_zone = '+00:00';
 
 -- ----------------------------
 -- 1. System & Auth Module
@@ -372,7 +373,7 @@ CREATE TABLE `temperature_value` (
   `timestamp` datetime(6) NOT NULL,
   `temp_c` double DEFAULT NULL,
   `sensor_id` bigint NOT NULL,
-  `unix_minute` int DEFAULT NULL,
+  `unix_minute` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_sensor_timestamp` (`sensor_id`, `timestamp`),
   KEY `idx_timestamp` (`timestamp`),
@@ -421,7 +422,7 @@ CREATE TABLE `power_consumption_value` (
   `timestamp` datetime(6) NOT NULL,
   `watt` double DEFAULT NULL,
   `sensor_id` bigint NOT NULL,
-  `unix_minute` int DEFAULT NULL,
+  `unix_minute` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_sensor_timestamp` (`sensor_id`, `timestamp`),
   KEY `idx_timestamp` (`timestamp`),
@@ -440,7 +441,7 @@ CREATE TABLE `energy_metrics` (
   `energy` double DEFAULT NULL,
   `frequency` double DEFAULT NULL,
   `power_factor` double DEFAULT NULL,
-  `unix_minute` int DEFAULT NULL,
+  `unix_minute` bigint NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_energy_metrics_target` (`target_category`, `target_id`, `timestamp`),
   KEY `idx_energy_metrics_timestamp` (`timestamp`),
@@ -451,7 +452,6 @@ CREATE TABLE `energy_metrics` (
 -- 4. Automation & Rules Module (RELEASE VERSION)
 -- ----------------------------
 
--- Hợp nhất thay đổi từ migration 01: is_active (default 1), is_interval, interval_seconds
 CREATE TABLE `automation` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -486,7 +486,7 @@ CREATE TABLE `automation_action` (
   CONSTRAINT `fk_automation_action_automation` FOREIGN KEY (`automation_id`) REFERENCES `automation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Rule Engine (Standardized from V2)
+-- Rule Engine
 CREATE TABLE `rule` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
