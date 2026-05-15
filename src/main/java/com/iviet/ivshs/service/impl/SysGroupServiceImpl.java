@@ -9,6 +9,7 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.SysGroupService;
 import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.util.FunctionCodeHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,7 +145,10 @@ public class SysGroupServiceImpl implements SysGroupService {
       throw new BadRequestException("Data and Group code are required");
     }
 
-    String code = dto.groupCode().trim();
+    String code = dto.groupCode().trim().toUpperCase();
+    if (!FunctionCodeHelper.isValidGroupCode(code)) {
+      throw new BadRequestException("Invalid group code format. Must start with G_ and contain only uppercase letters, numbers, and underscores.");
+    }
     _checkDuplicate(code, null);
 
     String langCode = LocalContextUtil.resolveLangCode(dto.langCode());

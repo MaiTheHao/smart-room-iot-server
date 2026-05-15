@@ -22,4 +22,14 @@ public class ManagementViewController {
     public String roomsPage() {
         return "pages/management/rooms.html";
     }
+
+    @GetMapping("/functions")
+    public String functionsPage() {
+        return "pages/management/functions.html";
+    }
+
+    @GetMapping("/roles")
+    public String rolesPage() {
+        return "pages/management/roles.html";
+    }
 }

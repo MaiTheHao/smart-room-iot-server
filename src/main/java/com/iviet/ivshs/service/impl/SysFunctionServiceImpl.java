@@ -9,6 +9,7 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.util.FunctionCodeHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,7 +116,10 @@ public class SysFunctionServiceImpl implements SysFunctionService {
       throw new BadRequestException("Data and Function code are required");
     }
 
-    String code = dto.functionCode().trim();
+    String code = dto.functionCode().trim().toUpperCase();
+    if (!FunctionCodeHelper.isValidFunctionCode(code)) {
+      throw new BadRequestException("Invalid function code format. Must be F_MANAGE_<domain> or F_ACCESS_<domain>_<id>.");
+    }
     _checkDuplicate(code, null);
 
     String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
@@ -178,6 +182,15 @@ public class SysFunctionServiceImpl implements SysFunctionService {
       throw new NotFoundException("Function not found with ID: " + id);
     }
     functionDao.deleteById(id);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByCode(String functionCode) {
+    if (!StringUtils.hasText(functionCode)) {
+      return;
+    }
+    functionDao.findByCode(functionCode).ifPresent(functionDao::delete);
   }
 
   @Override

@@ -6,13 +6,13 @@
   layout:decorate="~{layout.html}"
 >
   <head>
-    <title th:text="#{management.room.title}">Room Management</title>
+    <title th:text="#{management.function.title}">Function Management</title>
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
   </head>
-  <body class="rooms-management-page">
+  <body class="functions-management-page">
     <div layout:fragment="header-title">
-      <span th:text="#{management.room.title}">Room Management</span>
+      <span th:text="#{management.function.title}">Function Management</span>
     </div>
 
     <div layout:fragment="content">
@@ -21,8 +21,8 @@
         <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
           <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
             <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
-              <i data-lucide="door-open" class="text-success me-2 lucide-sm"></i>
-              <span th:text="#{management.room.list.title}">Room List</span>
+              <i data-lucide="shield-check" class="text-primary me-2 lucide-sm"></i>
+              <span th:text="#{management.function.list.title}">Function List</span>
             </h6>
             <div class="d-flex gap-2">
               <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
@@ -44,62 +44,49 @@
             </div>
           </div>
           <div class="card-body p-0">
-            <div id="roomsTable"></div>
+            <div id="functionsTable"></div>
           </div>
         </div>
       </div>
 
-      <!-- Room Form Modal -->
-      <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+      <!-- Function Form Modal -->
+      <div class="modal fade" id="functionModal" tabindex="-1" aria-labelledby="functionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
-              <h5 class="modal-title fw-bold d-flex align-items-center" id="roomModalLabel">
-                <i data-lucide="layout-panel-left" class="text-primary me-2 lucide-md"></i>
-                <span id="modalTitle" th:text="#{management.room.modal.add_title}">Add New Room</span>
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="functionModalLabel">
+                <i data-lucide="shield" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle" th:text="#{management.function.modal.add_title}">Add New Function</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="roomForm" novalidate>
+            <form id="functionForm" novalidate>
               <div class="modal-body py-4">
-                <input type="hidden" id="roomId" name="id" />
+                <input type="hidden" id="functionId" name="id" />
                 <div class="row g-3">
                   <!-- Name -->
                   <div class="col-12">
-                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{room.table.name}">Name</label>
+                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{function.table.name}">Name</label>
                     <div class="input-group">
-                      <span class="input-group-text bg-light border-0"><i data-lucide="type" class="lucide-sm"></i></span>
-                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Living Room" />
+                      <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="View Users" />
                     </div>
                     <div class="invalid-feedback" id="val-name"></div>
                   </div>
 
                   <!-- Code -->
-                  <div class="col-md-6">
-                    <label for="code" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{room.table.code}">Code</label>
+                  <div class="col-12">
+                    <label for="functionCode" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{function.table.code}">Code</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
-                      <input type="text" class="form-control bg-light border-0" id="code" name="code" placeholder="R-101" />
+                      <input type="text" class="form-control bg-light border-0" id="functionCode" name="functionCode" placeholder="USER_VIEW" />
                     </div>
-                    <div class="invalid-feedback" id="val-code"></div>
-                  </div>
-
-                  <!-- Floor Select -->
-                  <div class="col-md-6">
-                    <label for="floorId" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{room.table.floor}">Floor</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-0"><i data-lucide="layers" class="lucide-sm"></i></span>
-                      <select class="form-select bg-light border-0" id="floorId" name="floorId">
-                        <option value="" th:text="#{val.floor.required}">Select Floor</option>
-                        <!-- Options filled via JS -->
-                      </select>
-                    </div>
-                    <div class="invalid-feedback" id="val-floorId"></div>
+                    <div class="invalid-feedback" id="val-functionCode"></div>
                   </div>
 
                   <!-- Description -->
                   <div class="col-12">
-                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{room.table.description}">Description</label>
+                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{function.table.description}">Description</label>
                     <textarea class="form-control bg-light border-0" id="description" name="description" rows="3" placeholder="Additional details..."></textarea>
                     <div class="invalid-feedback" id="val-description"></div>
                   </div>
@@ -107,7 +94,7 @@
               </div>
               <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitRoom">
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitFunction">
                   <i data-lucide="save" class="lucide-sm me-1"></i>
                   <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
                 </button>
@@ -120,20 +107,19 @@
 
     <th:block layout:fragment="scripts">
       <script th:inline="javascript">
-        window.__ROOMS_CONFIG__ = {
+        window.__FUNCTIONS_CONFIG__ = {
           i18n: {
-            colId: /*[[#{room.table.id}]]*/ 'ID',
-            colCode: /*[[#{room.table.code}]]*/ 'Code',
-            colName: /*[[#{room.table.name}]]*/ 'Name',
-            colFloor: /*[[#{room.table.floor}]]*/ 'Floor',
-            colDescription: /*[[#{room.table.description}]]*/ 'Description',
+            colId: /*[[#{function.table.id}]]*/ 'ID',
+            colCode: /*[[#{function.table.code}]]*/ 'Code',
+            colName: /*[[#{function.table.name}]]*/ 'Name',
+            colDescription: /*[[#{function.table.description}]]*/ 'Description',
             colActions: /*[[#{client.table.actions}]]*/ 'Actions',
-            noData: /*[[#{room.table.no_data}]]*/ 'No data found.',
+            noData: /*[[#{function.table.no_data}]]*/ 'No data found.',
             placeholderSearch: /*[[#{index.search.placeholder}]]*/ 'Search...',
-            addTitle: /*[[#{management.room.modal.add_title}]]*/ 'Add New Room',
-            editTitle: /*[[#{management.room.modal.edit_title}]]*/ 'Edit Room',
-            createdSuccess: /*[[#{management.room.success.created}]]*/ 'Room created successfully',
-            updatedSuccess: /*[[#{management.room.success.updated}]]*/ 'Room updated successfully',
+            addTitle: /*[[#{management.function.modal.add_title}]]*/ 'Add New Function',
+            editTitle: /*[[#{management.function.modal.edit_title}]]*/ 'Edit Function',
+            createdSuccess: /*[[#{management.function.success.created}]]*/ 'Function created successfully',
+            updatedSuccess: /*[[#{management.function.success.updated}]]*/ 'Function updated successfully',
             confirmDelete: /*[[#{common.delete}]]*/ 'Delete',
             confirmDeleteTextSingle: /*[[#{client.management.confirm.delete_single}]]*/ 'Delete {0} item?',
             confirmDeleteTextBatch: /*[[#{client.management.confirm.delete_batch}]]*/ 'Delete {0} items?',
@@ -146,12 +132,12 @@
             valNameLen: /*[[#{val.name.len}]]*/ 'Name length error',
             valCodeLen: /*[[#{val.code.len}]]*/ 'Code length error',
             valDescriptionLen: /*[[#{val.description.len}]]*/ 'Description too long',
-            valFloorRequired: /*[[#{val.floor.required}]]*/ 'Floor required',
+            valFunctionCodeFormat: /*[[#{val.function_code.format}]]*/ 'Invalid format',
           },
         };
       </script>
 
-      <script type="module" th:src="@{/js/pages/management/rooms.js}"></script>
+      <script type="module" th:src="@{/js/pages/management/functions.js}"></script>
     </th:block>
   </body>
 </html>

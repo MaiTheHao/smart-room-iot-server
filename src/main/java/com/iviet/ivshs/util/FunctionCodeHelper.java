@@ -4,41 +4,84 @@ import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @UtilityClass
 public class FunctionCodeHelper {
     
-    private static final String FLOOR_PREFIX = "F_ACCESS_FLOOR_";
-    private static final String ROOM_PREFIX = "F_ACCESS_ROOM_";
-    
+    public static final String FLOOR_PREFIX = "F_ACCESS_FLOOR_";
+    public static final String ROOM_PREFIX = "F_ACCESS_ROOM_";
+    public static final String MANAGE_PREFIX = "F_MANAGE_";
+    public static final String GROUP_PREFIX = "G_";
+
+    private static final Pattern MANAGE_PATTERN = Pattern.compile("^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALL|SOME)$");
+    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\\-]+|ALL)$");
+    private static final Pattern GROUP_PATTERN = Pattern.compile("^G_[A-Z0-9_]+$");
+
+    // --- Build Methods ---
+
     public static String buildFloorAccessCode(String floorCode) {
-        if (floorCode == null || floorCode.isBlank()) {
-            throw new IllegalArgumentException("Floor code cannot be null or blank");
-        }
-        return FLOOR_PREFIX + floorCode;
+        return buildWithPrefix(floorCode, FLOOR_PREFIX, "Floor code");
     }
     
     public static String buildRoomAccessCode(String roomCode) {
-        if (roomCode == null || roomCode.isBlank()) {
-            throw new IllegalArgumentException("Room code cannot be null or blank");
+        return buildWithPrefix(roomCode, ROOM_PREFIX, "Room code");
+    }
+
+    public static String buildManageCode(String domain) {
+        return buildWithPrefix(domain, MANAGE_PREFIX, "Domain");
+    }
+
+    public static String buildGroupCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Group code cannot be null or blank");
         }
-        return ROOM_PREFIX + roomCode;
+        String upper = code.toUpperCase();
+        return upper.startsWith(GROUP_PREFIX) ? upper : GROUP_PREFIX + upper;
+    }
+
+    private static String buildWithPrefix(String value, String prefix, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be null or blank");
+        }
+        return prefix + value.toUpperCase();
     }
     
+    // --- Extraction Methods ---
+
     public static String extractFloorCode(String functionCode) {
-        if (isFloorAccessCode(functionCode)) {
-            return functionCode.substring(FLOOR_PREFIX.length());
+        return extractCode(functionCode, FLOOR_PREFIX);
+    }
+
+    public static String extractRoomCode(String functionCode) {
+        return extractCode(functionCode, ROOM_PREFIX);
+    }
+
+    private static String extractCode(String functionCode, String prefix) {
+        if (functionCode != null && functionCode.startsWith(prefix)) {
+            return functionCode.substring(prefix.length());
         }
         return null;
     }
 
-    public static String extractRoomCode(String functionCode) {
-        if (isRoomAccessCode(functionCode)) {
-            return functionCode.substring(ROOM_PREFIX.length());
-        }
-        return null;
+    public static Set<String> extractFloorCodes(Collection<String> functionCodes) {
+        return extractCodes(functionCodes, FLOOR_PREFIX);
     }
+
+    public static Set<String> extractRoomCodes(Collection<String> functionCodes) {
+        return extractCodes(functionCodes, ROOM_PREFIX);
+    }
+
+    private static Set<String> extractCodes(Collection<String> functionCodes, String prefix) {
+        if (functionCodes == null) return Set.of();
+        return functionCodes.stream()
+                .filter(code -> code != null && code.startsWith(prefix))
+                .map(code -> code.substring(prefix.length()))
+                .collect(Collectors.toSet());
+    }
+
+    // --- Validation Methods ---
 
     public static boolean isFloorAccessCode(String functionCode) {
         return functionCode != null && functionCode.startsWith(FLOOR_PREFIX);
@@ -48,17 +91,13 @@ public class FunctionCodeHelper {
         return functionCode != null && functionCode.startsWith(ROOM_PREFIX);
     }
 
-    public static Set<String> extractFloorCodes(Collection<String> functionCodes) {
-        return functionCodes.stream()
-                .filter(FunctionCodeHelper::isFloorAccessCode)
-                .map(FunctionCodeHelper::extractFloorCode)
-                .collect(Collectors.toSet());
+    public static boolean isValidFunctionCode(String functionCode) {
+        if (functionCode == null) return false;
+        return MANAGE_PATTERN.matcher(functionCode).matches() || ACCESS_PATTERN.matcher(functionCode).matches();
     }
 
-    public static Set<String> extractRoomCodes(Collection<String> functionCodes) {
-        return functionCodes.stream()
-                .filter(FunctionCodeHelper::isRoomAccessCode)
-                .map(FunctionCodeHelper::extractRoomCode)
-                .collect(Collectors.toSet());
+    public static boolean isValidGroupCode(String groupCode) {
+        if (groupCode == null) return false;
+        return GROUP_PATTERN.matcher(groupCode).matches();
     }
 }

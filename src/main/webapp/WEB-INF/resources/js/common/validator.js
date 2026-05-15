@@ -1,12 +1,4 @@
 /**
- * Common Validator Module
- *
- * Hệ thống validation dùng chung, cung cấp các hàm thuần (pure functions) trả về boolean.
- * Quy tắc chung: Hàm trả về true nếu HỢP LỆ (pass) hoặc không yêu cầu kiểm tra, trả về false nếu VI PHẠM (fail).
- * Thông báo lỗi sẽ được xử lý tại nơi sử dụng (usage side).
- */
-
-/**
  * Factory tạo validator cho một field.
  * @param {Object} config Cấu hình mặc định cho field
  * @param {number} [config.min] Độ dài tối thiểu
@@ -137,4 +129,27 @@ export const Validator = {
 
 	// Generic ID (for foreign keys)
 	id: createValidator(),
+
+	// Group Code: Starts with G_
+	groupCode: createValidator({
+		max: 100,
+		regex: /^G_[A-Z0-9_]+$/,
+	}),
+
+	// Function Code: F_MANAGE_<domain> or F_ACCESS_<domain>_<id>
+	functionCode: createValidator({
+		max: 256,
+		formatFn: (val) => {
+			if (!val || typeof val !== 'string') return false;
+			const s = val.trim().toUpperCase();
+
+			// Pattern 1: F_MANAGE_<domain>
+			const manageRegex = /^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALL|SOME)$/;
+			if (manageRegex.test(s)) return true;
+
+			// Pattern 2: F_ACCESS_<domain>_<identify>
+			const accessRegex = /^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\-]+|ALL)$/;
+			return accessRegex.test(s);
+		},
+	}),
 };

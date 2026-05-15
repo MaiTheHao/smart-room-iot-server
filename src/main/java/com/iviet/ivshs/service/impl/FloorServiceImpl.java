@@ -9,7 +9,10 @@ import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.PermissionService;
+import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.util.FunctionCodeHelper;
+import com.iviet.ivshs.entities.Room;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ public class FloorServiceImpl implements FloorService {
     private final FloorDao floorDao;
     private final LanguageDao languageDao;
     private final PermissionService permissionService;
+    private final SysFunctionService sysFunctionService;
 
     @Override
     public PaginatedResponse<FloorDto> getList(int page, int size) {
@@ -101,6 +105,15 @@ public class FloorServiceImpl implements FloorService {
         floorDao.save(floor);
         floorDao.flush();
 
+        // Create permission for floor
+        String functionCode = FunctionCodeHelper.buildFloorAccessCode(code);
+        sysFunctionService.create(CreateSysFunctionDto.builder()
+                .functionCode(functionCode)
+                .name("Access Floor " + code)
+                .description("Permission to access floor " + code)
+                .langCode(langCode)
+                .build());
+        
         return FloorDto.from(floor, floorLan); 
     }
 
@@ -157,9 +170,18 @@ public class FloorServiceImpl implements FloorService {
     public void delete(Long id) {
         permissionService.requireManageFloor();
 
-        if (!floorDao.existsById(id)) throw new NotFoundException("Floor not found");
-        floorDao.deleteById(id);
+        Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
+        String floorCode = floor.getCode();
+        List<String> roomCodes = floor.getRooms().stream().map(Room::getCode).toList();
+
+        floorDao.delete(floor);
         floorDao.flush();
+
+        // Clean up permissions
+        sysFunctionService.deleteByCode(FunctionCodeHelper.buildFloorAccessCode(floorCode));
+        for (String roomCode : roomCodes) {
+            sysFunctionService.deleteByCode(FunctionCodeHelper.buildRoomAccessCode(roomCode));
+        }
     }
 
     private void _checkDuplicate(String code, Long currentId) {

@@ -12,7 +12,9 @@ import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.FloorService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.PermissionService;
+import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.util.FunctionCodeHelper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ public class RoomServiceImpl implements RoomService {
     private final FloorService floorService;
     private final LanguageDao languageDao;
     private final PermissionService permissionService;
+    private final SysFunctionService sysFunctionService;
 
     @Override
     public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {
@@ -141,6 +144,15 @@ public class RoomServiceImpl implements RoomService {
         roomDao.save(room);
         roomDao.flush();
 
+        // Create permission for room
+        String functionCode = FunctionCodeHelper.buildRoomAccessCode(room.getCode());
+        sysFunctionService.create(CreateSysFunctionDto.builder()
+                .functionCode(functionCode)
+                .name("Access Room " + room.getCode())
+                .description("Permission to access room " + room.getCode())
+                .langCode(langCode)
+                .build());
+
         return RoomDto.from(room, roomLan);
     }
 
@@ -206,11 +218,16 @@ public class RoomServiceImpl implements RoomService {
         permissionService.requireManageRoom();
 
         Room room = roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found"));
+        String roomCode = room.getCode();
+        
         if (room.getFloor() != null) {
             room.getFloor().touch();
         }
         roomDao.delete(room);
         roomDao.flush();
+
+        // Clean up permission
+        sysFunctionService.deleteByCode(FunctionCodeHelper.buildRoomAccessCode(roomCode));
     }
 
     private void _checkDuplicate(String code, Long currentId) {

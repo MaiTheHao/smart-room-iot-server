@@ -228,4 +228,37 @@
  * @property {string} [langCode]
  */
 
+/**
+ * @typedef {Object} SysFunctionDto
+ * @property {number} id
+ * @property {string} functionCode
+ * @property {string} name
+ * @property {string} [description]
+ */
+
+/**
+ * @typedef {Object} CreateSysFunctionDto
+ * @property {string} functionCode
+ * @property {string} name
+ * @property {string} [description]
+ * @property {string} [langCode]
+ */
+
+/**
+ * @typedef {Object} UpdateSysFunctionDto
+ * @property {string} [name]
+ * @property {string} [description]
+ * @property {string} [langCode]
+ */
+
+/**
+ * @typedef {Object} SysFunctionWithGroupStatusDto
+ * @property {number} id
+ * @property {string} functionCode
+ * @property {string} name
+ * @property {string} [description]
+ * @property {boolean} isAssignedToGroup
+ * @property {number} [roleId]
+ */
+
 export {};

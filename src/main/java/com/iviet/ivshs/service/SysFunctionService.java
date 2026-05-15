@@ -34,5 +34,7 @@ public interface SysFunctionService {
 
   void delete(Long id);
 
+  void deleteByCode(String functionCode);
+
   long count();
 }

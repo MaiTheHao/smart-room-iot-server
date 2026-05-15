@@ -1,0 +1,215 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{management.role.title}">Role Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .selection-list-item {
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        margin-bottom: 0.5rem;
+      }
+      .selection-list-item:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+      }
+      .selection-list-item .custom-checkbox {
+        margin-top: 0.2rem;
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .badge-code {
+        font-family: var(--bs-font-monospace);
+        letter-spacing: -0.02em;
+      }
+      .scale-checkbox {
+        transform: scale(1.2);
+      }
+    </style>
+  </head>
+  <body class="roles-management-page">
+    <div layout:fragment="header-title">
+      <span th:text="#{management.role.title}">Role Management</span>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <!-- Data Table Card -->
+        <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+          <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+            <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
+              <i data-lucide="users" class="text-primary me-2 lucide-sm"></i>
+              <span th:text="#{management.role.list.title}">Role List</span>
+            </h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1"></i>
+                <span th:text="#{common.reload}">Reload</span>
+              </button>
+              <button class="btn btn-primary btn-sm rounded-pill px-3" id="btnAdd">
+                <i data-lucide="plus" class="lucide-sm me-1"></i>
+                <span th:text="#{common.add}">Add</span>
+              </button>
+              <button
+                class="btn btn-danger btn-sm rounded-pill px-3"
+                id="btnDeleteSelected"
+                disabled
+              >
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="rolesTable"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role Form Modal -->
+      <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="roleModalLabel">
+                <i data-lucide="shield" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle" th:text="#{management.role.modal.add_title}">Add New Role</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="roleForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="roleId" name="id" />
+                <div class="row g-3">
+                  <!-- Name -->
+                  <div class="col-12">
+                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{role.table.name}">Name</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Administrator" />
+                    </div>
+                    <div class="invalid-feedback" id="val-name"></div>
+                  </div>
+
+                  <!-- Code -->
+                  <div class="col-12">
+                    <label for="groupCode" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{role.table.code}">Code</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0 text-uppercase" id="groupCode" name="groupCode" placeholder="G_ADMIN" />
+                    </div>
+                    <div class="invalid-feedback" id="val-groupCode"></div>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-12">
+                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{role.table.description}">Description</label>
+                    <textarea class="form-control bg-light border-0" id="description" name="description" rows="3" placeholder="Additional details..."></textarea>
+                    <div class="invalid-feedback" id="val-description"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitRole">
+                  <i data-lucide="save" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manage Permissions Modal -->
+      <div class="modal fade" id="manageFunctionsModal" tabindex="-1" aria-labelledby="manageFunctionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="manageFunctionsModalLabel">
+                <i data-lucide="shield-check" class="text-primary me-2 lucide-md"></i>
+                <span id="mappingModalTitle">Manage Permissions</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div class="mb-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i data-lucide="search" class="lucide-sm"></i></span>
+                        <input type="text" class="form-control bg-light border-0" id="funcSearch" placeholder="Search permissions..." />
+                    </div>
+                </div>
+
+                <div id="functionsListLoader" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2">Loading permissions...</p>
+                </div>
+
+                <div id="functionsList" class="selection-list" style="display: none;">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+              <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSaveFunctions">
+                <i data-lucide="save" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script th:inline="javascript">
+        window.__ROLES_CONFIG__ = {
+          i18n: {
+            colId: /*[[#{client.table.id}]]*/ 'ID',
+            colCode: /*[[#{role.table.code}]]*/ 'Code',
+            colName: /*[[#{role.table.name}]]*/ 'Name',
+            colDescription: /*[[#{role.table.description}]]*/ 'Description',
+            colActions: /*[[#{client.table.actions}]]*/ 'Actions',
+            noData: /*[[#{role.table.no_data}]]*/ 'No data found.',
+            placeholderSearch: /*[[#{index.search.placeholder}]]*/ 'Search...',
+            addTitle: /*[[#{management.role.modal.add_title}]]*/ 'Add New Role',
+            editTitle: /*[[#{management.role.modal.edit_title}]]*/ 'Edit Role',
+            createdSuccess: /*[[#{management.role.success.created}]]*/ 'Role created successfully',
+            updatedSuccess: /*[[#{management.role.success.updated}]]*/ 'Role updated successfully',
+            mappingTitle: /*[[#{role.mapping.title}]]*/ 'Permissions for: {0}',
+            mappingSuccess: /*[[#{role.mapping.success}]]*/ 'Permissions updated: Added {0}, Removed {1}',
+            mappingError: /*[[#{role.mapping.error}]]*/ 'Error updating permissions',
+            mappingNoChanges: /*[[#{role.mapping.no_changes}]]*/ 'No changes detected.',
+            confirmDelete: /*[[#{common.delete}]]*/ 'Delete',
+            confirmDeleteTextSingle: /*[[#{client.management.confirm.delete_single}]]*/ 'Delete {0} item?',
+            confirmDeleteTextBatch: /*[[#{client.management.confirm.delete_batch}]]*/ 'Delete {0} items?',
+            deleteErrorHasClients: /*[[#{role.delete.error.has_clients}]]*/ 'Cannot delete role. It has {0} members.',
+            yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete!',
+            cancel: /*[[#{index.scene.trigger.cancel}]]*/ 'Cancel',
+            processing: /*[[#{common.processing}]]*/ 'Processing...',
+            success: /*[[#{common.success}]]*/ 'Success',
+            error: /*[[#{common.error.title}]]*/ 'Error',
+            valRequired: /*[[#{client.management.error.field_required}]]*/ '{0} is required',
+            valNameLen: /*[[#{val.name.len}]]*/ 'Name length error',
+            valCodeLen: /*[[#{val.code.len}]]*/ 'Code length error',
+            valDescriptionLen: /*[[#{val.description.len}]]*/ 'Description too long',
+            valGroupCodeFormat: /*[[#{val.group_code.format}]]*/ 'Invalid format',
+          },
+        };
+      </script>
+
+      <script type="module" th:src="@{/js/pages/management/roles.js}"></script>
+    </th:block>
+  </body>
+</html>

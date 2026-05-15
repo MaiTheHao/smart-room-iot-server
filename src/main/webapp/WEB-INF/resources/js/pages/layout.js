@@ -47,17 +47,17 @@
 				{
 					label: /*[[#{menu.functions}]]*/ 'Functions',
 					icon: 'key',
-					link: '#',
+					link: '/management/functions',
 				},
 				{
 					label: /*[[#{menu.roles}]]*/ 'Roles',
 					icon: 'badge-check',
-					link: '#',
+					link: '/management/roles',
 				},
 				{
 					label: /*[[#{menu.groups}]]*/ 'Groups',
 					icon: 'users',
-					link: '#',
+					link: '/management/roles',
 				},
 			],
 		},
