@@ -57,7 +57,7 @@
 				{
 					label: /*[[#{menu.groups}]]*/ 'Groups',
 					icon: 'users',
-					link: '/management/roles',
+					link: '/management/groups',
 				},
 			],
 		},

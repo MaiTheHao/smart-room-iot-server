@@ -6,13 +6,36 @@
   layout:decorate="~{layout.html}"
 >
   <head>
-    <title th:text="#{client.management.title}">Client Management</title>
+    <title th:text="#{management.client.title}">Client Management</title>
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .selection-list-item {
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        margin-bottom: 0.5rem;
+      }
+      .selection-list-item:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .scale-checkbox {
+        transform: scale(1.2);
+      }
+      .badge-code {
+        font-family: var(--bs-font-monospace);
+        letter-spacing: -0.02em;
+      }
+    </style>
   </head>
   <body class="clients-management-page">
     <div layout:fragment="header-title">
-      <span th:text="#{client.management.title}">Client Management</span>
+      <span th:text="#{management.client.title}">Client Management</span>
     </div>
 
     <div layout:fragment="content">
@@ -22,7 +45,7 @@
           <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
             <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
               <i data-lucide="contact" class="text-success me-2 lucide-sm"></i>
-              <span th:text="#{client.management.table.list.title}">Client List</span>
+              <span th:text="#{management.client.table.list.title}">Client List</span>
             </h6>
             <div class="d-flex gap-2">
               <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
@@ -56,7 +79,7 @@
             <div class="modal-header border-0 pb-0">
               <h5 class="modal-title fw-bold d-flex align-items-center" id="clientModalLabel">
                 <i data-lucide="user-plus" class="text-primary me-2 lucide-md"></i>
-                <span id="modalTitle" th:text="#{client.management.modal.add_title}">Add New Client</span>
+                <span id="modalTitle" th:text="#{management.client.modal.add_title}">Add New Client</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -83,19 +106,19 @@
                   </div>
 
                   <div class="col-md-6">
-                    <label for="clientType" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.filter.type}">Client Type</label>
+                    <label for="clientType" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.filter.type}">Client Type</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="layers" class="lucide-sm"></i></span>
                       <select class="form-select bg-light border-0" id="clientType" name="clientType">
-                        <option value="USER" th:text="#{client.management.type.user}">User</option>
-                        <option value="HARDWARE_GATEWAY" th:text="#{client.management.type.gateway}">Gateway</option>
+                        <option value="USER" th:text="#{management.client.type.user}">User</option>
+                        <option value="HARDWARE_GATEWAY" th:text="#{management.client.type.gateway}">Gateway</option>
                       </select>
                     </div>
                     <div class="invalid-feedback" id="val-clientType"></div>
                   </div>
 
                   <div class="col-md-6">
-                    <label for="avatarUrl" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.avatar_url}">Avatar URL</label>
+                    <label for="avatarUrl" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.modal.avatar_url}">Avatar URL</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="image" class="lucide-sm"></i></span>
                       <input type="url" class="form-control bg-light border-0" id="avatarUrl" name="avatarUrl" placeholder="https://..." />
@@ -122,7 +145,7 @@
                   </div>
 
                   <div class="col-12" id="gatewayPasswordField" style="display: none;">
-                    <label for="gatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.gateway_password}">Gateway Password</label>
+                    <label for="gatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.modal.gateway_password}">Gateway Password</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="shield-check" class="lucide-sm"></i></span>
                       <input type="password" class="form-control bg-light border-0" id="gatewayPassword" name="gatewayPassword" placeholder="Gateway security key" />
@@ -150,7 +173,7 @@
             <div class="modal-header border-0 pb-0">
               <h5 class="modal-title fw-bold d-flex align-items-center" id="passwordModalLabel">
                 <i data-lucide="key" class="text-warning me-2 lucide-md"></i>
-                <span id="pwdModalTitle" th:text="#{client.management.modal.pwd_change_title}">Change Passwords</span>
+                <span id="pwdModalTitle" th:text="#{management.client.modal.pwd_change_title}">Change Passwords</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -160,7 +183,7 @@
                 <div class="row g-3">
                   <!-- Client Password -->
                   <div class="col-12">
-                    <label for="newPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.new_password}">New Password</label>
+                    <label for="newPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.modal.new_password}">New Password</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="lock" class="lucide-sm"></i></span>
                       <input type="password" class="form-control bg-light border-0" id="newPassword" name="password" placeholder="••••••••" />
@@ -168,7 +191,7 @@
                     <div class="invalid-feedback" id="val-newPassword"></div>
                   </div>
                   <div class="col-12">
-                    <label for="confirmPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.confirm_password}">Confirm Password</label>
+                    <label for="confirmPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.modal.confirm_password}">Confirm Password</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="check-check" class="lucide-sm"></i></span>
                       <input type="password" class="form-control bg-light border-0" id="confirmPassword" placeholder="••••••••" />
@@ -180,7 +203,7 @@
                   <div id="pwdGatewayContainer" style="display: none;">
                     <hr class="my-4">
                     <div class="col-12 mb-3">
-                      <label for="newGatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.new_gateway_password}">New Gateway Password</label>
+                      <label for="newGatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.modal.new_gateway_password}">New Gateway Password</label>
                       <div class="input-group">
                         <span class="input-group-text bg-light border-0"><i data-lucide="shield-check" class="lucide-sm"></i></span>
                         <input type="password" class="form-control bg-light border-0" id="newGatewayPassword" name="gatewayPassword" placeholder="••••••••" />
@@ -188,7 +211,7 @@
                       <div class="invalid-feedback" id="val-newGatewayPassword"></div>
                     </div>
                     <div class="col-12">
-                      <label for="confirmGatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.confirm_gateway_password}">Confirm Password</label>
+                      <label for="confirmGatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{management.client.modal.confirm_gateway_password}">Confirm Password</label>
                       <div class="input-group">
                         <span class="input-group-text bg-light border-0"><i data-lucide="check-check" class="lucide-sm"></i></span>
                         <input type="password" class="form-control bg-light border-0" id="confirmGatewayPassword" placeholder="••••••••" />
@@ -209,7 +232,46 @@
           </div>
         </div>
       </div>
-    </div>
+      <!-- Manage Groups Modal -->
+      <div class="modal fade" id="manageGroupsModal" tabindex="-1" aria-labelledby="manageGroupsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="manageGroupsModalLabel">
+                <i data-lucide="shield" class="text-primary me-2 lucide-md"></i>
+                <span id="mappingModalTitle" th:text="#{management.group.title}">Manage Groups</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div class="mb-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i data-lucide="search" class="lucide-sm"></i></span>
+                        <input type="text" class="form-control bg-light border-0" id="groupSearch" th:placeholder="#{group.mapping.search}" />
+                    </div>
+                </div>
+
+                <div id="groupsListLoader" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mt-2">Loading groups...</p>
+                </div>
+
+                <div id="groupsList" class="selection-list" style="display: none;">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+              <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSaveGroups">
+                <i data-lucide="save" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <th:block layout:fragment="scripts">
@@ -222,12 +284,12 @@
             },
           },
           i18n: {
-            typeUser: /*[[#{client.management.type.user}]]*/ 'User',
-            typeGateway: /*[[#{client.management.type.gateway}]]*/ 'Gateway',
+            typeUser: /*[[#{management.client.type.user}]]*/ 'User',
+            typeGateway: /*[[#{management.client.type.gateway}]]*/ 'Gateway',
             noData: /*[[#{client.table.no_data}]]*/ 'No clients found.',
             never: /*[[#{index.room.offline}]]*/ 'Never',
             loading: /*[[#{client.table.loading}]]*/ 'Loading...',
-            allTypes: /*[[#{client.management.all_types}]]*/ 'All Types',
+            allTypes: /*[[#{management.client.all_types}]]*/ 'All Types',
             placeholderSearch: /*[[#{index.search.placeholder}]]*/ 'Search...',
             colId: /*[[#{client.table.id}]]*/ 'ID',
             colUsername: /*[[#{client.table.username}]]*/ 'Username',
@@ -238,40 +300,44 @@
             colActions: /*[[#{client.table.actions}]]*/ 'Actions',
             confirmDelete: /*[[#{common.delete}]]*/ 'Delete',
             confirmDeleteText: /*[[#{common.confirm.delete}]]*/ 'Are you sure?',
-            setupTitle: /*[[#{client.management.setup.title}]]*/ 'Setup Gateway',
-            setupText: /*[[#{client.management.setup.text}]]*/ 'Are you sure you want to setup the Gateway for "{0}"?',
-            setupSuccessTitle: /*[[#{client.management.setup.success_title}]]*/ 'Success',
-            setupSuccessText: /*[[#{client.management.setup.success_text}]]*/ 'Gateway setup completed successfully.',
-            setupErrorTitle: /*[[#{client.management.setup.error_title}]]*/ 'Setup Error',
-            setupProcessing: /*[[#{client.management.setup.processing}]]*/ 'Setting up...',
-            clearConfigTitle: /*[[#{client.management.clear_config.title}]]*/ 'Clear Hardware Config',
-            clearConfigText: /*[[#{client.management.clear_config.text}]]*/ 'Are you sure you want to clear all hardware configurations for "{0}"?',
-            clearConfigSuccess: /*[[#{client.management.clear_config.success_text}]]*/ 'Hardware configurations cleared successfully.',
-            clearConfigProcessing: /*[[#{client.management.clear_config.processing}]]*/ 'Clearing configurations...',
+            setupTitle: /*[[#{management.client.setup.title}]]*/ 'Setup Gateway',
+            setupText: /*[[#{management.client.setup.text}]]*/ 'Are you sure you want to setup the Gateway for "{0}"?',
+            setupSuccessTitle: /*[[#{management.client.setup.success_title}]]*/ 'Success',
+            setupSuccessText: /*[[#{management.client.setup.success_text}]]*/ 'Gateway setup completed successfully.',
+            setupErrorTitle: /*[[#{management.client.setup.error_title}]]*/ 'Setup Error',
+            setupProcessing: /*[[#{management.client.setup.processing}]]*/ 'Setting up...',
+            clearConfigTitle: /*[[#{management.client.clear_config.title}]]*/ 'Clear Hardware Config',
+            clearConfigText: /*[[#{management.client.clear_config.text}]]*/ 'Are you sure you want to clear all hardware configurations for "{0}"?',
+            clearConfigSuccess: /*[[#{management.client.clear_config.success_text}]]*/ 'Hardware configurations cleared successfully.',
+            clearConfigProcessing: /*[[#{management.client.clear_config.processing}]]*/ 'Clearing configurations...',
             confirm: /*[[#{index.scene.trigger.confirm}]]*/ 'Confirm',
             cancel: /*[[#{index.scene.trigger.cancel}]]*/ 'Cancel',
-            addTitle: /*[[#{client.management.modal.add_title}]]*/ 'Add New Client',
-            editTitle: /*[[#{client.management.modal.edit_title}]]*/ 'Edit Client',
-            pwdTitle: /*[[#{client.management.modal.pwd_change_for}]]*/ 'Change Passwords for {0}',
-            pwdSuccess: /*[[#{client.management.success.pwd_updated}]]*/ 'Passwords updated successfully.',
-            pwdError: /*[[#{client.management.error.pwd_update_failed}]]*/ 'Failed to update passwords.',
-            pwdMatchError: /*[[#{client.management.error.pwd_match}]]*/ 'Passwords do not match!',
-            pwdAtLeastOne: /*[[#{client.management.error.pwd_at_least_one}]]*/ 'Please enter at least one password to change',
-            createdSuccess: /*[[#{client.management.success.created}]]*/ 'Client created successfully',
-            updatedSuccess: /*[[#{client.management.success.updated}]]*/ 'Client updated successfully',
-            confirmDeleteTextSingle: /*[[#{client.management.confirm.delete_single}]]*/ 'Delete {0} item?',
-            confirmDeleteTextBatch: /*[[#{client.management.confirm.delete_batch}]]*/ 'Delete {0} items?',
+            addTitle: /*[[#{management.client.modal.add_title}]]*/ 'Add New Client',
+            editTitle: /*[[#{management.client.modal.edit_title}]]*/ 'Edit Client',
+            pwdTitle: /*[[#{management.client.modal.pwd_change_for}]]*/ 'Change Passwords for {0}',
+            pwdSuccess: /*[[#{management.client.success.pwd_updated}]]*/ 'Passwords updated successfully.',
+            pwdError: /*[[#{management.client.error.pwd_update_failed}]]*/ 'Failed to update passwords.',
+            pwdMatchError: /*[[#{management.client.error.pwd_match}]]*/ 'Passwords do not match!',
+            pwdAtLeastOne: /*[[#{management.client.error.pwd_at_least_one}]]*/ 'Please enter at least one password to change',
+            createdSuccess: /*[[#{management.client.success.created}]]*/ 'Client created successfully',
+            updatedSuccess: /*[[#{management.client.success.updated}]]*/ 'Client updated successfully',
+            confirmDeleteTextSingle: /*[[#{common.confirm.delete_single}]]*/ 'Delete {0} item?',
+            confirmDeleteTextBatch: /*[[#{common.confirm.delete_batch}]]*/ 'Delete {0} items?',
             yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete!',
             processing: /*[[#{common.processing}]]*/ 'Processing...',
             success: /*[[#{common.success}]]*/ 'Success',
             error: /*[[#{common.error.title}]]*/ 'Error',
             info: /*[[#{common.info}]]*/ 'Information',
-            valRequired: /*[[#{client.management.error.field_required}]]*/ '{0} is required',
-            valUsernameLen: /*[[#{client.management.error.username_len}]]*/ 'Username must be between 3 and 100 characters',
-            valPasswordLen: /*[[#{client.management.error.password_len}]]*/ 'Password must be between 6 and 100 characters',
-            valIpInvalid: /*[[#{client.management.error.ip_invalid}]]*/ 'IP address is invalid',
-            valMacInvalid: /*[[#{client.management.error.mac_invalid}]]*/ 'Invalid MAC address format',
-            valUrlInvalid: /*[[#{client.management.error.url_invalid}]]*/ 'Invalid avatar URL',
+            valRequired: /*[[#{common.val.required}]]*/ '{0} is required',
+            valUsernameLen: /*[[#{management.client.error.username_len}]]*/ 'Username must be between 3 and 100 characters',
+            valPasswordLen: /*[[#{management.client.error.password_len}]]*/ 'Password must be between 6 and 100 characters',
+            valIpInvalid: /*[[#{management.client.error.ip_invalid}]]*/ 'IP address is invalid',
+            valMacInvalid: /*[[#{management.client.error.mac_invalid}]]*/ 'Invalid MAC address format',
+            valUrlInvalid: /*[[#{management.client.error.url_invalid}]]*/ 'Invalid avatar URL',
+            mappingTitle: /*[[#{management.client.mapping.title}]]*/ 'Groups for: {0}',
+            mappingSuccess: /*[[#{common.mapping.success}]]*/ 'Groups updated: Added {0}, Removed {1}',
+            mappingError: /*[[#{common.mapping.error}]]*/ 'Error updating groups',
+            mappingNoChanges: /*[[#{common.mapping.no_changes}]]*/ 'No changes detected.',
           },
         };
       </script>

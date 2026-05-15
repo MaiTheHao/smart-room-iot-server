@@ -92,3 +92,21 @@ export const countGroups = () =>
  */
 export const getClientsCountByGroup = (groupId) =>
 	httpClient(`/api/v1/groups/${groupId}/clients/count`);
+
+/**
+ * Get all clients belonging to a group
+ * @param {number|string} groupId
+ * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto[]>]>}
+ */
+export const getAllClientsByGroupId = (groupId) =>
+	httpClient(`/api/v1/groups/${groupId}/clients/all`);
+
+/**
+ * Get paginated clients belonging to a group
+ * @param {number|string} groupId
+ * @param {number} page
+ * @param {number} size
+ * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').PaginatedResponse<import('../types.js').ClientDto>>]>}
+ */
+export const getClientsByGroup = (groupId, page = 0, size = 10) =>
+	httpClient(`/api/v1/groups/${groupId}/clients?page=${page}&size=${size}`);

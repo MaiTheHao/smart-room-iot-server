@@ -1,5 +1,7 @@
 import { getAll as getAllClients, deleteClient, create as createClient, update as updateClient, patchUpdate, deleteAllHardwareConfigs } from '../../api/user.api.js';
 import { setup as setupGateway } from '../../api/system.api.js';
+import { getGroupsWithClientStatus } from '../../api/group.api.js';
+import { assignGroupsToClient, unassignGroupsFromClient } from '../../api/role.api.js';
 import { TabulatorFull as Tabulator } from '../../lib/tabulator_esm.min.js';
 import { Validator } from '../../common/validator.js';
 
@@ -366,6 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							return `
 								<div class="d-flex align-items-center justify-content-center h-100">
 									${setupBtn}
+									<button class="btn btn-light btn-sm rounded-pill btn-groups me-1" data-id="${data.id}" title="${i18n.mappingTitle || 'Manage Groups'}">
+										<i data-lucide="shield" class="lucide-sm text-info"></i>
+									</button>
 									<button class="btn btn-light btn-sm rounded-pill btn-password me-1" data-id="${data.id}" title="${i18n.pwdChangeTitle || 'Change Password'}">
 										<i data-lucide="key" class="lucide-sm text-warning"></i>
 									</button>
@@ -408,6 +413,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				const btnClear = e.target.closest('.btn-clear-config');
 				if (btnClear) {
 					Controller.handleClearHardwareConfig(btnClear.dataset.id, btnClear.dataset.username);
+					return;
+				}
+
+				const btnGroups = e.target.closest('.btn-groups');
+				if (btnGroups) {
+					const row = table.getRow(btnGroups.dataset.id);
+					if (row) MappingModule.open(row.getData());
 				}
 			});
 		};
@@ -451,6 +463,149 @@ document.addEventListener('DOMContentLoaded', () => {
 			refresh,
 			getSelectedData: () => table?.getSelectedData() || [],
 		};
+	})();
+
+	const MappingModule = (() => {
+		const elements = {
+			modal: document.getElementById('manageGroupsModal'),
+			title: document.getElementById('mappingModalTitle'),
+			list: document.getElementById('groupsList'),
+			loader: document.getElementById('groupsListLoader'),
+			search: document.getElementById('groupSearch'),
+			saveBtn: document.getElementById('btnSaveGroups'),
+		};
+
+		const bootstrapModal = elements.modal ? new bootstrap.Modal(elements.modal) : null;
+		let currentClientId = null;
+		let initialStates = {}; // Map of groupId -> boolean
+
+		const open = async (client) => {
+			currentClientId = client.id;
+			elements.title.textContent = i18n.mappingTitle.replace('{0}', client.username);
+			elements.list.style.display = 'none';
+			elements.loader.classList.remove('d-none');
+			elements.search.value = '';
+			initialStates = {};
+
+			bootstrapModal.show();
+			window.renderIcons?.();
+
+			try {
+				const [err, res] = await getGroupsWithClientStatus(currentClientId);
+				if (err) throw err;
+
+				const groupsWithStatus = res.data || [];
+				renderList(groupsWithStatus);
+				groupsWithStatus.forEach((g) => {
+					initialStates[g.id] = g.isAssignedToClient;
+				});
+			} catch (err) {
+				console.error('Failed to load groups:', err);
+				elements.list.innerHTML = `<div class="alert alert-danger">${i18n.error}</div>`;
+			} finally {
+				elements.loader.classList.add('d-none');
+				elements.list.style.display = 'block';
+				window.renderIcons?.();
+			}
+		};
+
+		const renderList = (groups) => {
+			if (groups.length === 0) {
+				elements.list.innerHTML = `<div class="text-center py-4 text-muted">${i18n.noData}</div>`;
+				return;
+			}
+
+			elements.list.innerHTML = groups
+				.map(
+					(group) => `
+				<div class="selection-list-item d-flex align-items-start group-item" 
+                    data-search="${group.name.toLowerCase()} ${group.groupCode.toLowerCase()}">
+					<div class="form-check pt-1">
+						<input class="form-check-input scale-checkbox group-chk" type="checkbox" 
+							id="group_${group.id}" 
+							data-id="${group.id}"
+							${group.isAssignedToClient ? 'checked' : ''}>
+						<label class="form-check-label" for="group_${group.id}"></label>
+					</div>
+					<div class="ms-2 w-100 cursor-pointer" onclick="document.getElementById('group_${group.id}').click()">
+						<div class="d-flex justify-content-between align-items-center">
+							<div class="fw-bold text-dark">${group.name}</div>
+							<span class="badge bg-light text-muted border small badge-code">${group.groupCode}</span>
+						</div>
+						<div class="small text-muted mt-1">${group.description || ''}</div>
+					</div>
+				</div>
+			`,
+				)
+				.join('');
+			window.renderIcons?.(elements.list);
+		};
+
+		const handleSearch = (query) => {
+			const q = query.toLowerCase();
+			const items = elements.list.querySelectorAll('.group-item');
+			items.forEach((item) => {
+				const text = item.dataset.search;
+				item.style.display = text.includes(q) ? 'flex' : 'none';
+			});
+		};
+
+		const getChanges = () => {
+			const added = [];
+			const removed = [];
+			const checks = elements.list.querySelectorAll('.group-chk');
+
+			checks.forEach((chk) => {
+				const id = parseInt(chk.dataset.id);
+				const isChecked = chk.checked;
+				if (isChecked !== initialStates[id]) {
+					if (isChecked) added.push(id);
+					else removed.push(id);
+				}
+			});
+
+			return added.length > 0 || removed.length > 0 ? { added, removed } : null;
+		};
+
+		const save = async () => {
+			const changes = getChanges();
+			if (!changes) {
+				Swal.fire(i18n.info, i18n.mappingNoChanges, 'info');
+				bootstrapModal.hide();
+				return;
+			}
+
+			const btn = elements.saveBtn;
+			const originalHtml = btn.innerHTML;
+			btn.disabled = true;
+			btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> ${i18n.processing}`;
+
+			try {
+				if (changes.added.length > 0) {
+					const [err] = await assignGroupsToClient({ clientId: currentClientId, groupIds: changes.added });
+					if (err) throw err;
+				}
+
+				if (changes.removed.length > 0) {
+					const [err] = await unassignGroupsFromClient({ clientId: currentClientId, groupIds: changes.removed });
+					if (err) throw err;
+				}
+
+				Swal.fire(i18n.success, i18n.mappingSuccess.replace('{0}', changes.added.length).replace('{1}', changes.removed.length), 'success');
+				bootstrapModal.hide();
+			} catch (err) {
+				console.error('Save groups error:', err);
+				Swal.fire(i18n.error, err.message || i18n.mappingError, 'error');
+			} finally {
+				btn.disabled = false;
+				btn.innerHTML = originalHtml;
+			}
+		};
+
+		elements.search?.addEventListener('input', (e) => handleSearch(e.target.value));
+		elements.saveBtn?.addEventListener('click', () => save());
+
+		return { open };
 	})();
 
 	const Controller = {

@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			// Validate Code
-			if (!data.id) { // Only validate code on create
+			if (!data.id) {
+				// Only validate code on create
 				if (!Validator.functionCode.isBlank(data.functionCode)) {
 					setError('functionCode', i18n.valRequired.replace('{0}', i18n.colCode));
 				} else if (!Validator.functionCode.isHigherMax(data.functionCode)) {

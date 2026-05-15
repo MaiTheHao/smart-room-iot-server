@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				(count) => {
 					const btnDelete = document.getElementById('btnDeleteSelected');
 					if (btnDelete) btnDelete.disabled = count === 0;
-				}
+				},
 			);
 			this.bindEvents();
 		},

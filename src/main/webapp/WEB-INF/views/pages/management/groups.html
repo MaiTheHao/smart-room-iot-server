@@ -6,7 +6,7 @@
   layout:decorate="~{layout.html}"
 >
   <head>
-    <title th:text="#{management.role.title}">Role Management</title>
+    <title th:text="#{management.group.title}">Group Management</title>
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
     <style>
@@ -34,11 +34,16 @@
       .scale-checkbox {
         transform: scale(1.2);
       }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+      }
     </style>
   </head>
-  <body class="roles-management-page">
+  <body class="groups-management-page">
     <div layout:fragment="header-title">
-      <span th:text="#{management.role.title}">Role Management</span>
+      <span th:text="#{management.group.title}">Group Management</span>
     </div>
 
     <div layout:fragment="content">
@@ -48,7 +53,7 @@
           <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
             <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
               <i data-lucide="users" class="text-primary me-2 lucide-sm"></i>
-              <span th:text="#{management.role.list.title}">Role List</span>
+              <span th:text="#{management.group.list.title}">Group List</span>
             </h6>
             <div class="d-flex gap-2">
               <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
@@ -70,49 +75,49 @@
             </div>
           </div>
           <div class="card-body p-0">
-            <div id="rolesTable"></div>
+            <div id="groupsTable"></div>
           </div>
         </div>
       </div>
 
-      <!-- Role Form Modal -->
-      <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="roleModalLabel" aria-hidden="true">
+      <!-- Group Form Modal -->
+      <div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
-              <h5 class="modal-title fw-bold d-flex align-items-center" id="roleModalLabel">
-                <i data-lucide="shield" class="text-primary me-2 lucide-md"></i>
-                <span id="modalTitle" th:text="#{management.role.modal.add_title}">Add New Role</span>
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="groupModalLabel">
+                <i data-lucide="users" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle" th:text="#{management.group.modal.add_title}">Add New Group</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="roleForm" novalidate>
+            <form id="groupForm" novalidate>
               <div class="modal-body py-4">
-                <input type="hidden" id="roleId" name="id" />
+                <input type="hidden" id="groupId" name="id" />
                 <div class="row g-3">
                   <!-- Name -->
                   <div class="col-12">
-                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{role.table.name}">Name</label>
+                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{group.table.name}">Name</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
-                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Administrator" />
+                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Management" />
                     </div>
                     <div class="invalid-feedback" id="val-name"></div>
                   </div>
 
                   <!-- Code -->
                   <div class="col-12">
-                    <label for="groupCode" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{role.table.code}">Code</label>
+                    <label for="groupCode" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{group.table.code}">Code</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
-                      <input type="text" class="form-control bg-light border-0 text-uppercase" id="groupCode" name="groupCode" placeholder="G_ADMIN" />
+                      <input type="text" class="form-control bg-light border-0 text-uppercase" id="groupCode" name="groupCode" placeholder="G_MANAGEMENT" />
                     </div>
                     <div class="invalid-feedback" id="val-groupCode"></div>
                   </div>
 
                   <!-- Description -->
                   <div class="col-12">
-                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{role.table.description}">Description</label>
+                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{group.table.description}">Description</label>
                     <textarea class="form-control bg-light border-0" id="description" name="description" rows="3" placeholder="Additional details..."></textarea>
                     <div class="invalid-feedback" id="val-description"></div>
                   </div>
@@ -120,7 +125,7 @@
               </div>
               <div class="modal-footer border-0 pt-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitRole">
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitGroup">
                   <i data-lucide="save" class="lucide-sm me-1"></i>
                   <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
                 </button>
@@ -130,14 +135,14 @@
         </div>
       </div>
 
-      <!-- Manage Permissions Modal -->
-      <div class="modal fade" id="manageFunctionsModal" tabindex="-1" aria-labelledby="manageFunctionsModalLabel" aria-hidden="true">
+      <!-- Manage Members Modal -->
+      <div class="modal fade" id="manageMembersModal" tabindex="-1" aria-labelledby="manageMembersModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
           <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
-              <h5 class="modal-title fw-bold d-flex align-items-center" id="manageFunctionsModalLabel">
-                <i data-lucide="shield-check" class="text-primary me-2 lucide-md"></i>
-                <span id="mappingModalTitle">Manage Permissions</span>
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="manageMembersModalLabel">
+                <i data-lucide="users" class="text-primary me-2 lucide-md"></i>
+                <span id="mappingModalTitle" th:text="#{group.mapping.user_list}">User List</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -145,27 +150,23 @@
                 <div class="mb-4">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-0"><i data-lucide="search" class="lucide-sm"></i></span>
-                        <input type="text" class="form-control bg-light border-0" id="funcSearch" placeholder="Search permissions..." />
+                        <input type="text" class="form-control bg-light border-0" id="memberSearch" placeholder="Search members..." />
                     </div>
                 </div>
 
-                <div id="functionsListLoader" class="text-center py-5">
+                <div id="membersListLoader" class="text-center py-5">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="text-muted mt-2">Loading permissions...</p>
+                    <p class="text-muted mt-2">Loading members...</p>
                 </div>
 
-                <div id="functionsList" class="selection-list" style="display: none;">
+                <div id="membersList" class="selection-list" style="display: none;">
                     <!-- Dynamic content -->
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0">
-              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
-              <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSaveFunctions">
-                <i data-lucide="save" class="lucide-sm me-1"></i>
-                <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
-              </button>
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{common.close}">Close</button>
             </div>
           </div>
         </div>
@@ -174,27 +175,25 @@
 
     <th:block layout:fragment="scripts">
       <script th:inline="javascript">
-        window.__ROLES_CONFIG__ = {
+        window.__GROUPS_CONFIG__ = {
           i18n: {
             colId: /*[[#{client.table.id}]]*/ 'ID',
-            colCode: /*[[#{role.table.code}]]*/ 'Code',
-            colName: /*[[#{role.table.name}]]*/ 'Name',
-            colDescription: /*[[#{role.table.description}]]*/ 'Description',
+            colCode: /*[[#{group.table.code}]]*/ 'Code',
+            colName: /*[[#{group.table.name}]]*/ 'Name',
+            colDescription: /*[[#{group.table.description}]]*/ 'Description',
             colActions: /*[[#{client.table.actions}]]*/ 'Actions',
-            noData: /*[[#{role.table.no_data}]]*/ 'No data found.',
+            colMembers: /*[[#{group.table.member_count}]]*/ 'Members',
+            noData: /*[[#{group.table.no_data}]]*/ 'No data found.',
             placeholderSearch: /*[[#{index.search.placeholder}]]*/ 'Search...',
-            addTitle: /*[[#{management.role.modal.add_title}]]*/ 'Add New Role',
-            editTitle: /*[[#{management.role.modal.edit_title}]]*/ 'Edit Role',
-            createdSuccess: /*[[#{management.role.success.created}]]*/ 'Role created successfully',
-            updatedSuccess: /*[[#{management.role.success.updated}]]*/ 'Role updated successfully',
-            mappingTitle: /*[[#{management.role.mapping.title}]]*/ 'Permissions for: {0}',
-            mappingSuccess: /*[[#{common.mapping.success}]]*/ 'Permissions updated: Added {0}, Removed {1}',
-            mappingError: /*[[#{common.mapping.error}]]*/ 'Error updating permissions',
-            mappingNoChanges: /*[[#{common.mapping.no_changes}]]*/ 'No changes detected.',
+            addTitle: /*[[#{management.group.modal.add_title}]]*/ 'Add New Group',
+            editTitle: /*[[#{management.group.modal.edit_title}]]*/ 'Edit Group',
+            createdSuccess: /*[[#{management.group.success.created}]]*/ 'Group created successfully',
+            updatedSuccess: /*[[#{management.group.success.updated}]]*/ 'Group updated successfully',
+            mappingTitle: /*[[#{management.group.mapping.title}]]*/ 'Members for: {0}',
             confirmDelete: /*[[#{common.delete}]]*/ 'Delete',
             confirmDeleteTextSingle: /*[[#{common.confirm.delete_single}]]*/ 'Delete {0} item?',
             confirmDeleteTextBatch: /*[[#{common.confirm.delete_batch}]]*/ 'Delete {0} items?',
-            deleteErrorHasClients: /*[[#{role.delete.error.has_clients}]]*/ 'Cannot delete role. It has {0} members.',
+            deleteErrorHasClients: /*[[#{role.delete.error.has_clients}]]*/ 'Cannot delete group. It has {0} members.',
             yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete!',
             cancel: /*[[#{index.scene.trigger.cancel}]]*/ 'Cancel',
             processing: /*[[#{common.processing}]]*/ 'Processing...',
@@ -209,7 +208,8 @@
         };
       </script>
 
-      <script type="module" th:src="@{/js/pages/management/roles.js}"></script>
+      <script type="module" th:src="@{/js/pages/management/groups.js}"></script>
     </th:block>
+
   </body>
 </html>

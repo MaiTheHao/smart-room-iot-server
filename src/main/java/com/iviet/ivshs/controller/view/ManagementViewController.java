@@ -32,4 +32,9 @@ public class ManagementViewController {
     public String rolesPage() {
         return "pages/management/roles.html";
     }
+
+    @GetMapping("/groups")
+    public String groupsPage() {
+        return "pages/management/groups.html";
+    }
 }
