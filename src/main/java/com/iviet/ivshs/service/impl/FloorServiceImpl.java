@@ -107,6 +107,12 @@ public class FloorServiceImpl implements FloorService {
     @Override
     @Transactional
     public FloorDto update(Long id, UpdateFloorDto dto) {
+        return patchUpdate(id, dto);
+    }
+
+    @Override
+    @Transactional
+    public FloorDto patchUpdate(Long id, UpdateFloorDto dto) {
         permissionService.requireManageFloor();
 
         Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
@@ -114,13 +120,6 @@ public class FloorServiceImpl implements FloorService {
         if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found: " + langCode);
 
         boolean isModified = false;
-        if (StringUtils.hasText(dto.code()) && !dto.code().trim().equals(floor.getCode())) {
-            String newCode = dto.code().trim();
-            _checkDuplicate(newCode, id);
-            floor.setCode(newCode);
-            isModified = true;
-        }
-
         if (dto.level() != null && !dto.level().equals(floor.getLevel())) {
             floor.setLevel(dto.level());
             isModified = true;

@@ -21,5 +21,6 @@ public interface RoomService {
     Room getEntityByCode(String roomCode);
     RoomDto create(Long floorId, CreateRoomDto dto);
     RoomDto update(Long roomId, UpdateRoomDto dto);
+    RoomDto patchUpdate(Long roomId, UpdateRoomDto dto);
     void delete(Long roomId);
 }

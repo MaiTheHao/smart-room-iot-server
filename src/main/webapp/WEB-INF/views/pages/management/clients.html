@@ -1,0 +1,282 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{client.management.title}">Client Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+  </head>
+  <body class="clients-management-page">
+    <div layout:fragment="header-title">
+      <span th:text="#{client.management.title}">Client Management</span>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <!-- Data Table Card -->
+        <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+          <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+            <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
+              <i data-lucide="contact" class="text-success me-2 lucide-sm"></i>
+              <span th:text="#{client.management.table.list.title}">Client List</span>
+            </h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1"></i>
+                <span th:text="#{common.reload}">Reload</span>
+              </button>
+              <button class="btn btn-primary btn-sm rounded-pill px-3" id="btnAdd">
+                <i data-lucide="plus" class="lucide-sm me-1"></i>
+                <span th:text="#{common.add}">Add</span>
+              </button>
+              <button
+                class="btn btn-danger btn-sm rounded-pill px-3"
+                id="btnDeleteSelected"
+                disabled
+              >
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="clientsTable"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Form Modal -->
+      <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="clientModalLabel">
+                <i data-lucide="user-plus" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle" th:text="#{client.management.modal.add_title}">Add New Client</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="clientForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="clientId" name="id" />
+                <div class="row g-3">
+                  <!-- Basic Info -->
+                  <div class="col-md-6">
+                    <label for="username" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.table.username}">Username</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="user" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="username" name="username" placeholder="johndoe" />
+                    </div>
+                    <div class="invalid-feedback" id="val-username"></div>
+                  </div>
+                  <div class="col-md-6" id="passwordFieldContainer">
+                    <label for="password" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{login.password}">Password</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="lock" class="lucide-sm"></i></span>
+                      <input type="password" class="form-control bg-light border-0" id="password" name="password" placeholder="••••••••" />
+                    </div>
+                    <div class="invalid-feedback" id="val-password"></div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="clientType" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.filter.type}">Client Type</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="layers" class="lucide-sm"></i></span>
+                      <select class="form-select bg-light border-0" id="clientType" name="clientType">
+                        <option value="USER" th:text="#{client.management.type.user}">User</option>
+                        <option value="HARDWARE_GATEWAY" th:text="#{client.management.type.gateway}">Gateway</option>
+                      </select>
+                    </div>
+                    <div class="invalid-feedback" id="val-clientType"></div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="avatarUrl" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.avatar_url}">Avatar URL</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="image" class="lucide-sm"></i></span>
+                      <input type="url" class="form-control bg-light border-0" id="avatarUrl" name="avatarUrl" placeholder="https://..." />
+                    </div>
+                    <div class="invalid-feedback" id="val-avatarUrl"></div>
+                  </div>
+
+                  <!-- Network Info -->
+                  <div class="col-md-6">
+                    <label for="ipAddress" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.table.ip}">IP Address</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="network" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="ipAddress" name="ipAddress" placeholder="192.168.1.1" />
+                    </div>
+                    <div class="invalid-feedback" id="val-ipAddress"></div>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="macAddress" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.table.mac}">MAC Address</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="macAddress" name="macAddress" placeholder="00:1A:2B:3C:4D:5E" />
+                    </div>
+                    <div class="invalid-feedback" id="val-macAddress"></div>
+                  </div>
+
+                  <div class="col-12" id="gatewayPasswordField" style="display: none;">
+                    <label for="gatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.gateway_password}">Gateway Password</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="shield-check" class="lucide-sm"></i></span>
+                      <input type="password" class="form-control bg-light border-0" id="gatewayPassword" name="gatewayPassword" placeholder="Gateway security key" />
+                    </div>
+                    <div class="invalid-feedback" id="val-gatewayPassword"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitClient">
+                  <i data-lucide="save" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password Change Modal -->
+      <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="passwordModalLabel">
+                <i data-lucide="key" class="text-warning me-2 lucide-md"></i>
+                <span id="pwdModalTitle" th:text="#{client.management.modal.pwd_change_title}">Change Passwords</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="passwordForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="pwdClientId" name="id" />
+                <div class="row g-3">
+                  <!-- Client Password -->
+                  <div class="col-12">
+                    <label for="newPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.new_password}">New Password</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="lock" class="lucide-sm"></i></span>
+                      <input type="password" class="form-control bg-light border-0" id="newPassword" name="password" placeholder="••••••••" />
+                    </div>
+                    <div class="invalid-feedback" id="val-newPassword"></div>
+                  </div>
+                  <div class="col-12">
+                    <label for="confirmPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.confirm_password}">Confirm Password</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="check-check" class="lucide-sm"></i></span>
+                      <input type="password" class="form-control bg-light border-0" id="confirmPassword" placeholder="••••••••" />
+                    </div>
+                    <div class="invalid-feedback" id="val-confirmPassword"></div>
+                  </div>
+
+                  <!-- Gateway Password (Conditional) -->
+                  <div id="pwdGatewayContainer" style="display: none;">
+                    <hr class="my-4">
+                    <div class="col-12 mb-3">
+                      <label for="newGatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.new_gateway_password}">New Gateway Password</label>
+                      <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i data-lucide="shield-check" class="lucide-sm"></i></span>
+                        <input type="password" class="form-control bg-light border-0" id="newGatewayPassword" name="gatewayPassword" placeholder="••••••••" />
+                      </div>
+                      <div class="invalid-feedback" id="val-newGatewayPassword"></div>
+                    </div>
+                    <div class="col-12">
+                      <label for="confirmGatewayPassword" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{client.management.modal.confirm_gateway_password}">Confirm Password</label>
+                      <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i data-lucide="check-check" class="lucide-sm"></i></span>
+                        <input type="password" class="form-control bg-light border-0" id="confirmGatewayPassword" placeholder="••••••••" />
+                      </div>
+                      <div class="invalid-feedback" id="val-confirmGatewayPassword"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-warning rounded-pill px-4 shadow-sm" id="btnSubmitPassword">
+                  <i data-lucide="save" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script th:inline="javascript">
+        window.__CLIENTS_CONFIG__ = {
+          constants: {
+            CLIENT_TYPE: {
+              USER: 'USER',
+              HARDWARE_GATEWAY: 'HARDWARE_GATEWAY',
+            },
+          },
+          i18n: {
+            typeUser: /*[[#{client.management.type.user}]]*/ 'User',
+            typeGateway: /*[[#{client.management.type.gateway}]]*/ 'Gateway',
+            noData: /*[[#{client.table.no_data}]]*/ 'No clients found.',
+            never: /*[[#{index.room.offline}]]*/ 'Never',
+            loading: /*[[#{client.table.loading}]]*/ 'Loading...',
+            allTypes: /*[[#{client.management.all_types}]]*/ 'All Types',
+            placeholderSearch: /*[[#{index.search.placeholder}]]*/ 'Search...',
+            colId: /*[[#{client.table.id}]]*/ 'ID',
+            colUsername: /*[[#{client.table.username}]]*/ 'Username',
+            colType: /*[[#{client.table.type}]]*/ 'Type',
+            colIp: /*[[#{client.table.ip}]]*/ 'IP Address',
+            colMac: /*[[#{client.table.mac}]]*/ 'MAC Address',
+            colLastLogin: /*[[#{client.table.last_login}]]*/ 'Last Login',
+            colActions: /*[[#{client.table.actions}]]*/ 'Actions',
+            confirmDelete: /*[[#{common.delete}]]*/ 'Delete',
+            confirmDeleteText: /*[[#{common.confirm.delete}]]*/ 'Are you sure?',
+            setupTitle: /*[[#{client.management.setup.title}]]*/ 'Setup Gateway',
+            setupText: /*[[#{client.management.setup.text}]]*/ 'Are you sure you want to setup the Gateway for "{0}"?',
+            setupSuccessTitle: /*[[#{client.management.setup.success_title}]]*/ 'Success',
+            setupSuccessText: /*[[#{client.management.setup.success_text}]]*/ 'Gateway setup completed successfully.',
+            setupErrorTitle: /*[[#{client.management.setup.error_title}]]*/ 'Setup Error',
+            setupProcessing: /*[[#{client.management.setup.processing}]]*/ 'Setting up...',
+            clearConfigTitle: /*[[#{client.management.clear_config.title}]]*/ 'Clear Hardware Config',
+            clearConfigText: /*[[#{client.management.clear_config.text}]]*/ 'Are you sure you want to clear all hardware configurations for "{0}"?',
+            clearConfigSuccess: /*[[#{client.management.clear_config.success_text}]]*/ 'Hardware configurations cleared successfully.',
+            clearConfigProcessing: /*[[#{client.management.clear_config.processing}]]*/ 'Clearing configurations...',
+            confirm: /*[[#{index.scene.trigger.confirm}]]*/ 'Confirm',
+            cancel: /*[[#{index.scene.trigger.cancel}]]*/ 'Cancel',
+            addTitle: /*[[#{client.management.modal.add_title}]]*/ 'Add New Client',
+            editTitle: /*[[#{client.management.modal.edit_title}]]*/ 'Edit Client',
+            pwdTitle: /*[[#{client.management.modal.pwd_change_for}]]*/ 'Change Passwords for {0}',
+            pwdSuccess: /*[[#{client.management.success.pwd_updated}]]*/ 'Passwords updated successfully.',
+            pwdError: /*[[#{client.management.error.pwd_update_failed}]]*/ 'Failed to update passwords.',
+            pwdMatchError: /*[[#{client.management.error.pwd_match}]]*/ 'Passwords do not match!',
+            pwdAtLeastOne: /*[[#{client.management.error.pwd_at_least_one}]]*/ 'Please enter at least one password to change',
+            createdSuccess: /*[[#{client.management.success.created}]]*/ 'Client created successfully',
+            updatedSuccess: /*[[#{client.management.success.updated}]]*/ 'Client updated successfully',
+            confirmDeleteTextSingle: /*[[#{client.management.confirm.delete_single}]]*/ 'Delete {0} item?',
+            confirmDeleteTextBatch: /*[[#{client.management.confirm.delete_batch}]]*/ 'Delete {0} items?',
+            yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete!',
+            processing: /*[[#{common.processing}]]*/ 'Processing...',
+            success: /*[[#{common.success}]]*/ 'Success',
+            error: /*[[#{common.error.title}]]*/ 'Error',
+            info: /*[[#{common.info}]]*/ 'Information',
+            valRequired: /*[[#{client.management.error.field_required}]]*/ '{0} is required',
+            valUsernameLen: /*[[#{client.management.error.username_len}]]*/ 'Username must be between 3 and 100 characters',
+            valPasswordLen: /*[[#{client.management.error.password_len}]]*/ 'Password must be between 6 and 100 characters',
+            valIpInvalid: /*[[#{client.management.error.ip_invalid}]]*/ 'IP address is invalid',
+            valMacInvalid: /*[[#{client.management.error.mac_invalid}]]*/ 'Invalid MAC address format',
+            valUrlInvalid: /*[[#{client.management.error.url_invalid}]]*/ 'Invalid avatar URL',
+          },
+        };
+      </script>
+
+      <script type="module" th:src="@{/js/pages/management/clients.js}"></script>
+    </th:block>
+  </body>
+</html>

@@ -191,6 +191,52 @@
 </details>
 
 <details>
+<summary><b>PATCH</b> <code>/api/v1/rooms/{roomId}</code> - Cập nhật một phần thông tin phòng</summary>
+
+> Cập nhật chọn lọc thông tin phòng theo ID (PATCH update).
+
+### Path Parameters
+
+| Tên    | Loại | Mô tả        | Bắt buộc/Mặc định |
+| :----- | :--- | :----------- | :---------------- |
+| roomId | Long | ID của phòng | Có                |
+
+### Request Body
+
+| Tên trường  | Loại   | Bắt buộc | Mô tả                          |
+| :---------- | :----- | :------- | :----------------------------- |
+| name        | string | Không    | Tên phòng (1-100 ký tự)        |
+| description | string | Không    | Mô tả phòng (tối đa 255 ký tự) |
+| floorId     | Long   | Không    | ID tầng mới (nếu chuyển phòng) |
+| langCode    | string | Không    | Mã ngôn ngữ (tối đa 10 ký tự)  |
+
+### Request Example
+
+```json
+{
+	"name": "Phòng họp VIP (Updated)"
+}
+```
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"id": 1,
+		"name": "Phòng họp VIP (Updated)",
+		"description": "Phòng họp dành cho lãnh đạo",
+		"floorId": 3
+	},
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<details>
 <summary><b>DELETE</b> <code>/api/v1/rooms/{roomId}</code> - Xóa phòng</summary>
 
 > Xóa một phòng theo ID.

@@ -5,13 +5,13 @@ import com.iviet.ivshs.dto.RoomDetailViewModel;
 import lombok.Builder;
 import lombok.Data;
 
-public interface RoomDetailViewService {
+public interface RoomViewService {
 
-  public RoomDetailViewModel getModel(GetModelCriteria req);
+  public RoomDetailViewModel getRoomDetailModel(RoomDetailCriteria req);
 
   @Data
   @Builder
-  public static class GetModelCriteria {
+  public static class RoomDetailCriteria {
     private Long roomId;
   }
 }

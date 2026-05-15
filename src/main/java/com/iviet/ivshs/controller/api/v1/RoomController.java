@@ -74,6 +74,14 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponse.ok(roomService.update(roomId, request)));
     }
 
+    @PatchMapping("/rooms/{roomId}")
+    public ResponseEntity<ApiResponse<RoomDto>> patchRoom(
+            @PathVariable(name = "roomId") Long roomId,
+            @RequestBody UpdateRoomDto request) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(roomService.patchUpdate(roomId, request)));
+    }
+
     @DeleteMapping("/rooms/{roomId}")
     public ResponseEntity<ApiResponse<Void>> deleteRoom(
             @PathVariable(name = "roomId") Long roomId) {

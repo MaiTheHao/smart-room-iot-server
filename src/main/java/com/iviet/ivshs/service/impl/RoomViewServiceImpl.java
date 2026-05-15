@@ -3,6 +3,7 @@ package com.iviet.ivshs.service.impl;
 import java.time.Instant;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.RoomDao;
@@ -10,21 +11,24 @@ import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.RoomDetailViewModel;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
-import com.iviet.ivshs.service.RoomDetailViewService;
+import com.iviet.ivshs.service.HealthCheckService;
+import com.iviet.ivshs.service.RoomViewService;
 import com.iviet.ivshs.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-public class RoomDetailViewServiceImpl implements RoomDetailViewService {
+public class RoomViewServiceImpl implements RoomViewService {
 
   private final RoomDao roomDao;
   private final TemperatureValueDao temperatureValueDao;
   private final EnergyMetricDao energyMetricDao;
+  private final HealthCheckService healthCheckService;
 
   @Override
-  public RoomDetailViewModel getModel(GetModelCriteria req) {
+  public RoomDetailViewModel getRoomDetailModel(RoomDetailCriteria req) {
     if (req == null || req.getRoomId() == null) {
       throw new IllegalArgumentException("Room ID must be provided");
     }
@@ -47,10 +51,13 @@ public class RoomDetailViewServiceImpl implements RoomDetailViewService {
     } catch (Exception e) {
     } 
     
+    int healthScore = healthCheckService.getHealthScoreByRoom(req.getRoomId());
+    
     return RoomDetailViewModel.builder()
       .room(room)
       .lastestAvgTemperature(lastestAvgTemperature)
       .lastestSumWatt(latestSumWatt)
+      .healthScore(healthScore)
       .build();
   }
 }

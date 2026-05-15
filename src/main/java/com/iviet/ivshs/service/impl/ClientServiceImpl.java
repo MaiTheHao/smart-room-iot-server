@@ -216,8 +216,25 @@ public class ClientServiceImpl implements ClientService {
   @Override
   @Transactional
   public ClientDto update(Long clientId, UpdateClientDto updateDto) {
+    return patchUpdate(clientId, updateDto);
+  }
+
+  @Override
+  @Transactional
+  public ClientDto patchUpdate(Long clientId, UpdateClientDto updateDto) {
     Client client = clientDao.findById(clientId)
       .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+
+    ClientType targetType = updateDto.clientType() != null ? updateDto.clientType() : client.getClientType();
+    if (targetType == ClientType.HARDWARE_GATEWAY) {
+        String finalIp = (updateDto.ipAddress() != null && !updateDto.ipAddress().trim().isEmpty()) 
+            ? updateDto.ipAddress().trim() 
+            : client.getIpAddress();
+        
+        if (finalIp == null || finalIp.trim().isEmpty()) {
+            throw new BadRequestException("IP Address is required for HARDWARE_GATEWAY clients");
+        }
+    }
 
     if (updateDto.clientType() != null) {
       client.setClientType(updateDto.clientType());
@@ -274,6 +291,21 @@ public class ClientServiceImpl implements ClientService {
     }
 
     clientDao.update(client);
+  }
+
+  @Override
+  @Transactional
+  public void updateLastLogin(String username) {
+    Client client = clientDao.findByUsername(username.trim())
+      .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
+    
+    java.util.Date now = new java.util.Date();
+    java.util.Date lastLogin = client.getLastLoginAt();
+    
+    if (lastLogin == null || (now.getTime() - lastLogin.getTime() > 30 * 60 * 1000)) {
+      client.setLastLoginAt(now);
+      clientDao.update(client);
+    }
   }
 
   @Override

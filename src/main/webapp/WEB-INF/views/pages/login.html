@@ -10,6 +10,7 @@
 		<link rel="stylesheet" th:href="@{/css/global.css}" />
 		<!-- AdminLTE 4 -->
 		<link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
+		<link rel="icon" type="image/webp" th:href="@{/imgs/logo_genesistech.webp}" />
 
 		<style>
 			body {
@@ -45,6 +46,7 @@
 				<div class="card-body p-5">
 					<!-- Header -->
 					<div class="text-center mb-5">
+						<img th:src="@{/imgs/logo_genesistech.webp}" alt="Logo" class="mb-3 rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover" />
 						<h2 class="fw-bold text-dark mb-2 fs-1">
 							<span th:text="#{app.name}">Smart Home</span>
 						</h2>
@@ -95,9 +97,61 @@
 		<script th:src="@{/js/lib/adminlte.min.js}"></script>
 
 		<script th:inline="javascript">
-			// Pass SSR error message to CSM layer
-			window.INITIAL_ERROR = /*[[${errorMessage}]]*/ null;
+			(function () {
+				'use strict';
+
+				const i18n = {
+					loadingText: /*[[#{login.loading}]]*/ 'Processing...',
+					errorTitle: /*[[#{login.error.title}]]*/ 'Login Failed',
+				};
+
+				function Login() {
+					function bindEvents() {
+						const loginForm = document.getElementById('loginForm');
+						if (loginForm) {
+							loginForm.addEventListener('submit', function () {
+								const submitBtn = this.querySelector('button[type="submit"]');
+								if (submitBtn) {
+									submitBtn.disabled = true;
+									submitBtn.innerHTML = `
+										<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+										${i18n.loadingText}
+									`;
+								}
+							});
+						}
+					}
+
+					function checkErrors() {
+						const error = /*[[${errorMessage}]]*/ null;
+						if (error) {
+							Swal.fire({
+								icon: 'error',
+								title: i18n.errorTitle,
+								text: error,
+								confirmButtonColor: '#0d6efd',
+							});
+						}
+					}
+
+					function init() {
+						if (window.lucide) {
+							lucide.createIcons();
+						}
+						checkErrors();
+						bindEvents();
+					}
+
+					return {
+						init,
+					};
+				}
+
+				document.addEventListener('DOMContentLoaded', () => {
+					const loginPage = Login();
+					loginPage.init();
+				});
+			})();
 		</script>
-		<script th:src="@{/js/pages/login.js}"></script>
 	</body>
 </html>

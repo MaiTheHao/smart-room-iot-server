@@ -12,7 +12,8 @@ import lombok.Builder;
 public record RoomDetailViewModel(
 	RoomDto room,
 	Double lastestAvgTemperature,
-	Double lastestSumWatt
+	Double lastestSumWatt,
+	Integer healthScore
 ) {
 
 	@NonNull
@@ -21,6 +22,7 @@ public record RoomDetailViewModel(
 		attributes.put("room", room);
 		attributes.put("lastestAvgTemperature", lastestAvgTemperature);
 		attributes.put("lastestSumWatt", lastestSumWatt);
+		attributes.put("healthScore", healthScore);
 		return attributes;
 	}
 }

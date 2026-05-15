@@ -50,9 +50,13 @@ public interface ClientService {
 
   ClientDto update(Long clientId, UpdateClientDto updateDto);
 
+  ClientDto patchUpdate(Long clientId, UpdateClientDto updateDto);
+
   void delete(Long clientId);
 
   void deleteAllHardwareConfig(Long clientId);
+
+  void updateLastLogin(String username);
 
   long countGatewaysByRoomId(Long roomId);
 

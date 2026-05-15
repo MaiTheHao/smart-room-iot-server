@@ -155,4 +155,77 @@
  * @property {number} [level]
  */
 
+/**
+ * @typedef {Object} HealthDeviceDto
+ * @property {string} naturalId
+ * @property {string} category
+ * @property {boolean} isActive
+ */
+
+/**
+ * @typedef {Object} HealthDataDto
+ * @property {HealthDeviceDto[]} devices
+ * @property {string} [roomCode]
+ */
+
+/**
+ * @typedef {Object} HealthCheckResponseDto
+ * @property {number} status
+ * @property {string} message
+ * @property {HealthDataDto} [data]
+ * @property {string} timestamp
+ */
+
+/**
+ * @typedef {Object} FloorDto
+ * @property {number} id
+ * @property {string} name
+ * @property {string} code
+ * @property {number} level
+ * @property {string} [description]
+ */
+
+/**
+ * @typedef {Object} CreateFloorDto
+ * @property {string} name
+ * @property {string} code
+ * @property {number} level
+ * @property {string} [description]
+ * @property {string} [langCode]
+ */
+
+/**
+ * @typedef {Object} UpdateFloorDto
+ * @property {string} [name]
+ * @property {number} [level]
+ * @property {string} [description]
+ * @property {string} [langCode]
+ */
+
+/**
+ * @typedef {Object} RoomDto
+ * @property {number} id
+ * @property {string} name
+ * @property {string} code
+ * @property {number} floorId
+ * @property {string} [description]
+ */
+
+/**
+ * @typedef {Object} CreateRoomDto
+ * @property {string} name
+ * @property {string} code
+ * @property {number} floorId
+ * @property {string} [description]
+ * @property {string} [langCode]
+ */
+
+/**
+ * @typedef {Object} UpdateRoomDto
+ * @property {string} [name]
+ * @property {number} [floorId]
+ * @property {string} [description]
+ * @property {string} [langCode]
+ */
+
 export {};

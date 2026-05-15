@@ -186,6 +186,52 @@
 </details>
 
 <details>
+<summary><b>PATCH</b> <code>/api/v1/floors/{floorId}</code> - Cập nhật một phần thông tin tầng</summary>
+
+> Cập nhật chọn lọc thông tin tầng hiện có theo ID (PATCH update).
+
+### Path Parameters
+
+| Tên     | Loại | Mô tả                | Bắt buộc/Mặc định |
+| :------ | :--- | :------------------- | :---------------- |
+| floorId | Long | ID tầng cần cập nhật | Có                |
+
+### Request Body
+
+| Tên trường  | Loại   | Bắt buộc | Mô tả                         |
+| :---------- | :----- | :------- | :---------------------------- |
+| name        | string | Không    | Tên tầng (1-100 ký tự)        |
+| description | string | Không    | Mô tả tầng (tối đa 255 ký tự) |
+| level       | int    | Không    | Số thứ tự tầng                |
+| langCode    | string | Không    | Mã ngôn ngữ (tối đa 10 ký tự) |
+
+### Request Example
+
+```json
+{
+	"name": "Tầng 2 (Updated Name)"
+}
+```
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"id": 2,
+		"name": "Tầng 2 (Updated Name)",
+		"description": "Phòng họp lớn",
+		"level": 2
+	},
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<details>
 <summary><b>DELETE</b> <code>/api/v1/floors/{floorId}</code> - Xóa tầng theo ID</summary>
 
 > Xóa bỏ một tầng khỏi hệ thống.

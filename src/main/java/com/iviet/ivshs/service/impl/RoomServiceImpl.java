@@ -147,6 +147,12 @@ public class RoomServiceImpl implements RoomService {
     @Override
     @Transactional
     public RoomDto update(Long roomId, UpdateRoomDto dto) {
+        return patchUpdate(roomId, dto);
+    }
+
+    @Override
+    @Transactional
+    public RoomDto patchUpdate(Long roomId, UpdateRoomDto dto) {
         permissionService.requireManageRoom();
 
         Room room = roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
@@ -155,9 +161,10 @@ public class RoomServiceImpl implements RoomService {
             throw new NotFoundException("Language not found: " + langCode);
         }
 
-        if (dto.floorId() != null && !dto.floorId().equals(room.getFloor().getId())) {
-            Floor oldFloor = room.getFloor();
-            oldFloor.touch();
+        if (dto.floorId() != null && (room.getFloor() == null || !dto.floorId().equals(room.getFloor().getId()))) {
+            if (room.getFloor() != null) {
+                room.getFloor().touch();
+            }
             
             Floor newFloor = floorDao.findById(dto.floorId())
                     .orElseThrow(() -> new NotFoundException("Floor not found with ID: " + dto.floorId()));

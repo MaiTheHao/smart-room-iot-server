@@ -33,29 +33,39 @@
 		</div>
 
 		<th:block layout:fragment="scripts">
-			<script th:src="@{/js/pages/index.js}"></script>
 			<script th:inline="javascript">
-				document.addEventListener('DOMContentLoaded', () => {
-					const floors = /*[[${floors}]]*/ [];
-					const floorRoomMap = /*[[${floorRoomMap}]]*/ {};
-					const roomInfoMap = /*[[${roomInfoMap}]]*/ {};
-					const totalFloors = /*[[${totalFloors}]]*/ 0;
-					const totalRooms = /*[[${totalRooms}]]*/ 0;
-					const totalHardwares = /*[[${totalHardwares}]]*/ 0;
-
-					const dashboardConfig = {
-						floors,
-						floorRoomMap,
-						roomInfoMap,
-						totalFloors,
-						totalRooms,
-						totalHardwares,
-					};
-
-					const dashboard = Dashboard(dashboardConfig);
-					dashboard.init();
-				});
+				window.__DASHBOARD_CONFIG__ = {
+					data: {
+						floors: /*[[${floors}]]*/ [],
+						floorRoomMap: /*[[${floorRoomMap}]]*/ {},
+						roomInfoMap: /*[[${roomInfoMap}]]*/ {},
+						totalFloors: /*[[${totalFloors}]]*/ 0,
+						totalRooms: /*[[${totalRooms}]]*/ 0,
+						totalHardwares: /*[[${totalHardwares}]]*/ 0
+					},
+					i18n: {
+						summaryFloors: /*[[#{index.summary.floors}]]*/ 'Total Floors',
+						summaryRooms: /*[[#{index.summary.rooms}]]*/ 'Total Rooms',
+						summaryHardwares: /*[[#{index.summary.hardwares}]]*/ 'Total Devices',
+						scenesInHome: /*[[#{index.scenes.in_home}]]*/ 'In Home',
+						scenesOutHome: /*[[#{index.scenes.out_home}]]*/ 'Out Home',
+						scenesSleep: /*[[#{index.scenes.sleep}]]*/ 'Sleep',
+						scenesMorning: /*[[#{index.scenes.morning}]]*/ 'Morning',
+						floorLevel: /*[[#{index.floor.level}]]*/ 'Level',
+						roomNoRooms: /*[[#{index.room.no_rooms}]]*/ 'No rooms',
+						roomDevices: /*[[#{index.room.devices}]]*/ 'DEVICES',
+						roomTemp: /*[[#{index.room.temp}]]*/ 'TEMP',
+						roomPower: /*[[#{index.room.power}]]*/ 'POWER',
+						sceneTriggerTitle: /*[[#{index.scene.trigger.title}]]*/ 'Activate {0}?',
+						sceneTriggerText: /*[[#{index.scene.trigger.text}]]*/ 'Are you sure you want to activate the "{0}" scene?',
+						sceneTriggerConfirm: /*[[#{index.scene.trigger.confirm}]]*/ 'Confirm',
+						sceneTriggerCancel: /*[[#{index.scene.trigger.cancel}]]*/ 'Cancel',
+						sceneTriggerSuccessTitle: /*[[#{index.scene.trigger.success_title}]]*/ 'Success!',
+						sceneTriggerSuccessText: /*[[#{index.scene.trigger.success_text}]]*/ 'Scene "{0}" has been activated.'
+					}
+				};
 			</script>
+			<script type="module" th:src="@{/js/pages/index.js}"></script>
 		</th:block>
 	</body>
 </html>

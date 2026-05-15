@@ -11,6 +11,7 @@
 		<link rel="stylesheet" th:href="@{/css/lib/overlayscrollbars.min.css}" />
 		<!-- AdminLTE 4 -->
 		<link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
+		<link rel="icon" type="image/webp" th:href="@{/imgs/logo_genesistech.webp}" />
 
 		<th:block layout:fragment="styles"></th:block>
 	</head>
@@ -78,7 +79,7 @@
 			<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark" th:fragment="sidebar">
 				<div class="sidebar-brand">
 					<a th:href="@{/}" class="brand-link">
-						<i data-lucide="cpu" class="brand-image"></i>
+						<img th:src="@{/imgs/logo_genesistech.webp}" alt="Logo" class="brand-image rounded-circle shadow-sm" style="opacity: .8" />
 						<span class="brand-text fw-light">Smart Room</span>
 					</a>
 				</div>
@@ -116,7 +117,6 @@
 		<script th:src="@{/js/lib/lucide.min.js}"></script>
 		<script th:src="@{/js/lib/sweetalert2.min.js}"></script>
 		<script th:src="@{/js/lib/adminlte.min.js}"></script>
-		<script th:src="@{/js/api/http-client.js}"></script>
 
 		<script>
 			window.renderIcons = () => {

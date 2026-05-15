@@ -6,7 +6,7 @@ const BASE_URL = '';
  * @param {Object} options - Fetch options
  * @returns {Promise<[Error|null, any]>}
  */
-const http_client = async (endpoint, options = {}) => {
+export const httpClient = async (endpoint, options = {}) => {
 	const config = {
 		...options,
 		credentials: 'include',
@@ -19,8 +19,9 @@ const http_client = async (endpoint, options = {}) => {
 	try {
 		const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
+		const text = await response.text();
 		const isJson = response.headers.get('content-type')?.includes('application/json');
-		const result = isJson ? await response.json() : null;
+		const result = (isJson && text) ? JSON.parse(text) : null;
 
 		if (!response.ok) {
 			const errorMessage = result?.message || `HTTP error! status: ${response.status}`;
@@ -33,3 +34,4 @@ const http_client = async (endpoint, options = {}) => {
 		return [error, null];
 	}
 };
+

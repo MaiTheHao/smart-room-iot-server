@@ -1,0 +1,154 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{management.floor.title}">Floor Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+  </head>
+  <body class="floors-management-page">
+    <div layout:fragment="header-title">
+      <span th:text="#{management.floor.title}">Floor Management</span>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <!-- Data Table Card -->
+        <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+          <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+            <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
+              <i data-lucide="layers" class="text-primary me-2 lucide-sm"></i>
+              <span th:text="#{management.floor.list.title}">Floor List</span>
+            </h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1"></i>
+                <span th:text="#{common.reload}">Reload</span>
+              </button>
+              <button class="btn btn-primary btn-sm rounded-pill px-3" id="btnAdd">
+                <i data-lucide="plus" class="lucide-sm me-1"></i>
+                <span th:text="#{common.add}">Add</span>
+              </button>
+              <button
+                class="btn btn-danger btn-sm rounded-pill px-3"
+                id="btnDeleteSelected"
+                disabled
+              >
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="floorsTable"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floor Form Modal -->
+      <div class="modal fade" id="floorModal" tabindex="-1" aria-labelledby="floorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center" id="floorModalLabel">
+                <i data-lucide="layout" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle" th:text="#{management.floor.modal.add_title}">Add New Floor</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="floorForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="floorId" name="id" />
+                <div class="row g-3">
+                  <!-- Name -->
+                  <div class="col-12">
+                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{floor.table.name}">Name</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Ground Floor" />
+                    </div>
+                    <div class="invalid-feedback" id="val-name"></div>
+                  </div>
+
+                  <!-- Code -->
+                  <div class="col-md-6">
+                    <label for="code" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{floor.table.code}">Code</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="code" name="code" placeholder="FL-01" />
+                    </div>
+                    <div class="invalid-feedback" id="val-code"></div>
+                  </div>
+
+                  <!-- Level -->
+                  <div class="col-md-6">
+                    <label for="level" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{floor.table.level}">Level</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="chevrons-up" class="lucide-sm"></i></span>
+                      <input type="number" class="form-control bg-light border-0" id="level" name="level" placeholder="0" />
+                    </div>
+                    <div class="invalid-feedback" id="val-level"></div>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-12">
+                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{floor.table.description}">Description</label>
+                    <textarea class="form-control bg-light border-0" id="description" name="description" rows="3" placeholder="Additional details..."></textarea>
+                    <div class="invalid-feedback" id="val-description"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitFloor">
+                  <i data-lucide="save" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script th:inline="javascript">
+        window.__FLOORS_CONFIG__ = {
+          i18n: {
+            colId: /*[[#{floor.table.id}]]*/ 'ID',
+            colCode: /*[[#{floor.table.code}]]*/ 'Code',
+            colName: /*[[#{floor.table.name}]]*/ 'Name',
+            colLevel: /*[[#{floor.table.level}]]*/ 'Level',
+            colDescription: /*[[#{floor.table.description}]]*/ 'Description',
+            colActions: /*[[#{client.table.actions}]]*/ 'Actions',
+            noData: /*[[#{client.table.no_data}]]*/ 'No data found.',
+            placeholderSearch: /*[[#{index.search.placeholder}]]*/ 'Search...',
+            addTitle: /*[[#{management.floor.modal.add_title}]]*/ 'Add New Floor',
+            editTitle: /*[[#{management.floor.modal.edit_title}]]*/ 'Edit Floor',
+            createdSuccess: /*[[#{management.floor.success.created}]]*/ 'Floor created successfully',
+            updatedSuccess: /*[[#{management.floor.success.updated}]]*/ 'Floor updated successfully',
+            confirmDelete: /*[[#{common.delete}]]*/ 'Delete',
+            confirmDeleteTextSingle: /*[[#{client.management.confirm.delete_single}]]*/ 'Delete {0} item?',
+            confirmDeleteTextBatch: /*[[#{client.management.confirm.delete_batch}]]*/ 'Delete {0} items?',
+            yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete!',
+            cancel: /*[[#{index.scene.trigger.cancel}]]*/ 'Cancel',
+            processing: /*[[#{common.processing}]]*/ 'Processing...',
+            success: /*[[#{common.success}]]*/ 'Success',
+            error: /*[[#{common.error.title}]]*/ 'Error',
+            valRequired: /*[[#{client.management.error.field_required}]]*/ '{0} is required',
+            valNameLen: /*[[#{val.name.len}]]*/ 'Name length error',
+            valCodeLen: /*[[#{val.code.len}]]*/ 'Code length error',
+            valLevelInvalid: /*[[#{val.level.invalid}]]*/ 'Invalid level',
+            valDescriptionLen: /*[[#{val.description.len}]]*/ 'Description too long',
+          },
+        };
+      </script>
+
+      <script type="module" th:src="@{/js/pages/management/floors.js}"></script>
+    </th:block>
+  </body>
+</html>

@@ -16,5 +16,6 @@ public interface FloorService {
     Floor getEntityById(Long id);
     FloorDto create(CreateFloorDto dto);
     FloorDto update(Long id, UpdateFloorDto dto);
+    FloorDto patchUpdate(Long id, UpdateFloorDto dto);
     void delete(Long id);
 }

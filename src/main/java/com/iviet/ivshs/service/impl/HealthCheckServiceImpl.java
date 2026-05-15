@@ -78,7 +78,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 				.toList();
 
 		if (ipAddresses.isEmpty()) {
-			throw new BadRequestException("No gateways found for Room: " + roomCode);
+			return Map.of();
 		}
 
 		long start = System.currentTimeMillis();
@@ -137,7 +137,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 	public int getHealthScoreByRoom(Long roomId) {
 		Map<String, HealthCheckResponseDto> roomResults = checkByRoom(roomId);
 
-		if (roomResults.isEmpty()) return 0;
+		if (roomResults.isEmpty()) return 100; // No gateways means no issues
 
 		double averageScore = roomResults.values().stream()
 				.mapToInt(this::calculateScore)

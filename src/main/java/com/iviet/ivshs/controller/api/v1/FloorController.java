@@ -61,6 +61,14 @@ public class FloorController {
         return ResponseEntity.ok(ApiResponse.ok(floorService.update(floorId, request)));
     }
 
+    @PatchMapping("/{floorId}")
+    public ResponseEntity<ApiResponse<FloorDto>> patchFloor(
+            @PathVariable(name = "floorId") Long floorId,
+            @RequestBody UpdateFloorDto request) {
+        
+        return ResponseEntity.ok(ApiResponse.ok(floorService.patchUpdate(floorId, request)));
+    }
+
     @DeleteMapping("/{floorId}")
     public ResponseEntity<ApiResponse<Void>> deleteFloor(
             @PathVariable(name = "floorId") Long floorId) {

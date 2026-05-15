@@ -230,6 +230,58 @@
 </details>
 
 <details>
+<summary><b>PATCH</b> <code>/api/v1/clients/{id}</code> - Patch Client</summary>
+
+> Cập nhật chọn lọc thông tin một client theo ID (PATCH update).
+
+### Path Parameters
+
+| Tên | Loại | Mô tả         | Bắt buộc/Mặc định |
+| :-- | :--- | :------------ | :---------------- |
+| id  | Long | ID của client | Có                |
+
+### Request Body
+
+| Tên trường | Loại         | Bắt buộc | Mô tả                                    |
+| :--------- | :----------- | :------- | :--------------------------------------- |
+| username   | string       | Không    | Tên đăng nhập (3-100 ký tự, duy nhất)    |
+| password   | string       | Không    | Mật khẩu (6-100 ký tự)                   |
+| clientType | ClientTypeV1 | Không    | Loại client (`USER`, `HARDWARE_GATEWAY`) |
+| ipAddress  | string       | Không    | Địa chỉ IP (IPv4/IPv6, tối đa 45 ký tự)  |
+| macAddress      | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
+| avatarUrl       | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
+| gatewayPassword | string       | Không    | Mật khẩu Gateway (tối đa 255 ký tự)      |
+
+### Request Example
+
+```json
+{
+	"avatarUrl": "https://example.com/new-avatar.png"
+}
+```
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"id": 3,
+		"username": "updatedclient",
+		"clientType": "HARDWARE_GATEWAY",
+		"ipAddress": "192.168.1.12",
+		"macAddress": "22:33:44:55:66:77",
+		"avatarUrl": "https://example.com/new-avatar.png",
+		"lastLoginAt": "2024-06-07T09:00:00Z"
+	},
+	"timestamp": "2024-06-07T09:00:00Z"
+}
+```
+
+</details>
+
+<details>
 <summary><b>DELETE</b> <code>/api/v1/clients/{id}</code> - Delete Client</summary>
 
 > Xóa một client theo ID.

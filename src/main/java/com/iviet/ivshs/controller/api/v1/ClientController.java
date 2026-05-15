@@ -72,6 +72,14 @@ public class ClientController {
         return ResponseEntity.ok(ApiResponse.ok(updated));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<ClientDto>> patch(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UpdateClientDto request) {
+        ClientDto updated = clientService.patchUpdate(id, request);
+        return ResponseEntity.ok(ApiResponse.ok(updated));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable(name = "id") Long id) {
@@ -82,7 +90,16 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}/device-controls")
-    public ResponseEntity<ApiResponse<Void>> deleteAllHardwareConfig(
+    public ResponseEntity<ApiResponse<Void>> deleteAllDeviceControls(
+            @PathVariable(name = "id") Long id) {
+        clientService.deleteAllHardwareConfig(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, 
+                "All hardware configurations deleted successfully"));
+    }
+
+    @DeleteMapping("/{id}/hardware-configs")
+    public ResponseEntity<ApiResponse<Void>> deleteAllHardwareConfigs(
             @PathVariable(name = "id") Long id) {
         clientService.deleteAllHardwareConfig(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

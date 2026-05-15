@@ -23,7 +23,7 @@ public class GatewaySystemClient extends GatewayBaseClient {
     }
 
     public ResponseEntity<HealthCheckResponseDto> fetchHealthCheck(String ip) {
-        String url = buildUri(ip, API_V1, "health-check");
+        String url = buildUri(ip, API_V2, "health-check");
         return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<HealthCheckResponseDto>() {});
     }
 }
