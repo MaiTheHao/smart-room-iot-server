@@ -5,72 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:text="#{error.403.title}">403 Forbidden</title>
 
-    <!-- Local Fonts & Global Styles -->
-    <link rel="stylesheet" th:href="@{/css/global.css}" />
-    <!-- AdminLTE 4 -->
+    <!-- AdminLTE 4 & Global Styles -->
     <link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
+    <style>
+      :root {
+        --error-primary: #dc3545;
+        --error-bg: #f8f9fa;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+      }
+      
+      body {
+        background: radial-gradient(circle at top right, #fff5f5 0%, #ffffff 50%, #f8f9fa 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      .error-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+      }
+
+      .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #212529 0%, #dc3545 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+        letter-spacing: -0.05em;
+      }
+
+      .icon-box {
+        width: 80px;
+        height: 80px;
+        background: #fff5f5;
+        color: #dc3545;
+        border-radius: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+      }
+
+      .btn-primary-custom {
+        background: #212529;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary-custom:hover {
+        background: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        color: white;
+      }
+
+      .btn-outline-custom {
+        border: 2px solid #e9ecef;
+        background: transparent;
+        color: #495057;
+        padding: 0.75rem 2rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .btn-outline-custom:hover {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+        color: #212529;
+      }
+
+      .transition-all { transition: all 0.3s ease; }
+    </style>
   </head>
-  <body class="bg-body-tertiary vh-100 d-flex flex-column">
+  <body class="vh-100 d-flex flex-column align-items-center justify-content-center">
     <!-- Lang Switcher -->
-    <div class="position-fixed top-0 end-0 p-3 z-3">
-      <div class="d-flex align-items-center gap-2 bg-body py-2 px-4 rounded-pill shadow-sm border">
-        <a
-          th:href="@{''(lang='vi')}"
-          class="d-flex align-items-center transition-all"
-          th:title="#{lang.vietnamese}"
-          th:style="${#locale.language == 'vi' ? 'opacity: 1' : 'opacity: 0.4'}"
-        >
-          <img th:src="@{/imgs/vietnam512x512.png}" alt="VI" style="width: 24px; height: 24px" />
+    <div class="position-fixed top-0 end-0 p-4 z-3">
+      <div class="d-flex align-items-center gap-2 bg-white py-2 px-3 rounded-pill shadow-sm border border-light">
+        <a th:href="@{''(lang='vi')}" class="d-flex align-items-center transition-all" 
+           th:title="#{lang.vietnamese}" th:style="${#locale.language == 'vi' ? 'opacity: 1' : 'opacity: 0.3'}">
+          <img th:src="@{/imgs/vietnam512x512.png}" alt="VI" style="width: 20px; height: 20px" />
         </a>
-        <div class="vr mx-1" style="height: 16px"></div>
-        <a
-          th:href="@{''(lang='en')}"
-          class="d-flex align-items-center transition-all"
-          th:title="#{lang.english}"
-          th:style="${#locale.language == 'en' ? 'opacity: 1' : 'opacity: 0.4'}"
-        >
-          <img
-            th:src="@{/imgs/united-kingdom512x512.png}"
-            alt="EN"
-            style="width: 24px; height: 24px"
-          />
+        <div class="vr mx-1" style="height: 14px; background-color: #e9ecef; opacity: 1;"></div>
+        <a th:href="@{''(lang='en')}" class="d-flex align-items-center transition-all" 
+           th:title="#{lang.english}" th:style="${#locale.language == 'en' ? 'opacity: 1' : 'opacity: 0.3'}">
+          <img th:src="@{/imgs/united-kingdom512x512.png}" alt="EN" style="width: 20px; height: 20px" />
         </a>
       </div>
     </div>
 
     <!-- Error Content -->
-    <div class="m-auto text-center container px-4" style="max-width: 600px">
-      <div class="mb-4">
-        <div
-          class="d-inline-flex align-items-center justify-content-center bg-orange bg-opacity-10 rounded-4"
-          style="width: 100px; height: 100px"
-        >
-          <i data-lucide="lock" class="text-orange" style="width: 48px; height: 48px"></i>
+    <div class="container px-4 text-center">
+      <div class="error-card p-5 mx-auto" style="max-width: 540px">
+        <div class="icon-box">
+          <i data-lucide="shield-alert" style="width: 38px; height: 38px"></i>
+        </div>
+        
+        <h1 class="error-code mb-2">403</h1>
+        <h2 class="h3 fw-bold text-dark mb-3" th:text="#{error.403.heading}">Access Denied</h2>
+        
+        <p class="text-secondary mb-5 px-3" th:text="#{error.403.desc}">
+          You don't have permission to access this page. Please contact your administrator if you believe this is an error.
+        </p>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+          <a th:href="@{/}" class="btn btn-primary-custom d-inline-flex align-items-center justify-content-center">
+            <i data-lucide="home" class="me-2" style="width: 18px"></i>
+            <span th:text="#{error.back.home}">Return Home</span>
+          </a>
+          <button onclick="history.back()" class="btn btn-outline-custom d-inline-flex align-items-center justify-content-center">
+            <i data-lucide="arrow-left" class="me-2" style="width: 18px"></i>
+            <span th:text="#{error.back}">Go Back</span>
+          </button>
         </div>
       </div>
-      <h1 class="display-1 fw-black text-orange mb-0" style="letter-spacing: -4px">403</h1>
-      <h2 class="fw-bold mb-3 mt-n2" th:text="#{error.403.heading}">Access Forbidden</h2>
-      <p class="text-muted mb-4 fs-5 lh-sm" th:text="#{error.403.desc}">
-        You don't have permission to access this resource. If you believe this is an error, please
-        contact your administrator.
+      
+      <p class="mt-5 text-muted small opacity-50">
+        &copy; 2026 iViet Smart Home System. All rights reserved.
       </p>
-
-      <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-4">
-        <a
-          th:href="@{/}"
-          class="btn btn-orange px-4 py-2 rounded-pill d-inline-flex align-items-center shadow-sm fw-bold text-white"
-        >
-          <i data-lucide="home" class="me-2" style="width: 18px"></i>
-          <span th:text="#{error.back.home}">Return Home</span>
-        </a>
-        <button
-          onclick="history.back()"
-          class="btn btn-outline-secondary px-4 py-2 rounded-pill d-inline-flex align-items-center"
-        >
-          <i data-lucide="arrow-left" class="me-2" style="width: 18px"></i>
-          <span th:text="#{error.back}">Go Back</span>
-        </button>
-      </div>
     </div>
 
     <!-- Scripts -->

@@ -8,7 +8,7 @@ import { httpClient } from './http-client.js';
 /**
  * Trigger setup process for a specific gateway client
  * @param {number|string} clientId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<void>]>}
+ * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const setup = (clientId) =>
 	httpClient(`/api/v1/setup/${clientId}`, {
@@ -18,7 +18,7 @@ export const setup = (clientId) =>
 /**
  * Get health status of a specific client
  * @param {number|string} clientId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').HealthCheckResponseDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<HealthCheckResponseDto>]>}
  */
 export const getClientHealth = (clientId) =>
 	httpClient(`/api/v1/clients/${clientId}/health`);
@@ -26,7 +26,7 @@ export const getClientHealth = (clientId) =>
 /**
  * Get health status of a client by IP address
  * @param {string} ip
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').HealthCheckResponseDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<HealthCheckResponseDto>]>}
  */
 export const getClientHealthByIp = (ip) =>
 	httpClient(`/api/v1/clients/health?ip=${ip}`);
@@ -34,7 +34,7 @@ export const getClientHealthByIp = (ip) =>
 /**
  * Get health score (0-100) of a specific client
  * @param {number|string} clientId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<number>]>}
+ * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const getClientHealthScore = (clientId) =>
 	httpClient(`/api/v1/clients/${clientId}/health-score`);
@@ -42,7 +42,7 @@ export const getClientHealthScore = (clientId) =>
 /**
  * Get health status of all gateways in a room
  * @param {number|string} roomId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<Record<string, import('../types.js').HealthCheckResponseDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<Record<string, HealthCheckResponseDto>>]>}
  */
 export const getRoomHealth = (roomId) =>
 	httpClient(`/api/v1/rooms/${roomId}/health`);
@@ -50,7 +50,7 @@ export const getRoomHealth = (roomId) =>
 /**
  * Get health status of all gateways in a room by room code
  * @param {string} code
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<Record<string, import('../types.js').HealthCheckResponseDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<Record<string, HealthCheckResponseDto>>]>}
  */
 export const getRoomHealthByCode = (code) =>
 	httpClient(`/api/v1/rooms/health?code=${code}`);
@@ -58,7 +58,7 @@ export const getRoomHealthByCode = (code) =>
 /**
  * Get aggregated health score (0-100) of a room
  * @param {number|string} roomId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<number>]>}
+ * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const getRoomHealthScore = (roomId) =>
 	httpClient(`/api/v1/rooms/${roomId}/health-score`);

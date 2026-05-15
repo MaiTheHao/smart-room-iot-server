@@ -11,7 +11,6 @@ import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
@@ -110,7 +109,7 @@ public class FanControlServiceImpl implements FanControlService {
 
   @Override
   @Transactional
-  public ControlDeviceResult handleLightControl(String naturalId, ActuatorState light) {
+  public ControlDeviceResult handleLightControl(String naturalId, ActuatorPower light) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = handleLightControlCall(gatewayIp, fan.getNaturalId(), light);
@@ -207,7 +206,7 @@ public class FanControlServiceImpl implements FanControlService {
     return result;
   }
 
-  private ControlDeviceResult handleLightControlCall(String gatewayIp, String naturalId, ActuatorState light) {
+  private ControlDeviceResult handleLightControlCall(String gatewayIp, String naturalId, ActuatorPower light) {
     ControlDeviceResult result = new ControlDeviceResult();
     executeControl(result, "light", () -> gatewayControlClient.controlFanLight(gatewayIp, naturalId, light));
     return result;

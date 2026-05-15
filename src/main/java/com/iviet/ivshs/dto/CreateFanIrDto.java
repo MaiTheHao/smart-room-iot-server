@@ -7,7 +7,6 @@ import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.FanType;
 
@@ -47,15 +46,15 @@ public record CreateFanIrDto(
     ActuatorMode mode,
 
     @NotNull(message = "Speed is required for IR fan")
-    @Min(value = 0, message = "Speed must be at least 0")
-    @Max(value = 9999, message = "Speed must be at most 9999")
+    @Min(value = 1, message = "Speed must be at least 1")
+    @Max(value = 3, message = "Speed must be at most 3")
     Integer speed,
 
     @NotNull(message = "Swing is required for IR fan")
     ActuatorSwing swing,
 
     @NotNull(message = "Light is required for IR fan")
-    ActuatorState light
+    ActuatorPower light
 ) implements CreateFanDto {
 
     @Override

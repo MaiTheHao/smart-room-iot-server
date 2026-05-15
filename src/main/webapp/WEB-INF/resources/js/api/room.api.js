@@ -9,14 +9,14 @@ import { httpClient } from './http-client.js';
  * Get paginated list of all rooms
  * @param {number} [page=0]
  * @param {number} [size=10]
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').PaginatedResponse<import('../types.js').RoomDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<RoomDto>>]>}
  */
 export const getRooms = (page = 0, size = 10) =>
 	httpClient(`/api/v1/rooms?page=${page}&size=${size}`);
 
 /**
  * Get all rooms (non-paginated)
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').RoomDto[]>]>}
+ * @returns {Promise<[Error|null, ApiResponse<RoomDto[]>]>}
  */
 export const getAllRooms = () =>
 	httpClient('/api/v1/rooms/all');
@@ -26,7 +26,7 @@ export const getAllRooms = () =>
  * @param {number|string} floorId
  * @param {number} [page=0]
  * @param {number} [size=10]
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').PaginatedResponse<import('../types.js').RoomDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<RoomDto>>]>}
  */
 export const getRoomsByFloor = (floorId, page = 0, size = 10) =>
 	httpClient(`/api/v1/floors/${floorId}/rooms?page=${page}&size=${size}`);
@@ -34,7 +34,7 @@ export const getRoomsByFloor = (floorId, page = 0, size = 10) =>
 /**
  * Get all rooms for a specific floor (non-paginated)
  * @param {number|string} floorId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').RoomDto[]>]>}
+ * @returns {Promise<[Error|null, ApiResponse<RoomDto[]>]>}
  */
 export const getAllRoomsByFloor = (floorId) =>
 	httpClient(`/api/v1/floors/${floorId}/rooms/all`);
@@ -42,7 +42,7 @@ export const getAllRoomsByFloor = (floorId) =>
 /**
  * Get room details by ID
  * @param {number|string} roomId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').RoomDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<RoomDto>]>}
  */
 export const getRoomById = (roomId) =>
 	httpClient(`/api/v1/rooms/${roomId}`);
@@ -50,7 +50,7 @@ export const getRoomById = (roomId) =>
 /**
  * Get room version by ID
  * @param {number|string} roomId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<number>]>}
+ * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const getRoomVersion = (roomId) =>
 	httpClient(`/api/v1/rooms/${roomId}/v`);
@@ -58,8 +58,8 @@ export const getRoomVersion = (roomId) =>
 /**
  * Create a new room in a specific floor
  * @param {number|string} floorId
- * @param {import('../types.js').CreateRoomDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').RoomDto>]>}
+ * @param {CreateRoomDto} data
+ * @returns {Promise<[Error|null, ApiResponse<RoomDto>]>}
  */
 export const createRoom = (floorId, data) =>
 	httpClient(`/api/v1/floors/${floorId}/rooms`, {
@@ -70,8 +70,8 @@ export const createRoom = (floorId, data) =>
 /**
  * Update an existing room
  * @param {number|string} roomId
- * @param {import('../types.js').UpdateRoomDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').RoomDto>]>}
+ * @param {UpdateRoomDto} data
+ * @returns {Promise<[Error|null, ApiResponse<RoomDto>]>}
  */
 export const updateRoom = (roomId, data) =>
 	httpClient(`/api/v1/rooms/${roomId}`, {
@@ -82,8 +82,8 @@ export const updateRoom = (roomId, data) =>
 /**
  * Patch an existing room (selective update)
  * @param {number|string} roomId
- * @param {import('../types.js').UpdateRoomDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').RoomDto>]>}
+ * @param {UpdateRoomDto} data
+ * @returns {Promise<[Error|null, ApiResponse<RoomDto>]>}
  */
 export const patchRoom = (roomId, data) =>
 	httpClient(`/api/v1/rooms/${roomId}`, {
@@ -94,7 +94,7 @@ export const patchRoom = (roomId, data) =>
 /**
  * Delete a room
  * @param {number|string} roomId
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<void>]>}
+ * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const deleteRoom = (roomId) =>
 	httpClient(`/api/v1/rooms/${roomId}`, {

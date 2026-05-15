@@ -6,7 +6,6 @@ import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.FanType;
 
@@ -26,12 +25,12 @@ public record FanDto(
     FanType type,
     Integer speed,
     ActuatorMode mode,
-    ActuatorState light,
+    ActuatorPower light,
     ActuatorSwing swing,
     Long deviceControlId,
     DeviceCategory category
 ) {
-    public FanDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId, ActuatorPower power, FanType type, Integer speed, ActuatorMode mode, ActuatorState light, ActuatorSwing swing, Long deviceControlId) {
+    public FanDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId, ActuatorPower power, FanType type, Integer speed, ActuatorMode mode, ActuatorPower light, ActuatorSwing swing, Long deviceControlId) {
         this(id, naturalId, name, description, isActive, roomId, power, type, speed, mode, light, swing, deviceControlId, DeviceCategory.FAN);
     }
 

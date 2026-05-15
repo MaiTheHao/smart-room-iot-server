@@ -5,32 +5,38 @@
 			type: 'tree',
 			label: /*[[#{menu.dashboard}]]*/ 'Dashboard',
 			icon: 'layout-dashboard',
+			visible: true,
 			children: [
 				{
 					label: /*[[#{index.title}]]*/ 'Analytics',
 					icon: 'bar-chart-2',
 					link: '/',
+					visible: true,
 				},
 			],
 		},
 		{
 			type: 'header',
 			label: /*[[#{menu.management}]]*/ 'Management',
+			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ROOM", "F_MANAGE_FLOOR", "F_MANAGE_CLIENT", "F_MANAGE_FUNCTION", "F_MANAGE_ROLE", "F_MANAGE_GROUP")')}]]*/ true,
 		},
 		{
 			type: 'tree',
 			label: /*[[#{menu.location}]]*/ 'Location',
 			icon: 'map-pin',
+			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ROOM", "F_MANAGE_FLOOR")')}]]*/ true,
 			children: [
 				{
 					label: /*[[#{menu.rooms}]]*/ 'Rooms',
 					icon: 'door-open',
 					link: '/management/rooms',
+					visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ROOM")')}]]*/ true,
 				},
 				{
 					label: /*[[#{menu.floors}]]*/ 'Floors',
 					icon: 'layers',
 					link: '/management/floors',
+					visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_FLOOR")')}]]*/ true,
 				},
 			],
 		},
@@ -38,48 +44,57 @@
 			type: 'tree',
 			label: /*[[#{menu.access_control}]]*/ 'Access Control',
 			icon: 'shield-check',
+			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_CLIENT", "F_MANAGE_FUNCTION", "F_MANAGE_ROLE", "F_MANAGE_GROUP")')}]]*/ true,
 			children: [
 				{
 					label: /*[[#{menu.clients}]]*/ 'Clients',
 					icon: 'contact',
 					link: '/management/clients',
+					visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_CLIENT")')}]]*/ true,
 				},
 				{
 					label: /*[[#{menu.functions}]]*/ 'Functions',
 					icon: 'key',
 					link: '/management/functions',
+					visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_FUNCTION")')}]]*/ true,
 				},
 				{
 					label: /*[[#{menu.roles}]]*/ 'Roles',
 					icon: 'badge-check',
 					link: '/management/roles',
+					visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ROLE")')}]]*/ true,
 				},
 				{
 					label: /*[[#{menu.groups}]]*/ 'Groups',
 					icon: 'users',
 					link: '/management/groups',
+					visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_GROUP")')}]]*/ true,
 				},
 			],
 		},
 		{
 			type: 'header',
 			label: /*[[#{menu.smart_system}]]*/ 'Smart System',
+			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_AUTOMATION", "F_MANAGE_RULE")')}]]*/ true,
 		},
 		{
 			label: /*[[#{menu.automations}]]*/ 'Automations',
 			icon: 'zap',
 			link: '#',
+			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_AUTOMATION")')}]]*/ true,
 		},
 		{
 			label: /*[[#{menu.rules}]]*/ 'Rules',
 			icon: 'git-branch',
 			link: '#',
+			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_RULE")')}]]*/ true,
 		},
 	];
 
 	function Layout() {
 		function renderMenu(items) {
 			return items
+				.filter((item) => item.visible !== false)
 				.map((item) => {
 					switch (item.type) {
 						case 'header':
@@ -105,6 +120,9 @@
 		}
 
 		function renderTree(item) {
+			const visibleChildren = item.children ? item.children.filter((child) => child.visible !== false) : [];
+			if (visibleChildren.length === 0) return '';
+
 			return `
                 <li class="nav-item">
                     <a href="#" class="nav-link d-flex align-items-center">
@@ -115,7 +133,7 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        ${item.children.map((child) => renderLink(child, true)).join('')}
+                        ${visibleChildren.map((child) => renderLink(child, true)).join('')}
                     </ul>
                 </li>
             `;

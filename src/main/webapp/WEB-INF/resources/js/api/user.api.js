@@ -7,14 +7,14 @@ import { httpClient } from './http-client.js';
 
 /**
  * Get current authenticated client info
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const getMe = () => httpClient('/api/v1/clients/me');
 
 /**
  * Get all clients with pagination
  * @param {Object} params - { page, size }
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').PaginatedResponse<import('../types.js').ClientDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<ClientDto>>]>}
  */
 export const getAll = (params = {}) => {
 	const query = new URLSearchParams(params).toString();
@@ -24,7 +24,7 @@ export const getAll = (params = {}) => {
 /**
  * Get client by ID
  * @param {number|string} id
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const getById = (id) => httpClient(`/api/v1/clients/${id}`);
 
@@ -32,7 +32,7 @@ export const getById = (id) => httpClient(`/api/v1/clients/${id}`);
  * Get clients (Gateways) by room ID
  * @param {number|string} roomId
  * @param {Object} params - { page, size }
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').PaginatedResponse<import('../types.js').ClientDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<ClientDto>>]>}
  */
 export const getByRoomId = (roomId, params = {}) => {
 	const query = new URLSearchParams(params).toString();
@@ -41,8 +41,8 @@ export const getByRoomId = (roomId, params = {}) => {
 
 /**
  * Create a new client (Admin)
- * @param {import('../types.js').CreateClientDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto>]>}
+ * @param {CreateClientDto} data
+ * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const create = (data) =>
 	httpClient('/api/v1/clients', {
@@ -53,8 +53,8 @@ export const create = (data) =>
 /**
  * Update an existing client
  * @param {number|string} id
- * @param {import('../types.js').UpdateClientDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto>]>}
+ * @param {UpdateClientDto} data
+ * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const update = (id, data) =>
 	httpClient(`/api/v1/clients/${id}`, {
@@ -66,7 +66,7 @@ export const update = (id, data) =>
  * Partial update of a client
  * @param {number|string} id
  * @param {Object} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const patchUpdate = (id, data) =>
 	httpClient(`/api/v1/clients/${id}`, {
@@ -77,7 +77,7 @@ export const patchUpdate = (id, data) =>
 /**
  * Delete a client
  * @param {number|string} id
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<void>]>}
+ * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const deleteClient = (id) =>
 	httpClient(`/api/v1/clients/${id}`, {
@@ -87,7 +87,7 @@ export const deleteClient = (id) =>
 /**
  * Delete all device controls of a client
  * @param {number|string} id
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<void>]>}
+ * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const deleteAllHardwareConfigs = (id) =>
 	httpClient(`/api/v1/clients/${id}/hardware-configs`, {
@@ -96,8 +96,8 @@ export const deleteAllHardwareConfigs = (id) =>
 
 /**
  * Sign in (Authentication)
- * @param {import('../types.js').LoginDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').JwtResponse>]>}
+ * @param {LoginDto} data
+ * @returns {Promise<[Error|null, ApiResponse<JwtResponse>]>}
  */
 export const signin = (data) =>
 	httpClient('/api/v1/auth/signin', {
@@ -107,8 +107,8 @@ export const signin = (data) =>
 
 /**
  * Sign up (Public registration)
- * @param {import('../types.js').CreateClientDto} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').ClientDto>]>}
+ * @param {CreateClientDto} data
+ * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const signup = (data) =>
 	httpClient('/api/v1/auth/signup', {

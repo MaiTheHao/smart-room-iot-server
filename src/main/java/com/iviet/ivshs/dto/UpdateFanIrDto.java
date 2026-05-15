@@ -2,7 +2,6 @@ package com.iviet.ivshs.dto;
 
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.enumeration.FanType;
 
@@ -34,11 +33,11 @@ public record UpdateFanIrDto(
 
     ActuatorMode mode,
 
-    @Min(value = 0, message = "Speed must be at least 0")
-    @Max(value = 9999, message = "Speed must be at most 9999")
+    @Min(value = 1, message = "Speed must be at least 1")
+    @Max(value = 3, message = "Speed must be at most 3")
     Integer speed,
 
     ActuatorSwing swing,
 
-    ActuatorState light
+    ActuatorPower light
 ) implements UpdateFanDto {}

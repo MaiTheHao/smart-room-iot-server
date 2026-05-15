@@ -363,8 +363,8 @@ Tất cả các trường đều là tùy chọn (chỉ gửi cấu hình cần 
 	"status": 200,
 	"message": "Controlled successfully",
 	"data": {
-		"successCount": 2,
-		"totalCount": 2,
+		"successCount": 4,
+		"totalCount": 4,
 		"details": [
 			{
 				"parameter": "power",
@@ -372,7 +372,17 @@ Tất cả các trường đều là tùy chọn (chỉ gửi cấu hình cần 
 				"message": "Success"
 			},
 			{
-				"parameter": "temperature",
+				"parameter": "fanSpeed",
+				"success": true,
+				"message": "Success"
+			},
+			{
+				"parameter": "mode",
+				"success": true,
+				"message": "Success"
+			},
+			{
+				"parameter": "swing",
 				"success": true,
 				"message": "Success"
 			}

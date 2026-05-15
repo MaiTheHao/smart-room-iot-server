@@ -3,8 +3,8 @@ import { httpClient } from './http-client.js';
 /**
  * Get all devices in a room (unified API)
  * @param {number|string} roomId
- * @param {import('../types.js').DeviceCategory} [category] - Optional filter
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').UnifiedDeviceDto[]>]>}
+ * @param {DeviceCategory} [category] - Optional filter
+ * @returns {Promise<[Error|null, ApiResponse<UnifiedDeviceDto[]>]>}
  */
 export const getDevicesByRoom = (roomId, category = null) => {
 	let endpoint = `/api/v1/rooms/${roomId}/devices`;
@@ -17,8 +17,8 @@ export const getDevicesByRoom = (roomId, category = null) => {
 /**
  * Control Air Condition
  * @param {string} naturalId
- * @param {import('../types.js').AirConditionControlRequestBody} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<any>]>}
+ * @param {AirConditionControlRequestBody} data
+ * @returns {Promise<[Error|null, ApiResponse<ControlDeviceResult>]>}
  */
 export const controlAc = (naturalId, data) => {
 	return httpClient(`/api/v1/air-conditions/${naturalId}/control`, {
@@ -30,8 +30,8 @@ export const controlAc = (naturalId, data) => {
 /**
  * Control Fan
  * @param {string} naturalId
- * @param {import('../types.js').FanControlRequestBody} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<any>]>}
+ * @param {FanControlRequestBody} data
+ * @returns {Promise<[Error|null, ApiResponse<ControlDeviceResult>]>}
  */
 export const controlFan = (naturalId, data) => {
 	return httpClient(`/api/v1/fans/${naturalId}/control`, {
@@ -43,8 +43,8 @@ export const controlFan = (naturalId, data) => {
 /**
  * Control Light
  * @param {string} naturalId
- * @param {import('../types.js').LightControlRequestBody} data
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<any>]>}
+ * @param {LightControlRequestBody} data
+ * @returns {Promise<[Error|null, ApiResponse<ControlDeviceResult>]>}
  */
 export const controlLight = (naturalId, data) => {
 	return httpClient(`/api/v1/lights/${naturalId}/control`, {
@@ -52,4 +52,5 @@ export const controlLight = (naturalId, data) => {
 		body: JSON.stringify(data),
 	});
 };
+
 

@@ -3,7 +3,6 @@ package com.iviet.ivshs.service;
 import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorState;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
@@ -21,7 +20,7 @@ public interface FanControlService extends DeviceControlServiceStrategy<FanContr
 
     ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing);
 
-    ControlDeviceResult handleLightControl(String naturalId, ActuatorState light);
+    ControlDeviceResult handleLightControl(String naturalId, ActuatorPower light);
 
     ControlDeviceResult control(String naturalId, FanControlRequestBody body);
 }

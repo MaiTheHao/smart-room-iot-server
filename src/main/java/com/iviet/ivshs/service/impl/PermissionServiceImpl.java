@@ -1,11 +1,14 @@
 package com.iviet.ivshs.service.impl;
 
+import com.iviet.ivshs.dao.FloorDao;
+import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.exception.domain.ForbiddenException;
 import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.util.RequestContextUtil;
 import com.iviet.ivshs.util.SecurityContextUtil;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
@@ -13,8 +16,12 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-@Service
+@Service("permissionService")
+@RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
+
+	private final FloorDao floorDao;
+	private final RoomDao roomDao;
 
 	@Override
 	public boolean canManageFloor() {
@@ -163,12 +170,31 @@ public class PermissionServiceImpl implements PermissionService {
         log.debug("User {} granted permission to manage automation", SecurityContextUtil.getCurrentUsername());
     }
 
+    @Override
+    public boolean canManageRole() {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_ROLE.getCode());
+    }
+
+    @Override
+    public void requireManageRole() {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canManageRole()) {
+            throw new ForbiddenException("Insufficient permissions to manage roles");
+        }
+        log.debug("User {} granted permission to manage roles", SecurityContextUtil.getCurrentUsername());
+    }
+
 	@Override
     public boolean canAccessFloor(String floorCode) {
         if (!RequestContextUtil.isHttpRequest()) return true;
         if (floorCode == null || floorCode.isBlank()) return false;
 
-        return SecurityContextUtil.hasFloorAccess(floorCode);
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasFloorAccess(floorCode);
     }
 
 	@Override
@@ -186,10 +212,11 @@ public class PermissionServiceImpl implements PermissionService {
         if (!RequestContextUtil.isHttpRequest()) return true;
         if (roomCode == null || roomCode.isBlank()) return false;
 
-        return SecurityContextUtil.hasRoomAccess(roomCode);
+        return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
+                SecurityContextUtil.hasRoomAccess(roomCode);
     }
 
-	@Override
+    @Override
     public void requireAccessRoom(String roomCode) {
         if (!RequestContextUtil.isHttpRequest()) return;
 
@@ -197,6 +224,42 @@ public class PermissionServiceImpl implements PermissionService {
             throw new ForbiddenException("Access to room '" + roomCode + "' is denied");
         }
         log.debug("User {} granted access to room '{}'", SecurityContextUtil.getCurrentUsername(), roomCode);
+    }
+
+    @Override
+    public boolean canAccessFloor(Long id) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (hasPermission(MANAGE_ALL_PERMISSION)) return true;
+        if (id == null) return false;
+        
+        return floorDao.findById(id).map(f -> canAccessFloor(f.getCode())).orElse(false);
+    }
+
+    @Override
+    public void requireAccessFloor(Long id) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canAccessFloor(id)) {
+            throw new ForbiddenException("Access to floor with ID " + id + " is denied");
+        }
+    }
+
+    @Override
+    public boolean canAccessRoom(Long id) {
+        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (hasPermission(MANAGE_ALL_PERMISSION)) return true;
+        if (id == null) return false;
+        
+        return roomDao.findById(id).map(r -> canAccessRoom(r.getCode())).orElse(false);
+    }
+
+    @Override
+    public void requireAccessRoom(Long id) {
+        if (!RequestContextUtil.isHttpRequest()) return;
+
+        if (!canAccessRoom(id)) {
+            throw new ForbiddenException("Access to room with ID " + id + " is denied");
+        }
     }
 
 	@Override

@@ -16,6 +16,8 @@ import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.IndexViewModel;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
+import com.iviet.ivshs.service.FloorService;
+import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.IndexViewService;
 import com.iviet.ivshs.util.LocalContextUtil;
 
@@ -26,8 +28,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IndexViewServiceImpl implements IndexViewService {
 
-  private final FloorDao floorDao;
-  private final RoomDao roomDao;
+  private final FloorService floorService;
+  private final RoomService roomService;
   private final HardwareConfigDao hardwareConfigDao;
   private final TemperatureValueDao temperatureValueDao;
   private final EnergyMetricDao energyMetricDao;
@@ -38,15 +40,18 @@ public class IndexViewServiceImpl implements IndexViewService {
     Instant startedAt = endedAt.minusSeconds(5 * 60);
     String langCode = LocalContextUtil.getCurrentLangCode();
 
-    var floors = floorDao.findAll(langCode);
-    var rooms = roomDao.findAll(langCode);
-    var floorRoomMap = floors.stream()
+    var floors = floorService.getAll();
+    var rooms = roomService.getAll();
+    
+    Map<Long, List<com.iviet.ivshs.dto.RoomDto>> floorRoomMap = (floors == null) ? Map.of() : floors.stream()
       .collect(Collectors.toMap(
         floor -> floor.id(),
-        floor -> rooms.stream().filter(room -> room.floorId().equals(floor.id())).toList()
+        floor -> (rooms == null) ? List.of() : rooms.stream()
+            .filter(room -> room.floorId().equals(floor.id()))
+            .collect(Collectors.toList())
     ));
 
-    Map<Long, IndexViewModel.RoomInfo> roomInfoMap = rooms.stream()
+    Map<Long, IndexViewModel.RoomInfo> roomInfoMap = (rooms == null) ? Map.of() : rooms.stream()
       .collect(Collectors.toMap(
         room -> room.id(),
         room -> {
@@ -71,14 +76,16 @@ public class IndexViewServiceImpl implements IndexViewService {
         }
     ));
 
-    Long totalFloors = floorDao.count();
-    Long totalRooms = roomDao.count();
-    Long totalHardwares = hardwareConfigDao.count();
+    Long totalFloors = floors != null ? (long) floors.size() : 0L;
+    Long totalRooms = rooms != null ? (long) rooms.size() : 0L;
+    Long totalHardwares = (rooms == null) ? 0L : rooms.stream()
+            .mapToLong(room -> hardwareConfigDao.countByRoomId(room.id()))
+            .sum();
 
     return new IndexViewModel(
       floors != null ? floors : List.of(),
-      floorRoomMap != null ? floorRoomMap : Map.of(),
-      roomInfoMap != null ? roomInfoMap : Map.of(),
+      floorRoomMap,
+      roomInfoMap,
       totalFloors,
       totalRooms,
       totalHardwares

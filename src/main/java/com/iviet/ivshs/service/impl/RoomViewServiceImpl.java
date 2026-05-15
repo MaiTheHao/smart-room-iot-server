@@ -12,6 +12,7 @@ import com.iviet.ivshs.dto.RoomDetailViewModel;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.HealthCheckService;
+import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.RoomViewService;
 import com.iviet.ivshs.util.LocalContextUtil;
 
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoomViewServiceImpl implements RoomViewService {
 
-  private final RoomDao roomDao;
+  private final RoomService roomService;
   private final TemperatureValueDao temperatureValueDao;
   private final EnergyMetricDao energyMetricDao;
   private final HealthCheckService healthCheckService;
@@ -36,8 +37,7 @@ public class RoomViewServiceImpl implements RoomViewService {
     Instant endedAt = Instant.now();
     Instant startedAt = endedAt.minusSeconds(5 * 60); // Last 5 minutes
     String langCode = LocalContextUtil.getCurrentLangCode();
-
-    var room = roomDao.findById(req.getRoomId(), langCode).orElseThrow();
+    var room = roomService.getById(req.getRoomId());
 
     Double lastestAvgTemperature = null;
     try {

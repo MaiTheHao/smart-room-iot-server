@@ -7,7 +7,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorState;
+import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 
 import jakarta.persistence.Column;
@@ -47,7 +47,7 @@ public class FanIr extends Fan {
 
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	@Column(name = "light", length = 256)
-	private ActuatorState light;
+	private ActuatorPower light;
 
 	public void setMode(ActuatorMode mode) {
 		if (mode != null && !SUPPORTED_MODES.contains(mode)) {

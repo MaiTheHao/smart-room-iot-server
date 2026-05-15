@@ -609,7 +609,7 @@
 | :--------- | :----- | :------- | :---------------------------------------- |
 | power      | string | Không    | Nguồn: `ON`, `OFF`                        |
 | mode       | string | Không    | Chế độ (IR only): `NORMAL`, `SLEEP`, `NATURAL` |
-| speed      | int    | Không    | Tốc độ quạt (IR only): 0-9999             |
+| speed      | int    | Không    | Tốc độ quạt (IR only): 1-3                |
 | swing      | string | Không    | Đảo gió (IR only): `ON`, `OFF`            |
 | light      | string | Không    | Đèn quạt (IR only): `ON`, `OFF`           |
 
@@ -618,7 +618,7 @@
 ```json
 {
 	"power": "ON",
-	"speed": 5,
+	"speed": 2,
 	"mode": "NORMAL"
 }
 ```
@@ -644,25 +644,35 @@
 ```
 
 ### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Controlled successfully",
-	"data": {
-		"successCount": 1,
-		"totalCount": 1,
-		"details": [
-			{
-				"parameter": "power",
-				"success": true,
-				"message": "Success"
-			}
-		]
-	},
-	"timestamp": "2026-01-28T10:00:00Z"
-}
-```
+ 
+ ```json
+ {
+ 	"status": 200,
+ 	"message": "Controlled successfully",
+ 	"data": {
+ 		"successCount": 3,
+ 		"totalCount": 3,
+ 		"details": [
+ 			{
+ 				"parameter": "power",
+ 				"success": true,
+ 				"message": "Success"
+ 			},
+ 			{
+ 				"parameter": "speed",
+ 				"success": true,
+ 				"message": "Success"
+ 			},
+ 			{
+ 				"parameter": "mode",
+ 				"success": true,
+ 				"message": "Success"
+ 			}
+ 		]
+ 	},
+ 	"timestamp": "2026-01-28T10:00:00Z"
+ }
+ ```
 
 </details>
 
@@ -682,15 +692,15 @@ Loại quạt trong hệ thống:
 | `IR`    | Quạt hồng ngoại điều khiển qua remote  |
 
 ### ActuatorPower
-
-Trạng thái nguồn điện:
-
-| Giá trị | Mô tả |
-| :------ | :---- |
-| `ON`    | Bật   |
-| `OFF`   | Tắt   |
-
-### ActuatorMode (IR Fan Only)
+ 
+ Trạng thái nguồn điện hoặc đèn quạt:
+ 
+ | Giá trị | Mô tả |
+ | :------ | :---- |
+ | `ON`    | Bật   |
+ | `OFF`   | Tắt   |
+ 
+ ### ActuatorMode (IR Fan Only)
 
 Chế độ hoạt động của quạt IR:
 
@@ -708,14 +718,5 @@ Trạng thái đảo gió:
 | :------ | :--------- |
 | `ON`    | Bật đảo gió |
 | `OFF`   | Tắt đảo gió |
-
-### ActuatorState (IR Fan Only)
-
-Trạng thái đèn quạt:
-
-| Giá trị | Mô tả  |
-| :------ | :----- |
-| `ON`    | Bật đèn |
-| `OFF`   | Tắt đèn |
 
 ---

@@ -5,7 +5,7 @@ import { httpClient } from './http-client.js';
  * @param {number|string} roomId
  * @param {string} from - ISO timestamp
  * @param {string} to - ISO timestamp
- * @returns {Promise<[Error|null, import('../types.js').ApiResponse<import('../types.js').TemperatureValueDto[]>]>}
+ * @returns {Promise<[Error|null, ApiResponse<TemperatureValueDto[]>]>}
  */
 export const getAverageHistory = (roomId, from, to) => {
 	return httpClient(`/api/v1/rooms/${roomId}/temperature-values/average?from=${from}&to=${to}`);
