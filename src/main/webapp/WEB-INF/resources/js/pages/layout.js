@@ -80,13 +80,13 @@
 		{
 			label: /*[[#{menu.automations}]]*/ 'Automations',
 			icon: 'zap',
-			link: '#',
+			link: '/management/smart-system/automations',
 			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_AUTOMATION")')}]]*/ true,
 		},
 		{
 			label: /*[[#{menu.rules}]]*/ 'Rules',
 			icon: 'git-branch',
-			link: '#',
+			link: '/management/smart-system/rules',
 			visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_RULE")')}]]*/ true,
 		},
 	];

@@ -266,6 +266,10 @@ public class AutomationServiceImpl implements AutomationService {
 			if (!lightDao.existsById(targetId)) {
 				throw new BadRequestException("Light not found: " + targetId);
 			}
+		} else if (targetType == JobTargetType.AIR_CONDITION) {
+			if (!airConditionDao.existsById(targetId)) {
+				throw new BadRequestException("Air conditioner not found: " + targetId);
+			}
 		} else if (targetType == JobTargetType.FAN) {
 			if (!fanDao.existsById(targetId)) {
 				throw new BadRequestException("Fan not found: " + targetId);

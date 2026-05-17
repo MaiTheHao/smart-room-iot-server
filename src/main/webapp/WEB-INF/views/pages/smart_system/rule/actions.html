@@ -1,0 +1,179 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{smart_system.rule.actions.list}">Action Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .dirty-indicator {
+        display: none;
+      }
+      .dirty-indicator.visible {
+        display: inline-flex;
+      }
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+    </style>
+  </head>
+  <body class="rule-actions-page">
+    <div layout:fragment="header-title">
+      <span th:text="#{smart_system.rule.title}">Rule Management</span>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        
+        <!-- Header Info Card -->
+        <div class="card shadow-sm border-0 mb-4 rounded-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <h4 class="mb-0 font-weight-bold text-dark" th:text="${rule.name}">Rule Name</h4>
+                <span class="badge ms-3" th:classappend="${rule.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${rule.isActive ? 'Active' : 'Inactive'}">Active</span>
+              </div>
+              <a th:href="@{/management/smart-system/rules}" class="btn btn-sm btn-back px-3 rounded-pill">
+                <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
+                <span th:text="#{error.back}">Back</span>
+              </a>
+            </div>
+          </div>
+          <div class="card-body pt-2 pb-3">
+            <div class="d-flex gap-4 text-muted small">
+              <div>
+                <span class="fw-bold me-1">ID:</span>
+                <span th:text="'#' + ${rule.id}">#0</span>
+                <input type="hidden" id="ruleId" th:value="${rule.id}" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Data Table Card -->
+        <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+          <div class="card-header bg-white border-bottom-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="fw-bold m-0 d-flex align-items-center">
+                <i data-lucide="settings-2" class="text-info me-2 lucide-sm"></i>
+                <span th:text="#{smart_system.rule.actions.list}">Actions List</span>
+              </h6>
+              <div class="card-tools d-flex align-items-center gap-2">
+                <div id="unsavedStatus" class="dirty-indicator align-items-center text-warning me-2 small fw-bold">
+                  <i data-lucide="refresh-cw" class="lucide-sm me-1 lucide-spin"></i>
+                  <span>Unsaved changes</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm"
+                  id="btnAddAction"
+                >
+                  <i data-lucide="plus" class="lucide-sm me-1"></i>
+                  <span th:text="#{common.add}">Add Action</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            <div id="actionsTable"></div>
+          </div>
+
+          <div class="card-footer bg-white border-top-0 text-end py-3">
+            <button
+              type="button"
+              class="btn btn-success px-4 rounded-pill font-weight-bold shadow-sm"
+              id="btnSaveAll"
+            >
+              <i data-lucide="check-circle-2" class="lucide-sm me-2"></i>
+              <span>Save All Changes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Form Modal -->
+      <div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center">
+                <i data-lucide="git-branch" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle">Add Action</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="actionForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="actionLocalId" />
+                <div class="row g-3">
+                  <!-- Execution Order -->
+                  <div class="col-12">
+                    <label for="executionOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1">Execution Order</label>
+                    <input type="number" class="form-control bg-light border-0" id="executionOrder" name="executionOrder" min="1" value="1" />
+                    <div class="invalid-feedback" id="val-executionOrder"></div>
+                  </div>
+
+                  <!-- Device Selection -->
+                  <div class="col-12">
+                    <label for="targetId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Device ID</label>
+                    <input type="number" class="form-control bg-light border-0" id="targetId" name="targetId" />
+                    <div class="invalid-feedback" id="val-targetId"></div>
+                  </div>
+                  
+                  <div class="col-12">
+                    <label for="targetType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Category</label>
+                    <select class="form-select bg-light border-0" id="targetType" name="targetType">
+                      <option value="LIGHT">Light</option>
+                      <option value="FAN">Fan</option>
+                      <option value="AC">Air Conditioner</option>
+                    </select>
+                  </div>
+
+                  <!-- Action Type -->
+                  <div class="col-12">
+                    <label for="actionType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Action Type</label>
+                    <select class="form-select bg-light border-0" id="actionType" name="actionType">
+                      <option value="ON">Turn ON</option>
+                      <option value="OFF">Turn OFF</option>
+                      <option value="SET_VALUE">Set Value</option>
+                    </select>
+                  </div>
+
+                  <!-- Parameter Value -->
+                  <div class="col-12" id="parameterContainer">
+                    <label for="parameterValue" class="form-label fw-semibold small text-muted text-uppercase mb-1">Parameter Value</label>
+                    <input type="text" class="form-control bg-light border-0" id="parameterValue" name="parameterValue" placeholder="e.g. 24 for AC Temp" />
+                    <div class="invalid-feedback" id="val-parameterValue"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAction">
+                  <i data-lucide="check" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script type="module" th:src="@{/js/pages/smart_system/rule/actions/index.js}"></script>
+    </th:block>
+  </body>
+</html>

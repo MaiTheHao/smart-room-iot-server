@@ -452,6 +452,7 @@ CREATE TABLE `energy_metrics` (
 -- 4. Automation & Rules Module (RELEASE VERSION)
 -- ----------------------------
 
+-- Hợp nhất thay đổi từ migration 01: is_active (default 1), is_interval, interval_seconds
 CREATE TABLE `automation` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -486,7 +487,7 @@ CREATE TABLE `automation_action` (
   CONSTRAINT `fk_automation_action_automation` FOREIGN KEY (`automation_id`) REFERENCES `automation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Rule Engine
+-- Rule Engine (Standardized from V2)
 CREATE TABLE `rule` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,

@@ -1,0 +1,166 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{smart_system.rule.conditions.list}">Condition Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .dirty-indicator {
+        display: none;
+      }
+      .dirty-indicator.visible {
+        display: inline-flex;
+      }
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+    </style>
+  </head>
+  <body class="rule-conditions-page">
+    <div layout:fragment="header-title">
+      <span th:text="#{smart_system.rule.title}">Rule Management</span>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        
+        <!-- Header Info Card -->
+        <div class="card shadow-sm border-0 mb-4 rounded-4">
+          <div class="card-header bg-white border-0 pt-3 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <h4 class="mb-0 font-weight-bold text-dark" th:text="${rule.name}">Rule Name</h4>
+                <span class="badge ms-3" th:classappend="${rule.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${rule.isActive ? 'Active' : 'Inactive'}">Active</span>
+              </div>
+              <a th:href="@{/management/smart-system/rules}" class="btn btn-sm btn-back px-3 rounded-pill">
+                <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
+                <span th:text="#{error.back}">Back</span>
+              </a>
+            </div>
+          </div>
+          <div class="card-body pt-2 pb-3">
+            <div class="d-flex gap-4 text-muted small">
+              <div>
+                <span class="fw-bold me-1">ID:</span>
+                <span th:text="'#' + ${rule.id}">#0</span>
+                <input type="hidden" id="ruleId" th:value="${rule.id}" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditions Data Table Card -->
+        <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+          <div class="card-header bg-white border-bottom-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="fw-bold m-0 d-flex align-items-center">
+                <i data-lucide="filter" class="text-warning me-2 lucide-sm"></i>
+                <span th:text="#{smart_system.rule.conditions.list}">Conditions List</span>
+              </h6>
+              <div class="card-tools d-flex align-items-center gap-2">
+                <div id="unsavedStatus" class="dirty-indicator align-items-center text-warning me-2 small fw-bold">
+                  <i data-lucide="refresh-cw" class="lucide-sm me-1 lucide-spin"></i>
+                  <span>Unsaved changes</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm"
+                  id="btnAddCondition"
+                >
+                  <i data-lucide="plus" class="lucide-sm me-1"></i>
+                  <span th:text="#{common.add}">Add Condition</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            <div id="conditionsTable"></div>
+          </div>
+
+          <div class="card-footer bg-white border-top-0 text-end py-3">
+            <button
+              type="button"
+              class="btn btn-success px-4 rounded-pill font-weight-bold shadow-sm"
+              id="btnSaveAll"
+            >
+              <i data-lucide="check-circle-2" class="lucide-sm me-2"></i>
+              <span>Save All Changes</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Condition Form Modal -->
+      <div class="modal fade" id="conditionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center">
+                <i data-lucide="filter" class="text-warning me-2 lucide-md"></i>
+                <span id="modalTitle">Add Condition</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="conditionForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="conditionLocalId" />
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="sensorId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Sensor ID</label>
+                    <input type="number" class="form-control bg-light border-0" id="sensorId" name="sensorId" />
+                  </div>
+                  
+                  <div class="col-12">
+                    <label for="metricType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Metric Type</label>
+                    <select class="form-select bg-light border-0" id="metricType" name="metricType">
+                      <option value="TEMPERATURE">Temperature</option>
+                      <option value="HUMIDITY">Humidity</option>
+                    </select>
+                  </div>
+
+                  <div class="col-12">
+                    <label for="operator" class="form-label fw-semibold small text-muted text-uppercase mb-1">Operator</label>
+                    <select class="form-select bg-light border-0" id="operator" name="operator">
+                      <option value="GREATER_THAN">&gt; (Greater Than)</option>
+                      <option value="LESS_THAN">&lt; (Less Than)</option>
+                      <option value="EQUAL">== (Equal)</option>
+                    </select>
+                  </div>
+
+                  <div class="col-12">
+                    <label for="threshold" class="form-label fw-semibold small text-muted text-uppercase mb-1">Threshold</label>
+                    <input type="number" step="any" class="form-control bg-light border-0" id="threshold" name="threshold" placeholder="e.g. 25" />
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitCondition">
+                  <i data-lucide="check" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script type="module" th:src="@{/js/pages/smart_system/rule/conditions/index.js}"></script>
+    </th:block>
+  </body>
+</html>

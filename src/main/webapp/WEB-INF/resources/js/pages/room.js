@@ -300,7 +300,13 @@ const DeviceRenderer = {
                             <i data-lucide="${icon}"></i>
                         </div>
                         <div class="overflow-hidden">
-                            <h6 class="mb-0 fw-bold text-dark small text-truncate">${device.name}</h6>
+                            <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                                <h6 class="mb-0 fw-bold text-dark small text-truncate">${device.name}</h6>
+                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 fw-medium" style="font-size: 0.65rem; padding: 0.15rem 0.4rem">
+                                    <i data-lucide="fingerprint" style="width: 10px; height: 10px" class="me-1"></i>${device.naturalId}
+                                </span>
+                                <span class="text-muted fw-normal" style="font-size: 0.65rem">#${device.id}</span>
+                            </div>
                             <small class="text-muted tiny text-truncate d-block">${device.description || ''}</small>
                         </div>
                     </div>
@@ -423,7 +429,7 @@ const DeviceRenderer = {
                         <button type="button" class="btn btn-outline-primary tiny" data-type="current" title="${i18n.metricCurrent}">A</button>
                         <button type="button" class="btn btn-outline-primary tiny" data-type="energy" title="${i18n.metricEnergy}">kWh</button>
                     </div>
-                    <div class="input-group input-group-sm shadow-none" style="width: 140px">
+                    <div class="input-group input-group-sm shadow-none" style="width: 320px">
                         <input type="text" class="form-control border-0 bg-white device-chart-range tiny fw-bold" placeholder="Range" readonly>
                     </div>
                 </div>
@@ -529,6 +535,14 @@ const DeviceRenderer = {
 	},
 };
 
+/** Color palette for each metric type */
+const METRIC_COLORS = {
+	power:   '#f59e0b',
+	voltage: '#3b82f6',
+	current: '#8b5cf6',
+	energy:  '#10b981',
+};
+
 /**
  * Device Chart Manager (Analytics Logic)
  */
@@ -573,12 +587,37 @@ const DeviceChart = {
 
 		// Init Chart
 		const options = {
-			chart: { height: 200, type: 'line', toolbar: { show: false }, animations: { enabled: true } },
+			chart: {
+				height: 200,
+				type: 'area',
+				toolbar: { show: false },
+				fontFamily: 'inherit',
+				animations: { enabled: true },
+			},
+			dataLabels: { enabled: false },
 			stroke: { curve: 'smooth', width: 2 },
 			series: [{ name: 'Value', data: [] }],
-			xaxis: { type: 'datetime', labels: { style: { fontSize: '10px' } } },
-			yaxis: { labels: { style: { fontSize: '10px' } } },
-			colors: ['#3b82f6'],
+			xaxis: {
+				type: 'datetime',
+				labels: { style: { colors: '#94a3b8', fontSize: '10px' } },
+			},
+			yaxis: {
+				labels: {
+					formatter: (val) => (val?.toFixed ? val.toFixed(2) : val),
+					style: { colors: '#94a3b8', fontSize: '10px' },
+				},
+			},
+			grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+			tooltip: {
+				x: { format: 'dd MMM HH:mm' },
+				y: { formatter: (val) => (val?.toFixed ? val.toFixed(2) : val) },
+			},
+			markers: { size: 0, hover: { size: 4 } },
+			fill: {
+				type: 'gradient',
+				gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] },
+			},
+			colors: [METRIC_COLORS.power],
 		};
 
 		RoomPage.state.deviceCharts[naturalId].chart = new ApexCharts(chartEl, options);
@@ -606,14 +645,20 @@ const DeviceChart = {
 	updateChart(naturalId) {
 		const state = RoomPage.state.deviceCharts[naturalId];
 		if (!state || !state.chart) return;
-		
+
 		const type = state.currentType;
+		const color = METRIC_COLORS[type] || '#3b82f6';
+		const metricKey = `metric${type.charAt(0).toUpperCase() + type.slice(1)}`;
 		const seriesData = state.data.map((item) => ({
 			x: new Date(item.timestamp).getTime(),
 			y: item[type] || 0,
 		}));
 
-		state.chart.updateSeries([{ name: RoomPage.state.i18n[`metric${type.charAt(0).toUpperCase() + type.slice(1)}`], data: seriesData }]);
+		// Update colors AND series in one call to avoid double render
+		state.chart.updateOptions({
+			colors: [color],
+			series: [{ name: RoomPage.state.i18n[metricKey], data: seriesData }],
+		});
 	},
 
 	switchType(naturalId, newType) {
@@ -635,7 +680,17 @@ const DeviceController = {
 		container.addEventListener('change', (e) => this.handleChange(e));
 		container.addEventListener('click', (e) => this.handleClick(e));
 
-		// 2. Polling Guard for range inputs
+		// 2. Init chart AFTER Bootstrap fade transition completes (shown.bs.tab)
+		//    Avoids ApexCharts rendering into a container with width=0 (display:none)
+		container.addEventListener('shown.bs.tab', (e) => {
+			const tabBtn = e.target.closest('.device-analytics-tab');
+			if (tabBtn) {
+				const item = tabBtn.closest('.device-item');
+				if (item) DeviceChart.init(item.dataset.naturalId);
+			}
+		});
+
+		// 3. Polling Guard for range inputs
 		container.addEventListener('mousedown', (e) => e.target.type === 'range' && (RoomPage.state.isInteracting = true));
 		container.addEventListener('mouseup', (e) => e.target.type === 'range' && (RoomPage.state.isInteracting = false));
 		container.addEventListener('touchstart', (e) => e.target.type === 'range' && (RoomPage.state.isInteracting = true));
@@ -676,14 +731,6 @@ const DeviceController = {
 			} else {
 				await this.handleApiCall('AC', naturalId, { mode: acBtn.dataset.mode });
 			}
-			return;
-		}
-
-		// Analytics Tab Click
-		const tabBtn = target.closest('.device-analytics-tab');
-		if (tabBtn) {
-			const item = tabBtn.closest('.device-item');
-			DeviceChart.init(item.dataset.naturalId);
 			return;
 		}
 

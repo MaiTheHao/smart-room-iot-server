@@ -1,0 +1,213 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title>Automation Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/flatpickr.min.css}" />
+    <style>
+      .badge-code {
+        font-family: var(--bs-font-monospace);
+        letter-spacing: -0.02em;
+      }
+    </style>
+  </head>
+  <body class="automations-management-page">
+    <div layout:fragment="header-title">
+      <span th:text="#{smart_system.automation.title}">Automation Management</span>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <!-- Data Table Card -->
+        <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+          <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+            <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
+              <i data-lucide="zap" class="text-primary me-2 lucide-sm"></i>
+              <span th:text="#{smart_system.automation.list.title}">Automations List</span>
+            </h6>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnReload">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1"></i>
+                <span th:text="#{common.reload}">Reload</span>
+              </button>
+              <button class="btn btn-primary btn-sm rounded-pill px-3" id="btnAdd">
+                <i data-lucide="plus" class="lucide-sm me-1"></i>
+                <span th:text="#{common.add}">Add</span>
+              </button>
+              <button
+                class="btn btn-danger btn-sm rounded-pill px-3"
+                id="btnDeleteSelected"
+                disabled
+              >
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="automationsTable"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automation Form Modal -->
+      <div class="modal fade" id="automationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="modal-title fw-bold d-flex align-items-center">
+                <i data-lucide="zap" class="text-primary me-2 lucide-md"></i>
+                <span id="modalTitle" th:text="#{smart_system.automation.modal.add_title}">Add New Automation</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="automationForm" novalidate>
+              <div class="modal-body py-4">
+                <input type="hidden" id="automationId" name="id" />
+                <div class="row g-3">
+                  <!-- Name -->
+                  <div class="col-12">
+                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1">Name</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
+                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Morning Routine" />
+                    </div>
+                    <div class="invalid-feedback" id="val-name"></div>
+                  </div>
+
+                  <!-- Cron Structured UI -->
+                  <div class="col-12">
+                    <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Schedule Settings</label>
+                    
+                    <div class="card bg-light border-0">
+                      <div class="card-body p-3">
+                        <div class="row g-3">
+                          <div class="col-md-6">
+                            <label for="scheduleType" class="form-label small text-muted mb-1">Frequency</label>
+                            <select class="form-select border-0 shadow-none" id="scheduleType">
+                              <option value="DAILY">Daily</option>
+                              <option value="WEEKLY">Weekly</option>
+                              <option value="MONTHLY">Monthly</option>
+                            </select>
+                          </div>
+                          
+                          <div class="col-md-6">
+                            <label for="timePicker" class="form-label small text-muted mb-1">Time</label>
+                            <div class="input-group">
+                              <span class="input-group-text bg-white border-0"><i data-lucide="clock" class="lucide-sm"></i></span>
+                              <input type="text" class="form-control border-0 shadow-none" id="timePicker" placeholder="Select time" readonly />
+                            </div>
+                          </div>
+
+                          <!-- Weekly Checkboxes -->
+                          <div class="col-12 d-none" id="weeklyGroup">
+                            <label class="form-label small text-muted mb-1">Days of Week</label>
+                            <div class="d-flex flex-wrap gap-2">
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowMon" value="MON">
+                                <label class="form-check-label small" for="dowMon">Mon</label>
+                              </div>
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowTue" value="TUE">
+                                <label class="form-check-label small" for="dowTue">Tue</label>
+                              </div>
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowWed" value="WED">
+                                <label class="form-check-label small" for="dowWed">Wed</label>
+                              </div>
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowThu" value="THU">
+                                <label class="form-check-label small" for="dowThu">Thu</label>
+                              </div>
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowFri" value="FRI">
+                                <label class="form-check-label small" for="dowFri">Fri</label>
+                              </div>
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowSat" value="SAT">
+                                <label class="form-check-label small" for="dowSat">Sat</label>
+                              </div>
+                              <div class="form-check form-check-inline m-0">
+                                <input class="form-check-input" type="checkbox" id="dowSun" value="SUN">
+                                <label class="form-check-label small" for="dowSun">Sun</label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Monthly Select -->
+                          <div class="col-12 d-none" id="monthlyGroup">
+                            <label for="monthlySelect" class="form-label small text-muted mb-1">Day of Month</label>
+                            <select class="form-select border-0 shadow-none" id="monthlySelect">
+                              <th:block th:each="i : ${#numbers.sequence(1, 31)}">
+                                <option th:value="${i}" th:text="${i}"></option>
+                              </th:block>
+                            </select>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-12">
+                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1">Description</label>
+                    <textarea class="form-control bg-light border-0" id="description" name="description" rows="3" placeholder="Additional details..."></textarea>
+                    <div class="invalid-feedback" id="val-description"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAutomation">
+                  <i data-lucide="save" class="lucide-sm me-1"></i>
+                  <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <!-- Flatpickr JS -->
+      <script th:src="@{/js/lib/flatpickr.min.js}"></script>
+      <script th:inline="javascript">
+        window.__AUTOMATION_CONFIG__ = {
+          i18n: {
+            colId: /*[[#{client.table.id}]]*/ 'ID',
+            colName: /*[[#{function.table.name}]]*/ 'Name',
+            colCron: 'Cron',
+            colStatus: 'Status',
+            colActions: /*[[#{client.table.actions}]]*/ 'Actions',
+            noData: /*[[#{group.table.no_data}]]*/ 'No data found.',
+            addTitle: /*[[#{smart_system.automation.modal.add_title}]]*/ 'Add Automation',
+            editTitle: /*[[#{smart_system.automation.modal.edit_title}]]*/ 'Edit Automation',
+            createdSuccess: /*[[#{smart_system.automation.success.created}]]*/ 'Success',
+            updatedSuccess: /*[[#{smart_system.automation.success.updated}]]*/ 'Success',
+            confirmDelete: /*[[#{common.confirm.delete}]]*/ 'Delete?',
+            confirmDeleteTextSingle: /*[[#{common.confirm.delete_single}]]*/ 'Delete item?',
+            confirmDeleteTextBatch: /*[[#{common.confirm.delete_batch}]]*/ 'Delete items?',
+            yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+            cancel: /*[[#{logout.cancel.button}]]*/ 'Cancel',
+            processing: /*[[#{common.processing}]]*/ 'Processing...',
+            success: /*[[#{common.success}]]*/ 'Success',
+            error: /*[[#{common.error.title}]]*/ 'Error',
+            valRequired: /*[[#{common.val.required}]]*/ 'Required',
+            manageActions: /*[[#{smart_system.automation.actions.list}]]*/ 'Manage Actions'
+          },
+        };
+      </script>
+
+      <script type="module" th:src="@{/js/pages/smart_system/automation/jobs/index.js}"></script>
+    </th:block>
+  </body>
+</html>
