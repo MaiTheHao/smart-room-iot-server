@@ -108,7 +108,7 @@ public class SecurityConfig {
                 })
             )
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(traceFilter, RateLimitFilter.class)
+            .addFilterBefore(traceFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class)
             .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.logout.LogoutFilter.class)
             .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -157,7 +157,7 @@ public class SecurityConfig {
                 .tokenValiditySeconds(1 * 24 * 60 * 60)
                 .userDetailsService(userDetailsService)
             )
-            .addFilterBefore(traceFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(traceFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class)
             .authenticationProvider(authenticationProvider());
 
         return http.build();
