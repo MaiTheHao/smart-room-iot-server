@@ -3,6 +3,7 @@ package com.iviet.ivshs.config;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import com.iviet.ivshs.schedule.TraceJobListener;
 
 import javax.sql.DataSource;
 
@@ -27,6 +28,8 @@ public class QuartzConfig {
 	private final DataSource dataSource;
 
 	private final PlatformTransactionManager transactionManager;
+
+	private final TraceJobListener traceJobListener;
 
 	@Bean(name = "quartzTaskExecutor")
 	public Executor quartzTaskExecutor() {
@@ -58,6 +61,7 @@ public class QuartzConfig {
 		factory.setWaitForJobsToCompleteOnShutdown(true);
 
 		factory.setQuartzProperties(createQuartzProperties());
+		factory.setGlobalJobListeners(traceJobListener);
 
 		return factory;
 	}
