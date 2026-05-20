@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,14 +22,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
+
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class RequestLoggingAspect {
 
   private static final Logger log = LogManager.getLogger(RequestLoggingAspect.class);
   private static final String LOG_TYPE_REST = "REST";
   private static final String LOG_TYPE_VIEW = "VIEW";
   private static final int MAX_LOG_LENGTH = 500;
+
+  private final ObjectMapper objectMapper;
 
   @Pointcut("within(com.iviet.ivshs.controller.api..*)")
   public void restfulControllerMethods() {
@@ -64,7 +72,7 @@ public class RequestLoggingAspect {
     }
 
     HttpServletRequest request = attributes.getRequest();
-    String method = joinPoint.getSignature().toShortString();
+    String controllerMethod = joinPoint.getSignature().toShortString();
 
     log.info(">>> [{}] START | ID: {} | Method: {} | URI: {} | Remote: {}",
         logType, traceId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
@@ -83,11 +91,42 @@ public class RequestLoggingAspect {
       Integer status = getResponseStatus(attributes);
 
       log.info("<<< [{}] END | ID: {} | Status: {} | Duration: {}ms | Target: {}",
-          logType, traceId, status, duration, method);
+          logType, traceId, status, duration, controllerMethod);
 
       if (log.isDebugEnabled()) {
         log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, truncateResult(result));
       }
+
+      // APM compact JSON — chỉ ghi khi TRACE được bật (APM_LOG_LEVEL=trace)
+      // Lambda đảm bảo zero cost khi TRACE tắt: objectMapper.writeValueAsString() không được gọi
+      final String capturedTraceId = traceId;
+      final String capturedScenario = ThreadContext.get("scenarioId");
+      final String capturedMethod = request.getMethod();
+      final String capturedUri = request.getRequestURI();
+      final String capturedRemote = request.getRemoteAddr();
+      final Integer capturedStatus = status;
+      final long capturedDuration = duration;
+      final String capturedController = controllerMethod;
+      final String capturedType = logType;
+
+      log.trace(() -> {
+        try {
+          Map<String, Object> m = new LinkedHashMap<>();
+          m.put("traceId", capturedTraceId);
+          m.put("scenarioId", capturedScenario != null ? capturedScenario : "");
+          m.put("type", capturedType);
+          m.put("method", capturedMethod);
+          m.put("uri", capturedUri);
+          m.put("status", capturedStatus);
+          m.put("duration_ms", capturedDuration);
+          m.put("controller", capturedController);
+          m.put("remote", capturedRemote);
+          return objectMapper.writeValueAsString(m);
+        } catch (Exception e) {
+          return "{}";
+        }
+      });
+
       ThreadContext.remove("logType");
     }
     return result;
