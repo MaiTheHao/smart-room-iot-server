@@ -24,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.sql.DataSource;
 import java.util.List;
+import com.iviet.ivshs.filter.TraceFilter;
 import com.iviet.ivshs.jwt.AuthEntryPointJwt;
 import com.iviet.ivshs.jwt.AuthTokenFilter;
 import com.iviet.ivshs.jwt.RateLimitFilter;
@@ -41,6 +42,7 @@ public class SecurityConfig {
     private final AuthEntryPointJwt unauthorizedHandler;
     private final AuthTokenFilter authTokenFilter;
     private final RateLimitFilter rateLimitFilter;
+    private final TraceFilter traceFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -73,7 +75,7 @@ public class SecurityConfig {
         String allowedHeaders = env.getProperty("app.cors.allowedHeaders", "*");
         configuration.setAllowedHeaders(List.of(allowedHeaders.split(",")));
 
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setExposedHeaders(List.of("Authorization", "X-Trace-Id"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
@@ -106,6 +108,7 @@ public class SecurityConfig {
                 })
             )
             .authenticationProvider(authenticationProvider())
+            .addFilterBefore(traceFilter, RateLimitFilter.class)
             .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.logout.LogoutFilter.class)
             .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -154,6 +157,7 @@ public class SecurityConfig {
                 .tokenValiditySeconds(1 * 24 * 60 * 60)
                 .userDetailsService(userDetailsService)
             )
+            .addFilterBefore(traceFilter, UsernamePasswordAuthenticationFilter.class)
             .authenticationProvider(authenticationProvider());
 
         return http.build();
