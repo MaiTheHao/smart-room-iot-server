@@ -49,8 +49,11 @@ public class RequestLoggingAspect {
   }
 
   private Object logRequestAndProceed(ProceedingJoinPoint joinPoint, String logType) throws Throwable {
-    String requestId = UUID.randomUUID().toString().substring(0, 8);
-    ThreadContext.put("requestId", requestId);
+    String traceId = ThreadContext.get("traceId");
+    if (traceId == null) {
+      traceId = UUID.randomUUID().toString();
+      ThreadContext.put("traceId", traceId);
+    }
     ThreadContext.put("logType", logType);
 
     Instant start = Instant.now();
@@ -64,7 +67,7 @@ public class RequestLoggingAspect {
     String method = joinPoint.getSignature().toShortString();
 
     log.info(">>> [{}] START | ID: {} | Method: {} | URI: {} | Remote: {}",
-        logType, requestId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
+        logType, traceId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
 
     log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}", 
         logType, getHeadersInfo(request), request.getParameterMap());
@@ -73,19 +76,19 @@ public class RequestLoggingAspect {
     try {
       result = joinPoint.proceed();
     } catch (Throwable throwable) {
-      log.error("[{}] FAILED | ID: {} | Error: {}", logType, requestId, throwable.getMessage());
+      log.error("[{}] FAILED | ID: {} | Error: {}", logType, traceId, throwable.getMessage());
       throw throwable;
     } finally {
       long duration = Duration.between(start, Instant.now()).toMillis();
       Integer status = getResponseStatus(attributes);
 
       log.info("<<< [{}] END | ID: {} | Status: {} | Duration: {}ms | Target: {}",
-          logType, requestId, status, duration, method);
+          logType, traceId, status, duration, method);
 
       if (log.isDebugEnabled()) {
         log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, truncateResult(result));
       }
-      ThreadContext.clearAll();
+      ThreadContext.remove("logType");
     }
     return result;
   }
