@@ -10,6 +10,7 @@ import com.iviet.ivshs.exception.domain.ExternalServiceException;
 import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.service.HealthCheckService;
 import com.iviet.ivshs.service.client.gateway.GatewaySystemClient;
+import com.iviet.ivshs.util.MdcTaskWrapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,7 +87,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			List<CompletableFuture<Map.Entry<String, HealthCheckResponseDto>>> futures = ipAddresses.stream()
-					.map(ip -> CompletableFuture.supplyAsync(() -> {
+					.map(ip -> CompletableFuture.supplyAsync(MdcTaskWrapper.wrap(() -> {
 						try {
 							return Map.entry(ip, checkByClient(ip));
 						} catch (Exception e) {
@@ -97,7 +98,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 									.timestamp(Instant.now().toString())
 									.build());
 						}
-					}, executor))
+					}), executor))
 					.toList();
 
 			Map<String, HealthCheckResponseDto> results = futures.stream()

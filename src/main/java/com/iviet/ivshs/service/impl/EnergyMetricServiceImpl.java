@@ -8,6 +8,7 @@ import com.iviet.ivshs.dao.PowerConsumptionDao;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.EnergyMetricDto;
+import com.iviet.ivshs.util.MdcTaskWrapper;
 import com.iviet.ivshs.entities.EnergyMetric;
 
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
@@ -92,13 +93,13 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             for (ClientDto gateway : gateways) {
-                executor.submit(() -> {
+                executor.submit(MdcTaskWrapper.wrap(() -> {
                     try {
                         processGateway(gateway);
                     } catch (Exception e) {
                         log.error("Error processing energy metrics for gateway [{}]: {}", gateway.username(), e.getMessage(), e);
                     }
-                });
+                }));
             }
         }
 
@@ -200,7 +201,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             for (ClientDto gateway : gateways) {
-                executor.submit(() -> processResetForGateway(gateway));
+                executor.submit(MdcTaskWrapper.wrap(() -> processResetForGateway(gateway)));
             }
         }
 

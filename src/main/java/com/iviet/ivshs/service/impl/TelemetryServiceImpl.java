@@ -2,6 +2,7 @@ package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
+import com.iviet.ivshs.util.MdcTaskWrapper;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientService;
@@ -88,7 +89,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			List<CompletableFuture<Void>> futures = gateways.stream()
-				.map(gateway -> CompletableFuture.runAsync(() -> processSafeExecution(gateway), executor))
+				.map(gateway -> CompletableFuture.runAsync(MdcTaskWrapper.wrap(() -> processSafeExecution(gateway)), executor))
 				.toList();
 
 			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
