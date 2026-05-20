@@ -98,7 +98,6 @@ public class RequestLoggingAspect {
       }
 
       // APM compact JSON — chỉ ghi khi TRACE được bật (APM_LOG_LEVEL=trace)
-      // Lambda đảm bảo zero cost khi TRACE tắt: objectMapper.writeValueAsString() không được gọi
       final String capturedTraceId = traceId;
       final String capturedScenario = ThreadContext.get("scenarioId");
       final String capturedMethod = request.getMethod();
