@@ -2,6 +2,7 @@ package com.iviet.ivshs.config;
 
 import com.iviet.ivshs.exception.handler.RestTemplateResponseErrorHandler;
 import com.iviet.ivshs.service.client.gateway.interceptors.GatewayAuthInterceptor;
+import com.iviet.ivshs.service.client.gateway.interceptors.TraceForwardingInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -23,6 +24,7 @@ import java.time.Duration;
 public class RestConfig {
 
     private final GatewayAuthInterceptor gatewayAuthInterceptor;
+    private final TraceForwardingInterceptor traceForwardingInterceptor;
 
     @Bean
     @Primary
@@ -39,6 +41,7 @@ public class RestConfig {
 
         RestTemplate restTemplate = new RestTemplate(factory);
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+        restTemplate.getInterceptors().add(traceForwardingInterceptor);
         return restTemplate;
     }
 
@@ -76,6 +79,7 @@ public class RestConfig {
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+        restTemplate.getInterceptors().add(traceForwardingInterceptor);
         restTemplate.getInterceptors().add(gatewayAuthInterceptor);
         return restTemplate;
     }
@@ -117,6 +121,7 @@ public class RestConfig {
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+        restTemplate.getInterceptors().add(traceForwardingInterceptor);
         restTemplate.getInterceptors().add(gatewayAuthInterceptor);
         return restTemplate;
     }
@@ -151,6 +156,7 @@ public class RestConfig {
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+        restTemplate.getInterceptors().add(traceForwardingInterceptor);
         restTemplate.getInterceptors().add(gatewayAuthInterceptor);
         return restTemplate;
     }
