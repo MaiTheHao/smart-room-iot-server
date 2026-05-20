@@ -80,7 +80,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 response.setStatus(429);
                 response.setHeader("Retry-After", "60"); // Recommended to try again after 60 seconds
                 response.setContentType("application/json; charset=UTF-8");
-                response.getWriter().write("{\"error\": \"Too many requests\", \"message\": \"System is busy, please try again later\"}");
+                String traceId = org.apache.logging.log4j.ThreadContext.get("traceId");
+                response.getWriter().write(String.format(
+                    "{\"error\": \"Too many requests\", \"message\": \"System is busy, please try again later\", \"traceId\": \"%s\"}",
+                    traceId != null ? traceId : ""
+                ));
             }
         } else {
             filterChain.doFilter(request, response);

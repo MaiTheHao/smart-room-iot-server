@@ -3,6 +3,7 @@ package com.iviet.ivshs.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.apache.logging.log4j.ThreadContext;
 import org.springframework.http.HttpStatus;
 import java.time.Instant;
 
@@ -17,7 +18,18 @@ public class ApiResponse<T> {
     String message;
     T data;
     Instant timestamp;
+
+    @Builder.Default
+    String traceId = ThreadContext.get("traceId");
     
+    public ApiResponse(int status, String message, T data, Instant timestamp) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
+        this.timestamp = timestamp;
+        this.traceId = ThreadContext.get("traceId");
+    }
+
     public static <T> ApiResponse<T> ok(T data) {
         return new ApiResponse<>(HttpStatus.OK.value(), "Success", data, Instant.now());
     }
