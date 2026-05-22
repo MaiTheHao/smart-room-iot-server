@@ -1,6 +1,6 @@
 package com.iviet.ivshs.schedule;
 
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
@@ -19,17 +19,17 @@ public class TraceJobListener implements JobListener {
     public void jobToBeExecuted(JobExecutionContext context) {
         String traceId = UUID.randomUUID().toString();
         String jobName = context.getJobDetail().getKey().getName();
-        ThreadContext.put("traceId", traceId);
-        ThreadContext.put("scenarioId", "job:" + jobName);
+        MDC.put("traceId", traceId);
+        MDC.put("scenarioId", "job:" + jobName);
     }
 
     @Override
     public void jobExecutionVetoed(JobExecutionContext context) {
-        ThreadContext.clearAll();
+        MDC.clear();
     }
 
     @Override
     public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
-        ThreadContext.clearAll();
+        MDC.clear();
     }
 }

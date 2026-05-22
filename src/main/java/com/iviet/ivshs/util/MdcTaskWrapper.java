@@ -1,35 +1,35 @@
 package com.iviet.ivshs.util;
 
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class MdcTaskWrapper {
 
     public static Runnable wrap(Runnable runnable) {
-        Map<String, String> contextMap = ThreadContext.getImmutableContext();
+        Map<String, String> contextMap = MDC.getCopyOfContextMap();
         return () -> {
             if (contextMap != null && !contextMap.isEmpty()) {
-                ThreadContext.putAll(contextMap);
+                MDC.setContextMap(contextMap);
             }
             try {
                 runnable.run();
             } finally {
-                ThreadContext.clearAll();
+                MDC.clear();
             }
         };
     }
 
     public static <T> Supplier<T> wrap(Supplier<T> supplier) {
-        Map<String, String> contextMap = ThreadContext.getImmutableContext();
+        Map<String, String> contextMap = MDC.getCopyOfContextMap();
         return () -> {
             if (contextMap != null && !contextMap.isEmpty()) {
-                ThreadContext.putAll(contextMap);
+                MDC.setContextMap(contextMap);
             }
             try {
                 return supplier.get();
             } finally {
-                ThreadContext.clearAll();
+                MDC.clear();
             }
         };
     }

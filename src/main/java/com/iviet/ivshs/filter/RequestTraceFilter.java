@@ -4,7 +4,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -13,7 +15,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Component
-public class TraceFilter extends OncePerRequestFilter {
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class RequestTraceFilter extends OncePerRequestFilter {
 
     private static final String TRACE_ID_HEADER = "X-Trace-Id";
     private static final String SCENARIO_ID_HEADER = "X-Scenario-Id";
@@ -29,10 +32,11 @@ public class TraceFilter extends OncePerRequestFilter {
 
         String scenarioId = request.getHeader(SCENARIO_ID_HEADER);
 
-        ThreadContext.put("traceId", traceId);
-        ThreadContext.put("serverReceivedAt", Instant.now().toString());
+        MDC.put("traceId", traceId);
+        MDC.put("serverReceivedAt", Instant.now().toString());
         if (scenarioId != null && !scenarioId.isBlank()) {
-            ThreadContext.put("scenarioId", scenarioId);
+            MDC.put("scenarioId", scenarioId);
+            response.setHeader(SCENARIO_ID_HEADER, scenarioId);
         }
 
         response.setHeader(TRACE_ID_HEADER, traceId);
@@ -40,7 +44,7 @@ public class TraceFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } finally {
-            ThreadContext.clearAll();
+            MDC.clear();
         }
     }
 }

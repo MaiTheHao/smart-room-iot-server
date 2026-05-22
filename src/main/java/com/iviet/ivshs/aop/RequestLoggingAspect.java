@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -57,12 +57,12 @@ public class RequestLoggingAspect {
   }
 
   private Object logRequestAndProceed(ProceedingJoinPoint joinPoint, String logType) throws Throwable {
-    String traceId = ThreadContext.get("traceId");
+    String traceId = MDC.get("traceId");
     if (traceId == null) {
       traceId = UUID.randomUUID().toString();
-      ThreadContext.put("traceId", traceId);
+      MDC.put("traceId", traceId);
     }
-    ThreadContext.put("logType", logType);
+    MDC.put("logType", logType);
 
     Instant start = Instant.now();
     ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -99,7 +99,7 @@ public class RequestLoggingAspect {
 
       // APM compact JSON — chỉ ghi khi TRACE được bật (APM_LOG_LEVEL=trace)
       final String capturedTraceId = traceId;
-      final String capturedScenario = ThreadContext.get("scenarioId");
+      final String capturedScenario = MDC.get("scenarioId");
       final String capturedMethod = request.getMethod();
       final String capturedUri = request.getRequestURI();
       final String capturedRemote = request.getRemoteAddr();
@@ -126,7 +126,7 @@ public class RequestLoggingAspect {
         }
       });
 
-      ThreadContext.remove("logType");
+      MDC.remove("logType");
     }
     return result;
   }

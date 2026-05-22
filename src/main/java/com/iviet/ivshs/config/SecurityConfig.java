@@ -16,18 +16,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.sql.DataSource;
 import java.util.List;
-import com.iviet.ivshs.filter.TraceFilter;
+import com.iviet.ivshs.filter.JwtAuthenticationFilter;
 import com.iviet.ivshs.jwt.AuthEntryPointJwt;
-import com.iviet.ivshs.jwt.AuthTokenFilter;
-import com.iviet.ivshs.jwt.RateLimitFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -40,9 +40,7 @@ public class SecurityConfig {
     private final DataSource dataSource;
     private final Environment env;
     private final AuthEntryPointJwt unauthorizedHandler;
-    private final AuthTokenFilter authTokenFilter;
-    private final RateLimitFilter rateLimitFilter;
-    private final TraceFilter traceFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -75,7 +73,7 @@ public class SecurityConfig {
         String allowedHeaders = env.getProperty("app.cors.allowedHeaders", "*");
         configuration.setAllowedHeaders(List.of(allowedHeaders.split(",")));
 
-        configuration.setExposedHeaders(List.of("Authorization", "X-Trace-Id"));
+        configuration.setExposedHeaders(List.of("Authorization", "X-Trace-Id", "X-Scenario-Id"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
@@ -108,9 +106,7 @@ public class SecurityConfig {
                 })
             )
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(traceFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class)
-            .addFilterBefore(rateLimitFilter, org.springframework.security.web.authentication.logout.LogoutFilter.class)
-            .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -158,7 +154,6 @@ public class SecurityConfig {
                 .tokenValiditySeconds(1 * 24 * 60 * 60)
                 .userDetailsService(userDetailsService)
             )
-            .addFilterBefore(traceFilter, org.springframework.security.web.context.SecurityContextHolderFilter.class)
             .authenticationProvider(authenticationProvider());
 
         return http.build();

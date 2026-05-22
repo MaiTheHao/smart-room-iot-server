@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.client.gateway.interceptors;
 
 import java.io.IOException;
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -16,8 +16,8 @@ public class TraceForwardingInterceptor implements ClientHttpRequestInterceptor 
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        String traceId = ThreadContext.get("traceId");
-        String scenarioId = ThreadContext.get("scenarioId");
+        String traceId = MDC.get("traceId");
+        String scenarioId = MDC.get("scenarioId");
 
         if (traceId != null && !traceId.isBlank()) {
             request.getHeaders().set(TRACE_ID_HEADER, traceId);

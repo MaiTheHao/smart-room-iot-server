@@ -3,7 +3,7 @@ package com.iviet.ivshs.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import java.time.Instant;
 
@@ -20,14 +20,18 @@ public class ApiResponse<T> {
     Instant timestamp;
 
     @Builder.Default
-    String traceId = ThreadContext.get("traceId");
+    String traceId = MDC.get("traceId");
+
+    @Builder.Default
+    String scenarioId = MDC.get("scenarioId");
     
     public ApiResponse(int status, String message, T data, Instant timestamp) {
         this.status = status;
         this.message = message;
         this.data = data;
         this.timestamp = timestamp;
-        this.traceId = ThreadContext.get("traceId");
+        this.traceId = MDC.get("traceId");
+        this.scenarioId = MDC.get("scenarioId");
     }
 
     public static <T> ApiResponse<T> ok(T data) {

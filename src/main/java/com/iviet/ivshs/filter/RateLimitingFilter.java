@@ -1,4 +1,4 @@
-package com.iviet.ivshs.jwt;
+package com.iviet.ivshs.filter;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -19,12 +19,15 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Slf4j(topic = "RATE-LIMIT")
-public class RateLimitFilter extends OncePerRequestFilter {
+public class RateLimitingFilter extends OncePerRequestFilter {
 
     @Value("${app.rate-limit.enabled:true}")
     private boolean enabled;
@@ -73,14 +76,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
             if (bucket.tryConsume(1)) {
                 filterChain.doFilter(request, response);
             } else {
-                // Use debug level to avoid log flooding during DDoS, 
-                // but keep the info for monitoring if needed.
                 log.debug("Rate limit exceeded - IP: {}, Path: {}, Type: {}", ip, path, type);
                 
                 response.setStatus(429);
-                response.setHeader("Retry-After", "60"); // Recommended to try again after 60 seconds
+                response.setHeader("Retry-After", "60");
                 response.setContentType("application/json; charset=UTF-8");
-                String traceId = org.apache.logging.log4j.ThreadContext.get("traceId");
+                String traceId = org.slf4j.MDC.get("traceId");
                 response.getWriter().write(String.format(
                     "{\"error\": \"Too many requests\", \"message\": \"System is busy, please try again later\", \"traceId\": \"%s\"}",
                     traceId != null ? traceId : ""
@@ -99,7 +100,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         String xRealIp = request.getHeader("X-Real-IP");
         if (xRealIp != null && !xRealIp.isEmpty()) {
             return xRealIp;
-        }
-        return request.getRemoteAddr();
-    }
-}
+          }
+          return request.getRemoteAddr();
+      }
+  }
+  
