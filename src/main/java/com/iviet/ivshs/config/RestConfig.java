@@ -4,6 +4,7 @@ import com.iviet.ivshs.exception.handler.RestTemplateResponseErrorHandler;
 import com.iviet.ivshs.service.client.gateway.interceptors.GatewayAuthInterceptor;
 import com.iviet.ivshs.service.client.gateway.interceptors.TraceForwardingInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -29,15 +30,19 @@ public class RestConfig {
     @Bean
     @Primary
     public RestTemplate restTemplate() {
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.of(Duration.ofSeconds(5)))
+                .build();
+
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setConnectionManager(PoolingHttpClientConnectionManagerBuilder.create()
                         .setMaxConnTotal(100)
                         .setMaxConnPerRoute(20)
+                        .setDefaultConnectionConfig(connectionConfig)
                         .build())
                 .build();
 
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        factory.setConnectTimeout(Duration.ofSeconds(5));
 
         RestTemplate restTemplate = new RestTemplate(factory);
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
@@ -59,9 +64,14 @@ public class RestConfig {
      */
     @Bean(name = "GatewayControlRestTemplate")
     public RestTemplate gatewayControlRestTemplate() {
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.of(Duration.ofSeconds(2)))
+                .build();
+
         PoolingHttpClientConnectionManager connManager = PoolingHttpClientConnectionManagerBuilder.create()
                 .setMaxConnTotal(60)
                 .setMaxConnPerRoute(30)
+                .setDefaultConnectionConfig(connectionConfig)
                 .build();
 
         RequestConfig requestConfig = RequestConfig.custom()
@@ -75,7 +85,6 @@ public class RestConfig {
                 .build();
 
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        factory.setConnectTimeout(Duration.ofSeconds(2));
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
@@ -101,9 +110,14 @@ public class RestConfig {
      */
     @Bean(name = "GatewayTelemetryRestTemplate")
     public RestTemplate gatewayTelemetryRestTemplate() {
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.of(Duration.ofSeconds(5)))
+                .build();
+
         PoolingHttpClientConnectionManager connManager = PoolingHttpClientConnectionManagerBuilder.create()
                 .setMaxConnTotal(50)
                 .setMaxConnPerRoute(25)
+                .setDefaultConnectionConfig(connectionConfig)
                 .build();
 
         RequestConfig requestConfig = RequestConfig.custom()
@@ -117,7 +131,6 @@ public class RestConfig {
                 .build();
 
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        factory.setConnectTimeout(Duration.ofSeconds(5));
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
@@ -136,9 +149,14 @@ public class RestConfig {
      */
     @Bean(name = "GatewayApiClient")
     public RestTemplate gatewayApiClient() {
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.of(Duration.ofSeconds(5)))
+                .build();
+
         PoolingHttpClientConnectionManager connManager = PoolingHttpClientConnectionManagerBuilder.create()
                 .setMaxConnTotal(20)
                 .setMaxConnPerRoute(10)
+                .setDefaultConnectionConfig(connectionConfig)
                 .build();
 
         RequestConfig requestConfig = RequestConfig.custom()
@@ -152,7 +170,6 @@ public class RestConfig {
                 .build();
 
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        factory.setConnectTimeout(Duration.ofSeconds(5));
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());

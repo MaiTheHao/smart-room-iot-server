@@ -130,6 +130,7 @@ public class SecurityConfig {
                     new AntPathRequestMatcher("/static/**"),
                     new AntPathRequestMatcher("/resources/**"),
                     new AntPathRequestMatcher("/login"),
+                    new AntPathRequestMatcher("/error"),
                     new AntPathRequestMatcher("/error/**")
                 ).permitAll()
                 .anyRequest().authenticated()

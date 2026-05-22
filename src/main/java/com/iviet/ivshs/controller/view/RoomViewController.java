@@ -26,8 +26,8 @@ public class RoomViewController {
         return "pages/room.html";
     }
 
-    @GetMapping("/js/pages/room.js")
+    @GetMapping("/js/pages/room_detail/index.js")
     public String getRoomJs() {
-        return "pages/room.js";
+        return "pages/room_detail/index.js";
     }
 }

@@ -13,13 +13,10 @@ public class RestTemplateResponseErrorHandler extends DefaultResponseErrorHandle
 
     @Override
     public boolean hasError(@NonNull ClientHttpResponse response) throws IOException {
-        // Trả về false để RestTemplate KHÔNG tự động ném exception khi gặp 4xx/5xx.
-        // Điều này cho phép caller nhận được ResponseEntity và tự xử lý lỗi (vd: gom nhóm lỗi).
         return false;
     }
 
     @Override
     public void handleError(@NonNull ClientHttpResponse response) throws IOException {
-        // Không làm gì vì hasError đã trả về false
     }
 }
