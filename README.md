@@ -59,5 +59,5 @@ Hệ thống tập trung vào việc cung cấp một nền tảng vận hành I
 ## 4. Tài liệu liên quan (Reference Files)
 
 - **Chi tiết kỹ thuật:** [SYSTEM.md](./SYSTEM.md) - Phân tích đặc tả kiến trúc, sơ đồ thực thể và quy trình nghiệp vụ.
-- **Hướng dẫn vận hành:** [DEPLOYMENT.md](./DEPLOYMENT.md) - Quy trình triển khai, cấu hình môi trường và quản lý thư viện server.
+- **Hướng dẫn vận hành:** [setup_guideline](./doc/setup_guideline) - Quy trình triển khai, cấu hình môi trường và quản lý thư viện server.
 
