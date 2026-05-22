@@ -11,8 +11,6 @@ import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.slf4j.MDC;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -24,14 +22,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
 @Aspect
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class RequestLoggingAspect {
-
-  private static final Logger log = LogManager.getLogger(RequestLoggingAspect.class);
   private static final String LOG_TYPE_REST = "REST";
   private static final String LOG_TYPE_VIEW = "VIEW";
   private static final int MAX_LOG_LENGTH = 500;
@@ -108,7 +106,7 @@ public class RequestLoggingAspect {
       final String capturedController = controllerMethod;
       final String capturedType = logType;
 
-      log.trace(() -> {
+      if (log.isTraceEnabled()) {
         try {
           Map<String, Object> m = new LinkedHashMap<>();
           m.put("traceId", capturedTraceId);
@@ -120,11 +118,11 @@ public class RequestLoggingAspect {
           m.put("duration_ms", capturedDuration);
           m.put("controller", capturedController);
           m.put("remote", capturedRemote);
-          return objectMapper.writeValueAsString(m);
+          log.trace(objectMapper.writeValueAsString(m));
         } catch (Exception e) {
-          return "{}";
+          log.trace("{}");
         }
-      });
+      }
 
       MDC.remove("logType");
     }

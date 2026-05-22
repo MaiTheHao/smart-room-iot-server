@@ -1,8 +1,6 @@
 package com.iviet.ivshs.exception.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -19,14 +17,15 @@ import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.exception.domain.UnauthorizedException;
 import com.iviet.ivshs.util.LocalContextUtil;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j(topic = "ERROR-WEB")
 @ControllerAdvice()
 @Order(Ordered.LOWEST_PRECEDENCE)
 @RequiredArgsConstructor
 public class WebGlobalExceptionHandler {
 
-    private static final Logger log = LogManager.getLogger(WebGlobalExceptionHandler.class);
     private final LocaleResolver localeResolver;
 
     private boolean isApiRequest(HttpServletRequest request) {
