@@ -37,7 +37,7 @@ public class Automation extends BaseSchedulableEntity{
 
     @Override
     public String getJobName() {
-        return "AutomationJob-" + this.getId();
+        return "QUARZTJOB_AUTOMATION_" + this.getId();
     }
 
     @Override

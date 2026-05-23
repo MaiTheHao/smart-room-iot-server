@@ -41,8 +41,8 @@ public class AutomationInitializer implements ApplicationListener<ContextRefresh
 			log.error("  - Reason     : {}", e.getMessage());
 			log.error("------------------------------------------------------------");
 			log.error("Stack trace:", e);
-			log.warn("WARNING: Server proceeding without automation");
-			log.warn("ACTION: Check logs and restart server if needed");
+			log.warn("WARNING      : Server proceeding without automation");
+			log.warn("ACTION       : Check logs and restart server if needed");
 		}
 	}
 }

@@ -5,7 +5,6 @@ import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.TimeZone;
@@ -62,16 +61,16 @@ public class ScheduleUtil {
         if (Boolean.TRUE.equals(entity.getIsInterval())) {
             validateInterval(entity);
             return builder.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withIntervalInSeconds(entity.getIntervalSeconds())
-                            .repeatForever()
-                            .withMisfireHandlingInstructionNextWithExistingCount())
+                    .withIntervalInSeconds(entity.getIntervalSeconds())
+                    .repeatForever()
+                    .withMisfireHandlingInstructionNextWithExistingCount())
                     .build();
         }
 
         validateCron(entity);
         return builder.withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression())
-                        .inTimeZone(TimeZone.getTimeZone("UTC"))
-                        .withMisfireHandlingInstructionFireAndProceed())
+                .inTimeZone(TimeZone.getTimeZone("UTC"))
+                .withMisfireHandlingInstructionFireAndProceed())
                 .build();
     }
 

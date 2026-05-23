@@ -56,7 +56,7 @@ public class Rule extends BaseSchedulableEntity {
 
     @Override
     public String getJobName() {
-        return "RuleJob-" + this.getId();
+        return "QUARZTJOB_RULE_" + this.getId();
     }
 
     @Override

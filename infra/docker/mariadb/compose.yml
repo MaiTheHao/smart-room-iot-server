@@ -33,4 +33,4 @@ services:
 
 networks:
   default:
-    name: iuhsmrc_network
+    name: iuhsmrc_network_mariadb

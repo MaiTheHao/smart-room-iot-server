@@ -1,6 +1,7 @@
 package com.iviet.ivshs.startup;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -23,7 +24,7 @@ import com.iviet.ivshs.schedule.metric.MetricJobRegistration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "METRIC-INIT")
+@Slf4j(topic = "INIT-METRIC")
 @Component
 @Order(35)
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class MetricSystemInitializer implements ApplicationListener<ContextRefre
         if (isInitialized) return;
 
         try {
-            log.info("Module: [Metric System Scheduler] -> [RUNNING]");
+            log.info("Module       : [Metric System Scheduler] -> [RUNNING]");
             long start = System.currentTimeMillis();
             
             Scheduler scheduler = schedulerFactoryBean.getScheduler();
@@ -55,14 +56,18 @@ public class MetricSystemInitializer implements ApplicationListener<ContextRefre
                 }
             }
 
-            log.info("Module: [Metric System Scheduler] -> [OK] (Scheduled {} jobs)", jobCount);
-            log.info("Duration: {} ms", System.currentTimeMillis() - start);
+            log.info("Module       : [Metric System Scheduler] -> [OK]");
+            log.info("  - Detail     : Scheduled {} jobs", jobCount);
+            log.info("  - Duration   : {} ms", System.currentTimeMillis() - start);
             isInitialized = true;
 
         } catch (Exception e) {
-            log.error("Module: [Metric System Scheduler] -> [FAILED]");
-            log.error("Reason: {}", e.getMessage(), e);
-            log.warn("WARNING: Server proceeding without some Metric Jobs");
+            log.error("Module       : [Metric System Scheduler] -> [FAILED]");
+            log.error("  - Reason     : {}", e.getMessage());
+            log.error("------------------------------------------------------------");
+            log.error("Stack trace:", e);
+            log.warn("WARNING      : Server proceeding without some metric jobs");
+            log.warn("ACTION       : Check logs and restart server if needed");
         }
     }
 
@@ -80,16 +85,17 @@ public class MetricSystemInitializer implements ApplicationListener<ContextRefre
             .withIdentity(jobReg.getName() + "Trigger", jobReg.getGroup());
 
         if (jobReg.getCronExpression() != null && !jobReg.getCronExpression().isBlank()) {
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(jobReg.getCronExpression()));
-            log.info("[{}] scheduled with CRON [{}]", jobReg.getName(), jobReg.getCronExpression());
+            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(jobReg.getCronExpression())
+                .inTimeZone(TimeZone.getTimeZone("UTC")));
+            log.info("  - Job        : [{}] scheduled with CRON [{}] (forced UTC timezone)", jobReg.getName(), jobReg.getCronExpression());
         } else if (jobReg.getIntervalSeconds() != null && jobReg.getIntervalSeconds() > 0) {
             triggerBuilder.startNow()
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                     .withIntervalInSeconds(jobReg.getIntervalSeconds())
                     .repeatForever());
-            log.info("[{}] scheduled every {}s", jobReg.getName(), jobReg.getIntervalSeconds());
+            log.info("  - Job        : [{}] scheduled every {}s", jobReg.getName(), jobReg.getIntervalSeconds());
         } else {
-            log.warn("[{}] skipped: No valid CRON or Interval configured", jobReg.getName());
+            log.warn("  - Skip       : [{}] No valid CRON or Interval configured", jobReg.getName());
             return;
         }
 

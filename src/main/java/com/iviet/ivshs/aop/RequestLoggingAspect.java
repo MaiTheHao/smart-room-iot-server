@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iviet.ivshs.component.TraceLogger;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class RequestLoggingAspect {
   private static final String LOG_TYPE_VIEW = "VIEW";
   private static final int MAX_LOG_LENGTH = 500;
 
-  private final ObjectMapper objectMapper;
+  private final TraceLogger traceLogger;
 
   @Pointcut("within(com.iviet.ivshs.controller.api..*)")
   public void restfulControllerMethods() {
@@ -75,7 +75,7 @@ public class RequestLoggingAspect {
     log.info(">>> [{}] START | ID: {} | Method: {} | URI: {} | Remote: {}",
         logType, traceId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
 
-    log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}", 
+    log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}",
         logType, getHeadersInfo(request), request.getParameterMap());
 
     Object result = null;
@@ -95,34 +95,8 @@ public class RequestLoggingAspect {
         log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, truncateResult(result));
       }
 
-      // APM compact JSON — chỉ ghi khi TRACE được bật (APM_LOG_LEVEL=trace)
-      final String capturedTraceId = traceId;
-      final String capturedScenario = MDC.get("scenarioId");
-      final String capturedMethod = request.getMethod();
-      final String capturedUri = request.getRequestURI();
-      final String capturedRemote = request.getRemoteAddr();
-      final Integer capturedStatus = status;
-      final long capturedDuration = duration;
-      final String capturedController = controllerMethod;
-      final String capturedType = logType;
-
-      if (log.isTraceEnabled()) {
-        try {
-          Map<String, Object> m = new LinkedHashMap<>();
-          m.put("traceId", capturedTraceId);
-          m.put("scenarioId", capturedScenario != null ? capturedScenario : "");
-          m.put("type", capturedType);
-          m.put("method", capturedMethod);
-          m.put("uri", capturedUri);
-          m.put("status", capturedStatus);
-          m.put("duration_ms", capturedDuration);
-          m.put("controller", capturedController);
-          m.put("remote", capturedRemote);
-          log.trace(objectMapper.writeValueAsString(m));
-        } catch (Exception e) {
-          log.trace("{}");
-        }
-      }
+      traceLogger.logTrace(traceId, MDC.get("scenarioId"), logType, request.getMethod(),
+          request.getRequestURI(), status, duration, controllerMethod, request.getRemoteAddr());
 
       MDC.remove("logType");
     }
@@ -130,7 +104,8 @@ public class RequestLoggingAspect {
   }
 
   private String truncateResult(Object result) {
-    if (result == null) return "null";
+    if (result == null)
+      return "null";
     String strResult = result.toString();
     if (strResult.length() > MAX_LOG_LENGTH) {
       return strResult.substring(0, MAX_LOG_LENGTH) + "... (truncated, total length: " + strResult.length() + ")";

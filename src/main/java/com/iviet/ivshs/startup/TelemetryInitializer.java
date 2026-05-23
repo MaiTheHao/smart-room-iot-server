@@ -36,7 +36,7 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
   @PostConstruct
   private void init() {
     telemetryScanIntervalSeconds = env.getProperty("app.engine.telemetry.scanIntervalSeconds", Integer.class, 300);
-    log.info("TelemetryInitializer configured with scan interval: {} seconds", telemetryScanIntervalSeconds);
+    log.info("Config       : [Telemetry Engine] scan interval set to {} seconds", telemetryScanIntervalSeconds);
   }
 
   @Override
@@ -62,15 +62,13 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
       log.error("  - Reason     : {}", e.getMessage());
       log.error("------------------------------------------------------------");
       log.error("Stack trace:", e);
-      log.warn("WARNING: Server proceeding without telemetry engine");
-      log.warn("ACTION: Check logs and restart server if needed");
+      log.warn("WARNING      : Server proceeding without telemetry engine");
+      log.warn("ACTION       : Check logs and restart server if needed");
     }
   }
 
   private void scheduleGlobalTelemetryJob() throws SchedulerException {
     Scheduler scheduler = schedulerFactoryBean.getScheduler();
-
-    log.info("Scheduling Telemetry Engine Job with interval: {} seconds", telemetryScanIntervalSeconds);
 
     JobDetail jobDetail = JobBuilder.newJob(TelemetryJob.class)
         .withIdentity(TelemetryJob.JOB_NAME, TelemetryJob.JOB_GROUP)
@@ -90,6 +88,6 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
         .build();
 
     scheduler.scheduleJob(jobDetail, trigger);
-    log.info("Telemetry Engine Job scheduled successfully (Interval: {}s).", telemetryScanIntervalSeconds);
+    log.info("  - Job        : [Telemetry Engine] scheduled every {}s", telemetryScanIntervalSeconds);
   }
 }

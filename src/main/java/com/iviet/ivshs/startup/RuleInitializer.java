@@ -11,7 +11,7 @@ import com.iviet.ivshs.service.RuleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "INIT-RULE-")
+@Slf4j(topic = "INIT-RULE")
 @Component
 @Order(21)
 @RequiredArgsConstructor
@@ -43,6 +43,8 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
             log.error("  - Reason     : {}", e.getMessage());
             log.error("------------------------------------------------------------");
             log.error("Stack trace:", e);
+            log.warn("WARNING      : Server proceeding without rule engine");
+            log.warn("ACTION       : Check logs and restart server if needed");
         }
     }
 }

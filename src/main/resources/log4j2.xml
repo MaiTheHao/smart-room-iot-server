@@ -1,130 +1,206 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="debug" name="SmartRoomLoggerConfig" packages="">
+<Configuration status="warn" name="SmartRoomLoggerConfig" packages="">
 
-  <!-- ========================================== -->
-  <!-- 1. CẤU HÌNH CONSOLE                       -->
-  <!-- ========================================== -->
+  <!-- =================================================================== -->
+  <!-- PROPERTIES DEFINITION                                               -->
+  <!-- =================================================================== -->
+  <Properties>
+    <!-- Log folder path -->
+    <Property name="LOG_PATH">${sys:catalina.base}/logs</Property>
+    
+    <!-- Standard log pattern layout -->
+    <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p [%X{traceId}] [%X{scenarioId}] [%c{1}]:%L - %msg%n</Property>
+    
+    <!-- Rollover policies -->
+    <Property name="MAX_FILE_SIZE">10MB</Property>
+    <Property name="MAX_ROLLOVER">10</Property>
+  </Properties>
+
+  <!-- =================================================================== -->
+  <!-- APPENDERS SECTION                                                   -->
+  <!-- =================================================================== -->
   <Appenders>
+    <!-- 1. Console Appender -->
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout
-        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p [%X{traceId}] [%X{scenarioId}] [%c{1}]:%L - %msg%n" />
-      <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
+      <PatternLayout pattern="${LOG_PATTERN}" />
     </Console>
 
-    <!-- ========================================== -->
-    <!-- 2. CẤU HÌNH FILE                         -->
-    <!-- ========================================== -->
-    <RollingFile name="File" fileName="${sys:catalina.base}/logs/application.log"
-      filePattern="${sys:catalina.base}/logs/application-%d{yyyy-MM-dd}-%i.log.gz">
-      <PatternLayout
-        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p [%X{traceId}] [%X{scenarioId}] [%c{1}]:%L - %msg%n" />
+    <!-- 2. Application Log File (ALL levels) -->
+    <RollingFile name="File" 
+                 fileName="${LOG_PATH}/application.log"
+                 filePattern="${LOG_PATH}/application-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="${LOG_PATTERN}" />
       <Policies>
-        <SizeBasedTriggeringPolicy size="10MB" />
+        <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}" />
       </Policies>
-      <DefaultRolloverStrategy max="10" />
+      <DefaultRolloverStrategy max="${MAX_ROLLOVER}" />
     </RollingFile>
 
-    <!-- File SQL -->
-    <RollingFile name="SqlFile" fileName="${sys:catalina.base}/logs/application-sql.log"
-      filePattern="${sys:catalina.base}/logs/application-sql-%d{yyyy-MM-dd}-%i.log.gz">
-      <PatternLayout
-        pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p [%X{traceId}] [%X{scenarioId}] [%c{1}]:%L - %msg%n" />
+    <!-- 3. SQL Log File -->
+    <RollingFile name="SqlFile" 
+                 fileName="${LOG_PATH}/application-sql.log"
+                 filePattern="${LOG_PATH}/application-sql-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="${LOG_PATTERN}" />
       <Policies>
-        <SizeBasedTriggeringPolicy size="10MB" />
+        <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}" />
       </Policies>
-      <DefaultRolloverStrategy max="10" />
+      <DefaultRolloverStrategy max="${MAX_ROLLOVER}" />
     </RollingFile>
 
-    <!-- File JSON Trace -->
-    <RollingFile name="TraceFile" fileName="${sys:catalina.base}/logs/application-trace.log"
-      filePattern="${sys:catalina.base}/logs/application-trace-%d{yyyy-MM-dd}-%i.log.gz">
+    <!-- 4. JSON Trace File (APM) - Chỉ ghi TRACE level -->
+    <RollingFile name="TraceFile" 
+                 fileName="${LOG_PATH}/application-trace.log"
+                 filePattern="${LOG_PATH}/application-trace-%d{yyyy-MM-dd}-%i.log.gz">
       <PatternLayout pattern="%msg%n" />
       <Policies>
-        <SizeBasedTriggeringPolicy size="10MB" />
+        <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}" />
       </Policies>
-      <DefaultRolloverStrategy max="10" />
+      <DefaultRolloverStrategy max="${MAX_ROLLOVER}" />
     </RollingFile>
 
-    <!-- Async wrapper cho TraceFile -->
+    <!-- 5. Async Trace File Wrapper -->
     <Async name="AsyncTraceFile" blocking="false">
       <AppenderRef ref="TraceFile" />
     </Async>
+
+    <!-- 6. Error Log File (Chỉ ghi ERROR và FATAL) -->
+    <RollingFile name="ErrorFile" 
+                 fileName="${LOG_PATH}/application-error.log"
+                 filePattern="${LOG_PATH}/application-error-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="${LOG_PATTERN}" />
+      <Policies>
+        <SizeBasedTriggeringPolicy size="${MAX_FILE_SIZE}" />
+      </Policies>
+      <DefaultRolloverStrategy max="${MAX_ROLLOVER}" />
+    </RollingFile>
   </Appenders>
 
-  <!-- ========================================== -->
-  <!-- 3. ROOT LOGGER                            -->
-  <!-- ========================================== -->
+  <!-- =================================================================== -->
+  <!-- LOGGERS SECTION                                                     -->
+  <!-- =================================================================== -->
   <Loggers>
-    <Root level="info">
+    <!-- ================================================================= -->
+    <!-- ROOT LOGGER (Fallback cho toàn bộ loggers)                       -->
+    <!-- ================================================================= -->
+    <!-- 
+      APP_LOG_LEVEL có giá trị mặc định là 'info' nếu không được set
+      Các giá trị hợp lệ: OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL
+    -->
+    <Root level="${sys:APP_LOG_LEVEL:-info}">
       <AppenderRef ref="Console" />
       <AppenderRef ref="File" />
+      <AppenderRef ref="ErrorFile" />
     </Root>
 
-    <!-- ========================================== -->
-    <!-- 4. APP LOGGER                            -->
-    <!-- ========================================== -->
-    <Logger name="com.iviet.ivshs" level="${sys:APP_LOG_LEVEL:-info}" additivity="false">
+    <!-- ================================================================= -->
+    <!-- APPLICATION CORE LOGGER                                          -->
+    <!-- ================================================================= -->
+    <Logger name="com.iviet.ivshs" 
+            level="${sys:APP_LOG_LEVEL:-info}" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="File" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
 
-    <!-- ========================================== -->
-    <!-- 5. APM LOGGER (RequestLoggingAspect)      -->
-    <!-- additivity=false: không bắn lên app/root logger -->
-    <!-- Console + File: chỉ nhận DEBUG trở lên (verbose như cũ) -->
-    <!-- AsyncTraceFile: chỉ nhận đúng TRACE (1 dòng JSON compact từ ObjectMapper) -->
-    <!-- ========================================== -->
-    <Logger name="com.iviet.ivshs.aop.RequestLoggingAspect" level="${sys:APM_LOG_LEVEL:-trace}"
-      additivity="false">
+    <!-- ================================================================= -->
+    <!-- APM LOGGER (AOP RequestLoggingAspect)                            -->
+    <!-- ================================================================= -->
+    <!--
+      Logic:
+      - Level: APM_LOG_LEVEL (mặc định 'trace')
+      - Console + File: Ghi tất cả log từ mức này trở lên (DEBUG+)
+      - AsyncTraceFile: Chỉ ghi TRACE level (LevelRangeFilter)
+      
+      Ví dụ:
+      - Nếu APM_LOG_LEVEL=TRACE:
+        * TRACE logs → Console, File, AsyncTraceFile
+        * DEBUG+ logs → Console, File
+      
+      - Nếu APM_LOG_LEVEL=DEBUG:
+        * DEBUG+ logs → Console, File
+        * TRACE logs → Bị lọc (không ghi được vì logger level là DEBUG)
+    -->
+    <Logger name="com.iviet.ivshs.aop.RequestLoggingAspect" 
+            level="${sys:APM_LOG_LEVEL:-trace}" 
+            additivity="false">
+      <!-- Console: Ghi DEBUG trở lên, loại bỏ TRACE -->
       <AppenderRef ref="Console">
         <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
       </AppenderRef>
+      
+      <!-- File: Ghi DEBUG trở lên, loại bỏ TRACE -->
       <AppenderRef ref="File">
         <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
       </AppenderRef>
+      
+      <!-- AsyncTraceFile: Chỉ ghi TRACE level, loại bỏ những cái khác -->
       <AppenderRef ref="AsyncTraceFile">
         <LevelRangeFilter minLevel="trace" maxLevel="trace" onMatch="ACCEPT" onMismatch="DENY" />
       </AppenderRef>
+      
+      <!-- Error File: Ghi ERROR và FATAL -->
+      <AppenderRef ref="ErrorFile">
+        <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+      </AppenderRef>
     </Logger>
 
-    <!-- ========================================== -->
-    <!-- 6. HIBERNATE SQL LOGGER                   -->
-    <!-- ========================================== -->
-    <!-- Log SQL statements -->
-    <Logger name="org.hibernate.SQL" level="${sys:SQL_LOG_LEVEL:-info}" additivity="false">
+    <!-- ================================================================= -->
+    <!-- DATABASE / ORM LOGGERS (Hibernate)                               -->
+    <!-- ================================================================= -->
+    
+    <!-- SQL Statements Logger -->
+    <Logger name="org.hibernate.SQL" 
+            level="${sys:SQL_LOG_LEVEL:-info}" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="SqlFile" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
 
-    <!-- Log SQL binding parameters -->
-    <Logger name="org.hibernate.orm.jdbc.bind" level="${sys:SQL_BIND_LEVEL:-info}"
-      additivity="false">
+    <!-- SQL Binding Parameters Logger -->
+    <Logger name="org.hibernate.orm.jdbc.bind" 
+            level="${sys:SQL_BIND_LEVEL:-info}" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="SqlFile" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
 
-    <!-- Log Hibernate Statistics -->
-    <Logger name="org.hibernate.stat" level="info" additivity="false">
+    <!-- Hibernate Statistics Logger -->
+    <Logger name="org.hibernate.stat" 
+            level="info" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="SqlFile" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
 
-    <!-- ========================================== -->
-    <!-- 7. HTTP CLIENT LOGGER                     -->
-    <!-- ========================================== -->
-    <Logger name="org.apache.hc.client5.http" level="debug" additivity="false">
+    <!-- ================================================================= -->
+    <!-- HTTP CLIENT LOGGERS (Apache HttpComponents 5)                    -->
+    <!-- ================================================================= -->
+    <Logger name="org.apache.hc.client5.http" 
+            level="${sys:HTTP_LOG_LEVEL:-info}" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="File" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
 
-    <Logger name="org.apache.hc.client5.http.headers" level="debug" additivity="false">
+    <Logger name="org.apache.hc.client5.http.headers" 
+            level="${sys:HTTP_LOG_LEVEL:-info}" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="File" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
 
-    <Logger name="org.apache.hc.client5.http.wire" level="debug" additivity="false">
+    <Logger name="org.apache.hc.client5.http.wire" 
+            level="${sys:HTTP_LOG_LEVEL:-info}" 
+            additivity="false">
       <AppenderRef ref="Console" />
       <AppenderRef ref="File" />
+      <AppenderRef ref="ErrorFile" />
     </Logger>
   </Loggers>
 
