@@ -60,7 +60,9 @@ export const Datatable = (() => {
 					formatter: (cell) => {
                         const cron = cell.getValue();
                         const parsed = CronUtils.fromCron(cron);
-                        const time = parsed.timeStr;
+                        const time = `${parsed.hour.toString().padStart(2, '0')}:` +
+                                     `${parsed.minute.toString().padStart(2, '0')}:` +
+                                     `${parsed.second.toString().padStart(2, '0')}`;
                         if (parsed.type === 'DAILY') {
                             return `<div class="d-flex align-items-center h-100">
                                 <span class="badge bg-light text-dark border d-inline-flex align-items-center px-2 py-1">

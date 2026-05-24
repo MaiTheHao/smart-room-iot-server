@@ -1,6 +1,8 @@
 import { TabulatorFull as Tabulator } from '../../../../lib/tabulator_esm.min.js';
 import { StateManager } from './state_manager.js';
 
+const { i18n } = window.__ACTIONS_CONFIG__;
+
 export const UiRenderer = (() => {
     let table = null;
 
@@ -12,29 +14,29 @@ export const UiRenderer = (() => {
             placeholder: `
                 <div class="text-center py-5 text-muted">
                     <i data-lucide="inbox" class="mb-2" style="width: 48px; height: 48px"></i>
-                    <p>No actions added yet.</p>
+                    <p>${i18n.noData}</p>
                 </div>`,
             columns: [
                 {
-                    title: 'Order',
+                    title: i18n.colOrder,
                     field: 'executionOrder',
                     width: 80,
                     hozAlign: 'center',
                     formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="badge bg-light text-dark border">${cell.getValue()}</span></div>`
                 },
                 {
-                    title: 'Target Device',
+                    title: i18n.colTargetDevice,
                     field: 'targetId',
                     formatter: (cell) => `<div class="d-flex align-items-center h-100 fw-bold">${cell.getValue()}</div>`
                 },
                 {
-                    title: 'Type',
+                    title: i18n.colType,
                     field: 'targetType',
                     width: 120,
                     formatter: (cell) => `<div class="d-flex align-items-center h-100"><span class="badge bg-secondary">${cell.getValue()}</span></div>`
                 },
                 {
-                    title: 'Action',
+                    title: i18n.colAction,
                     field: 'actionType',
                     width: 120,
                     formatter: (cell) => {
@@ -44,12 +46,12 @@ export const UiRenderer = (() => {
                     }
                 },
                 {
-                    title: 'Params',
+                    title: i18n.colParams,
                     field: 'parameterValue',
                     formatter: (cell) => `<div class="d-flex align-items-center h-100 text-muted">${cell.getValue() || '-'}</div>`
                 },
                 {
-                    title: 'Actions',
+                    title: i18n.colActions,
                     hozAlign: 'center',
                     headerSort: false,
                     width: 100,
@@ -63,7 +65,7 @@ export const UiRenderer = (() => {
                                 <button class="btn btn-light btn-sm rounded-pill btn-delete" data-id="${id}">
                                     <i data-lucide="trash-2" class="lucide-sm text-danger"></i>
                                 </button>
-                            </div>`;
+                             </div>`;
                     }
                 }
             ]

@@ -10,12 +10,7 @@
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
     <style>
-      .dirty-indicator {
-        display: none;
-      }
-      .dirty-indicator.visible {
-        display: inline-flex;
-      }
+
       .btn-back {
         background: none;
         border: 1px solid #dee2e6;
@@ -35,16 +30,25 @@
 
     <div layout:fragment="content">
       <div class="container-fluid">
-        
         <!-- Header Info Card -->
         <div class="card shadow-sm border-0 mb-4 rounded-4">
           <div class="card-header bg-white border-0 pt-3 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center">
-                <h4 class="mb-0 font-weight-bold text-dark" th:text="${automation.name}">Automation Name</h4>
-                <span class="badge ms-3" th:classappend="${automation.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${automation.isActive ? 'Active' : 'Inactive'}">Active</span>
+                <h4 class="mb-0 font-weight-bold text-dark" th:text="${automation.name}">
+                  Automation Name
+                </h4>
+                <span
+                  class="badge ms-3"
+                  th:classappend="${automation.isActive ? 'bg-success' : 'bg-secondary'}"
+                  th:text="${automation.isActive ? #messages.msg('common.active') : #messages.msg('common.inactive')}"
+                  >Active</span
+                >
               </div>
-              <a th:href="@{/management/smart-system/automations}" class="btn btn-sm btn-back px-3 rounded-pill">
+              <a
+                th:href="@{/management/smart-system/automations}"
+                class="btn btn-sm btn-back px-3 rounded-pill"
+              >
                 <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
                 <span th:text="#{error.back}">Back</span>
               </a>
@@ -74,17 +78,23 @@
                 <span th:text="#{smart_system.automation.actions.list}">Actions List</span>
               </h6>
               <div class="card-tools d-flex align-items-center gap-2">
-                <div id="unsavedStatus" class="dirty-indicator align-items-center text-warning me-2 small fw-bold">
-                  <i data-lucide="refresh-cw" class="lucide-sm me-1 lucide-spin"></i>
-                  <span>Unsaved changes</span>
-                </div>
+
                 <button
                   type="button"
-                  class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm"
+                  class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm"
                   id="btnAddAction"
                 >
                   <i data-lucide="plus" class="lucide-sm me-1"></i>
-                  <span th:text="#{common.add}">Add Action</span>
+                  <span th:text="#{smart_system.automation.actions.add}">Add Action</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-flex d-none"
+                  id="btnSaveAll"
+                  disabled
+                >
+                  <i data-lucide="check-circle-2" class="lucide-sm me-2"></i>
+                  <span th:text="#{common.save_changes}">Save Changes</span>
                 </button>
               </div>
             </div>
@@ -92,17 +102,6 @@
 
           <div class="card-body p-0">
             <div id="actionsTable"></div>
-          </div>
-
-          <div class="card-footer bg-white border-top-0 text-end py-3">
-            <button
-              type="button"
-              class="btn btn-success px-4 rounded-pill font-weight-bold shadow-sm"
-              id="btnSaveAll"
-            >
-              <i data-lucide="check-circle-2" class="lucide-sm me-2"></i>
-              <span>Save All Changes</span>
-            </button>
           </div>
         </div>
       </div>
@@ -114,9 +113,16 @@
             <div class="modal-header border-0 pb-0">
               <h5 class="modal-title fw-bold d-flex align-items-center">
                 <i data-lucide="zap" class="text-primary me-2 lucide-md"></i>
-                <span id="modalTitle">Add Action</span>
+                <span id="modalTitle" th:text="#{smart_system.automation.actions.add_title}"
+                  >Add Action</span
+                >
               </h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
             </div>
             <form id="actionForm" novalidate>
               <div class="modal-body py-4">
@@ -124,51 +130,126 @@
                 <div class="row g-3">
                   <!-- Execution Order -->
                   <div class="col-12">
-                    <label for="executionOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1">Execution Order</label>
-                    <input type="number" class="form-control bg-light border-0" id="executionOrder" name="executionOrder" min="1" value="1" />
+                    <label
+                      for="executionOrder"
+                      class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.actions.execution_order}"
+                      >Execution Order</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control bg-light border-0"
+                      id="executionOrder"
+                      name="executionOrder"
+                      min="1"
+                      value="1"
+                    />
                     <div class="invalid-feedback" id="val-executionOrder"></div>
                   </div>
 
                   <!-- Room Selection -->
                   <div class="col-12">
-                    <label for="roomId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Room</label>
+                    <label
+                      for="roomId"
+                      class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.actions.room}"
+                      >Room</label
+                    >
                     <select class="form-select bg-light border-0" id="roomId" name="roomId">
-                      <option value="" disabled selected>Select a room</option>
+                      <option
+                        value=""
+                        disabled
+                        selected
+                        th:text="#{smart_system.automation.actions.select_room}"
+                      >
+                        Select a room
+                      </option>
                     </select>
                   </div>
-                  
+
                   <!-- Target Category -->
                   <div class="col-12">
-                    <label for="targetType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Category</label>
+                    <label
+                      for="targetType"
+                      class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.actions.target_category}"
+                      >Target Category</label
+                    >
                     <select class="form-select bg-light border-0" id="targetType" name="targetType">
-                      <option value="LIGHT">Light</option>
-                      <option value="FAN">Fan</option>
-                      <option value="AIR_CONDITION">Air Conditioner</option>
+                      <option value="LIGHT" th:text="#{smart_system.automation.actions.light}">
+                        Light
+                      </option>
+                      <option value="FAN" th:text="#{smart_system.automation.actions.fan}">
+                        Fan
+                      </option>
+                      <option
+                        value="AIR_CONDITION"
+                        th:text="#{smart_system.automation.actions.air_conditioner}"
+                      >
+                        Air Conditioner
+                      </option>
                     </select>
                   </div>
 
                   <!-- Device Selection -->
                   <div class="col-12">
-                    <label for="targetId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Device</label>
-                    <select class="form-select bg-light border-0" id="targetId" name="targetId" disabled>
-                      <option value="" disabled selected>Please select room and category first</option>
+                    <label
+                      for="targetId"
+                      class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.actions.target_device}"
+                      >Target Device</label
+                    >
+                    <select
+                      class="form-select bg-light border-0"
+                      id="targetId"
+                      name="targetId"
+                      disabled
+                    >
+                      <option
+                        value=""
+                        disabled
+                        selected
+                        th:text="#{smart_system.automation.actions.select_room_category}"
+                      >
+                        Please select room and category first
+                      </option>
                     </select>
                     <div class="invalid-feedback" id="val-targetId"></div>
                   </div>
 
                   <!-- Action Type -->
                   <div class="col-12">
-                    <label for="actionType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Action Type</label>
+                    <label
+                      for="actionType"
+                      class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.actions.action_type}"
+                      >Action Type</label
+                    >
                     <select class="form-select bg-light border-0" id="actionType" name="actionType">
-                      <option value="ON">Turn ON</option>
-                      <option value="OFF">Turn OFF</option>
+                      <option value="ON" th:text="#{smart_system.automation.actions.turn_on}">
+                        Turn ON
+                      </option>
+                      <option value="OFF" th:text="#{smart_system.automation.actions.turn_off}">
+                        Turn OFF
+                      </option>
                     </select>
                   </div>
                 </div>
               </div>
               <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
-                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAction">
+                <button
+                  type="button"
+                  class="btn btn-light rounded-pill px-4"
+                  data-bs-dismiss="modal"
+                  th:text="#{logout.cancel.button}"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn btn-primary rounded-pill px-4 shadow-sm"
+                  id="btnSubmitAction"
+                >
                   <i data-lucide="check" class="lucide-sm me-1"></i>
                   <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
                 </button>
@@ -180,6 +261,53 @@
     </div>
 
     <th:block layout:fragment="scripts">
+      <script th:inline="javascript">
+        window.__ACTIONS_CONFIG__ = {
+          i18n: {
+            colOrder: /*[[#{smart_system.automation.actions.col.order}]]*/ 'Order',
+            colTargetDevice:
+              /*[[#{smart_system.automation.actions.col.target_device}]]*/ 'Target Device',
+            colType: /*[[#{smart_system.automation.actions.col.type}]]*/ 'Type',
+            colAction: /*[[#{smart_system.automation.actions.col.action}]]*/ 'Action',
+            colParams: /*[[#{smart_system.automation.actions.col.params}]]*/ 'Params',
+            colActions: /*[[#{client.table.actions}]]*/ 'Actions',
+            noData: /*[[#{group.table.no_data}]]*/ 'No data found.',
+            addTitle: /*[[#{smart_system.automation.actions.add_title}]]*/ 'Add Action',
+            editTitle: /*[[#{smart_system.automation.actions.edit_title}]]*/ 'Edit Action',
+            createdSuccess: /*[[#{smart_system.automation.success.created}]]*/ 'Success',
+            updatedSuccess: /*[[#{smart_system.automation.success.updated}]]*/ 'Success',
+            confirmDelete:
+              /*[[#{smart_system.automation.actions.delete_confirm_title}]]*/ 'Delete action?',
+            confirmDeleteText:
+              /*[[#{smart_system.automation.actions.delete_confirm_text}]]*/ 'This will be marked for deletion. Click Save All to apply.',
+            yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+            cancel: /*[[#{logout.cancel.button}]]*/ 'Cancel',
+            processing: /*[[#{common.processing}]]*/ 'Processing...',
+            success: /*[[#{common.success}]]*/ 'Success',
+            error: /*[[#{common.error.title}]]*/ 'Error',
+            valRequired: /*[[#{common.val.required}]]*/ 'Required',
+            selectRoom: /*[[#{smart_system.automation.actions.select_room}]]*/ 'Select a room',
+            loadingDevices:
+              /*[[#{smart_system.automation.actions.loading_devices}]]*/ 'Loading devices...',
+            selectRoomAndCategory:
+              /*[[#{smart_system.automation.actions.select_room_category}]]*/ 'Please select room and category first',
+            selectDevice:
+              /*[[#{smart_system.automation.actions.select_device}]]*/ 'Select a device',
+            noDevicesFound:
+              /*[[#{smart_system.automation.actions.no_devices}]]*/ 'No devices found',
+            errorLoadingDevices:
+              /*[[#{smart_system.automation.actions.error_devices}]]*/ 'Error loading devices',
+            keptAsIs: /*[[#{smart_system.automation.actions.kept_as_is}]]*/ 'Kept as is',
+            noChanges: /*[[#{common.mapping.no_changes}]]*/ 'No changes to save.',
+            saving: /*[[#{common.processing}]]*/ 'Saving...',
+            saveSuccess:
+              /*[[#{smart_system.automation.actions.save_success}]]*/ 'All changes have been saved successfully.',
+            loadFailed:
+              /*[[#{smart_system.automation.actions.load_failed}]]*/ 'Failed to load actions',
+            info: /*[[#{common.info}]]*/ 'Information',
+          },
+        };
+      </script>
       <script type="module" th:src="@{/js/pages/smart_system/automation/actions/index.js}"></script>
     </th:block>
   </body>

@@ -3,6 +3,8 @@ import { UiRenderer } from './ui_renderer.js';
 import { getAllRooms } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
 
+const { i18n } = window.__ACTIONS_CONFIG__;
+
 export const ActionModal = (() => {
   let bootstrapModal = null;
   let isRoomsLoaded = false;
@@ -25,7 +27,7 @@ export const ActionModal = (() => {
       const [err, res] = await getAllRooms();
       if (!err && res && res.data) {
         const rooms = res.data;
-        elements.roomId.innerHTML = '<option value="" disabled selected>Select a room</option>';
+        elements.roomId.innerHTML = `<option value="" disabled selected>${i18n.selectRoom}</option>`;
         rooms.forEach((room) => {
           const option = document.createElement('option');
           option.value = room.id;
@@ -41,11 +43,10 @@ export const ActionModal = (() => {
 
   const loadDevices = async (roomId, category, selectedId = null) => {
     elements.targetId.disabled = true;
-    elements.targetId.innerHTML = '<option value="" disabled selected>Loading devices...</option>';
+    elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.loadingDevices}</option>`;
 
     if (!roomId || !category) {
-      elements.targetId.innerHTML =
-        '<option value="" disabled selected>Please select room and category first</option>';
+      elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.selectRoomAndCategory}</option>`;
       return;
     }
 
@@ -53,11 +54,10 @@ export const ActionModal = (() => {
       const [err, res] = await getDevicesByRoom(roomId, category);
       if (!err && res && res.data) {
         const devices = res.data;
-        elements.targetId.innerHTML = '<option value="" disabled selected>Select a device</option>';
+        elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.selectDevice}</option>`;
 
         if (devices.length === 0) {
-          elements.targetId.innerHTML =
-            '<option value="" disabled selected>No devices found</option>';
+          elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.noDevicesFound}</option>`;
         } else {
           devices.forEach((device) => {
             const option = document.createElement('option');
@@ -71,13 +71,11 @@ export const ActionModal = (() => {
           elements.targetId.disabled = false;
         }
       } else {
-        elements.targetId.innerHTML =
-          '<option value="" disabled selected>Error loading devices</option>';
+        elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.errorLoadingDevices}</option>`;
       }
     } catch (error) {
       console.error('Failed to load devices', error);
-      elements.targetId.innerHTML =
-        '<option value="" disabled selected>Error loading devices</option>';
+      elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.errorLoadingDevices}</option>`;
     }
   };
 
@@ -111,33 +109,30 @@ export const ActionModal = (() => {
     elements.form.reset();
     elements.localId.value = '';
     elements.targetId.disabled = true;
-    elements.targetId.innerHTML =
-      '<option value="" disabled selected>Please select room and category first</option>';
+    elements.targetId.innerHTML = `<option value="" disabled selected>${i18n.selectRoomAndCategory}</option>`;
 
     await loadRooms();
 
     if (localId) {
       const data = StateManager.getAction(localId);
       if (data) {
-        elements.title.textContent = 'Edit Action';
+        elements.title.textContent = i18n.editTitle;
         elements.localId.value = data._localId;
         elements.executionOrder.value = data.executionOrder;
         elements.targetType.value = data.targetType;
         elements.actionType.value = data.actionType;
 
-        // Because we don't know the room of an existing targetId,
-        // we create a custom option for it to retain the value without forcing room selection
         elements.roomId.value = '';
         elements.targetId.innerHTML = '';
         const option = document.createElement('option');
         option.value = data.targetId;
-        option.textContent = data.targetName || `Device #${data.targetId} (Kept as is)`;
+        option.textContent = data.targetName || `Device #${data.targetId} (${i18n.keptAsIs})`;
         option.selected = true;
         elements.targetId.appendChild(option);
         elements.targetId.disabled = false;
       }
     } else {
-      elements.title.textContent = 'Add Action';
+      elements.title.textContent = i18n.addTitle;
       elements.executionOrder.value = StateManager.getActions().length + 1;
     }
 
@@ -148,7 +143,6 @@ export const ActionModal = (() => {
   const submit = (e) => {
     e.preventDefault();
 
-    // Basic validation
     if (!elements.targetId.value) {
       elements.targetId.classList.add('is-invalid');
       return;
