@@ -32,8 +32,10 @@ public class RequestTraceFilter extends OncePerRequestFilter {
 
         String scenarioId = request.getHeader(SCENARIO_ID_HEADER);
 
+        String nowStr = Instant.now().toString();
         MDC.put("traceId", traceId);
-        MDC.put("serverReceivedAt", Instant.now().toString());
+        MDC.put("serverReceivedAt", nowStr);
+        MDC.put("startedAt", nowStr);
         if (scenarioId != null && !scenarioId.isBlank()) {
             MDC.put("scenarioId", scenarioId);
             response.setHeader(SCENARIO_ID_HEADER, scenarioId);

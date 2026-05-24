@@ -29,10 +29,12 @@ public class TraceJobListener implements JobListener {
     public void jobToBeExecuted(JobExecutionContext context) {
         String traceId = UUID.randomUUID().toString();
         String jobName = context.getJobDetail().getKey().getName();
+        Instant startTime = Instant.now();
         MDC.put("traceId", traceId);
         MDC.put("scenarioId", "job:" + jobName);
+        MDC.put("startedAt", startTime.toString());
 
-        context.put("startTime", Instant.now());
+        context.put("startTime", startTime);
 
         log.info(">>> [JOB] START | ID: {} | Job: {}", traceId, jobName);
     }
@@ -49,15 +51,27 @@ public class TraceJobListener implements JobListener {
         String jobName = context.getJobDetail().getKey().getName();
         String jobClass = context.getJobDetail().getJobClass().getName();
 
-        Instant startTime = (Instant) context.get("startTime");
-        long duration = startTime != null ? Duration.between(startTime, Instant.now()).toMillis() : 0;
+        String startedAtStr = MDC.get("startedAt");
+        Instant startTime = startedAtStr != null ? Instant.parse(startedAtStr) : (Instant) context.get("startTime");
+        Instant endedAt = Instant.now();
+        long duration = startTime != null ? Duration.between(startTime, endedAt).toMillis() : 0;
         int status = (jobException == null) ? 200 : 500;
 
         log.info("<<< [JOB] END | ID: {} | Status: {} | Duration: {}ms | Job: {}",
                 traceId, status, duration, jobName);
 
-        traceLogger.logTrace(traceId, scenarioId, "JOB", "EXECUTE", "job://" + jobName,
-                status, duration, jobClass, "localhost");
+        traceLogger.logTrace(TraceLogger.TraceData.builder()
+                .traceId(traceId)
+                .scenarioId(scenarioId)
+                .type("JOB")
+                .method("EXECUTE")
+                .uri("job://" + jobName)
+                .status(status)
+                .controller(jobClass)
+                .remote("localhost")
+                .startedAt(startTime)
+                .endedAt(endedAt)
+                .build());
 
         MDC.clear();
     }

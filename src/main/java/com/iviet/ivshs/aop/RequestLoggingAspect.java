@@ -62,7 +62,8 @@ public class RequestLoggingAspect {
     }
     MDC.put("logType", logType);
 
-    Instant start = Instant.now();
+    String startedAtStr = MDC.get("startedAt");
+    Instant start = startedAtStr != null ? Instant.parse(startedAtStr) : Instant.now();
     ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
     if (attributes == null) {
@@ -85,7 +86,8 @@ public class RequestLoggingAspect {
       log.error("[{}] FAILED | ID: {} | Error: {}", logType, traceId, throwable.getMessage());
       throw throwable;
     } finally {
-      long duration = Duration.between(start, Instant.now()).toMillis();
+      Instant endedAt = Instant.now();
+      long duration = Duration.between(start, endedAt).toMillis();
       Integer status = getResponseStatus(attributes);
 
       log.info("<<< [{}] END | ID: {} | Status: {} | Duration: {}ms | Target: {}",
@@ -95,8 +97,18 @@ public class RequestLoggingAspect {
         log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, truncateResult(result));
       }
 
-      traceLogger.logTrace(traceId, MDC.get("scenarioId"), logType, request.getMethod(),
-          request.getRequestURI(), status, duration, controllerMethod, request.getRemoteAddr());
+      traceLogger.logTrace(TraceLogger.TraceData.builder()
+          .traceId(traceId)
+          .scenarioId(MDC.get("scenarioId"))
+          .type(logType)
+          .method(request.getMethod())
+          .uri(request.getRequestURI())
+          .status(status)
+          .controller(controllerMethod)
+          .remote(request.getRemoteAddr())
+          .startedAt(start)
+          .endedAt(endedAt)
+          .build());
 
       MDC.remove("logType");
     }

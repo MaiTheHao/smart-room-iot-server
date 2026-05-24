@@ -31,5 +31,5 @@ public class RuleJob implements Job {
       throw new JobExecutionException(e, false);
     }
   }
-  
+
 }

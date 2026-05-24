@@ -146,6 +146,18 @@
     </Logger>
 
     <!-- ================================================================= -->
+    <!-- APM TRACE LOGGER (TraceLogger component)                         -->
+    <!-- ================================================================= -->
+    <Logger name="com.iviet.ivshs.component.TraceLogger" 
+            level="${sys:APM_LOG_LEVEL:-trace}" 
+            additivity="false">
+      <!-- AsyncTraceFile: Chỉ ghi TRACE level, loại bỏ những cái khác -->
+      <AppenderRef ref="AsyncTraceFile">
+        <LevelRangeFilter minLevel="trace" maxLevel="trace" onMatch="ACCEPT" onMismatch="DENY" />
+      </AppenderRef>
+    </Logger>
+
+    <!-- ================================================================= -->
     <!-- DATABASE / ORM LOGGERS (Hibernate)                               -->
     <!-- ================================================================= -->
     
