@@ -30,6 +30,11 @@ export const UiRenderer = (() => {
 					<i data-lucide="inbox" class="mb-2" style="width: 48px; height: 48px"></i>
 					<p>${i18n.noData || ''}</p>
 				</div>`,
+      pagination: true,
+      paginationMode: 'local',
+      paginationSize: 10,
+      paginationSizeSelector: [10, 25, 50, 100],
+      paginationCounter: 'rows',
       columns: [
         {
           title: i18n.colId,
