@@ -8,13 +8,15 @@ export const RuleModal = (() => {
 		title: null,
 		id: null,
 		name: null,
-		description: null,
+		priority: null,
+		intervalSeconds: null,
 		submitBtn: null,
 		inputs: [],
 		feedbacks: []
 	};
 
 	let bootstrapModal = null;
+	let currentData = null;
 	const { i18n } = window.__RULE_CONFIG__;
 
 	const init = () => {
@@ -23,7 +25,8 @@ export const RuleModal = (() => {
 		elements.title = document.getElementById('modalTitle');
 		elements.id = document.getElementById('ruleId');
 		elements.name = document.getElementById('name');
-		elements.description = document.getElementById('description');
+		elements.priority = document.getElementById('priority');
+		elements.intervalSeconds = document.getElementById('intervalSeconds');
 		elements.submitBtn = document.getElementById('btnSubmitRule');
 
 		if (!elements.modal) return;
@@ -38,6 +41,7 @@ export const RuleModal = (() => {
 	};
 
 	const open = (data = null) => {
+		currentData = data;
 		elements.form.reset();
 		elements.id.value = '';
 		clearValidation();
@@ -48,7 +52,11 @@ export const RuleModal = (() => {
 		if (isEdit) {
 			elements.id.value = data.id || '';
 			elements.name.value = data.name || '';
-			elements.description.value = data.description || '';
+			elements.priority.value = data.priority !== undefined ? data.priority : '1';
+			elements.intervalSeconds.value = data.intervalSeconds !== undefined ? data.intervalSeconds : '60';
+		} else {
+			elements.priority.value = '1';
+			elements.intervalSeconds.value = '60';
 		}
 
 		bootstrapModal?.show();
@@ -74,6 +82,18 @@ export const RuleModal = (() => {
 			setError('name', i18n.valRequired.replace('{0}', 'Name'));
 		}
 
+		if (!data.priority || isNaN(data.priority)) {
+			setError('priority', i18n.valPriorityRequired);
+		} else if (parseInt(data.priority, 10) < 0) {
+			setError('priority', i18n.valPriorityMin);
+		}
+
+		if (!data.intervalSeconds || isNaN(data.intervalSeconds)) {
+			setError('intervalSeconds', i18n.valIntervalRequired);
+		} else if (parseInt(data.intervalSeconds, 10) < 60) {
+			setError('intervalSeconds', i18n.valIntervalMin);
+		}
+
 		return isValid ? data : null;
 	};
 
@@ -88,18 +108,17 @@ export const RuleModal = (() => {
 
 		try {
 			const isUpdate = !!data.id;
-            const payload = {
-                name: data.name,
-                description: data.description,
-            };
+			const payload = {
+				name: data.name,
+				priority: parseInt(data.priority, 10),
+				intervalSeconds: parseInt(data.intervalSeconds, 10),
+				conditions: isUpdate ? (currentData?.conditions || []) : [],
+				actions: isUpdate ? (currentData?.actions || []) : []
+			};
 
-            if(!isUpdate) {
-                payload.isActive = true;
-                payload.priority = 1;
-                payload.intervalSeconds = 60;
-                payload.conditions = [];
-                payload.actions = [];
-            }
+			if (!isUpdate) {
+				payload.isActive = true;
+			}
 
 			const [err, res] = isUpdate ? await updateRule(data.id, payload) : await createRule(payload);
 

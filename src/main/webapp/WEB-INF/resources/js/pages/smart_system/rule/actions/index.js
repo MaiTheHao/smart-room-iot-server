@@ -3,6 +3,8 @@ import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { ActionModal } from './action_modal.js';
 
+const { i18n } = window.__ACTIONS_CONFIG__;
+
 document.addEventListener('DOMContentLoaded', () => {
     const ruleId = document.getElementById('ruleId')?.value;
     if (!ruleId) return;
@@ -14,13 +16,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 (localId) => this.handleDelete(localId)
             );
             ActionModal.init();
-            
+
             StateManager.subscribe((isDirty) => {
-                const indicator = document.getElementById('unsavedStatus');
+                const btnSave = document.getElementById('btnSaveAll');
+                const unsavedStatus = document.getElementById('unsavedStatus');
                 if (isDirty) {
-                    indicator.classList.add('visible');
+                    btnSave?.classList.remove('d-none');
+                    btnSave?.removeAttribute('disabled');
+                    unsavedStatus?.classList.add('visible');
                 } else {
-                    indicator.classList.remove('visible');
+                    btnSave?.classList.add('d-none');
+                    btnSave?.setAttribute('disabled', 'true');
+                    unsavedStatus?.classList.remove('visible');
                 }
             });
 
@@ -41,18 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 StateManager.init(res.data?.actions || []);
                 UiRenderer.render();
             } catch (error) {
-                Swal.fire('Error', 'Failed to load actions', 'error');
+                Swal.fire(i18n.error, i18n.loadFailed, 'error');
             }
         },
 
         async handleDelete(localId) {
             const result = await Swal.fire({
-                title: 'Delete action?',
-                text: 'This will be marked for deletion. Click Save All to apply.',
+                title: i18n.confirmDelete,
+                text: i18n.confirmDeleteText,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Yes, delete',
-                confirmButtonColor: '#d33'
+                confirmButtonText: i18n.yesDelete,
+                cancelButtonText: i18n.cancel,
+                confirmButtonColor: '#d33',
             });
 
             if (result.isConfirmed) {
@@ -62,35 +70,37 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         async handleSaveAll() {
-            const btnSave = document.getElementById('btnSaveAll');
-            const originalHtml = btnSave.innerHTML;
-            btnSave.disabled = true;
-            btnSave.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Saving...`;
+            if (!StateManager.getIsDirty()) {
+                Swal.fire(i18n.info, i18n.noChanges, 'info');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveAll');
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${i18n.saving}`;
 
             try {
-                const actionsPayload = StateManager.getPayload();
-                
-                // For Rule, it's a PATCH. We send the replaced actions array.
-                const [err] = await updateRule(ruleId, { actions: actionsPayload });
-                
+                const payload = StateManager.buildPayload();
+                const [err] = await updateRule(ruleId, { actions: payload });
                 if (err) throw err;
 
                 Swal.fire({
-                    title: 'Success',
-                    text: 'Actions have been saved successfully.',
+                    title: i18n.success,
+                    text: i18n.saveSuccess,
                     icon: 'success',
                     timer: 1500,
-                    showConfirmButton: false
+                    showConfirmButton: false,
                 });
 
-                await this.loadData(); // Reload to get fresh IDs and clear dirty state
+                await this.loadData();
             } catch (error) {
-                Swal.fire('Error', error.message || 'Failed to save', 'error');
+                Swal.fire(i18n.error, error.message || i18n.error, 'error');
             } finally {
-                btnSave.disabled = false;
-                btnSave.innerHTML = originalHtml;
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
             }
-        }
+        },
     };
 
     Controller.init();

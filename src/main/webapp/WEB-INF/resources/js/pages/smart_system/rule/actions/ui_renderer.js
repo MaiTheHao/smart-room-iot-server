@@ -1,6 +1,8 @@
 import { TabulatorFull as Tabulator } from '../../../../lib/tabulator_esm.min.js';
 import { StateManager } from './state_manager.js';
 
+const { i18n } = window.__ACTIONS_CONFIG__;
+
 export const UiRenderer = (() => {
     let table = null;
 
@@ -12,47 +14,62 @@ export const UiRenderer = (() => {
             placeholder: `
                 <div class="text-center py-5 text-muted">
                     <i data-lucide="inbox" class="mb-2" style="width: 48px; height: 48px"></i>
-                    <p>No actions added yet.</p>
+                    <p>${i18n.noData}</p>
                 </div>`,
             columns: [
                 {
-                    title: 'Order',
+                    title: i18n.colOrder,
                     field: 'executionOrder',
-                    width: 80,
+                    width: 100,
                     hozAlign: 'center',
-                    formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="badge bg-light text-dark border">${cell.getValue()}</span></div>`
+                    formatter: (cell) =>
+                        `<div class="d-flex align-items-center justify-content-center h-100">
+                            <span class="badge bg-light text-dark border">${cell.getValue()}</span>
+                        </div>`
                 },
                 {
-                    title: 'Target Device',
-                    field: 'targetId',
-                    formatter: (cell) => `<div class="d-flex align-items-center h-100 fw-bold">${cell.getValue()}</div>`
-                },
-                {
-                    title: 'Type',
-                    field: 'targetType',
-                    width: 120,
-                    formatter: (cell) => `<div class="d-flex align-items-center h-100"><span class="badge bg-secondary">${cell.getValue()}</span></div>`
-                },
-                {
-                    title: 'Action',
-                    field: 'actionType',
-                    width: 120,
+                    title: i18n.colTargetDevice,
+                    field: 'targetDeviceId',
                     formatter: (cell) => {
                         const val = cell.getValue();
-                        const colorClass = val === 'ON' ? 'bg-success' : val === 'OFF' ? 'bg-danger' : 'bg-primary';
-                        return `<div class="d-flex align-items-center h-100"><span class="badge ${colorClass}">${val}</span></div>`;
+                        const rowData = cell.getData();
+                        const targetName = rowData.targetDeviceName || `Device #${val}`;
+                        return `<div class="d-flex align-items-center h-100 fw-bold">${targetName}</div>`;
                     }
                 },
                 {
-                    title: 'Params',
-                    field: 'parameterValue',
-                    formatter: (cell) => `<div class="d-flex align-items-center h-100 text-muted">${cell.getValue() || '-'}</div>`
+                    title: i18n.colType,
+                    field: 'targetDeviceCategory',
+                    width: 170,
+                    formatter: (cell) => {
+                        const val = cell.getValue();
+                        const colorMap = {
+                            LIGHT: 'bg-warning text-dark',
+                            FAN: 'bg-info text-dark',
+                            AIR_CONDITION: 'bg-primary',
+                        };
+                        const cls = colorMap[val] || 'bg-secondary';
+                        return `<div class="d-flex align-items-center h-100"><span class="badge ${cls}">${val}</span></div>`;
+                    }
                 },
                 {
-                    title: 'Actions',
+                    title: i18n.colParams,
+                    field: 'actionParams',
+                    formatter: (cell) => {
+                        const val = cell.getValue();
+                        if (!val || (typeof val === 'object' && Object.keys(val).length === 0)) {
+                            return `<div class="d-flex align-items-center h-100 text-muted fst-italic">—</div>`;
+                        }
+                        const str = typeof val === 'string' ? val : JSON.stringify(val);
+                        const truncated = str.length > 40 ? str.substring(0, 37) + '...' : str;
+                        return `<div class="d-flex align-items-center h-100 text-muted font-monospace small" title="${str}">${truncated}</div>`;
+                    }
+                },
+                {
+                    title: i18n.colActions,
                     hozAlign: 'center',
                     headerSort: false,
-                    width: 100,
+                    width: 150,
                     formatter: (cell) => {
                         const id = cell.getData()._localId;
                         return `
@@ -70,6 +87,7 @@ export const UiRenderer = (() => {
         });
 
         table.on('renderComplete', () => window.renderIcons?.());
+        table.on('tableBuilt', () => window.renderIcons?.());
 
         document.addEventListener('click', (e) => {
             const btnEdit = e.target.closest('.btn-edit');
@@ -80,7 +98,7 @@ export const UiRenderer = (() => {
     };
 
     const render = () => {
-        if(table) table.setData(StateManager.getActions());
+        if (table) table.setData(StateManager.getActions());
     };
 
     return { init, render };

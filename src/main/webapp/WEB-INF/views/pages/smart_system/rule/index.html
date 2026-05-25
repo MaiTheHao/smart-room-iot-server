@@ -66,20 +66,34 @@
                 <div class="row g-3">
                   <!-- Name -->
                   <div class="col-12">
-                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1">Name</label>
+                    <label for="name" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.name}">Name</label>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
-                      <input type="text" class="form-control bg-light border-0" id="name" name="name" placeholder="Rule Name" />
+                      <input type="text" class="form-control bg-light border-0" id="name" name="name" th:placeholder="#{smart_system.rule.placeholder.name}" placeholder="Rule Name" />
                     </div>
                     <div class="invalid-feedback" id="val-name"></div>
                   </div>
 
-                  <!-- Description -->
-                  <div class="col-12">
-                    <label for="description" class="form-label fw-semibold small text-muted text-uppercase mb-1">Description</label>
-                    <textarea class="form-control bg-light border-0" id="description" name="description" rows="3" placeholder="Additional details..."></textarea>
-                    <div class="invalid-feedback" id="val-description"></div>
+                  <!-- Priority & Interval -->
+                  <div class="col-md-6">
+                    <label for="priority" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.priority}">Priority</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="sliders" class="lucide-sm"></i></span>
+                      <input type="number" class="form-control bg-light border-0" id="priority" name="priority" min="0" th:placeholder="#{smart_system.rule.placeholder.priority}" placeholder="1" />
+                    </div>
+                    <div class="invalid-feedback" id="val-priority"></div>
                   </div>
+
+                  <div class="col-md-6">
+                    <label for="intervalSeconds" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.interval}">Interval (seconds)</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0"><i data-lucide="clock" class="lucide-sm"></i></span>
+                      <input type="number" class="form-control bg-light border-0" id="intervalSeconds" name="intervalSeconds" min="60" th:placeholder="#{smart_system.rule.placeholder.interval}" placeholder="60" />
+                    </div>
+                    <div class="invalid-feedback" id="val-intervalSeconds"></div>
+                  </div>
+
+
                 </div>
               </div>
               <div class="modal-footer border-0 pt-0">
@@ -101,6 +115,8 @@
           i18n: {
             colId: /*[[#{client.table.id}]]*/ 'ID',
             colName: /*[[#{function.table.name}]]*/ 'Name',
+            colPriority: /*[[#{smart_system.rule.priority}]]*/ 'Priority',
+            colInterval: /*[[#{smart_system.rule.interval}]]*/ 'Interval (s)',
             colStatus: 'Status',
             colActions: /*[[#{client.table.actions}]]*/ 'Actions',
             noData: /*[[#{group.table.no_data}]]*/ 'No data found.',
@@ -117,6 +133,10 @@
             success: /*[[#{common.success}]]*/ 'Success',
             error: /*[[#{common.error.title}]]*/ 'Error',
             valRequired: /*[[#{common.val.required}]]*/ 'Required',
+            valPriorityRequired: /*[[#{smart_system.rule.val.priority_required}]]*/ 'Priority is required',
+            valPriorityMin: /*[[#{smart_system.rule.val.priority_min}]]*/ 'Priority must be >= 0',
+            valIntervalRequired: /*[[#{smart_system.rule.val.interval_required}]]*/ 'Interval is required',
+            valIntervalMin: /*[[#{smart_system.rule.val.interval_min}]]*/ 'Interval must be >= 60 seconds',
             manageConditions: /*[[#{smart_system.rule.conditions.list}]]*/ 'Manage Conditions',
             manageActions: /*[[#{smart_system.rule.actions.list}]]*/ 'Manage Actions'
           },

@@ -35,14 +35,16 @@
 
     <div layout:fragment="content">
       <div class="container-fluid">
-        
+
         <!-- Header Info Card -->
         <div class="card shadow-sm border-0 mb-4 rounded-4">
           <div class="card-header bg-white border-0 pt-3 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center">
                 <h4 class="mb-0 font-weight-bold text-dark" th:text="${rule.name}">Rule Name</h4>
-                <span class="badge ms-3" th:classappend="${rule.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${rule.isActive ? 'Active' : 'Inactive'}">Active</span>
+                <span class="badge ms-3"
+                  th:classappend="${rule.isActive ? 'bg-success' : 'bg-secondary'}"
+                  th:text="${rule.isActive ? #messages.msg('common.active') : #messages.msg('common.inactive')}">Active</span>
               </div>
               <a th:href="@{/management/smart-system/rules}" class="btn btn-sm btn-back px-3 rounded-pill">
                 <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
@@ -72,7 +74,7 @@
               <div class="card-tools d-flex align-items-center gap-2">
                 <div id="unsavedStatus" class="dirty-indicator align-items-center text-warning me-2 small fw-bold">
                   <i data-lucide="refresh-cw" class="lucide-sm me-1 lucide-spin"></i>
-                  <span>Unsaved changes</span>
+                  <span th:text="#{smart_system.rule.actions.unsaved}">Unsaved changes</span>
                 </div>
                 <button
                   type="button"
@@ -80,7 +82,16 @@
                   id="btnAddAction"
                 >
                   <i data-lucide="plus" class="lucide-sm me-1"></i>
-                  <span th:text="#{common.add}">Add Action</span>
+                  <span th:text="#{smart_system.rule.actions.add}">Add Action</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-success btn-sm rounded-pill px-3 shadow-sm d-none"
+                  id="btnSaveAll"
+                  disabled
+                >
+                  <i data-lucide="check-circle-2" class="lucide-sm me-1"></i>
+                  <span th:text="#{common.save_changes}">Save Changes</span>
                 </button>
               </div>
             </div>
@@ -89,28 +100,17 @@
           <div class="card-body p-0">
             <div id="actionsTable"></div>
           </div>
-
-          <div class="card-footer bg-white border-top-0 text-end py-3">
-            <button
-              type="button"
-              class="btn btn-success px-4 rounded-pill font-weight-bold shadow-sm"
-              id="btnSaveAll"
-            >
-              <i data-lucide="check-circle-2" class="lucide-sm me-2"></i>
-              <span>Save All Changes</span>
-            </button>
-          </div>
         </div>
       </div>
 
       <!-- Action Form Modal -->
       <div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
           <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pb-0">
               <h5 class="modal-title fw-bold d-flex align-items-center">
                 <i data-lucide="git-branch" class="text-primary me-2 lucide-md"></i>
-                <span id="modalTitle">Add Action</span>
+                <span id="modalTitle" th:text="#{smart_system.rule.actions.add_title}">Add Action</span>
               </h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -118,49 +118,72 @@
               <div class="modal-body py-4">
                 <input type="hidden" id="actionLocalId" />
                 <div class="row g-3">
+
                   <!-- Execution Order -->
-                  <div class="col-12">
-                    <label for="executionOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1">Execution Order</label>
-                    <input type="number" class="form-control bg-light border-0" id="executionOrder" name="executionOrder" min="1" value="1" />
-                    <div class="invalid-feedback" id="val-executionOrder"></div>
+                  <div class="col-12 col-md-4">
+                    <label for="executionOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.rule.actions.execution_order}">Execution Order</label>
+                    <input type="number" class="form-control bg-light border-0" id="executionOrder"
+                      name="executionOrder" min="0" value="0" />
                   </div>
 
-                  <!-- Device Selection -->
-                  <div class="col-12">
-                    <label for="targetId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Device ID</label>
-                    <input type="number" class="form-control bg-light border-0" id="targetId" name="targetId" />
-                    <div class="invalid-feedback" id="val-targetId"></div>
-                  </div>
-                  
-                  <div class="col-12">
-                    <label for="targetType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Category</label>
-                    <select class="form-select bg-light border-0" id="targetType" name="targetType">
-                      <option value="LIGHT">Light</option>
-                      <option value="FAN">Fan</option>
-                      <option value="AC">Air Conditioner</option>
+                  <!-- Target Device Category -->
+                  <div class="col-12 col-md-8">
+                    <label for="targetDeviceCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.rule.actions.target_category}">Target Category</label>
+                    <select class="form-select bg-light border-0" id="targetDeviceCategory" name="targetDeviceCategory">
+                      <option value="LIGHT" th:text="#{smart_system.rule.actions.light}">Light</option>
+                      <option value="FAN" th:text="#{smart_system.rule.actions.fan}">Fan</option>
+                      <option value="AIR_CONDITION" th:text="#{smart_system.rule.actions.air_conditioner}">Air Conditioner</option>
                     </select>
                   </div>
 
-                  <!-- Action Type -->
-                  <div class="col-12">
-                    <label for="actionType" class="form-label fw-semibold small text-muted text-uppercase mb-1">Action Type</label>
-                    <select class="form-select bg-light border-0" id="actionType" name="actionType">
-                      <option value="ON">Turn ON</option>
-                      <option value="OFF">Turn OFF</option>
-                      <option value="SET_VALUE">Set Value</option>
+                  <!-- Floor Selection -->
+                  <div class="col-12 col-md-4">
+                    <label for="floorId" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.rule.actions.floor}">Floor</label>
+                    <select class="form-select bg-light border-0" id="floorId" name="floorId">
+                      <option value="" disabled selected th:text="#{smart_system.rule.actions.select_floor}">Select a floor</option>
                     </select>
                   </div>
 
-                  <!-- Parameter Value -->
-                  <div class="col-12" id="parameterContainer">
-                    <label for="parameterValue" class="form-label fw-semibold small text-muted text-uppercase mb-1">Parameter Value</label>
-                    <input type="text" class="form-control bg-light border-0" id="parameterValue" name="parameterValue" placeholder="e.g. 24 for AC Temp" />
-                    <div class="invalid-feedback" id="val-parameterValue"></div>
+                  <!-- Room Selection -->
+                  <div class="col-12 col-md-4">
+                    <label for="roomId" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.rule.actions.room}">Room</label>
+                    <select class="form-select bg-light border-0" id="roomId" name="roomId" disabled>
+                      <option value="" disabled selected th:text="#{smart_system.rule.actions.select_room}">Select a room</option>
+                    </select>
                   </div>
+
+                  <!-- Target Device -->
+                  <div class="col-12 col-md-4">
+                    <label for="targetDeviceId" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.rule.actions.target_device}">Target Device</label>
+                    <select class="form-select bg-light border-0" id="targetDeviceId" name="targetDeviceId" disabled>
+                      <option value="" disabled selected th:text="#{smart_system.rule.actions.select_room_category}">Select room and category first</option>
+                    </select>
+                    <div class="invalid-feedback" id="val-targetDeviceId"></div>
+                  </div>
+
+                  <!-- Dynamic Parameters Container -->
+                  <div class="col-12">
+                    <div class="border-top pt-3 mt-1">
+                      <h6 class="fw-bold mb-3 small text-muted text-uppercase d-flex align-items-center gap-2">
+                        <i data-lucide="sliders-horizontal" class="lucide-sm"></i>
+                        <span th:text="#{smart_system.rule.actions.action_params}">Action Parameters</span>
+                      </h6>
+                      <div id="dynamicParamsContainer" class="row g-3">
+                        <!-- Rendered dynamically by JS based on selected category -->
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
               <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"
+                  th:text="#{logout.cancel.button}">Cancel</button>
                 <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAction">
                   <i data-lucide="check" class="lucide-sm me-1"></i>
                   <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
@@ -173,6 +196,49 @@
     </div>
 
     <th:block layout:fragment="scripts">
+      <script th:inline="javascript">
+        window.__ACTIONS_CONFIG__ = {
+          i18n: {
+            colOrder:        /*[[#{smart_system.rule.actions.col.order}]]*/ 'Order',
+            colTargetDevice: /*[[#{smart_system.rule.actions.col.target_device}]]*/ 'Target Device',
+            colType:         /*[[#{smart_system.rule.actions.col.type}]]*/ 'Type',
+            colParams:       /*[[#{smart_system.rule.actions.col.params}]]*/ 'Params',
+            colActions:      /*[[#{smart_system.rule.actions.col.actions}]]*/ 'Actions',
+            noData:          /*[[#{group.table.no_data}]]*/ 'No data found.',
+            addTitle:        /*[[#{smart_system.rule.actions.add_title}]]*/ 'Add Action',
+            editTitle:       /*[[#{smart_system.rule.actions.edit_title}]]*/ 'Edit Action',
+            confirmDelete:   /*[[#{smart_system.rule.actions.delete_confirm_title}]]*/ 'Delete action?',
+            confirmDeleteText: /*[[#{smart_system.rule.actions.delete_confirm_text}]]*/ 'This will be marked for deletion.',
+            yesDelete:       /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+            cancel:          /*[[#{logout.cancel.button}]]*/ 'Cancel',
+            success:         /*[[#{common.success}]]*/ 'Success',
+            error:           /*[[#{common.error.title}]]*/ 'Error',
+            info:            /*[[#{common.info}]]*/ 'Information',
+            valRequired:     /*[[#{common.val.required}]]*/ 'Required',
+            selectFloor:     /*[[#{smart_system.rule.actions.select_floor}]]*/ 'Select a floor',
+            selectRoom:      /*[[#{smart_system.rule.actions.select_room}]]*/ 'Select a room',
+            loadingDevices:  /*[[#{smart_system.rule.actions.loading_devices}]]*/ 'Loading devices...',
+            selectRoomAndCategory: /*[[#{smart_system.rule.actions.select_room_category}]]*/ 'Select room and category first',
+            selectDevice:    /*[[#{smart_system.rule.actions.select_device}]]*/ 'Select a device',
+            noDevicesFound:  /*[[#{smart_system.rule.actions.no_devices}]]*/ 'No devices found',
+            errorLoadingDevices: /*[[#{smart_system.rule.actions.error_devices}]]*/ 'Error loading devices',
+            keptAsIs:        /*[[#{smart_system.rule.actions.kept_as_is}]]*/ 'Kept as is',
+            noChanges:       /*[[#{common.mapping.no_changes}]]*/ 'No changes to save.',
+            saving:          /*[[#{common.processing}]]*/ 'Saving...',
+            saveSuccess:     /*[[#{smart_system.rule.actions.save_success}]]*/ 'All changes have been saved successfully.',
+            loadFailed:      /*[[#{smart_system.rule.actions.load_failed}]]*/ 'Failed to load actions',
+            unchanged:       /*[[#{smart_system.rule.actions.unchanged}]]*/ 'Unchanged',
+            brightnessLevel: /*[[#{smart_system.rule.actions.brightness_level}]]*/ 'Brightness Level',
+            temperature:     /*[[#{smart_system.rule.actions.temperature}]]*/ 'Temperature',
+            mode:            /*[[#{smart_system.rule.actions.mode}]]*/ 'Mode',
+            fanSpeed:        /*[[#{smart_system.rule.actions.fan_speed}]]*/ 'Fan Speed',
+            swing:           /*[[#{smart_system.rule.actions.swing}]]*/ 'Swing',
+            speed:           /*[[#{smart_system.rule.actions.speed}]]*/ 'Speed',
+            fanLight:        /*[[#{smart_system.rule.actions.fan_light}]]*/ 'Fan Light',
+            power:           /*[[#{smart_system.rule.actions.power}]]*/ 'Power',
+          }
+        };
+      </script>
       <script type="module" th:src="@{/js/pages/smart_system/rule/actions/index.js}"></script>
     </th:block>
   </body>
