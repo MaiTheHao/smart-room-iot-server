@@ -2,6 +2,7 @@ import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllRooms } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
+import { Alert } from '../../../../common/notification_util.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -140,14 +141,13 @@ export const ActionModal = (() => {
     window.renderIcons?.();
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
 
     if (!elements.targetId.value) {
-      elements.targetId.classList.add('is-invalid');
+      await Alert.warning(i18n.selectDevice || 'Please select a device', i18n.error || 'Error');
+      elements.targetId?.focus();
       return;
-    } else {
-      elements.targetId.classList.remove('is-invalid');
     }
 
     const selectedOption = elements.targetId.options[elements.targetId.selectedIndex];

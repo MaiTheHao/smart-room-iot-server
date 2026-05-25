@@ -4,6 +4,7 @@ import { getAllRooms } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
 import { getAllTemperaturesByRoom, getAllPowerConsumptionsByRoom } from '../../../../api/sensor.api.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
+import { Alert } from '../../../../common/notification_util.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
 
@@ -417,17 +418,14 @@ export const ConditionModal = (() => {
     window.renderIcons?.();
   };
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
 
     const val = getValue().trim();
 
     if (!val) {
-      Swal.fire({
-        icon: 'warning',
-        title: i18n.error || 'Error',
-        text: i18n.valRequired || 'Value is required'
-      });
+      await Alert.warning(i18n.valRequired || 'Value is required', i18n.error || 'Error');
+      el.value?.focus();
       return;
     }
 
@@ -436,11 +434,8 @@ export const ConditionModal = (() => {
     const prop = el.property.value;
 
     if (cfg?.needsTarget && !el.target.value) {
-      Swal.fire({
-        icon: 'warning',
-        title: i18n.error || 'Error',
-        text: i18n.valTargetRequired || 'Target is required'
-      });
+      await Alert.warning(i18n.valTargetRequired || 'Target is required', i18n.error || 'Error');
+      el.target?.focus();
       return;
     }
 
@@ -449,21 +444,15 @@ export const ConditionModal = (() => {
         const h = parseInt(el.valueHour.value, 10);
         const m = parseInt(el.valueMinute.value, 10);
         if (isNaN(h) || h < 0 || h > 23 || isNaN(m) || m < 0 || m > 59) {
-          Swal.fire({
-            icon: 'warning',
-            title: i18n.error || 'Error',
-            text: i18n.valTimeRange || 'Hour must be 0-23 and Minute must be 0-59'
-          });
+          await Alert.warning(i18n.valTimeRange || 'Hour must be 0-23 and Minute must be 0-59', i18n.error || 'Error');
+          el.valueHour?.focus();
           return;
         }
       } else if (prop === 'day_of_month') {
         const num = parseInt(val, 10);
         if (isNaN(num) || num < 1 || num > 31 || String(num) !== val) {
-          Swal.fire({
-            icon: 'warning',
-            title: i18n.error || 'Error',
-            text: i18n.valDayMonthRange || 'Must be an integer between 1 and 31'
-          });
+          await Alert.warning(i18n.valDayMonthRange || 'Must be an integer between 1 and 31', i18n.error || 'Error');
+          el.value?.focus();
           return;
         }
       }
@@ -480,11 +469,8 @@ export const ConditionModal = (() => {
 
     let orderVal = parseInt(el.sortOrder.value, 10);
     if (isNaN(orderVal) || orderVal < 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: i18n.error || 'Error',
-        text: 'Order must be a positive integer'
-      });
+      await Alert.warning('Order must be a positive integer', i18n.error || 'Error');
+      el.sortOrder?.focus();
       return;
     }
 

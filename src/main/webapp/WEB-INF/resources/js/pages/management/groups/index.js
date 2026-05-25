@@ -3,6 +3,7 @@ import { unassignGroupsFromClient } from '../../../api/role.api.js';
 import { StateManager } from './state_manager.js';
 import { MainForm, MappingModule } from './group_modal.js';
 import { UiRenderer } from './ui_renderer.js';
+import { Toast, Alert } from '../../../common/notification_util.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const tableContainer = document.querySelector('#groupsTable');
@@ -42,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		async handleFormSubmit(e) {
 			e.preventDefault();
-			const data = MainForm.validate();
+			const data = await MainForm.validate();
 			if (!data) return;
 
 			const i18n = StateManager.getI18n();
@@ -59,15 +60,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				const [err, res] = isUpdate ? await updateGroup(data.id, data) : await createGroup(data);
 
 				if (err) {
-					Swal.fire(i18n.error || '', err.message || i18n.error || '', 'error');
+					Toast.error(err.message || i18n.error || 'An error occurred');
 				} else {
-					Swal.fire(i18n.success || '', isUpdate ? i18n.updatedSuccess || '' : i18n.createdSuccess || '', 'success');
+					Toast.success(isUpdate ? i18n.updatedSuccess || 'Cập nhật thành công' : i18n.createdSuccess || 'Added successfully');
 					MainForm.close();
 					UiRenderer.refresh();
 				}
 			} catch (error) {
 				console.error('Submit error:', error);
-				Swal.fire(i18n.error || '', i18n.error || '', 'error');
+				Toast.error(i18n.error || 'An error occurred');
 			} finally {
 				submitBtn.disabled = false;
 				submitBtn.innerHTML = originalHtml;
@@ -79,15 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			const selected = UiRenderer.getSelectedData();
 			if (selected.length === 0) return;
 
-			const result = await Swal.fire({
-				title: i18n.confirmDelete || '',
-				text: selected.length > 1 ? (i18n.confirmDeleteTextBatch || '').replace('{0}', selected.length) : (i18n.confirmDeleteTextSingle || '').replace('{0}', selected[0].groupCode),
-				icon: 'warning',
-				showCancelButton: true,
-				confirmButtonColor: '#d33',
-				cancelButtonColor: '#3085d6',
-				confirmButtonText: i18n.yesDelete || '',
-				cancelButtonText: i18n.cancel || '',
+			const result = await Alert.confirm({
+				title: i18n.confirmDelete || 'Confirm Delete',
+				text: selected.length > 1 ? (i18n.confirmDeleteTextBatch || 'Are you sure you want to delete {0} items?').replace('{0}', selected.length) : (i18n.confirmDeleteTextSingle || 'Are you sure you want to delete this item?').replace('{0}', selected[0].groupCode),
+				confirmText: i18n.yesDelete || 'Delete',
+				cancelText: i18n.cancel || 'Cancel',
 			});
 
 			if (result.isConfirmed) {
@@ -107,31 +104,27 @@ document.addEventListener('DOMContentLoaded', () => {
 						if (errorCount === selected.length && lastErrorMessage.toLowerCase().includes('client')) {
 							const match = lastErrorMessage.match(/(\d+)/);
 							const count = match ? match[0] : '?';
-							Swal.fire(i18n.error || '', (i18n.deleteErrorHasClients || '').replace('{0}', count), 'error');
+							Toast.error((i18n.deleteErrorHasClients || 'Lỗi: có {0} client đang liên kết').replace('{0}', count));
 						} else {
-							Swal.fire(i18n.error || '', `Failed to delete ${errorCount} items. ${lastErrorMessage}`, 'error');
+							Toast.error(`Failed to delete ${errorCount} items. ${lastErrorMessage}`);
 						}
 					} else {
-						await Swal.fire(i18n.success || '', i18n.success || '', 'success');
+						Toast.success(i18n.success || 'Deleted successfully');
 					}
 					UiRenderer.refresh();
 				} catch (err) {
-					Swal.fire(i18n.error || '', err.message, 'error');
+					Toast.error(err.message || i18n.error || 'An error occurred');
 				}
 			}
 		},
 
 		async handleRemoveMember(clientId, username) {
 			const i18n = StateManager.getI18n();
-			const result = await Swal.fire({
-				title: i18n.confirmDelete || '',
+			const result = await Alert.confirm({
+				title: i18n.confirmDelete || 'Confirm Delete',
 				text: `Remove ${username} from this group?`,
-				icon: 'warning',
-				showCancelButton: true,
-				confirmButtonColor: '#d33',
-				cancelButtonColor: '#3085d6',
-				confirmButtonText: i18n.yesDelete || '',
-				cancelButtonText: i18n.cancel || '',
+				confirmText: i18n.yesDelete || 'Delete',
+				cancelText: i18n.cancel || 'Cancel',
 			});
 
 			if (result.isConfirmed) {
@@ -140,11 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					const [err] = await unassignGroupsFromClient({ clientId, groupIds: [groupId] });
 					if (err) throw err;
 
-					Swal.fire(i18n.success || '', '', 'success');
+					Toast.success('Removed successfully');
 					MappingModule.open({ id: groupId, name: MappingModule.getCurrentGroupName() });
 					UiRenderer.refresh();
 				} catch (err) {
-					Swal.fire(i18n.error || '', err.message || i18n.error || '', 'error');
+					Toast.error(err.message || i18n.error || 'An error occurred');
 				}
 			}
 		},

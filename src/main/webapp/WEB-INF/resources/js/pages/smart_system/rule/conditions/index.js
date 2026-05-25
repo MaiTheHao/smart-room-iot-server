@@ -2,6 +2,7 @@ import { getRuleById, updateRule } from '../../../../api/rule.api.js';
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { ConditionModal } from './condition_modal.js';
+import { Alert } from '../../../../common/notification_util.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
 
@@ -14,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
       UiRenderer.init(
         (localId) => ConditionModal.open(localId),
         (localId) => this.handleDelete(localId),
+        (count) => {
+          const btnDelete = document.getElementById('btnDeleteSelected');
+          if (btnDelete) btnDelete.disabled = count === 0;
+        }
       );
       ConditionModal.init();
 
@@ -40,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .getElementById('conditionForm')
         ?.addEventListener('submit', (e) => ConditionModal.submit(e));
       document.getElementById('btnSaveAll')?.addEventListener('click', () => this.handleSaveAll());
+      document.getElementById('btnDeleteSelected')?.addEventListener('click', () => this.handleBatchDelete());
     },
 
     async loadData() {
@@ -54,19 +60,37 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     async handleDelete(localId) {
-      const result = await Swal.fire({
+      const result = await Alert.confirm({
         title: i18n.confirmDelete,
         text: i18n.confirmDeleteText,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: i18n.yesDelete,
-        cancelButtonText: i18n.cancel,
-        confirmButtonColor: '#d33',
+        confirmText: i18n.yesDelete,
+        cancelText: i18n.cancel
       });
 
       if (result.isConfirmed) {
         StateManager.deleteCondition(localId);
         UiRenderer.render();
+      }
+    },
+
+    async handleBatchDelete() {
+      const selected = UiRenderer.getSelectedData();
+      if (selected.length === 0) return;
+
+      const result = await Alert.confirm({
+        title: i18n.confirmDelete,
+        text: selected.length > 1 ? i18n.confirmDeleteTextBatch?.replace('{0}', selected.length) || `Delete ${selected.length} conditions?` : i18n.confirmDeleteTextSingle?.replace('{0}', '1') || 'Delete condition?',
+        confirmText: i18n.yesDelete,
+        cancelText: i18n.cancel
+      });
+
+      if (result.isConfirmed) {
+        for (const row of selected) {
+          StateManager.deleteCondition(row._localId);
+        }
+        UiRenderer.render();
+        const btnDelete = document.getElementById('btnDeleteSelected');
+        if (btnDelete) btnDelete.disabled = true;
       }
     },
 

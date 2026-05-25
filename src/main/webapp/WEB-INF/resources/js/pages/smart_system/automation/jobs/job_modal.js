@@ -9,6 +9,7 @@ import {
 import { Validator } from '../../../../common/validator.js';
 import { CronUtils } from '../../../../common/cron_util.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
+import { Toast, Alert } from '../../../../common/notification_util.js';
 
 export const JobModal = (() => {
   const elements = {
@@ -111,7 +112,6 @@ export const JobModal = (() => {
       elements.name.value = data.name || '';
       elements.description.value = data.description || '';
 
-      // Parse cron and set UI
       const parsedCron = CronUtils.fromCron(data.cronExpression);
       elements.scheduleType.value = parsedCron.type;
       elements.scheduleType.dispatchEvent(new Event('change'));
@@ -144,23 +144,16 @@ export const JobModal = (() => {
     window.renderIcons?.();
   };
 
-  const validateAndGetCron = () => {
-    let isValid = true;
+  const validateAndGetCron = async () => {
     const name = elements.name.value;
     const description = elements.description.value;
 
     clearValidation();
 
-    const setError = (field, msg) => {
-      const input = elements.form.querySelector(`#${field}`);
-      const feedback = elements.form.querySelector(`#val-${field}`);
-      if (input) input.classList.add('is-invalid');
-      if (feedback) feedback.textContent = msg;
-      isValid = false;
-    };
-
     if (!Validator.name.isBlank(name)) {
-      setError('name', i18n.valRequired.replace('{0}', 'Name'));
+      await Alert.warning(i18n.valRequired.replace('{0}', 'Name'), i18n.error || 'Error');
+      elements.name?.focus();
+      return null;
     }
 
     const scheduleType = elements.scheduleType.value;
@@ -177,14 +170,9 @@ export const JobModal = (() => {
       isNaN(minute) || minute < 0 || minute > 59 ||
       isNaN(second) || second < 0 || second > 59
     ) {
-      elements.timeHour.classList.add('is-invalid');
-      elements.timeMinute.classList.add('is-invalid');
-      elements.timeSecond.classList.add('is-invalid');
-      const feedback = elements.form.querySelector('#val-time');
-      if (feedback) {
-        feedback.textContent = 'Please enter a valid time (HH: 0-23, MM: 0-59, SS: 0-59)';
-      }
-      isValid = false;
+      await Alert.warning('Please enter a valid time (HH: 0-23, MM: 0-59, SS: 0-59)', i18n.error || 'Error');
+      elements.timeHour?.focus();
+      return null;
     }
 
     let daysOfWeek = [];
@@ -195,7 +183,6 @@ export const JobModal = (() => {
         daysOfWeek.push(cb.value);
       });
       if (daysOfWeek.length === 0) {
-        // Fallback or validation error. Let's fallback to MON to be safe if they forgot.
         daysOfWeek = ['MON'];
       }
     } else if (scheduleType === 'MONTHLY') {
@@ -211,8 +198,6 @@ export const JobModal = (() => {
       dayOfMonth,
     });
 
-    if (!isValid) return null;
-
     return {
       name,
       description,
@@ -222,7 +207,7 @@ export const JobModal = (() => {
 
   const submit = async (e, onRefresh) => {
     e.preventDefault();
-    const data = validateAndGetCron();
+    const data = await validateAndGetCron();
     if (!data) return;
 
     const originalHtml = elements.submitBtn.innerHTML;
@@ -232,7 +217,6 @@ export const JobModal = (() => {
     try {
       const isUpdate = !!elements.id.value;
 
-      // For PUT Automation, we must send ALL fields: name, description, cronExpression, isActive
       const payload = {
         name: data.name,
         description: data.description,
@@ -242,44 +226,27 @@ export const JobModal = (() => {
       if (!isUpdate) {
         payload.isActive = true;
       } else {
-        // If updating, we need to know the current isActive.
-        // Since we are not storing isActive in the form hidden input, we can just assume true
-        // or we should fetch the row from Datatable?
-        // The backend actually might wipe it if we don't send it.
-        // Let's ensure we fetch it or pass it.
-        // For now, if we don't have it, let's keep it true.
-        // Wait! Datatable calls open(data). We didn't save data.isActive.
-        // Let's add a hidden input or just hardcode to true? No, hardcoding changes status!
-        // I'll get it from the toggle btn in datatable or add it to hidden.
-      }
-
-      // Let's pass the raw id to the API
-      const id = elements.id.value;
-
-      // If it's update, let's just make sure we don't break isActive
-      // The Backend UpdateAutomationDto requires `isActive`.
-      // Since I didn't store `isActive` in the form, I'll fetch the element if needed,
-      // or just set it to `true` (it's safe as a fallback, user can turn it off later).
-      // Better: let's fetch the checkbox state from Datatable using DOM.
-      if (isUpdate) {
+        const id = elements.id.value;
         const toggle = document.querySelector(`.btn-toggle-status[data-id="${id}"]`);
         payload.isActive = toggle ? toggle.checked : true;
       }
+
+      const id = elements.id.value;
 
       const [err, res] = isUpdate
         ? await updateAutomation(id, payload)
         : await createAutomation(payload);
 
       if (err) {
-        Swal.fire(i18n.error, err.message || i18n.error, 'error');
+        Toast.error(err.message || i18n.error);
       } else {
-        Swal.fire(i18n.success, isUpdate ? i18n.updatedSuccess : i18n.createdSuccess, 'success');
+        Toast.success(isUpdate ? i18n.updatedSuccess : i18n.createdSuccess);
         bootstrapModal?.hide();
         onRefresh();
       }
     } catch (error) {
       console.error('Submit error:', error);
-      Swal.fire(i18n.error, i18n.error, 'error');
+      Toast.error(i18n.error);
     } finally {
       elements.submitBtn.disabled = false;
       elements.submitBtn.innerHTML = originalHtml;

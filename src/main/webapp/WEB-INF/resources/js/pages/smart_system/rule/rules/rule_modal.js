@@ -1,5 +1,6 @@
 import { createRule, updateRule } from '../../../../api/rule.api.js';
 import { Validator } from '../../../../common/validator.js';
+import { Toast, Alert } from '../../../../common/notification_util.js';
 
 export const RuleModal = (() => {
 	const elements = {
@@ -63,43 +64,44 @@ export const RuleModal = (() => {
 		window.renderIcons?.();
 	};
 
-	const validate = () => {
+	const validate = async () => {
 		const formData = new FormData(elements.form);
 		const data = Object.fromEntries(formData.entries());
-		let isValid = true;
 
 		clearValidation();
 
-		const setError = (field, msg) => {
-			const input = elements.form.querySelector(`#${field}`);
-			const feedback = elements.form.querySelector(`#val-${field}`);
-			if (input) input.classList.add('is-invalid');
-			if (feedback) feedback.textContent = msg;
-			isValid = false;
-		};
-
 		if (!Validator.name.isBlank(data.name)) {
-			setError('name', i18n.valRequired.replace('{0}', 'Name'));
+			await Alert.warning(i18n.valRequired.replace('{0}', 'Name'), i18n.error || 'Error');
+			elements.name?.focus();
+			return null;
 		}
 
 		if (!data.priority || isNaN(data.priority)) {
-			setError('priority', i18n.valPriorityRequired);
+			await Alert.warning(i18n.valPriorityRequired, i18n.error || 'Error');
+			elements.priority?.focus();
+			return null;
 		} else if (parseInt(data.priority, 10) < 0) {
-			setError('priority', i18n.valPriorityMin);
+			await Alert.warning(i18n.valPriorityMin, i18n.error || 'Error');
+			elements.priority?.focus();
+			return null;
 		}
 
 		if (!data.intervalSeconds || isNaN(data.intervalSeconds)) {
-			setError('intervalSeconds', i18n.valIntervalRequired);
+			await Alert.warning(i18n.valIntervalRequired, i18n.error || 'Error');
+			elements.intervalSeconds?.focus();
+			return null;
 		} else if (parseInt(data.intervalSeconds, 10) < 60) {
-			setError('intervalSeconds', i18n.valIntervalMin);
+			await Alert.warning(i18n.valIntervalMin, i18n.error || 'Error');
+			elements.intervalSeconds?.focus();
+			return null;
 		}
 
-		return isValid ? data : null;
+		return data;
 	};
 
 	const submit = async (e, onRefresh) => {
 		e.preventDefault();
-		const data = validate();
+		const data = await validate();
 		if (!data) return;
 
 		const originalHtml = elements.submitBtn.innerHTML;
@@ -123,15 +125,15 @@ export const RuleModal = (() => {
 			const [err, res] = isUpdate ? await updateRule(data.id, payload) : await createRule(payload);
 
 			if (err) {
-				Swal.fire(i18n.error, err.message || i18n.error, 'error');
+				Toast.error(err.message || i18n.error);
 			} else {
-				Swal.fire(i18n.success, isUpdate ? i18n.updatedSuccess : i18n.createdSuccess, 'success');
+				Toast.success(isUpdate ? i18n.updatedSuccess : i18n.createdSuccess);
 				bootstrapModal?.hide();
 				onRefresh();
 			}
 		} catch (error) {
 			console.error('Submit error:', error);
-			Swal.fire(i18n.error, i18n.error, 'error');
+			Toast.error(i18n.error);
 		} finally {
 			elements.submitBtn.disabled = false;
 			elements.submitBtn.innerHTML = originalHtml;

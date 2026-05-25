@@ -1,5 +1,6 @@
 import { Validator } from '../../../common/validator.js';
 import { StateManager } from './state_manager.js';
+import { Alert } from '../../../common/notification_util.js';
 
 export const FunctionModal = (() => {
 	const elements = {
@@ -75,50 +76,50 @@ export const FunctionModal = (() => {
 
 	const close = () => bootstrapModal?.hide();
 
-	const validate = () => {
+	const validate = async () => {
 		const i18n = StateManager.getI18n();
 		const formData = new FormData(elements.form);
 		const data = Object.fromEntries(formData.entries());
-		let isValid = true;
 
 		clearValidation();
 
-		const setError = (field, msg) => {
-			const input = elements.form.querySelector(`#${field}`);
-			const feedback = elements.form.querySelector(`#val-${field}`);
-			if (input) input.classList.add('is-invalid');
-			if (feedback) feedback.textContent = msg;
-			isValid = false;
-		};
-
-		// Validate Name
 		if (!Validator.name.isBlank(data.name)) {
-			setError('name', (i18n.valRequired || '').replace('{0}', i18n.colName || ''));
-		} else if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
-			setError('name', i18n.valNameLen || '');
+			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colName || ''), i18n.error || 'Error');
+			elements.name?.focus();
+			return null;
+		}
+		if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
+			await Alert.warning(i18n.valNameLen || '', i18n.error || 'Error');
+			elements.name?.focus();
+			return null;
 		}
 
-		// Validate Code
 		if (!data.id) {
 			if (!Validator.functionCode.isBlank(data.functionCode)) {
-				setError('functionCode', (i18n.valRequired || '').replace('{0}', i18n.colCode || ''));
-			} else if (!Validator.functionCode.isHigherMax(data.functionCode)) {
-				setError('functionCode', i18n.valCodeLen || '');
-			} else if (!Validator.functionCode.isValidFormat(data.functionCode)) {
-				setError('functionCode', i18n.valFunctionCodeFormat || '');
+				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colCode || ''), i18n.error || 'Error');
+				elements.functionCode?.focus();
+				return null;
+			}
+			if (!Validator.functionCode.isHigherMax(data.functionCode)) {
+				await Alert.warning(i18n.valCodeLen || '', i18n.error || 'Error');
+				elements.functionCode?.focus();
+				return null;
+			}
+			if (!Validator.functionCode.isValidFormat(data.functionCode)) {
+				await Alert.warning(i18n.valFunctionCodeFormat || '', i18n.error || 'Error');
+				elements.functionCode?.focus();
+				return null;
 			}
 			if (data.functionCode) data.functionCode = data.functionCode.toUpperCase();
 		}
 
-		// Validate Description
 		if (data.description && !Validator.description.isHigherMax(data.description)) {
-			setError('description', i18n.valDescriptionLen || '');
+			await Alert.warning(i18n.valDescriptionLen || '', i18n.error || 'Error');
+			elements.description?.focus();
+			return null;
 		}
 
-		if (isValid) {
-			return data;
-		}
-		return null;
+		return data;
 	};
 
 	return {

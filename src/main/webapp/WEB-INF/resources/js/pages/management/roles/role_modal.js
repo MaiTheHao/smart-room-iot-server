@@ -2,6 +2,7 @@ import { Validator } from '../../../common/validator.js';
 import { getFunctionsWithGroupStatus } from '../../../api/function.api.js';
 import { toggleGroupFunctions } from '../../../api/role.api.js';
 import { StateManager } from './state_manager.js';
+import { Toast, Alert } from '../../../common/notification_util.js';
 
 export const MainForm = (() => {
 	const elements = {
@@ -77,50 +78,50 @@ export const MainForm = (() => {
 
 	const close = () => bootstrapModal?.hide();
 
-	const validate = () => {
+	const validate = async () => {
 		const i18n = StateManager.getI18n();
 		const formData = new FormData(elements.form);
 		const data = Object.fromEntries(formData.entries());
-		let isValid = true;
 
 		clearValidation();
 
-		const setError = (field, msg) => {
-			const input = elements.form.querySelector(`#${field}`);
-			const feedback = elements.form.querySelector(`#val-${field}`);
-			if (input) input.classList.add('is-invalid');
-			if (feedback) feedback.textContent = msg;
-			isValid = false;
-		};
-
-		// Validate Name
 		if (!Validator.name.isBlank(data.name)) {
-			setError('name', (i18n.valRequired || '').replace('{0}', i18n.colName || ''));
-		} else if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
-			setError('name', i18n.valNameLen || '');
+			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colName || ''), i18n.error || 'Error');
+			elements.name?.focus();
+			return null;
+		}
+		if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
+			await Alert.warning(i18n.valNameLen || '', i18n.error || 'Error');
+			elements.name?.focus();
+			return null;
 		}
 
-		// Validate Code
 		if (!data.id) {
 			if (!Validator.groupCode.isBlank(data.groupCode)) {
-				setError('groupCode', (i18n.valRequired || '').replace('{0}', i18n.colCode || ''));
-			} else if (!Validator.groupCode.isHigherMax(data.groupCode)) {
-				setError('groupCode', i18n.valCodeLen || '');
-			} else if (!Validator.groupCode.isValidFormat(data.groupCode)) {
-				setError('groupCode', i18n.valGroupCodeFormat || '');
+				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colCode || ''), i18n.error || 'Error');
+				elements.groupCode?.focus();
+				return null;
+			}
+			if (!Validator.groupCode.isHigherMax(data.groupCode)) {
+				await Alert.warning(i18n.valCodeLen || '', i18n.error || 'Error');
+				elements.groupCode?.focus();
+				return null;
+			}
+			if (!Validator.groupCode.isValidFormat(data.groupCode)) {
+				await Alert.warning(i18n.valGroupCodeFormat || '', i18n.error || 'Error');
+				elements.groupCode?.focus();
+				return null;
 			}
 			if (data.groupCode) data.groupCode = data.groupCode.toUpperCase();
 		}
 
-		// Validate Description
 		if (data.description && !Validator.description.isHigherMax(data.description)) {
-			setError('description', i18n.valDescriptionLen || '');
+			await Alert.warning(i18n.valDescriptionLen || '', i18n.error || 'Error');
+			elements.description?.focus();
+			return null;
 		}
 
-		if (isValid) {
-			return data;
-		}
-		return null;
+		return data;
 	};
 
 	return {
@@ -259,7 +260,7 @@ export const MappingModule = (() => {
 		const i18n = StateManager.getI18n();
 		const toggles = getChanges();
 		if (!toggles) {
-			Swal.fire(i18n.info || '', i18n.mappingNoChanges || '', 'info');
+			Toast.info(i18n.mappingNoChanges || 'Không có thay đổi');
 			bootstrapModal?.hide();
 			return;
 		}
@@ -279,11 +280,11 @@ export const MappingModule = (() => {
 			const added = Object.values(toggles).filter((v) => v).length;
 			const removed = Object.values(toggles).filter((v) => !v).length;
 
-			Swal.fire(i18n.success || '', (i18n.mappingSuccess || '').replace('{0}', added).replace('{1}', removed), 'success');
+			Toast.success((i18n.mappingSuccess || '').replace('{0}', added).replace('{1}', removed));
 			bootstrapModal?.hide();
 		} catch (err) {
 			console.error('Save mapping error:', err);
-			Swal.fire(i18n.error || '', i18n.mappingError || '', 'error');
+			Toast.error(i18n.mappingError || 'An error occurred');
 		} finally {
 			elements.saveBtn.disabled = false;
 			elements.saveBtn.innerHTML = originalHtml;

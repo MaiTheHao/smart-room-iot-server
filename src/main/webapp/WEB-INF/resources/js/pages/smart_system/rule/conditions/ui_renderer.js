@@ -68,11 +68,22 @@ const formatValue = (row) => {
 export const UiRenderer = (() => {
   let table = null;
 
-  const init = (onEdit, onDelete) => {
+  const init = (onEdit, onDelete, onSelectionChange) => {
     table = new Tabulator('#conditionsTable', {
       height: 'auto',
       layout: 'fitColumns',
       responsiveLayout: 'collapse',
+      selectableRows: true,
+      rowHeader: {
+        formatter: 'rowSelection',
+        titleFormatter: 'rowSelection',
+        headerSort: false,
+        resizable: false,
+        frozen: true,
+        headerHozAlign: 'center',
+        hozAlign: 'center',
+        width: 40,
+      },
       placeholder: `
         <div class="text-center py-5 text-muted">
           <i data-lucide="inbox" class="mb-2" style="width: 48px; height: 48px"></i>
@@ -168,6 +179,7 @@ export const UiRenderer = (() => {
 
     table.on('renderComplete', () => window.renderIcons?.());
     table.on('tableBuilt', () => window.renderIcons?.());
+    table.on('rowSelectionChanged', (data) => onSelectionChange?.(data.length));
 
     document.addEventListener('click', (e) => {
       const btnEdit = e.target.closest('.btn-cond-edit');
@@ -181,5 +193,5 @@ export const UiRenderer = (() => {
     if (table) table.setData(StateManager.getConditions());
   };
 
-  return { init, render };
+  return { init, render, getSelectedData: () => table?.getSelectedData() || [] };
 })();

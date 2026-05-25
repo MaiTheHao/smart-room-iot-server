@@ -2,6 +2,7 @@ import { Validator } from '../../../common/validator.js';
 import { getGroupsWithClientStatus } from '../../../api/group.api.js';
 import { assignGroupsToClient, unassignGroupsFromClient } from '../../../api/role.api.js';
 import { StateManager } from './state_manager.js';
+import { Toast, Alert } from '../../../common/notification_util.js';
 
 export const MainForm = (() => {
 	const elements = {
@@ -104,59 +105,74 @@ export const MainForm = (() => {
 
 	const close = () => bootstrapModal?.hide();
 
-	const validate = () => {
+	const validate = async () => {
 		const i18n = StateManager.getI18n();
 		const constants = StateManager.getConstants();
 		const formData = new FormData(elements.form);
 		const data = Object.fromEntries(formData.entries());
-		let isValid = true;
 
 		clearValidation();
-
-		const setError = (field, msg) => {
-			const input = elements.form.querySelector(`#${field}`);
-			const feedback = elements.form.querySelector(`#val-${field}`);
-			if (input) input.classList.add('is-invalid');
-			if (feedback) feedback.textContent = msg;
-			isValid = false;
-		};
 
 		const isUpdate = !!data.id;
 
 		if (!isUpdate) {
 			if (!Validator.username.isBlank(data.username)) {
-				setError('username', (i18n.valRequired || '').replace('{0}', i18n.colUsername || ''));
-			} else if (!Validator.username.isLowerMin(data.username) || !Validator.username.isHigherMax(data.username)) {
-				setError('username', i18n.valUsernameLen || '');
+				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colUsername || ''), i18n.error || 'Error');
+				elements.username?.focus();
+				return null;
+			}
+			if (!Validator.username.isLowerMin(data.username) || !Validator.username.isHigherMax(data.username)) {
+				await Alert.warning(i18n.valUsernameLen || '', i18n.error || 'Error');
+				elements.username?.focus();
+				return null;
 			}
 
 			if (!Validator.password.isBlank(data.password)) {
-				setError('password', (i18n.valRequired || '').replace('{0}', 'Password'));
-			} else if (!Validator.password.isLowerMin(data.password) || !Validator.password.isHigherMax(data.password)) {
-				setError('password', i18n.valPasswordLen || '');
+				await Alert.warning((i18n.valRequired || '').replace('{0}', 'Password'), i18n.error || 'Error');
+				elements.password?.focus();
+				return null;
+			}
+			if (!Validator.password.isLowerMin(data.password) || !Validator.password.isHigherMax(data.password)) {
+				await Alert.warning(i18n.valPasswordLen || '', i18n.error || 'Error');
+				elements.password?.focus();
+				return null;
 			}
 		}
 
 		if (!Validator.clientType.isBlank(data.clientType)) {
-			setError('clientType', (i18n.valRequired || '').replace('{0}', i18n.colType || ''));
+			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colType || ''), i18n.error || 'Error');
+			elements.clientType?.focus();
+			return null;
 		}
 
 		if (data.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY) {
 			if (!Validator.ip.isBlank(data.ipAddress)) {
-				setError('ipAddress', (i18n.valRequired || '').replace('{0}', i18n.colIp || ''));
+				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colIp || ''), i18n.error || 'Error');
+				const ipEl = elements.form.querySelector('#ipAddress');
+				ipEl?.focus();
+				return null;
 			}
 		}
 
 		if (data.ipAddress && !Validator.ip.isValidFormat(data.ipAddress)) {
-			setError('ipAddress', i18n.valIpInvalid || '');
+			await Alert.warning(i18n.valIpInvalid || '', i18n.error || 'Error');
+			const ipEl = elements.form.querySelector('#ipAddress');
+			ipEl?.focus();
+			return null;
 		}
 
 		if (data.macAddress && !Validator.mac.isValidFormat(data.macAddress)) {
-			setError('macAddress', i18n.valMacInvalid || '');
+			await Alert.warning(i18n.valMacInvalid || '', i18n.error || 'Error');
+			const macEl = elements.form.querySelector('#macAddress');
+			macEl?.focus();
+			return null;
 		}
 
 		if (data.avatarUrl && !Validator.url.isValidFormat(data.avatarUrl)) {
-			setError('avatarUrl', i18n.valUrlInvalid || '');
+			await Alert.warning(i18n.valUrlInvalid || '', i18n.error || 'Error');
+			const avatarEl = elements.form.querySelector('#avatarUrl');
+			avatarEl?.focus();
+			return null;
 		}
 
 		if (!isUpdate && data.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY) {
@@ -165,10 +181,7 @@ export const MainForm = (() => {
 			}
 		}
 
-		if (isValid) {
-			return Object.fromEntries(Object.entries(data).filter(([_, v]) => Validator.generic.isBlank(v)));
-		}
-		return null;
+		return Object.fromEntries(Object.entries(data).filter(([_, v]) => Validator.generic.isBlank(v)));
 	};
 
 	return {
@@ -239,25 +252,18 @@ export const PasswordForm = (() => {
 
 	const close = () => bootstrapModal?.hide();
 
-	const validate = () => {
+	const validate = async () => {
 		const i18n = StateManager.getI18n();
 		const formData = new FormData(elements.form);
 		const data = Object.fromEntries(formData.entries());
-		let isValid = true;
 
 		clearValidation();
 
-		const setError = (id, msg) => {
-			const input = document.getElementById(id);
-			const feedback = document.getElementById(`val-${id}`);
-			if (input) input.classList.add('is-invalid');
-			if (feedback) feedback.textContent = msg;
-			isValid = false;
-		};
-
-		const validatePwd = (val, id) => {
+		const validatePwd = async (val, id) => {
 			if (val && (!Validator.password.isLowerMin(val) || !Validator.password.isHigherMax(val))) {
-				setError(id, i18n.valPasswordLen || '');
+				await Alert.warning(i18n.valPasswordLen || '', i18n.error || 'Error');
+				const inputEl = document.getElementById(id);
+				inputEl?.focus();
 				return false;
 			}
 			return true;
@@ -267,10 +273,15 @@ export const PasswordForm = (() => {
 		const confirmClientPwd = document.getElementById('confirmPassword')?.value;
 
 		if (clientPwd) {
-			if (validatePwd(clientPwd, 'newPassword')) {
+			if (await validatePwd(clientPwd, 'newPassword')) {
 				if (clientPwd !== confirmClientPwd) {
-					setError('confirmPassword', i18n.pwdMatchError || '');
+					await Alert.warning(i18n.pwdMatchError || '', i18n.error || 'Error');
+					const inputEl = document.getElementById('confirmPassword');
+					inputEl?.focus();
+					return null;
 				}
+			} else {
+				return null;
 			}
 		}
 
@@ -278,23 +289,25 @@ export const PasswordForm = (() => {
 			const gatewayPwd = data.gatewayPassword;
 			const confirmGatewayPwd = document.getElementById('confirmGatewayPassword')?.value;
 			if (gatewayPwd) {
-				if (validatePwd(gatewayPwd, 'newGatewayPassword')) {
+				if (await validatePwd(gatewayPwd, 'newGatewayPassword')) {
 					if (gatewayPwd !== confirmGatewayPwd) {
-						setError('confirmGatewayPassword', i18n.pwdMatchError || '');
+						await Alert.warning(i18n.pwdMatchError || '', i18n.error || 'Error');
+						const inputEl = document.getElementById('confirmGatewayPassword');
+						inputEl?.focus();
+						return null;
 					}
+				} else {
+					return null;
 				}
 			}
 		}
 
 		if (!data.password && !data.gatewayPassword) {
-			isValid = false;
-			Swal.fire(i18n.info || '', i18n.pwdAtLeastOne || '', 'info');
+			Toast.info(i18n.pwdAtLeastOne || 'Cần đổi ít nhất 1 mật khẩu');
+			return null;
 		}
 
-		if (isValid) {
-			return Object.fromEntries(Object.entries(data).filter(([_, v]) => Validator.generic.isBlank(v)));
-		}
-		return null;
+		return Object.fromEntries(Object.entries(data).filter(([_, v]) => Validator.generic.isBlank(v)));
 	};
 
 	return {
@@ -434,7 +447,7 @@ export const MappingModule = (() => {
 		const i18n = StateManager.getI18n();
 		const changes = getChanges();
 		if (!changes) {
-			Swal.fire(i18n.info || '', i18n.mappingNoChanges || '', 'info');
+			Toast.info(i18n.mappingNoChanges || 'Không có thay đổi');
 			bootstrapModal?.hide();
 			return;
 		}
@@ -454,11 +467,11 @@ export const MappingModule = (() => {
 				if (err) throw err;
 			}
 
-			Swal.fire(i18n.success || '', (i18n.mappingSuccess || '').replace('{0}', changes.added.length).replace('{1}', changes.removed.length), 'success');
+			Toast.success((i18n.mappingSuccess || '').replace('{0}', changes.added.length).replace('{1}', changes.removed.length));
 			bootstrapModal?.hide();
 		} catch (err) {
 			console.error('Save groups error:', err);
-			Swal.fire(i18n.error || '', err.message || i18n.mappingError || '', 'error');
+			Toast.error(err.message || i18n.mappingError || 'An error occurred');
 		} finally {
 			elements.saveBtn.disabled = false;
 			elements.saveBtn.innerHTML = originalHtml;

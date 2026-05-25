@@ -3,6 +3,7 @@ import { UiRenderer } from './ui_renderer.js';
 import { getAllFloors } from '../../../../api/floor.api.js';
 import { getAllRoomsByFloor } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
+import { Alert } from '../../../../common/notification_util.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -244,39 +245,37 @@ export const ActionModal = (() => {
         window.renderIcons?.();
     };
 
-    const collectParams = (category) => {
+    const collectParams = async (category) => {
         const config = PARAMETER_CONFIG[category];
         if (!config) return {};
 
         const params = {};
-        let isValid = true;
 
-        Object.entries(config).forEach(([key, schema]) => {
+        for (const [key, schema] of Object.entries(config)) {
             const inputEl = el.dynamicParamsContainer.querySelector(`[name="param_${key}"]`);
-            if (!inputEl) return;
+            if (!inputEl) continue;
 
-            inputEl.classList.remove('is-invalid');
             const val = inputEl.value;
 
             if (val === '' || val === null || val === undefined) {
-
-                return;
+                continue;
             }
 
             if (schema.type === 'int') {
                 const num = parseInt(val, 10);
                 if (isNaN(num) || num < schema.min || num > schema.max) {
-                    inputEl.classList.add('is-invalid');
-                    isValid = false;
+                    await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Must be between ${schema.min} and ${schema.max}`, i18n.error || 'Error');
+                    inputEl.focus();
+                    return null;
                 } else {
                     params[key] = num;
                 }
             } else {
                 params[key] = val;
             }
-        });
+        }
 
-        return isValid ? params : null;
+        return params;
     };
 
     const init = () => {
@@ -358,17 +357,17 @@ export const ActionModal = (() => {
         window.renderIcons?.();
     };
 
-    const submit = (e) => {
+    const submit = async (e) => {
         e.preventDefault();
 
         if (!el.targetDeviceId.value) {
-            el.targetDeviceId.classList.add('is-invalid');
+            await Alert.warning(i18n.selectDevice || 'Please select a device', i18n.error || 'Error');
+            el.targetDeviceId?.focus();
             return;
         }
-        el.targetDeviceId.classList.remove('is-invalid');
 
         const category = el.targetDeviceCategory.value;
-        const actionParams = collectParams(category);
+        const actionParams = await collectParams(category);
 
         if (actionParams === null) return;
 

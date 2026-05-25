@@ -2,6 +2,7 @@ import { getAutomationActions, addAutomationAction, updateAutomationAction, dele
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { ActionModal } from './action_modal.js';
+import { Alert } from '../../../../common/notification_util.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -13,7 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
         async init() {
             UiRenderer.init(
                 (localId) => ActionModal.open(localId),
-                (localId) => this.handleDelete(localId)
+                (localId) => this.handleDelete(localId),
+                (count) => {
+                    const btnDelete = document.getElementById('btnDeleteSelected');
+                    if (btnDelete) btnDelete.disabled = count === 0;
+                }
             );
             ActionModal.init();
             
@@ -36,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btnAddAction')?.addEventListener('click', () => ActionModal.open());
             document.getElementById('actionForm')?.addEventListener('submit', (e) => ActionModal.submit(e));
             document.getElementById('btnSaveAll')?.addEventListener('click', () => this.handleSaveAll());
+            document.getElementById('btnDeleteSelected')?.addEventListener('click', () => this.handleBatchDelete());
         },
 
         async loadData() {
@@ -50,19 +56,37 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         async handleDelete(localId) {
-            const result = await Swal.fire({
+            const result = await Alert.confirm({
                 title: i18n.confirmDelete,
                 text: i18n.confirmDeleteText,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: i18n.yesDelete,
-                cancelButtonText: i18n.cancel,
-                confirmButtonColor: '#d33'
+                confirmText: i18n.yesDelete,
+                cancelText: i18n.cancel
             });
 
             if (result.isConfirmed) {
                 StateManager.deleteAction(localId);
                 UiRenderer.render();
+            }
+        },
+
+        async handleBatchDelete() {
+            const selected = UiRenderer.getSelectedData();
+            if (selected.length === 0) return;
+
+            const result = await Alert.confirm({
+                title: i18n.confirmDelete,
+                text: selected.length > 1 ? i18n.confirmDeleteTextBatch?.replace('{0}', selected.length) || `Delete ${selected.length} actions?` : i18n.confirmDeleteTextSingle?.replace('{0}', '1') || 'Delete action?',
+                confirmText: i18n.yesDelete,
+                cancelText: i18n.cancel
+            });
+
+            if (result.isConfirmed) {
+                for (const row of selected) {
+                    StateManager.deleteAction(row._localId);
+                }
+                UiRenderer.render();
+                const btnDelete = document.getElementById('btnDeleteSelected');
+                if (btnDelete) btnDelete.disabled = true;
             }
         },
 
