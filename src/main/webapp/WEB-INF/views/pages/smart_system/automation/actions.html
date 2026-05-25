@@ -10,7 +10,6 @@
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
     <style>
-
       .btn-back {
         background: none;
         border: 1px solid #dee2e6;
@@ -78,7 +77,6 @@
                 <span th:text="#{smart_system.automation.actions.list}">Actions List</span>
               </h6>
               <div class="card-tools d-flex align-items-center gap-2">
-
                 <button
                   type="button"
                   class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm"
@@ -89,11 +87,11 @@
                 </button>
                 <button
                   type="button"
-                  class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-flex d-none"
+                  class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-none"
                   id="btnSaveAll"
                   disabled
                 >
-                  <i data-lucide="check-circle-2" class="lucide-sm me-2"></i>
+                  <i data-lucide="check-circle-2" class="lucide-sm me-1"></i>
                   <span th:text="#{common.save_changes}">Save Changes</span>
                 </button>
               </div>

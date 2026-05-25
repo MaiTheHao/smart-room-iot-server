@@ -1,26 +1,28 @@
 
-type MetricDomain = 'ENERGY' | 'HEALTH';
+export type MetricDomain = 'ENERGY' | 'HEALTH' | 'STATUS';
 
-type EnergyMetricCategory = 'LIGHT' | 'AIR_CONDITION' | 'FAN' | 'ROOM';
+export type EnergyMetricCategory = 'LIGHT' | 'AIR_CONDITION' | 'FAN' | 'ROOM';
 
-type ClientType = 'USER' | 'HARDWARE_GATEWAY';
+export type ClientType = 'USER' | 'HARDWARE_GATEWAY';
 
-type DeviceCategory = 'LIGHT' | 'FAN' | 'AIR_CONDITION';
+export type DeviceCategory = 'LIGHT' | 'AIR_CONDITION' | 'TEMPERATURE' | 'POWER_CONSUMPTION' | 'FAN';
 
-type ActuatorPower = 'ON' | 'OFF';
+export type ActuatorPower = 'ON' | 'OFF';
 
-type ActuatorMode = 'COOL' | 'HEAT' | 'DRY' | 'FAN' | 'AUTO' | 'NORMAL' | 'SLEEP' | 'NATURAL';
+export type ActuatorMode = 'COOL' | 'HEAT' | 'DRY' | 'FAN' | 'AUTO' | 'NORMAL' | 'SLEEP' | 'NATURAL';
 
-type ActuatorSwing = 'ON' | 'OFF';
+export type ActuatorSwing = 'ON' | 'OFF' | 'AUTO' | 'HORIZONTAL' | 'VERTICAL';
 
-type ActuatorState = 'ON' | 'OFF';
+export type ActuatorState = 'ON' | 'OFF';
 
-type RuleDataSource = 'SYSTEM' | 'ROOM' | 'DEVICE' | 'SENSOR';
+export type RuleDataSource = 'SYSTEM' | 'ROOM' | 'DEVICE' | 'SENSOR';
 
-type ConditionOperator = '=' | '!=' | '>' | '<' | '>=' | '<=';
+export type ConditionOperator = '=' | '!=' | '>' | '<' | '>=' | '<=';
 
-type ConditionLogic = 'AND' | 'OR';
+export type ConditionLogic = 'AND' | 'OR';
 
-type JobTargetType = 'LIGHT' | 'AIR_CONDITION' | 'FAN';
+export type JobTargetType = 'LIGHT' | 'AIR_CONDITION' | 'FAN';
 
-type JobActionType = 'ON' | 'OFF';
+export type JobActionType = 'ON' | 'OFF';
+
+

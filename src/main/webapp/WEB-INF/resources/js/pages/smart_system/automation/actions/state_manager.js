@@ -49,10 +49,18 @@ export const StateManager = (() => {
 
   const getChanges = () => {
     const toAdd = currentActions.filter((a) => !a.id);
-    const toUpdate = currentActions.filter(
-      (a) =>
-        a.id && JSON.stringify(a) !== JSON.stringify(originalActions.find((o) => o.id === a.id)),
-    );
+    const toUpdate = currentActions.filter((a) => {
+      if (!a.id) return false;
+      const original = originalActions.find((o) => o.id === a.id);
+      if (!original) return false;
+      return (
+        a.executionOrder !== original.executionOrder ||
+        a.targetId !== original.targetId ||
+        a.targetType !== original.targetType ||
+        a.actionType !== original.actionType ||
+        a.parameterValue !== original.parameterValue
+      );
+    });
     return { toAdd, toUpdate, toDelete: deletedActionIds };
   };
 

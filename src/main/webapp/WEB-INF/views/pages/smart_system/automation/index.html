@@ -92,6 +92,7 @@
                     <label
                       for="name"
                       class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.name}"
                       >Name</label
                     >
                     <div class="input-group">
@@ -103,6 +104,7 @@
                         class="form-control bg-light border-0"
                         id="name"
                         name="name"
+                        th:placeholder="#{smart_system.automation.placeholder.name}"
                         placeholder="Morning Routine"
                       />
                     </div>
@@ -112,6 +114,7 @@
                   <!-- Cron Structured UI -->
                   <div class="col-12">
                     <label class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.schedule_settings}"
                       >Schedule Settings</label
                     >
 
@@ -120,17 +123,18 @@
                         <div class="row g-3">
                           <div class="col-md-6">
                             <label for="scheduleType" class="form-label small text-muted mb-1"
+                              th:text="#{smart_system.automation.frequency}"
                               >Frequency</label
                             >
                             <select class="form-select border-0 shadow-none" id="scheduleType">
-                              <option value="DAILY">Daily</option>
-                              <option value="WEEKLY">Weekly</option>
-                              <option value="MONTHLY">Monthly</option>
+                              <option value="DAILY" th:text="#{smart_system.automation.daily}">Daily</option>
+                              <option value="WEEKLY" th:text="#{smart_system.automation.weekly}">Weekly</option>
+                              <option value="MONTHLY" th:text="#{smart_system.automation.monthly}">Monthly</option>
                             </select>
                           </div>
 
                           <div class="col-md-6">
-                            <label class="form-label small text-muted mb-1">Time (HH:MM:SS)</label>
+                            <label class="form-label small text-muted mb-1" th:text="#{smart_system.automation.time}">Time (HH:MM:SS)</label>
                             <div class="d-flex align-items-center gap-1 bg-white rounded px-2" style="height: 38px;">
                               <i data-lucide="clock" class="lucide-sm text-muted me-1"></i>
                               <input
@@ -168,7 +172,7 @@
 
                           <!-- Weekly Checkboxes -->
                           <div class="col-12 d-none" id="weeklyGroup">
-                            <label class="form-label small text-muted mb-1">Days of Week</label>
+                            <label class="form-label small text-muted mb-1" th:text="#{smart_system.automation.days_of_week}">Days of Week</label>
                             <div class="d-flex flex-wrap gap-2">
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -177,7 +181,7 @@
                                   id="dowMon"
                                   value="MON"
                                 />
-                                <label class="form-check-label small" for="dowMon">Mon</label>
+                                <label class="form-check-label small" for="dowMon" th:text="#{smart_system.automation.dow.mon}">Mon</label>
                               </div>
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -186,7 +190,7 @@
                                   id="dowTue"
                                   value="TUE"
                                 />
-                                <label class="form-check-label small" for="dowTue">Tue</label>
+                                <label class="form-check-label small" for="dowTue" th:text="#{smart_system.automation.dow.tue}">Tue</label>
                               </div>
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -195,7 +199,7 @@
                                   id="dowWed"
                                   value="WED"
                                 />
-                                <label class="form-check-label small" for="dowWed">Wed</label>
+                                <label class="form-check-label small" for="dowWed" th:text="#{smart_system.automation.dow.wed}">Wed</label>
                               </div>
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -204,7 +208,7 @@
                                   id="dowThu"
                                   value="THU"
                                 />
-                                <label class="form-check-label small" for="dowThu">Thu</label>
+                                <label class="form-check-label small" for="dowThu" th:text="#{smart_system.automation.dow.thu}">Thu</label>
                               </div>
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -213,7 +217,7 @@
                                   id="dowFri"
                                   value="FRI"
                                 />
-                                <label class="form-check-label small" for="dowFri">Fri</label>
+                                <label class="form-check-label small" for="dowFri" th:text="#{smart_system.automation.dow.fri}">Fri</label>
                               </div>
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -222,7 +226,7 @@
                                   id="dowSat"
                                   value="SAT"
                                 />
-                                <label class="form-check-label small" for="dowSat">Sat</label>
+                                <label class="form-check-label small" for="dowSat" th:text="#{smart_system.automation.dow.sat}">Sat</label>
                               </div>
                               <div class="form-check form-check-inline m-0">
                                 <input
@@ -231,7 +235,7 @@
                                   id="dowSun"
                                   value="SUN"
                                 />
-                                <label class="form-check-label small" for="dowSun">Sun</label>
+                                <label class="form-check-label small" for="dowSun" th:text="#{smart_system.automation.dow.sun}">Sun</label>
                               </div>
                             </div>
                           </div>
@@ -239,6 +243,7 @@
                           <!-- Monthly Select -->
                           <div class="col-12 d-none" id="monthlyGroup">
                             <label for="monthlySelect" class="form-label small text-muted mb-1"
+                              th:text="#{smart_system.automation.day_of_month}"
                               >Day of Month</label
                             >
                             <select class="form-select border-0 shadow-none" id="monthlySelect">
@@ -257,6 +262,7 @@
                     <label
                       for="description"
                       class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                      th:text="#{smart_system.automation.description}"
                       >Description</label
                     >
                     <textarea
@@ -264,6 +270,7 @@
                       id="description"
                       name="description"
                       rows="3"
+                      th:placeholder="#{smart_system.automation.placeholder.description}"
                       placeholder="Additional details..."
                     ></textarea>
                     <div class="invalid-feedback" id="val-description"></div>
