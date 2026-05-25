@@ -87,6 +87,15 @@
                 </button>
                 <button
                   type="button"
+                  class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm"
+                  id="btnDeleteSelected"
+                  disabled
+                >
+                  <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                  <span th:text="#{common.delete}">Delete</span>
+                </button>
+                <button
+                  type="button"
                   class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-none"
                   id="btnSaveAll"
                   disabled
@@ -269,7 +278,7 @@
             colAction: /*[[#{smart_system.automation.actions.col.action}]]*/ 'Action',
             colParams: /*[[#{smart_system.automation.actions.col.params}]]*/ 'Params',
             colActions: /*[[#{client.table.actions}]]*/ 'Actions',
-            noData: /*[[#{group.table.no_data}]]*/ 'No data found.',
+            noData: /*[[#{automation.action.table.no_data}]]*/ 'No data found.',
             addTitle: /*[[#{smart_system.automation.actions.add_title}]]*/ 'Add Action',
             editTitle: /*[[#{smart_system.automation.actions.edit_title}]]*/ 'Edit Action',
             createdSuccess: /*[[#{smart_system.automation.success.created}]]*/ 'Success',

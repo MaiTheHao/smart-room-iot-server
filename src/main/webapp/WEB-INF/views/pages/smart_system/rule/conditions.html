@@ -100,6 +100,15 @@
                 </button>
                 <button
                   type="button"
+                  class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm"
+                  id="btnDeleteSelected"
+                  disabled
+                >
+                  <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                  <span th:text="#{common.delete}">Delete</span>
+                </button>
+                <button
+                  type="button"
                   class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-none"
                   id="btnSaveAll"
                   disabled
@@ -302,7 +311,7 @@
             colValue:       /*[[#{smart_system.rule.conditions.col.value}]]*/ 'Value',
             colLogic:       /*[[#{smart_system.rule.conditions.col.logic}]]*/ 'Logic',
             colActions:     /*[[#{client.table.actions}]]*/ 'Actions',
-            noData:         /*[[#{group.table.no_data}]]*/ 'No conditions yet.',
+            noData:         /*[[#{rule.condition.table.no_data}]]*/ 'No conditions yet.',
             // Labels
             labelDevice:    /*[[#{smart_system.rule.conditions.target_device}]]*/ 'Device',
             labelSensor:    /*[[#{smart_system.rule.conditions.target_sensor}]]*/ 'Sensor',
