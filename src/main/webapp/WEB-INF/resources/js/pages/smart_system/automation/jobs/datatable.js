@@ -47,9 +47,13 @@ export const Datatable = (() => {
 					headerFilter: 'input',
 					formatter: (cell) => {
                         const data = cell.getData();
+                        const val = cell.getValue() || '';
+                        const nameTrunc = val.length > 25 ? val.substring(0, 25) + '...' : val;
+                        const desc = data.description || '';
+                        const descTrunc = desc.length > 25 ? desc.substring(0, 25) + '...' : desc;
                         return `<div class="d-flex flex-column justify-content-center h-100 py-1">
-                                    <div class="fw-bold text-dark">${cell.getValue()}</div>
-                                    <div class="small text-muted">${data.description || ''}</div>
+                                    <div class="fw-bold text-dark">${nameTrunc}</div>
+                                    <div class="small text-muted">${descTrunc}</div>
                                 </div>`;
                     },
 				},
