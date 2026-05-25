@@ -30,7 +30,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "RULE-SERVICE")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -58,7 +58,7 @@ public class RuleServiceImpl implements RuleService {
   @Override
   @Transactional
   public RuleDto create(CreateRuleDto dto) {
-    log.info("Creating Rule: {}", dto.name());
+    log.info("Creating rule: name={}", dto.name());
 
     if (ruleDao.existsByName(dto.name())) {
       throw new BadRequestException("Rule name already exists: " + dto.name());
@@ -71,14 +71,14 @@ public class RuleServiceImpl implements RuleService {
 
     scheduleUtil.sync(rule);
 
-    log.info("Created Rule ID: {}", rule.getId());
+    log.info("Rule created successfully: id={}, name={}", rule.getId(), rule.getName());
     return ruleMapper.toDto(rule);
   }
 
   @Override
   @Transactional
   public RuleDto update(Long ruleId, UpdateRuleDto dto) {
-    log.info("Updating Rule ID: {}", ruleId);
+    log.info("Updating rule: id={}", ruleId);
 
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
@@ -102,14 +102,14 @@ public class RuleServiceImpl implements RuleService {
     
     scheduleUtil.sync(rule);
 
-    log.info("Updated Rule ID: {}", ruleId);
+    log.info("Rule updated successfully: id={}, name={}", ruleId, rule.getName());
     return ruleMapper.toDto(rule);
   }
 
   @Override
   @Transactional
   public void delete(Long ruleId) {
-    log.info("Deleting Rule ID: {}", ruleId);
+    log.info("Deleting rule: id={}", ruleId);
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
     
@@ -140,7 +140,7 @@ public class RuleServiceImpl implements RuleService {
   @Override
   @Transactional
   public void toggleIsActive(Long ruleId, boolean isActive) {
-    log.info("Toggle Rule ID: {} to {}", ruleId, isActive);
+    log.info("Toggling rule status: id={}, isActive={}", ruleId, isActive);
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
@@ -191,7 +191,7 @@ public class RuleServiceImpl implements RuleService {
       try {
         scheduleUtil.sync(rule);
       } catch (Exception e) {
-        log.error("Failed to reload Rule ID {}: {}", rule.getId(), e.getMessage());
+        log.error("Failed to reload rule: id={}", rule.getId(), e);
       }
     }
   }

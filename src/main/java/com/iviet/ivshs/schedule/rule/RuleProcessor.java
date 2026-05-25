@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j(topic = "RULE-PROCESSOR")
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RuleProcessor {

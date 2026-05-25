@@ -35,7 +35,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "CORE-CONFIG")
+@Slf4j
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @Import({ SecurityConfig.class, WebConfig.class, QuartzConfig.class })
@@ -56,6 +56,7 @@ import lombok.extern.slf4j.Slf4j;
     @ComponentScan("com.iviet.ivshs.startup"),
     @ComponentScan("com.iviet.ivshs.util"),
     @ComponentScan("com.iviet.ivshs.schedule"),
+    @ComponentScan("com.iviet.ivshs.apm"),
 })
 public class AppConfig implements EnvironmentAware {
 

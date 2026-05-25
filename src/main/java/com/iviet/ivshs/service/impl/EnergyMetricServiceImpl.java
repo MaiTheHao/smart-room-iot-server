@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
-@Slf4j(topic = "ENERGY")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EnergyMetricServiceImpl implements EnergyMetricService {
@@ -53,7 +53,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     public List<EnergyMetricDto> getHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
         // from = TelemetryTimeGroup.limitRange(from, to);
         int divisor = TelemetryTimeGroup.getDivisorForRange(from, to);
-        log.debug("GetHistory: category={}, targetId={}, from={}, to={}, divisor={}", category.name(), targetId, from, to, divisor);
+        log.debug("Fetching energy history: category={}, targetId={}, from={}, to={}, divisor={}", category.name(), targetId, from, to, divisor);
         return energyMetricDao.findHistory(category, targetId, from, to, divisor);
     }
 
@@ -88,7 +88,7 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             return;
         }
 
-        log.info("Fetch: Starting energy telemetry fetch for {} gateways", gateways.size());
+        log.info("Starting energy telemetry fetch: gatewayCount={}", gateways.size());
         long start = System.currentTimeMillis();
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -97,17 +97,17 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
                     try {
                         processGateway(gateway);
                     } catch (Exception e) {
-                        log.error("Error processing energy metrics for gateway [{}]: {}", gateway.username(), e.getMessage(), e);
+                        log.error("Failed to process energy metrics: gateway={}", gateway.username(), e);
                     }
                 }));
             }
         }
 
-        log.info("Fetch: Completed in {}ms", System.currentTimeMillis() - start);
+        log.info("Energy telemetry fetch completed: duration={}ms", System.currentTimeMillis() - start);
     }
 
     private void processGateway(ClientDto gateway) {
-        log.debug("Fetch: Processing gateway [{}] ip={}", gateway.username(), gateway.ipAddress());
+        log.debug("Processing gateway: username={}, ip={}", gateway.username(), gateway.ipAddress());
         String ip = gateway.ipAddress();
         List<EnergyMetric> metricsToSave = new ArrayList<>();
 
@@ -145,9 +145,9 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
         if (!metricsToSave.isEmpty()) {
             energyMetricDao.save(metricsToSave);
-            log.info("Save: Saved {} energy metrics for gateway [{}]", metricsToSave.size(), gateway.username());
+            log.info("Saved energy metrics: count={}, gateway={}", metricsToSave.size(), gateway.username());
         } else {
-            log.warn("Save: No energy metrics collected for gateway [{}]", gateway.username());
+            log.warn("No energy metrics collected: gateway={}", gateway.username());
         }
     }
 
@@ -159,19 +159,19 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     ) {
         try {
             if (response == null) {
-                log.warn("Fetch: Null response for {}/{}", category.name(), naturalId);
+                log.warn("Null telemetry response: category={}, naturalId={}", category.name(), naturalId);
                 return;
             }
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                log.warn("Fetch: Failed response for {}/{} (status={})", 
+                log.warn("Failed telemetry response: category={}, naturalId={}, status={}", 
                     category.name(), naturalId, response.getStatusCode().value());
                 return;
             }
 
             ApiResponse<EnergyMetricDto> apiResponse = response.getBody();
             if (apiResponse == null || apiResponse.getData() == null) {
-                log.warn("Fetch: Empty body/data for {}/{}", category.name(), naturalId);
+                log.warn("Empty telemetry body/data: category={}, naturalId={}", category.name(), naturalId);
                 return;
             }
 
@@ -181,11 +181,11 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             EnergyMetric metric = dto.toEntity(category.name(), targetId);
             metricsToSave.add(metric);
 
-            log.debug("Fetch: Collected metric for {}/{} power={}W", 
+            log.debug("Metric collected: category={}, naturalId={}, power={}W", 
                 category.name(), naturalId, dto.getPower());
         } catch (Exception e) {
-            log.error("Fetch: Error processing metric for {}/{}: {}", 
-                category.name(), naturalId, e.getMessage());
+            log.error("Failed to process telemetry metric: category={}, naturalId={}", 
+                category.name(), naturalId, e);
         }
     }
 
@@ -193,11 +193,11 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     public void resetGateways() {
         List<ClientDto> gateways = clientService.getAllGateways();
         if (gateways == null || gateways.isEmpty()) {
-            log.warn("Reset: No gateways found, skipping reset");
+            log.warn("No gateways found, skipping daily energy reset");
             return;
         }
 
-        log.info("Reset: Starting daily energy reset for {} gateways", gateways.size());
+        log.info("Starting daily energy reset: gatewayCount={}", gateways.size());
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
             for (ClientDto gateway : gateways) {
@@ -205,11 +205,11 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
             }
         }
 
-        log.info("Reset: Completed all device resets across all gateways");
+        log.info("Completed all device resets across all gateways");
     }
 
     private void processResetForGateway(ClientDto gateway) {
-        log.debug("Reset: Processing gateway [{}] ip={}", gateway.username(), gateway.ipAddress());
+        log.debug("Processing gateway energy reset: username={}, ip={}", gateway.username(), gateway.ipAddress());
         String ip = gateway.ipAddress();
 
         // Reset ACs
@@ -236,11 +236,11 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
     private void callResetWithRetry(java.util.function.Supplier<ResponseEntity<ApiResponse<String>>> resetCall, String ip, String naturalId) {
         ResponseEntity<ApiResponse<String>> response = resetCall.get();
         if (response != null && response.getStatusCode().is2xxSuccessful()) {
-            log.info("Reset: Device [{}] on [{}] reset OK", naturalId, ip);
+            log.info("Device energy reset succeeded: naturalId={}, ip={}", naturalId, ip);
             return;
         }
         
-        log.warn("Reset: Device [{}] on [{}] failed (status={}), retrying once...",
+        log.warn("Device energy reset failed, retrying: naturalId={}, ip={}, status={}",
             naturalId, ip, response != null ? response.getStatusCode().value() : "NULL");
 
         try {
@@ -251,9 +251,9 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
 
         ResponseEntity<ApiResponse<String>> retry = resetCall.get();
         if (retry != null && retry.getStatusCode().is2xxSuccessful()) {
-            log.info("Reset: Device [{}] on [{}] reset OK on retry", naturalId, ip);
+            log.info("Device energy reset succeeded on retry: naturalId={}, ip={}", naturalId, ip);
         } else {
-            log.error("Reset: Device [{}] on [{}] FAILED after retry (status={})",
+            log.error("Device energy reset failed after retry: naturalId={}, ip={}, status={}",
                 naturalId, ip, retry != null ? retry.getStatusCode().value() : "NULL");
         }
     }

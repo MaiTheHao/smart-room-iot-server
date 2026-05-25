@@ -15,7 +15,7 @@ import com.iviet.ivshs.service.AirConditionControlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTOMATION_ACTION_AIRCONDITION")
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AirConditionAutomationActionStrategy implements AutomationActionStrategy {

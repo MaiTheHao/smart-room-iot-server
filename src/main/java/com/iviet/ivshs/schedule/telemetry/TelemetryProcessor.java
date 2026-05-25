@@ -8,7 +8,7 @@ import com.iviet.ivshs.service.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "TELEMETRY_PROCESSOR")
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TelemetryProcessor {

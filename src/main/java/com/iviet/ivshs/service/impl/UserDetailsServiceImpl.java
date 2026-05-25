@@ -19,7 +19,7 @@ import com.iviet.ivshs.dao.SysFunctionDao;
 import com.iviet.ivshs.dto.CustomUserDetails;
 import com.iviet.ivshs.entities.Client;
 
-@Slf4j(topic = "AUTH-USER")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {

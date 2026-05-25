@@ -15,7 +15,7 @@ import com.iviet.ivshs.service.FanControlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTOMATION_ACTION_FAN")
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FanAutomationActionStrategy implements AutomationActionStrategy {

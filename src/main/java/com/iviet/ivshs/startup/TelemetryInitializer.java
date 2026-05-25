@@ -21,7 +21,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "INIT-TELEMETRY")
+@Slf4j
 @Component
 @Order(30)
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
   @PostConstruct
   private void init() {
     telemetryScanIntervalSeconds = env.getProperty("app.engine.telemetry.scanIntervalSeconds", Integer.class, 300);
-    log.info("Config       : [Telemetry Engine] scan interval set to {} seconds", telemetryScanIntervalSeconds);
+    log.info("Telemetry engine config: scanIntervalSeconds={}", telemetryScanIntervalSeconds);
   }
 
   @Override
@@ -46,24 +46,19 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
     }
 
     try {
-      log.info("Module       : [Telemetry Engine] -> [RUNNING]");
+      log.info("Starting Telemetry Engine initialization");
       
       long startTime = System.currentTimeMillis();
       scheduleGlobalTelemetryJob();
       long duration = System.currentTimeMillis() - startTime;
 
-      log.info("Module       : [Telemetry Engine] -> [OK]");
-      log.info("  - Duration   : {} ms", duration);
+      log.info("Telemetry Engine initialized successfully: duration={}ms", duration);
 
       isInitialized = true;
 
     } catch (Exception e) {
-      log.error("Module       : [Telemetry Engine] -> [FAILED]");
-      log.error("  - Reason     : {}", e.getMessage());
-      log.error("------------------------------------------------------------");
-      log.error("Stack trace:", e);
-      log.warn("WARNING      : Server proceeding without telemetry engine");
-      log.warn("ACTION       : Check logs and restart server if needed");
+      log.error("Telemetry Engine initialization failed", e);
+      log.warn("Server proceeding without Telemetry Engine. Please check database/Quartz scheduler status.");
     }
   }
 
@@ -88,6 +83,6 @@ public class TelemetryInitializer implements ApplicationListener<ContextRefreshe
         .build();
 
     scheduler.scheduleJob(jobDetail, trigger);
-    log.info("  - Job        : [Telemetry Engine] scheduled every {}s", telemetryScanIntervalSeconds);
+    log.info("Telemetry engine job scheduled: interval={}s", telemetryScanIntervalSeconds);
   }
 }

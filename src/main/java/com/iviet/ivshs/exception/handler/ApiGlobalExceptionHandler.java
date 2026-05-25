@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-@Slf4j(topic = "ERROR-API")
+@Slf4j
 @Order(2)
 @RestControllerAdvice(basePackages = "com.iviet.ivshs.controller.api")
 public class ApiGlobalExceptionHandler {
@@ -76,7 +76,8 @@ public class ApiGlobalExceptionHandler {
     @ExceptionHandler(UnrecognizedPropertyException.class)
     public ResponseEntity<ApiResponse<Void>> handleUnrecognizedProperty(UnrecognizedPropertyException ex) {
         String msg = String.format("Property '%s' is unrecognized. Please check your request payload.", ex.getPropertyName());
-        log.error("Jackson UnrecognizedPropertyException: ", ex);
+        log.warn("Unrecognized property: property={}", ex.getPropertyName());
+        log.debug("Jackson UnrecognizedPropertyException details", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST, msg));
     }
@@ -84,7 +85,7 @@ public class ApiGlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         String msg = String.format("HTTP method '%s' is not supported for this request.", ex.getMethod());
-        log.warn("HTTP method not supported: {}", ex.getMessage());
+        log.warn("HTTP method not supported: method={}", ex.getMethod());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(ApiResponse.error(HttpStatus.METHOD_NOT_ALLOWED, msg));
     }
@@ -94,7 +95,7 @@ public class ApiGlobalExceptionHandler {
         String msg = "Malformed JSON request or invalid data format.";
         Throwable cause = ex.getCause();
 
-        log.debug("HttpMessageNotReadableException StackTrace: ", ex);
+        log.debug("HttpMessageNotReadableException details", ex);
 
         if (cause instanceof JsonMappingException jme) {
             StringBuilder pathBuilder = new StringBuilder();
@@ -147,7 +148,7 @@ public class ApiGlobalExceptionHandler {
             msg = cause.getMessage().split("\n")[0]; 
         }
 
-        log.warn("Bad Request (HttpMessageNotReadable): {}", msg);
+        log.warn("Bad Request (HttpMessageNotReadable): msg={}", msg);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(HttpStatus.BAD_REQUEST, msg));
@@ -171,7 +172,8 @@ public class ApiGlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponse<Object>> handleAuthenticationException(AuthenticationException ex) {
-        log.error("Authentication failure: ", ex);
+        log.warn("Authentication failed: message={}", ex.getMessage());
+        log.debug("Authentication failure details", ex);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "Authentication failed: " + ex.getMessage()));
     }
@@ -225,14 +227,15 @@ public class ApiGlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        log.error("Data integrity violation: ", ex);
+        log.warn("Data integrity violation: message={}", ex.getMostSpecificCause().getMessage());
+        log.debug("Data integrity details", ex);
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.error(HttpStatus.CONFLICT, "Resource conflict: a record with the same unique identifier already exists."));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAll(Exception ex) {
-        log.error("Unexpected error occurred: ", ex);
+        log.error("Unexpected system error occurred", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error."));
     }

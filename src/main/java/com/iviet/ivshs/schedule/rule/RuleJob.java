@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.iviet.ivshs.service.RuleService;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "RULE-JOB")
+@Slf4j
 @Component
 public class RuleJob implements Job {
 

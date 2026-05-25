@@ -22,7 +22,7 @@ import org.springframework.http.ResponseEntity;
 import com.iviet.ivshs.dto.ApiResponse;
 import java.util.function.Supplier;
 
-@Slf4j(topic = "CONTROL-LIGHT")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

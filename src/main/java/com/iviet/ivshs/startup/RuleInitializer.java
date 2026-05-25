@@ -11,7 +11,7 @@ import com.iviet.ivshs.service.RuleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "INIT-RULE")
+@Slf4j
 @Component
 @Order(21)
 @RequiredArgsConstructor
@@ -27,24 +27,19 @@ public class RuleInitializer implements ApplicationListener<ContextRefreshedEven
         }
 
         try {
-            log.info("Module       : [Quartz Rule] -> [RUNNING]");
+            log.info("Starting Rule Engine initialization");
             
             long startTime = System.currentTimeMillis();
             ruleService.reloadAllRules();
             long duration = System.currentTimeMillis() - startTime;
 
-            log.info("Module       : [Quartz Rule] -> [OK]");
-            log.info("  - Duration   : {} ms", duration);
+            log.info("Rule Engine initialized successfully: duration={}ms", duration);
 
             isInitialized = true;
 
         } catch (Exception e) {
-            log.error("Module       : [Quartz Rule] -> [FAILED]");
-            log.error("  - Reason     : {}", e.getMessage());
-            log.error("------------------------------------------------------------");
-            log.error("Stack trace:", e);
-            log.warn("WARNING      : Server proceeding without rule engine");
-            log.warn("ACTION       : Check logs and restart server if needed");
+            log.error("Rule Engine initialization failed", e);
+            log.warn("Server proceeding without Rule Engine. Please check database/Quartz scheduler status.");
         }
     }
 }

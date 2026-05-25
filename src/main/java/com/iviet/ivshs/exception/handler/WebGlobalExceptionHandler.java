@@ -20,7 +20,7 @@ import com.iviet.ivshs.util.LocalContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
-@Slf4j(topic = "ERROR-WEB")
+@Slf4j
 @ControllerAdvice()
 @Order(Ordered.LOWEST_PRECEDENCE)
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class WebGlobalExceptionHandler {
         if (isApiRequest(request)) {
             return null;
         }
-        log.warn("Web 404 - Not Found: {}", request.getRequestURI());
+        log.warn("Web resource not found: uri={}", request.getRequestURI());
         
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
         
@@ -52,7 +52,7 @@ public class WebGlobalExceptionHandler {
         if (isApiRequest(request)) {
             return null;
         }
-        log.warn("Web 403 - Access Denied: {}", request.getRequestURI());
+        log.warn("Web access denied: uri={}", request.getRequestURI());
         
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
         
@@ -66,7 +66,7 @@ public class WebGlobalExceptionHandler {
         if (isApiRequest(request)) {
             return null;
         }
-        log.warn("Web 401 - Unauthorized: {}", request.getRequestURI());
+        log.warn("Web unauthorized access: uri={}", request.getRequestURI());
         
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
         
@@ -80,7 +80,7 @@ public class WebGlobalExceptionHandler {
         if (isApiRequest(request)) {
             return null;
         }
-        log.error("Web 500 - System Error at {}: ", request.getRequestURI(), ex);
+        log.error("Web system error occurred: uri={}", request.getRequestURI(), ex);
         
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
         

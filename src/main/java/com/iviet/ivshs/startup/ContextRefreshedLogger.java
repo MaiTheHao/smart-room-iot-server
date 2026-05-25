@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "Startup")
+@Slf4j
 @Component
 @Order(999)
 public class ContextRefreshedLogger implements ApplicationListener<ContextRefreshedEvent> {

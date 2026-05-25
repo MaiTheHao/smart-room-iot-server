@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-@Slf4j(topic = "HEALTH")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HealthCheckServiceImpl implements HealthCheckService {

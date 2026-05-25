@@ -23,10 +23,10 @@ public class QuartzUtil {
     public Date scheduleJob(JobDetail jobDetail, Trigger trigger) {
         try {
             Date date = scheduler.scheduleJob(jobDetail, trigger);
-            log.info("Successfully scheduled job '{}' with trigger '{}'. Next run: {}", jobDetail.getKey(), trigger.getKey(), formatUtc(date));
+            log.info("Scheduled job: jobKey={}, triggerKey={}, nextRun={}", jobDetail.getKey(), trigger.getKey(), formatUtc(date));
             return date;
         } catch (SchedulerException e) {
-            log.error("Failed to schedule job '{}' with trigger '{}'", jobDetail.getKey(), trigger.getKey(), e);
+            log.error("Failed to schedule job: jobKey={}, triggerKey={}", jobDetail.getKey(), trigger.getKey(), e);
             throw new InternalServerErrorException("Failed to schedule job: " + jobDetail.getKey());
         }
     }
@@ -37,10 +37,10 @@ public class QuartzUtil {
     public Date rescheduleJob(TriggerKey triggerKey, Trigger newTrigger) {
         try {
             Date date = scheduler.rescheduleJob(triggerKey, newTrigger);
-            log.info("Successfully rescheduled trigger '{}'. Next run: {}", triggerKey, formatUtc(date));
+            log.info("Rescheduled job trigger: triggerKey={}, nextRun={}", triggerKey, formatUtc(date));
             return date;
         } catch (SchedulerException e) {
-            log.error("Failed to reschedule trigger '{}'", triggerKey, e);
+            log.error("Failed to reschedule job trigger: triggerKey={}", triggerKey, e);
             throw new InternalServerErrorException("Failed to reschedule job");
         }
     }
@@ -52,12 +52,12 @@ public class QuartzUtil {
         try {
             if (scheduler.checkExists(jobKey)) {
                 scheduler.deleteJob(jobKey);
-                log.info("Successfully deleted job '{}'", jobKey);
+                log.info("Deleted job: jobKey={}", jobKey);
             } else {
-                log.warn("Attempted to delete job '{}' but it does not exist", jobKey);
+                log.warn("Job to delete does not exist: jobKey={}", jobKey);
             }
         } catch (SchedulerException e) {
-            log.error("Failed to delete job '{}'", jobKey, e);
+            log.error("Failed to delete job: jobKey={}", jobKey, e);
             throw new InternalServerErrorException("Failed to delete job");
         }
     }
@@ -72,12 +72,12 @@ public class QuartzUtil {
 
             if (jobKeys != null && !jobKeys.isEmpty()) {
                 scheduler.deleteJobs(new java.util.ArrayList<>(jobKeys));
-                log.info("Successfully deleted {} jobs in group '{}'", jobKeys.size(), groupName);
+                log.info("Deleted jobs in group: count={}, group={}", jobKeys.size(), groupName);
             } else {
-                log.info("No jobs found to delete in group '{}'", groupName);
+                log.info("No jobs found to delete in group: group={}", groupName);
             }
         } catch (SchedulerException e) {
-            log.error("Failed to delete jobs in group '{}'", groupName, e);
+            log.error("Failed to delete jobs in group: group={}", groupName, e);
         }
     }
 
@@ -87,9 +87,9 @@ public class QuartzUtil {
     public void pauseJob(JobKey jobKey) {
         try {
             scheduler.pauseJob(jobKey);
-            log.info("Successfully paused job '{}'", jobKey);
+            log.info("Paused job: jobKey={}", jobKey);
         } catch (SchedulerException e) {
-            log.error("Failed to pause job '{}'", jobKey, e);
+            log.error("Failed to pause job: jobKey={}", jobKey, e);
             throw new InternalServerErrorException("Failed to pause job");
         }
     }
@@ -100,9 +100,9 @@ public class QuartzUtil {
     public void resumeJob(JobKey jobKey) {
         try {
             scheduler.resumeJob(jobKey);
-            log.info("Successfully resumed job '{}'", jobKey);
+            log.info("Resumed job: jobKey={}", jobKey);
         } catch (SchedulerException e) {
-            log.error("Failed to resume job '{}'", jobKey, e);
+            log.error("Failed to resume job: jobKey={}", jobKey, e);
             throw new InternalServerErrorException("Failed to resume job");
         }
     }
@@ -113,9 +113,9 @@ public class QuartzUtil {
     public void triggerJob(JobKey jobKey, JobDataMap dataMap) {
         try {
             scheduler.triggerJob(jobKey, dataMap);
-            log.info("Successfully triggered job '{}' manually", jobKey);
+            log.info("Manually triggered job: jobKey={}", jobKey);
         } catch (SchedulerException e) {
-            log.error("Failed to trigger job '{}' manually", jobKey, e);
+            log.error("Failed to trigger job manually: jobKey={}", jobKey, e);
             throw new InternalServerErrorException("Failed to trigger job manually");
         }
     }
@@ -124,7 +124,7 @@ public class QuartzUtil {
         try {
             return scheduler.checkExists(jobKey);
         } catch (SchedulerException e) {
-            log.error("Failed to check existence of job '{}'", jobKey, e);
+            log.error("Failed to check existence of job: jobKey={}", jobKey, e);
             return false;
         }
     }
@@ -133,7 +133,7 @@ public class QuartzUtil {
         try {
             return scheduler.checkExists(triggerKey);
         } catch (SchedulerException e) {
-            log.error("Failed to check existence of trigger '{}'", triggerKey, e);
+            log.error("Failed to check existence of trigger: triggerKey={}", triggerKey, e);
             return false;
         }
     }

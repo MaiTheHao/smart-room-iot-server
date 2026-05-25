@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
-@Slf4j(topic = "TELEMETRY")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TelemetryServiceImpl implements TelemetryService {

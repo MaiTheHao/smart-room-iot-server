@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@Slf4j(topic = "ERROR-INTG")
+@Slf4j
 @Order(3)
 @RestControllerAdvice(annotations = RestController.class)
 public class IntegrationExceptionHandler {
 
     @ExceptionHandler({HttpConnectTimeoutException.class, NetworkTimeoutException.class})
     public ResponseEntity<ApiResponse<Void>> handleNetworkTimeout(Exception ex) {
-        log.error("Network timeout: {}", ex.getMessage());
+        log.error("Network timeout", ex);
         String message = ex instanceof NetworkTimeoutException ? ex.getMessage() : "Network timeout while connecting to external device or service.";
         return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT)
                 .body(ApiResponse.error(HttpStatus.GATEWAY_TIMEOUT, message));
@@ -30,14 +30,14 @@ public class IntegrationExceptionHandler {
 
     @ExceptionHandler(ExternalServiceException.class)
     public ResponseEntity<ApiResponse<Void>> handleExternalCall(RuntimeException ex) {
-        log.error("External service error: {}", ex.getMessage());
+        log.error("External service error", ex);
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(ApiResponse.error(HttpStatus.BAD_GATEWAY, ex.getMessage()));
     }
 
     @ExceptionHandler(RemoteResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleRemoteNotFound(RemoteResourceNotFoundException ex) {
-        log.error("Remote resource not found: {}", ex.getMessage());
+        log.error("Remote resource not found", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(HttpStatus.NOT_FOUND, "Requested resource does not exist on the partner system."));
     }

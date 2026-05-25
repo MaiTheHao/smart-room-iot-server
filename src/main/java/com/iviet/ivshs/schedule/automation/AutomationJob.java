@@ -10,7 +10,7 @@ import com.iviet.ivshs.service.AutomationService;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTOMATION-JOB")
+@Slf4j
 @Component
 public class AutomationJob implements Job {
     

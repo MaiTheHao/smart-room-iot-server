@@ -30,7 +30,7 @@ import com.iviet.ivshs.util.ScheduleUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTO")
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -47,7 +47,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	@Transactional
 	public AutomationDto create(CreateAutomationDto dto) {
-		log.info("Creating automation: {}", dto.getName());
+		log.info("Creating automation: name={}", dto.getName());
 
 		if (automationDao.existsByName(dto.getName())) {
 			throw new BadRequestException("Automation name already exists: " + dto.getName());
@@ -62,14 +62,14 @@ public class AutomationServiceImpl implements AutomationService {
 
 		scheduleUtil.sync(automation);
 
-		log.info("Created automation ID: {}", automation.getId());
+		log.info("Automation created successfully: id={}, name={}", automation.getId(), automation.getName());
 		return AutomationDto.from(automation);
 	}
 
 	@Override
 	@Transactional
 	public AutomationDto update(Long automationId, UpdateAutomationDto dto) {
-		log.info("Updating automation ID: {}", automationId);
+		log.info("Updating automation: id={}", automationId);
 
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
@@ -92,14 +92,14 @@ public class AutomationServiceImpl implements AutomationService {
 		automationDao.update(automation);
 		scheduleUtil.sync(automation);
 
-		log.info("Updated automation ID: {}", automationId);
+		log.info("Automation updated successfully: id={}, name={}", automationId, automation.getName());
 		return AutomationDto.from(automation);
 	}
 
 	@Override
 	@Transactional
 	public void delete(Long automationId) {
-		log.info("Deleting automation ID: {}", automationId);
+		log.info("Deleting automation: id={}", automationId);
 		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 		scheduleUtil.delete(automation);
 		automationDao.deleteById(automationId);
@@ -146,7 +146,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	@Transactional
 	public AutomationActionDto addAction(Long automationId, CreateAutomationActionDto dto) {
-		log.info("Adding action to automation ID: {}", automationId);
+		log.info("Adding action to automation: id={}", automationId);
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 
@@ -169,7 +169,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	@Transactional
 	public AutomationActionDto updateAction(Long actionId, UpdateAutomationActionDto dto) {
-		log.info("Updating action ID: {}", actionId);
+		log.info("Updating action: id={}", actionId);
 		AutomationAction action = automationActionDao.findById(actionId)
 				.orElseThrow(() -> new NotFoundException("Action not found: " + actionId));
 
@@ -192,7 +192,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	@Transactional
 	public void removeAction(Long actionId) {
-		log.info("Removing action ID: {}", actionId);
+		log.info("Removing action: id={}", actionId);
 		if (!automationActionDao.existsById(actionId)) {
 			throw new NotFoundException("Action not found: " + actionId);
 		}
@@ -202,7 +202,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Override
 	@Transactional
 	public void toggleIsActive(Long automationId, boolean isActive) {
-		log.info("Toggle automation ID: {} to {}", automationId, isActive);
+		log.info("Toggling automation status: id={}, isActive={}", automationId, isActive);
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 
@@ -256,7 +256,7 @@ public class AutomationServiceImpl implements AutomationService {
 			try {
 				scheduleUtil.sync(automation);
 			} catch (Exception e) {
-				log.error("Failed to reload automation ID {}: {}", automation.getId(), e.getMessage());
+				log.error("Failed to reload automation: id={}", automation.getId(), e);
 			}
 		}
 	}

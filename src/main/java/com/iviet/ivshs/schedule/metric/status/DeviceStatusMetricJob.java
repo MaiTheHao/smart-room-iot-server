@@ -7,7 +7,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 
-@Slf4j(topic = "STATUS-JOB")
+@Slf4j
 @Component
 @DisallowConcurrentExecution
 public class DeviceStatusMetricJob implements Job {

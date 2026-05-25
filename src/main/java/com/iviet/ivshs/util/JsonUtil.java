@@ -31,7 +31,7 @@ public class JsonUtil {
         try {
             return mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize object to JSON: {}", e.getMessage(), e);
+            log.error("Failed to serialize object to JSON: class={}", obj.getClass().getSimpleName(), e);
             throw new IllegalArgumentException("JSON serialization error", e);
         }
     }
@@ -41,7 +41,7 @@ public class JsonUtil {
         try {
             return mapper.readValue(json, clazz);
         } catch (Exception e) {
-            log.error("Failed to deserialize JSON to {}: {}", clazz.getSimpleName(), e.getMessage(), e);
+            log.error("Failed to deserialize JSON to target class: class={}", clazz.getSimpleName(), e);
             throw new IllegalArgumentException("JSON deserialization error", e);
         }
     }
@@ -51,7 +51,7 @@ public class JsonUtil {
         try {
             return mapper.readValue(json, typeReference);
         } catch (Exception e) {
-            log.error("Failed to deserialize JSON using TypeReference: {}", e.getMessage(), e);
+            log.error("Failed to deserialize JSON using TypeReference", e);
             throw new IllegalArgumentException("JSON deserialization error", e);
         }
     }
@@ -65,7 +65,7 @@ public class JsonUtil {
         try {
             return mapper.readTree(json);
         } catch (Exception e) {
-            log.error("Failed to parse JSON string: {}", e.getMessage(), e);
+            log.error("Failed to parse JSON string", e);
             throw new IllegalArgumentException("Invalid JSON: " + e.getMessage(), e);
         }
     }
@@ -87,7 +87,7 @@ public class JsonUtil {
         try {
             return mapper.writeValueAsString(node);
         } catch (JsonProcessingException e) {
-            log.error("Failed to stringify JsonNode: {}", e.getMessage(), e);
+            log.error("Failed to stringify JsonNode", e);
             throw new IllegalArgumentException("JSON serialization error", e);
         }
     }
@@ -99,7 +99,7 @@ public class JsonUtil {
         try {
             return Optional.of(parse(json));
         } catch (Exception e) {
-            log.warn("Failed to safely parse JSON: {}", e.getMessage());
+            log.warn("Failed to safely parse JSON: message={}", e.getMessage());
             return Optional.empty();
         }
     }

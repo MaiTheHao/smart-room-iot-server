@@ -5,7 +5,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.springframework.stereotype.Component;
-import com.iviet.ivshs.component.TraceLogger;
+import com.iviet.ivshs.apm.TraceLogger;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
@@ -36,7 +36,7 @@ public class TraceJobListener implements JobListener {
 
         context.put("startTime", startTime);
 
-        log.info(">>> [JOB] START | ID: {} | Job: {}", traceId, jobName);
+        log.info("Job execution started: name={}, traceId={}", jobName, traceId);
     }
 
     @Override
@@ -57,8 +57,11 @@ public class TraceJobListener implements JobListener {
         long duration = startTime != null ? Duration.between(startTime, endedAt).toMillis() : 0;
         int status = (jobException == null) ? 200 : 500;
 
-        log.info("<<< [JOB] END | ID: {} | Status: {} | Duration: {}ms | Job: {}",
-                traceId, status, duration, jobName);
+        if (jobException != null) {
+            log.error("Job execution failed: name={}, traceId={}, duration={}ms", jobName, traceId, duration, jobException);
+        } else {
+            log.info("Job execution completed: name={}, traceId={}, duration={}ms", jobName, traceId, duration);
+        }
 
         traceLogger.logTrace(TraceLogger.TraceData.builder()
                 .traceId(traceId)

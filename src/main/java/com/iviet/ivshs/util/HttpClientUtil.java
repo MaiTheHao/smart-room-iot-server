@@ -852,13 +852,13 @@ public class HttpClientUtil {
 			log.info("Executing HTTP {} on thread: name={}, isVirtual={}", method, Thread.currentThread().getName(), Thread.currentThread().isVirtual());
 			return mapResponse(response, responseType, typeReference);
 		} catch (java.net.http.HttpTimeoutException e) {
-			log.error("HTTP {} request to {} timed out: {}", method, request.getUrl(), e.getMessage());
+			log.error("HTTP {} request timed out: url={}", method, request.getUrl(), e);
 			throw new NetworkTimeoutException("Connection timed out: " + e.getMessage());
 		} catch (java.net.ConnectException e) {
-			log.error("HTTP {} request to {} failed to connect: {}", method, request.getUrl(), e.getMessage());
+			log.error("HTTP {} request failed to connect: url={}", method, request.getUrl(), e);
 			throw new ExternalServiceException("Failed to connect to device: " + e.getMessage());
 		} catch (Exception e) {
-			log.error("HTTP {} request to {} failed: {}", method, request.getUrl(), e.getMessage(), e);
+			log.error("HTTP {} request failed: url={}", method, request.getUrl(), e);
 			throw new ExternalServiceException("Unexpected error during HTTP request: " + e.getMessage());
 		}
 	}
@@ -880,7 +880,7 @@ public class HttpClientUtil {
 			.thenApply(response -> mapResponse(response, responseType, typeReference))
 			.exceptionally(ex -> {
 				Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
-				log.error("Async HTTP {} request to {} failed: {}", method, request.getUrl(), cause.getMessage(), cause);
+				log.error("Async HTTP {} request failed: url={}", method, request.getUrl(), cause);
 
 				if (cause instanceof java.net.http.HttpConnectTimeoutException || cause instanceof java.net.http.HttpTimeoutException) {
 					throw new NetworkTimeoutException("Connection timed out: " + cause.getMessage());

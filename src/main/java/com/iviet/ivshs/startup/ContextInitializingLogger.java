@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "Startup")
+@Slf4j
 @Component
 @Order(1)
 public class ContextInitializingLogger implements ApplicationListener<ContextRefreshedEvent> {

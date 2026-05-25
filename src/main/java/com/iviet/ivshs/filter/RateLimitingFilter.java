@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
-@Slf4j(topic = "RATE-LIMIT")
+@Slf4j
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     @Value("${app.rate-limit.enabled:true}")

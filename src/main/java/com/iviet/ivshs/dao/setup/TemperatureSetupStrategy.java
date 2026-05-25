@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j(topic = "SETUP-TEMP")
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TemperatureSetupStrategy extends AbstractDeviceSetupStrategy {

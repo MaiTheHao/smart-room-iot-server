@@ -9,7 +9,7 @@ import com.iviet.ivshs.service.AutomationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "INIT-AUTO")
+@Slf4j
 @Component
 @Order(20)
 @RequiredArgsConstructor
@@ -25,24 +25,19 @@ public class AutomationInitializer implements ApplicationListener<ContextRefresh
 		}
 
 		try {
-			log.info("Module       : [Quartz Automation] -> [RUNNING]");
+			log.info("Starting Automation Engine initialization");
 			
 			long startTime = System.currentTimeMillis();
 			automationService.reloadAllAutomations();
 			long duration = System.currentTimeMillis() - startTime;
 
-			log.info("Module       : [Quartz Automation] -> [OK]");
-			log.info("  - Duration   : {} ms", duration);
+			log.info("Automation Engine initialized successfully: duration={}ms", duration);
 
 			isInitialized = true;
 
 		} catch (Exception e) {
-			log.error("Module       : [Quartz Automation] -> [FAILED]");
-			log.error("  - Reason     : {}", e.getMessage());
-			log.error("------------------------------------------------------------");
-			log.error("Stack trace:", e);
-			log.warn("WARNING      : Server proceeding without automation");
-			log.warn("ACTION       : Check logs and restart server if needed");
+			log.error("Automation Engine initialization failed", e);
+			log.warn("Server proceeding without Automation Engine. Please check database/Quartz scheduler status.");
 		}
 	}
 }

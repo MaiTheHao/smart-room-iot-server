@@ -15,7 +15,7 @@ import com.iviet.ivshs.service.LightControlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTOMATION_ACTION_LIGHT")
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LightAutomationActionStrategy implements AutomationActionStrategy {

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.iviet.ivshs.component.TraceLogger;
+import com.iviet.ivshs.apm.TraceLogger;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -73,28 +73,28 @@ public class RequestLoggingAspect {
     HttpServletRequest request = attributes.getRequest();
     String controllerMethod = joinPoint.getSignature().toShortString();
 
-    log.info(">>> [{}] START | ID: {} | Method: {} | URI: {} | Remote: {}",
+    log.info("Request started: type={}, id={}, method={}, uri={}, remote={}",
         logType, traceId, request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
 
-    log.debug("[{}] REQUEST DETAIL | Headers: {} | Params: {}",
+    log.debug("Request details: type={}, headers={}, params={}",
         logType, getHeadersInfo(request), request.getParameterMap());
 
     Object result = null;
     try {
       result = joinPoint.proceed();
     } catch (Throwable throwable) {
-      log.error("[{}] FAILED | ID: {} | Error: {}", logType, traceId, throwable.getMessage());
+      log.error("Request failed: type={}, id={}", logType, traceId, throwable);
       throw throwable;
     } finally {
       Instant endedAt = Instant.now();
       long duration = Duration.between(start, endedAt).toMillis();
       Integer status = getResponseStatus(attributes);
 
-      log.info("<<< [{}] END | ID: {} | Status: {} | Duration: {}ms | Target: {}",
+      log.info("Request completed: type={}, id={}, status={}, duration={}ms, target={}",
           logType, traceId, status, duration, controllerMethod);
 
       if (log.isDebugEnabled()) {
-        log.debug("[{}] RESPONSE DETAIL | Result: {}", logType, truncateResult(result));
+        log.debug("Response details: type={}, result={}", logType, truncateResult(result));
       }
 
       traceLogger.logTrace(TraceLogger.TraceData.builder()

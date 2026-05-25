@@ -16,7 +16,7 @@ import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j(topic = "AUTOMATION_PROCESSOR")
+@Slf4j
 @Component
 public class AutomationProcessor {
 

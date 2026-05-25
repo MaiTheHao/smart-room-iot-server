@@ -9,7 +9,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Slf4j(topic = "ENERGY-JOB")
+@Slf4j
 @Component
 @DisallowConcurrentExecution
 public class EnergyMetricTelemetryJob implements Job {
