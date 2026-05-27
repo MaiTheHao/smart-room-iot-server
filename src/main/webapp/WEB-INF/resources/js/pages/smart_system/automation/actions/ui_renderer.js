@@ -38,9 +38,10 @@ export const UiRenderer = (() => {
         },
         {
           title: i18n.colTargetDevice,
-          field: 'targetId',
+          field: 'targetName',
           formatter: (cell) => {
-            const val = cell.getValue() || '';
+            const data = cell.getRow().getData();
+            const val = data.targetName || `Device #${data.targetId}`;
             const truncated = val.length > 25 ? val.substring(0, 25) + '...' : val;
             return `<div class="d-flex align-items-center h-100 fw-bold">${truncated}</div>`;
           },

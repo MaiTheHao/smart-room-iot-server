@@ -340,7 +340,7 @@ export const ActionModal = (() => {
                 el.targetDeviceId.innerHTML = '';
                 const opt = document.createElement('option');
                 opt.value = data.targetDeviceId;
-                opt.textContent = data.targetDeviceName
+                opt.textContent = data.targetName || data.targetDeviceName
                     || `Device #${data.targetDeviceId} (${i18n.keptAsIs})`;
                 opt.selected = true;
                 el.targetDeviceId.appendChild(opt);
@@ -379,6 +379,7 @@ export const ActionModal = (() => {
             targetDeviceId:      parseInt(el.targetDeviceId.value, 10),
             targetDeviceCategory: category,
             actionParams:        actionParams,
+            targetName:          targetDeviceName,
             targetDeviceName:    targetDeviceName,
         };
 

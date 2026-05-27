@@ -40,11 +40,11 @@ export const UiRenderer = (() => {
                 },
                 {
                     title: i18n.colTargetDevice,
-                    field: 'targetDeviceId',
+                    field: 'targetName',
                     formatter: (cell) => {
                         const val = cell.getValue();
                         const rowData = cell.getData();
-                        const targetName = rowData.targetDeviceName || `Device #${val}`;
+                        const targetName = rowData.targetName || rowData.targetDeviceName || `Device #${rowData.targetDeviceId}`;
                         return `<div class="d-flex align-items-center h-100 fw-bold">${targetName}</div>`;
                     }
                 },

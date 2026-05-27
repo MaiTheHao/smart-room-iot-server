@@ -6,13 +6,25 @@ import com.iviet.ivshs.dto.UpdateRuleActionDto;
 import com.iviet.ivshs.entities.RuleAction;
 import com.iviet.ivshs.mapper.RuleActionMapper;
 
+import com.iviet.ivshs.dao.AirConditionDao;
+import com.iviet.ivshs.dao.FanDao;
+import com.iviet.ivshs.dao.LightDao;
+import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.util.LocalContextUtil;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class RuleActionMapperImpl implements RuleActionMapper {
+
+    private final LightDao lightDao;
+    private final AirConditionDao airConditionDao;
+    private final FanDao fanDao;
 
     @Override
     public RuleAction toEntity(RuleActionDto dto) {
@@ -77,7 +89,33 @@ public class RuleActionMapperImpl implements RuleActionMapper {
                 .targetDeviceId(entity.getTargetDeviceId())
                 .targetDeviceCategory(entity.getTargetDeviceCategory())
                 .actionParams(entity.getActionParams())
+                .targetName(getTargetName(entity.getTargetDeviceCategory(), entity.getTargetDeviceId()))
                 .build();
+    }
+
+    private String getTargetName(DeviceCategory category, Long targetId) {
+        if (category == null || targetId == null) {
+            return "Unknown Device";
+        }
+        try {
+            String langCode = LocalContextUtil.getCurrentLangCode();
+            if (category == DeviceCategory.LIGHT) {
+                return lightDao.findById(targetId, langCode)
+                        .map(light -> light.name())
+                        .orElse("Unknown Light");
+            } else if (category == DeviceCategory.AIR_CONDITION) {
+                return airConditionDao.findById(targetId, langCode)
+                        .map(ac -> ac.name())
+                        .orElse("Unknown Air Conditioner");
+            } else if (category == DeviceCategory.FAN) {
+                return fanDao.findById(targetId, langCode)
+                        .map(fan -> fan.name())
+                        .orElse("Unknown Fan");
+            }
+            return "Unknown Device";
+        } catch (Exception e) {
+            return "Unknown Device";
+        }
     }
 
     @Override

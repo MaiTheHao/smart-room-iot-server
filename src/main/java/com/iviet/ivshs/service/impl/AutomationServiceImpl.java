@@ -25,6 +25,7 @@ import com.iviet.ivshs.exception.domain.NotFoundException;
 import com.iviet.ivshs.schedule.automation.AutomationProcessor;
 import com.iviet.ivshs.service.AutomationService;
 import com.iviet.ivshs.util.CronExpressionUtil;
+import com.iviet.ivshs.util.LocalContextUtil;
 import com.iviet.ivshs.util.ScheduleUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -279,17 +280,18 @@ public class AutomationServiceImpl implements AutomationService {
 
 	private String getTargetName(JobTargetType targetType, Long targetId) {
 		try {
+			String langCode = LocalContextUtil.getCurrentLangCode();
 			if (targetType == JobTargetType.LIGHT) {
-				return lightDao.findById(targetId)
-						.map(light -> light.getNaturalId())
+				return lightDao.findById(targetId, langCode)
+						.map(light -> light.name())
 						.orElse("Unknown Light");
 			} else if (targetType == JobTargetType.AIR_CONDITION) {
-				return airConditionDao.findById(targetId)
-						.map(ac -> ac.getNaturalId())
+				return airConditionDao.findById(targetId, langCode)
+						.map(ac -> ac.name())
 						.orElse("Unknown Air Conditioner");
 			} else if (targetType == JobTargetType.FAN) {
-				return fanDao.findById(targetId)
-						.map(fan -> fan.getNaturalId())
+				return fanDao.findById(targetId, langCode)
+						.map(fan -> fan.name())
 						.orElse("Unknown Fan");
 			}
 			

@@ -10,5 +10,6 @@ public record RuleActionDto(
         Long targetDeviceId,
         DeviceCategory targetDeviceCategory,
         JsonNode actionParams,
-        Integer executionOrder
+        Integer executionOrder,
+        String targetName
 ) {}
