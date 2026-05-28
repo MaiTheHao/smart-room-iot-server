@@ -38,9 +38,11 @@ public interface PermissionService {
     void requireManageGroup();
 
     boolean canManageAutomation();
+
     void requireManageAutomation();
 
     boolean canManageRole();
+
     void requireManageRole();
 
     boolean canAccessFloor(String floorCode);
@@ -48,12 +50,15 @@ public interface PermissionService {
     void requireAccessFloor(String floorCode);
 
     boolean canAccessRoom(String roomCode);
+
     void requireAccessRoom(String roomCode);
 
     boolean canAccessFloor(Long id);
+
     void requireAccessFloor(Long id);
 
     boolean canAccessRoom(Long id);
+
     void requireAccessRoom(Long id);
 
     Set<String> getAccessibleFloorCodes();

@@ -20,87 +20,99 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class PermissionServiceImpl implements PermissionService {
 
-	private final FloorDao floorDao;
-	private final RoomDao roomDao;
+    private final FloorDao floorDao;
+    private final RoomDao roomDao;
 
-	@Override
-	public boolean canManageFloor() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+    @Override
+    public boolean canManageFloor() {
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_FLOOR.getCode());
     }
 
-	@Override
+    @Override
     public void requireManageFloor() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageFloor()) {
+        boolean allowed = canManageFloor();
+        logDecision("MANAGE_FLOOR", null, allowed, allowed ? "Granted" : "Insufficient permissions to manage floors");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage floors");
         }
-        log.debug("User {} granted permission to manage floors", SecurityContextUtil.getCurrentUsername());
     }
 
-	@Override
+    @Override
     public boolean canManageRoom() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasAllPermissions(List.of(
                         SysFunctionEnum.F_MANAGE_FLOOR.getCode(),
-                        SysFunctionEnum.F_MANAGE_ROOM.getCode()
-                ));
+                        SysFunctionEnum.F_MANAGE_ROOM.getCode()));
     }
 
-	@Override
+    @Override
     public void requireManageRoom() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageRoom()) {
+        boolean allowed = canManageRoom();
+        logDecision("MANAGE_ROOM", null, allowed, allowed ? "Granted" : "Insufficient permissions to manage rooms");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage rooms");
         }
-        log.debug("User {} granted permission to manage rooms", SecurityContextUtil.getCurrentUsername());
     }
 
-	@Override
+    @Override
     public boolean canManageDevice() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_DEVICE.getCode());
     }
 
-	@Override
+    @Override
     public void requireManageDevice() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageDevice()) {
+        boolean allowed = canManageDevice();
+        logDecision("MANAGE_DEVICE", null, allowed, allowed ? "Granted" : "Insufficient permissions to manage devices");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage devices");
         }
-        log.debug("User {} granted permission to manage devices", SecurityContextUtil.getCurrentUsername());
     }
 
-	@Override
+    @Override
     public boolean canManageClient() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_CLIENT.getCode());
     }
 
-	@Override
+    @Override
     public void requireManageClient() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageClient()) {
+        boolean allowed = canManageClient();
+        logDecision("MANAGE_CLIENT", null, allowed, allowed ? "Granted" : "Insufficient permissions to manage clients");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage clients");
         }
-        log.debug("User {} granted permission to manage clients", SecurityContextUtil.getCurrentUsername());
     }
 
     @Override
     public boolean canManageSome() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_SOME.getCode());
@@ -108,17 +120,21 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void requireManageSome() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageSome()) {
+        boolean allowed = canManageSome();
+        logDecision("MANAGE_SOME", null, allowed,
+                allowed ? "Granted" : "Insufficient permissions to manage some resources");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage some resources");
         }
-        log.debug("User {} granted permission to manage some resources", SecurityContextUtil.getCurrentUsername());
     }
 
     @Override
     public boolean canManageFunction() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_FUNCTION.getCode());
@@ -126,17 +142,21 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void requireManageFunction() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageFunction()) {
+        boolean allowed = canManageFunction();
+        logDecision("MANAGE_FUNCTION", null, allowed,
+                allowed ? "Granted" : "Insufficient permissions to manage functions");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage functions");
         }
-        log.debug("User {} granted permission to manage functions", SecurityContextUtil.getCurrentUsername());
     }
 
     @Override
     public boolean canManageGroup() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_GROUP.getCode());
@@ -144,17 +164,20 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void requireManageGroup() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageGroup()) {
+        boolean allowed = canManageGroup();
+        logDecision("MANAGE_GROUP", null, allowed, allowed ? "Granted" : "Insufficient permissions to manage groups");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage groups");
         }
-        log.debug("User {} granted permission to manage groups", SecurityContextUtil.getCurrentUsername());
     }
 
     @Override
     public boolean canManageAutomation() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_AUTOMATION.getCode());
@@ -162,17 +185,21 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void requireManageAutomation() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageAutomation()) {
+        boolean allowed = canManageAutomation();
+        logDecision("MANAGE_AUTOMATION", null, allowed,
+                allowed ? "Granted" : "Insufficient permissions to manage automation");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage automation");
         }
-        log.debug("User {} granted permission to manage automation", SecurityContextUtil.getCurrentUsername());
     }
 
     @Override
     public boolean canManageRole() {
-        if (!RequestContextUtil.isHttpRequest()) return true;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasPermission(SysFunctionEnum.F_MANAGE_ROLE.getCode());
@@ -180,37 +207,46 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void requireManageRole() {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canManageRole()) {
+        boolean allowed = canManageRole();
+        logDecision("MANAGE_ROLE", null, allowed, allowed ? "Granted" : "Insufficient permissions to manage roles");
+        if (!allowed) {
             throw new ForbiddenException("Insufficient permissions to manage roles");
         }
-        log.debug("User {} granted permission to manage roles", SecurityContextUtil.getCurrentUsername());
     }
 
-	@Override
+    @Override
     public boolean canAccessFloor(String floorCode) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (floorCode == null || floorCode.isBlank()) return false;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (floorCode == null || floorCode.isBlank())
+            return false;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasFloorAccess(floorCode);
     }
 
-	@Override
+    @Override
     public void requireAccessFloor(String floorCode) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canAccessFloor(floorCode)) {
+        boolean allowed = canAccessFloor(floorCode);
+        logDecision("ACCESS_FLOOR", floorCode, allowed,
+                allowed ? "Granted" : "Access to floor '" + floorCode + "' is denied");
+        if (!allowed) {
             throw new ForbiddenException("Access to floor '" + floorCode + "' is denied");
         }
-        log.debug("User {} granted access to floor '{}'", SecurityContextUtil.getCurrentUsername(), floorCode);
     }
 
-	@Override
+    @Override
     public boolean canAccessRoom(String roomCode) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (roomCode == null || roomCode.isBlank()) return false;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (roomCode == null || roomCode.isBlank())
+            return false;
 
         return SecurityContextUtil.hasPermission(MANAGE_ALL_PERMISSION) ||
                 SecurityContextUtil.hasRoomAccess(roomCode);
@@ -218,148 +254,198 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void requireAccessRoom(String roomCode) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canAccessRoom(roomCode)) {
+        boolean allowed = canAccessRoom(roomCode);
+        logDecision("ACCESS_ROOM", roomCode, allowed,
+                allowed ? "Granted" : "Access to room '" + roomCode + "' is denied");
+        if (!allowed) {
             throw new ForbiddenException("Access to room '" + roomCode + "' is denied");
         }
-        log.debug("User {} granted access to room '{}'", SecurityContextUtil.getCurrentUsername(), roomCode);
     }
 
     @Override
     public boolean canAccessFloor(Long id) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (hasPermission(MANAGE_ALL_PERMISSION)) return true;
-        if (id == null) return false;
-        
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (hasPermission(MANAGE_ALL_PERMISSION))
+            return true;
+        if (id == null)
+            return false;
+
         return floorDao.findById(id).map(f -> canAccessFloor(f.getCode())).orElse(false);
     }
 
     @Override
     public void requireAccessFloor(Long id) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canAccessFloor(id)) {
+        boolean allowed = canAccessFloor(id);
+        logDecision("ACCESS_FLOOR_BY_ID", id, allowed,
+                allowed ? "Granted" : "Access to floor with ID " + id + " is denied");
+        if (!allowed) {
             throw new ForbiddenException("Access to floor with ID " + id + " is denied");
         }
     }
 
     @Override
     public boolean canAccessRoom(Long id) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (hasPermission(MANAGE_ALL_PERMISSION)) return true;
-        if (id == null) return false;
-        
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (hasPermission(MANAGE_ALL_PERMISSION))
+            return true;
+        if (id == null)
+            return false;
+
         return roomDao.findById(id).map(r -> canAccessRoom(r.getCode())).orElse(false);
     }
 
     @Override
     public void requireAccessRoom(Long id) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!canAccessRoom(id)) {
+        boolean allowed = canAccessRoom(id);
+        logDecision("ACCESS_ROOM_BY_ID", id, allowed,
+                allowed ? "Granted" : "Access to room with ID " + id + " is denied");
+        if (!allowed) {
             throw new ForbiddenException("Access to room with ID " + id + " is denied");
         }
     }
 
-	@Override
+    @Override
     public Set<String> getAccessibleFloorCodes() {
-        if (!RequestContextUtil.isHttpRequest()) return Set.of(ACCESS_ALL);
+        if (!RequestContextUtil.isHttpRequest())
+            return Set.of(ACCESS_ALL);
 
         return SecurityContextUtil.getAccessibleFloorCodes();
     }
 
-	@Override
+    @Override
     public Set<String> getAccessibleRoomCodes() {
-        if (!RequestContextUtil.isHttpRequest()) return Set.of(ACCESS_ALL);
+        if (!RequestContextUtil.isHttpRequest())
+            return Set.of(ACCESS_ALL);
 
         return SecurityContextUtil.getAccessibleRoomCodes();
     }
 
-	@Override
+    @Override
     public boolean hasAccessToAllFloors(Set<String> floorCodes) {
-        if (floorCodes == null || floorCodes.isEmpty() || !RequestContextUtil.isHttpRequest()) return true;
+        if (floorCodes == null || floorCodes.isEmpty() || !RequestContextUtil.isHttpRequest())
+            return true;
 
         Set<String> accessible = getAccessibleFloorCodes();
         return accessible.contains(ACCESS_ALL) || accessible.containsAll(floorCodes);
     }
 
-	@Override
+    @Override
     public boolean hasAccessToAllRooms(Set<String> roomCodes) {
-        if (roomCodes == null || roomCodes.isEmpty() || !RequestContextUtil.isHttpRequest()) return true;
+        if (roomCodes == null || roomCodes.isEmpty() || !RequestContextUtil.isHttpRequest())
+            return true;
 
         Set<String> accessible = getAccessibleRoomCodes();
         return accessible.contains(ACCESS_ALL) || accessible.containsAll(roomCodes);
     }
 
-	@Override
+    @Override
     public boolean hasPermission(String functionCode) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (functionCode == null || functionCode.isBlank()) return false;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (functionCode == null || functionCode.isBlank())
+            return false;
 
         return SecurityContextUtil.hasPermission(functionCode);
     }
 
-	@Override
+    @Override
     public boolean hasAllPermissions(List<String> functionCodes) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (functionCodes == null || functionCodes.isEmpty()) return false;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (functionCodes == null || functionCodes.isEmpty())
+            return false;
 
         return SecurityContextUtil.hasAllPermissions(functionCodes);
     }
 
-	@Override
+    @Override
     public boolean hasAnyPermission(List<String> functionCodes) {
-        if (!RequestContextUtil.isHttpRequest()) return true;
-        if (functionCodes == null || functionCodes.isEmpty()) return false;
+        if (!RequestContextUtil.isHttpRequest())
+            return true;
+        if (functionCodes == null || functionCodes.isEmpty())
+            return false;
 
         return SecurityContextUtil.hasAnyPermission(functionCodes);
     }
 
-	@Override
+    @Override
     public void requirePermission(String functionCode, String message) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!hasPermission(functionCode)) {
-            throw new ForbiddenException(message != null ? message : "Permission denied");
+        boolean allowed = hasPermission(functionCode);
+        String reason = allowed ? "Granted" : (message != null ? message : "Permission denied");
+        logDecision("REQUIRE_PERMISSION", functionCode, allowed, reason);
+        if (!allowed) {
+            throw new ForbiddenException(reason);
         }
-        log.debug("User {} granted permission '{}'", SecurityContextUtil.getCurrentUsername(), functionCode);
     }
 
-	@Override
+    @Override
     public void requireAllPermissions(List<String> functionCodes, String message) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!hasAllPermissions(functionCodes)) {
-            throw new ForbiddenException(message != null ? message : "Insufficient permissions");
+        boolean allowed = hasAllPermissions(functionCodes);
+        String reason = allowed ? "Granted" : (message != null ? message : "Insufficient permissions");
+        logDecision("REQUIRE_ALL_PERMISSIONS", functionCodes, allowed, reason);
+        if (!allowed) {
+            throw new ForbiddenException(reason);
         }
-        log.debug("User {} granted all permissions", SecurityContextUtil.getCurrentUsername());
     }
 
-	@Override
+    @Override
     public void requireAnyPermission(List<String> functionCodes, String message) {
-        if (!RequestContextUtil.isHttpRequest()) return;
+        if (!RequestContextUtil.isHttpRequest())
+            return;
 
-        if (!hasAnyPermission(functionCodes)) {
-            throw new ForbiddenException(message != null ? message : "Insufficient permissions");
+        boolean allowed = hasAnyPermission(functionCodes);
+        String reason = allowed ? "Granted" : (message != null ? message : "Insufficient permissions");
+        logDecision("REQUIRE_ANY_PERMISSION", functionCodes, allowed, reason);
+        if (!allowed) {
+            throw new ForbiddenException(reason);
         }
-        log.debug("User {} granted one of required permissions", SecurityContextUtil.getCurrentUsername());
     }
 
-	@Override
+    @Override
     public Long getCurrentUserId() {
         return SecurityContextUtil.getCurrentClientId();
     }
 
-	@Override
+    @Override
     public String getCurrentUsername() {
         return SecurityContextUtil.getCurrentUsername();
     }
 
-	@Override
+    @Override
     public Set<String> getCurrentPermissions() {
-        if (!RequestContextUtil.isHttpRequest()) return Set.of();
+        if (!RequestContextUtil.isHttpRequest())
+            return Set.of();
 
         return SecurityContextUtil.getCurrentFunctions();
+    }
+
+    private void logDecision(String action, Object target, boolean result, String reason) {
+        if (!log.isDebugEnabled())
+            return;
+
+        log.debug(
+                "user='{}' action='{}' target='{}' result={} reason='{}'",
+                SecurityContextUtil.getCurrentUsername(),
+                action,
+                target,
+                result,
+                reason);
     }
 }

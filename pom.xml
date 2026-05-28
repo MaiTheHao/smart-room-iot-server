@@ -225,6 +225,7 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 					<encoding>UTF-8</encoding>
+					<parameters>true</parameters>
 					<annotationProcessorPaths>
 						<!-- Lưu ý: Lombok phải đặt trước MapStruct -->
 						<path>

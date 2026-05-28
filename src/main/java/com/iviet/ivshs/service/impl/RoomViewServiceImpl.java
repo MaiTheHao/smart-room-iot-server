@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.EnergyMetricDao;
-import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.RoomDetailViewModel;
 import com.iviet.ivshs.enumeration.EnergyMetricCategory;
@@ -14,7 +13,6 @@ import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.HealthCheckService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.RoomViewService;
-import com.iviet.ivshs.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,29 +33,30 @@ public class RoomViewServiceImpl implements RoomViewService {
     }
 
     Instant endedAt = Instant.now();
-    Instant startedAt = endedAt.minusSeconds(5 * 60); // Last 5 minutes
-    String langCode = LocalContextUtil.getCurrentLangCode();
+    Instant startedAt = endedAt.minusSeconds(5 * 60);
     var room = roomService.getById(req.getRoomId());
 
     Double lastestAvgTemperature = null;
     try {
-      lastestAvgTemperature = temperatureValueDao.getAverageHistoryByRoom(req.getRoomId(), startedAt, endedAt, TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt)).getLast().avgTempC();
+      lastestAvgTemperature = temperatureValueDao.getAverageHistoryByRoom(req.getRoomId(), startedAt, endedAt,
+          TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt)).getLast().avgTempC();
     } catch (Exception e) {
     }
 
     Double latestSumWatt = null;
     try {
-      latestSumWatt = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, req.getRoomId(), startedAt, endedAt, TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt)).getLast().getPower();
+      latestSumWatt = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, req.getRoomId(), startedAt, endedAt,
+          TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt)).getLast().getPower();
     } catch (Exception e) {
-    } 
-    
+    }
+
     int healthScore = healthCheckService.getHealthScoreByRoom(req.getRoomId());
-    
+
     return RoomDetailViewModel.builder()
-      .room(room)
-      .lastestAvgTemperature(lastestAvgTemperature)
-      .lastestSumWatt(latestSumWatt)
-      .healthScore(healthScore)
-      .build();
+        .room(room)
+        .lastestAvgTemperature(lastestAvgTemperature)
+        .lastestSumWatt(latestSumWatt)
+        .healthScore(healthScore)
+        .build();
   }
 }

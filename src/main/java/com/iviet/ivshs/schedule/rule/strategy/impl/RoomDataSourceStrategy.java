@@ -31,13 +31,14 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
   private static final String PROP_AVG_TEMPERATURE = "avg_temperature";
   private static final String PROP_SUM_WATT = "sum_watt";
-  private static final int DEFAULT_LOOKBACK_MINUTES = 24 * 60; 
-  
+  private static final int DEFAULT_LOOKBACK_MINUTES = 24 * 60; // 24 hours
+
   private int lookbackMinutes;
 
   @PostConstruct
   public void init() {
-    lookbackMinutes = env.getProperty("app.engine.rule.telemetryLookbackMinutes", Integer.class, DEFAULT_LOOKBACK_MINUTES);
+    lookbackMinutes = env.getProperty("app.engine.rule.telemetryLookbackMinutes", Integer.class,
+        DEFAULT_LOOKBACK_MINUTES);
   }
 
   @Override
@@ -72,14 +73,18 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
       return switch (property.toLowerCase()) {
         case PROP_AVG_TEMPERATURE -> {
           int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
-          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, startTime, now, divisor);
-          log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
+          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, startTime, now,
+              divisor);
+          log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(),
+              roomId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
         }
         case PROP_SUM_WATT -> {
           int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
-          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime, now, divisor);
-          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
+          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime,
+              now, divisor);
+          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(),
+              roomId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
         }
         default -> {

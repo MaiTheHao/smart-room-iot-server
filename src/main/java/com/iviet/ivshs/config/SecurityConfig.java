@@ -63,7 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         String allowedOrigins = env.getProperty("app.cors.allowedOrigins", "*");
         configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
 
@@ -76,7 +76,7 @@ public class SecurityConfig {
         configuration.setExposedHeaders(List.of("Authorization", "X-Trace-Id", "X-Scenario-Id"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
@@ -86,27 +86,25 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher(new AntPathRequestMatcher("/api/**"))
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(AbstractHttpConfigurer::disable)
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/api/v1/auth/logout")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .deleteCookies("JSESSIONID")
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.getWriter().flush();
-                })
-            )
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .securityMatcher(new AntPathRequestMatcher("/api/**"))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/**")).authenticated())
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/auth/logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.getWriter().flush();
+                        }))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -115,46 +113,41 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(AbstractHttpConfigurer::disable)
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    new AntPathRequestMatcher("/css/**"),
-                    new AntPathRequestMatcher("/js/**"),
-                    new AntPathRequestMatcher("/fonts/**"),
-                    new AntPathRequestMatcher("/imgs/**"),
-                    new AntPathRequestMatcher("/static/**"),
-                    new AntPathRequestMatcher("/resources/**"),
-                    new AntPathRequestMatcher("/login"),
-                    new AntPathRequestMatcher("/error"),
-                    new AntPathRequestMatcher("/error/**")
-                ).permitAll()
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(exception -> exception
-                .accessDeniedPage("/error/403")
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/loginAction")
-                .defaultSuccessUrl("/", true)
-                .failureUrl("/login?error=true")
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .deleteCookies("JSESSIONID", "remember-me")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .logoutSuccessUrl("/login?logout=true")
-                .permitAll()
-            )
-            .rememberMe(remember -> remember
-                .tokenRepository(persistentTokenRepository())
-                .tokenValiditySeconds(1 * 24 * 60 * 60)
-                .userDetailsService(userDetailsService)
-            )
-            .authenticationProvider(authenticationProvider());
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/css/**"),
+                                new AntPathRequestMatcher("/js/**"),
+                                new AntPathRequestMatcher("/fonts/**"),
+                                new AntPathRequestMatcher("/imgs/**"),
+                                new AntPathRequestMatcher("/static/**"),
+                                new AntPathRequestMatcher("/resources/**"),
+                                new AntPathRequestMatcher("/login"),
+                                new AntPathRequestMatcher("/error"),
+                                new AntPathRequestMatcher("/error/**"))
+                        .permitAll()
+                        .anyRequest().authenticated())
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/error/403"))
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/loginAction")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .deleteCookies("JSESSIONID", "remember-me")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .logoutSuccessUrl("/login?logout=true")
+                        .permitAll())
+                .rememberMe(remember -> remember
+                        .tokenRepository(persistentTokenRepository())
+                        .tokenValiditySeconds(1 * 24 * 60 * 60)
+                        .userDetailsService(userDetailsService))
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }
@@ -166,4 +159,3 @@ public class SecurityConfig {
         return tokenRepository;
     }
 }
-
