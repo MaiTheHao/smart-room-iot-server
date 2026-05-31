@@ -22,7 +22,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
   @Override
   public Optional<LightDto> findByNaturalId(String naturalId, String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.naturalId = :naturalId
@@ -38,7 +38,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 
   public Optional<LightDto> findById(Long id, String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.id = :id
@@ -54,7 +54,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 
   public List<LightDto> findAll(int page, int size, String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		ORDER BY l.id ASC
@@ -69,7 +69,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 
   public List<LightDto> findAll(String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		ORDER BY l.id ASC
@@ -82,7 +82,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 
   public List<LightDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.room.id = :roomId
@@ -99,7 +99,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
 
   public List<LightDto> findAllByRoomId(Long roomId, String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.room.id = :roomId
@@ -115,7 +115,7 @@ public class LightDao extends BaseIoTActuatorDao<Light> {
   @Override
   public Optional<LightDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
 	String jpql = """
-		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.level, l.room.id, l.hardwareConfig.id)
+		SELECT new %s(l.id, l.naturalId, ll.name, ll.description, l.isActive, l.power, l.specificType, l.level, l.room.id, l.hardwareConfig.id)
 		FROM Light l
 		LEFT JOIN l.translations ll ON ll.langCode = :langCode
 		WHERE l.room.id = :roomId AND l.naturalId = :naturalId

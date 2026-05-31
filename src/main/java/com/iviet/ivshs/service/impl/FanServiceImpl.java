@@ -12,7 +12,6 @@ import com.iviet.ivshs.dto.UpdateFanIrDto;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
-import com.iviet.ivshs.enumeration.FanType;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.exception.domain.InternalServerErrorException;
 import com.iviet.ivshs.exception.domain.NotFoundException;
@@ -116,8 +115,8 @@ public class FanServiceImpl implements FanService {
     }
 
     if (dto.type() != null) {
-      FanType existingType = (fan instanceof FanIr) ? FanType.IR : FanType.GPIO;
-      if (dto.type() != existingType) {
+      String existingType = fan.getSpecificType();
+      if (existingType != null && !dto.type().name().equalsIgnoreCase(existingType)) {
         throw new BadRequestException("Cannot change Fan type after creation. Please delete and create a new device.");
       }
     }

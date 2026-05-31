@@ -13,7 +13,9 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseIoTDevice<L extends BaseTranslation<? extends BaseTranslatableEntity<L>>> extends BaseIoTEntity<L> {
+public abstract class BaseIoTDevice<L extends BaseTranslation<? extends BaseTranslatableEntity<L>>>
+		extends BaseIoTEntity<L> {
+
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	@Column(name = "power", length = 256)
 	private ActuatorPower power;

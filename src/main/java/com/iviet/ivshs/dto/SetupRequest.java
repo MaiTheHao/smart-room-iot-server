@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.enumeration.DeviceControlType;
-import com.iviet.ivshs.enumeration.FanType;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

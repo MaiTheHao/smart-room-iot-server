@@ -12,13 +12,17 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTranslatableEntity<T>>> extends BaseTranslatableEntity<T> {
+public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTranslatableEntity<T>>>
+        extends BaseTranslatableEntity<T> {
 
     @Column(name = "natural_id", length = 256, unique = true, nullable = false)
     private String naturalId;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
+
+    @Column(name = "specific_type", length = 256, insertable = false, updatable = false)
+    private String specificType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)

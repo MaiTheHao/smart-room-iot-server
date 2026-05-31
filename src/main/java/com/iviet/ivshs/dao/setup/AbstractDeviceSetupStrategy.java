@@ -15,13 +15,13 @@ public abstract class AbstractDeviceSetupStrategy implements DeviceSetupStrategy
     protected EntityManager entityManager;
 
     protected void setupBaseIoTProperties(
-        BaseIoTEntity<?> entity,
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    ) {
+            BaseIoTEntity<?> entity,
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
         entity.setIsActive(device.isActive());
         entity.setNaturalId(device.getNaturalId());
+        entity.setSpecificType(device.getSpecificType());
         entity.setRoom(room);
         entity.setHardwareConfig(hardwareConfig);
 
@@ -31,11 +31,11 @@ public abstract class AbstractDeviceSetupStrategy implements DeviceSetupStrategy
     }
 
     protected <T extends BaseTranslatableEntity<L>, L extends BaseTranslation<T>> void attachTranslations(
-        T entity,
-        Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations,
-        Supplier<L> translationSupplier
-    ) {
-        if (translations == null || translations.isEmpty()) return;
+            T entity,
+            Map<String, SetupRequest.BodyData.DeviceConfig.TranslationDetail> translations,
+            Supplier<L> translationSupplier) {
+        if (translations == null || translations.isEmpty())
+            return;
 
         translations.forEach((langCode, detail) -> {
             L translation = translationSupplier.get();

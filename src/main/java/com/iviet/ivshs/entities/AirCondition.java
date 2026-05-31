@@ -19,34 +19,30 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "air_condition",
-	indexes = {
+@Table(name = "air_condition", indexes = {
 		@Index(name = "idx_air_condition_room_id", columnList = "room_id", unique = false),
 		@Index(name = "idx_air_condition_natural_id", columnList = "natural_id", unique = true)
-	}
-)
+})
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AirCondition extends BaseIoTDevice<AirConditionLan>{
+public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 	public static final int MIN_TEMP = 16;
 	public static final int MAX_TEMP = 32;
 	public static final int MIN_FAN_SPEED = 0;
 	public static final int MAX_FAN_SPEED = 5;
 
 	public static final HashSet<ActuatorMode> SUPPORTED_MODES = new HashSet<>(Set.of(
-		ActuatorMode.COOL,
-		ActuatorMode.HEAT,
-		ActuatorMode.DRY,
-		ActuatorMode.FAN,
-		ActuatorMode.AUTO
-	));
+			ActuatorMode.COOL,
+			ActuatorMode.HEAT,
+			ActuatorMode.DRY,
+			ActuatorMode.FAN,
+			ActuatorMode.AUTO));
 
 	public static final HashSet<ActuatorSwing> SUPPORTED_SWINGS = new HashSet<>(Set.of(
-		ActuatorSwing.ON,
-		ActuatorSwing.OFF
-	));
+			ActuatorSwing.ON,
+			ActuatorSwing.OFF));
 
 	@Column(name = "temperature")
 	private Integer temperature;
@@ -77,7 +73,8 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan>{
 
 	public void setSwing(ActuatorSwing swing) {
 		if (swing != null && !SUPPORTED_SWINGS.contains(swing)) {
-			throw new IllegalArgumentException("Unsupported swing state: " + swing + ". Supported swing states are: " + SUPPORTED_SWINGS);
+			throw new IllegalArgumentException(
+					"Unsupported swing state: " + swing + ". Supported swing states are: " + SUPPORTED_SWINGS);
 		}
 		this.swing = swing;
 	}

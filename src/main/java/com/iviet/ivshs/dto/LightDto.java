@@ -16,13 +16,18 @@ public record LightDto(
     String description,
     Boolean isActive,
     ActuatorPower power,
+    String specificType,
     Integer level,
     Long roomId,
     Long deviceControlId,
     DeviceCategory category
 ) {
-    public LightDto(Long id, String naturalId, String name, String description, Boolean isActive, ActuatorPower power, Integer level, Long roomId, Long deviceControlId) {
-        this(id, naturalId, name, description, isActive, power, level, roomId, deviceControlId, DeviceCategory.LIGHT);
+    /**
+     * Constructor cho JPQL projection query (DAO layer).
+     * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
+     */
+    public LightDto(Long id, String naturalId, String name, String description, Boolean isActive, ActuatorPower power, String specificType, Integer level, Long roomId, Long deviceControlId) {
+        this(id, naturalId, name, description, isActive, power, specificType, level, roomId, deviceControlId, DeviceCategory.LIGHT);
     }
 
     public static LightDto from(Light entity, LightLan lan) {
@@ -36,6 +41,7 @@ public record LightDto(
                 .description(lan != null ? lan.getDescription() : null)
                 .isActive(entity.getIsActive())
                 .power(entity.getPower())
+                .specificType(entity.getSpecificType())
                 .level(entity.getLevel())
                 .roomId((entity.getRoom() != null) ? entity.getRoom().getId() : null)
                 .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
