@@ -12,7 +12,7 @@ import com.iviet.ivshs.enumeration.ActuatorPower;
 import com.iviet.ivshs.enumeration.DeviceCategory;
 import com.iviet.ivshs.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.LightControlService;
-import com.iviet.ivshs.service.client.gateway.GatewayControlClient;
+import com.iviet.ivshs.service.client.gateway.GatewayLightControlClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 public class LightControlServiceImpl implements LightControlService {
 
   private final LightDao lightDao;
-  private final GatewayControlClient gatewayControlClient;
+  private final GatewayLightControlClient gatewayControlClient;
 
   @Override
   public DeviceCategory getSupportedCategory() {

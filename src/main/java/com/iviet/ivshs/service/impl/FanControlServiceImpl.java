@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 public class FanControlServiceImpl implements FanControlService {
 
   private final FanDao fanDao;
-  private final com.iviet.ivshs.service.client.gateway.GatewayControlClient gatewayControlClient;
+  private final com.iviet.ivshs.service.client.gateway.GatewayFanControlClient gatewayControlClient;
 
   @Override
   public DeviceCategory getSupportedCategory() {

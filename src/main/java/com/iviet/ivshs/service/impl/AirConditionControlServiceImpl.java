@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 public class AirConditionControlServiceImpl implements AirConditionControlService {
 
   private final AirConditionDao airConditionDao;
-  private final com.iviet.ivshs.service.client.gateway.GatewayControlClient gatewayControlClient;
+  private final com.iviet.ivshs.service.client.gateway.GatewayAcControlClient gatewayControlClient;
 
   @Override
   public DeviceCategory getSupportedCategory() {

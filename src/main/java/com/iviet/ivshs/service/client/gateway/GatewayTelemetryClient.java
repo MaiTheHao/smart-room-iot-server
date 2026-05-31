@@ -39,20 +39,20 @@ public class GatewayTelemetryClient extends GatewayBaseClient {
     public ResponseEntity<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
         String url = buildUri(ip, API_V2, "telemetry");
         return restTemplate.exchange(
-                url, 
-                HttpMethod.GET, 
-                null, 
-                new ParameterizedTypeReference<TelemetryResponseDto>() {}
-        );
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<TelemetryResponseDto>() {
+                });
     }
 
     private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String endpoint) {
         String url = buildUri(ip, API_V2, endpoint);
         return restTemplate.exchange(
-                url, 
-                HttpMethod.GET, 
-                null, 
-                new ParameterizedTypeReference<ApiResponse<EnergyMetricDto>>() {}
-        );
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<ApiResponse<EnergyMetricDto>>() {
+                });
     }
 }
