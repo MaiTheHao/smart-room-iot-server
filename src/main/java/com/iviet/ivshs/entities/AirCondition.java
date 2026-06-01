@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes;
 import com.iviet.ivshs.enumeration.ActuatorMode;
 import com.iviet.ivshs.enumeration.ActuatorSwing;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
@@ -18,11 +19,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// TODO: Temporary workaround to allow specific_type write for AirCondition. Remove when model strategy is clean.
 @Entity
 @Table(name = "air_condition", indexes = {
 		@Index(name = "idx_air_condition_room_id", columnList = "room_id", unique = false),
 		@Index(name = "idx_air_condition_natural_id", columnList = "natural_id", unique = true)
 })
+@AttributeOverride(
+    name = "specificType",
+    column = @Column(name = "specific_type", length = 256, insertable = true, updatable = false)
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -57,6 +63,9 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	@Column(name = "swing", length = 256)
 	private ActuatorSwing swing;
+
+	@Column(name = "duration")
+	private Integer duration;
 
 	@Override
 	public void addTranslation(AirConditionLan translation) {

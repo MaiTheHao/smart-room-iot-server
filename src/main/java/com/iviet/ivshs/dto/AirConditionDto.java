@@ -21,6 +21,7 @@ public record AirConditionDto(
     Long roomId,
     ActuatorPower power,
     String specificType,
+    Integer duration,
     Integer temperature,
     ActuatorMode mode,
     Integer fanSpeed,
@@ -32,8 +33,8 @@ public record AirConditionDto(
      * Constructor cho JPQL projection query (DAO layer).
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
      */
-    public AirConditionDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId, ActuatorPower power, String specificType, Integer temperature, ActuatorMode mode, Integer fanSpeed, ActuatorSwing swing, Long deviceControlId) {
-        this(id, naturalId, name, description, isActive, roomId, power, specificType, temperature, mode, fanSpeed, swing, deviceControlId, DeviceCategory.AIR_CONDITION);
+    public AirConditionDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId, ActuatorPower power, String specificType, Integer duration, Integer temperature, ActuatorMode mode, Integer fanSpeed, ActuatorSwing swing, Long deviceControlId) {
+        this(id, naturalId, name, description, isActive, roomId, power, specificType, duration, temperature, mode, fanSpeed, swing, deviceControlId, DeviceCategory.AIR_CONDITION);
     }
 
     public static AirConditionDto from(AirCondition entity) {
@@ -45,6 +46,7 @@ public record AirConditionDto(
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .power(entity.getPower())
                 .specificType(entity.getSpecificType())
+                .duration(entity.getDuration())
                 .temperature(entity.getTemperature())
                 .mode(entity.getMode())
                 .fanSpeed(entity.getFanSpeed())
@@ -70,6 +72,7 @@ public record AirConditionDto(
         entity.setNaturalId(dto.naturalId());
         entity.setIsActive(dto.isActive());
         entity.setPower(dto.power());
+        entity.setDuration(dto.duration());
         entity.setTemperature(dto.temperature());
         entity.setMode(dto.mode());
         entity.setFanSpeed(dto.fanSpeed());

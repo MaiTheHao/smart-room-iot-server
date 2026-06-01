@@ -6,9 +6,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 ALTER TABLE `fan`
     RENAME COLUMN `type` TO `specific_type`;
 
--- 2. air_condition: add specific_type
+-- 2. air_condition: add specific_type and duration
 ALTER TABLE `air_condition`
-    ADD COLUMN `specific_type` VARCHAR(256) DEFAULT NULL;
+    ADD COLUMN `specific_type` VARCHAR(256) DEFAULT NULL,
+    ADD COLUMN `duration` INT DEFAULT NULL;
 
 -- 3. light: add specific_type
 ALTER TABLE `light`

@@ -21,6 +21,8 @@ public record AirConditionControlRequestBody(
   @Max(value = 5, message = "Fan speed must be between 0 and 5")
   Integer fanSpeed,
 
-  ActuatorSwing swing
+  ActuatorSwing swing,
+
+  Integer duration
 ) {
 }

@@ -29,6 +29,8 @@ public record UpdateAirConditionDto(
 
     ActuatorPower power,
 
+    Integer duration,
+
     @Min(value = 16, message = "Temperature must be between 16 and 32")
     @Max(value = 32, message = "Temperature must be between 16 and 32")
     Integer temperature,

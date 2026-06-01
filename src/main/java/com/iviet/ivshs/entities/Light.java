@@ -1,5 +1,6 @@
 package com.iviet.ivshs.entities;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -10,12 +11,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+// TODO: Temporary workaround to allow specific_type write for Light. Remove when model strategy is clean.
 @Entity
 @Table(name = "light",
     indexes = {
         @Index(name = "idx_light_room_id", columnList = "room_id", unique = false),
         @Index(name = "idx_light_natural_id", columnList = "natural_id", unique = true)
     }
+)
+@AttributeOverride(
+    name = "specificType",
+    column = @Column(name = "specific_type", length = 256, insertable = true, updatable = false)
 )
 @Getter
 @Setter

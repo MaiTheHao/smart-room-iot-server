@@ -38,6 +38,8 @@ public record CreateAirConditionDto(
 
     ActuatorPower power,
 
+    Integer duration,
+
     @Min(16) @Max(32)
     Integer temperature,
 
@@ -53,6 +55,7 @@ public record CreateAirConditionDto(
         ac.setNaturalId(this.naturalId);
         ac.setIsActive(this.isActive != null ? this.isActive : false);
         ac.setPower(this.power != null ? this.power : ActuatorPower.OFF);
+        ac.setDuration(this.duration);
         ac.setTemperature(this.temperature != null ? this.temperature : 24);
         ac.setMode(this.mode != null ? this.mode : ActuatorMode.AUTO);
         ac.setFanSpeed(this.fanSpeed != null ? this.fanSpeed : 1);

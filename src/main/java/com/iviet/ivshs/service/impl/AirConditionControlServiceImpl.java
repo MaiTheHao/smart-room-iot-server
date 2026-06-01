@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dto.AirConditionControlRequestBody;
+import com.iviet.ivshs.dto.AcRemoteRequestPayload;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
@@ -44,6 +45,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     AirCondition ac = getOrThrow(naturalId);
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, power, null, null, null, null, null);
+    }
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = handlePowerControlCall(gatewayIp, ac.getNaturalId(), power);
     if (result.getSuccessCount() > 0) {
@@ -58,6 +63,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult handleTogglePowerControl(String naturalId) {
     AirCondition ac = getOrThrow(naturalId);
     ActuatorPower newPowerState = (ac.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, newPowerState, null, null, null, null, null);
+    }
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = handlePowerControlCall(gatewayIp, ac.getNaturalId(), newPowerState);
     if (result.getSuccessCount() > 0) {
@@ -71,6 +80,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult handleTemperatureControl(String naturalId, int temperature) {
     AirCondition ac = getOrThrow(naturalId);
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, null, temperature, null, null, null, null);
+    }
     int currentTemp = ac.getTemperature() != null ? ac.getTemperature() : 25;
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = handleTemperatureControlCall(gatewayIp, ac.getNaturalId(), temperature, currentTemp);
@@ -85,6 +98,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     AirCondition ac = getOrThrow(naturalId);
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, null, null, mode, null, null, null);
+    }
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = handleModeControlCall(gatewayIp, ac.getNaturalId(), mode);
     if (result.getSuccessCount() > 0) {
@@ -98,6 +115,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult handleFanSpeedControl(String naturalId, int speed) {
     AirCondition ac = getOrThrow(naturalId);
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, null, null, null, speed, null, null);
+    }
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = handleFanSpeedControlCall(gatewayIp, ac.getNaturalId(), speed);
     if (result.getSuccessCount() > 0) {
@@ -111,6 +132,10 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     AirCondition ac = getOrThrow(naturalId);
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, null, null, null, null, swing, null);
+    }
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = handleSwingControlCall(gatewayIp, ac.getNaturalId(), swing);
     if (result.getSuccessCount() > 0) {
@@ -124,6 +149,11 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult control(String naturalId, AirConditionControlRequestBody body) {
     AirCondition ac = getOrThrow(naturalId);
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing(),
+          body.duration());
+    }
     return applyControlParams(ac, body);
   }
 
@@ -131,15 +161,26 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult control(Long id, AirConditionControlRequestBody body) {
     AirCondition ac = airConditionDao.findById(id)
-      .orElseThrow(() -> new BadRequestException("AirCondition not found with id: " + id));
+        .orElseThrow(() -> new BadRequestException("AirCondition not found with id: " + id));
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing(),
+          body.duration());
+    }
     return applyControlParams(ac, body);
   }
 
   private ControlDeviceResult applyControlParams(AirCondition ac, AirConditionControlRequestBody body) {
+    // TODO: Temporary check. Refactor using polymorphic strategy/factory pattern.
+    if (isRemoteType(ac)) {
+      return executeRemoteControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing(),
+          body.duration());
+    }
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlAcPower(gatewayIp, ac.getNaturalId(), body.power()))) {
+      if (executeControl(result, "power",
+          () -> gatewayControlClient.controlAcPower(gatewayIp, ac.getNaturalId(), body.power()))) {
         ac.setPower(body.power());
       }
     }
@@ -157,25 +198,32 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
       }
     }
     if (body.mode() != null) {
-      if (executeControl(result, "mode", () -> gatewayControlClient.controlAcMode(gatewayIp, ac.getNaturalId(), body.mode()))) {
+      if (executeControl(result, "mode",
+          () -> gatewayControlClient.controlAcMode(gatewayIp, ac.getNaturalId(), body.mode()))) {
         ac.setMode(body.mode());
       }
     }
     if (body.fanSpeed() != null) {
-      if (executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFan(gatewayIp, ac.getNaturalId(), body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()))) {
+      if (executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFan(gatewayIp, ac.getNaturalId(),
+          body.fanSpeed() == 0 ? "AUTO" : body.fanSpeed()))) {
         ac.setFanSpeed(body.fanSpeed());
       }
     }
     if (body.swing() != null) {
-      if (executeControl(result, "swing", () -> gatewayControlClient.controlAcSwing(gatewayIp, ac.getNaturalId(), body.swing()))) {
+      if (executeControl(result, "swing",
+          () -> gatewayControlClient.controlAcSwing(gatewayIp, ac.getNaturalId(), body.swing()))) {
         ac.setSwing(body.swing());
       }
+    }
+    if (body.duration() != null) {
+      ac.setDuration(body.duration());
     }
     airConditionDao.save(ac);
     return result;
   }
 
-  private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+  private boolean executeControl(ControlDeviceResult result, String parameter,
+      Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
       if (response.getStatusCode().is2xxSuccessful()) {
@@ -197,7 +245,8 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     return result;
   }
 
-  private ControlDeviceResult handleTemperatureControlCall(String gatewayIp, String naturalId, int temperature, int currentTemp) {
+  private ControlDeviceResult handleTemperatureControlCall(String gatewayIp, String naturalId, int temperature,
+      int currentTemp) {
     ControlDeviceResult result = new ControlDeviceResult();
     executeControl(result, "temperature", () -> {
       if (temperature > currentTemp) {
@@ -217,7 +266,8 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
 
   private ControlDeviceResult handleFanSpeedControlCall(String gatewayIp, String naturalId, int speed) {
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "fanSpeed", () -> gatewayControlClient.controlAcFan(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed));
+    executeControl(result, "fanSpeed",
+        () -> gatewayControlClient.controlAcFan(gatewayIp, naturalId, speed == 0 ? "AUTO" : speed));
     return result;
   }
 
@@ -227,9 +277,74 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     return result;
   }
 
+  private boolean isRemoteType(AirCondition ac) {
+    String specificType = ac.getSpecificType();
+    return specificType != null && (specificType.equalsIgnoreCase("IR_CTL") || specificType.equalsIgnoreCase("IRSEND"));
+  }
+
+  private ControlDeviceResult executeRemoteControl(
+      AirCondition ac,
+      ActuatorPower targetPower,
+      Integer targetTemp,
+      ActuatorMode targetMode,
+      Integer targetSpeed,
+      ActuatorSwing targetSwing,
+      Integer targetDuration) {
+
+    String gatewayIp = extractClientIpAddress(ac);
+    ControlDeviceResult result = new ControlDeviceResult();
+
+    ActuatorPower finalPower = targetPower != null ? targetPower : ac.getPower();
+    Integer finalTemp = targetTemp != null ? targetTemp : ac.getTemperature();
+    ActuatorMode finalMode = targetMode != null ? targetMode : ac.getMode();
+    Integer finalSpeed = targetSpeed != null ? targetSpeed : ac.getFanSpeed();
+    ActuatorSwing finalSwing = targetSwing != null ? targetSwing : ac.getSwing();
+    Integer finalDuration = targetDuration != null ? targetDuration : ac.getDuration();
+    String specificType = ac.getSpecificType();
+
+    AcRemoteRequestPayload payload = AcRemoteRequestPayload.builder()
+        .power(finalPower != null ? finalPower.name() : null)
+        .temperature(finalTemp)
+        .mode(finalMode != null ? finalMode.name() : null)
+        .speed(finalSpeed)
+        .swing(finalSwing != null ? finalSwing.name() : null)
+        .duration(finalDuration)
+        .specificType(specificType)
+        .build();
+
+    try {
+      ResponseEntity<ApiResponse<String>> response = gatewayControlClient.controlAcRemote(gatewayIp, ac.getNaturalId(),
+          payload);
+      if (response.getStatusCode().is2xxSuccessful()) {
+        result.addDetail("remote", true, "Success");
+
+        if (targetPower != null)
+          ac.setPower(targetPower);
+        if (targetTemp != null)
+          ac.setTemperature(targetTemp);
+        if (targetMode != null)
+          ac.setMode(targetMode);
+        if (targetSpeed != null)
+          ac.setFanSpeed(targetSpeed);
+        if (targetSwing != null)
+          ac.setSwing(targetSwing);
+        if (targetDuration != null)
+          ac.setDuration(targetDuration);
+
+        airConditionDao.save(ac);
+      } else {
+        result.addDetail("remote", false, "Gateway error: " + response.getStatusCode());
+      }
+    } catch (Exception e) {
+      result.addDetail("remote", false, e.getMessage());
+    }
+
+    return result;
+  }
+
   private AirCondition getOrThrow(String naturalId) {
     return airConditionDao.findByNaturalId(naturalId)
-      .orElseThrow(() -> new BadRequestException("AirCondition not found with naturalId: " + naturalId));
+        .orElseThrow(() -> new BadRequestException("AirCondition not found with naturalId: " + naturalId));
   }
 
   private String extractClientIpAddress(AirCondition ac) {

@@ -113,6 +113,7 @@ public class AirConditionServiceImpl implements AirConditionService {
     ac.setRoom(room);
     ac.setHardwareConfig(hardwareConfig);
     ac.setPower(dto.power() != null ? dto.power() : ActuatorPower.OFF);
+    ac.setDuration(dto.duration());
     ac.setTemperature(dto.temperature() != null ? dto.temperature() : 25);
     ac.setMode(dto.mode() != null ? dto.mode() : ActuatorMode.COOL);
     ac.setFanSpeed(dto.fanSpeed() != null ? dto.fanSpeed() : 3);
@@ -158,6 +159,7 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     if (dto.isActive() != null) ac.setIsActive(dto.isActive());
     if (dto.power() != null) ac.setPower(dto.power());
+    if (dto.duration() != null) ac.setDuration(dto.duration());
     if (dto.temperature() != null) ac.setTemperature(dto.temperature());
     if (dto.mode() != null) ac.setMode(dto.mode());
     if (dto.fanSpeed() != null) ac.setFanSpeed(dto.fanSpeed());

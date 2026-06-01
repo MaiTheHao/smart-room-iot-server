@@ -22,9 +22,9 @@ import java.util.Map;
 public class SetupRequest {
 
     private int status;
-	private String message;
-	private Instant timestamp;
-	private BodyData data;
+    private String message;
+    private Instant timestamp;
+    private BodyData data;
 
     @Data
     @Builder
@@ -45,6 +45,7 @@ public class SetupRequest {
             @JsonSetter(nulls = Nulls.AS_EMPTY)
             private DeviceCategory category;
             private String specificType;
+            private Integer duration; // TODO: Not clean property, remove later
 
             private DeviceControlType controlType;
             private List<Integer> gpioPin;

@@ -25,7 +25,6 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
-import org.springframework.web.servlet.resource.WebJarsResourceResolver;
 import org.springframework.context.MessageSource;
 import org.thymeleaf.spring6.ISpringTemplateEngine;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -44,16 +43,16 @@ import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy
-@ComponentScan(basePackages = { 
-    "com.iviet.ivshs.controller", 
-    "com.iviet.ivshs.exception",
-    "com.iviet.ivshs.aop",
-    "com.iviet.ivshs.web"
+@ComponentScan(basePackages = {
+        "com.iviet.ivshs.controller",
+        "com.iviet.ivshs.exception",
+        "com.iviet.ivshs.aop",
+        "com.iviet.ivshs.web"
 })
 public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
-    
+
     @Override
     public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -82,7 +81,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setTemplateEngine(templateEngine(htmlTemplateResolver(), messageSource));
         resolver.setContentType("text/html");
         resolver.setCharacterEncoding("UTF-8");
-        resolver.setViewNames(new String[]{"*.html"});
+        resolver.setViewNames(new String[] { "*.html" });
         resolver.setOrder(1);
         return resolver;
     }
@@ -93,7 +92,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setTemplateEngine(templateEngine(javascriptTemplateResolver(), messageSource));
         resolver.setContentType("application/javascript");
         resolver.setCharacterEncoding("UTF-8");
-        resolver.setViewNames(new String[]{"*.js"});
+        resolver.setViewNames(new String[] { "*.js" });
         resolver.setOrder(2);
         return resolver;
     }
@@ -104,7 +103,7 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         resolver.setTemplateEngine(templateEngine(plainTemplateResolver(), messageSource));
         resolver.setContentType("text/plain");
         resolver.setCharacterEncoding("UTF-8");
-        resolver.setViewNames(new String[]{"*.txt"});
+        resolver.setViewNames(new String[] { "*.txt" });
         return resolver;
     }
 
@@ -189,12 +188,15 @@ public class WebConfig implements WebMvcConfigurer, ApplicationContextAware {
         registry.addResourceHandler("/resources/**")
                 .addResourceLocations("/WEB-INF/resources/")
                 .setCachePeriod(31556926);
-        
-        registry.addResourceHandler("/static/**").addResourceLocations("/WEB-INF/resources/static/").setCachePeriod(31556926);
-        registry.addResourceHandler("/imgs/**").addResourceLocations("/WEB-INF/resources/imgs/").setCachePeriod(31556926);
+
+        registry.addResourceHandler("/static/**").addResourceLocations("/WEB-INF/resources/static/")
+                .setCachePeriod(31556926);
+        registry.addResourceHandler("/imgs/**").addResourceLocations("/WEB-INF/resources/imgs/")
+                .setCachePeriod(31556926);
         registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/css/").setCachePeriod(31556926);
         registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/js/").setCachePeriod(31556926);
-        registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/resources/fonts/").setCachePeriod(31556926);
+        registry.addResourceHandler("/fonts/**").addResourceLocations("/WEB-INF/resources/fonts/")
+                .setCachePeriod(31556926);
     }
 
     @Override

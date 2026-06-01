@@ -39,6 +39,7 @@ public class AirConditionSetupStrategy extends AbstractDeviceSetupStrategy {
         ac.setMode(ActuatorMode.COOL);
         ac.setFanSpeed(1);
         ac.setSwing(ActuatorSwing.OFF);
+        ac.setDuration(device.getDuration());
         entityManager.persist(ac);
         entityManager.flush();
         attachTranslations(ac, device.getTranslations(), AirConditionLan::new);
