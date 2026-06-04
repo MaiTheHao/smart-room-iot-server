@@ -33,10 +33,10 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class WebSecurityConfig {
         private final UserDetailsService userDetailsService;
         private final DataSource dataSource;
-        private final Environment env;
+        private final com.iviet.ivshs.properties.SecurityProperties securityProperties;
         private final AuthEntryPointJwt unauthorizedHandler;
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -62,13 +62,13 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                String allowedOrigins = env.getProperty("app.cors.allowedOrigins", "*");
+                String allowedOrigins = securityProperties.getAllowedOrigins();
                 configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
 
-                String allowedMethods = env.getProperty("app.cors.allowedMethods", "GET,POST,PUT,DELETE,OPTIONS");
+                String allowedMethods = securityProperties.getAllowedMethods();
                 configuration.setAllowedMethods(List.of(allowedMethods.split(",")));
 
-                String allowedHeaders = env.getProperty("app.cors.allowedHeaders", "*");
+                String allowedHeaders = securityProperties.getAllowedHeaders();
                 configuration.setAllowedHeaders(List.of(allowedHeaders.split(",")));
 
                 configuration.setExposedHeaders(List.of("Authorization", "X-Trace-Id", "X-Scenario-Id"));

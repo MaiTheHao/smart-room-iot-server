@@ -13,7 +13,7 @@ import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.HealthCheckService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.RoomViewService;
-import com.iviet.ivshs.properties.AppProperties;
+import com.iviet.ivshs.properties.EngineProperties;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +26,7 @@ public class RoomViewServiceImpl implements RoomViewService {
   private final TemperatureValueDao temperatureValueDao;
   private final EnergyMetricDao energyMetricDao;
   private final HealthCheckService healthCheckService;
-  private final AppProperties appProperties;
+  private final EngineProperties engineProperties;
 
   @Override
   public RoomDetailViewModel getRoomDetailModel(RoomDetailCriteria req) {
@@ -35,7 +35,7 @@ public class RoomViewServiceImpl implements RoomViewService {
     }
 
     Instant endedAt = Instant.now();
-    Instant startedAt = endedAt.minusSeconds(appProperties.getRoomStatusLookbackSeconds());
+    Instant startedAt = endedAt.minusSeconds(engineProperties.getRoomStatusLookbackSeconds());
     var room = roomService.getById(req.getRoomId());
 
     Double lastestAvgTemperature = null;

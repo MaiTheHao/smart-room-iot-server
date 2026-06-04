@@ -22,15 +22,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.iviet.ivshs.properties.SecurityProperties;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Slf4j
+@RequiredArgsConstructor
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    @Value("${app.rate-limit.enabled:true}")
-    private boolean enabled;
+    private final SecurityProperties securityProperties;
 
     private final Cache<String, Bucket> cache = Caffeine.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -63,7 +65,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         
         if (path.startsWith("/api/")) {
-            if (!enabled) {
+            if (!securityProperties.isRateLimitEnabled()) {
                 filterChain.doFilter(request, response);
                 return;
             }

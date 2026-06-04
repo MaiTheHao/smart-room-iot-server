@@ -10,7 +10,7 @@ import org.quartz.TriggerBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.annotation.Order;
-import com.iviet.ivshs.properties.AppProperties;
+import com.iviet.ivshs.properties.EngineProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
@@ -28,14 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 public class TelemetryInitializer implements ApplicationListener<ContextRefreshedEvent> {
 
   private final SchedulerFactoryBean schedulerFactoryBean;
-  private final AppProperties appProperties;
+  private final EngineProperties engineProperties;
   private boolean isInitialized = false;
 
   private int telemetryScanIntervalSeconds;
 
   @PostConstruct
   private void init() {
-    telemetryScanIntervalSeconds = appProperties.getTelemetryScanIntervalSeconds();
+    telemetryScanIntervalSeconds = engineProperties.getTelemetryScanIntervalSeconds();
     log.info("Telemetry engine config: scanIntervalSeconds={}", telemetryScanIntervalSeconds);
   }
 

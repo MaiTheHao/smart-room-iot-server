@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class QuartzConfig {
+public class QuartzSchedulerConfig {
 
 	private final ApplicationContext applicationContext;
 
@@ -40,7 +40,8 @@ public class QuartzConfig {
 	@Bean
 	public AutowiringSpringBeanJobFactory springBeanJobFactory() {
 		AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
-		if (applicationContext == null) throw new IllegalStateException("ApplicationContext is not set");
+		if (applicationContext == null)
+			throw new IllegalStateException("ApplicationContext is not set");
 		jobFactory.setApplicationContext(applicationContext);
 		return jobFactory;
 	}
@@ -54,7 +55,7 @@ public class QuartzConfig {
 		factory.setTransactionManager(transactionManager);
 		factory.setTaskExecutor(quartzTaskExecutor());
 		factory.setJobFactory(springBeanJobFactory());
-		
+
 		// Luôn ghi đè job nếu đã tồn tại trong DB khi khởi động
 		factory.setOverwriteExistingJobs(true);
 		factory.setAutoStartup(true);
@@ -69,14 +70,13 @@ public class QuartzConfig {
 	private Properties createQuartzProperties() {
 		Properties props = new Properties();
 
-		// props.put("org.quartz.jobStore.dataSource", "ds"); Bởi vì ta chỉ định DataSource trực tiếp trong SchedulerFactoryBean
 		props.put("org.quartz.jobStore.class", "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
-		
-		props.put("org.quartz.jobStore.isClustered", "false"); 
-		
+
+		props.put("org.quartz.jobStore.isClustered", "false");
+
 		props.put("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
 		props.put("org.quartz.jobStore.tablePrefix", "QRTZ_");
-		
+
 		props.put("org.quartz.scheduler.instanceName", "IVSHS_Quartz_Scheduler");
 		props.put("org.quartz.scheduler.instanceId", "AUTO");
 		props.put("org.quartz.jobStore.misfireThreshold", "60000");

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import com.iviet.ivshs.properties.JwtProperties;
 
 import java.security.Key;
 import java.util.Date;
@@ -16,20 +18,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     private static final long DEFAULT_EXPIRATION_MS = 172800000L;
 
-    @Value("${iviet.app.jwtSecret:}")
-    private String jwtSecret;
-
-    @Value("${iviet.app.jwtExpirationMs:#{null}}")
-    private Long jwtExpirationMs;
+    private final JwtProperties jwtProperties;
 
     private Key cachedKey;
 
     private Key getKey() {
         if (cachedKey == null) {
+            String jwtSecret = jwtProperties.getJwtSecret();
             if (jwtSecret == null || jwtSecret.isEmpty()) {
                 throw new IllegalStateException("JWT secret not configured. Set iviet.app.jwtSecret property");
             }
@@ -40,7 +40,7 @@ public class JwtUtils {
     }
 
     private long getExpirationMs() {
-        return jwtExpirationMs != null ? jwtExpirationMs : DEFAULT_EXPIRATION_MS;
+        return jwtProperties.getJwtExpirationMs() != 0 ? jwtProperties.getJwtExpirationMs() : DEFAULT_EXPIRATION_MS;
     }
 
     public String generateJwtToken(Authentication authentication) {

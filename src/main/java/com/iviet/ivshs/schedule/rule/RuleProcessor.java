@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import com.iviet.ivshs.properties.AppProperties;
+import com.iviet.ivshs.properties.EngineProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RuleProcessor {
 
-    private final AppProperties appProperties;
+    private final EngineProperties engineProperties;
     private final List<RuleDataSourceStrategy> ruleDataSourceStrategies;
     private final List<DeviceControlServiceStrategy<?>> controlStrategies;
     private final ObjectMapper objectMapper;
@@ -46,7 +46,7 @@ public class RuleProcessor {
                         DeviceControlServiceStrategy::getSupportedCategory,
                         Function.identity()
                 ));
-        log.info("RuleProcessor initialized with epsilon = {} and categories: {}", appProperties.getRuleComputeEpsilon(), strategyMap.keySet());
+        log.info("RuleProcessor initialized with epsilon = {} and categories: {}", engineProperties.getRuleComputeEpsilon(), strategyMap.keySet());
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -124,8 +124,8 @@ public class RuleProcessor {
             boolean res = switch (op) {
                 case GT -> v1 > v2;
                 case LT -> v1 < v2;
-                case EQ -> Math.abs(v1 - v2) < appProperties.getRuleComputeEpsilon();
-                case NEQ -> Math.abs(v1 - v2) >= appProperties.getRuleComputeEpsilon();
+                case EQ -> Math.abs(v1 - v2) < engineProperties.getRuleComputeEpsilon();
+                case NEQ -> Math.abs(v1 - v2) >= engineProperties.getRuleComputeEpsilon();
                 case GTE -> v1 >= v2;
                 case LTE -> v1 <= v2;
                 default -> false;

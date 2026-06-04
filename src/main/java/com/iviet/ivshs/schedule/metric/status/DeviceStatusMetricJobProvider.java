@@ -3,7 +3,7 @@ package com.iviet.ivshs.schedule.metric.status;
 import com.iviet.ivshs.schedule.metric.MetricJobProvider;
 import com.iviet.ivshs.schedule.metric.MetricJobRegistration;
 import lombok.RequiredArgsConstructor;
-import com.iviet.ivshs.properties.AppProperties;
+import com.iviet.ivshs.properties.EngineProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DeviceStatusMetricJobProvider implements MetricJobProvider {
 
-    private final AppProperties appProperties;
+    private final EngineProperties engineProperties;
 
     @Override
     public List<MetricJobRegistration> getMetricJobs() {
@@ -21,7 +21,7 @@ public class DeviceStatusMetricJobProvider implements MetricJobProvider {
                 .name(DeviceStatusMetricJob.JOB_NAME)
                 .group(DeviceStatusMetricJob.JOB_GROUP)
                 .jobClass(DeviceStatusMetricJob.class)
-                .intervalSeconds(appProperties.getMetricStatusIntervalSeconds())
+                .intervalSeconds(engineProperties.getMetricStatusIntervalSeconds())
                 .build()
         );
     }

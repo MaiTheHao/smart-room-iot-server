@@ -18,7 +18,7 @@ import com.iviet.ivshs.util.FunctionCodeHelper;
 import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.service.DeviceMetadataService;
-import com.iviet.ivshs.properties.AppProperties;
+import com.iviet.ivshs.properties.EngineProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +45,7 @@ public class RoomServiceImpl implements RoomService {
     private final DeviceMetadataService deviceMetadataService;
     private final TemperatureValueDao temperatureValueDao;
     private final EnergyMetricDao energyMetricDao;
-    private final AppProperties appProperties;
+    private final EngineProperties engineProperties;
 
     @Override
     public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {
@@ -284,7 +284,7 @@ public class RoomServiceImpl implements RoomService {
         Double avgTempC = null;
         try {
             java.time.Instant endedAt = java.time.Instant.now();
-            java.time.Instant startedAt = endedAt.minusSeconds(appProperties.getRoomStatusLookbackSeconds());
+            java.time.Instant startedAt = endedAt.minusSeconds(engineProperties.getRoomStatusLookbackSeconds());
             int divisor = 1;
             
             var history = temperatureValueDao.getAverageHistoryByRoom(roomId, startedAt, endedAt, divisor);

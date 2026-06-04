@@ -22,7 +22,7 @@ import java.time.Duration;
 
 @Configuration
 @RequiredArgsConstructor
-public class RestConfig {
+public class RestClientConfig {
 
         private final GatewayAuthInterceptor gatewayAuthInterceptor;
         private final TraceForwardingInterceptor traceForwardingInterceptor;

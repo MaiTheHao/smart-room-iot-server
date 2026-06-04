@@ -42,9 +42,8 @@ public abstract class BaseDao<T> {
     /** Lớp của entity T, được truyền vào constructor */
     protected final Class<T> clazz;
 
-    /** Kích thước batch cho việc lưu danh sách entity (flush/clear mỗi BATCH_SIZE bản ghi) */
-    @Value("${hibernate.jdbc.batch_size:50}")
-    protected int BATCH_SIZE;
+    @Autowired
+    protected com.iviet.ivshs.properties.DatabaseProperties databaseProperties;
 
     /**
      * Constructor khởi tạo BaseDao với lớp entity.
@@ -90,8 +89,7 @@ public abstract class BaseDao<T> {
         for (T entity : entities) {
             entityManager.persist(entity);
             count++;
-            // Flush và clear mỗi BATCH_SIZE bản ghi để quản lý bộ nhớ hiệu quả
-            if (count % BATCH_SIZE == 0) {
+            if (count % databaseProperties.getHibernateBatchSize() == 0) {
                 entityManager.flush();
                 entityManager.clear();
             }

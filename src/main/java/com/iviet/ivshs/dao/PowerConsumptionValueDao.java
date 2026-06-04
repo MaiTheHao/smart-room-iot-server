@@ -31,7 +31,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 		if (entities == null || entities.isEmpty()) return;
 
 		String insertSql = getInsertSql();
-		jdbcTemplate.batchUpdate(insertSql, entities, BATCH_SIZE, (ps, entity) -> {
+		jdbcTemplate.batchUpdate(insertSql, entities, databaseProperties.getHibernateBatchSize(), (ps, entity) -> {
 			if (sensorId != null) {
 				ps.setLong(1,  sensorId);
 			} else throw new BadRequestException("Sensor ID cannot be null");

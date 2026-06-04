@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.iviet.ivshs.properties.AppProperties;
+import com.iviet.ivshs.properties.EngineProperties;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.PowerConsumptionValueDao;
@@ -27,7 +27,7 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
   private final TemperatureValueDao temperatureValueDao;
   private final PowerConsumptionValueDao powerConsumptionValueDao;
-  private final AppProperties appProperties;
+  private final EngineProperties engineProperties;
 
   private static final String PROP_AVG_TEMPERATURE = "avg_temperature";
   private static final String PROP_SUM_WATT = "sum_watt";
@@ -36,7 +36,7 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
   @PostConstruct
   public void init() {
-    lookbackMinutes = appProperties.getRuleTelemetryLookbackMinutes();
+    lookbackMinutes = engineProperties.getRuleTelemetryLookbackMinutes();
   }
 
   @Override
