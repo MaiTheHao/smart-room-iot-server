@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.core.env.Environment;
+import com.iviet.ivshs.properties.AppProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,26 +32,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RuleProcessor {
 
-    private final Environment env;
+    private final AppProperties appProperties;
     private final List<RuleDataSourceStrategy> ruleDataSourceStrategies;
     private final List<DeviceControlServiceStrategy<?>> controlStrategies;
     private final ObjectMapper objectMapper;
 
-    private static final double DEFAULT_EPSILON = 0.05;
-    private double EPSILON = DEFAULT_EPSILON;
     private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
     @PostConstruct 
     private void init() {
-        Double epsilonConfig = env.getProperty("app.engine.rule.computeEpsilon", Double.class);
-        if (epsilonConfig != null) EPSILON = epsilonConfig;
-        
         strategyMap = controlStrategies.stream()
                 .collect(Collectors.toUnmodifiableMap(
                         DeviceControlServiceStrategy::getSupportedCategory,
                         Function.identity()
                 ));
-        log.info("RuleProcessor initialized with epsilon = {} and categories: {}", EPSILON, strategyMap.keySet());
+        log.info("RuleProcessor initialized with epsilon = {} and categories: {}", appProperties.getRuleComputeEpsilon(), strategyMap.keySet());
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -129,8 +124,8 @@ public class RuleProcessor {
             boolean res = switch (op) {
                 case GT -> v1 > v2;
                 case LT -> v1 < v2;
-                case EQ -> Math.abs(v1 - v2) < EPSILON;
-                case NEQ -> Math.abs(v1 - v2) >= EPSILON;
+                case EQ -> Math.abs(v1 - v2) < appProperties.getRuleComputeEpsilon();
+                case NEQ -> Math.abs(v1 - v2) >= appProperties.getRuleComputeEpsilon();
                 case GTE -> v1 >= v2;
                 case LTE -> v1 <= v2;
                 default -> false;

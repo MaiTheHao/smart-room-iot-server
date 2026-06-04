@@ -45,18 +45,19 @@ import lombok.extern.slf4j.Slf4j;
 @EnableTransactionManagement
 @RequiredArgsConstructor
 @ComponentScans(value = {
-    @ComponentScan("com.iviet.ivshs.dao"),
-    @ComponentScan("com.iviet.ivshs.engine"),
-    @ComponentScan("com.iviet.ivshs.mapper"),
-    @ComponentScan("com.iviet.ivshs.service"),
-    @ComponentScan("com.iviet.ivshs.repository"),
-    @ComponentScan("com.iviet.ivshs.component"),
-    @ComponentScan("com.iviet.ivshs.jwt"),
-    @ComponentScan("com.iviet.ivshs.filter"),
-    @ComponentScan("com.iviet.ivshs.startup"),
-    @ComponentScan("com.iviet.ivshs.util"),
-    @ComponentScan("com.iviet.ivshs.schedule"),
-    @ComponentScan("com.iviet.ivshs.apm"),
+        @ComponentScan("com.iviet.ivshs.properties"),
+        @ComponentScan("com.iviet.ivshs.dao"),
+        @ComponentScan("com.iviet.ivshs.engine"),
+        @ComponentScan("com.iviet.ivshs.mapper"),
+        @ComponentScan("com.iviet.ivshs.service"),
+        @ComponentScan("com.iviet.ivshs.repository"),
+        @ComponentScan("com.iviet.ivshs.component"),
+        @ComponentScan("com.iviet.ivshs.jwt"),
+        @ComponentScan("com.iviet.ivshs.filter"),
+        @ComponentScan("com.iviet.ivshs.startup"),
+        @ComponentScan("com.iviet.ivshs.util"),
+        @ComponentScan("com.iviet.ivshs.schedule"),
+        @ComponentScan("com.iviet.ivshs.apm"),
 })
 public class AppConfig implements EnvironmentAware {
 
@@ -98,7 +99,7 @@ public class AppConfig implements EnvironmentAware {
     @NonNull
     public DataSource dataSource() {
         String jndiName = env.getProperty("jdbc.jndi-name", DEFAULT_JNDI_NAME);
-        
+
         try {
             JndiObjectFactoryBean factoryBean = new JndiObjectFactoryBean();
             factoryBean.setJndiName(jndiName);
@@ -106,21 +107,22 @@ public class AppConfig implements EnvironmentAware {
             factoryBean.setProxyInterface(DataSource.class);
             factoryBean.setLookupOnStartup(true);
             factoryBean.afterPropertiesSet();
-            
+
             log.info("Connected via JNDI: {}", jndiName);
             DataSource ds = (DataSource) factoryBean.getObject();
-            if (ds == null) throw new IllegalArgumentException("DataSource from JNDI is null");
-            
+            if (ds == null)
+                throw new IllegalArgumentException("DataSource from JNDI is null");
+
             return ds;
         } catch (Exception e) {
             log.warn("JNDI lookup failed ({}). Switching to Local JDBC Driver.", e.getMessage());
-            
+
             DriverManagerDataSource dataSource = new DriverManagerDataSource();
             dataSource.setDriverClassName(env.getRequiredProperty("jdbc.driverClassName"));
             dataSource.setUrl(env.getRequiredProperty("jdbc.url"));
             dataSource.setUsername(env.getRequiredProperty("jdbc.username"));
             dataSource.setPassword(env.getRequiredProperty("jdbc.password"));
-            
+
             log.info("Connected via Local JDBC Driver: {}", env.getProperty("jdbc.url"));
             return dataSource;
         }
@@ -131,11 +133,11 @@ public class AppConfig implements EnvironmentAware {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource());
         emf.setPackagesToScan(ENTITY_PACKAGES);
-        
+
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setJpaProperties(createJpaProperties());
-        
+
         return emf;
     }
 
@@ -147,12 +149,12 @@ public class AppConfig implements EnvironmentAware {
     @NonNull
     private Properties createJpaProperties() {
         Properties props = new Properties();
-        
+
         props.put("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto", "validate"));
         props.put("hibernate.show_sql", env.getProperty("hibernate.show_sql", "false"));
         props.put("hibernate.format_sql", env.getProperty("hibernate.format_sql", "true"));
         props.put("hibernate.generate_statistics", env.getProperty("hibernate.generate_statistics", "false"));
-        
+
         props.put("hibernate.jdbc.batch_size", env.getProperty("hibernate.jdbc.batch_size", "50"));
         props.put("hibernate.order_inserts", env.getProperty("hibernate.order_inserts", "true"));
         props.put("hibernate.order_updates", env.getProperty("hibernate.order_updates", "true"));

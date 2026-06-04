@@ -3,7 +3,7 @@ package com.iviet.ivshs.schedule.metric.energy;
 import com.iviet.ivshs.schedule.metric.MetricJobProvider;
 import com.iviet.ivshs.schedule.metric.MetricJobRegistration;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.Environment;
+import com.iviet.ivshs.properties.AppProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnergyMetricJobProvider implements MetricJobProvider {
     
-    private final Environment env;
+    private final AppProperties appProperties;
 
     @Override
     public List<MetricJobRegistration> getMetricJobs() {
@@ -21,13 +21,13 @@ public class EnergyMetricJobProvider implements MetricJobProvider {
                 .name(EnergyMetricTelemetryJob.JOB_NAME)
                 .group(EnergyMetricTelemetryJob.JOB_GROUP)
                 .jobClass(EnergyMetricTelemetryJob.class)
-                .intervalSeconds(env.getProperty("app.engine.metric_energy.telemetry.intervalSeconds", Integer.class, 300))
+                .intervalSeconds(appProperties.getMetricEnergyIntervalSeconds())
                 .build(),
             MetricJobRegistration.builder()
                 .name(EnergyMetricResetJob.JOB_NAME)
                 .group(EnergyMetricResetJob.JOB_GROUP)
                 .jobClass(EnergyMetricResetJob.class)
-                .cronExpression(env.getProperty("app.engine.metric_energy.reset.cron", String.class, "0 0 0 * * ?"))
+                .cronExpression(appProperties.getMetricEnergyResetCron())
                 .build()
         );
     }
