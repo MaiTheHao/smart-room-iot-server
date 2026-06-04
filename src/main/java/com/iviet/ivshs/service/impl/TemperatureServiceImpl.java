@@ -3,10 +3,10 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.TemperatureService;
-import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -45,8 +45,9 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<TemperatureDto> getListByRoomId(Long roomId, int page, int size) {
-        if (roomId == null) throw new BadRequestException("Room ID is required");
-        
+        if (roomId == null)
+            throw new BadRequestException("Room ID is required");
+
         String langCode = LocalContextUtil.getCurrentLangCode();
         List<TemperatureDto> data = temperatureDao.findAllByRoomId(roomId, page, size, langCode);
         Long totalElements = temperatureDao.countByRoomId(roomId);
@@ -57,15 +58,17 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Override
     @Transactional(readOnly = true)
     public List<TemperatureDto> getAllByRoomId(Long roomId) {
-        if (roomId == null) throw new BadRequestException("Room ID is required");
+        if (roomId == null)
+            throw new BadRequestException("Room ID is required");
         return temperatureDao.findAllByRoomId(roomId, LocalContextUtil.getCurrentLangCode());
     }
 
     @Override
     @Transactional(readOnly = true)
     public PaginatedResponse<Temperature> getListEntityByRoomId(Long roomId, int page, int size) {
-        if (roomId == null) throw new BadRequestException("Room ID is required");
-    
+        if (roomId == null)
+            throw new BadRequestException("Room ID is required");
+
         List<Temperature> data = temperatureDao.findAllByRoomId(roomId, page, size);
         Long totalElements = temperatureDao.countByRoomId(roomId);
 
@@ -82,7 +85,8 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Override
     @Transactional(readOnly = true)
     public Temperature getEntityById(Long id) {
-        if (id == null) throw new BadRequestException("Temperature sensor ID is required");
+        if (id == null)
+            throw new BadRequestException("Temperature sensor ID is required");
 
         return temperatureDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Temperature sensor not found with ID: " + id));
@@ -98,7 +102,8 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Override
     @Transactional(readOnly = true)
     public Temperature getEntityByNaturalId(String naturalId) {
-        if (naturalId.isBlank()) throw new BadRequestException("Natural ID is required");
+        if (naturalId.isBlank())
+            throw new BadRequestException("Natural ID is required");
 
         return temperatureDao.findByNaturalId(naturalId)
                 .orElseThrow(() -> new NotFoundException("Temperature sensor not found with Natural ID: " + naturalId));
@@ -107,15 +112,19 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Override
     @Transactional
     public TemperatureDto create(CreateTemperatureDto dto) {
-        if (dto == null || !StringUtils.hasText(dto.naturalId())) throw new BadRequestException("Data and Natural ID are required");
+        if (dto == null || !StringUtils.hasText(dto.naturalId()))
+            throw new BadRequestException("Data and Natural ID are required");
 
         var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found"));
-        var dc = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
+        var dc = deviceControlDao.findById(dto.deviceControlId())
+                .orElseThrow(() -> new NotFoundException("Device Control not found"));
 
-        if (dc.getRoom() == null || !dc.getRoom().getId().equals(room.getId())) throw new BadRequestException("Device Control does not belong to the specified Room");
+        if (dc.getRoom() == null || !dc.getRoom().getId().equals(room.getId()))
+            throw new BadRequestException("Device Control does not belong to the specified Room");
 
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
-        if (!languageDao.existsByCode(langCode)) throw new NotFoundException("Language not found");
+        if (!languageDao.existsByCode(langCode))
+            throw new NotFoundException("Language not found");
 
         var sensor = dto.toEntity();
         sensor.setRoom(room);
@@ -142,7 +151,8 @@ public class TemperatureServiceImpl implements TemperatureService {
                 .orElseThrow(() -> new NotFoundException("Sensor not found"));
         String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 
-        if (dto.isActive() != null) sensor.setIsActive(dto.isActive());
+        if (dto.isActive() != null)
+            sensor.setIsActive(dto.isActive());
 
         var lan = sensor.getTranslations().stream()
                 .filter(l -> langCode.equals(l.getLangCode()))
@@ -155,8 +165,10 @@ public class TemperatureServiceImpl implements TemperatureService {
                     return newLan;
                 });
 
-        if (dto.name() != null) lan.setName(dto.name().trim());
-        if (dto.description() != null) lan.setDescription(dto.description());
+        if (dto.name() != null)
+            lan.setName(dto.name().trim());
+        if (dto.description() != null)
+            lan.setDescription(dto.description());
 
         sensor.touch();
         temperatureDao.save(sensor);
@@ -167,7 +179,8 @@ public class TemperatureServiceImpl implements TemperatureService {
     @Override
     @Transactional
     public void delete(Long id) {
-        if (!temperatureDao.existsById(id)) throw new NotFoundException("Sensor not found");
+        if (!temperatureDao.existsById(id))
+            throw new NotFoundException("Sensor not found");
         Temperature target = temperatureDao.findById(id).orElseThrow(() -> new NotFoundException("Sensor not found"));
         HardwareConfig targetDeviceControl = target.getHardwareConfig();
         deviceControlDao.delete(targetDeviceControl);

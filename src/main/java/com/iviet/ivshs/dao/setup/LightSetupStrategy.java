@@ -6,7 +6,7 @@ import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +26,9 @@ public class LightSetupStrategy extends AbstractDeviceSetupStrategy {
 
     @Override
     public void persist(
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    ) {
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
         Light light = new Light();
         setupBaseIoTProperties(light, device, room, hardwareConfig);
         entityManager.persist(light);

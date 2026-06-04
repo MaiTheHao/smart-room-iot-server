@@ -7,10 +7,10 @@ import com.iviet.ivshs.dao.setup.DeviceSetupOrchestrator;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.ClientType;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.ExternalServiceException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.ClientType;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.ExternalServiceException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.SetupService;
@@ -43,26 +43,25 @@ public class SetupServiceImpl implements SetupService {
     }
 
     private Client validateAndGetGateway(Long clientId) {
-        Client client = clientService.getEntityById(clientId); 
-        
+        Client client = clientService.getEntityById(clientId);
+
         if (client.getClientType() != ClientType.HARDWARE_GATEWAY) {
             throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
         }
-        
+
         if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
             throw new BadRequestException(
-                "Gateway '" + client.getUsername() + "' does not have a configured IP address. " +
-                "Please configure the IP address before running setup."
-            );
+                    "Gateway '" + client.getUsername() + "' does not have a configured IP address. " +
+                            "Please configure the IP address before running setup.");
         }
-        
+
         return client;
     }
 
     private SetupRequest fetchSetupData(Client client) {
         try {
             ResponseEntity<SetupRequest> response = gatewaySystemClient.fetchSetup(client.getIpAddress());
-            
+
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 throw new ExternalServiceException("Gateway returned error status: " + response.getStatusCode());
             }
@@ -102,10 +101,9 @@ public class SetupServiceImpl implements SetupService {
             Room room = roomService.getEntityByCode(body.getRoomCode());
 
             deviceSetupOrchestrator.persistAll(
-                body.getDevices(),
-                client,
-                room
-            );
+                    body.getDevices(),
+                    client,
+                    room);
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {

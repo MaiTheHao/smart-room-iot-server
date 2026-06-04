@@ -5,12 +5,12 @@ import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.HealthCheckResponseDto;
 import com.iviet.ivshs.dto.HealthCheckResponseDto.DeviceDto;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.ExternalServiceException;
-import com.iviet.ivshs.exception.domain.NetworkTimeoutException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.ExternalServiceException;
+import com.iviet.ivshs.shared.exception.domain.NetworkTimeoutException;
 import com.iviet.ivshs.service.HealthCheckService;
 import com.iviet.ivshs.service.client.gateway.GatewaySystemClient;
-import com.iviet.ivshs.util.MdcTaskWrapper;
+import com.iviet.ivshs.shared.util.MdcTaskWrapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -138,7 +138,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 	public int getHealthScoreByRoom(Long roomId) {
 		Map<String, HealthCheckResponseDto> roomResults = checkByRoom(roomId);
 
-		if (roomResults.isEmpty()) return 100; // No gateways means no issues
+		if (roomResults.isEmpty())
+			return 100; // No gateways means no issues
 
 		double averageScore = roomResults.values().stream()
 				.mapToInt(this::calculateScore)
@@ -174,7 +175,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 		long activeCount = devices.stream().filter(DeviceDto::isActive).count();
 		int score = (int) (((double) activeCount / devices.size()) * 100);
-		log.debug("Calculated score: {}/{} devices active = {}%", 
+		log.debug("Calculated score: {}/{} devices active = {}%",
 				activeCount, devices.size(), score);
 		return score;
 	}

@@ -3,7 +3,7 @@ package com.iviet.ivshs.schedule.rule.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.entities.Temperature;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.schedule.rule.strategy.SensorStateStrategy;
 import com.iviet.ivshs.service.TemperatureService;
 

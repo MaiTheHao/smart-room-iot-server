@@ -4,9 +4,9 @@ import java.util.HashSet;
 
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
-import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -16,40 +16,31 @@ import lombok.Builder;
 
 @Builder
 public record CreateAirConditionDto(
-    @NotBlank(message = "Device name is required")
-    @Size(min = 1, max = 100)
-    String name,
+        @NotBlank(message = "Device name is required") @Size(min = 1, max = 100) String name,
 
-    @NotBlank(message = "Natural ID is required")
-    String naturalId,
+        @NotBlank(message = "Natural ID is required") String naturalId,
 
-    @Size(max = 255)
-    String description,
+        @Size(max = 255) String description,
 
-    Boolean isActive,
+        Boolean isActive,
 
-    @NotNull(message = "Room ID is required")
-    Long roomId,
+        @NotNull(message = "Room ID is required") Long roomId,
 
-    Long deviceControlId,
+        Long deviceControlId,
 
-    @Size(max = 10)
-    String langCode,
+        @Size(max = 10) String langCode,
 
-    ActuatorPower power,
+        ActuatorPower power,
 
-    Integer duration,
+        Integer duration,
 
-    @Min(16) @Max(32)
-    Integer temperature,
+        @Min(16) @Max(32) Integer temperature,
 
-    ActuatorMode mode,
+        ActuatorMode mode,
 
-    @Min(1) @Max(5)
-    Integer fanSpeed,
+        @Min(1) @Max(5) Integer fanSpeed,
 
-    ActuatorSwing swing
-) {
+        ActuatorSwing swing) {
     public AirCondition toEntity() {
         var ac = new AirCondition();
         ac.setNaturalId(this.naturalId);
@@ -69,7 +60,7 @@ public record CreateAirConditionDto(
         acLan.setOwner(ac);
         translations.add(acLan);
         ac.setTranslations(translations);
-        
+
         return ac;
     }
 }

@@ -9,11 +9,11 @@ import com.iviet.ivshs.dto.AcRemoteRequestPayload;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.AirConditionControlService;
 
 import lombok.RequiredArgsConstructor;

@@ -10,12 +10,12 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateLightDto;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.InternalServerErrorException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.InternalServerErrorException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.LightService;
-import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -33,13 +33,13 @@ public class LightServiceImpl implements LightService {
   private final RoomDao roomDao;
   private final LanguageDao languageDao;
   private final HardwareConfigDao deviceControlDao;
+
   @Override
   public PaginatedResponse<LightDto> getList(int page, int size) {
     var langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      lightDao.findAll(page, size, langCode),
-      page, size, lightDao.count()
-    );
+        lightDao.findAll(page, size, langCode),
+        page, size, lightDao.count());
   }
 
   @Override
@@ -50,17 +50,18 @@ public class LightServiceImpl implements LightService {
 
   @Override
   public PaginatedResponse<LightDto> getListByRoomId(Long roomId, int page, int size) {
-    if (roomId == null) throw new BadRequestException("Room ID is required");
+    if (roomId == null)
+      throw new BadRequestException("Room ID is required");
     var langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      lightDao.findAllByRoomId(roomId, page, size, langCode),
-      page, size, lightDao.countByRoomId(roomId)
-    );
+        lightDao.findAllByRoomId(roomId, page, size, langCode),
+        page, size, lightDao.countByRoomId(roomId));
   }
 
   @Override
   public List<LightDto> getAllByRoomId(Long roomId) {
-    if (roomId == null) throw new BadRequestException("Room ID is required");
+    if (roomId == null)
+      throw new BadRequestException("Room ID is required");
     var langCode = LocalContextUtil.getCurrentLangCode();
     return lightDao.findAllByRoomId(roomId, langCode);
   }
@@ -68,7 +69,7 @@ public class LightServiceImpl implements LightService {
   @Override
   public LightDto getById(Long lightId) {
     return lightDao.findById(lightId, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Light not found with ID: " + lightId));
+        .orElseThrow(() -> new NotFoundException("Light not found with ID: " + lightId));
   }
 
   @Override
@@ -85,12 +86,12 @@ public class LightServiceImpl implements LightService {
     checkDuplicate(naturalId, null);
 
     var room = roomDao.findById(dto.roomId())
-      .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+        .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
     var hardwareConfig = dto.deviceControlId() != null
-      ? deviceControlDao.findById(dto.deviceControlId())
-        .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()))
-      : null;
+        ? deviceControlDao.findById(dto.deviceControlId())
+            .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()))
+        : null;
 
     var langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
@@ -121,7 +122,7 @@ public class LightServiceImpl implements LightService {
     lightDao.flush();
 
     return lightDao.findById(light.getId(), langCode)
-      .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Light"));
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Light"));
   }
 
   @Override
@@ -141,13 +142,14 @@ public class LightServiceImpl implements LightService {
 
     if (dto.roomId() != null && !dto.roomId().equals(light.getRoom().getId())) {
       var room = roomDao.findById(dto.roomId())
-        .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+          .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
       light.setRoom(room);
     }
 
-    if (dto.deviceControlId() != null && (light.getHardwareConfig() == null || !dto.deviceControlId().equals(light.getHardwareConfig().getId()))) {
+    if (dto.deviceControlId() != null
+        && (light.getHardwareConfig() == null || !dto.deviceControlId().equals(light.getHardwareConfig().getId()))) {
       var dc = deviceControlDao.findById(dto.deviceControlId())
-        .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
+          .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
       light.setHardwareConfig(dc);
     }
 
@@ -155,30 +157,35 @@ public class LightServiceImpl implements LightService {
       throw new BadRequestException("Light level must be between " + Light.MIN_LEVEL + " and " + Light.MAX_LEVEL);
     }
 
-    if (dto.isActive() != null) light.setIsActive(dto.isActive());
-    if (dto.power() != null) light.setPower(dto.power());
-    if (dto.level() != null) light.setLevel(dto.level());
+    if (dto.isActive() != null)
+      light.setIsActive(dto.isActive());
+    if (dto.power() != null)
+      light.setPower(dto.power());
+    if (dto.level() != null)
+      light.setLevel(dto.level());
 
     var lan = light.getTranslations().stream()
-      .filter(ll -> langCode.equals(ll.getLangCode()))
-      .findFirst()
-      .orElseGet(() -> {
-        var newLan = new LightLan();
-        newLan.setLangCode(langCode);
-        newLan.setOwner(light);
-        light.getTranslations().add(newLan);
-        return newLan;
-      });
+        .filter(ll -> langCode.equals(ll.getLangCode()))
+        .findFirst()
+        .orElseGet(() -> {
+          var newLan = new LightLan();
+          newLan.setLangCode(langCode);
+          newLan.setOwner(light);
+          light.getTranslations().add(newLan);
+          return newLan;
+        });
 
-    if (dto.name() != null) lan.setName(dto.name().trim());
-    if (dto.description() != null) lan.setDescription(dto.description());
+    if (dto.name() != null)
+      lan.setName(dto.name().trim());
+    if (dto.description() != null)
+      lan.setDescription(dto.description());
 
     light.touch();
     lightDao.save(light);
     lightDao.flush();
 
     return lightDao.findById(lightId, langCode)
-      .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Light"));
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Light"));
   }
 
   @Override
@@ -191,7 +198,8 @@ public class LightServiceImpl implements LightService {
 
   @Override
   public Long countByRoomId(Long roomId) {
-    if (roomId == null) throw new BadRequestException("Room ID is required");
+    if (roomId == null)
+      throw new BadRequestException("Room ID is required");
     return lightDao.countByRoomId(roomId);
   }
 

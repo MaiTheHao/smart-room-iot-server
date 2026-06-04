@@ -5,7 +5,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.springframework.stereotype.Component;
-import com.iviet.ivshs.apm.TraceLogger;
+import com.iviet.ivshs.shared.apm.TraceLogger;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
@@ -58,7 +58,8 @@ public class TraceJobListener implements JobListener {
         int status = (jobException == null) ? 200 : 500;
 
         if (jobException != null) {
-            log.error("Job execution failed: name={}, traceId={}, duration={}ms", jobName, traceId, duration, jobException);
+            log.error("Job execution failed: name={}, traceId={}, duration={}ms", jobName, traceId, duration,
+                    jobException);
         } else {
             log.info("Job execution completed: name={}, traceId={}, duration={}ms", jobName, traceId, duration);
         }

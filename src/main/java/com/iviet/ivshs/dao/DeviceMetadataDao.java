@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dto.DeviceMetadataDto;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;

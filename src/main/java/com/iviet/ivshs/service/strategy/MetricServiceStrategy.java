@@ -1,13 +1,12 @@
 package com.iviet.ivshs.service.strategy;
 
-
-import com.iviet.ivshs.enumeration.MetricDomain;
+import com.iviet.ivshs.shared.enumeration.MetricDomain;
 
 import java.time.Instant;
 import java.util.List;
 
 public interface MetricServiceStrategy {
-    
+
     MetricDomain getSupportedDomain();
 
     Object getLatest(String category, Long targetId);

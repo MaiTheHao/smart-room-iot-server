@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.service.DeviceMetadataService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 public class DeviceMetadataController {
 
     private final DeviceMetadataService deviceMetadataService;
-
 
     @GetMapping("/rooms/{roomId}/devices")
     public ResponseEntity<ApiResponse<List<Object>>> getAllByRoomId(

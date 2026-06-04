@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.AirConditionControlRequestBody;
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
 import com.iviet.ivshs.dto.ControlDeviceResult;

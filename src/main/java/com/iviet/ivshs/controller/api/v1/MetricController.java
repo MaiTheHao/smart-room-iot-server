@@ -2,7 +2,7 @@ package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.ApiResponse;
 
-import com.iviet.ivshs.enumeration.MetricDomain;
+import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.service.MetricOrchestratorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +28,7 @@ public class MetricController {
             @RequestParam(name = "targetId") Long targetId,
             @RequestParam(name = "latest", defaultValue = "false") boolean latest,
             @RequestParam(name = "from", required = false) Instant from,
-            @RequestParam(name = "to", required = false) Instant to
-    ) {
+            @RequestParam(name = "to", required = false) Instant to) {
         if (latest) {
             Object result = orchestrator.getLatest(domain, category, targetId);
             if (result == null) {

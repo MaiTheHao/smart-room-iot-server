@@ -1,6 +1,6 @@
 package com.iviet.ivshs.entities.converter;
 
-import com.iviet.ivshs.enumeration.ConditionOperator;
+import com.iviet.ivshs.shared.enumeration.ConditionOperator;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

@@ -5,11 +5,11 @@ import com.iviet.ivshs.dao.SysFunctionDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.SysFunctionLan;
 import com.iviet.ivshs.entities.SysFunction;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.SysFunctionService;
-import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.util.FunctionCodeHelper;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.FunctionCodeHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,15 +35,14 @@ public class SysFunctionServiceImpl implements SysFunctionService {
   public PaginatedResponse<SysFunctionDto> getList(int page, int size) {
     String langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      functionDao.findAll(page, size, langCode),
-      page, size, functionDao.countAll()
-    );
+        functionDao.findAll(page, size, langCode),
+        page, size, functionDao.countAll());
   }
 
   @Override
   public SysFunctionDto getById(Long id) {
     return functionDao.findById(id, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
+        .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
   }
 
   @Override
@@ -52,7 +51,7 @@ public class SysFunctionServiceImpl implements SysFunctionService {
       throw new BadRequestException("Function code is required");
     }
     return functionDao.findByCode(functionCode, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
+        .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
   }
 
   @Override
@@ -65,9 +64,8 @@ public class SysFunctionServiceImpl implements SysFunctionService {
   public PaginatedResponse<SysFunctionDto> getListByGroupId(Long groupId, int page, int size) {
     String langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      functionDao.findAllByGroupId(groupId, langCode, page, size),
-      page, size, functionDao.countByGroupId(groupId)
-    );
+        functionDao.findAllByGroupId(groupId, langCode, page, size),
+        page, size, functionDao.countByGroupId(groupId));
   }
 
   @Override
@@ -80,9 +78,8 @@ public class SysFunctionServiceImpl implements SysFunctionService {
   public PaginatedResponse<SysFunctionDto> getListByGroupCode(String groupCode, int page, int size) {
     String langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      functionDao.findAllByGroupCode(groupCode, langCode, page, size),
-      page, size, functionDao.countByGroupCode(groupCode)
-    );
+        functionDao.findAllByGroupCode(groupCode, langCode, page, size),
+        page, size, functionDao.countByGroupCode(groupCode));
   }
 
   @Override
@@ -95,9 +92,8 @@ public class SysFunctionServiceImpl implements SysFunctionService {
   public PaginatedResponse<SysFunctionDto> getListByClientId(Long clientId, int page, int size) {
     String langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      functionDao.findAllByClientId(clientId, langCode, page, size),
-      page, size, functionDao.countByClientId(clientId)
-    );
+        functionDao.findAllByClientId(clientId, langCode, page, size),
+        page, size, functionDao.countByClientId(clientId));
   }
 
   @Override
@@ -118,7 +114,8 @@ public class SysFunctionServiceImpl implements SysFunctionService {
 
     String code = dto.functionCode().trim().toUpperCase();
     if (!FunctionCodeHelper.isValidFunctionCode(code)) {
-      throw new BadRequestException("Invalid function code format. Must be F_MANAGE_<domain> or F_ACCESS_<domain>_<id>.");
+      throw new BadRequestException(
+          "Invalid function code format. Must be F_MANAGE_<domain> or F_ACCESS_<domain>_<id>.");
     }
     _checkDuplicate(code, null);
 
@@ -146,7 +143,7 @@ public class SysFunctionServiceImpl implements SysFunctionService {
   @Transactional
   public SysFunctionDto update(Long id, UpdateSysFunctionDto dto) {
     SysFunction function = functionDao.findById(id)
-      .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
+        .orElseThrow(() -> new NotFoundException("Function not found with ID: " + id));
 
     String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
@@ -154,15 +151,15 @@ public class SysFunctionServiceImpl implements SysFunctionService {
     }
 
     var functionLan = function.getTranslations().stream()
-      .filter(lan -> langCode.equals(lan.getLangCode()))
-      .findFirst()
-      .orElseGet(() -> {
-        var newLan = new SysFunctionLan();
-        newLan.setLangCode(langCode);
-        newLan.setOwner(function);
-        function.getTranslations().add(newLan);
-        return newLan;
-      });
+        .filter(lan -> langCode.equals(lan.getLangCode()))
+        .findFirst()
+        .orElseGet(() -> {
+          var newLan = new SysFunctionLan();
+          newLan.setLangCode(langCode);
+          newLan.setOwner(function);
+          function.getTranslations().add(newLan);
+          return newLan;
+        });
 
     if (dto.name() != null) {
       functionLan.setName(dto.name().trim());

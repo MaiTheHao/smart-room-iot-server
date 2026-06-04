@@ -12,8 +12,8 @@ import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.RuleCondition;
-import com.iviet.ivshs.enumeration.RuleDataSource;
-import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
+import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
 import jakarta.annotation.PostConstruct;

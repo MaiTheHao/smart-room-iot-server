@@ -3,7 +3,7 @@ package com.iviet.ivshs.entities;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
-import com.iviet.ivshs.enumeration.JobTargetType;
-import com.iviet.ivshs.exception.domain.BaseException;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
+import com.iviet.ivshs.shared.exception.domain.BaseException;
 import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class AutomationProcessor {
     public AutomationProcessor(List<AutomationActionStrategy> actionHandlers) {
         this.actionHandlerMap = actionHandlers.stream()
                 .collect(Collectors.toMap(AutomationActionStrategy::getTargetType, Function.identity()));
-        
+
         log.info("Processor initialized with {} handlers", actionHandlerMap.size());
     }
 

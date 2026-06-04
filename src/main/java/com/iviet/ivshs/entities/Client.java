@@ -20,7 +20,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
-import com.iviet.ivshs.enumeration.ClientType;
+import com.iviet.ivshs.shared.enumeration.ClientType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,12 +28,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "client",
-    indexes = {
+@Table(name = "client", indexes = {
         @Index(name = "idx_username", columnList = "username", unique = true),
         @Index(name = "idx_client_type_client_ip_address", columnList = "client_type, ip_address", unique = true),
-    }
-)
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -75,13 +73,8 @@ public class Client extends BaseAuditEntity {
     private Set<HardwareConfig> hardwareConfigs = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(
-        name = "client_group",
-        joinColumns = @JoinColumn(name = "client_id", nullable = false),
-        inverseJoinColumns = @JoinColumn(name = "group_id", nullable = false),
-        indexes = {
+    @JoinTable(name = "client_group", joinColumns = @JoinColumn(name = "client_id", nullable = false), inverseJoinColumns = @JoinColumn(name = "group_id", nullable = false), indexes = {
             @Index(name = "idx_client_group", columnList = "client_id, group_id", unique = true)
-        }
-    )
+    })
     private Set<SysGroup> groups = new HashSet<>();
 }

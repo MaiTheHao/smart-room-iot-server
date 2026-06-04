@@ -12,11 +12,11 @@ import com.iviet.ivshs.dto.UpdateFanIrDto;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.InternalServerErrorException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.InternalServerErrorException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.FanService;
-import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,13 +63,14 @@ public class FanServiceImpl implements FanService {
   @Override
   public FanDto getByRoomAndNaturalId(Long roomId, String naturalId) {
     return fanDao.findByRoomAndNaturalId(roomId, naturalId, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Fan not found with Room ID: " + roomId + " and Natural ID: " + naturalId));
+        .orElseThrow(
+            () -> new NotFoundException("Fan not found with Room ID: " + roomId + " and Natural ID: " + naturalId));
   }
 
   @Override
   public FanDto getById(Long id) {
     return fanDao.findById(id, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
+        .orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
   }
 
   @Override
@@ -81,7 +82,7 @@ public class FanServiceImpl implements FanService {
     }
 
     var room = roomDao.findById(dto.roomId())
-      .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+        .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
     var langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
@@ -93,7 +94,7 @@ public class FanServiceImpl implements FanService {
 
     if (dto.deviceControlId() != null) {
       fan.setHardwareConfig(deviceControlDao.findById(dto.deviceControlId())
-        .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
+          .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
     fan.touch();
@@ -101,7 +102,7 @@ public class FanServiceImpl implements FanService {
     fanDao.flush();
 
     return fanDao.findById(fan.getId(), langCode)
-      .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Fan"));
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Fan"));
   }
 
   @Override
@@ -130,45 +131,53 @@ public class FanServiceImpl implements FanService {
 
     if (dto.roomId() != null && !dto.roomId().equals(fan.getRoom().getId())) {
       var room = roomDao.findById(dto.roomId())
-        .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+          .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
       fan.setRoom(room);
     }
 
     if (dto.deviceControlId() != null) {
       fan.setHardwareConfig(deviceControlDao.findById(dto.deviceControlId())
-        .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
+          .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
-    if (dto.isActive() != null) fan.setIsActive(dto.isActive());
-    if (dto.power() != null) fan.setPower(dto.power());
+    if (dto.isActive() != null)
+      fan.setIsActive(dto.isActive());
+    if (dto.power() != null)
+      fan.setPower(dto.power());
 
     if (fan instanceof FanIr fanIr && dto instanceof UpdateFanIrDto irDto) {
-      if (irDto.mode() != null) fanIr.setMode(irDto.mode());
-      if (irDto.speed() != null) fanIr.setSpeed(irDto.speed());
-      if (irDto.swing() != null) fanIr.setSwing(irDto.swing());
-      if (irDto.light() != null) fanIr.setLight(irDto.light());
+      if (irDto.mode() != null)
+        fanIr.setMode(irDto.mode());
+      if (irDto.speed() != null)
+        fanIr.setSpeed(irDto.speed());
+      if (irDto.swing() != null)
+        fanIr.setSwing(irDto.swing());
+      if (irDto.light() != null)
+        fanIr.setLight(irDto.light());
     }
 
     var lan = fan.getTranslations().stream()
-      .filter(l -> langCode.equals(l.getLangCode()))
-      .findFirst()
-      .orElseGet(() -> {
-        var newLan = new FanLan();
-        newLan.setLangCode(langCode);
-        newLan.setOwner(fan);
-        fan.getTranslations().add(newLan);
-        return newLan;
-      });
+        .filter(l -> langCode.equals(l.getLangCode()))
+        .findFirst()
+        .orElseGet(() -> {
+          var newLan = new FanLan();
+          newLan.setLangCode(langCode);
+          newLan.setOwner(fan);
+          fan.getTranslations().add(newLan);
+          return newLan;
+        });
 
-    if (StringUtils.hasText(dto.name())) lan.setName(dto.name().trim());
-    if (dto.description() != null) lan.setDescription(dto.description());
+    if (StringUtils.hasText(dto.name()))
+      lan.setName(dto.name().trim());
+    if (dto.description() != null)
+      lan.setDescription(dto.description());
 
     fan.touch();
     fanDao.save(fan);
     fanDao.flush();
 
     return fanDao.findById(id, langCode)
-      .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Fan"));
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Fan"));
   }
 
   @Override
@@ -181,7 +190,8 @@ public class FanServiceImpl implements FanService {
 
   @Override
   public Long countByRoomId(Long roomId) {
-    if (roomId == null) throw new BadRequestException("Room ID is required");
+    if (roomId == null)
+      throw new BadRequestException("Room ID is required");
     return fanDao.countByRoomId(roomId);
   }
 

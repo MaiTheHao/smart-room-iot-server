@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.entities.RuleCondition;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.enumeration.RuleDataSource;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 import com.iviet.ivshs.schedule.rule.strategy.SensorStateStrategy;
 
@@ -43,8 +43,8 @@ public class SensorDataSourceStrategy implements RuleDataSourceStrategy {
       for (SensorStateStrategy strategy : sensorStrategies) {
         if (strategy.supports(category)) {
           Object value = strategy.fetchState(sensorId, property);
-          log.debug("Fetched state for condition {}: SENSOR [{}] property '{}' = {}", 
-                    condition.getId(), sensorId, property, value);
+          log.debug("Fetched state for condition {}: SENSOR [{}] property '{}' = {}",
+              condition.getId(), sensorId, property, value);
           return value;
         }
       }

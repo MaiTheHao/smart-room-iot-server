@@ -7,11 +7,11 @@ import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateClientDto;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.enumeration.ClientType;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.ClientType;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.ClientService;
-import com.iviet.ivshs.util.SecurityContextUtil;
+import com.iviet.ivshs.shared.util.SecurityContextUtil;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,22 +35,22 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public List<ClientDto> getAll() {
     return clientDao.findAll().stream()
-      .map(ClientDto::from)
-      .toList();
+        .map(ClientDto::from)
+        .toList();
   }
 
   @Override
   public List<ClientDto> getAllGateways() {
     return clientDao.findAllGateways().stream()
-      .map(ClientDto::from)
-      .toList();
+        .map(ClientDto::from)
+        .toList();
   }
 
   @Override
   public PaginatedResponse<ClientDto> getList(int page, int size) {
     List<ClientDto> clients = clientDao.findAll(page, size).stream()
-      .map(ClientDto::from)
-      .toList();
+        .map(ClientDto::from)
+        .toList();
     Long totalElements = clientDao.count();
     return new PaginatedResponse<>(clients, page, size, totalElements);
   }
@@ -63,13 +63,13 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public ClientDto getById(Long clientId) {
     return ClientDto.from(clientDao.findById(clientId)
-      .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId)));
+        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId)));
   }
 
   @Override
   public Client getEntityById(Long clientId) {
     Client client = clientDao.findById(clientId)
-      .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
     if (client.getGroups() != null) {
       client.getGroups().size();
@@ -80,14 +80,14 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public ClientDto getByUsername(String username) {
     return clientDao.findByUsername(username.trim())
-      .map(ClientDto::from)
-      .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
+        .map(ClientDto::from)
+        .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
   }
 
   @Override
   public Client getEntityByUsername(String username) {
     Client client = clientDao.findByUsername(username.trim())
-      .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
+        .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
 
     if (client.getGroups() != null) {
       client.getGroups().size();
@@ -98,36 +98,36 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public ClientDto getUserById(Long userId) {
     return clientDao.findUserById(userId)
-      .map(ClientDto::from)
-      .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+        .map(ClientDto::from)
+        .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
   }
 
   @Override
   public ClientDto getGatewayById(Long gatewayId) {
     return clientDao.findGatewayById(gatewayId)
-      .map(ClientDto::from)
-      .orElseThrow(() -> new NotFoundException("Gateway not found with ID: " + gatewayId));
+        .map(ClientDto::from)
+        .orElseThrow(() -> new NotFoundException("Gateway not found with ID: " + gatewayId));
   }
 
   @Override
   public ClientDto getUserByUsername(String username) {
     return clientDao.findUserByUsername(username.trim())
-      .map(ClientDto::from)
-      .orElseThrow(() -> new NotFoundException("User not found with username: " + username));
+        .map(ClientDto::from)
+        .orElseThrow(() -> new NotFoundException("User not found with username: " + username));
   }
 
   @Override
   public ClientDto getUserByIpAddress(String ipAddress) {
     Client user = clientDao.findUserByIpAddress(ipAddress)
-      .orElseThrow(() -> new NotFoundException("User not found with IP Address: " + ipAddress));
+        .orElseThrow(() -> new NotFoundException("User not found with IP Address: " + ipAddress));
     return ClientDto.from(user);
   }
 
   @Override
   public ClientDto getGatewayByUsername(String username) {
     return clientDao.findGatewayByUsername(username.trim())
-      .map(ClientDto::from)
-      .orElseThrow(() -> new NotFoundException("Gateway not found with username: " + username));
+        .map(ClientDto::from)
+        .orElseThrow(() -> new NotFoundException("Gateway not found with username: " + username));
   }
 
   @Override
@@ -139,14 +139,14 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public Client getGatewayEntityByIpAddress(String ipAddress) {
     return clientDao.findGatewayByIpAddress(ipAddress)
-      .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
+        .orElseThrow(() -> new NotFoundException("Gateway not found with IP Address: " + ipAddress));
   }
 
   @Override
   @Transactional
   public void updateAccessToken(Long clientId, String accessToken) {
     Client client = clientDao.findById(clientId)
-      .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
     client.setAccessToken(accessToken);
     clientDao.update(client);
   }
@@ -160,8 +160,8 @@ public class ClientServiceImpl implements ClientService {
   @Override
   public PaginatedResponse<ClientDto> getListGatewaysByRoomId(Long roomId, int page, int size) {
     List<ClientDto> gateways = clientDao.findGatewaysByRoomId(roomId, page, size).stream()
-      .map(ClientDto::from)
-      .toList();
+        .map(ClientDto::from)
+        .toList();
     Long totalElements = clientDao.countGatewaysByRoomId(roomId);
     return new PaginatedResponse<>(gateways, page, size, totalElements);
   }
@@ -223,17 +223,17 @@ public class ClientServiceImpl implements ClientService {
   @Transactional
   public ClientDto patchUpdate(Long clientId, UpdateClientDto updateDto) {
     Client client = clientDao.findById(clientId)
-      .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
     ClientType targetType = updateDto.clientType() != null ? updateDto.clientType() : client.getClientType();
     if (targetType == ClientType.HARDWARE_GATEWAY) {
-        String finalIp = (updateDto.ipAddress() != null && !updateDto.ipAddress().trim().isEmpty()) 
-            ? updateDto.ipAddress().trim() 
-            : client.getIpAddress();
-        
-        if (finalIp == null || finalIp.trim().isEmpty()) {
-            throw new BadRequestException("IP Address is required for HARDWARE_GATEWAY clients");
-        }
+      String finalIp = (updateDto.ipAddress() != null && !updateDto.ipAddress().trim().isEmpty())
+          ? updateDto.ipAddress().trim()
+          : client.getIpAddress();
+
+      if (finalIp == null || finalIp.trim().isEmpty()) {
+        throw new BadRequestException("IP Address is required for HARDWARE_GATEWAY clients");
+      }
     }
 
     if (updateDto.clientType() != null) {
@@ -259,7 +259,8 @@ public class ClientServiceImpl implements ClientService {
 
     if (updateDto.gatewayPassword() != null && !updateDto.gatewayPassword().trim().isEmpty()) {
       client.setGatewayPassword(updateDto.gatewayPassword().trim());
-    } else if (updateDto.password() != null && !updateDto.password().trim().isEmpty() && client.getClientType() == ClientType.HARDWARE_GATEWAY) {
+    } else if (updateDto.password() != null && !updateDto.password().trim().isEmpty()
+        && client.getClientType() == ClientType.HARDWARE_GATEWAY) {
       client.setGatewayPassword(updateDto.password().trim());
     }
 
@@ -271,7 +272,7 @@ public class ClientServiceImpl implements ClientService {
   @Transactional
   public void delete(Long clientId) {
     Client client = clientDao.findById(clientId)
-      .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
     if (client.getGroups() != null && !client.getGroups().isEmpty()) {
       client.getGroups().clear();
@@ -283,7 +284,8 @@ public class ClientServiceImpl implements ClientService {
   @Override
   @Transactional
   public void deleteAllHardwareConfig(Long clientId) {
-    Client client = clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+    Client client = clientDao.findById(clientId)
+        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
     if (client.getHardwareConfigs() != null && !client.getHardwareConfigs().isEmpty()) {
       roomDao.touchRoomsByClientId(clientId);
@@ -297,11 +299,11 @@ public class ClientServiceImpl implements ClientService {
   @Transactional
   public void updateLastLogin(String username) {
     Client client = clientDao.findByUsername(username.trim())
-      .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
-    
+        .orElseThrow(() -> new NotFoundException("Client not found with username: " + username));
+
     java.util.Date now = new java.util.Date();
     java.util.Date lastLogin = client.getLastLoginAt();
-    
+
     if (lastLogin == null || (now.getTime() - lastLogin.getTime() > 30 * 60 * 1000)) {
       client.setLastLoginAt(now);
       clientDao.update(client);

@@ -1,29 +1,26 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.FanType;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.FanType;
 
 import jakarta.validation.constraints.Size;
 
 public record UpdateFanGpioDto(
-    @Size(min = 1, max = 100)
-    String name,
+        @Size(min = 1, max = 100) String name,
 
-    String naturalId,
+        String naturalId,
 
-    @Size(max = 255)
-    String description,
+        @Size(max = 255) String description,
 
-    Boolean isActive,
+        Boolean isActive,
 
-    Long roomId,
+        Long roomId,
 
-    Long deviceControlId,
+        Long deviceControlId,
 
-    @Size(max = 10)
-    String langCode,
+        @Size(max = 10) String langCode,
 
-    ActuatorPower power,
+        ActuatorPower power,
 
-    FanType type
-) implements UpdateFanDto {}
+        FanType type) implements UpdateFanDto {
+}

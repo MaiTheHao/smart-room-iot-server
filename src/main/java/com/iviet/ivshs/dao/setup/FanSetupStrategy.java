@@ -8,9 +8,9 @@ import com.iviet.ivshs.entities.FanGpio;
 import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.enumeration.FanType;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.FanType;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +30,9 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
 
     @Override
     public void persist(
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    ) {
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
         FanType fanType = FanType.fromString(device.getSpecificType());
 
         if (fanType == null) {
@@ -61,9 +60,9 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
 
     private Fan createFanByType(FanType fanType) {
         return switch (fanType) {
-            case IR   -> new FanIr();
+            case IR -> new FanIr();
             case GPIO -> new FanGpio();
-            default   -> throw new BadRequestException("Unsupported fan type for setup: " + fanType);
+            default -> throw new BadRequestException("Unsupported fan type for setup: " + fanType);
         };
     }
 }

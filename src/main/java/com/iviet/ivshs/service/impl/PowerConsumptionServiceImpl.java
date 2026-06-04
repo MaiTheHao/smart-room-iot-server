@@ -15,10 +15,10 @@ import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.PowerConsumption;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.PowerConsumptionService;
-import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,7 +50,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	@Override
 	@Transactional(readOnly = true)
 	public PaginatedResponse<PowerConsumptionDto> getListByRoomId(Long roomId, int page, int size) {
-		if (roomId == null) throw new BadRequestException("Room ID is required");
+		if (roomId == null)
+			throw new BadRequestException("Room ID is required");
 
 		String langCode = LocalContextUtil.getCurrentLangCode();
 		List<PowerConsumptionDto> data = powerConsumptionDao.findAllByRoomId(roomId, page, size, langCode);
@@ -62,15 +63,17 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<PowerConsumptionDto> getAllByRoomId(Long roomId) {
-		if (roomId == null) throw new BadRequestException("Room ID is required");
+		if (roomId == null)
+			throw new BadRequestException("Room ID is required");
 		return powerConsumptionDao.findAllByRoomId(roomId, LocalContextUtil.getCurrentLangCode());
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public PaginatedResponse<PowerConsumption> getListEntityByRoomId(Long roomId, int page, int size) {
-		if (roomId == null) throw new BadRequestException("Room ID is required");
-		
+		if (roomId == null)
+			throw new BadRequestException("Room ID is required");
+
 		List<PowerConsumption> data = powerConsumptionDao.findAllByRoomId(roomId, page, size);
 		Long totalElements = powerConsumptionDao.countByRoomId(roomId);
 
@@ -86,34 +89,37 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 
 		String langCode = LocalContextUtil.getCurrentLangCode();
 		return powerConsumptionDao.findById(id, langCode).orElseThrow(
-			() -> new NotFoundException("Power sensor not found with ID: " + id)
-		);
+				() -> new NotFoundException("Power sensor not found with ID: " + id));
 	}
 
 	@Override
-	@Transactional(readOnly = true) 
+	@Transactional(readOnly = true)
 	public PowerConsumption getEntityById(Long id) {
-		if (id == null) throw new BadRequestException("Power sensor ID is required");
-		return powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
+		if (id == null)
+			throw new BadRequestException("Power sensor ID is required");
+		return powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public PowerConsumptionDto getByNaturalId(String naturalId) {
-		if (naturalId.isBlank()) throw new BadRequestException("Natural ID is required");
+		if (naturalId.isBlank())
+			throw new BadRequestException("Natural ID is required");
 
 		String langCode = LocalContextUtil.getCurrentLangCode();
 		return powerConsumptionDao.findByNaturalId(naturalId, langCode)
-			.orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public PowerConsumption getEntityByNaturalId(String naturalId) {
-		if (naturalId.isBlank()) throw new BadRequestException("Natural ID is required");
+		if (naturalId.isBlank())
+			throw new BadRequestException("Natural ID is required");
 
 		return powerConsumptionDao.findByNaturalId(naturalId)
-			.orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
 	}
 
 	@Override
@@ -131,7 +137,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 
 		var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found"));
 
-		var hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
+		var hardwareConfig = deviceControlDao.findById(dto.deviceControlId())
+				.orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
 		String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 		if (!languageDao.existsByCode(langCode)) {
 			throw new BadRequestException("Language with code " + langCode + " not found");
@@ -153,8 +160,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		powerConsumptionDao.flush();
 
 		return powerConsumptionDao.findById(powerConsumption.getId(), langCode).orElseThrow(
-			() -> new NotFoundException("Power sensor not found with ID: " + powerConsumption.getId())
-		);
+				() -> new NotFoundException("Power sensor not found with ID: " + powerConsumption.getId()));
 	}
 
 	@Override
@@ -167,7 +173,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 			throw new BadRequestException("Update data is required");
 		}
 
-		var powerConsumption = powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found"));
+		var powerConsumption = powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found"));
 
 		String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 		if (!languageDao.existsByCode(langCode)) {
@@ -203,7 +210,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		}
 
 		if (dto.deviceControlId() != null) {
-			var hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
+			var hardwareConfig = deviceControlDao.findById(dto.deviceControlId())
+					.orElseThrow(() -> new NotFoundException("Device Control not found"));
 			powerConsumption.setHardwareConfig(hardwareConfig);
 		}
 
@@ -212,8 +220,7 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		powerConsumptionDao.flush();
 
 		return powerConsumptionDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(
-				() -> new NotFoundException("Power sensor not found with ID: " + id)
-			);
+				() -> new NotFoundException("Power sensor not found with ID: " + id));
 	}
 
 	@Override
@@ -222,8 +229,10 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		if (id == null) {
 			throw new BadRequestException("Power sensor ID is required");
 		}
-		if (!powerConsumptionDao.existsById(id)) throw new NotFoundException("Power sensor not found");
-		PowerConsumption target = powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found"));
+		if (!powerConsumptionDao.existsById(id))
+			throw new NotFoundException("Power sensor not found");
+		PowerConsumption target = powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found"));
 		HardwareConfig targetDeviceControl = target.getHardwareConfig();
 		deviceControlDao.delete(targetDeviceControl);
 	}

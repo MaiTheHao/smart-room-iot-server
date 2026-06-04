@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.schedule.rule.strategy.DeviceStateStrategy;
 
 import lombok.RequiredArgsConstructor;
@@ -42,9 +42,11 @@ public class FanStateStrategy implements DeviceStateStrategy {
     }
 
     String lowerProp = property.toLowerCase();
-    
-    if (PROP_POWER.equals(lowerProp)) return fan.getPower();
-    if (PROP_SPEED.equals(lowerProp)) return fan.getSpeed();
+
+    if (PROP_POWER.equals(lowerProp))
+      return fan.getPower();
+    if (PROP_SPEED.equals(lowerProp))
+      return fan.getSpeed();
     if (fan instanceof FanIr fanIr) {
       return switch (lowerProp) {
         case PROP_MODE -> fanIr.getMode();
@@ -57,7 +59,8 @@ public class FanStateStrategy implements DeviceStateStrategy {
       };
     }
 
-    log.warn("Property '{}' not supported for FAN ID: {} (Type: {})", property, deviceId, fan.getClass().getSimpleName());
+    log.warn("Property '{}' not supported for FAN ID: {} (Type: {})", property, deviceId,
+        fan.getClass().getSimpleName());
     return null;
   }
 }

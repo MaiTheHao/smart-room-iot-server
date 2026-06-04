@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.entities.Light;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.JobActionType;
-import com.iviet.ivshs.enumeration.JobTargetType;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.JobActionType;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
 import com.iviet.ivshs.service.LightControlService;
 
@@ -31,11 +31,11 @@ public class LightAutomationActionStrategy implements AutomationActionStrategy {
     @Override
     public void handle(AutomationAction action) throws Exception {
         ActuatorPower newState = (action.getActionType() == JobActionType.ON) ? ActuatorPower.ON : ActuatorPower.OFF;
-        
+
         try {
             Light light = lightDao.findById(action.getTargetId())
                     .orElseThrow(() -> new NotFoundException("Light not found: " + action.getTargetId()));
-            
+
             controlService.handlePowerControl(light.getNaturalId(), newState);
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {

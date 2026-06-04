@@ -11,9 +11,9 @@ import com.iviet.ivshs.dto.CreatePowerConsumptionValueDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.PowerConsumption;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.enumeration.TelemetryTimeGroup;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.PowerConsumptionValueService;
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +28,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   private final RoomDao roomDao;
   private final PowerConsumptionDao powerConsumptionDao;
   private final PowerConsumptionValueDao powerConsumptionValueDao;
-  
+
   @Override
   public DeviceCategory getSupportedCategory() {
     return DeviceCategory.POWER_CONSUMPTION;
@@ -38,17 +38,19 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   @Transactional
   public void create(TelemetryResponseDto.DeviceDto data) {
     JsonNode wattNode = data.getData().get("watt");
-    if (wattNode == null || !wattNode.isNumber()) return;
+    if (wattNode == null || !wattNode.isNumber())
+      return;
     Double watt = wattNode.asDouble();
 
-    var sensor = powerConsumptionDao.findByNaturalId(data.getNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + data.getNaturalId()));
+    var sensor = powerConsumptionDao.findByNaturalId(data.getNaturalId()).orElseThrow(
+        () -> new NotFoundException("Power consumption sensor not found with natural ID: " + data.getNaturalId()));
     var record = CreatePowerConsumptionValueDto.builder()
         .sensorNaturalId(data.getNaturalId())
         .watt(watt)
         .timestamp(Instant.now())
         .build()
         .toEntity();
-        
+
     record.setSensor(sensor);
     powerConsumptionValueDao.save(record);
     sensor.setCurrentWatt(record.getWatt());
@@ -62,16 +64,17 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
         roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId(),
         from,
         to,
-        divisor
-    );
+        divisor);
   }
 
   @Override
   @Transactional
   public void create(CreatePowerConsumptionValueDto dto) {
-    if (dto.watt() == null) return;
-    
-    var sensor = powerConsumptionDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + dto.sensorNaturalId()));
+    if (dto.watt() == null)
+      return;
+
+    var sensor = powerConsumptionDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(
+        () -> new NotFoundException("Power consumption sensor not found with natural ID: " + dto.sensorNaturalId()));
     var record = dto.toEntity();
     record.setSensor(sensor);
     powerConsumptionValueDao.save(record);
@@ -83,7 +86,8 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   @Override
   @Transactional
   public void createWithSensor(PowerConsumption sensor, CreatePowerConsumptionValueDto dto) {
-    if (dto.watt() == null) return;
+    if (dto.watt() == null)
+      return;
 
     var record = dto.toEntity();
     record.setSensor(sensor);
@@ -111,8 +115,7 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
 
     powerConsumptionValueDao.saveAndForget(sensor.getId(), sortedByTimestampLatestFirst.stream()
         .map(CreatePowerConsumptionValueDto::toEntity)
-        .toList()
-    );
+        .toList());
 
     sensor.setCurrentWatt(sortedByTimestampLatestFirst.get(0).watt());
     powerConsumptionDao.save(sensor);

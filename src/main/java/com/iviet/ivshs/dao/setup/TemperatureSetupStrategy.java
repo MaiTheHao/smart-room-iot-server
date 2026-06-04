@@ -6,7 +6,7 @@ import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.entities.TemperatureLan;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +26,9 @@ public class TemperatureSetupStrategy extends AbstractDeviceSetupStrategy {
 
     @Override
     public void persist(
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    ) {
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
         Temperature temperature = new Temperature();
         setupBaseIoTProperties(temperature, device, room, hardwareConfig);
         entityManager.persist(temperature);

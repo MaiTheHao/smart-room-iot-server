@@ -3,7 +3,7 @@ package com.iviet.ivshs.schedule.rule.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.entities.RuleCondition;
-import com.iviet.ivshs.enumeration.RuleDataSource;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
 import java.time.Instant;
@@ -34,7 +34,7 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
 
     try {
       String property = condition.getResourceParam().path("property").asText(null);
-      
+
       if (property == null) {
         log.warn("Property is missing in SYSTEM resourceParam for condition {}", condition.getId());
         return null;
@@ -55,7 +55,7 @@ public class SystemDataSourceStrategy implements RuleDataSourceStrategy {
           yield null;
         }
       };
-      
+
       log.debug("Fetched SYSTEM data [UTC]: {} = {}", property, value);
       return value;
 

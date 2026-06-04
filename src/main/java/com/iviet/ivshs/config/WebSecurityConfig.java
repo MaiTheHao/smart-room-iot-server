@@ -24,7 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.sql.DataSource;
 import java.util.List;
-import com.iviet.ivshs.filter.JwtAuthenticationFilter;
+import com.iviet.ivshs.shared.filter.JwtAuthenticationFilter;
 import com.iviet.ivshs.jwt.AuthEntryPointJwt;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

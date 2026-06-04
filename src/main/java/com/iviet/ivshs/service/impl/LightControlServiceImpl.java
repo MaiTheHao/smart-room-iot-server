@@ -8,9 +8,9 @@ import com.iviet.ivshs.dto.LightControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Light;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.LightControlService;
 import com.iviet.ivshs.service.client.gateway.GatewayLightControlClient;
 
@@ -92,7 +92,7 @@ public class LightControlServiceImpl implements LightControlService {
   @Transactional
   public ControlDeviceResult control(Long id, LightControlRequestBody body) {
     Light light = lightDao.findById(id)
-      .orElseThrow(() -> new BadRequestException("Light not found with id: " + id));
+        .orElseThrow(() -> new BadRequestException("Light not found with id: " + id));
     return applyControlParams(light, body);
   }
 
@@ -100,12 +100,14 @@ public class LightControlServiceImpl implements LightControlService {
     String gatewayIp = extractClientIpAddress(light);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), body.power()))) {
+      if (executeControl(result, "power",
+          () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), body.power()))) {
         light.setPower(body.power());
       }
     }
     if (body.level() != null) {
-      if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), body.level()))) {
+      if (executeControl(result, "level",
+          () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), body.level()))) {
         light.setLevel(body.level());
       }
     }
@@ -113,7 +115,8 @@ public class LightControlServiceImpl implements LightControlService {
     return result;
   }
 
-  private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+  private boolean executeControl(ControlDeviceResult result, String parameter,
+      Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
       if (response.getStatusCode().is2xxSuccessful()) {
@@ -143,7 +146,7 @@ public class LightControlServiceImpl implements LightControlService {
 
   private Light getOrThrow(String naturalId) {
     return lightDao.findByNaturalId(naturalId)
-      .orElseThrow(() -> new BadRequestException("Light not found with naturalId: " + naturalId));
+        .orElseThrow(() -> new BadRequestException("Light not found with naturalId: " + naturalId));
   }
 
   private String extractClientIpAddress(Light light) {

@@ -6,9 +6,9 @@ import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AirConditionSetupStrategy extends AbstractDeviceSetupStrategy {
-    
+
     private final AirConditionDao airConditionDao;
 
     @Override
@@ -28,10 +28,9 @@ public class AirConditionSetupStrategy extends AbstractDeviceSetupStrategy {
 
     @Override
     public void persist(
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    ) {
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
         AirCondition ac = new AirCondition();
         setupBaseIoTProperties(ac, device, room, hardwareConfig);
 

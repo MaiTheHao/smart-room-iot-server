@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.strategy;
 
 import com.iviet.ivshs.dto.TelemetryResponseDto;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 public interface TelemetryCRUDServiceStrategy {
 

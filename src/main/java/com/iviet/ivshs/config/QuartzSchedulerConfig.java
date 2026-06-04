@@ -4,6 +4,7 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import com.iviet.ivshs.schedule.TraceJobListener;
+import com.iviet.ivshs.shared.component.AutowiringSpringBeanJobFactory;
 
 import javax.sql.DataSource;
 
@@ -12,8 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import com.iviet.ivshs.component.AutowiringSpringBeanJobFactory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

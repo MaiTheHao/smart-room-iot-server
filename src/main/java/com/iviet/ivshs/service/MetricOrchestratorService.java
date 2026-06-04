@@ -1,8 +1,7 @@
 package com.iviet.ivshs.service;
 
-
-import com.iviet.ivshs.enumeration.MetricDomain;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.enumeration.MetricDomain;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.strategy.MetricServiceStrategy;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +16,14 @@ public class MetricOrchestratorService {
     private final Map<MetricDomain, MetricServiceStrategy> strategies;
 
     public MetricOrchestratorService(List<MetricServiceStrategy> strategyList) {
-        this.strategies = strategyList.stream().collect(Collectors.toMap(MetricServiceStrategy::getSupportedDomain, strategy -> strategy));
+        this.strategies = strategyList.stream()
+                .collect(Collectors.toMap(MetricServiceStrategy::getSupportedDomain, strategy -> strategy));
     }
 
     private MetricServiceStrategy getStrategy(MetricDomain domain) {
         MetricServiceStrategy strategy = strategies.get(domain);
-        if (strategy == null) throw new BadRequestException("Metric domain " + domain.name() + " is not supported");   
+        if (strategy == null)
+            throw new BadRequestException("Metric domain " + domain.name() + " is not supported");
         return strategy;
     }
 

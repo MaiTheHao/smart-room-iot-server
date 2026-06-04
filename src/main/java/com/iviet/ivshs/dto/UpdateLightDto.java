@@ -1,28 +1,25 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 
 @Builder
 public record UpdateLightDto(
-    @Size(min = 1, max = 100)
-    String name,
+        @Size(min = 1, max = 100) String name,
 
-    String naturalId,
+        String naturalId,
 
-    @Size(max = 255)
-    String description,
+        @Size(max = 255) String description,
 
-    Boolean isActive,
+        Boolean isActive,
 
-    ActuatorPower power,
+        ActuatorPower power,
 
-    @Min(0) @Max(100)
-    Integer level,
+        @Min(0) @Max(100) Integer level,
 
-    Long roomId,
-    Long deviceControlId,
-    String langCode
-) {}
+        Long roomId,
+        Long deviceControlId,
+        String langCode) {
+}

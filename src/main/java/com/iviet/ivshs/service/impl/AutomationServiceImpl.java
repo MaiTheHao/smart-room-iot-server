@@ -1,4 +1,5 @@
 package com.iviet.ivshs.service.impl;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,14 +20,14 @@ import com.iviet.ivshs.dto.UpdateAutomationActionDto;
 import com.iviet.ivshs.dto.UpdateAutomationDto;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
-import com.iviet.ivshs.enumeration.JobTargetType;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.schedule.automation.AutomationProcessor;
 import com.iviet.ivshs.service.AutomationService;
-import com.iviet.ivshs.util.CronExpressionUtil;
-import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.util.ScheduleUtil;
+import com.iviet.ivshs.shared.util.CronExpressionUtil;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.ScheduleUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,10 +76,11 @@ public class AutomationServiceImpl implements AutomationService {
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 
-		if (!automation.getName().equals(dto.getName()) && automationDao.existsByNameAndIdNot(dto.getName(), automationId)) {
+		if (!automation.getName().equals(dto.getName())
+				&& automationDao.existsByNameAndIdNot(dto.getName(), automationId)) {
 			throw new BadRequestException("Automation name already exists: " + dto.getName());
 		}
-		
+
 		if (!CronExpressionUtil.isValid(dto.getCronExpression())) {
 			throw new BadRequestException("Invalid cron expression: " + dto.getCronExpression());
 		}
@@ -101,7 +103,8 @@ public class AutomationServiceImpl implements AutomationService {
 	@Transactional
 	public void delete(Long automationId) {
 		log.info("Deleting automation: id={}", automationId);
-		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
+		var automation = automationDao.findById(automationId)
+				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 		scheduleUtil.delete(automation);
 		automationDao.deleteById(automationId);
 	}
@@ -135,7 +138,7 @@ public class AutomationServiceImpl implements AutomationService {
 	public List<AutomationActionDto> getActions(Long automationId) {
 		Automation automation = automationDao.findByIdWithActions(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
-		
+
 		return automation.getActions().stream()
 				.map(action -> {
 					String targetName = getTargetName(action.getTargetType(), action.getTargetId());
@@ -174,7 +177,8 @@ public class AutomationServiceImpl implements AutomationService {
 		AutomationAction action = automationActionDao.findById(actionId)
 				.orElseThrow(() -> new NotFoundException("Action not found: " + actionId));
 
-		if (dto.getTargetType() == null) throw new BadRequestException("Target type is required");
+		if (dto.getTargetType() == null)
+			throw new BadRequestException("Target type is required");
 
 		validateAction(dto.getTargetType(), dto.getTargetId());
 
@@ -207,7 +211,8 @@ public class AutomationServiceImpl implements AutomationService {
 		Automation automation = automationDao.findById(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 
-		if (automation.getIsActive().equals(isActive)) return;
+		if (automation.getIsActive().equals(isActive))
+			return;
 
 		automation.setIsActive(isActive);
 		automationDao.update(automation);
@@ -226,7 +231,8 @@ public class AutomationServiceImpl implements AutomationService {
 
 	@Override
 	public void unscheduleJob(Long automationId) {
-		var automation = automationDao.findById(automationId).orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
+		var automation = automationDao.findById(automationId)
+				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 		scheduleUtil.delete(automation);
 	}
 
@@ -236,7 +242,8 @@ public class AutomationServiceImpl implements AutomationService {
 		Automation automation = automationDao.findByIdWithActions(automationId)
 				.orElseThrow(() -> new NotFoundException("Automation not found: " + automationId));
 
-		if (Boolean.FALSE.equals(automation.getIsActive())) return;
+		if (Boolean.FALSE.equals(automation.getIsActive()))
+			return;
 		processor.process(automation);
 	}
 
@@ -252,7 +259,7 @@ public class AutomationServiceImpl implements AutomationService {
 	@Transactional
 	public void reloadAllAutomations() {
 		scheduleUtil.deleteJobGroup(Automation.JOB_GROUP);
-		List<Automation> activeAutomations = automationDao.findAllActive(); 
+		List<Automation> activeAutomations = automationDao.findAllActive();
 		for (Automation automation : activeAutomations) {
 			try {
 				scheduleUtil.sync(automation);
@@ -261,7 +268,7 @@ public class AutomationServiceImpl implements AutomationService {
 			}
 		}
 	}
-	
+
 	private void validateAction(JobTargetType targetType, Long targetId) {
 		if (targetType == JobTargetType.LIGHT) {
 			if (!lightDao.existsById(targetId)) {
@@ -294,7 +301,7 @@ public class AutomationServiceImpl implements AutomationService {
 						.map(fan -> fan.name())
 						.orElse("Unknown Fan");
 			}
-			
+
 			return "Unknown Device";
 		} catch (Exception e) {
 			return "Unknown Device";

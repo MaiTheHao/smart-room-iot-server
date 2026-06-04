@@ -6,9 +6,9 @@ import java.util.Set;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -25,17 +25,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FanIr extends Fan {
-	
+
 	public static final HashSet<ActuatorMode> SUPPORTED_MODES = new HashSet<>(Set.of(
-		ActuatorMode.NATURAL,
-		ActuatorMode.SLEEP,
-		ActuatorMode.NORMAL
-	));
+			ActuatorMode.NATURAL,
+			ActuatorMode.SLEEP,
+			ActuatorMode.NORMAL));
 
 	public static final HashSet<ActuatorSwing> SUPPORTED_SWINGS = new HashSet<>(Set.of(
-		ActuatorSwing.ON,
-		ActuatorSwing.OFF
-	));
+			ActuatorSwing.ON,
+			ActuatorSwing.OFF));
 
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	@Column(name = "mode", length = 256)

@@ -2,9 +2,9 @@ package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
-import com.iviet.ivshs.util.MdcTaskWrapper;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.util.MdcTaskWrapper;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.service.RoomService;
 import com.iviet.ivshs.service.TelemetryService;
@@ -82,15 +82,17 @@ public class TelemetryServiceImpl implements TelemetryService {
 	}
 
 	private void executeBatchProcessing(List<ClientDto> gateways, String identifier) {
-		if (gateways == null || gateways.isEmpty()) return;
+		if (gateways == null || gateways.isEmpty())
+			return;
 
 		long start = System.currentTimeMillis();
 		log.info("Starting batch collection for [{}] - {} gateways", identifier, gateways.size());
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 			List<CompletableFuture<Void>> futures = gateways.stream()
-				.map(gateway -> CompletableFuture.runAsync(MdcTaskWrapper.wrap(() -> processSafeExecution(gateway)), executor))
-				.toList();
+					.map(
+							gateway -> CompletableFuture.runAsync(MdcTaskWrapper.wrap(() -> processSafeExecution(gateway)), executor))
+					.toList();
 
 			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 			log.info("Finished batch collection for [{}] in {}ms", identifier, System.currentTimeMillis() - start);
@@ -132,8 +134,8 @@ public class TelemetryServiceImpl implements TelemetryService {
 					log.warn("No strategy for category {} at sensor {}", data.getCategory(), data.getNaturalId());
 				}
 			} catch (Exception e) {
-				log.error("Failed to process sensor {} for gateway {}: {}", 
-								data.getNaturalId(), gateway.username(), e.getMessage());
+				log.error("Failed to process sensor {} for gateway {}: {}",
+						data.getNaturalId(), gateway.username(), e.getMessage());
 			}
 		}
 		log.info("Gateway {}: Processed {}/{} records", gateway.username(), processedCount, telemetryData.size());

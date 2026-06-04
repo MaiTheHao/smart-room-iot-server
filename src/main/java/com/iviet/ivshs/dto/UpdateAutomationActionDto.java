@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dto;
 
-import com.iviet.ivshs.enumeration.JobActionType;
-import com.iviet.ivshs.enumeration.JobTargetType;
+import com.iviet.ivshs.shared.enumeration.JobActionType;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

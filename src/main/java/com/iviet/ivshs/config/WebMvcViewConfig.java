@@ -39,7 +39,7 @@ import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = {
         "com.iviet.ivshs.controller.view",
-        "com.iviet.ivshs.exception.handler",
+        "com.iviet.ivshs.shared.exception.handler",
         "com.iviet.ivshs.aop"
 }, excludeFilters = {
         @Filter(type = FilterType.REGEX, pattern = "com\\.iviet\\.ivshs\\.aop\\.RestRequestLoggingAspect")

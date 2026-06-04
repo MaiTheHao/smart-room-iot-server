@@ -5,9 +5,9 @@ import com.iviet.ivshs.entities.RuleAction;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.enumeration.ConditionLogic;
-import com.iviet.ivshs.enumeration.ConditionOperator;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.ConditionLogic;
+import com.iviet.ivshs.shared.enumeration.ConditionOperator;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
 
@@ -39,19 +39,20 @@ public class RuleProcessor {
 
     private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
-    @PostConstruct 
+    @PostConstruct
     private void init() {
         strategyMap = controlStrategies.stream()
                 .collect(Collectors.toUnmodifiableMap(
                         DeviceControlServiceStrategy::getSupportedCategory,
-                        Function.identity()
-                ));
-        log.info("RuleProcessor initialized with epsilon = {} and categories: {}", engineProperties.getRuleComputeEpsilon(), strategyMap.keySet());
+                        Function.identity()));
+        log.info("RuleProcessor initialized with epsilon = {} and categories: {}",
+                engineProperties.getRuleComputeEpsilon(), strategyMap.keySet());
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void process(Rule rule) {
-        if (!Boolean.TRUE.equals(rule.getIsActive())) return;
+        if (!Boolean.TRUE.equals(rule.getIsActive()))
+            return;
 
         List<RuleCondition> conditions = rule.getConditions();
         if (conditions == null || conditions.isEmpty()) {
@@ -62,7 +63,7 @@ public class RuleProcessor {
         log.info("Evaluating Rule {} with {} conditions", rule.getId(), conditions.size());
 
         EvaluationContext initCtx = new EvaluationContext();
-        
+
         boolean isMatched = conditions.stream()
                 .sorted(Comparator.comparingInt(RuleCondition::getSortOrder))
                 .reduce(initCtx, this::accumulateResult, (a, b) -> a)
@@ -81,18 +82,18 @@ public class RuleProcessor {
         tempCond.setValue(cond.getValue());
 
         boolean isMet = evaluateCondition(tempCond);
-        
+
         if (ctx.isFirst()) {
             ctx.setFinalResult(isMet);
             ctx.setFirst(false);
         } else {
             ConditionLogic logic = ctx.getPrevLogic();
-            boolean newResult = (logic == ConditionLogic.OR) 
-                    ? ctx.isFinalResult() || isMet 
+            boolean newResult = (logic == ConditionLogic.OR)
+                    ? ctx.isFinalResult() || isMet
                     : ctx.isFinalResult() && isMet;
             ctx.setFinalResult(newResult);
         }
-        
+
         ctx.setPrevLogic(cond.getNextLogic());
         return ctx;
     }
@@ -120,7 +121,7 @@ public class RuleProcessor {
         try {
             double v1 = Double.parseDouble(actual);
             double v2 = Double.parseDouble(target);
-            
+
             boolean res = switch (op) {
                 case GT -> v1 > v2;
                 case LT -> v1 < v2;
@@ -150,28 +151,32 @@ public class RuleProcessor {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void executeActions(Rule rule) {
         List<RuleAction> actions = rule.getActions();
-        if (actions == null || actions.isEmpty()) return;
+        if (actions == null || actions.isEmpty())
+            return;
 
         actions.stream()
-            .sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
-            .forEach(action -> {
-                DeviceControlServiceStrategy strategy = strategyMap.get(action.getTargetDeviceCategory());
-                if (strategy == null) {
-                    log.error("Missing strategy for category: {}", action.getTargetDeviceCategory());
-                    return;
-                }
+                .sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
+                .forEach(action -> {
+                    DeviceControlServiceStrategy strategy = strategyMap.get(action.getTargetDeviceCategory());
+                    if (strategy == null) {
+                        log.error("Missing strategy for category: {}", action.getTargetDeviceCategory());
+                        return;
+                    }
 
-                try {
-                    Object controlDto = objectMapper.treeToValue(action.getActionParams(), strategy.getControlDtoClass());
-                    strategy.control(action.getTargetDeviceId(), controlDto);
-                    log.info("Executed Rule [{}] action for device [{}]", rule.getName(), action.getTargetDeviceId());
-                } catch (Exception e) {
-                    log.error("Failed to execute Rule {} action {}: {}", rule.getId(), action.getId(), e.getMessage());
-                }
-            });
+                    try {
+                        Object controlDto = objectMapper.treeToValue(action.getActionParams(),
+                                strategy.getControlDtoClass());
+                        strategy.control(action.getTargetDeviceId(), controlDto);
+                        log.info("Executed Rule [{}] action for device [{}]", rule.getName(),
+                                action.getTargetDeviceId());
+                    } catch (Exception e) {
+                        log.error("Failed to execute Rule {} action {}: {}", rule.getId(), action.getId(),
+                                e.getMessage());
+                    }
+                });
     }
 
     @Data

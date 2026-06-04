@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service;
 
-import com.iviet.ivshs.enumeration.SysFunctionEnum;
+import com.iviet.ivshs.shared.enumeration.SysFunctionEnum;
 import java.util.List;
 import java.util.Set;
 

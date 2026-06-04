@@ -25,7 +25,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = {
                 "com.iviet.ivshs.controller.api", // REST controllers
-                "com.iviet.ivshs.exception.handler", // ApiGlobalExceptionHandler + shared handlers
+                "com.iviet.ivshs.shared.exception.handler", // ApiGlobalExceptionHandler + shared handlers
                 "com.iviet.ivshs.aop" // RestRequestLoggingAspect + GlobalModelAttributes
 }, excludeFilters = {
                 // Loại trừ ViewRequestLoggingAspect khỏi API context

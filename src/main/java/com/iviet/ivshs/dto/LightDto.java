@@ -2,32 +2,33 @@ package com.iviet.ivshs.dto;
 
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
-import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 
 import lombok.Builder;
 
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 @Builder
 public record LightDto(
-    Long id,
-    String naturalId,
-    String name,
-    String description,
-    Boolean isActive,
-    ActuatorPower power,
-    String specificType,
-    Integer level,
-    Long roomId,
-    Long deviceControlId,
-    DeviceCategory category
-) {
+        Long id,
+        String naturalId,
+        String name,
+        String description,
+        Boolean isActive,
+        ActuatorPower power,
+        String specificType,
+        Integer level,
+        Long roomId,
+        Long deviceControlId,
+        DeviceCategory category) {
     /**
      * Constructor cho JPQL projection query (DAO layer).
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
      */
-    public LightDto(Long id, String naturalId, String name, String description, Boolean isActive, ActuatorPower power, String specificType, Integer level, Long roomId, Long deviceControlId) {
-        this(id, naturalId, name, description, isActive, power, specificType, level, roomId, deviceControlId, DeviceCategory.LIGHT);
+    public LightDto(Long id, String naturalId, String name, String description, Boolean isActive, ActuatorPower power,
+            String specificType, Integer level, Long roomId, Long deviceControlId) {
+        this(id, naturalId, name, description, isActive, power, specificType, level, roomId, deviceControlId,
+                DeviceCategory.LIGHT);
     }
 
     public static LightDto from(Light entity, LightLan lan) {

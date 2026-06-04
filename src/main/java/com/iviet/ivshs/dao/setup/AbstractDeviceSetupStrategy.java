@@ -2,7 +2,7 @@ package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 

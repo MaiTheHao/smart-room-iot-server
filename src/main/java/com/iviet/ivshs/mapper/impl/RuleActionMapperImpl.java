@@ -9,8 +9,8 @@ import com.iviet.ivshs.mapper.RuleActionMapper;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LightDao;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.util.LocalContextUtil;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package com.iviet.ivshs.schedule.rule.strategy;
 
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 public interface DeviceStateStrategy {
 

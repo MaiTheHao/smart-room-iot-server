@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -37,4 +37,4 @@ public class TelemetryResponseDto {
 		private DeviceCategory category;
 		private JsonNode data;
 	}
-}	
+}

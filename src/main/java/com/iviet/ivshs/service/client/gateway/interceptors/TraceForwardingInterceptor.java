@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.client.gateway.interceptors;
 
-import com.iviet.ivshs.apm.TraceLogger;
+import com.iviet.ivshs.shared.apm.TraceLogger;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;

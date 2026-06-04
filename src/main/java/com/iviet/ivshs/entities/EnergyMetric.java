@@ -1,6 +1,6 @@
 package com.iviet.ivshs.entities;
 
-import com.iviet.ivshs.enumeration.EnergyMetricCategory;
+import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
@@ -11,14 +11,11 @@ import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 @Entity
-@Table(
-    name = "energy_metrics",
-    indexes = {
+@Table(name = "energy_metrics", indexes = {
         @Index(name = "idx_energy_metrics_target", columnList = "target_category, target_id, timestamp"),
         @Index(name = "idx_energy_metrics_timestamp", columnList = "timestamp"),
         @Index(name = "idx_em_unix_minute", columnList = "unix_minute")
-    }
-)
+})
 @Immutable
 @Getter
 @Setter
@@ -45,7 +42,8 @@ public class EnergyMetric extends BaseMetricData {
 
     @Override
     public void setTargetCategory(String targetCategory) {
-        if (targetCategory == null || targetCategory.isBlank()) throw new IllegalArgumentException("Target category cannot be null or blank");
+        if (targetCategory == null || targetCategory.isBlank())
+            throw new IllegalArgumentException("Target category cannot be null or blank");
         try {
             EnergyMetricCategory.valueOf(targetCategory);
         } catch (IllegalArgumentException e) {

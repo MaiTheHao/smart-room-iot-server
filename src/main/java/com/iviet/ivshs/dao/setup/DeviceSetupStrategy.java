@@ -3,19 +3,17 @@ package com.iviet.ivshs.dao.setup;
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 public interface DeviceSetupStrategy {
 
     DeviceCategory getSupportedCategory();
 
     void persist(
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    );
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig);
 
     void rollback(
-        Long deviceId
-    );
+            Long deviceId);
 }

@@ -2,8 +2,8 @@ package com.iviet.ivshs.dto;
 
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
-import com.iviet.ivshs.enumeration.JobActionType;
-import com.iviet.ivshs.enumeration.JobTargetType;
+import com.iviet.ivshs.shared.enumeration.JobActionType;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +23,8 @@ public class AutomationActionDto {
 	private String targetName;
 
 	public static AutomationActionDto from(AutomationAction action, String targetName) {
-		if (action == null) return null;
+		if (action == null)
+			return null;
 		AutomationActionDto dto = new AutomationActionDto();
 		dto.setId(action.getId());
 		dto.setAutomationId(action.getAutomation().getId());
@@ -37,7 +38,8 @@ public class AutomationActionDto {
 	}
 
 	public static AutomationAction toEntity(Automation automation, AutomationActionDto dto) {
-		if (dto == null) return null;
+		if (dto == null)
+			return null;
 		AutomationAction action = new AutomationAction();
 		action.setId(dto.getId());
 		action.setAutomation(automation);

@@ -1,6 +1,6 @@
 package com.iviet.ivshs.config;
 
-import com.iviet.ivshs.exception.handler.RestTemplateResponseErrorHandler;
+import com.iviet.ivshs.shared.exception.handler.RestTemplateResponseErrorHandler;
 import com.iviet.ivshs.service.client.gateway.interceptors.GatewayAuthInterceptor;
 import com.iviet.ivshs.service.client.gateway.interceptors.TraceForwardingInterceptor;
 import lombok.RequiredArgsConstructor;

@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.entities.RuleCondition;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.enumeration.RuleDataSource;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
 import com.iviet.ivshs.schedule.rule.strategy.DeviceStateStrategy;
 import com.iviet.ivshs.schedule.rule.strategy.RuleDataSourceStrategy;
 
@@ -43,8 +43,8 @@ public class DeviceDataSourceStrategy implements RuleDataSourceStrategy {
       for (DeviceStateStrategy strategy : deviceStrategies) {
         if (strategy.supports(category)) {
           Object value = strategy.fetchState(deviceId, property);
-          log.debug("Fetched state for condition {}: DEVICE [{}] property '{}' = {}", 
-                    condition.getId(), deviceId, property, value);
+          log.debug("Fetched state for condition {}: DEVICE [{}] property '{}' = {}",
+              condition.getId(), deviceId, property, value);
           return value;
         }
       }

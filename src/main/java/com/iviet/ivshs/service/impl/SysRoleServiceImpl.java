@@ -9,8 +9,8 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysFunction;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.entities.SysRole;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.SysRoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,8 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto addFunctionsToGroup(BatchAddFunctionsToGroupDto dto) {
-        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes().isEmpty()) {
+        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null
+                || dto.getFunctionCodes().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
@@ -58,7 +59,7 @@ public class SysRoleServiceImpl implements SysRoleService {
                 SysRole role = new SysRole();
                 role.setGroup(group);
                 role.setFunction(function);
-                
+
                 roleDao.save(role);
                 successCount++;
 
@@ -74,7 +75,8 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto removeFunctionsFromGroup(BatchRemoveFunctionsFromGroupDto dto) {
-        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes().isEmpty()) {
+        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null
+                || dto.getFunctionCodes().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
@@ -92,7 +94,7 @@ public class SysRoleServiceImpl implements SysRoleService {
                         .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 int deleted = roleDao.deleteByGroupAndFunction(dto.getGroupId(), function.getId());
-                
+
                 if (deleted > 0) {
                     successCount++;
                 } else {
@@ -111,7 +113,8 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto toggleGroupFunctions(ToggleGroupFunctionsDto dto) {
-        if (dto == null || dto.getGroupId() == null || dto.getFunctionToggles() == null || dto.getFunctionToggles().isEmpty()) {
+        if (dto == null || dto.getGroupId() == null || dto.getFunctionToggles() == null
+                || dto.getFunctionToggles().isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
@@ -190,7 +193,7 @@ public class SysRoleServiceImpl implements SysRoleService {
         SysRole role = new SysRole();
         role.setGroup(group);
         role.setFunction(function);
-        
+
         roleDao.save(role);
     }
 
@@ -314,7 +317,7 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     private BatchOperationResultDto buildBatchResult(int success, int skipped, List<String> errors, String action) {
         String message = String.format("Successfully %s %d item(s), skipped %d", action, success, skipped);
-        
+
         if (!errors.isEmpty()) {
             message += ". Errors: " + String.join("; ", errors);
         }

@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AutomationAction;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.JobActionType;
-import com.iviet.ivshs.enumeration.JobTargetType;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.JobActionType;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.schedule.automation.strategy.AutomationActionStrategy;
 import com.iviet.ivshs.service.AirConditionControlService;
 
@@ -31,11 +31,11 @@ public class AirConditionAutomationActionStrategy implements AutomationActionStr
     @Override
     public void handle(AutomationAction action) throws Exception {
         ActuatorPower newState = (action.getActionType() == JobActionType.ON) ? ActuatorPower.ON : ActuatorPower.OFF;
-        
+
         try {
             AirCondition ac = airConditionDao.findById(action.getTargetId())
                     .orElseThrow(() -> new NotFoundException("Air Conditioner not found: " + action.getTargetId()));
-            
+
             controlService.handlePowerControl(ac.getNaturalId(), newState);
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {

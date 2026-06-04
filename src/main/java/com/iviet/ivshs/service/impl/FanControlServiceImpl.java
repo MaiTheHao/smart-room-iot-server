@@ -9,11 +9,11 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanIr;
-import com.iviet.ivshs.enumeration.ActuatorMode;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.ActuatorSwing;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
 import com.iviet.ivshs.service.FanControlService;
 
 import lombok.RequiredArgsConstructor;
@@ -138,27 +138,32 @@ public class FanControlServiceImpl implements FanControlService {
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), body.power()))) {
+      if (executeControl(result, "power",
+          () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), body.power()))) {
         fan.setPower(body.power());
       }
     }
     if (body.speed() != null) {
-      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), body.speed()))) {
+      if (executeControl(result, "speed",
+          () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), body.speed()))) {
         fan.setSpeed(body.speed());
       }
     }
     if (body.mode() != null && fan instanceof FanIr fanIr) {
-      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), body.mode()))) {
+      if (executeControl(result, "mode",
+          () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), body.mode()))) {
         fanIr.setMode(body.mode());
       }
     }
     if (body.swing() != null && fan instanceof FanIr fanIr) {
-      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), body.swing()))) {
+      if (executeControl(result, "swing",
+          () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), body.swing()))) {
         fanIr.setSwing(body.swing());
       }
     }
     if (body.light() != null && fan instanceof FanIr fanIr) {
-      if (executeControl(result, "light", () -> gatewayControlClient.controlFanLight(gatewayIp, fan.getNaturalId(), body.light()))) {
+      if (executeControl(result, "light",
+          () -> gatewayControlClient.controlFanLight(gatewayIp, fan.getNaturalId(), body.light()))) {
         fanIr.setLight(body.light());
       }
     }
@@ -166,7 +171,8 @@ public class FanControlServiceImpl implements FanControlService {
     return result;
   }
 
-  private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
+  private boolean executeControl(ControlDeviceResult result, String parameter,
+      Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
       if (response.getStatusCode().is2xxSuccessful()) {
@@ -214,7 +220,7 @@ public class FanControlServiceImpl implements FanControlService {
 
   private Fan getOrThrow(String naturalId) {
     return fanDao.findByNaturalId(naturalId)
-      .orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
+        .orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
   }
 
   private String extractClientIpAddress(Fan fan) {

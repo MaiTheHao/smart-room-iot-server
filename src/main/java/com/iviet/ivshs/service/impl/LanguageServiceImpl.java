@@ -6,8 +6,8 @@ import com.iviet.ivshs.dto.LanguageDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.LanguageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,7 +40,8 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public LanguageDto getByCode(String code) {
-        if (!StringUtils.hasText(code)) throw new BadRequestException("Language code is required");
+        if (!StringUtils.hasText(code))
+            throw new BadRequestException("Language code is required");
 
         return languageDao.findByCode(code.trim())
                 .map(LanguageDto::from)
@@ -59,14 +60,15 @@ public class LanguageServiceImpl implements LanguageService {
 
         Language entity = dto.toEntity();
         entity.setCode(code);
-        
+
         return LanguageDto.from(languageDao.save(entity));
     }
 
     @Override
     @Transactional
     public LanguageDto update(Long langId, UpdateLanguageDto dto) {
-        if (dto == null) throw new BadRequestException("Update data is required");
+        if (dto == null)
+            throw new BadRequestException("Update data is required");
 
         Language entity = languageDao.findById(langId)
                 .orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
@@ -77,8 +79,10 @@ public class LanguageServiceImpl implements LanguageService {
             entity.setCode(newCode);
         }
 
-        if (dto.name() != null) entity.setName(dto.name());
-        if (dto.description() != null) entity.setDescription(dto.description());
+        if (dto.name() != null)
+            entity.setName(dto.name());
+        if (dto.description() != null)
+            entity.setDescription(dto.description());
 
         return LanguageDto.from(languageDao.save(entity));
     }

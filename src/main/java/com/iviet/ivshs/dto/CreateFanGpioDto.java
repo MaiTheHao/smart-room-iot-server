@@ -5,39 +5,31 @@ import java.util.HashSet;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanGpio;
 import com.iviet.ivshs.entities.FanLan;
-import com.iviet.ivshs.enumeration.ActuatorPower;
-import com.iviet.ivshs.enumeration.FanType;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.FanType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateFanGpioDto(
-    @NotBlank(message = "Device name is required")
-    @Size(min = 1, max = 100)
-    String name,
+        @NotBlank(message = "Device name is required") @Size(min = 1, max = 100) String name,
 
-    @NotBlank(message = "Natural ID is required")
-    String naturalId,
+        @NotBlank(message = "Natural ID is required") String naturalId,
 
-    @Size(max = 255)
-    String description,
+        @Size(max = 255) String description,
 
-    Boolean isActive,
+        Boolean isActive,
 
-    @NotNull(message = "Room ID is required")
-    Long roomId,
+        @NotNull(message = "Room ID is required") Long roomId,
 
-    Long deviceControlId,
+        Long deviceControlId,
 
-    @Size(max = 10)
-    String langCode,
+        @Size(max = 10) String langCode,
 
-    ActuatorPower power,
+        ActuatorPower power,
 
-    @NotNull(message = "Fan type is required")
-    FanType type
-) implements CreateFanDto {
+        @NotNull(message = "Fan type is required") FanType type) implements CreateFanDto {
 
     @Override
     public Fan toEntity() {

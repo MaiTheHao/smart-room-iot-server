@@ -16,14 +16,14 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.mapper.RuleMapper;
 import com.iviet.ivshs.schedule.rule.RuleProcessor;
 import com.iviet.ivshs.service.RuleService;
 import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
-import com.iviet.ivshs.util.ScheduleUtil;
+import com.iviet.ivshs.shared.util.ScheduleUtil;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
@@ -51,8 +51,7 @@ public class RuleServiceImpl implements RuleService {
     strategyMap = controlStrategies.stream()
         .collect(Collectors.toUnmodifiableMap(
             DeviceControlServiceStrategy::getSupportedCategory,
-            java.util.function.Function.identity()
-        ));
+            java.util.function.Function.identity()));
   }
 
   @Override
@@ -88,18 +87,18 @@ public class RuleServiceImpl implements RuleService {
     }
 
     if (dto.actions() != null) {
-        dto.actions().forEach(action -> {
-            DeviceCategory category = action.targetDeviceCategory();
-            JsonNode params = action.actionParams();
-            if (category != null && params != null) {
-                validateActionParams(category, params);
-            }
-        });
+      dto.actions().forEach(action -> {
+        DeviceCategory category = action.targetDeviceCategory();
+        JsonNode params = action.actionParams();
+        if (category != null && params != null) {
+          validateActionParams(category, params);
+        }
+      });
     }
 
     ruleMapper.updateFromDto(dto, rule);
     ruleDao.update(rule);
-    
+
     scheduleUtil.sync(rule);
 
     log.info("Rule updated successfully: id={}, name={}", ruleId, rule.getName());
@@ -112,7 +111,7 @@ public class RuleServiceImpl implements RuleService {
     log.info("Deleting rule: id={}", ruleId);
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
-    
+
     scheduleUtil.delete(rule);
     ruleDao.deleteById(ruleId);
   }
@@ -144,7 +143,8 @@ public class RuleServiceImpl implements RuleService {
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    if (Objects.equals(rule.getIsActive(), isActive)) return;
+    if (Objects.equals(rule.getIsActive(), isActive))
+      return;
 
     rule.setIsActive(isActive);
     ruleDao.update(rule);
@@ -170,9 +170,11 @@ public class RuleServiceImpl implements RuleService {
 
   @Override
   public void executeRuleLogic(Long ruleId) {
-    Rule rule = ruleDao.findByIdWithConditionsAndActions(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findByIdWithConditionsAndActions(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    if (Boolean.FALSE.equals(rule.getIsActive())) return;
+    if (Boolean.FALSE.equals(rule.getIsActive()))
+      return;
     ruleProcessor.process(rule);
   }
 

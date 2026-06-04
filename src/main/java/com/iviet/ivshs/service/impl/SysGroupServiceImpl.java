@@ -5,11 +5,11 @@ import com.iviet.ivshs.dao.SysGroupDao;
 import com.iviet.ivshs.dto.*;
 import com.iviet.ivshs.entities.SysGroupLan;
 import com.iviet.ivshs.entities.SysGroup;
-import com.iviet.ivshs.exception.domain.BadRequestException;
-import com.iviet.ivshs.exception.domain.NotFoundException;
+import com.iviet.ivshs.shared.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.domain.NotFoundException;
 import com.iviet.ivshs.service.SysGroupService;
-import com.iviet.ivshs.util.LocalContextUtil;
-import com.iviet.ivshs.util.FunctionCodeHelper;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
+import com.iviet.ivshs.shared.util.FunctionCodeHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,15 +35,14 @@ public class SysGroupServiceImpl implements SysGroupService {
   public PaginatedResponse<SysGroupDto> getList(int page, int size) {
     String langCode = LocalContextUtil.getCurrentLangCode();
     return new PaginatedResponse<>(
-      groupDao.findAll(page, size, langCode),
-      page, size, groupDao.countAll()
-    );
+        groupDao.findAll(page, size, langCode),
+        page, size, groupDao.countAll());
   }
 
   @Override
   public SysGroupDto getById(Long id) {
     return groupDao.findById(id, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
+        .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
   }
 
   @Override
@@ -52,7 +51,7 @@ public class SysGroupServiceImpl implements SysGroupService {
       throw new BadRequestException("Group code is required");
     }
     return groupDao.findByCode(groupCode, LocalContextUtil.getCurrentLangCode())
-      .orElseThrow(() -> new NotFoundException("Group not found with code: " + groupCode));
+        .orElseThrow(() -> new NotFoundException("Group not found with code: " + groupCode));
   }
 
   @Override
@@ -147,7 +146,8 @@ public class SysGroupServiceImpl implements SysGroupService {
 
     String code = dto.groupCode().trim().toUpperCase();
     if (!FunctionCodeHelper.isValidGroupCode(code)) {
-      throw new BadRequestException("Invalid group code format. Must start with G_ and contain only uppercase letters, numbers, and underscores.");
+      throw new BadRequestException(
+          "Invalid group code format. Must start with G_ and contain only uppercase letters, numbers, and underscores.");
     }
     _checkDuplicate(code, null);
 
@@ -175,7 +175,7 @@ public class SysGroupServiceImpl implements SysGroupService {
   @Transactional
   public SysGroupDto update(Long id, UpdateSysGroupDto dto) {
     SysGroup group = groupDao.findById(id)
-      .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
+        .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
 
     String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
@@ -183,15 +183,15 @@ public class SysGroupServiceImpl implements SysGroupService {
     }
 
     SysGroupLan groupLan = group.getTranslations().stream()
-      .filter(lan -> langCode.equals(lan.getLangCode()))
-      .findFirst()
-      .orElseGet(() -> {
-        var newLan = new SysGroupLan();
-        newLan.setLangCode(langCode);
-        newLan.setOwner(group);
-        group.getTranslations().add(newLan);
-        return newLan;
-      });
+        .filter(lan -> langCode.equals(lan.getLangCode()))
+        .findFirst()
+        .orElseGet(() -> {
+          var newLan = new SysGroupLan();
+          newLan.setLangCode(langCode);
+          newLan.setOwner(group);
+          group.getTranslations().add(newLan);
+          return newLan;
+        });
 
     if (dto.name() != null) {
       groupLan.setName(dto.name().trim());
@@ -214,9 +214,8 @@ public class SysGroupServiceImpl implements SysGroupService {
     long clientCount = groupDao.countClientsByGroupId(id);
     if (clientCount > 0) {
       throw new BadRequestException(
-        "Cannot delete group. It has " + clientCount + " client(s). " +
-        "Please remove all clients from this group first."
-      );
+          "Cannot delete group. It has " + clientCount + " client(s). " +
+              "Please remove all clients from this group first.");
     }
 
     groupDao.deleteById(id);
