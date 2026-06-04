@@ -1,4 +1,7 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
+
+import com.iviet.ivshs.entities.HardwareConfig;
+import com.iviet.ivshs.entities.Room;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;

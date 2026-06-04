@@ -6,18 +6,20 @@ import java.util.List;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 
+import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "automation", indexes = {
-    @Index(name = "idx_auto_status", columnList = "is_active")
+        @Index(name = "idx_auto_status", columnList = "is_active")
 })
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Automation extends BaseSchedulableEntity{ 
+public class Automation extends BaseSchedulableEntity {
 
     public static final String JOB_GROUP = "AUTOMATION_GROUP";
 
@@ -29,7 +31,7 @@ public class Automation extends BaseSchedulableEntity{
 
     @OneToMany(mappedBy = "automation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<AutomationAction> actions = new ArrayList<>();
-	
+
     public void addAction(AutomationAction action) {
         actions.add(action);
         action.setAutomation(this);

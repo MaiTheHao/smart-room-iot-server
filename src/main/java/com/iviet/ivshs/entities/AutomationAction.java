@@ -3,6 +3,7 @@ package com.iviet.ivshs.entities;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.iviet.ivshs.entities.base.BaseAuditEntity;
 import com.iviet.ivshs.shared.enumeration.JobActionType;
 import com.iviet.ivshs.shared.enumeration.JobTargetType;
 

@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.util;
 
-import com.iviet.ivshs.entities.BaseSchedulableEntity;
+import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
 import com.iviet.ivshs.shared.exception.domain.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

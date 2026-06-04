@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import com.iviet.ivshs.dao.base.BaseTelemetryDao;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.shared.exception.domain.BadRequestException;

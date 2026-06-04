@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

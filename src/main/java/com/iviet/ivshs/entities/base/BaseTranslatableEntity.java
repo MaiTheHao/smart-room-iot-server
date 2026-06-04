@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,18 +13,21 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseTranslatableEntity<L extends BaseTranslation<? extends BaseTranslatableEntity<L>>> extends BaseAuditEntity {
-    
+public abstract class BaseTranslatableEntity<L extends BaseTranslation<? extends BaseTranslatableEntity<L>>>
+        extends BaseAuditEntity {
+
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<L> translations = new HashSet<>();
 
     @SuppressWarnings("unchecked")
     public void addTranslation(L translation) {
-        if (translation == null) return;
-        
+        if (translation == null)
+            return;
+
         ((BaseTranslation<BaseTranslatableEntity<L>>) translation).setOwner(this);
-        if (this.getTranslations().contains(translation)) return;
-        
+        if (this.getTranslations().contains(translation))
+            return;
+
         this.getTranslations().add(translation);
     }
 }

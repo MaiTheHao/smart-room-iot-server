@@ -1,6 +1,6 @@
-package com.iviet.ivshs.dao;
+package com.iviet.ivshs.dao.base;
 
-import com.iviet.ivshs.entities.BaseIoTSensor;
+import com.iviet.ivshs.entities.base.BaseIoTSensor;
 
 public abstract class BaseIoTSensorDao<T extends BaseIoTSensor<?>> extends BaseIoTEntityDao<T> {
 

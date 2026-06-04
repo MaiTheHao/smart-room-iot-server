@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
 
 import java.time.Instant;
 
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 public abstract class BaseTelemetryValue<T extends BaseIoTSensor<?>> extends BaseEntity {
 
-	@Column(name = "timestamp", nullable = false, updatable = false)
+    @Column(name = "timestamp", nullable = false, updatable = false)
     private Instant timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)

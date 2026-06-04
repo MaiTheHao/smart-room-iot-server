@@ -1,4 +1,4 @@
-package com.iviet.ivshs.dao;
+package com.iviet.ivshs.dao.base;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityManager;
@@ -25,18 +25,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * Lớp cơ sở DAO (Data Access Object) trừu tượng cung cấp các phương thức CRUD cơ bản
+ * Lớp cơ sở DAO (Data Access Object) trừu tượng cung cấp các phương thức CRUD
+ * cơ bản
  * cho các entity JPA. Sử dụng JPA Criteria API để xây dựng các truy vấn động.
  *
  * @param <T> Kiểu dữ liệu của entity
  */
 public abstract class BaseDao<T> {
 
-    /** EntityManager được inject bởi Spring, dùng để quản lý lifecycle của entity */
+    /**
+     * EntityManager được inject bởi Spring, dùng để quản lý lifecycle của entity
+     */
     @PersistenceContext
     protected EntityManager entityManager;
 
-    /** JdbcTemplate được inject bởi Spring, dùng cho các truy vấn SQL raw nếu cần */
+    /**
+     * JdbcTemplate được inject bởi Spring, dùng cho các truy vấn SQL raw nếu cần
+     */
     protected JdbcTemplate jdbcTemplate;
 
     /** Lớp của entity T, được truyền vào constructor */
@@ -117,15 +122,15 @@ public abstract class BaseDao<T> {
     public void delete(T entity) {
         // Kiểm tra xem entity có được quản lý hay không, nếu không thì merge trước
         entityManager.remove(
-            entityManager.contains(entity) ? entity : entityManager.merge(entity)
-        );
+                entityManager.contains(entity) ? entity : entityManager.merge(entity));
     }
 
     /**
      * Lấy tất cả các entity của loại T từ cơ sở dữ liệu mà không có điều kiện lọc.
      * Sử dụng JPA Criteria API để xây dựng truy vấn động.
      *
-     * @return Danh sách tất cả các entity, trả về danh sách rỗng nếu không có dữ liệu
+     * @return Danh sách tất cả các entity, trả về danh sách rỗng nếu không có dữ
+     *         liệu
      */
     public List<T> findAll() {
         var cb = this.getCB();
@@ -138,20 +143,21 @@ public abstract class BaseDao<T> {
 
     /**
      * Lấy danh sách các entity với điều kiện lọc, custom query, và phân trang.
-     * Cho phép xác định specification (WHERE clause) và customizer (ORDER BY, GROUP BY, etc).
+     * Cho phép xác định specification (WHERE clause) và customizer (ORDER BY, GROUP
+     * BY, etc).
      *
-     * @param specification Hàm dùng để tạo WHERE clause (có thể null để bỏ qua)
-     * @param queryCustomizer Hàm dùng để customize query như thêm ORDER BY (có thể null)
-     * @param page Trang (0-indexed), được nhân với size để tính offset
-     * @param size Số lượng bản ghi trên mỗi trang
+     * @param specification   Hàm dùng để tạo WHERE clause (có thể null để bỏ qua)
+     * @param queryCustomizer Hàm dùng để customize query như thêm ORDER BY (có thể
+     *                        null)
+     * @param page            Trang (0-indexed), được nhân với size để tính offset
+     * @param size            Số lượng bản ghi trên mỗi trang
      * @return Danh sách các entity theo trang được chỉ định
      */
     public List<T> findAll(
-        Function<Root<T>, Predicate> specification,
-        BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer,
-        int page,
-        int size
-    ) {
+            Function<Root<T>, Predicate> specification,
+            BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer,
+            int page,
+            int size) {
         var cb = this.getCB();
         var cq = cb.createQuery(clazz);
         var root = cq.from(clazz);
@@ -170,23 +176,23 @@ public abstract class BaseDao<T> {
 
         // Thực hiện phân trang
         return query
-            .setFirstResult(page * size)
-            .setMaxResults(size)
-            .getResultList();
+                .setFirstResult(page * size)
+                .setMaxResults(size)
+                .getResultList();
     }
 
     /**
-     * Lấy danh sách các entity với điều kiện lọc và custom query (không có phân trang).
+     * Lấy danh sách các entity với điều kiện lọc và custom query (không có phân
+     * trang).
      * Dùng khi cần lấy tất cả kết quả thỏa mãn điều kiện mà không cần chia trang.
      *
-     * @param specification Hàm dùng để tạo WHERE clause (có thể null)
+     * @param specification   Hàm dùng để tạo WHERE clause (có thể null)
      * @param queryCustomizer Hàm dùng để customize query (có thể null)
      * @return Danh sách tất cả các entity thỏa mãn điều kiện
      */
     public List<T> findAll(
-        Function<Root<T>, Predicate> specification,
-        BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer
-    ) {
+            Function<Root<T>, Predicate> specification,
+            BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer) {
         var cb = this.getCB();
         var cq = cb.createQuery(clazz);
         var root = cq.from(clazz);
@@ -225,24 +231,24 @@ public abstract class BaseDao<T> {
 
         // Chỉ lấy 1 kết quả
         List<T> results = entityManager.createQuery(cq)
-            .setMaxResults(1)
-            .getResultList();
+                .setMaxResults(1)
+                .getResultList();
 
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     /**
      * Tìm một entity duy nhất với điều kiện lọc và custom query.
-     * Cho phép thêm các tùy chỉnh như ORDER BY để quyết định entity nào được trả về.
+     * Cho phép thêm các tùy chỉnh như ORDER BY để quyết định entity nào được trả
+     * về.
      *
-     * @param specification Hàm dùng để tạo WHERE clause (có thể null)
+     * @param specification   Hàm dùng để tạo WHERE clause (có thể null)
      * @param queryCustomizer Hàm dùng để customize query như ORDER BY (có thể null)
      * @return Optional chứa entity nếu tìm thấy, Optional.empty() nếu không
      */
     public Optional<T> findOne(
-        Function<Root<T>, Predicate> specification,
-        BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer
-    ) {
+            Function<Root<T>, Predicate> specification,
+            BiConsumer<Root<T>, CriteriaQuery<T>> queryCustomizer) {
         CriteriaBuilder cb = this.getCB();
         CriteriaQuery<T> cq = cb.createQuery(clazz);
         Root<T> root = cq.from(clazz);
@@ -259,8 +265,8 @@ public abstract class BaseDao<T> {
 
         // Chỉ lấy 1 kết quả
         List<T> results = entityManager.createQuery(cq)
-            .setMaxResults(1)
-            .getResultList();
+                .setMaxResults(1)
+                .getResultList();
 
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
@@ -339,7 +345,8 @@ public abstract class BaseDao<T> {
     }
 
     /**
-     * Lấy danh sách tên các cột của entity từ các annotation @Column, @JoinColumn, @Id.
+     * Lấy danh sách tên các cột của entity từ các
+     * annotation @Column, @JoinColumn, @Id.
      * Nếu annotation có tên tùy chỉnh, dùng tên đó; nếu không, dùng tên field.
      * Chỉ lấy các field có annotation JPA, bỏ qua các field khác.
      *
@@ -347,27 +354,26 @@ public abstract class BaseDao<T> {
      */
     protected List<String> getColumnNames() {
         return Arrays.stream(clazz.getDeclaredFields())
-            // Lọc chỉ những field có annotation @Column, @JoinColumn, hoặc @Id
-            .filter(
-                f -> (f.isAnnotationPresent(Column.class)
-                    || f.isAnnotationPresent(JoinColumn.class)
-                    || f.isAnnotationPresent(Id.class))
-            )
-            // Ánh xạ mỗi field tới tên cột của nó
-            .map(f -> {
-                if (f.isAnnotationPresent(Column.class)) {
-                    Column column = f.getAnnotation(Column.class);
-                    return column.name().isEmpty() ? f.getName() : column.name();
-                } else if (f.isAnnotationPresent(JoinColumn.class)) {
-                    JoinColumn joinColumn = f.getAnnotation(JoinColumn.class);
-                    return joinColumn.name().isEmpty() ? f.getName() : joinColumn.name();
-                } else if (f.isAnnotationPresent(Id.class)) {
-                    return f.getName();
-                } else {
-                    return f.getName();
-                }
-            })
-            .collect(Collectors.toList());
+                // Lọc chỉ những field có annotation @Column, @JoinColumn, hoặc @Id
+                .filter(
+                        f -> (f.isAnnotationPresent(Column.class)
+                                || f.isAnnotationPresent(JoinColumn.class)
+                                || f.isAnnotationPresent(Id.class)))
+                // Ánh xạ mỗi field tới tên cột của nó
+                .map(f -> {
+                    if (f.isAnnotationPresent(Column.class)) {
+                        Column column = f.getAnnotation(Column.class);
+                        return column.name().isEmpty() ? f.getName() : column.name();
+                    } else if (f.isAnnotationPresent(JoinColumn.class)) {
+                        JoinColumn joinColumn = f.getAnnotation(JoinColumn.class);
+                        return joinColumn.name().isEmpty() ? f.getName() : joinColumn.name();
+                    } else if (f.isAnnotationPresent(Id.class)) {
+                        return f.getName();
+                    } else {
+                        return f.getName();
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -382,7 +388,8 @@ public abstract class BaseDao<T> {
 
     /**
      * Lấy CriteriaBuilder từ EntityManager.
-     * CriteriaBuilder dùng để xây dựng các truy vấn dynamic sử dụng JPA Criteria API.
+     * CriteriaBuilder dùng để xây dựng các truy vấn dynamic sử dụng JPA Criteria
+     * API.
      *
      * @return CriteriaBuilder để tạo query
      */

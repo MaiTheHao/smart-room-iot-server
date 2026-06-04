@@ -12,6 +12,7 @@ import jakarta.persistence.CascadeType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.iviet.ivshs.entities.base.BaseAuditEntity;
 import com.iviet.ivshs.shared.enumeration.DeviceControlType;
 
 import lombok.AllArgsConstructor;

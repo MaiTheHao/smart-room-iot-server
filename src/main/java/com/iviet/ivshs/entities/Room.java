@@ -2,6 +2,9 @@ package com.iviet.ivshs.entities;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import com.iviet.ivshs.entities.base.BaseTranslatableEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,11 +20,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "room",
-    indexes = {
+@Table(name = "room", indexes = {
         @Index(name = "idx_room_code", columnList = "code", unique = true)
-    }
-)
+})
 @Getter
 @Setter
 @NoArgsConstructor

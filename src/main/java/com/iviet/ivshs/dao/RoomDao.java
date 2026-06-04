@@ -6,156 +6,158 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
 import com.iviet.ivshs.dto.RoomDeviceCountDto;
 import com.iviet.ivshs.entities.Room;
 
 @Repository
 public class RoomDao extends BaseAuditEntityDao<Room> {
-    
-    public RoomDao() {
-        super(Room.class);
-    }
 
-    public Optional<Room> findByCode(String code) {
-        return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("code"), code));
-    }
+        public RoomDao() {
+                super(Room.class);
+        }
 
-    public Optional<RoomDto> findByCode(String code, String langCode) {
-        String dtoPath = RoomDto.class.getName();
+        public Optional<Room> findByCode(String code) {
+                return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("code"), code));
+        }
 
-        String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
-                FROM Room r
-                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                WHERE r.code = :code
-                """.formatted(dtoPath);
+        public Optional<RoomDto> findByCode(String code, String langCode) {
+                String dtoPath = RoomDto.class.getName();
 
-        return entityManager.createQuery(jpql, RoomDto.class)
-                .setParameter("code", code)
-                .setParameter("langCode", langCode)
-                .setMaxResults(1)
-                .getResultStream()
-                .findFirst();
-    }
+                String jpql = """
+                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                FROM Room r
+                                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                                WHERE r.code = :code
+                                """.formatted(dtoPath);
 
-    public Optional<RoomDto> findById(Long roomId, String langCode) {
-        String dtoPath = RoomDto.class.getName();
+                return entityManager.createQuery(jpql, RoomDto.class)
+                                .setParameter("code", code)
+                                .setParameter("langCode", langCode)
+                                .setMaxResults(1)
+                                .getResultStream()
+                                .findFirst();
+        }
 
-        String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
-                FROM Room r
-                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                WHERE r.id = :roomId
-                """.formatted(dtoPath);
+        public Optional<RoomDto> findById(Long roomId, String langCode) {
+                String dtoPath = RoomDto.class.getName();
 
-        return entityManager.createQuery(jpql, RoomDto.class)
-                .setParameter("roomId", roomId)
-                .setParameter("langCode", langCode)
-                .setMaxResults(1)
-                .getResultStream()
-                .findFirst();
-    }
+                String jpql = """
+                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                FROM Room r
+                                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                                WHERE r.id = :roomId
+                                """.formatted(dtoPath);
 
-    public List<RoomDto> findAllByFloorId(Long floorId, int page, int size, String langCode) {
-        String dtoPath = RoomDto.class.getName();
+                return entityManager.createQuery(jpql, RoomDto.class)
+                                .setParameter("roomId", roomId)
+                                .setParameter("langCode", langCode)
+                                .setMaxResults(1)
+                                .getResultStream()
+                                .findFirst();
+        }
 
-        String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
-                FROM Room r
-                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                WHERE r.floor.id = :floorId
-                """.formatted(dtoPath);
+        public List<RoomDto> findAllByFloorId(Long floorId, int page, int size, String langCode) {
+                String dtoPath = RoomDto.class.getName();
 
-        return entityManager.createQuery(jpql, RoomDto.class)
-                .setParameter("floorId", floorId)
-                .setParameter("langCode", langCode)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-    }
+                String jpql = """
+                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                FROM Room r
+                                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                                WHERE r.floor.id = :floorId
+                                """.formatted(dtoPath);
 
-    public List<RoomDto> findAllByFloorId(Long floorId, String langCode) {
-        String dtoPath = RoomDto.class.getName();
+                return entityManager.createQuery(jpql, RoomDto.class)
+                                .setParameter("floorId", floorId)
+                                .setParameter("langCode", langCode)
+                                .setFirstResult(page * size)
+                                .setMaxResults(size)
+                                .getResultList();
+        }
 
-        String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
-                FROM Room r
-                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                WHERE r.floor.id = :floorId
-                """.formatted(dtoPath);
+        public List<RoomDto> findAllByFloorId(Long floorId, String langCode) {
+                String dtoPath = RoomDto.class.getName();
 
-        return entityManager.createQuery(jpql, RoomDto.class)
-                .setParameter("floorId", floorId)
-                .setParameter("langCode", langCode)
-                .getResultList();
-    }
+                String jpql = """
+                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                FROM Room r
+                                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                                WHERE r.floor.id = :floorId
+                                """.formatted(dtoPath);
 
-    public List<RoomDto> findAll(String langCode) {
-        String dtoPath = RoomDto.class.getName();
+                return entityManager.createQuery(jpql, RoomDto.class)
+                                .setParameter("floorId", floorId)
+                                .setParameter("langCode", langCode)
+                                .getResultList();
+        }
 
-        String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
-                FROM Room r
-                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                """.formatted(dtoPath);
+        public List<RoomDto> findAll(String langCode) {
+                String dtoPath = RoomDto.class.getName();
 
-        return entityManager.createQuery(jpql, RoomDto.class)
-                .setParameter("langCode", langCode)
-                .getResultList();
-    }
+                String jpql = """
+                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                FROM Room r
+                                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                                """.formatted(dtoPath);
 
-    public List<RoomDto> findAll(int page, int size, String langCode) {
-        String dtoPath = RoomDto.class.getName();
+                return entityManager.createQuery(jpql, RoomDto.class)
+                                .setParameter("langCode", langCode)
+                                .getResultList();
+        }
 
-        String jpql = """
-                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
-                FROM Room r
-                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                """.formatted(dtoPath);
+        public List<RoomDto> findAll(int page, int size, String langCode) {
+                String dtoPath = RoomDto.class.getName();
 
-        return entityManager.createQuery(jpql, RoomDto.class)
-                .setParameter("langCode", langCode)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-    }
+                String jpql = """
+                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                FROM Room r
+                                LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
+                                """.formatted(dtoPath);
 
-    public long countByFloorId(Long floorId) {
-        return count(root -> entityManager.getCriteriaBuilder().equal(root.get("floor").get("id"), floorId));
-    }
+                return entityManager.createQuery(jpql, RoomDto.class)
+                                .setParameter("langCode", langCode)
+                                .setFirstResult(page * size)
+                                .setMaxResults(size)
+                                .getResultList();
+        }
 
-    public List<RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds) {
-        if (roomIds == null || roomIds.isEmpty()) return List.of();
+        public long countByFloorId(Long floorId) {
+                return count(root -> entityManager.getCriteriaBuilder().equal(root.get("floor").get("id"), floorId));
+        }
 
-        String dtoPath = RoomDeviceCountDto.class.getName();
-        String jpql = """
-                SELECT new %s(
-                    r.id,
-                    (SELECT COUNT(l) FROM Light l WHERE l.room.id = r.id),
-                    (SELECT COUNT(ac) FROM AirCondition ac WHERE ac.room.id = r.id),
-                    (SELECT COUNT(f) FROM Fan f WHERE f.room.id = r.id)
-                )
-                FROM Room r
-                WHERE r.id IN :roomIds
-                """.formatted(dtoPath);
+        public List<RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds) {
+                if (roomIds == null || roomIds.isEmpty())
+                        return List.of();
 
-        return entityManager.createQuery(jpql, RoomDeviceCountDto.class)
-                .setParameter("roomIds", roomIds)
-                .getResultList();
-    }
-    
-    public void touchRoomsByClientId(Long clientId) {
-        String jpql = """
-                SELECT DISTINCT r 
-                FROM Room r 
-                JOIN HardwareConfig hc ON hc.room.id = r.id 
-                WHERE hc.client.id = :clientId
-                """;
-        
-        java.util.List<Room> rooms = entityManager.createQuery(jpql, Room.class)
-                .setParameter("clientId", clientId)
-                .getResultList();
-        
-        rooms.forEach(Room::touch);
-    }
+                String dtoPath = RoomDeviceCountDto.class.getName();
+                String jpql = """
+                                SELECT new %s(
+                                    r.id,
+                                    (SELECT COUNT(l) FROM Light l WHERE l.room.id = r.id),
+                                    (SELECT COUNT(ac) FROM AirCondition ac WHERE ac.room.id = r.id),
+                                    (SELECT COUNT(f) FROM Fan f WHERE f.room.id = r.id)
+                                )
+                                FROM Room r
+                                WHERE r.id IN :roomIds
+                                """.formatted(dtoPath);
+
+                return entityManager.createQuery(jpql, RoomDeviceCountDto.class)
+                                .setParameter("roomIds", roomIds)
+                                .getResultList();
+        }
+
+        public void touchRoomsByClientId(Long clientId) {
+                String jpql = """
+                                SELECT DISTINCT r
+                                FROM Room r
+                                JOIN HardwareConfig hc ON hc.room.id = r.id
+                                WHERE hc.client.id = :clientId
+                                """;
+
+                java.util.List<Room> rooms = entityManager.createQuery(jpql, Room.class)
+                                .setParameter("clientId", clientId)
+                                .getResultList();
+
+                rooms.forEach(Room::touch);
+        }
 }

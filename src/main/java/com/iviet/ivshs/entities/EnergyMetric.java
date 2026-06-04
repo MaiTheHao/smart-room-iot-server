@@ -1,5 +1,6 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.entities.base.BaseMetricData;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

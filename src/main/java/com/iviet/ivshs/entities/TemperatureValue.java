@@ -6,6 +6,8 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.Immutable;
 
+import com.iviet.ivshs.entities.base.BaseTelemetryValue;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +15,9 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "temperature_value", indexes = {
-    @Index(name = "idx_sensor_timestamp", columnList = "sensor_id, timestamp"),
-    @Index(name = "idx_timestamp", columnList = "timestamp"),
-    @Index(name = "idx_tv_unix_minute", columnList = "unix_minute")
+        @Index(name = "idx_sensor_timestamp", columnList = "sensor_id, timestamp"),
+        @Index(name = "idx_timestamp", columnList = "timestamp"),
+        @Index(name = "idx_tv_unix_minute", columnList = "unix_minute")
 })
 @Immutable
 @Getter

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
+
+import com.iviet.ivshs.dao.base.BaseTelemetryDao;
 import com.iviet.ivshs.dto.AveragePowerConsumptionValueDto;
 import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumptionValue;

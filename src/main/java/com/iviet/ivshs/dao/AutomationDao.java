@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
 import com.iviet.ivshs.entities.Automation;
 
 import jakarta.persistence.TypedQuery;
@@ -28,11 +29,11 @@ public class AutomationDao extends BaseAuditEntityDao<Automation> {
                 LEFT JOIN FETCH a.actions
                 WHERE a.id = :id
                 """;
-        
+
         List<Automation> results = entityManager.createQuery(jpql, Automation.class)
                 .setParameter("id", automationId)
                 .getResultList();
-        
+
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
@@ -43,7 +44,7 @@ public class AutomationDao extends BaseAuditEntityDao<Automation> {
                 WHERE a.isActive = true
                 ORDER BY a.id
                 """;
-        
+
         return entityManager.createQuery(jpql, Automation.class)
                 .getResultList();
     }

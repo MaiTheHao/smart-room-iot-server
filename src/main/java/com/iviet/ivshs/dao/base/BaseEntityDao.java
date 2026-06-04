@@ -1,8 +1,8 @@
-package com.iviet.ivshs.dao;
-
-import com.iviet.ivshs.entities.BaseEntity;
+package com.iviet.ivshs.dao.base;
 
 import java.util.Optional;
+
+import com.iviet.ivshs.entities.base.BaseEntity;
 
 public abstract class BaseEntityDao<T extends BaseEntity> extends BaseDao<T> {
 
@@ -11,7 +11,8 @@ public abstract class BaseEntityDao<T extends BaseEntity> extends BaseDao<T> {
     }
 
     public Optional<T> findById(Long id) {
-        if (id == null) return Optional.empty();
+        if (id == null)
+            return Optional.empty();
         return Optional.ofNullable(entityManager.find(clazz, id));
     }
 
@@ -20,13 +21,13 @@ public abstract class BaseEntityDao<T extends BaseEntity> extends BaseDao<T> {
     }
 
     public boolean existsById(Long id) {
-        if (id == null) return false;
-		return exists(
-			root -> {
-				var cb = entityManager.getCriteriaBuilder();
-				return cb.equal(root.get("id"), id);
-			} 
-		);
+        if (id == null)
+            return false;
+        return exists(
+                root -> {
+                    var cb = entityManager.getCriteriaBuilder();
+                    return cb.equal(root.get("id"), id);
+                });
     }
 
     public void deleteById(Long id) {

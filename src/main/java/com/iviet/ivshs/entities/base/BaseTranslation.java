@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
 
 import java.util.Objects;
 
@@ -14,7 +14,6 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
-
 @MappedSuperclass
 @Getter
 @Setter
@@ -29,10 +28,10 @@ public abstract class BaseTranslation<T extends BaseTranslatableEntity<?>> exten
     @Column(name = "description")
     private String description;
 
-    @Column(name = "lang_code", length = 10, nullable = false) 
+    @Column(name = "lang_code", length = 10, nullable = false)
     private String langCode;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "owner_id", nullable = false)
     private T owner;
 
@@ -46,17 +45,19 @@ public abstract class BaseTranslation<T extends BaseTranslatableEntity<?>> exten
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         BaseTranslation<?> that = (BaseTranslation<?>) o;
-        
+
         if (getId() != null && that.getId() != null) {
             return Objects.equals(getId(), that.getId());
         }
-        
+
         boolean sameOwner = Objects.equals(getOwner(), that.getOwner());
         boolean sameLang = Objects.equals(getLangCode(), that.getLangCode());
-        
+
         return sameOwner && sameLang;
     }
 

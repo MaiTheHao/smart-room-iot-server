@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import com.iviet.ivshs.dao.base.BaseIoTSensorDao;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
@@ -26,7 +27,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.naturalId = :naturalId
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("naturalId", naturalId)
@@ -42,7 +44,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.id = :id
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("id", id)
@@ -58,7 +61,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         ORDER BY pc.createdAt DESC
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("langCode", langCode)
@@ -73,7 +77,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         ORDER BY pc.createdAt DESC
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("langCode", langCode)
@@ -87,7 +92,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.room.id = :roomId
         ORDER BY pc.createdAt DESC
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("roomId", roomId)
@@ -104,7 +110,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.room.id = :roomId
         ORDER BY pc.createdAt DESC
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("roomId", roomId)
@@ -119,7 +126,8 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.room.id = :roomId AND pc.naturalId = :naturalId
-        """.formatted(DTO_CLASS);
+        """
+        .formatted(DTO_CLASS);
 
     return entityManager.createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("roomId", roomId)
@@ -136,14 +144,12 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
    */
   public List<PowerConsumption> findAllActiveByClientId(Long clientId) {
     return findAll(
-      root -> entityManager.getCriteriaBuilder().and(
-        entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
-        entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))
-      ),
-      (root, cq) -> {
-        root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
-        root.fetch("room", JoinType.LEFT);
-      }
-    );
+        root -> entityManager.getCriteriaBuilder().and(
+            entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
+            entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))),
+        (root, cq) -> {
+          root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
+          root.fetch("room", JoinType.LEFT);
+        });
   }
 }

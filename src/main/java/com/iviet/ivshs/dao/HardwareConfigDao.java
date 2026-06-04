@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import com.iviet.ivshs.dao.base.BaseEntityDao;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.shared.enumeration.DeviceControlType;
 

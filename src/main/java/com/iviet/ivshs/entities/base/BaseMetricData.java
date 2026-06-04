@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
 
 import java.time.Instant;
 
@@ -25,7 +25,7 @@ public abstract class BaseMetricData extends BaseEntity {
   @Column(name = "timestamp", nullable = false, updatable = false)
   protected Instant timestamp;
 
-  @Column(name = "unix_minute")  
+  @Column(name = "unix_minute")
   protected Long unixMinute;
 
   public void setTimestamp(Instant timestamp) {

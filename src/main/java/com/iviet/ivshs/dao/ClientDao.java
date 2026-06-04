@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
+import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.shared.enumeration.ClientType;
 

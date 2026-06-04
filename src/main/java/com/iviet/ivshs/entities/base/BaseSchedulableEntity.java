@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.base;
 
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -7,7 +7,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
-
 
 @MappedSuperclass
 @Getter
@@ -27,7 +26,10 @@ public abstract class BaseSchedulableEntity extends BaseAuditEntity {
   protected Boolean isActive = true;
 
   public abstract String getJobName();
+
   public abstract String getJobGroup();
+
   public abstract Class<? extends Job> getJobClass();
+
   public abstract JobDataMap getJobDataMap();
 }

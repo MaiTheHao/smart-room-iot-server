@@ -1,5 +1,7 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.entities.base.BaseAuditEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
@@ -11,12 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(
-    name = "language",
-    indexes = {
+@Table(name = "language", indexes = {
         @Index(name = "idx_language_code", columnList = "code", unique = true)
-    }
-)
+})
 @Getter
 @Setter
 @NoArgsConstructor

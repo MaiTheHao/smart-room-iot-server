@@ -2,6 +2,10 @@ package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.*;
+import com.iviet.ivshs.entities.base.BaseIoTDevice;
+import com.iviet.ivshs.entities.base.BaseIoTEntity;
+import com.iviet.ivshs.entities.base.BaseTranslatableEntity;
+import com.iviet.ivshs.entities.base.BaseTranslation;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

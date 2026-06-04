@@ -3,6 +3,8 @@ package com.iviet.ivshs.entities;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.iviet.ivshs.entities.base.BaseTranslatableEntity;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,11 +18,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "sys_function",
-    indexes = {
-        @Index(name = "idx_sys_function_code", columnList = "function_code", unique = true)
-    }
-)
+@Table(name = "sys_function", indexes = {
+		@Index(name = "idx_sys_function_code", columnList = "function_code", unique = true)
+})
 @Getter
 @Setter
 @NoArgsConstructor
