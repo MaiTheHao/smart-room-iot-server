@@ -15,6 +15,10 @@ import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.util.LocalContextUtil;
 import com.iviet.ivshs.util.FunctionCodeHelper;
+import com.iviet.ivshs.dao.EnergyMetricDao;
+import com.iviet.ivshs.dao.TemperatureValueDao;
+import com.iviet.ivshs.service.DeviceMetadataService;
+import com.iviet.ivshs.properties.AppProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +42,10 @@ public class RoomServiceImpl implements RoomService {
     private final LanguageDao languageDao;
     private final PermissionService permissionService;
     private final SysFunctionService sysFunctionService;
+    private final DeviceMetadataService deviceMetadataService;
+    private final TemperatureValueDao temperatureValueDao;
+    private final EnergyMetricDao energyMetricDao;
+    private final AppProperties appProperties;
 
     @Override
     public PaginatedResponse<RoomDto> getListByFloor(Long floorId, int page, int size) {
@@ -261,5 +269,35 @@ public class RoomServiceImpl implements RoomService {
         Room room = roomDao.findByCode(roomCode).orElseThrow(() -> new NotFoundException("Room not found with code: " + roomCode));
         permissionService.requireAccessRoom(room.getCode());
         return room;
+    }
+
+    @Override
+    public RoomStatusDto getRoomStatus(Long roomId) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        RoomDto roomDto = roomDao.findById(roomId, langCode)
+                .orElseThrow(() -> new NotFoundException("Room not found with ID: " + roomId));
+
+        permissionService.requireAccessRoom(roomDto.code());
+
+        List<Object> devices = deviceMetadataService.getAllByRoomId(roomId, null);
+
+        Double avgTempC = null;
+        try {
+            java.time.Instant endedAt = java.time.Instant.now();
+            java.time.Instant startedAt = endedAt.minusSeconds(appProperties.getRoomStatusLookbackSeconds());
+            int divisor = 1;
+            
+            var history = temperatureValueDao.getAverageHistoryByRoom(roomId, startedAt, endedAt, divisor);
+            if (history != null && !history.isEmpty()) {
+                avgTempC = history.getLast().avgTempC();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to retrieve average temperature telemetry for room: {}", roomId, e);
+        }
+
+        EnergyMetricDto energyMetric = energyMetricDao.findLatest(com.iviet.ivshs.enumeration.EnergyMetricCategory.ROOM, roomId)
+                .orElse(null);
+
+        return new RoomStatusDto(roomDto, avgTempC, energyMetric, devices);
     }
 }

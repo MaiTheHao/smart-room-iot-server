@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.iviet.ivshs.dto.CreateRoomDto;
 import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dto.RoomStatusDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateRoomDto;
 import com.iviet.ivshs.entities.Room;
@@ -23,4 +24,5 @@ public interface RoomService {
     RoomDto update(Long roomId, UpdateRoomDto dto);
     RoomDto patchUpdate(Long roomId, UpdateRoomDto dto);
     void delete(Long roomId);
+    RoomStatusDto getRoomStatus(Long roomId);
 }

@@ -90,4 +90,9 @@ public class RoomController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
+
+    @GetMapping("/rooms/{roomId}/status")
+    public ResponseEntity<ApiResponse<RoomStatusDto>> getRoomStatus(@PathVariable(name = "roomId") Long roomId) {
+        return ResponseEntity.ok(ApiResponse.ok(roomService.getRoomStatus(roomId)));
+    }
 }
