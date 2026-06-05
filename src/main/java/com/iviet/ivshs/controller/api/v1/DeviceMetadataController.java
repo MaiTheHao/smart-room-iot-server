@@ -8,38 +8,37 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.enumeration.DeviceCategory;
-import com.iviet.ivshs.service.DeviceMetadataService;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.service.control.DeviceMetadataService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 @RequiredArgsConstructor
 public class DeviceMetadataController {
 
     private final DeviceMetadataService deviceMetadataService;
 
-
     @GetMapping("/rooms/{roomId}/devices")
-    public ResponseEntity<ApiResponse<List<Object>>> getAllByRoomId(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestParam(name = "category", required = false) DeviceCategory category) {
+    public ResponseEntity<ApiResponse<List<Object>>> getAllByRoomId(@PathVariable(name = "roomId")
+    Long roomId, @RequestParam(name = "category", required = false)
+    DeviceCategory category) {
         List<Object> devices = deviceMetadataService.getAllByRoomId(roomId, category);
         return ResponseEntity.ok(ApiResponse.ok(devices));
     }
 
     @GetMapping("/rooms/{roomId}/devices/count")
-    public ResponseEntity<ApiResponse<Long>> getCountByRoomId(@PathVariable(name = "roomId") Long roomId) {
+    public ResponseEntity<ApiResponse<Long>> getCountByRoomId(@PathVariable(name = "roomId")
+    Long roomId) {
         Long count = deviceMetadataService.getCountByRoomId(roomId);
         return ResponseEntity.ok(ApiResponse.ok(count));
     }
 
     @GetMapping("/devices/all")
-    public ResponseEntity<ApiResponse<List<Object>>> getAll(
-            @RequestParam(name = "category", required = false) DeviceCategory category) {
+    public ResponseEntity<ApiResponse<List<Object>>> getAll(@RequestParam(name = "category", required = false)
+    DeviceCategory category) {
         List<Object> devices = deviceMetadataService.getAll(category);
         return ResponseEntity.ok(ApiResponse.ok(devices));
     }

@@ -1,6 +1,6 @@
 package com.iviet.ivshs.controller.view;
 
-import com.iviet.ivshs.service.LoginViewService;
+import com.iviet.ivshs.service.auth.LoginViewService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

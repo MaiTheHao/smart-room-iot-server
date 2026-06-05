@@ -1,14 +1,14 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.entities.base.BaseTranslation;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "room_lan",
-    indexes = {
+@Table(name = "room_lan", indexes = {
         @Index(name = "idx_room_lan_owner_id_lang_code", columnList = "owner_id, lang_code", unique = true)
-    }
-)
+})
 public class RoomLan extends BaseTranslation<Room> {
 }

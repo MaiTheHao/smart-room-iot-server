@@ -1,5 +1,7 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.entities.base.BaseIoTDevice;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;

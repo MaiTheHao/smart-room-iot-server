@@ -6,9 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.iviet.ivshs.service.RoomViewService;
-import com.iviet.ivshs.service.RoomViewService.RoomDetailCriteria;
-
+import com.iviet.ivshs.service.room.RoomViewService;
+import com.iviet.ivshs.service.room.RoomViewService.RoomDetailCriteria;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -19,7 +18,8 @@ public class RoomViewController {
 
     @GetMapping("/rooms/{id}")
     @PreAuthorize("@permissionService.canAccessRoom(#id)")
-    public String roomDetail(@PathVariable("id") Long id, Model model) {
+    public String roomDetail(@PathVariable("id")
+    Long id, Model model) {
         var _model = roomViewService.getRoomDetailModel(RoomDetailCriteria.builder().roomId(id).build());
         model.addAllAttributes(_model.toModelAttributes());
         return "pages/room.html";

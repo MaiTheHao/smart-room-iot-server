@@ -1,0 +1,28 @@
+package com.iviet.ivshs.service.language.impl;
+
+import org.springframework.context.MessageSource;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
+
+import com.iviet.ivshs.service.language.I18nMessageService;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class I18nMessageServiceImpl implements I18nMessageService {
+
+	private final MessageSource messageSource;
+
+	@Override
+	public String getMessage(@NonNull String key, Object... args) {
+		String message = messageSource.getMessage(
+				key,
+				args,
+				key,
+				LocalContextUtil.getCurrentLocale());
+		return message != null ? message : key;
+	}
+
+}

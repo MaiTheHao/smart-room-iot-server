@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
+import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
 import com.iviet.ivshs.entities.AutomationAction;
 
 @Repository
@@ -19,7 +20,7 @@ public class AutomationActionDao extends BaseAuditEntityDao<AutomationAction> {
                 WHERE a.automation.id = :automationId
                 ORDER BY a.executionOrder ASC, a.id ASC
                 """;
-        
+
         return entityManager.createQuery(jpql, AutomationAction.class)
                 .setParameter("automationId", automationId)
                 .getResultList();

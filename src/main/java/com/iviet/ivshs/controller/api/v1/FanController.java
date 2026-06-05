@@ -1,104 +1,107 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.FanDto;
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.dto.CreateFanDto;
-import com.iviet.ivshs.dto.FanControlRequestBody;
-import com.iviet.ivshs.dto.PaginatedResponse;
-import com.iviet.ivshs.dto.UpdateFanDto;
-import com.iviet.ivshs.service.FanControlService;
-import com.iviet.ivshs.service.FanService;
+import com.iviet.ivshs.dto.fan.FanDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.fan.CreateFanDto;
+import com.iviet.ivshs.dto.fan.FanControlRequestBody;
+import com.iviet.ivshs.service.control.FanControlService;
+import com.iviet.ivshs.service.fan.FanService;
+import com.iviet.ivshs.dto.fan.UpdateFanDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.iviet.ivshs.dto.ControlDeviceResult;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class FanController {
 
-    private final FanService fanService;
-    private final FanControlService fanControlService;
+  private final FanService fanService;
+  private final FanControlService fanControlService;
 
-    @GetMapping("/fans")
-    public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getAll(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(fanService.getList(page, size)));
-    }
+  @GetMapping("/fans")
+  public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getAll(@RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "20")
+  int size) {
 
-    @GetMapping("/fans/all")
-    public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllFans() {
-        return ResponseEntity.ok(ApiResponse.ok(fanService.getAll()));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(fanService.getList(page, size)));
+  }
 
-    @GetMapping("/rooms/{roomId}/fans")
-    public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getByRoom(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(fanService.getListByRoomId(roomId, page, size)));
-    }
+  @GetMapping("/fans/all")
+  public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllFans() {
+    return ResponseEntity.ok(ApiResponse.ok(fanService.getAll()));
+  }
 
-    @GetMapping("/rooms/{roomId}/fans/all")
-    public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllByRoom(
-            @PathVariable(name = "roomId") Long roomId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(fanService.getAllByRoomId(roomId)));
-    }
+  @GetMapping("/rooms/{roomId}/fans")
+  public ResponseEntity<ApiResponse<PaginatedResponse<FanDto>>> getByRoom(@PathVariable(name = "roomId")
+  Long roomId, @RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "20")
+  int size) {
 
-    @GetMapping("/rooms/{roomId}/fans/{naturalId}")
-    public ResponseEntity<ApiResponse<FanDto>> getByRoomAndNaturalId(
-            @PathVariable(name = "roomId") Long roomId,
-            @PathVariable(name = "naturalId") String naturalId) {
-        
-        FanDto fan = fanService.getByRoomAndNaturalId(roomId, naturalId);
-        return ResponseEntity.ok(ApiResponse.ok(fan));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(fanService.getListByRoomId(roomId, page, size)));
+  }
 
-    @GetMapping("/fans/{id}")
-    public ResponseEntity<ApiResponse<FanDto>> getById(
-            @PathVariable(name = "id") Long id) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(fanService.getById(id)));
-    }
+  @GetMapping("/rooms/{roomId}/fans/all")
+  public ResponseEntity<ApiResponse<java.util.List<FanDto>>> getAllByRoom(@PathVariable(name = "roomId")
+  Long roomId) {
 
-    @PostMapping("/fans")
-    public ResponseEntity<ApiResponse<FanDto>> create(
-            @RequestBody @Valid CreateFanDto request) {
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(fanService.create(request)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(fanService.getAllByRoomId(roomId)));
+  }
 
-    @PutMapping("/fans/{id}")
-    public ResponseEntity<ApiResponse<FanDto>> update(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateFanDto request) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(fanService.update(id, request)));
-    }
+  @GetMapping("/rooms/{roomId}/fans/{naturalId}")
+  public ResponseEntity<ApiResponse<FanDto>> getByRoomAndNaturalId(@PathVariable(name = "roomId")
+  Long roomId, @PathVariable(name = "naturalId")
+  String naturalId) {
 
-    @DeleteMapping("/fans/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable(name = "id") Long id) {
-        
-        fanService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
-    }
+    FanDto fan = fanService.getByRoomAndNaturalId(roomId, naturalId);
+    return ResponseEntity.ok(ApiResponse.ok(fan));
+  }
 
-    @PutMapping("/fans/{naturalId}/control")
-    public ResponseEntity<ApiResponse<ControlDeviceResult>> control(
-        @PathVariable(name = "naturalId") String naturalId,
-        @RequestBody @Valid FanControlRequestBody params) {
+  @GetMapping("/fans/{id}")
+  public ResponseEntity<ApiResponse<FanDto>> getById(@PathVariable(name = "id")
+  Long id) {
 
-        ControlDeviceResult result = fanControlService.control(naturalId, params);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(fanService.getById(id)));
+  }
+
+  @PostMapping("/fans")
+  public ResponseEntity<ApiResponse<FanDto>> create(@RequestBody
+  @Valid
+  CreateFanDto request) {
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(fanService.create(request)));
+  }
+
+  @PutMapping("/fans/{id}")
+  public ResponseEntity<ApiResponse<FanDto>> update(@PathVariable(name = "id")
+  Long id, @RequestBody
+  @Valid
+  UpdateFanDto request) {
+
+    return ResponseEntity.ok(ApiResponse.ok(fanService.update(id, request)));
+  }
+
+  @DeleteMapping("/fans/{id}")
+  public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id")
+  Long id) {
+
+    fanService.delete(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+  }
+
+  @PutMapping("/fans/{naturalId}/control")
+  public ResponseEntity<ApiResponse<ControlDeviceResult>> control(@PathVariable(name = "naturalId")
+  String naturalId, @RequestBody
+  @Valid
+  FanControlRequestBody params) {
+
+    ControlDeviceResult result = fanControlService.control(naturalId, params);
+    return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
+  }
 }

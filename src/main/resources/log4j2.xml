@@ -78,7 +78,7 @@
     </Logger>
 
     <!-- APM Logger: Cấu hình ghi trace. Recommend: prod - OFF, dev - TRACE -->
-    <Logger name="com.iviet.ivshs.apm"
+    <Logger name="com.iviet.ivshs.shared.logging.trace"
             level="${sys:APM_LOG_LEVEL:-trace}"
             additivity="false">
       <AppenderRef ref="AsyncTraceFile">

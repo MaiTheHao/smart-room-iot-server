@@ -5,10 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
-import com.iviet.ivshs.dto.AveragePowerConsumptionValueDto;
-import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
+
+import com.iviet.ivshs.dao.base.BaseTelemetryDao;
+import com.iviet.ivshs.dto.powerconsumption.AveragePowerConsumptionValueDto;
+import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumptionValue;
-import com.iviet.ivshs.exception.domain.BadRequestException;
+import com.iviet.ivshs.shared.exception.BadRequestException;
 
 @Repository
 public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionValue> {
@@ -28,20 +30,25 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 
 	@Override
 	public void saveAndForget(Long sensorId, List<PowerConsumptionValue> entities) {
-		if (entities == null || entities.isEmpty()) return;
+		if (entities == null || entities.isEmpty())
+			return;
 
 		String insertSql = getInsertSql();
-		jdbcTemplate.batchUpdate(insertSql, entities, BATCH_SIZE, (ps, entity) -> {
+		jdbcTemplate.batchUpdate(insertSql, entities, databaseProperties.getHibernateBatchSize(), (ps, entity) -> {
 			if (sensorId != null) {
-				ps.setLong(1,  sensorId);
-			} else throw new BadRequestException("Sensor ID cannot be null");
+				ps.setLong(1, sensorId);
+			} else
+				throw new BadRequestException("Sensor ID cannot be null");
 
 			if (entity.getTimestamp() != null) {
 				ps.setTimestamp(2, java.sql.Timestamp.from(entity.getTimestamp()));
-			} else throw new BadRequestException("Timestamp cannot be null");
+			} else
+				throw new BadRequestException("Timestamp cannot be null");
 
-			if (entity.getWatt() != null) ps.setDouble(3, entity.getWatt());
-			else ps.setNull(3, java.sql.Types.DOUBLE);
+			if (entity.getWatt() != null)
+				ps.setDouble(3, entity.getWatt());
+			else
+				ps.setNull(3, java.sql.Types.DOUBLE);
 
 			ps.setObject(4, entity.getUnixMinute());
 		});
@@ -56,13 +63,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
 				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
 				""".formatted(AveragePowerConsumptionValueDto.class.getName());
-		
-		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
-				.setParameter("roomId", roomId)
-				.setParameter("startedAt", startedAt)
-				.setParameter("endedAt", endedAt)
-				.setParameter("divisor", divisor)
-				.getResultList();
+
+		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class).setParameter("roomId", roomId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
 	}
 
 	public List<AveragePowerConsumptionValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
@@ -74,13 +76,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
 				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
 				""".formatted(AveragePowerConsumptionValueDto.class.getName());
-		
-		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class)
-			.setParameter("clientId", clientId)
-			.setParameter("startedAt", startedAt)
-			.setParameter("endedAt", endedAt)
-			.setParameter("divisor", divisor)
-			.getResultList();
+
+		return entityManager.createQuery(jpql, AveragePowerConsumptionValueDto.class).setParameter("clientId", clientId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
@@ -92,13 +89,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
 				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
 				""".formatted(SumPowerConsumptionValueDto.class.getName());
-		
-		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
-			.setParameter("clientId", clientId)
-			.setParameter("startedAt", startedAt)
-			.setParameter("endedAt", endedAt)
-			.setParameter("divisor", divisor)
-			.getResultList();
+
+		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class).setParameter("clientId", clientId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
 	}
 
 	public List<SumPowerConsumptionValueDto> getSumHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
@@ -110,13 +102,8 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				GROUP BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L
 				ORDER BY (pcv.unixMinute - MOD(pcv.unixMinute, :divisor)) * 60L ASC
 				""".formatted(SumPowerConsumptionValueDto.class.getName());
-		
-		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class)
-				.setParameter("roomId", roomId)
-				.setParameter("startedAt", startedAt)
-				.setParameter("endedAt", endedAt)
-				.setParameter("divisor", divisor)
-				.getResultList();
+
+		return entityManager.createQuery(jpql, SumPowerConsumptionValueDto.class).setParameter("roomId", roomId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
 	}
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {
@@ -126,11 +113,7 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				""";
 
-		entityManager.createQuery(jpql)
-				.setParameter("sensorId", sensorId)
-				.setParameter("startedAt", startedAt)
-				.setParameter("endedAt", endedAt)
-				.executeUpdate();
+		entityManager.createQuery(jpql).setParameter("sensorId", sensorId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).executeUpdate();
 	}
 
 	public void deleteBySensorNaturalIdAndTimestampBetween(String sensorNaturalId, Instant startedAt, Instant endedAt) {
@@ -140,10 +123,6 @@ public class PowerConsumptionValueDao extends BaseTelemetryDao<PowerConsumptionV
 				AND pcv.timestamp BETWEEN :startedAt AND :endedAt
 				""";
 
-		entityManager.createQuery(jpql)
-				.setParameter("sensorNaturalId", sensorNaturalId)
-				.setParameter("startedAt", startedAt)
-				.setParameter("endedAt", endedAt)
-				.executeUpdate();
+		entityManager.createQuery(jpql).setParameter("sensorNaturalId", sensorNaturalId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).executeUpdate();
 	}
 }

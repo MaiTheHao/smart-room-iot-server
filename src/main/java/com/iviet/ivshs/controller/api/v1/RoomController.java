@@ -1,7 +1,12 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.RoomService;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.room.CreateRoomDto;
+import com.iviet.ivshs.dto.room.RoomDto;
+import com.iviet.ivshs.dto.room.RoomStatusDto;
+import com.iviet.ivshs.dto.room.UpdateRoomDto;
+import com.iviet.ivshs.service.room.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -13,86 +18,91 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class RoomController {
 
-    private final RoomService roomService;
+  private final RoomService roomService;
 
-    @GetMapping("/rooms/all")
-    public ResponseEntity<ApiResponse<List<RoomDto>>> getAllRooms() {
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getAll()));
-    }
+  @GetMapping("/rooms/all")
+  public ResponseEntity<ApiResponse<List<RoomDto>>> getAllRooms() {
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getAll()));
+  }
 
-    @GetMapping("/rooms")
-    public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRooms(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getList(page, size)));
-    }
+  @GetMapping("/rooms")
+  public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRooms(@RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
 
-    @GetMapping("/floors/{floorId}/rooms")
-    public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRoomsByFloor(
-            @PathVariable(name = "floorId") Long floorId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getListByFloor(floorId, page, size)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getList(page, size)));
+  }
 
-    @GetMapping("/floors/{floorId}/rooms/all")
-    public ResponseEntity<ApiResponse<List<RoomDto>>> getAllRoomsByFloor(
-            @PathVariable(name = "floorId") Long floorId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getAllByFloor(floorId)));
-    }
+  @GetMapping("/floors/{floorId}/rooms")
+  public ResponseEntity<ApiResponse<PaginatedResponse<RoomDto>>> getRoomsByFloor(@PathVariable(name = "floorId")
+  Long floorId, @RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
 
-    @GetMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponse<RoomDto>> getRoomById(@PathVariable(name = "roomId") Long roomId) {
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getById(roomId)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getListByFloor(floorId, page, size)));
+  }
 
-    @GetMapping("/rooms/{roomId}/v")
-    public ResponseEntity<ApiResponse<Long>> getVersionById(@PathVariable(name = "roomId") Long roomId) {
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getVersionById(roomId)));
-    }
+  @GetMapping("/floors/{floorId}/rooms/all")
+  public ResponseEntity<ApiResponse<List<RoomDto>>> getAllRoomsByFloor(@PathVariable(name = "floorId")
+  Long floorId) {
 
-    @PostMapping("/floors/{floorId}/rooms")
-    public ResponseEntity<ApiResponse<RoomDto>> createRoom(
-            @PathVariable(name = "floorId") Long floorId,
-            @RequestBody @Valid CreateRoomDto request) {
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(roomService.create(floorId, request)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getAllByFloor(floorId)));
+  }
 
-    @PutMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponse<RoomDto>> updateRoom(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestBody @Valid UpdateRoomDto request) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(roomService.update(roomId, request)));
-    }
+  @GetMapping("/rooms/{roomId}")
+  public ResponseEntity<ApiResponse<RoomDto>> getRoomById(@PathVariable(name = "roomId")
+  Long roomId) {
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getById(roomId)));
+  }
 
-    @PatchMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponse<RoomDto>> patchRoom(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestBody UpdateRoomDto request) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(roomService.patchUpdate(roomId, request)));
-    }
+  @GetMapping("/rooms/{roomId}/v")
+  public ResponseEntity<ApiResponse<Long>> getVersionById(@PathVariable(name = "roomId")
+  Long roomId) {
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getVersionById(roomId)));
+  }
 
-    @DeleteMapping("/rooms/{roomId}")
-    public ResponseEntity<ApiResponse<Void>> deleteRoom(
-            @PathVariable(name = "roomId") Long roomId) {
-        
-        roomService.delete(roomId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
-    }
+  @PostMapping("/floors/{floorId}/rooms")
+  public ResponseEntity<ApiResponse<RoomDto>> createRoom(@PathVariable(name = "floorId")
+  Long floorId, @RequestBody
+  @Valid
+  CreateRoomDto request) {
 
-    @GetMapping("/rooms/{roomId}/status")
-    public ResponseEntity<ApiResponse<RoomStatusDto>> getRoomStatus(@PathVariable(name = "roomId") Long roomId) {
-        return ResponseEntity.ok(ApiResponse.ok(roomService.getRoomStatus(roomId)));
-    }
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(roomService.create(floorId, request)));
+  }
+
+  @PutMapping("/rooms/{roomId}")
+  public ResponseEntity<ApiResponse<RoomDto>> updateRoom(@PathVariable(name = "roomId")
+  Long roomId, @RequestBody
+  @Valid
+  UpdateRoomDto request) {
+
+    return ResponseEntity.ok(ApiResponse.ok(roomService.update(roomId, request)));
+  }
+
+  @PatchMapping("/rooms/{roomId}")
+  public ResponseEntity<ApiResponse<RoomDto>> patchRoom(@PathVariable(name = "roomId")
+  Long roomId, @RequestBody
+  UpdateRoomDto request) {
+
+    return ResponseEntity.ok(ApiResponse.ok(roomService.patchUpdate(roomId, request)));
+  }
+
+  @DeleteMapping("/rooms/{roomId}")
+  public ResponseEntity<ApiResponse<Void>> deleteRoom(@PathVariable(name = "roomId")
+  Long roomId) {
+
+    roomService.delete(roomId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+  }
+
+  @GetMapping("/rooms/{roomId}/status")
+  public ResponseEntity<ApiResponse<RoomStatusDto>> getRoomStatus(@PathVariable(name = "roomId")
+  Long roomId) {
+    return ResponseEntity.ok(ApiResponse.ok(roomService.getRoomStatus(roomId)));
+  }
 }

@@ -1,7 +1,14 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.SysGroupService;
+import com.iviet.ivshs.dto.client.ClientDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.permission.SysFunctionDto;
+import com.iviet.ivshs.dto.role.CreateSysGroupDto;
+import com.iviet.ivshs.dto.role.SysGroupDto;
+import com.iviet.ivshs.dto.role.SysGroupWithClientStatusDto;
+import com.iviet.ivshs.dto.role.UpdateSysGroupDto;
+import com.iviet.ivshs.service.role.SysGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,147 +19,143 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class SysGroupController {
 
-    private final SysGroupService groupService;
+  private final SysGroupService groupService;
 
-    @GetMapping("/groups")
-    public ResponseEntity<ApiResponse<PaginatedResponse<SysGroupDto>>> getGroups(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getList(page, size)));
-    }
+  @GetMapping("/groups")
+  public ResponseEntity<ApiResponse<PaginatedResponse<SysGroupDto>>> getGroups(@RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
 
-    @GetMapping("/groups/all")
-    public ResponseEntity<ApiResponse<List<SysGroupDto>>> getAllGroups() {
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getAll()));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getList(page, size)));
+  }
 
-    @GetMapping("/groups/{groupId}")
-    public ResponseEntity<ApiResponse<SysGroupDto>> getGroupById(
-            @PathVariable(name = "groupId") Long groupId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getById(groupId)));
-    }
+  @GetMapping("/groups/all")
+  public ResponseEntity<ApiResponse<List<SysGroupDto>>> getAllGroups() {
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getAll()));
+  }
 
-    @GetMapping("/groups/code/{groupCode}")
-    public ResponseEntity<ApiResponse<SysGroupDto>> getGroupByCode(
-            @PathVariable(name = "groupCode") String groupCode) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getByCode(groupCode)));
-    }
+  @GetMapping("/groups/{groupId}")
+  public ResponseEntity<ApiResponse<SysGroupDto>> getGroupById(@PathVariable(name = "groupId")
+  Long groupId) {
 
-    @PostMapping("/groups")
-    public ResponseEntity<ApiResponse<SysGroupDto>> createGroup(
-            @RequestBody @Valid CreateSysGroupDto request) {
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(groupService.create(request)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getById(groupId)));
+  }
 
-    @PutMapping("/groups/{groupId}")
-    public ResponseEntity<ApiResponse<SysGroupDto>> updateGroup(
-            @PathVariable(name = "groupId") Long groupId,
-            @RequestBody @Valid UpdateSysGroupDto request) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.update(groupId, request)));
-    }
+  @GetMapping("/groups/code/{groupCode}")
+  public ResponseEntity<ApiResponse<SysGroupDto>> getGroupByCode(@PathVariable(name = "groupCode")
+  String groupCode) {
 
-    @DeleteMapping("/groups/{groupId}")
-    public ResponseEntity<ApiResponse<Void>> deleteGroup(
-            @PathVariable(name = "groupId") Long groupId) {
-        
-        groupService.delete(groupId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group deleted successfully"));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getByCode(groupCode)));
+  }
 
-    @GetMapping("/groups/{groupId}/functions/all")
-    public ResponseEntity<ApiResponse<List<SysFunctionDto>>> getFunctionsByGroup(
-            @PathVariable(name = "groupId") Long groupId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllFunctionsByGroupId(groupId)));
-    }
+  @PostMapping("/groups")
+  public ResponseEntity<ApiResponse<SysGroupDto>> createGroup(@RequestBody
+  @Valid
+  CreateSysGroupDto request) {
 
-    @GetMapping("/groups/{groupId}/functions")
-    public ResponseEntity<ApiResponse<PaginatedResponse<SysFunctionDto>>> getFunctionsByGroupPaginated(
-            @PathVariable(name = "groupId") Long groupId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(
-            groupService.getListFunctionsByGroupId(groupId, page, size)
-        ));
-    }
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(groupService.create(request)));
+  }
 
-    @GetMapping("/groups/{groupId}/clients/all")
-    public ResponseEntity<ApiResponse<List<ClientDto>>> getClientsByGroup(
-            @PathVariable(name = "groupId") Long groupId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllClientsByGroupId(groupId)));
-    }
+  @PutMapping("/groups/{groupId}")
+  public ResponseEntity<ApiResponse<SysGroupDto>> updateGroup(@PathVariable(name = "groupId")
+  Long groupId, @RequestBody
+  @Valid
+  UpdateSysGroupDto request) {
 
-    @GetMapping("/groups/{groupId}/clients")
-    public ResponseEntity<ApiResponse<PaginatedResponse<ClientDto>>> getClientsByGroupPaginated(
-            @PathVariable(name = "groupId") Long groupId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(
-            groupService.getListClientsByGroupId(groupId, page, size)
-        ));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(groupService.update(groupId, request)));
+  }
 
-    @GetMapping("/count")
-    public ResponseEntity<ApiResponse<Long>> countGroups() {
-        return ResponseEntity.ok(ApiResponse.ok(groupService.count()));
-    }
+  @DeleteMapping("/groups/{groupId}")
+  public ResponseEntity<ApiResponse<Void>> deleteGroup(@PathVariable(name = "groupId")
+  Long groupId) {
 
-    @GetMapping("/groups/{groupId}/functions/count")
-    public ResponseEntity<ApiResponse<Long>> countFunctionsByGroup(
-            @PathVariable(name = "groupId") Long groupId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.countFunctionsByGroupId(groupId)));
-    }
+    groupService.delete(groupId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group deleted successfully"));
+  }
 
-    @GetMapping("/groups/{groupId}/clients/count")
-    public ResponseEntity<ApiResponse<Long>> countClientsByGroup(
-            @PathVariable(name = "groupId") Long groupId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.countClientsByGroupId(groupId)));
-    }
+  @GetMapping("/groups/{groupId}/functions/all")
+  public ResponseEntity<ApiResponse<List<SysFunctionDto>>> getFunctionsByGroup(@PathVariable(name = "groupId")
+  Long groupId) {
 
-    @GetMapping("/clients/{clientId}/groups/count")
-    public ResponseEntity<ApiResponse<Long>> countGroupsByClient(
-            @PathVariable(name = "clientId") Long clientId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.countByClientId(clientId)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getAllFunctionsByGroupId(groupId)));
+  }
 
-    @GetMapping("/clients/{clientId}/groups/all")
-    public ResponseEntity<ApiResponse<List<SysGroupDto>>> getGroupsByClient(
-            @PathVariable(name = "clientId") Long clientId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllByClientId(clientId)));
-    }
+  @GetMapping("/groups/{groupId}/functions")
+  public ResponseEntity<ApiResponse<PaginatedResponse<SysFunctionDto>>> getFunctionsByGroupPaginated(@PathVariable(name = "groupId")
+  Long groupId, @RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
 
-    @GetMapping("/clients/{clientId}/groups")
-    public ResponseEntity<ApiResponse<PaginatedResponse<SysGroupDto>>> getGroupsByClientPaginated(
-            @PathVariable(name = "clientId") Long clientId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(
-            groupService.getListByClientId(clientId, page, size)
-        ));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getListFunctionsByGroupId(groupId, page, size)));
+  }
 
-    @GetMapping("/groups/with-client-status/{clientId}")
-    public ResponseEntity<ApiResponse<List<SysGroupWithClientStatusDto>>> getGroupsWithClientStatus(
-            @PathVariable(name = "clientId") Long clientId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(groupService.getAllWithClientStatus(clientId)));
-    }
+  @GetMapping("/groups/{groupId}/clients/all")
+  public ResponseEntity<ApiResponse<List<ClientDto>>> getClientsByGroup(@PathVariable(name = "groupId")
+  Long groupId) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getAllClientsByGroupId(groupId)));
+  }
+
+  @GetMapping("/groups/{groupId}/clients")
+  public ResponseEntity<ApiResponse<PaginatedResponse<ClientDto>>> getClientsByGroupPaginated(@PathVariable(name = "groupId")
+  Long groupId, @RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getListClientsByGroupId(groupId, page, size)));
+  }
+
+  @GetMapping("/count")
+  public ResponseEntity<ApiResponse<Long>> countGroups() {
+    return ResponseEntity.ok(ApiResponse.ok(groupService.count()));
+  }
+
+  @GetMapping("/groups/{groupId}/functions/count")
+  public ResponseEntity<ApiResponse<Long>> countFunctionsByGroup(@PathVariable(name = "groupId")
+  Long groupId) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.countFunctionsByGroupId(groupId)));
+  }
+
+  @GetMapping("/groups/{groupId}/clients/count")
+  public ResponseEntity<ApiResponse<Long>> countClientsByGroup(@PathVariable(name = "groupId")
+  Long groupId) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.countClientsByGroupId(groupId)));
+  }
+
+  @GetMapping("/clients/{clientId}/groups/count")
+  public ResponseEntity<ApiResponse<Long>> countGroupsByClient(@PathVariable(name = "clientId")
+  Long clientId) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.countByClientId(clientId)));
+  }
+
+  @GetMapping("/clients/{clientId}/groups/all")
+  public ResponseEntity<ApiResponse<List<SysGroupDto>>> getGroupsByClient(@PathVariable(name = "clientId")
+  Long clientId) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getAllByClientId(clientId)));
+  }
+
+  @GetMapping("/clients/{clientId}/groups")
+  public ResponseEntity<ApiResponse<PaginatedResponse<SysGroupDto>>> getGroupsByClientPaginated(@PathVariable(name = "clientId")
+  Long clientId, @RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getListByClientId(clientId, page, size)));
+  }
+
+  @GetMapping("/groups/with-client-status/{clientId}")
+  public ResponseEntity<ApiResponse<List<SysGroupWithClientStatusDto>>> getGroupsWithClientStatus(@PathVariable(name = "clientId")
+  Long clientId) {
+
+    return ResponseEntity.ok(ApiResponse.ok(groupService.getAllWithClientStatus(clientId)));
+  }
 }

@@ -1,0 +1,101 @@
+package com.iviet.ivshs.scheduler.rule.strategy.impl;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.iviet.ivshs.core.properties.EngineProperties;
+import com.iviet.ivshs.dao.PowerConsumptionValueDao;
+import com.iviet.ivshs.dao.TemperatureValueDao;
+import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
+import com.iviet.ivshs.dto.temperature.AverageTemperatureValueDto;
+import com.iviet.ivshs.entities.RuleCondition;
+import com.iviet.ivshs.scheduler.rule.strategy.RuleDataSourceStrategy;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
+import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
+
+  private final TemperatureValueDao temperatureValueDao;
+  private final PowerConsumptionValueDao powerConsumptionValueDao;
+  private final EngineProperties engineProperties;
+
+  private static final String PROP_AVG_TEMPERATURE = "avg_temperature";
+  private static final String PROP_SUM_WATT = "sum_watt";
+
+  private int lookbackMinutes;
+
+  @PostConstruct
+  public void init() {
+    lookbackMinutes = engineProperties.getRuleTelemetryLookbackMinutes();
+  }
+
+  @Override
+  public boolean supports(RuleDataSource dataSource) {
+    return RuleDataSource.ROOM.equals(dataSource);
+  }
+
+  @Override
+  public Object fetchValue(RuleCondition condition, Long contextId) {
+    if (condition == null || condition.getResourceParam() == null) {
+      log.debug("Condition or resource params are null");
+      return null;
+    }
+
+    try {
+      String property = condition.getResourceParam().path("property").asText(null);
+      Long roomId = condition.getResourceParam().path("roomId").asLong(0L);
+
+      if (property == null) {
+        log.warn("Property is missing in ROOM resourceParam for condition {}", condition.getId());
+        return null;
+      }
+
+      if (roomId == 0L) {
+        log.warn("roomId is missing or 0 in ROOM resourceParam for condition {}", condition.getId());
+        return null;
+      }
+
+      Instant now = Instant.now();
+      Instant startTime = now.minus(lookbackMinutes, ChronoUnit.MINUTES);
+
+      return switch (property.toLowerCase()) {
+        case PROP_AVG_TEMPERATURE -> {
+          int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
+          List<AverageTemperatureValueDto> history = temperatureValueDao.getAverageHistoryByRoom(roomId, startTime, now, divisor);
+          log.debug("Fetched {} temperature records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
+          yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
+        }
+        case PROP_SUM_WATT -> {
+          int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
+          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime, now, divisor);
+          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
+          yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
+        }
+        default -> {
+          log.warn("Property '{}' not supported for ROOM data source in condition {}", property, condition.getId());
+          yield null;
+        }
+      };
+
+    } catch (Exception e) {
+      log.error("Failed to provide ROOM data for condition {} (Room ID: {}): {}", condition.getId(), contextId, e.getMessage(), e);
+      return null;
+    }
+  }
+
+  private <T> T getLastElement(List<T> list) {
+    if (list == null || list.isEmpty()) {
+      return null;
+    }
+    return list.get(list.size() - 1);
+  }
+}

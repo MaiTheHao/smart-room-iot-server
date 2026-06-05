@@ -1,14 +1,14 @@
 package com.iviet.ivshs.mapper.impl;
 
-import com.iviet.ivshs.dto.CreateRuleDto;
-import com.iviet.ivshs.dto.RuleDto;
-import com.iviet.ivshs.dto.UpdateRuleDto;
+import com.iviet.ivshs.dto.rule.CreateRuleDto;
+import com.iviet.ivshs.dto.rule.RuleDto;
+import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.entities.RuleAction;
 import com.iviet.ivshs.entities.RuleCondition;
-import com.iviet.ivshs.entities.Rule;
 import com.iviet.ivshs.mapper.RuleActionMapper;
 import com.iviet.ivshs.mapper.RuleConditionMapper;
 import com.iviet.ivshs.mapper.RuleMapper;
+import com.iviet.ivshs.entities.Rule;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

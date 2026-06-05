@@ -1,0 +1,43 @@
+package com.iviet.ivshs.dao.base;
+
+import java.util.Optional;
+
+import com.iviet.ivshs.entities.base.BaseEntity;
+
+public abstract class BaseEntityDao<T extends BaseEntity> extends BaseDao<T> {
+
+    protected BaseEntityDao(Class<T> clazz) {
+        super(clazz);
+    }
+
+    public Optional<T> findById(Long id) {
+        if (id == null)
+            return Optional.empty();
+        return Optional.ofNullable(entityManager.find(clazz, id));
+    }
+
+    public T getReferenceById(Long id) {
+        return entityManager.getReference(clazz, id);
+    }
+
+    public boolean existsById(Long id) {
+        if (id == null)
+            return false;
+        return exists(
+                root -> {
+                    var cb = entityManager.getCriteriaBuilder();
+                    return cb.equal(root.get("id"), id);
+                });
+    }
+
+    public void deleteById(Long id) {
+        findById(id).ifPresent(this::delete);
+    }
+
+    public long count() {
+        var cb = entityManager.getCriteriaBuilder();
+        var cq = cb.createQuery(Long.class);
+        cq.select(cb.count(cq.from(clazz)));
+        return entityManager.createQuery(cq).getSingleResult();
+    }
+}

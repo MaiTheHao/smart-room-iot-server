@@ -1,8 +1,14 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.LightControlService;
-import com.iviet.ivshs.service.LightService;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.light.CreateLightDto;
+import com.iviet.ivshs.dto.light.LightControlRequestBody;
+import com.iviet.ivshs.dto.light.LightDto;
+import com.iviet.ivshs.dto.light.UpdateLightDto;
+import com.iviet.ivshs.service.light.LightControlService;
+import com.iviet.ivshs.service.light.LightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,79 +17,82 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/lights")
+@RequestMapping("/v1/lights")
 public class LightController {
 
-    private final LightService lightService;
-    private final LightControlService  lightControlService;
+  private final LightService lightService;
+  private final LightControlService lightControlService;
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLights(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(lightService.getList(page, size)));
-    }
+  @GetMapping
+  public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLights(@RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "20")
+  int size) {
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<java.util.List<LightDto>>> getAllLights() {
-        return ResponseEntity.ok(ApiResponse.ok(lightService.getAll()));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(lightService.getList(page, size)));
+  }
 
-    @GetMapping("/room/{roomId}")
-    public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLightsByRoom(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(lightService.getListByRoomId(roomId, page, size)));
-    }
+  @GetMapping("/all")
+  public ResponseEntity<ApiResponse<java.util.List<LightDto>>> getAllLights() {
+    return ResponseEntity.ok(ApiResponse.ok(lightService.getAll()));
+  }
 
-    @GetMapping("/room/{roomId}/all")
-    public ResponseEntity<ApiResponse<java.util.List<LightDto>>> getAllLightsByRoom(
-            @PathVariable(name = "roomId") Long roomId) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(lightService.getAllByRoomId(roomId)));
-    }
+  @GetMapping("/room/{roomId}")
+  public ResponseEntity<ApiResponse<PaginatedResponse<LightDto>>> getLightsByRoom(@PathVariable(name = "roomId")
+  Long roomId, @RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "20")
+  int size) {
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<LightDto>> getLightById(
-            @PathVariable(name = "id") Long id) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(lightService.getById(id)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(lightService.getListByRoomId(roomId, page, size)));
+  }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<LightDto>> createLight(
-            @RequestBody @Valid CreateLightDto request) {
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(lightService.create(request)));
-    }
+  @GetMapping("/room/{roomId}/all")
+  public ResponseEntity<ApiResponse<java.util.List<LightDto>>> getAllLightsByRoom(@PathVariable(name = "roomId")
+  Long roomId) {
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<LightDto>> updateLight(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateLightDto request) {
-        
-        return ResponseEntity.ok(ApiResponse.ok(lightService.update(id, request)));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(lightService.getAllByRoomId(roomId)));
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteLight(
-            @PathVariable(name = "id") Long id) {
-        
-        lightService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<ApiResponse<LightDto>> getLightById(@PathVariable(name = "id")
+  Long id) {
 
-    @PutMapping("/{naturalId}/control")
-    public ResponseEntity<ApiResponse<ControlDeviceResult>> controlLight(
-            @PathVariable(name = "naturalId") String naturalId,
-            @RequestBody @Valid LightControlRequestBody request) {
-        
-        ControlDeviceResult result = lightControlService.control(naturalId, request);
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
-    }
+    return ResponseEntity.ok(ApiResponse.ok(lightService.getById(id)));
+  }
+
+  @PostMapping
+  public ResponseEntity<ApiResponse<LightDto>> createLight(@RequestBody
+  @Valid
+  CreateLightDto request) {
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(lightService.create(request)));
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<ApiResponse<LightDto>> updateLight(@PathVariable(name = "id")
+  Long id, @RequestBody
+  @Valid
+  UpdateLightDto request) {
+
+    return ResponseEntity.ok(ApiResponse.ok(lightService.update(id, request)));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ApiResponse<Void>> deleteLight(@PathVariable(name = "id")
+  Long id) {
+
+    lightService.delete(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+  }
+
+  @PutMapping("/{naturalId}/control")
+  public ResponseEntity<ApiResponse<ControlDeviceResult>> controlLight(@PathVariable(name = "naturalId")
+  String naturalId, @RequestBody
+  @Valid
+  LightControlRequestBody request) {
+
+    ControlDeviceResult result = lightControlService.control(naturalId, request);
+    return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));
+  }
 }

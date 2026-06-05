@@ -5,7 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.AirConditionDto;
+import com.iviet.ivshs.dao.base.BaseIoTActuatorDao;
+import com.iviet.ivshs.dto.aircondition.AirConditionDto;
 import com.iviet.ivshs.entities.AirCondition;
 
 @Repository

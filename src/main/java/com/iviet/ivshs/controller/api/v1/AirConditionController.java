@@ -1,33 +1,33 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.AirConditionControlRequestBody;
-import com.iviet.ivshs.dto.AirConditionDto;
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.dto.CreateAirConditionDto;
-import com.iviet.ivshs.dto.PaginatedResponse;
-import com.iviet.ivshs.dto.UpdateAirConditionDto;
-import com.iviet.ivshs.service.AirConditionControlService;
-import com.iviet.ivshs.service.AirConditionService;
+import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
+import com.iviet.ivshs.dto.aircondition.AirConditionDto;
+import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
+import com.iviet.ivshs.service.aircondition.AirConditionControlService;
+import com.iviet.ivshs.service.aircondition.AirConditionService;
+import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.iviet.ivshs.dto.ControlDeviceResult;
 
 @RestController("AirConditionControllerV1")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/air-conditions")
+@RequestMapping("/v1/air-conditions")
 public class AirConditionController {
 
     private final AirConditionService airConditionService;
-		private final AirConditionControlService airConditionControlService;
+    private final AirConditionControlService airConditionControlService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginatedResponse<AirConditionDto>>> getAll(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        
+    public ResponseEntity<ApiResponse<PaginatedResponse<AirConditionDto>>> getAll(@RequestParam(name = "page", defaultValue = "0")
+    int page, @RequestParam(name = "size", defaultValue = "20")
+    int size) {
+
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.getList(page, size)));
     }
 
@@ -37,48 +37,50 @@ public class AirConditionController {
     }
 
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<ApiResponse<PaginatedResponse<AirConditionDto>>> getByRoom(
-            @PathVariable(name = "roomId") Long roomId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        
+    public ResponseEntity<ApiResponse<PaginatedResponse<AirConditionDto>>> getByRoom(@PathVariable(name = "roomId")
+    Long roomId, @RequestParam(name = "page", defaultValue = "0")
+    int page, @RequestParam(name = "size", defaultValue = "20")
+    int size) {
+
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.getListByRoomId(roomId, page, size)));
     }
 
     @GetMapping("/room/{roomId}/all")
-    public ResponseEntity<ApiResponse<java.util.List<AirConditionDto>>> getAllByRoom(
-            @PathVariable(name = "roomId") Long roomId) {
-        
+    public ResponseEntity<ApiResponse<java.util.List<AirConditionDto>>> getAllByRoom(@PathVariable(name = "roomId")
+    Long roomId) {
+
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.getAllByRoomId(roomId)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AirConditionDto>> getById(
-            @PathVariable(name = "id") Long id) {
-        
+    public ResponseEntity<ApiResponse<AirConditionDto>> getById(@PathVariable(name = "id")
+    Long id) {
+
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.getById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<AirConditionDto>> create(
-            @RequestBody @Valid CreateAirConditionDto request) {
-        
+    public ResponseEntity<ApiResponse<AirConditionDto>> create(@RequestBody
+    @Valid
+    CreateAirConditionDto request) {
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(airConditionService.create(request)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<AirConditionDto>> update(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid UpdateAirConditionDto request) {
-        
+    public ResponseEntity<ApiResponse<AirConditionDto>> update(@PathVariable(name = "id")
+    Long id, @RequestBody
+    @Valid
+    UpdateAirConditionDto request) {
+
         return ResponseEntity.ok(ApiResponse.ok(airConditionService.update(id, request)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable(name = "id") Long id) {
-        
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id")
+    Long id) {
+
         airConditionService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
@@ -87,9 +89,10 @@ public class AirConditionController {
     // === CONTROL ENDPOINTS ===
 
     @PutMapping("/{naturalId}/control")
-    public ResponseEntity<ApiResponse<ControlDeviceResult>> control(
-        @PathVariable(name = "naturalId") String naturalId,
-        @RequestBody @Valid AirConditionControlRequestBody params) {
+    public ResponseEntity<ApiResponse<ControlDeviceResult>> control(@PathVariable(name = "naturalId")
+    String naturalId, @RequestBody
+    @Valid
+    AirConditionControlRequestBody params) {
 
         ControlDeviceResult result = airConditionControlService.control(naturalId, params);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, result, "Controlled successfully"));

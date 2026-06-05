@@ -3,8 +3,9 @@ package com.iviet.ivshs.entities;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.iviet.ivshs.enumeration.JobActionType;
-import com.iviet.ivshs.enumeration.JobTargetType;
+import com.iviet.ivshs.entities.base.BaseAuditEntity;
+import com.iviet.ivshs.shared.enumeration.JobActionType;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +24,7 @@ public class AutomationAction extends BaseAuditEntity {
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "target_type", nullable = false, length = 256)
-    private JobTargetType targetType; 
+    private JobTargetType targetType;
 
     @Column(name = "target_id", nullable = false)
     private Long targetId;
@@ -34,7 +35,7 @@ public class AutomationAction extends BaseAuditEntity {
 
     @Column(name = "parameter_value")
     private String parameterValue;
-    
+
     @Column(name = "execution_order")
     private Integer executionOrder = 0;
 }

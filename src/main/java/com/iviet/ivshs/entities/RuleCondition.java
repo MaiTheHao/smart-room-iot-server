@@ -16,9 +16,10 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iviet.ivshs.enumeration.ConditionLogic;
-import com.iviet.ivshs.enumeration.ConditionOperator;
-import com.iviet.ivshs.enumeration.RuleDataSource;
+import com.iviet.ivshs.entities.base.BaseAuditEntity;
+import com.iviet.ivshs.shared.enumeration.ConditionLogic;
+import com.iviet.ivshs.shared.enumeration.ConditionOperator;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
 
 @Entity
 @Getter

@@ -6,8 +6,8 @@ import java.util.List;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 
-import com.iviet.ivshs.schedule.rule.RuleJob;
-
+import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
+import com.iviet.ivshs.scheduler.rule.RuleJob;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

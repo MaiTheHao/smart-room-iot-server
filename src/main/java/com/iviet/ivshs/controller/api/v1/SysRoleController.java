@@ -1,7 +1,13 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.*;
-import com.iviet.ivshs.service.SysRoleService;
+import com.iviet.ivshs.dto.client.AssignGroupsToClientDto;
+import com.iviet.ivshs.dto.client.UnassignGroupsFromClientDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.BatchOperationResultDto;
+import com.iviet.ivshs.dto.role.BatchAddFunctionsToGroupDto;
+import com.iviet.ivshs.dto.role.BatchRemoveFunctionsFromGroupDto;
+import com.iviet.ivshs.dto.role.ToggleGroupFunctionsDto;
+import com.iviet.ivshs.service.role.SysRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,79 +16,84 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/roles")
+@RequestMapping("/v1/roles")
 public class SysRoleController {
 
-    private final SysRoleService roleService;
+  private final SysRoleService roleService;
 
-    @PostMapping("/groups/functions/batch-add")
-    public ResponseEntity<ApiResponse<BatchOperationResultDto>> batchAddFunctionsToGroup(
-            @RequestBody @Valid BatchAddFunctionsToGroupDto request) {
-        BatchOperationResultDto result = roleService.addFunctionsToGroup(request);
-        return ResponseEntity.ok(ApiResponse.ok(result));
-    }
+  @PostMapping("/groups/functions/batch-add")
+  public ResponseEntity<ApiResponse<BatchOperationResultDto>> batchAddFunctionsToGroup(@RequestBody
+  @Valid
+  BatchAddFunctionsToGroupDto request) {
+    BatchOperationResultDto result = roleService.addFunctionsToGroup(request);
+    return ResponseEntity.ok(ApiResponse.ok(result));
+  }
 
-    @PostMapping("/groups/functions/batch-remove")
-    public ResponseEntity<ApiResponse<BatchOperationResultDto>> batchRemoveFunctionsFromGroup(
-            @RequestBody @Valid BatchRemoveFunctionsFromGroupDto request) {
-        BatchOperationResultDto result = roleService.removeFunctionsFromGroup(request);
-        return ResponseEntity.ok(ApiResponse.ok(result));
-    }
+  @PostMapping("/groups/functions/batch-remove")
+  public ResponseEntity<ApiResponse<BatchOperationResultDto>> batchRemoveFunctionsFromGroup(@RequestBody
+  @Valid
+  BatchRemoveFunctionsFromGroupDto request) {
+    BatchOperationResultDto result = roleService.removeFunctionsFromGroup(request);
+    return ResponseEntity.ok(ApiResponse.ok(result));
+  }
 
-    @PostMapping("/groups/functions/toggle")
-    public ResponseEntity<ApiResponse<BatchOperationResultDto>> toggleGroupFunctions(
-            @RequestBody @Valid ToggleGroupFunctionsDto request) {
-        BatchOperationResultDto result = roleService.toggleGroupFunctions(request);
-        return ResponseEntity.ok(ApiResponse.ok(result));
-    }
+  @PostMapping("/groups/functions/toggle")
+  public ResponseEntity<ApiResponse<BatchOperationResultDto>> toggleGroupFunctions(@RequestBody
+  @Valid
+  ToggleGroupFunctionsDto request) {
+    BatchOperationResultDto result = roleService.toggleGroupFunctions(request);
+    return ResponseEntity.ok(ApiResponse.ok(result));
+  }
 
-    @PostMapping("/groups/{groupId}/functions/{functionCode}")
-    public ResponseEntity<ApiResponse<Void>> addFunctionToGroup(
-            @PathVariable(name = "groupId") Long groupId,
-            @PathVariable(name = "functionCode") String functionCode) {
-        roleService.addFunctionToGroup(groupId, functionCode);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(HttpStatus.CREATED, null, "Function added to group successfully"));
-    }
+  @PostMapping("/groups/{groupId}/functions/{functionCode}")
+  public ResponseEntity<ApiResponse<Void>> addFunctionToGroup(@PathVariable(name = "groupId")
+  Long groupId, @PathVariable(name = "functionCode")
+  String functionCode) {
+    roleService.addFunctionToGroup(groupId, functionCode);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success(HttpStatus.CREATED, null, "Function added to group successfully"));
+  }
 
-    @DeleteMapping("/groups/{groupId}/functions/{functionCode}")
-    public ResponseEntity<ApiResponse<Void>> removeFunctionFromGroup(
-            @PathVariable(name = "groupId") Long groupId,
-            @PathVariable(name = "functionCode") String functionCode) {
-        roleService.removeFunctionFromGroup(groupId, functionCode);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function removed from group successfully"));
-    }
+  @DeleteMapping("/groups/{groupId}/functions/{functionCode}")
+  public ResponseEntity<ApiResponse<Void>> removeFunctionFromGroup(@PathVariable(name = "groupId")
+  Long groupId, @PathVariable(name = "functionCode")
+  String functionCode) {
+    roleService.removeFunctionFromGroup(groupId, functionCode);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function removed from group successfully"));
+  }
 
-    @PostMapping("/clients/groups/assign")
-    public ResponseEntity<ApiResponse<BatchOperationResultDto>> assignGroupsToClient(
-            @RequestBody @Valid AssignGroupsToClientDto request) {
-        BatchOperationResultDto result = roleService.assignGroupsToClient(request);
-        return ResponseEntity.ok(ApiResponse.ok(result));
-    }
+  @PostMapping("/clients/groups/assign")
+  public ResponseEntity<ApiResponse<BatchOperationResultDto>> assignGroupsToClient(@RequestBody
+  @Valid
+  AssignGroupsToClientDto request) {
+    BatchOperationResultDto result = roleService.assignGroupsToClient(request);
+    return ResponseEntity.ok(ApiResponse.ok(result));
+  }
 
-    @PostMapping("/clients/groups/unassign")
-    public ResponseEntity<ApiResponse<Void>> unassignGroupsFromClient(
-            @RequestBody @Valid UnassignGroupsFromClientDto request) {
-        roleService.unassignGroupsFromClient(request);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Groups unassigned from client successfully"));
-    }
+  @PostMapping("/clients/groups/unassign")
+  public ResponseEntity<ApiResponse<Void>> unassignGroupsFromClient(@RequestBody
+  @Valid
+  UnassignGroupsFromClientDto request) {
+    roleService.unassignGroupsFromClient(request);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Groups unassigned from client successfully"));
+  }
 
-    @DeleteMapping("/clients/{clientId}/groups/{groupId}")
-    public ResponseEntity<ApiResponse<Void>> unassignGroupFromClient(
-            @PathVariable(name = "clientId") Long clientId,
-            @PathVariable(name = "groupId") Long groupId) {
-        roleService.unassignGroupFromClient(clientId, groupId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group unassigned from client successfully"));
-    }
+  @DeleteMapping("/clients/{clientId}/groups/{groupId}")
+  public ResponseEntity<ApiResponse<Void>> unassignGroupFromClient(@PathVariable(name = "clientId")
+  Long clientId, @PathVariable(name = "groupId")
+  Long groupId) {
+    roleService.unassignGroupFromClient(clientId, groupId);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group unassigned from client successfully"));
+  }
 
-    @GetMapping("/groups/{groupId}/functions/{functionCode}/check")
-    public ResponseEntity<ApiResponse<Boolean>> checkGroupHasFunction(
-            @PathVariable(name = "groupId") Long groupId,
-            @PathVariable(name = "functionCode") String functionCode) {
-        boolean hasFunction = roleService.hasFunction(groupId, functionCode);
-        return ResponseEntity.ok(ApiResponse.ok(hasFunction));
-    }
+  @GetMapping("/groups/{groupId}/functions/{functionCode}/check")
+  public ResponseEntity<ApiResponse<Boolean>> checkGroupHasFunction(@PathVariable(name = "groupId")
+  Long groupId, @PathVariable(name = "functionCode")
+  String functionCode) {
+    boolean hasFunction = roleService.hasFunction(groupId, functionCode);
+    return ResponseEntity.ok(ApiResponse.ok(hasFunction));
+  }
 }

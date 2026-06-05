@@ -20,7 +20,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 
-import com.iviet.ivshs.enumeration.ClientType;
+import com.iviet.ivshs.entities.base.BaseAuditEntity;
+import com.iviet.ivshs.shared.enumeration.ClientType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,60 +29,53 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "client",
-    indexes = {
-        @Index(name = "idx_username", columnList = "username", unique = true),
-        @Index(name = "idx_client_type_client_ip_address", columnList = "client_type, ip_address", unique = true),
-    }
-)
+@Table(name = "client", indexes = {
+                @Index(name = "idx_username", columnList = "username", unique = true),
+                @Index(name = "idx_client_type_client_ip_address", columnList = "client_type, ip_address", unique = true),
+})
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Client extends BaseAuditEntity {
 
-    private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-    @Column(name = "username", nullable = false, length = 100)
-    private String username;
+        @Column(name = "username", nullable = false, length = 100)
+        private String username;
 
-    @Column(name = "password_hash", length = 255)
-    private String passwordHash;
+        @Column(name = "password_hash", length = 255)
+        private String passwordHash;
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "client_type", length = 256)
-    private ClientType clientType;
+        @JdbcTypeCode(SqlTypes.VARCHAR)
+        @Column(name = "client_type", length = 256)
+        private ClientType clientType;
 
-    @Column(name = "ip_address", length = 255)
-    private String ipAddress;
+        @Column(name = "ip_address", length = 255)
+        private String ipAddress;
 
-    @Column(name = "mac_address", length = 100)
-    private String macAddress;
+        @Column(name = "mac_address", length = 100)
+        private String macAddress;
 
-    @Column(name = "avatar_url", length = 255)
-    private String avatarUrl;
+        @Column(name = "avatar_url", length = 255)
+        private String avatarUrl;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "last_login_at")
-    private Date lastLoginAt;
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(name = "last_login_at")
+        private Date lastLoginAt;
 
-    @Column(name = "access_token", length = 1024)
-    private String accessToken;
+        @Column(name = "access_token", length = 1024)
+        private String accessToken;
 
-    @Column(name = "gateway_password", length = 255)
-    private String gatewayPassword;
+        @Column(name = "gateway_password", length = 255)
+        private String gatewayPassword;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<HardwareConfig> hardwareConfigs = new HashSet<>();
+        @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+        private Set<HardwareConfig> hardwareConfigs = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(
-        name = "client_group",
-        joinColumns = @JoinColumn(name = "client_id", nullable = false),
-        inverseJoinColumns = @JoinColumn(name = "group_id", nullable = false),
-        indexes = {
-            @Index(name = "idx_client_group", columnList = "client_id, group_id", unique = true)
-        }
-    )
-    private Set<SysGroup> groups = new HashSet<>();
+        @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+        @JoinTable(name = "client_group", joinColumns = @JoinColumn(name = "client_id", nullable = false), inverseJoinColumns = @JoinColumn(name = "group_id", nullable = false), indexes = {
+                        @Index(name = "idx_client_group", columnList = "client_id, group_id", unique = true)
+        })
+        private Set<SysGroup> groups = new HashSet<>();
 }

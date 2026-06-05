@@ -1,12 +1,12 @@
 package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dao.PowerConsumptionDao;
-import com.iviet.ivshs.dto.SetupRequest;
+import com.iviet.ivshs.dto.setup.SetupRequest;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +26,9 @@ public class PowerConsumptionSetupStrategy extends AbstractDeviceSetupStrategy {
 
     @Override
     public void persist(
-        SetupRequest.BodyData.DeviceConfig device,
-        Room room,
-        HardwareConfig hardwareConfig
-    ) {
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
         PowerConsumption pc = new PowerConsumption();
         setupBaseIoTProperties(pc, device, room, hardwareConfig);
         entityManager.persist(pc);
