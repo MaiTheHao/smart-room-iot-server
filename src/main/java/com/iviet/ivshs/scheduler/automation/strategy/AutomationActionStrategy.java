@@ -1,0 +1,11 @@
+package com.iviet.ivshs.scheduler.automation.strategy;
+
+import com.iviet.ivshs.entities.AutomationAction;
+import com.iviet.ivshs.shared.enumeration.JobTargetType;
+
+public interface AutomationActionStrategy {
+
+    JobTargetType getTargetType();
+
+    void handle(AutomationAction action) throws Exception;
+}

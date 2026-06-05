@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseIoTSensorDao;
-import com.iviet.ivshs.dto.PowerConsumptionDto;
+import com.iviet.ivshs.dto.powerconsumption.PowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
 import jakarta.persistence.criteria.JoinType;

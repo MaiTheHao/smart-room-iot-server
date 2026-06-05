@@ -2,8 +2,7 @@ package com.iviet.ivshs.shared.constant;
 
 public final class I18nMessageConstant {
 
-    private I18nMessageConstant() {
-    }
+    private I18nMessageConstant() {}
 
     public static final String LOGIN_ERROR_BAD_CREDENTIALS = "login.error.bad.credentials";
     public static final String LOGIN_ERROR_USER_DISABLED = "login.error.user.disabled";

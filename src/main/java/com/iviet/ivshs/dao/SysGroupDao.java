@@ -5,10 +5,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseTranslatableEntityDao;
-import com.iviet.ivshs.dto.ClientDto;
-import com.iviet.ivshs.dto.SysFunctionDto;
-import com.iviet.ivshs.dto.SysGroupDto;
-import com.iviet.ivshs.dto.SysGroupWithClientStatusDto;
+import com.iviet.ivshs.dto.client.ClientDto;
+import com.iviet.ivshs.dto.permission.SysFunctionDto;
+import com.iviet.ivshs.dto.role.SysGroupDto;
+import com.iviet.ivshs.dto.role.SysGroupWithClientStatusDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
 
@@ -32,19 +32,13 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
   }
 
   public Optional<SysGroupDto> findByCode(String groupCode, String langCode) {
-    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " +
-        "LEFT JOIN g.translations glan ON glan.langCode = :langCode WHERE g.groupCode = :groupCode";
-    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
-        .setParameter("groupCode", groupCode).setParameter("langCode", langCode)
-        .getResultList().stream().findFirst();
+    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " + "LEFT JOIN g.translations glan ON glan.langCode = :langCode WHERE g.groupCode = :groupCode";
+    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class).setParameter("groupCode", groupCode).setParameter("langCode", langCode).getResultList().stream().findFirst();
   }
 
   public Optional<SysGroupDto> findById(Long groupId, String langCode) {
-    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " +
-        "LEFT JOIN g.translations glan ON glan.langCode = :langCode WHERE g.id = :groupId";
-    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
-        .setParameter("groupId", groupId).setParameter("langCode", langCode)
-        .getResultList().stream().findFirst();
+    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " + "LEFT JOIN g.translations glan ON glan.langCode = :langCode WHERE g.id = :groupId";
+    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class).setParameter("groupId", groupId).setParameter("langCode", langCode).getResultList().stream().findFirst();
   }
 
   public List<SysGroupDto> findAll(String langCode) {
@@ -52,10 +46,8 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
   }
 
   public List<SysGroupDto> findAll(int page, int size, String langCode) {
-    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " +
-        "LEFT JOIN g.translations glan ON glan.langCode = :langCode ORDER BY g.groupCode ASC";
-    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
-        .setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
+    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM SysGroup g " + "LEFT JOIN g.translations glan ON glan.langCode = :langCode ORDER BY g.groupCode ASC";
+    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysFunctionDto> findFunctionsByGroupId(Long groupId, String langCode) {
@@ -63,13 +55,9 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
   }
 
   public List<SysFunctionDto> findFunctionsByGroupId(Long groupId, String langCode, int page, int size) {
-    String jpql = "SELECT new %s(f.id, f.functionCode, flan.name, flan.description) FROM SysGroup g " +
-        "JOIN g.roles r JOIN r.function f " +
-        "LEFT JOIN f.translations flan ON flan.langCode = :langCode " +
-        "WHERE g.id = :groupId ORDER BY f.functionCode ASC";
-    return entityManager.createQuery(String.format(jpql, FUNC_DTO), SysFunctionDto.class)
-        .setParameter("groupId", groupId).setParameter("langCode", langCode)
-        .setFirstResult(page * size).setMaxResults(size).getResultList();
+    String jpql =
+        "SELECT new %s(f.id, f.functionCode, flan.name, flan.description) FROM SysGroup g " + "JOIN g.roles r JOIN r.function f " + "LEFT JOIN f.translations flan ON flan.langCode = :langCode " + "WHERE g.id = :groupId ORDER BY f.functionCode ASC";
+    return entityManager.createQuery(String.format(jpql, FUNC_DTO), SysFunctionDto.class).setParameter("groupId", groupId).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<ClientDto> findClientsByGroupId(Long groupId) {
@@ -77,11 +65,8 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
   }
 
   public List<ClientDto> findClientsByGroupId(Long groupId, int page, int size) {
-    String jpql = "SELECT new %s(c.id, c.username, c.clientType, c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt, c.gatewayPassword) "
-        +
-        "FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId ORDER BY c.username ASC";
-    return entityManager.createQuery(String.format(jpql, CLIENT_DTO), ClientDto.class)
-        .setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
+    String jpql = "SELECT new %s(c.id, c.username, c.clientType, c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt, c.gatewayPassword) " + "FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId ORDER BY c.username ASC";
+    return entityManager.createQuery(String.format(jpql, CLIENT_DTO), ClientDto.class).setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<Client> findClientEntitiesByGroupId(Long groupId) {
@@ -90,8 +75,7 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
 
   public List<Client> findClientEntitiesByGroupId(Long groupId, int page, int size) {
     String jpql = "SELECT c FROM SysGroup g JOIN g.clients c WHERE g.id = :groupId ORDER BY c.username ASC";
-    return entityManager.createQuery(jpql, Client.class)
-        .setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
+    return entityManager.createQuery(jpql, Client.class).setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysGroupDto> findAllByClientId(Long clientId, String langCode) {
@@ -99,12 +83,8 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
   }
 
   public List<SysGroupDto> findAllByClientId(Long clientId, String langCode, int page, int size) {
-    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM Client c " +
-        "JOIN c.groups g LEFT JOIN g.translations glan ON glan.langCode = :langCode " +
-        "WHERE c.id = :clientId";
-    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class)
-        .setParameter("clientId", clientId).setParameter("langCode", langCode)
-        .setFirstResult(page * size).setMaxResults(size).getResultList();
+    String jpql = "SELECT new %s(g.id, g.groupCode, glan.name, glan.description) FROM Client c " + "JOIN c.groups g LEFT JOIN g.translations glan ON glan.langCode = :langCode " + "WHERE c.id = :clientId";
+    return entityManager.createQuery(String.format(jpql, GROUP_DTO), SysGroupDto.class).setParameter("clientId", clientId).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysGroup> findEntitiesByClientId(Long clientId) {
@@ -113,8 +93,7 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
 
   public List<SysGroup> findEntitiesByClientId(Long clientId, int page, int size) {
     String jpql = "SELECT g FROM Client c JOIN c.groups g WHERE c.id = :clientId";
-    return entityManager.createQuery(jpql, SysGroup.class)
-        .setParameter("clientId", clientId).setFirstResult(page * size).setMaxResults(size).getResultList();
+    return entityManager.createQuery(jpql, SysGroup.class).setParameter("clientId", clientId).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysGroupWithClientStatusDto> findAllWithClientStatus(Long clientId, String langCode) {
@@ -134,10 +113,7 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
         ORDER BY g.groupCode ASC
         """.formatted(dtoPath);
 
-    return entityManager.createQuery(jpql, SysGroupWithClientStatusDto.class)
-        .setParameter("clientId", clientId)
-        .setParameter("langCode", langCode)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysGroupWithClientStatusDto.class).setParameter("clientId", clientId).setParameter("langCode", langCode).getResultList();
   }
 
   public long countAll() {

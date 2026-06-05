@@ -3,8 +3,8 @@ package com.iviet.ivshs.controller.api.v1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.TelemetryService;
+import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.service.metric.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,6 +29,5 @@ public class TelemetryController {
 		telemetryService.takeByRoom(roomCode);
 		return ResponseEntity.ok(ApiResponse.ok(null));
 	}
-
 
 }

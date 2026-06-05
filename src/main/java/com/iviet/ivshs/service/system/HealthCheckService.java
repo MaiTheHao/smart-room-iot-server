@@ -1,0 +1,15 @@
+package com.iviet.ivshs.service.system;
+
+import com.iviet.ivshs.dto.system.HealthCheckResponseDto;
+import java.util.Map;
+
+public interface HealthCheckService {
+    HealthCheckResponseDto checkByClient(String ipAddress);
+    HealthCheckResponseDto checkByClient(Long clientId);
+
+    Map<String, HealthCheckResponseDto> checkByRoom(String roomCode);
+    Map<String, HealthCheckResponseDto> checkByRoom(Long roomId);
+
+    int getHealthScoreByClient(Long clientId);
+    int getHealthScoreByRoom(Long roomId);
+}

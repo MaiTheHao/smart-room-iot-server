@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dao;
 
-import com.iviet.ivshs.dto.DeviceMetadataDto;
+import com.iviet.ivshs.dto.control.DeviceMetadataDto;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

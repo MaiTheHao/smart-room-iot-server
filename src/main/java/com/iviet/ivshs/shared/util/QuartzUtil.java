@@ -1,12 +1,11 @@
 package com.iviet.ivshs.shared.util;
 
-import com.iviet.ivshs.shared.exception.domain.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.stereotype.Component;
-
+import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import java.util.Date;
 import java.util.Set;
 
@@ -23,8 +22,7 @@ public class QuartzUtil {
     public Date scheduleJob(JobDetail jobDetail, Trigger trigger) {
         try {
             Date date = scheduler.scheduleJob(jobDetail, trigger);
-            log.info("Scheduled job: jobKey={}, triggerKey={}, nextRun={}", jobDetail.getKey(), trigger.getKey(),
-                    formatUtc(date));
+            log.info("Scheduled job: jobKey={}, triggerKey={}, nextRun={}", jobDetail.getKey(), trigger.getKey(), formatUtc(date));
             return date;
         } catch (SchedulerException e) {
             log.error("Failed to schedule job: jobKey={}, triggerKey={}", jobDetail.getKey(), trigger.getKey(), e);

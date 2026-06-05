@@ -1,9 +1,9 @@
 package com.iviet.ivshs.shared.util;
 
-import com.iviet.ivshs.dto.CustomUserDetails;
+import com.iviet.ivshs.dto.auth.CustomUserDetails;
 import com.iviet.ivshs.shared.enumeration.SysFunctionEnum;
-import com.iviet.ivshs.shared.exception.domain.ForbiddenException;
-import com.iviet.ivshs.shared.exception.domain.UnauthorizedException;
+import com.iviet.ivshs.shared.exception.ForbiddenException;
+import com.iviet.ivshs.shared.exception.UnauthorizedException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -27,9 +27,7 @@ public class SecurityContextUtil {
     }
 
     public Set<String> getCurrentFunctions() {
-        return getCustomUserDetails().getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
+        return getCustomUserDetails().getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
     }
 
     public boolean hasPermission(String functionCode) {

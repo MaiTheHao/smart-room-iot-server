@@ -1,7 +1,7 @@
 package com.iviet.ivshs.shared.util;
 
 import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
-import com.iviet.ivshs.shared.exception.domain.InternalServerErrorException;
+import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
@@ -30,11 +30,7 @@ public class ScheduleUtil {
         if (quartzUtil.checkExists(triggerKey)) {
             quartzUtil.rescheduleJob(triggerKey, trigger);
         } else {
-            JobDetail jobDetail = JobBuilder.newJob(entity.getJobClass())
-                    .withIdentity(jobKey)
-                    .usingJobData(entity.getJobDataMap())
-                    .storeDurably()
-                    .build();
+            JobDetail jobDetail = JobBuilder.newJob(entity.getJobClass()).withIdentity(jobKey).usingJobData(entity.getJobDataMap()).storeDurably().build();
             quartzUtil.scheduleJob(jobDetail, trigger);
         }
     }
@@ -60,18 +56,11 @@ public class ScheduleUtil {
 
         if (Boolean.TRUE.equals(entity.getIsInterval())) {
             validateInterval(entity);
-            return builder.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                    .withIntervalInSeconds(entity.getIntervalSeconds())
-                    .repeatForever()
-                    .withMisfireHandlingInstructionNextWithExistingCount())
-                    .build();
+            return builder.withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(entity.getIntervalSeconds()).repeatForever().withMisfireHandlingInstructionNextWithExistingCount()).build();
         }
 
         validateCron(entity);
-        return builder.withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression())
-                .inTimeZone(TimeZone.getTimeZone("UTC"))
-                .withMisfireHandlingInstructionFireAndProceed())
-                .build();
+        return builder.withSchedule(CronScheduleBuilder.cronSchedule(entity.getCronExpression()).inTimeZone(TimeZone.getTimeZone("UTC")).withMisfireHandlingInstructionFireAndProceed()).build();
     }
 
     private void validateInterval(BaseSchedulableEntity entity) {

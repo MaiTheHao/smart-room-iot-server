@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseEntityDao;
-import com.iviet.ivshs.dto.EnergyMetricDto;
+import com.iviet.ivshs.dto.metric.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 
@@ -106,7 +106,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
 
     public Optional<EnergyMetricDto> findLatest(EnergyMetricCategory category, Long targetId) {
         String jpql = """
-                SELECT new com.iviet.ivshs.dto.EnergyMetricDto(
+                SELECT new com.iviet.ivshs.dto.energymetric.EnergyMetricDto(
                     em.timestamp, em.voltage, em.current, em.power,
                     em.energy, em.frequency, em.powerFactor
                 )

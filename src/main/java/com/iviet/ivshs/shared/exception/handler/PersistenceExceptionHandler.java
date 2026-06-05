@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.exception.handler;
 
-import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.system.ApiResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;

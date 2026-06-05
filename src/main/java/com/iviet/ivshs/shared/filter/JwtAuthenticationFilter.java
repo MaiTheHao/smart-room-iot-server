@@ -20,9 +20,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.stereotype.Component;
-import com.iviet.ivshs.jwt.JwtUtils;
-import com.iviet.ivshs.shared.constant.AppConstant;
 
+import com.iviet.ivshs.shared.constant.AppConstant;
+import com.iviet.ivshs.shared.security.JwtUtils;
 import io.jsonwebtoken.JwtException;
 
 @Component
@@ -38,16 +38,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull
+    HttpServletRequest request, @NonNull
+    HttpServletResponse response, @NonNull
+    FilterChain filterChain) throws ServletException, IOException {
         try {
             if (!isNotRecursiveCall(request)) {
                 String clientIp = getClientIp(request);
-                logger.warn("RECURSIVE CALL DETECTED - URL: {}, Method: {}, IP: {}, User-Agent: {}",
-                        request.getRequestURI(),
-                        request.getMethod(),
-                        clientIp,
-                        request.getHeader("User-Agent"));
+                logger.warn("RECURSIVE CALL DETECTED - URL: {}, Method: {}, IP: {}, User-Agent: {}", request.getRequestURI(), request.getMethod(), clientIp, request.getHeader("User-Agent"));
                 request.setAttribute("recursive_call", true);
                 throw new JwtException("Recursive call detected");
             }
@@ -71,8 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticateUser(String username, HttpServletRequest request) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

@@ -49,7 +49,7 @@ public class Automation extends BaseSchedulableEntity {
 
     @Override
     public Class<? extends Job> getJobClass() {
-        return com.iviet.ivshs.schedule.automation.AutomationJob.class;
+        return com.iviet.ivshs.scheduler.automation.AutomationJob.class;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.dto.HealthCheckResponseDto;
-import com.iviet.ivshs.service.HealthCheckService;
+import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.system.HealthCheckResponseDto;
+import com.iviet.ivshs.service.system.HealthCheckService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

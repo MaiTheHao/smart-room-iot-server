@@ -1,0 +1,16 @@
+package com.iviet.ivshs.service.hardwareconfig;
+
+import com.iviet.ivshs.dto.hardwareconfig.CreateDeviceControlDto;
+import com.iviet.ivshs.dto.hardwareconfig.DeviceControlDto;
+import com.iviet.ivshs.dto.system.PaginatedResponse;
+import com.iviet.ivshs.dto.hardwareconfig.UpdateDeviceControlDto;
+
+public interface HardwareConfigService {
+    DeviceControlDto getById(Long deviceControlId);
+    DeviceControlDto create(CreateDeviceControlDto hardwareConfig);
+    DeviceControlDto update(Long deviceControlId, UpdateDeviceControlDto hardwareConfig);
+    void delete(Long deviceControlId);
+    PaginatedResponse<DeviceControlDto> getListByClientId(Long clientId, int page, int size);
+    PaginatedResponse<DeviceControlDto> getListByRoomId(Long roomId, int page, int size);
+    Long countByRoomId(Long roomId);
+}

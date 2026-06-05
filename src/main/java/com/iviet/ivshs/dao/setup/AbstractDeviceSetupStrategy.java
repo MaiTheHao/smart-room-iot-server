@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dao.setup;
 
-import com.iviet.ivshs.dto.SetupRequest;
+import com.iviet.ivshs.dto.setup.SetupRequest;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.entities.base.BaseIoTEntity;

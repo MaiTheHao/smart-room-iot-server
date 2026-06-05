@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.iviet.ivshs.core.properties.SecurityProperties;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -23,7 +24,6 @@ import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.iviet.ivshs.properties.SecurityProperties;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)

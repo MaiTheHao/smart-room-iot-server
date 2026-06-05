@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
-import com.iviet.ivshs.dto.FloorDto;
+import com.iviet.ivshs.dto.floor.FloorDto;
 import com.iviet.ivshs.entities.Floor;
 
 @Repository

@@ -11,10 +11,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import com.iviet.ivshs.shared.exception.domain.ForbiddenException;
-import com.iviet.ivshs.shared.exception.domain.NotFoundException;
-import com.iviet.ivshs.shared.exception.domain.UnauthorizedException;
+import com.iviet.ivshs.shared.exception.ForbiddenException;
+import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.exception.UnauthorizedException;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,11 @@ public class WebGlobalExceptionHandler {
 
     private final LocaleResolver localeResolver;
 
-    @ExceptionHandler({ NoHandlerFoundException.class, NoResourceFoundException.class, NotFoundException.class })
+    @ExceptionHandler({
+            NoHandlerFoundException.class,
+            NoResourceFoundException.class,
+            NotFoundException.class
+    })
     public ModelAndView handleNotFound(Exception ex, HttpServletRequest request) {
         log.warn("Web resource not found: uri={}", request.getRequestURI());
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);
@@ -37,7 +40,10 @@ public class WebGlobalExceptionHandler {
         return mav;
     }
 
-    @ExceptionHandler({ AccessDeniedException.class, ForbiddenException.class })
+    @ExceptionHandler({
+            AccessDeniedException.class,
+            ForbiddenException.class
+    })
     public ModelAndView handleAccessDenied(Exception ex, HttpServletRequest request) {
         log.warn("Web access denied: uri={}", request.getRequestURI());
         LocalContextUtil.setLocaleFromRequest(request, request.getSession(), localeResolver);

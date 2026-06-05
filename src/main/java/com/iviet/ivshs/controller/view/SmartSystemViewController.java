@@ -6,10 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.iviet.ivshs.service.AutomationService;
-import com.iviet.ivshs.service.RuleService;
-
+import com.iviet.ivshs.service.rule.RuleService;
+import com.iviet.ivshs.service.automation.AutomationService;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -28,7 +26,8 @@ public class SmartSystemViewController {
 
     @GetMapping("/automations/{id}/actions")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
-    public String automationActionsPage(@PathVariable("id") Long id, Model model) {
+    public String automationActionsPage(@PathVariable("id")
+    Long id, Model model) {
         model.addAttribute("automation", automationService.getById(id));
         return "pages/smart_system/automation/actions.html";
     }
@@ -41,14 +40,16 @@ public class SmartSystemViewController {
 
     @GetMapping("/rules/{id}/conditions")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
-    public String ruleConditionsPage(@PathVariable("id") Long id, Model model) {
+    public String ruleConditionsPage(@PathVariable("id")
+    Long id, Model model) {
         model.addAttribute("rule", ruleService.getById(id));
         return "pages/smart_system/rule/conditions.html";
     }
 
     @GetMapping("/rules/{id}/actions")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
-    public String ruleActionsPage(@PathVariable("id") Long id, Model model) {
+    public String ruleActionsPage(@PathVariable("id")
+    Long id, Model model) {
         model.addAttribute("rule", ruleService.getById(id));
         return "pages/smart_system/rule/actions.html";
     }

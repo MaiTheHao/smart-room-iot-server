@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseTranslatableEntityDao;
-import com.iviet.ivshs.dto.SysFunctionDto;
-import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDto;
+import com.iviet.ivshs.dto.permission.SysFunctionDto;
+import com.iviet.ivshs.dto.permission.SysFunctionWithGroupStatusDto;
 import com.iviet.ivshs.entities.SysFunction;
 
 @Repository
@@ -18,8 +18,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
   }
 
   public Optional<SysFunction> findByCode(String functionCode) {
-    return findOne(root -> entityManager.getCriteriaBuilder()
-        .equal(root.get("functionCode"), functionCode));
+    return findOne(root -> entityManager.getCriteriaBuilder().equal(root.get("functionCode"), functionCode));
   }
 
   public Optional<SysFunctionDto> findByCode(String functionCode, String langCode) {
@@ -32,18 +31,13 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         WHERE f.functionCode = :functionCode
         """.formatted(dtoClassPath);
 
-    List<SysFunctionDto> results = entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("functionCode", functionCode)
-        .setParameter("langCode", langCode)
-        .setMaxResults(1)
-        .getResultList();
+    List<SysFunctionDto> results = entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("functionCode", functionCode).setParameter("langCode", langCode).setMaxResults(1).getResultList();
 
     return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
   }
 
   public boolean existsByCode(String functionCode) {
-    return exists(root -> entityManager.getCriteriaBuilder()
-        .equal(root.get("functionCode"), functionCode));
+    return exists(root -> entityManager.getCriteriaBuilder().equal(root.get("functionCode"), functionCode));
   }
 
   public Optional<SysFunctionDto> findById(Long functionId, String langCode) {
@@ -56,11 +50,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         WHERE f.id = :functionId
         """.formatted(dtoClassPath);
 
-    List<SysFunctionDto> results = entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("functionId", functionId)
-        .setParameter("langCode", langCode)
-        .setMaxResults(1)
-        .getResultList();
+    List<SysFunctionDto> results = entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("functionId", functionId).setParameter("langCode", langCode).setMaxResults(1).getResultList();
 
     return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
   }
@@ -75,9 +65,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("langCode", langCode)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("langCode", langCode).getResultList();
   }
 
   public List<SysFunctionDto> findAll(int page, int size, String langCode) {
@@ -90,11 +78,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("langCode", langCode)
-        .setFirstResult(page * size)
-        .setMaxResults(size)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysFunctionDto> findAllByGroupId(Long groupId, String langCode) {
@@ -109,10 +93,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("groupId", groupId)
-        .setParameter("langCode", langCode)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("groupId", groupId).setParameter("langCode", langCode).getResultList();
   }
 
   public List<SysFunctionDto> findAllByGroupId(Long groupId, String langCode, int page, int size) {
@@ -127,12 +108,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("groupId", groupId)
-        .setParameter("langCode", langCode)
-        .setFirstResult(page * size)
-        .setMaxResults(size)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("groupId", groupId).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysFunctionDto> findAllByGroupCode(String groupCode, String langCode) {
@@ -148,10 +124,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("groupCode", groupCode)
-        .setParameter("langCode", langCode)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("groupCode", groupCode).setParameter("langCode", langCode).getResultList();
   }
 
   public List<SysFunctionDto> findAllByGroupCode(String groupCode, String langCode, int page, int size) {
@@ -167,12 +140,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("groupCode", groupCode)
-        .setParameter("langCode", langCode)
-        .setFirstResult(page * size)
-        .setMaxResults(size)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("groupCode", groupCode).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysFunctionDto> findAllByClientId(Long clientId, String langCode) {
@@ -189,10 +157,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("clientId", clientId)
-        .setParameter("langCode", langCode)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("clientId", clientId).setParameter("langCode", langCode).getResultList();
   }
 
   public List<SysFunctionDto> findAllByClientId(Long clientId, String langCode, int page, int size) {
@@ -209,12 +174,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionDto.class)
-        .setParameter("clientId", clientId)
-        .setParameter("langCode", langCode)
-        .setFirstResult(page * size)
-        .setMaxResults(size)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionDto.class).setParameter("clientId", clientId).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public List<SysFunctionWithGroupStatusDto> findAllWithGroupStatus(Long groupId, String langCode) {
@@ -235,14 +195,10 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDto.class)
-        .setParameter("groupId", groupId)
-        .setParameter("langCode", langCode)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDto.class).setParameter("groupId", groupId).setParameter("langCode", langCode).getResultList();
   }
 
-  public List<SysFunctionWithGroupStatusDto> findAllWithGroupStatus(
-      Long groupId, String langCode, int page, int size) {
+  public List<SysFunctionWithGroupStatusDto> findAllWithGroupStatus(Long groupId, String langCode, int page, int size) {
     String dtoClassPath = SysFunctionWithGroupStatusDto.class.getName();
 
     String jpql = """
@@ -260,18 +216,12 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         ORDER BY f.functionCode ASC
         """.formatted(dtoClassPath);
 
-    return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDto.class)
-        .setParameter("groupId", groupId)
-        .setParameter("langCode", langCode)
-        .setFirstResult(page * size)
-        .setMaxResults(size)
-        .getResultList();
+    return entityManager.createQuery(jpql, SysFunctionWithGroupStatusDto.class).setParameter("groupId", groupId).setParameter("langCode", langCode).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
   public long countAll() {
     String jpql = "SELECT COUNT(f) FROM SysFunction f";
-    return entityManager.createQuery(jpql, Long.class)
-        .getSingleResult();
+    return entityManager.createQuery(jpql, Long.class).getSingleResult();
   }
 
   public long countByGroupId(Long groupId) {
@@ -282,9 +232,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         WHERE r.group.id = :groupId
         """;
 
-    return entityManager.createQuery(jpql, Long.class)
-        .setParameter("groupId", groupId)
-        .getSingleResult();
+    return entityManager.createQuery(jpql, Long.class).setParameter("groupId", groupId).getSingleResult();
   }
 
   public long countByGroupCode(String groupCode) {
@@ -296,9 +244,7 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         WHERE g.groupCode = :groupCode
         """;
 
-    return entityManager.createQuery(jpql, Long.class)
-        .setParameter("groupCode", groupCode)
-        .getSingleResult();
+    return entityManager.createQuery(jpql, Long.class).setParameter("groupCode", groupCode).getSingleResult();
   }
 
   public long countByClientId(Long clientId) {
@@ -311,8 +257,6 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         WHERE c.id = :clientId
         """;
 
-    return entityManager.createQuery(jpql, Long.class)
-        .setParameter("clientId", clientId)
-        .getSingleResult();
+    return entityManager.createQuery(jpql, Long.class).setParameter("clientId", clientId).getSingleResult();
   }
 }

@@ -1,0 +1,195 @@
+package com.iviet.ivshs.service.floor.impl;
+
+import com.iviet.ivshs.dto.floor.CreateFloorDto;
+import com.iviet.ivshs.dto.floor.FloorDto;
+import com.iviet.ivshs.dto.floor.UpdateFloorDto;
+import com.iviet.ivshs.dto.permission.CreateSysFunctionDto;
+import com.iviet.ivshs.dto.system.PaginatedResponse;
+
+import com.iviet.ivshs.dao.FloorDao;
+import com.iviet.ivshs.dao.LanguageDao;
+
+import com.iviet.ivshs.entities.FloorLan;
+import com.iviet.ivshs.entities.Floor;
+import com.iviet.ivshs.service.floor.FloorService;
+import com.iviet.ivshs.service.permission.PermissionService;
+import com.iviet.ivshs.service.permission.SysFunctionService;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
+import com.iviet.ivshs.shared.exception.BadRequestException;
+import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.util.FunctionCodeHelper;
+import com.iviet.ivshs.entities.Room;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Slf4j
+public class FloorServiceImpl implements FloorService {
+
+    private final FloorDao floorDao;
+    private final LanguageDao languageDao;
+    private final PermissionService permissionService;
+    private final SysFunctionService sysFunctionService;
+
+    @Override
+    public PaginatedResponse<FloorDto> getList(int page, int size) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        List<FloorDto> floors = floorDao.findAll(page, size, langCode);
+
+        Set<String> accessibleFloorCodes = permissionService.getAccessibleFloorCodes();
+        if (!accessibleFloorCodes.contains(PermissionService.ACCESS_ALL))
+            floors.removeIf(floor -> !accessibleFloorCodes.contains(floor.code()));
+
+        return new PaginatedResponse<>(floors, page, size, floorDao.count());
+    }
+
+    @Override
+    public List<FloorDto> getAll() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        List<FloorDto> floors = floorDao.findAll(langCode);
+
+        Set<String> accessibleFloorCodes = permissionService.getAccessibleFloorCodes();
+        if (!accessibleFloorCodes.contains(PermissionService.ACCESS_ALL))
+            floors.removeIf(floor -> !accessibleFloorCodes.contains(floor.code()));
+
+        return floors;
+    }
+
+    @Override
+    public FloorDto getById(Long id) {
+        FloorDto floorDto = floorDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
+        permissionService.requireAccessFloor(floorDto.code());
+        return floorDto;
+    }
+
+    @Override
+    public Long getVersionById(Long id) {
+        return floorDao.findVersionById(id).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
+    }
+
+    @Override
+    public Floor getEntityById(Long id) {
+        Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found with ID: " + id));
+        permissionService.requireAccessFloor(floor.getCode());
+        return floor;
+    }
+
+    @Override
+    @Transactional
+    public FloorDto create(CreateFloorDto dto) {
+        permissionService.requireManageFloor();
+
+        if (dto == null || !StringUtils.hasText(dto.code()))
+            throw new BadRequestException("Data and Floor code are required");
+
+        String code = dto.code().trim();
+        _checkDuplicate(code, null);
+
+        String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
+        if (!languageDao.existsByCode(langCode))
+            throw new NotFoundException("Language not found: " + langCode);
+
+        Floor floor = CreateFloorDto.toEntity(dto);
+        floor.setCode(code);
+
+        FloorLan floorLan = new FloorLan();
+        floorLan.setLangCode(langCode);
+        floorLan.setName(dto.name() != null ? dto.name().trim() : "");
+        floorLan.setDescription(dto.description());
+        floorLan.setOwner(floor);
+
+        floor.getTranslations().add(floorLan);
+        floorDao.save(floor);
+        floorDao.flush();
+
+        // Create permission for floor
+        String functionCode = FunctionCodeHelper.buildFloorAccessCode(code);
+        sysFunctionService.create(CreateSysFunctionDto.builder().functionCode(functionCode).name("Access Floor " + code).description("Permission to access floor " + code).langCode(langCode).build());
+
+        return FloorDto.from(floor, floorLan);
+    }
+
+    @Override
+    @Transactional
+    public FloorDto update(Long id, UpdateFloorDto dto) {
+        return patchUpdate(id, dto);
+    }
+
+    @Override
+    @Transactional
+    public FloorDto patchUpdate(Long id, UpdateFloorDto dto) {
+        permissionService.requireManageFloor();
+
+        Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
+        String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
+        if (!languageDao.existsByCode(langCode))
+            throw new NotFoundException("Language not found: " + langCode);
+
+        boolean isModified = false;
+        if (dto.level() != null && !dto.level().equals(floor.getLevel())) {
+            floor.setLevel(dto.level());
+            isModified = true;
+        }
+
+        FloorLan floorLan = floor.getTranslations().stream().filter(lan -> langCode.equals(lan.getLangCode())).findFirst().orElseGet(() -> {
+            FloorLan newLan = new FloorLan();
+            newLan.setLangCode(langCode);
+            newLan.setOwner(floor);
+            floor.getTranslations().add(newLan);
+            return newLan;
+        });
+
+        if (dto.name() != null) {
+            floorLan.setName(dto.name().trim());
+            isModified = true;
+        }
+        if (dto.description() != null) {
+            floorLan.setDescription(dto.description());
+            isModified = true;
+        }
+
+        if (isModified)
+            floor.touch();
+
+        floorDao.save(floor);
+        floorDao.flush();
+        return FloorDto.from(floor, floorLan);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        permissionService.requireManageFloor();
+
+        Floor floor = floorDao.findById(id).orElseThrow(() -> new NotFoundException("Floor not found"));
+        String floorCode = floor.getCode();
+        List<String> roomCodes = floor.getRooms().stream().map(Room::getCode).toList();
+
+        floorDao.delete(floor);
+        floorDao.flush();
+
+        // Clean up permissions
+        sysFunctionService.deleteByCode(FunctionCodeHelper.buildFloorAccessCode(floorCode));
+        for (String roomCode : roomCodes) {
+            sysFunctionService.deleteByCode(FunctionCodeHelper.buildRoomAccessCode(roomCode));
+        }
+    }
+
+    private void _checkDuplicate(String code, Long currentId) {
+        floorDao.findByCode(code).ifPresent(existing -> {
+            if (currentId == null || !existing.getId().equals(currentId)) {
+                throw new BadRequestException("Floor code already exists: " + code);
+            }
+        });
+    }
+}

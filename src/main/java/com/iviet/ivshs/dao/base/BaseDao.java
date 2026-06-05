@@ -48,7 +48,7 @@ public abstract class BaseDao<T> {
     protected final Class<T> clazz;
 
     @Autowired
-    protected com.iviet.ivshs.properties.DatabaseProperties databaseProperties;
+    protected com.iviet.ivshs.core.properties.DatabaseProperties databaseProperties;
 
     /**
      * Constructor khởi tạo BaseDao với lớp entity.

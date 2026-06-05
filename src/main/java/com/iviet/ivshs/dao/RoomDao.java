@@ -5,9 +5,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dto.room.RoomDto;
 import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
-import com.iviet.ivshs.dto.RoomDeviceCountDto;
+import com.iviet.ivshs.dto.room.RoomDeviceCountDto;
 import com.iviet.ivshs.entities.Room;
 
 @Repository

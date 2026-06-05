@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.dto.SumPowerConsumptionValueDto;
-import com.iviet.ivshs.service.PowerConsumptionValueService;
+import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
+import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.service.powerconsumption.PowerConsumptionValueService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +28,8 @@ public class PowerConsumptionValueController {
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "startedAt") Instant from,
 			@RequestParam(name = "endedAt") Instant to) {
-		return ResponseEntity.ok(ApiResponse.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to)));
+		return ResponseEntity
+				.ok(ApiResponse.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to)));
 	}
 
 	@GetMapping("/rooms/{roomId}/power-consumption-values/sum")
@@ -36,6 +37,7 @@ public class PowerConsumptionValueController {
 			@PathVariable(name = "roomId") Long roomId,
 			@RequestParam(name = "from") Instant from,
 			@RequestParam(name = "to") Instant to) {
-		return ResponseEntity.ok(ApiResponse.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to)));
+		return ResponseEntity
+				.ok(ApiResponse.ok(powerConsumptionValueService.getSumPowerConsumptionByRoom(roomId, from, to)));
 	}
 }

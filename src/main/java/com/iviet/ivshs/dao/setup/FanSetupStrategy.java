@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dao.FanDao;
-import com.iviet.ivshs.dto.SetupRequest;
+import com.iviet.ivshs.dto.setup.SetupRequest;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanGpio;
@@ -10,8 +10,7 @@ import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.FanType;
-import com.iviet.ivshs.shared.exception.domain.BadRequestException;
-
+import com.iviet.ivshs.shared.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,10 +28,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
     }
 
     @Override
-    public void persist(
-            SetupRequest.BodyData.DeviceConfig device,
-            Room room,
-            HardwareConfig hardwareConfig) {
+    public void persist(SetupRequest.BodyData.DeviceConfig device, Room room, HardwareConfig hardwareConfig) {
         FanType fanType = FanType.fromString(device.getSpecificType());
 
         if (fanType == null) {

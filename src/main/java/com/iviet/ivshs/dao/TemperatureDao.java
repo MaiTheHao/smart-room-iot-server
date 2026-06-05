@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseIoTSensorDao;
-import com.iviet.ivshs.dto.TemperatureDto;
+import com.iviet.ivshs.dto.temperature.TemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
 
 @Repository

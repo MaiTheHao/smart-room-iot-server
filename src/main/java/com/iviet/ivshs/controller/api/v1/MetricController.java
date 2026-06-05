@@ -1,9 +1,8 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.ApiResponse;
-
+import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.service.metric.MetricOrchestratorService;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
-import com.iviet.ivshs.service.MetricOrchestratorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +21,13 @@ public class MetricController {
     private final MetricOrchestratorService orchestrator;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> getMetrics(
-            @RequestParam(name = "domain") MetricDomain domain,
-            @RequestParam(name = "category") String category,
-            @RequestParam(name = "targetId") Long targetId,
-            @RequestParam(name = "latest", defaultValue = "false") boolean latest,
-            @RequestParam(name = "from", required = false) Instant from,
-            @RequestParam(name = "to", required = false) Instant to) {
+    public ResponseEntity<ApiResponse<Object>> getMetrics(@RequestParam(name = "domain")
+    MetricDomain domain, @RequestParam(name = "category")
+    String category, @RequestParam(name = "targetId")
+    Long targetId, @RequestParam(name = "latest", defaultValue = "false")
+    boolean latest, @RequestParam(name = "from", required = false)
+    Instant from, @RequestParam(name = "to", required = false)
+    Instant to) {
         if (latest) {
             Object result = orchestrator.getLatest(domain, category, targetId);
             if (result == null) {
