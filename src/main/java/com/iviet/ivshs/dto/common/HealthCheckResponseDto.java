@@ -1,4 +1,4 @@
-package com.iviet.ivshs.dto.system;
+package com.iviet.ivshs.dto.common;
 
 import java.util.List;
 

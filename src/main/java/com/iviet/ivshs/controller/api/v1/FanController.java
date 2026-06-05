@@ -1,11 +1,11 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.fan.FanDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import com.iviet.ivshs.dto.fan.CreateFanDto;
 import com.iviet.ivshs.dto.fan.FanControlRequestBody;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.service.control.FanControlService;
 import com.iviet.ivshs.service.fan.FanService;
 import com.iviet.ivshs.dto.fan.UpdateFanDto;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class FanController {
 
   private final FanService fanService;
@@ -73,7 +73,8 @@ public class FanController {
   @Valid
   CreateFanDto request) {
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(fanService.create(request)));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(fanService.create(request)));
   }
 
   @PutMapping("/fans/{id}")
@@ -90,7 +91,8 @@ public class FanController {
   Long id) {
 
     fanService.delete(id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
   }
 
   @PutMapping("/fans/{naturalId}/control")

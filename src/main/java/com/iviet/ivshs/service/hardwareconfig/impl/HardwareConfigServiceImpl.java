@@ -6,9 +6,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.RoomDao;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.hardwareconfig.CreateDeviceControlDto;
 import com.iviet.ivshs.dto.hardwareconfig.DeviceControlDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.hardwareconfig.UpdateDeviceControlDto;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.service.hardwareconfig.HardwareConfigService;
@@ -30,7 +30,8 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
         if (deviceControlId == null)
             throw new BadRequestException("Device Control ID is required");
 
-        var hardwareConfig = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        var hardwareConfig = deviceControlDao.findById(deviceControlId)
+                .orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
 
         return DeviceControlDto.from(hardwareConfig);
     }
@@ -45,9 +46,11 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
         if (dto.roomId() == null)
             throw new BadRequestException("Room ID is required");
 
-        var client = clientDao.findById(dto.clientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
+        var client = clientDao.findById(dto.clientId())
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
 
-        var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+        var room = roomDao.findById(dto.roomId())
+                .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
         var hardwareConfig = dto.toEntity();
         hardwareConfig.setClient(client);
@@ -66,18 +69,26 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
         if (dto == null)
             throw new BadRequestException("Update data is required");
 
-        var hardwareConfig = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        var hardwareConfig = deviceControlDao.findById(deviceControlId)
+                .orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
 
         if (dto.clientId() != null) {
-            Long currentClientId = hardwareConfig.getClient() != null ? hardwareConfig.getClient().getId() : null;
-            if (!dto.clientId().equals(currentClientId)) {
-                var client = clientDao.findById(dto.clientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
+            Long currentClientId = hardwareConfig.getClient() != null ? hardwareConfig.getClient()
+                    .getId() : null;
+            if (!dto.clientId()
+                    .equals(currentClientId)) {
+                var client = clientDao.findById(dto.clientId())
+                        .orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.clientId()));
                 hardwareConfig.setClient(client);
             }
         }
 
-        if (dto.roomId() != null && !dto.roomId().equals(hardwareConfig.getRoom().getId())) {
-            var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+        if (dto.roomId() != null && !dto.roomId()
+                .equals(
+                        hardwareConfig.getRoom()
+                                .getId())) {
+            var room = roomDao.findById(dto.roomId())
+                    .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
             hardwareConfig.setRoom(room);
         }
 
@@ -93,7 +104,8 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
         if (deviceControlId == null)
             throw new BadRequestException("Device Control ID is required");
 
-        HardwareConfig hardwareConfig = deviceControlDao.findById(deviceControlId).orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
+        HardwareConfig hardwareConfig = deviceControlDao.findById(deviceControlId)
+                .orElseThrow(() -> new NotFoundException("Device control not found with ID: " + deviceControlId));
 
         deviceControlDao.delete(hardwareConfig);
     }
@@ -104,7 +116,9 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
             throw new BadRequestException("Client ID is required");
 
         var hardwareConfigs = deviceControlDao.findByClientId(clientId, page, size);
-        var content = hardwareConfigs.stream().map(DeviceControlDto::from).toList();
+        var content = hardwareConfigs.stream()
+                .map(DeviceControlDto::from)
+                .toList();
         Long totalElements = deviceControlDao.countByClientId(clientId);
 
         return new PaginatedResponse<>(content, page, size, totalElements);
@@ -116,7 +130,9 @@ public class HardwareConfigServiceImpl implements HardwareConfigService {
             throw new BadRequestException("Room ID is required");
 
         var hardwareConfigs = deviceControlDao.findByRoomId(roomId, page, size);
-        var content = hardwareConfigs.stream().map(DeviceControlDto::from).toList();
+        var content = hardwareConfigs.stream()
+                .map(DeviceControlDto::from)
+                .toList();
         Long totalElements = deviceControlDao.countByRoomId(roomId);
 
         return new PaginatedResponse<>(content, page, size, totalElements);

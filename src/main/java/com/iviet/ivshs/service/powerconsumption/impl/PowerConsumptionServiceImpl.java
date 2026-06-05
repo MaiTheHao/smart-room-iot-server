@@ -8,8 +8,8 @@ import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.PowerConsumptionDao;
 import com.iviet.ivshs.dao.RoomDao;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.powerconsumption.CreatePowerConsumptionDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.powerconsumption.PowerConsumptionDto;
 import com.iviet.ivshs.dto.powerconsumption.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
@@ -88,7 +88,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		}
 
 		String langCode = LocalContextUtil.getCurrentLangCode();
-		return powerConsumptionDao.findById(id, langCode).orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
+		return powerConsumptionDao.findById(id, langCode)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
 	}
 
 	@Override
@@ -96,7 +97,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	public PowerConsumption getEntityById(Long id) {
 		if (id == null)
 			throw new BadRequestException("Power sensor ID is required");
-		return powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
+		return powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
 	}
 
 	@Override
@@ -106,7 +108,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 			throw new BadRequestException("Natural ID is required");
 
 		String langCode = LocalContextUtil.getCurrentLangCode();
-		return powerConsumptionDao.findByNaturalId(naturalId, langCode).orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
+		return powerConsumptionDao.findByNaturalId(naturalId, langCode)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
 	}
 
 	@Override
@@ -115,7 +118,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		if (naturalId.isBlank())
 			throw new BadRequestException("Natural ID is required");
 
-		return powerConsumptionDao.findByNaturalId(naturalId).orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
+		return powerConsumptionDao.findByNaturalId(naturalId)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with natural ID: " + naturalId));
 	}
 
 	@Override
@@ -131,9 +135,11 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 			throw new BadRequestException("Device Control ID is required");
 		}
 
-		var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found"));
+		var room = roomDao.findById(dto.roomId())
+				.orElseThrow(() -> new NotFoundException("Room not found"));
 
-		var hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
+		var hardwareConfig = deviceControlDao.findById(dto.deviceControlId())
+				.orElseThrow(() -> new NotFoundException("Device Control not found, cannot create power sensor"));
 		String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 		if (!languageDao.existsByCode(langCode)) {
 			throw new BadRequestException("Language with code " + langCode + " not found");
@@ -149,12 +155,14 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		sensorLan.setDescription(dto.description());
 		sensorLan.setOwner(powerConsumption);
 
-		powerConsumption.getTranslations().add(sensorLan);
+		powerConsumption.getTranslations()
+				.add(sensorLan);
 		powerConsumption.touch();
 		powerConsumptionDao.save(powerConsumption);
 		powerConsumptionDao.flush();
 
-		return powerConsumptionDao.findById(powerConsumption.getId(), langCode).orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + powerConsumption.getId()));
+		return powerConsumptionDao.findById(powerConsumption.getId(), langCode)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + powerConsumption.getId()));
 	}
 
 	@Override
@@ -167,20 +175,28 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 			throw new BadRequestException("Update data is required");
 		}
 
-		var powerConsumption = powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found"));
+		var powerConsumption = powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found"));
 
 		String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
 		if (!languageDao.existsByCode(langCode)) {
 			throw new BadRequestException("Language with code " + langCode + " not found");
 		}
 
-		var sensorLan = powerConsumption.getTranslations().stream().filter(lan -> lan.getLangCode().equals(langCode)).findFirst().orElse(null);
+		var sensorLan = powerConsumption.getTranslations()
+				.stream()
+				.filter(
+						lan -> lan.getLangCode()
+								.equals(langCode))
+				.findFirst()
+				.orElse(null);
 
 		if (sensorLan == null) {
 			sensorLan = new PowerConsumptionLan();
 			sensorLan.setLangCode(langCode);
 			sensorLan.setOwner(powerConsumption);
-			powerConsumption.getTranslations().add(sensorLan);
+			powerConsumption.getTranslations()
+					.add(sensorLan);
 		}
 
 		if (dto.name() != null) {
@@ -200,7 +216,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		}
 
 		if (dto.deviceControlId() != null) {
-			var hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found"));
+			var hardwareConfig = deviceControlDao.findById(dto.deviceControlId())
+					.orElseThrow(() -> new NotFoundException("Device Control not found"));
 			powerConsumption.setHardwareConfig(hardwareConfig);
 		}
 
@@ -208,7 +225,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		powerConsumptionDao.update(powerConsumption);
 		powerConsumptionDao.flush();
 
-		return powerConsumptionDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
+		return powerConsumptionDao.findById(id, LocalContextUtil.getCurrentLangCode())
+				.orElseThrow(() -> new NotFoundException("Power sensor not found with ID: " + id));
 	}
 
 	@Override
@@ -219,7 +237,8 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 		}
 		if (!powerConsumptionDao.existsById(id))
 			throw new NotFoundException("Power sensor not found");
-		PowerConsumption target = powerConsumptionDao.findById(id).orElseThrow(() -> new NotFoundException("Power sensor not found"));
+		PowerConsumption target = powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power sensor not found"));
 		HardwareConfig targetDeviceControl = target.getHardwareConfig();
 		deviceControlDao.delete(targetDeviceControl);
 	}

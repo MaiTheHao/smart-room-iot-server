@@ -1,11 +1,10 @@
 package com.iviet.ivshs.controller.api.v1;
 
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.floor.CreateFloorDto;
 import com.iviet.ivshs.dto.floor.FloorDto;
 import com.iviet.ivshs.dto.floor.UpdateFloorDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
-
 import com.iviet.ivshs.service.floor.FloorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,15 +17,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/floors")
+@RequestMapping("/v1/floors")
 public class FloorController {
 
   private final FloorService floorService;
 
   @GetMapping
-  public ResponseEntity<ApiResponse<PaginatedResponse<FloorDto>>> getFloors(
-      @RequestParam(name = "page", defaultValue = "0") int page,
-      @RequestParam(name = "size", defaultValue = "10") int size) {
+  public ResponseEntity<ApiResponse<PaginatedResponse<FloorDto>>> getFloors(@RequestParam(name = "page", defaultValue = "0")
+  int page, @RequestParam(name = "size", defaultValue = "10")
+  int size) {
 
     return ResponseEntity.ok(ApiResponse.ok(floorService.getList(page, size)));
   }
@@ -37,46 +36,48 @@ public class FloorController {
   }
 
   @GetMapping("/{floorId}")
-  public ResponseEntity<ApiResponse<FloorDto>> getFloorById(
-      @PathVariable(name = "floorId") Long floorId) {
+  public ResponseEntity<ApiResponse<FloorDto>> getFloorById(@PathVariable(name = "floorId")
+  Long floorId) {
 
     return ResponseEntity.ok(ApiResponse.ok(floorService.getById(floorId)));
   }
 
   @GetMapping("/{floorId}/v")
-  public ResponseEntity<ApiResponse<Long>> getVersionById(
-      @PathVariable(name = "floorId") Long floorId) {
+  public ResponseEntity<ApiResponse<Long>> getVersionById(@PathVariable(name = "floorId")
+  Long floorId) {
 
     return ResponseEntity.ok(ApiResponse.ok(floorService.getVersionById(floorId)));
   }
 
   @PostMapping
-  public ResponseEntity<ApiResponse<FloorDto>> createFloor(
-      @RequestBody @Valid CreateFloorDto request) {
+  public ResponseEntity<ApiResponse<FloorDto>> createFloor(@RequestBody
+  @Valid
+  CreateFloorDto request) {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(floorService.create(request)));
   }
 
   @PutMapping("/{floorId}")
-  public ResponseEntity<ApiResponse<FloorDto>> updateFloor(
-      @PathVariable(name = "floorId") Long floorId,
-      @RequestBody @Valid UpdateFloorDto request) {
+  public ResponseEntity<ApiResponse<FloorDto>> updateFloor(@PathVariable(name = "floorId")
+  Long floorId, @RequestBody
+  @Valid
+  UpdateFloorDto request) {
 
     return ResponseEntity.ok(ApiResponse.ok(floorService.update(floorId, request)));
   }
 
   @PatchMapping("/{floorId}")
-  public ResponseEntity<ApiResponse<FloorDto>> patchFloor(
-      @PathVariable(name = "floorId") Long floorId,
-      @RequestBody UpdateFloorDto request) {
+  public ResponseEntity<ApiResponse<FloorDto>> patchFloor(@PathVariable(name = "floorId")
+  Long floorId, @RequestBody
+  UpdateFloorDto request) {
 
     return ResponseEntity.ok(ApiResponse.ok(floorService.patchUpdate(floorId, request)));
   }
 
   @DeleteMapping("/{floorId}")
-  public ResponseEntity<ApiResponse<Void>> deleteFloor(
-      @PathVariable(name = "floorId") Long floorId) {
+  public ResponseEntity<ApiResponse<Void>> deleteFloor(@PathVariable(name = "floorId")
+  Long floorId) {
 
     floorService.delete(floorId);
     return ResponseEntity.status(HttpStatus.NO_CONTENT)

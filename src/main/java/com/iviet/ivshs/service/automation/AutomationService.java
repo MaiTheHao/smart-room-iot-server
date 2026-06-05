@@ -7,8 +7,8 @@ import com.iviet.ivshs.dto.automation.AutomationDto;
 import com.iviet.ivshs.dto.automation.CreateAutomationActionDto;
 import com.iviet.ivshs.dto.automation.CreateAutomationDto;
 import com.iviet.ivshs.dto.automation.UpdateAutomationActionDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.automation.UpdateAutomationDto;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.Automation;
 
 public interface AutomationService {

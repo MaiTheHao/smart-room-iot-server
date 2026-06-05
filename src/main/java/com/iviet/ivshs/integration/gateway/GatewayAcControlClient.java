@@ -1,8 +1,7 @@
 package com.iviet.ivshs.integration.gateway;
 
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.AcRemoteRequestPayload;
-import com.iviet.ivshs.dto.system.ApiResponse;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,17 +13,15 @@ import org.springframework.http.HttpMethod;
 @Service
 public class GatewayAcControlClient extends GatewayDeviceControlClient {
 
-    public GatewayAcControlClient(@Qualifier("GatewayControlRestTemplate") RestTemplate restTemplate) {
+    public GatewayAcControlClient(@Qualifier("GatewayControlRestTemplate")
+    RestTemplate restTemplate) {
         super(restTemplate);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcRemote(String ip, String naturalId,
-            AcRemoteRequestPayload payload) {
+    public ResponseEntity<ApiResponse<String>> controlAcRemote(String ip, String naturalId, AcRemoteRequestPayload payload) {
         String url = buildUrl(ip, "ac", naturalId, "remote");
         HttpEntity<AcRemoteRequestPayload> requestEntity = new HttpEntity<>(payload);
-        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity,
-                new ParameterizedTypeReference<ApiResponse<String>>() {
-                });
+        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 
     public ResponseEntity<ApiResponse<String>> controlAcPower(String ip, String naturalId, AcRemoteRequestPayload payload) {

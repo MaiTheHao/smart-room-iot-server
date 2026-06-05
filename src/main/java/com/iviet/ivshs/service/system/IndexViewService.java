@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.system;
 
-import com.iviet.ivshs.dto.system.IndexViewModel;
+import com.iviet.ivshs.dto.common.IndexViewModel;
 
 public interface IndexViewService {
   public IndexViewModel getModel();

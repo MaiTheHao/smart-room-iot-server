@@ -1,6 +1,6 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.service.metric.MetricOrchestratorService;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/metrics")
+@RequestMapping("/v1/metrics")
 @RequiredArgsConstructor
 public class MetricController {
 
@@ -31,7 +31,8 @@ public class MetricController {
         if (latest) {
             Object result = orchestrator.getLatest(domain, category, targetId);
             if (result == null) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.notFound()
+                        .build();
             }
             return ResponseEntity.ok(ApiResponse.ok(result));
         } else {

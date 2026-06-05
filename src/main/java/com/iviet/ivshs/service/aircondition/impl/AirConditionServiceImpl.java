@@ -6,8 +6,8 @@ import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.aircondition.AirConditionDto;
 import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
 import com.iviet.ivshs.entities.HardwareConfig;
@@ -73,7 +73,8 @@ public class AirConditionServiceImpl implements AirConditionService {
   @Override
   public AirConditionDto getById(Long id) {
     var langCode = LocalContextUtil.getCurrentLangCode();
-    return airConditionDao.findById(id, langCode).orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
+    return airConditionDao.findById(id, langCode)
+        .orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
   }
 
   @Override
@@ -86,16 +87,19 @@ public class AirConditionServiceImpl implements AirConditionService {
       throw new BadRequestException("Room ID is required");
     }
 
-    var naturalId = dto.naturalId().trim();
+    var naturalId = dto.naturalId()
+        .trim();
     if (airConditionDao.existsByNaturalId(naturalId)) {
       throw new BadRequestException("Natural ID already exists: " + naturalId);
     }
 
-    var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+    var room = roomDao.findById(dto.roomId())
+        .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
     HardwareConfig hardwareConfig = null;
     if (dto.deviceControlId() != null) {
-      hardwareConfig = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
+      hardwareConfig = deviceControlDao.findById(dto.deviceControlId())
+          .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
     }
 
     var langCode = LocalContextUtil.resolveLangCode(dto.langCode());
@@ -119,16 +123,20 @@ public class AirConditionServiceImpl implements AirConditionService {
 
     var lan = new AirConditionLan();
     lan.setLangCode(langCode);
-    lan.setName(dto.name() != null ? dto.name().trim() : "");
+    lan.setName(
+        dto.name() != null ? dto.name()
+            .trim() : "");
     lan.setDescription(dto.description());
     lan.setOwner(ac);
 
-    ac.getTranslations().add(lan);
+    ac.getTranslations()
+        .add(lan);
     ac.touch();
     airConditionDao.save(ac);
     airConditionDao.flush();
 
-    return airConditionDao.findById(ac.getId(), langCode).orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Air Condition"));
+    return airConditionDao.findById(ac.getId(), langCode)
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Air Condition"));
   }
 
   @Override
@@ -140,13 +148,18 @@ public class AirConditionServiceImpl implements AirConditionService {
       throw new NotFoundException("Language not found: " + langCode);
     }
 
-    if (dto.roomId() != null && !dto.roomId().equals(ac.getRoom().getId())) {
-      var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+    if (dto.roomId() != null && !dto.roomId()
+        .equals(
+            ac.getRoom()
+                .getId())) {
+      var room = roomDao.findById(dto.roomId())
+          .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
       ac.setRoom(room);
     }
 
     if (dto.deviceControlId() != null) {
-      var dc = deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
+      var dc = deviceControlDao.findById(dto.deviceControlId())
+          .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId()));
       ac.setHardwareConfig(dc);
     }
 
@@ -167,16 +180,23 @@ public class AirConditionServiceImpl implements AirConditionService {
     if (dto.swing() != null)
       ac.setSwing(dto.swing());
 
-    var lan = ac.getTranslations().stream().filter(l -> langCode.equals(l.getLangCode())).findFirst().orElseGet(() -> {
-      var newLan = new AirConditionLan();
-      newLan.setLangCode(langCode);
-      newLan.setOwner(ac);
-      ac.getTranslations().add(newLan);
-      return newLan;
-    });
+    var lan = ac.getTranslations()
+        .stream()
+        .filter(l -> langCode.equals(l.getLangCode()))
+        .findFirst()
+        .orElseGet(() -> {
+          var newLan = new AirConditionLan();
+          newLan.setLangCode(langCode);
+          newLan.setOwner(ac);
+          ac.getTranslations()
+              .add(newLan);
+          return newLan;
+        });
 
     if (StringUtils.hasText(dto.name()))
-      lan.setName(dto.name().trim());
+      lan.setName(
+          dto.name()
+              .trim());
     if (dto.description() != null)
       lan.setDescription(dto.description());
 
@@ -184,7 +204,8 @@ public class AirConditionServiceImpl implements AirConditionService {
     airConditionDao.save(ac);
     airConditionDao.flush();
 
-    return airConditionDao.findById(id, langCode).orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Air Condition"));
+    return airConditionDao.findById(id, langCode)
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Air Condition"));
   }
 
   @Override
@@ -203,7 +224,8 @@ public class AirConditionServiceImpl implements AirConditionService {
   }
 
   private AirCondition getAirConditionOrThrow(Long id) {
-    return airConditionDao.findById(id).orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
+    return airConditionDao.findById(id)
+        .orElseThrow(() -> new NotFoundException("Air Condition not found with ID: " + id));
   }
 
   private void validateControlValues(Integer temperature, Integer fanSpeed) {

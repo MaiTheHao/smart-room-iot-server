@@ -3,11 +3,10 @@ package com.iviet.ivshs.service.room;
 import com.iviet.ivshs.dto.room.RoomDeviceCountDto;
 
 import java.util.List;
-
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.room.CreateRoomDto;
 import com.iviet.ivshs.dto.room.RoomDto;
 import com.iviet.ivshs.dto.room.RoomStatusDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.room.UpdateRoomDto;
 import com.iviet.ivshs.entities.Room;
 

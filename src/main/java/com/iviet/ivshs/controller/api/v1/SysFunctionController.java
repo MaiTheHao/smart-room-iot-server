@@ -1,12 +1,11 @@
 package com.iviet.ivshs.controller.api.v1;
 
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.permission.CreateSysFunctionDto;
 import com.iviet.ivshs.dto.permission.SysFunctionDto;
 import com.iviet.ivshs.dto.permission.SysFunctionWithGroupStatusDto;
 import com.iviet.ivshs.dto.permission.UpdateSysFunctionDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
-
 import com.iviet.ivshs.service.permission.SysFunctionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/functions")
+@RequestMapping("/v1/functions")
 public class SysFunctionController {
 
   private final SysFunctionService functionService;
@@ -57,7 +56,8 @@ public class SysFunctionController {
   public ResponseEntity<ApiResponse<SysFunctionDto>> createFunction(@RequestBody
   @Valid
   CreateSysFunctionDto request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(functionService.create(request)));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(functionService.create(request)));
   }
 
   @PutMapping("/{functionId}")
@@ -72,7 +72,8 @@ public class SysFunctionController {
   public ResponseEntity<ApiResponse<Void>> deleteFunction(@PathVariable(name = "functionId")
   Long functionId) {
     functionService.delete(functionId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function deleted successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function deleted successfully"));
   }
 
   @GetMapping("/count")

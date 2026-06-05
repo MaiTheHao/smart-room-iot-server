@@ -3,9 +3,8 @@ package com.iviet.ivshs.controller.api.v1;
 import com.iviet.ivshs.dto.client.ClientDto;
 import com.iviet.ivshs.dto.client.CreateClientDto;
 import com.iviet.ivshs.dto.client.UpdateClientDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
-
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.service.client.ClientService;
 import jakarta.validation.Valid;
@@ -16,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/clients")
+@RequestMapping("/v1/clients")
 @Validated
 @RequiredArgsConstructor
 public class ClientController {
@@ -61,7 +60,8 @@ public class ClientController {
   @Valid
   CreateClientDto request) {
     ClientDto created = clientService.create(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(created));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(created));
   }
 
   @PutMapping("/{id}")
@@ -85,20 +85,23 @@ public class ClientController {
   public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id")
   Long id) {
     clientService.delete(id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
   }
 
   @DeleteMapping("/{id}/device-controls")
   public ResponseEntity<ApiResponse<Void>> deleteAllDeviceControls(@PathVariable(name = "id")
   Long id) {
     clientService.deleteAllHardwareConfig(id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "All hardware configurations deleted successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "All hardware configurations deleted successfully"));
   }
 
   @DeleteMapping("/{id}/hardware-configs")
   public ResponseEntity<ApiResponse<Void>> deleteAllHardwareConfigs(@PathVariable(name = "id")
   Long id) {
     clientService.deleteAllHardwareConfig(id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "All hardware configurations deleted successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "All hardware configurations deleted successfully"));
   }
 }

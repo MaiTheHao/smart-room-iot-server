@@ -4,9 +4,9 @@ import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.RoomDao;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.fan.CreateFanDto;
 import com.iviet.ivshs.dto.fan.FanDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.fan.UpdateFanDto;
 import com.iviet.ivshs.dto.fan.UpdateFanIrDto;
 import com.iviet.ivshs.entities.Fan;
@@ -62,23 +62,27 @@ public class FanServiceImpl implements FanService {
 
   @Override
   public FanDto getByRoomAndNaturalId(Long roomId, String naturalId) {
-    return fanDao.findByRoomAndNaturalId(roomId, naturalId, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Fan not found with Room ID: " + roomId + " and Natural ID: " + naturalId));
+    return fanDao.findByRoomAndNaturalId(roomId, naturalId, LocalContextUtil.getCurrentLangCode())
+        .orElseThrow(() -> new NotFoundException("Fan not found with Room ID: " + roomId + " and Natural ID: " + naturalId));
   }
 
   @Override
   public FanDto getById(Long id) {
-    return fanDao.findById(id, LocalContextUtil.getCurrentLangCode()).orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
+    return fanDao.findById(id, LocalContextUtil.getCurrentLangCode())
+        .orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
   }
 
   @Override
   @Transactional
   public FanDto create(CreateFanDto dto) {
-    var naturalId = dto.naturalId().trim();
+    var naturalId = dto.naturalId()
+        .trim();
     if (fanDao.existsByNaturalId(naturalId)) {
       throw new BadRequestException("Natural ID already exists: " + naturalId);
     }
 
-    var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+    var room = roomDao.findById(dto.roomId())
+        .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
 
     var langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
@@ -89,14 +93,17 @@ public class FanServiceImpl implements FanService {
     fan.setRoom(room);
 
     if (dto.deviceControlId() != null) {
-      fan.setHardwareConfig(deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
+      fan.setHardwareConfig(
+          deviceControlDao.findById(dto.deviceControlId())
+              .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
     fan.touch();
     fanDao.save(fan);
     fanDao.flush();
 
-    return fanDao.findById(fan.getId(), langCode).orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Fan"));
+    return fanDao.findById(fan.getId(), langCode)
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve created Fan"));
   }
 
   @Override
@@ -111,25 +118,39 @@ public class FanServiceImpl implements FanService {
 
     if (dto.type() != null) {
       String existingType = fan.getSpecificType();
-      if (existingType != null && !dto.type().name().equalsIgnoreCase(existingType)) {
+      if (existingType != null && !dto.type()
+          .name()
+          .equalsIgnoreCase(existingType)) {
         throw new BadRequestException("Cannot change Fan type after creation. Please delete and create a new device.");
       }
     }
 
-    if (StringUtils.hasText(dto.naturalId()) && !dto.naturalId().trim().equals(fan.getNaturalId())) {
-      if (fanDao.existsByNaturalId(dto.naturalId().trim())) {
+    if (StringUtils.hasText(dto.naturalId()) && !dto.naturalId()
+        .trim()
+        .equals(fan.getNaturalId())) {
+      if (fanDao.existsByNaturalId(
+          dto.naturalId()
+              .trim())) {
         throw new BadRequestException("Natural ID already exists: " + dto.naturalId());
       }
-      fan.setNaturalId(dto.naturalId().trim());
+      fan.setNaturalId(
+          dto.naturalId()
+              .trim());
     }
 
-    if (dto.roomId() != null && !dto.roomId().equals(fan.getRoom().getId())) {
-      var room = roomDao.findById(dto.roomId()).orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
+    if (dto.roomId() != null && !dto.roomId()
+        .equals(
+            fan.getRoom()
+                .getId())) {
+      var room = roomDao.findById(dto.roomId())
+          .orElseThrow(() -> new NotFoundException("Room not found with ID: " + dto.roomId()));
       fan.setRoom(room);
     }
 
     if (dto.deviceControlId() != null) {
-      fan.setHardwareConfig(deviceControlDao.findById(dto.deviceControlId()).orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
+      fan.setHardwareConfig(
+          deviceControlDao.findById(dto.deviceControlId())
+              .orElseThrow(() -> new NotFoundException("Device Control not found with ID: " + dto.deviceControlId())));
     }
 
     if (dto.isActive() != null)
@@ -148,16 +169,23 @@ public class FanServiceImpl implements FanService {
         fanIr.setLight(irDto.light());
     }
 
-    var lan = fan.getTranslations().stream().filter(l -> langCode.equals(l.getLangCode())).findFirst().orElseGet(() -> {
-      var newLan = new FanLan();
-      newLan.setLangCode(langCode);
-      newLan.setOwner(fan);
-      fan.getTranslations().add(newLan);
-      return newLan;
-    });
+    var lan = fan.getTranslations()
+        .stream()
+        .filter(l -> langCode.equals(l.getLangCode()))
+        .findFirst()
+        .orElseGet(() -> {
+          var newLan = new FanLan();
+          newLan.setLangCode(langCode);
+          newLan.setOwner(fan);
+          fan.getTranslations()
+              .add(newLan);
+          return newLan;
+        });
 
     if (StringUtils.hasText(dto.name()))
-      lan.setName(dto.name().trim());
+      lan.setName(
+          dto.name()
+              .trim());
     if (dto.description() != null)
       lan.setDescription(dto.description());
 
@@ -165,7 +193,8 @@ public class FanServiceImpl implements FanService {
     fanDao.save(fan);
     fanDao.flush();
 
-    return fanDao.findById(id, langCode).orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Fan"));
+    return fanDao.findById(id, langCode)
+        .orElseThrow(() -> new InternalServerErrorException("Failed to retrieve updated Fan"));
   }
 
   @Override
@@ -184,6 +213,7 @@ public class FanServiceImpl implements FanService {
   }
 
   private Fan getFanOrThrow(Long id) {
-    return fanDao.findById(id).orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
+    return fanDao.findById(id)
+        .orElseThrow(() -> new NotFoundException("Fan not found with ID: " + id));
   }
 }

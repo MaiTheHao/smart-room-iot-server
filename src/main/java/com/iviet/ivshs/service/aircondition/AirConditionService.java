@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.iviet.ivshs.dto.aircondition.AirConditionDto;
 import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 
 public interface AirConditionService {
 

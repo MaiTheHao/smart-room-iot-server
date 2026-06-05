@@ -1,7 +1,7 @@
 package com.iviet.ivshs.integration.gateway;
 
+import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
 import com.iviet.ivshs.dto.setup.SetupRequest;
-import com.iviet.ivshs.dto.system.HealthCheckResponseDto;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 
 import lombok.RequiredArgsConstructor;
@@ -21,14 +21,11 @@ public class GatewaySystemClient extends BaseGatewayClient {
 
     public ResponseEntity<SetupRequest> fetchSetup(String ip) {
         String url = buildUri(ip, API_V2, "setup");
-        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<SetupRequest>() {
-        });
+        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<SetupRequest>() {});
     }
 
     public ResponseEntity<HealthCheckResponseDto> fetchHealthCheck(String ip) {
         String url = buildUri(ip, API_V2, "health-check");
-        return restTemplate.exchange(url, HttpMethod.GET, null,
-                new ParameterizedTypeReference<HealthCheckResponseDto>() {
-                });
+        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<HealthCheckResponseDto>() {});
     }
 }

@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.rule.CreateRuleDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
@@ -48,7 +48,8 @@ public class RuleServiceImpl implements RuleService {
 
   @PostConstruct
   private void initStrategyMap() {
-    strategyMap = controlStrategies.stream().collect(Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, java.util.function.Function.identity()));
+    strategyMap = controlStrategies.stream()
+        .collect(Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, java.util.function.Function.identity()));
   }
 
   @Override
@@ -60,7 +61,8 @@ public class RuleServiceImpl implements RuleService {
       throw new BadRequestException("Rule name already exists: " + dto.name());
     }
 
-    dto.actions().forEach(action -> validateActionParams(action.targetDeviceCategory(), action.actionParams()));
+    dto.actions()
+        .forEach(action -> validateActionParams(action.targetDeviceCategory(), action.actionParams()));
 
     Rule rule = ruleMapper.fromCreateDto(dto);
     ruleDao.save(rule);
@@ -76,20 +78,23 @@ public class RuleServiceImpl implements RuleService {
   public RuleDto update(Long ruleId, UpdateRuleDto dto) {
     log.info("Updating rule: id={}", ruleId);
 
-    Rule rule = ruleDao.findById(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findById(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    if (dto.name() != null && !rule.getName().equals(dto.name()) && ruleDao.existsByNameAndIdNot(dto.name(), ruleId)) {
+    if (dto.name() != null && !rule.getName()
+        .equals(dto.name()) && ruleDao.existsByNameAndIdNot(dto.name(), ruleId)) {
       throw new BadRequestException("Rule name already exists: " + dto.name());
     }
 
     if (dto.actions() != null) {
-      dto.actions().forEach(action -> {
-        DeviceCategory category = action.targetDeviceCategory();
-        JsonNode params = action.actionParams();
-        if (category != null && params != null) {
-          validateActionParams(category, params);
-        }
-      });
+      dto.actions()
+          .forEach(action -> {
+            DeviceCategory category = action.targetDeviceCategory();
+            JsonNode params = action.actionParams();
+            if (category != null && params != null) {
+              validateActionParams(category, params);
+            }
+          });
     }
 
     ruleMapper.updateFromDto(dto, rule);
@@ -105,7 +110,8 @@ public class RuleServiceImpl implements RuleService {
   @Transactional
   public void delete(Long ruleId) {
     log.info("Deleting rule: id={}", ruleId);
-    Rule rule = ruleDao.findById(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findById(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
     scheduleUtil.delete(rule);
     ruleDao.deleteById(ruleId);
@@ -113,7 +119,9 @@ public class RuleServiceImpl implements RuleService {
 
   @Override
   public RuleDto getById(Long ruleId) {
-    return ruleDao.findByIdWithConditionsAndActions(ruleId).map(ruleMapper::toDto).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    return ruleDao.findByIdWithConditionsAndActions(ruleId)
+        .map(ruleMapper::toDto)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
   }
 
   @Override
@@ -133,7 +141,8 @@ public class RuleServiceImpl implements RuleService {
   @Transactional
   public void toggleIsActive(Long ruleId, boolean isActive) {
     log.info("Toggling rule status: id={}, isActive={}", ruleId, isActive);
-    Rule rule = ruleDao.findById(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findById(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
     if (Objects.equals(rule.getIsActive(), isActive))
       return;
@@ -155,13 +164,15 @@ public class RuleServiceImpl implements RuleService {
 
   @Override
   public void unscheduleJob(Long ruleId) {
-    Rule rule = ruleDao.findById(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findById(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
     scheduleUtil.delete(rule);
   }
 
   @Override
   public void executeRuleLogic(Long ruleId) {
-    Rule rule = ruleDao.findByIdWithConditionsAndActions(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findByIdWithConditionsAndActions(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
     if (Boolean.FALSE.equals(rule.getIsActive()))
       return;
@@ -170,7 +181,8 @@ public class RuleServiceImpl implements RuleService {
 
   @Override
   public void executeRuleImmediately(Long ruleId) {
-    Rule rule = ruleDao.findById(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
+    Rule rule = ruleDao.findById(ruleId)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
     scheduleUtil.triggerNow(rule);
   }
 
@@ -189,13 +201,16 @@ public class RuleServiceImpl implements RuleService {
   }
 
   private void validateActionParams(DeviceCategory category, JsonNode params) {
-    DeviceControlServiceStrategy<?> strategy = java.util.Optional.ofNullable(strategyMap.get(category)).orElseThrow(() -> new BadRequestException("Unsupported category: " + category));
+    DeviceControlServiceStrategy<?> strategy = java.util.Optional.ofNullable(strategyMap.get(category))
+        .orElseThrow(() -> new BadRequestException("Unsupported category: " + category));
 
     try {
       Object dto = objectMapper.treeToValue(params, strategy.getControlDtoClass());
       var violations = validator.validate(dto);
       if (!violations.isEmpty()) {
-        String errorMsg = violations.stream().map(v -> v.getPropertyPath() + " " + v.getMessage()).collect(Collectors.joining(", "));
+        String errorMsg = violations.stream()
+            .map(v -> v.getPropertyPath() + " " + v.getMessage())
+            .collect(Collectors.joining(", "));
         throw new BadRequestException(errorMsg);
       }
     } catch (JsonProcessingException e) {

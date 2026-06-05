@@ -1,13 +1,12 @@
 package com.iviet.ivshs.service.role;
 
 import com.iviet.ivshs.dto.client.ClientDto;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.permission.SysFunctionDto;
 import com.iviet.ivshs.dto.role.CreateSysGroupDto;
 import com.iviet.ivshs.dto.role.SysGroupDto;
 import com.iviet.ivshs.dto.role.SysGroupWithClientStatusDto;
 import com.iviet.ivshs.dto.role.UpdateSysGroupDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
-
 import com.iviet.ivshs.entities.SysGroup;
 
 import java.util.List;

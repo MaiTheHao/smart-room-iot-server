@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service.language.impl;
 
 import com.iviet.ivshs.dao.LanguageDao;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.language.CreateLanguageDto;
 import com.iviet.ivshs.dto.language.LanguageDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.language.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.service.language.LanguageService;
@@ -25,14 +25,19 @@ public class LanguageServiceImpl implements LanguageService {
 
     @Override
     public PaginatedResponse<LanguageDto> getList(int page, int size) {
-        List<LanguageDto> content = languageDao.findAll(page, size).stream().map(LanguageDto::from).toList();
+        List<LanguageDto> content = languageDao.findAll(page, size)
+                .stream()
+                .map(LanguageDto::from)
+                .toList();
 
         return new PaginatedResponse<>(content, page, size, languageDao.count());
     }
 
     @Override
     public LanguageDto getById(Long langId) {
-        return LanguageDto.from(languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId)));
+        return LanguageDto.from(
+                languageDao.findById(langId)
+                        .orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId)));
     }
 
     @Override
@@ -40,7 +45,9 @@ public class LanguageServiceImpl implements LanguageService {
         if (!StringUtils.hasText(code))
             throw new BadRequestException("Language code is required");
 
-        return languageDao.findByCode(code.trim()).map(LanguageDto::from).orElseThrow(() -> new NotFoundException("Language not found with code: " + code));
+        return languageDao.findByCode(code.trim())
+                .map(LanguageDto::from)
+                .orElseThrow(() -> new NotFoundException("Language not found with code: " + code));
     }
 
     @Override
@@ -50,7 +57,8 @@ public class LanguageServiceImpl implements LanguageService {
             throw new BadRequestException("Language data and code are required");
         }
 
-        String code = dto.code().trim();
+        String code = dto.code()
+                .trim();
         _checkDuplicate(code, null);
 
         Language entity = dto.toEntity();
@@ -65,10 +73,12 @@ public class LanguageServiceImpl implements LanguageService {
         if (dto == null)
             throw new BadRequestException("Update data is required");
 
-        Language entity = languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
+        Language entity = languageDao.findById(langId)
+                .orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
 
         if (StringUtils.hasText(dto.code())) {
-            String newCode = dto.code().trim();
+            String newCode = dto.code()
+                    .trim();
             _checkDuplicate(newCode, langId);
             entity.setCode(newCode);
         }
@@ -84,15 +94,18 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     @Transactional
     public void delete(Long langId) {
-        languageDao.findById(langId).orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
+        languageDao.findById(langId)
+                .orElseThrow(() -> new NotFoundException("Language not found with ID: " + langId));
         languageDao.deleteById(langId);
     }
 
     private void _checkDuplicate(String code, Long currentId) {
-        languageDao.findByCode(code).ifPresent(existing -> {
-            if (currentId == null || !existing.getId().equals(currentId)) {
-                throw new BadRequestException("Language code already exists: " + code);
-            }
-        });
+        languageDao.findByCode(code)
+                .ifPresent(existing -> {
+                    if (currentId == null || !existing.getId()
+                            .equals(currentId)) {
+                        throw new BadRequestException("Language code already exists: " + code);
+                    }
+                });
     }
 }

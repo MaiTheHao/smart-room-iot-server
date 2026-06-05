@@ -21,16 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.service.client.ClientService;
-import com.iviet.ivshs.dto.system.ApiResponse;
 import com.iviet.ivshs.dto.client.ClientDto;
 import com.iviet.ivshs.dto.client.CreateClientDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.auth.JwtResponse;
 import com.iviet.ivshs.dto.auth.LoginDto;
 import com.iviet.ivshs.shared.security.JwtUtils;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -46,12 +46,16 @@ public class AuthController {
         LoginDto loginDto) {
                 Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext()
+                                .setAuthentication(authentication);
                 String jwt = jwtUtils.generateJwtToken(authentication);
 
                 UserDetails userDetails = (UserDetails) authentication.getPrincipal();
                 Client client = clientService.getEntityByUsername(loginDto.getUsername());
-                List<String> groupCodes = client.getGroups().stream().map(g -> g.getGroupCode()).collect(Collectors.toList());
+                List<String> groupCodes = client.getGroups()
+                                .stream()
+                                .map(g -> g.getGroupCode())
+                                .collect(Collectors.toList());
 
                 JwtResponse jwtResponse = JwtResponse.of(jwt, userDetails.getUsername(), groupCodes);
 
@@ -63,6 +67,7 @@ public class AuthController {
         @Valid
         CreateClientDto createDto) {
                 ClientDto createdClient = clientService.create(createDto);
-                return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(createdClient));
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(ApiResponse.created(createdClient));
         }
 }

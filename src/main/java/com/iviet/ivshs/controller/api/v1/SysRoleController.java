@@ -2,12 +2,11 @@ package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.client.AssignGroupsToClientDto;
 import com.iviet.ivshs.dto.client.UnassignGroupsFromClientDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.BatchOperationResultDto;
 import com.iviet.ivshs.dto.role.BatchAddFunctionsToGroupDto;
 import com.iviet.ivshs.dto.role.BatchRemoveFunctionsFromGroupDto;
 import com.iviet.ivshs.dto.role.ToggleGroupFunctionsDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
-import com.iviet.ivshs.dto.system.BatchOperationResultDto;
-
 import com.iviet.ivshs.service.role.SysRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/roles")
+@RequestMapping("/v1/roles")
 public class SysRoleController {
 
   private final SysRoleService roleService;
@@ -51,7 +50,8 @@ public class SysRoleController {
   Long groupId, @PathVariable(name = "functionCode")
   String functionCode) {
     roleService.addFunctionToGroup(groupId, functionCode);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED, null, "Function added to group successfully"));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success(HttpStatus.CREATED, null, "Function added to group successfully"));
   }
 
   @DeleteMapping("/groups/{groupId}/functions/{functionCode}")
@@ -59,7 +59,8 @@ public class SysRoleController {
   Long groupId, @PathVariable(name = "functionCode")
   String functionCode) {
     roleService.removeFunctionFromGroup(groupId, functionCode);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function removed from group successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Function removed from group successfully"));
   }
 
   @PostMapping("/clients/groups/assign")
@@ -75,7 +76,8 @@ public class SysRoleController {
   @Valid
   UnassignGroupsFromClientDto request) {
     roleService.unassignGroupsFromClient(request);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Groups unassigned from client successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Groups unassigned from client successfully"));
   }
 
   @DeleteMapping("/clients/{clientId}/groups/{groupId}")
@@ -83,7 +85,8 @@ public class SysRoleController {
   Long clientId, @PathVariable(name = "groupId")
   Long groupId) {
     roleService.unassignGroupFromClient(clientId, groupId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group unassigned from client successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group unassigned from client successfully"));
   }
 
   @GetMapping("/groups/{groupId}/functions/{functionCode}/check")

@@ -1,6 +1,6 @@
 package com.iviet.ivshs.integration.gateway;
 
-import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 
 import lombok.RequiredArgsConstructor;
@@ -38,8 +38,6 @@ public class GatewayMaintenanceClient extends BaseGatewayClient {
     // --- Private Helper Methods ---
     private ResponseEntity<ApiResponse<String>> executeReset(String ip, String endpoint) {
         String url = buildUri(ip, API_V2, endpoint);
-        return restTemplate.exchange(url, HttpMethod.PUT, HttpEntity.EMPTY,
-                new ParameterizedTypeReference<ApiResponse<String>>() {
-                });
+        return restTemplate.exchange(url, HttpMethod.PUT, HttpEntity.EMPTY, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 }

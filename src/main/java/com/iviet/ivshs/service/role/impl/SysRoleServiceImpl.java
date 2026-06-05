@@ -2,11 +2,10 @@ package com.iviet.ivshs.service.role.impl;
 
 import com.iviet.ivshs.dto.client.AssignGroupsToClientDto;
 import com.iviet.ivshs.dto.client.UnassignGroupsFromClientDto;
+import com.iviet.ivshs.dto.common.BatchOperationResultDto;
 import com.iviet.ivshs.dto.role.BatchAddFunctionsToGroupDto;
 import com.iviet.ivshs.dto.role.BatchRemoveFunctionsFromGroupDto;
 import com.iviet.ivshs.dto.role.ToggleGroupFunctionsDto;
-import com.iviet.ivshs.dto.system.BatchOperationResultDto;
-
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.SysFunctionDao;
 import com.iviet.ivshs.dao.SysGroupDao;
@@ -41,11 +40,13 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto addFunctionsToGroup(BatchAddFunctionsToGroupDto dto) {
-        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes().isEmpty()) {
+        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes()
+                .isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
-        SysGroup group = groupDao.findById(dto.getGroupId()).orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
+        SysGroup group = groupDao.findById(dto.getGroupId())
+                .orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
 
         int successCount = 0;
         int skippedCount = 0;
@@ -53,7 +54,8 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         for (String functionCode : dto.getFunctionCodes()) {
             try {
-                SysFunction function = functionDao.findByCode(functionCode).orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
+                SysFunction function = functionDao.findByCode(functionCode)
+                        .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 if (roleDao.existsByGroupAndFunction(group.getId(), function.getId())) {
                     skippedCount++;
@@ -79,7 +81,8 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto removeFunctionsFromGroup(BatchRemoveFunctionsFromGroupDto dto) {
-        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes().isEmpty()) {
+        if (dto == null || dto.getGroupId() == null || dto.getFunctionCodes() == null || dto.getFunctionCodes()
+                .isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
@@ -93,7 +96,8 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         for (String functionCode : dto.getFunctionCodes()) {
             try {
-                SysFunction function = functionDao.findByCode(functionCode).orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
+                SysFunction function = functionDao.findByCode(functionCode)
+                        .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 int deleted = roleDao.deleteByGroupAndFunction(dto.getGroupId(), function.getId());
 
@@ -115,22 +119,26 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto toggleGroupFunctions(ToggleGroupFunctionsDto dto) {
-        if (dto == null || dto.getGroupId() == null || dto.getFunctionToggles() == null || dto.getFunctionToggles().isEmpty()) {
+        if (dto == null || dto.getGroupId() == null || dto.getFunctionToggles() == null || dto.getFunctionToggles()
+                .isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
-        SysGroup group = groupDao.findById(dto.getGroupId()).orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
+        SysGroup group = groupDao.findById(dto.getGroupId())
+                .orElseThrow(() -> new NotFoundException("Group not found with ID: " + dto.getGroupId()));
 
         int processedCount = 0;
         int skippedCount = 0;
         List<String> errors = new ArrayList<>();
 
-        for (Map.Entry<String, Boolean> entry : dto.getFunctionToggles().entrySet()) {
+        for (Map.Entry<String, Boolean> entry : dto.getFunctionToggles()
+                .entrySet()) {
             String functionCode = entry.getKey();
             Boolean shouldAdd = entry.getValue();
 
             try {
-                SysFunction function = functionDao.findByCode(functionCode).orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
+                SysFunction function = functionDao.findByCode(functionCode)
+                        .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
                 boolean exists = roleDao.existsByGroupAndFunction(group.getId(), function.getId());
 
@@ -165,7 +173,12 @@ public class SysRoleServiceImpl implements SysRoleService {
             message += ". Errors: " + String.join("; ", errors);
         }
 
-        return BatchOperationResultDto.builder().successCount(processedCount).skippedCount(skippedCount).failedCount(errors.size()).message(message).build();
+        return BatchOperationResultDto.builder()
+                .successCount(processedCount)
+                .skippedCount(skippedCount)
+                .failedCount(errors.size())
+                .message(message)
+                .build();
     }
 
     @Override
@@ -174,9 +187,11 @@ public class SysRoleServiceImpl implements SysRoleService {
             throw new BadRequestException("Group ID and Function code are required");
         }
 
-        SysGroup group = groupDao.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
+        SysGroup group = groupDao.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-        SysFunction function = functionDao.findByCode(functionCode).orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
+        SysFunction function = functionDao.findByCode(functionCode)
+                .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
         if (roleDao.existsByGroupAndFunction(groupId, function.getId())) {
             throw new BadRequestException("Function already exists in group");
@@ -195,7 +210,8 @@ public class SysRoleServiceImpl implements SysRoleService {
             throw new BadRequestException("Group ID and Function code are required");
         }
 
-        SysFunction function = functionDao.findByCode(functionCode).orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
+        SysFunction function = functionDao.findByCode(functionCode)
+                .orElseThrow(() -> new NotFoundException("Function not found with code: " + functionCode));
 
         if (!roleDao.existsByGroupAndFunction(groupId, function.getId())) {
             throw new NotFoundException("Function not found in group");
@@ -206,11 +222,13 @@ public class SysRoleServiceImpl implements SysRoleService {
 
     @Override
     public BatchOperationResultDto assignGroupsToClient(AssignGroupsToClientDto dto) {
-        if (dto == null || dto.getClientId() == null || dto.getGroupIds() == null || dto.getGroupIds().isEmpty()) {
+        if (dto == null || dto.getClientId() == null || dto.getGroupIds() == null || dto.getGroupIds()
+                .isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
-        Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+        Client client = clientDao.findById(dto.getClientId())
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
 
         int successCount = 0;
         int skippedCount = 0;
@@ -218,14 +236,17 @@ public class SysRoleServiceImpl implements SysRoleService {
 
         for (Long groupId : dto.getGroupIds()) {
             try {
-                SysGroup group = groupDao.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
+                SysGroup group = groupDao.findById(groupId)
+                        .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-                if (client.getGroups().contains(group)) {
+                if (client.getGroups()
+                        .contains(group)) {
                     skippedCount++;
                     continue;
                 }
 
-                client.getGroups().add(group);
+                client.getGroups()
+                        .add(group);
                 successCount++;
 
             } catch (Exception e) {
@@ -248,33 +269,41 @@ public class SysRoleServiceImpl implements SysRoleService {
             throw new BadRequestException("Client ID and Group ID are required");
         }
 
-        Client client = clientDao.findById(clientId).orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
+        Client client = clientDao.findById(clientId)
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
-        SysGroup group = groupDao.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
+        SysGroup group = groupDao.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-        if (!client.getGroups().contains(group)) {
+        if (!client.getGroups()
+                .contains(group)) {
             throw new NotFoundException("Client does not have this group");
         }
 
-        client.getGroups().remove(group);
+        client.getGroups()
+                .remove(group);
         clientDao.save(client);
     }
 
     @Override
     public void unassignGroupsFromClient(UnassignGroupsFromClientDto dto) {
-        if (dto == null || dto.getClientId() == null || dto.getGroupIds() == null || dto.getGroupIds().isEmpty()) {
+        if (dto == null || dto.getClientId() == null || dto.getGroupIds() == null || dto.getGroupIds()
+                .isEmpty()) {
             throw new BadRequestException("Invalid request data");
         }
 
-        Client client = clientDao.findById(dto.getClientId()).orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
+        Client client = clientDao.findById(dto.getClientId())
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + dto.getClientId()));
 
         boolean hasChanges = false;
 
         for (Long groupId : dto.getGroupIds()) {
             try {
-                SysGroup group = groupDao.findById(groupId).orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
+                SysGroup group = groupDao.findById(groupId)
+                        .orElseThrow(() -> new NotFoundException("Group not found with ID: " + groupId));
 
-                if (client.getGroups().remove(group)) {
+                if (client.getGroups()
+                        .remove(group)) {
                     hasChanges = true;
                 }
 
@@ -295,7 +324,9 @@ public class SysRoleServiceImpl implements SysRoleService {
             return false;
         }
 
-        return functionDao.findByCode(functionCode).map(function -> roleDao.existsByGroupAndFunction(groupId, function.getId())).orElse(false);
+        return functionDao.findByCode(functionCode)
+                .map(function -> roleDao.existsByGroupAndFunction(groupId, function.getId()))
+                .orElse(false);
     }
 
     private BatchOperationResultDto buildBatchResult(int success, int skipped, List<String> errors, String action) {
@@ -305,6 +336,11 @@ public class SysRoleServiceImpl implements SysRoleService {
             message += ". Errors: " + String.join("; ", errors);
         }
 
-        return BatchOperationResultDto.builder().successCount(success).skippedCount(skipped).failedCount(errors.size()).message(message).build();
+        return BatchOperationResultDto.builder()
+                .successCount(success)
+                .skippedCount(skipped)
+                .failedCount(errors.size())
+                .message(message)
+                .build();
     }
 }

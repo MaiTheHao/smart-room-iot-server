@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.FanDao;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import com.iviet.ivshs.dto.fan.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
@@ -19,7 +20,6 @@ import com.iviet.ivshs.shared.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import com.iviet.ivshs.dto.system.ApiResponse;
 import java.util.function.Supplier;
 
 @Service
@@ -129,7 +129,8 @@ public class FanControlServiceImpl implements FanControlService {
   @Override
   @Transactional
   public ControlDeviceResult control(Long id, FanControlRequestBody body) {
-    Fan fan = fanDao.findById(id).orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
+    Fan fan = fanDao.findById(id)
+        .orElseThrow(() -> new BadRequestException("Fan not found with id: " + id));
     return applyControlParams(fan, body);
   }
 
@@ -168,7 +169,8 @@ public class FanControlServiceImpl implements FanControlService {
   private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
     try {
       ResponseEntity<ApiResponse<String>> response = call.get();
-      if (response.getStatusCode().is2xxSuccessful()) {
+      if (response.getStatusCode()
+          .is2xxSuccessful()) {
         result.addDetail(parameter, true, "Success");
         return true;
       } else {
@@ -212,7 +214,8 @@ public class FanControlServiceImpl implements FanControlService {
   }
 
   private Fan getOrThrow(String naturalId) {
-    return fanDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
+    return fanDao.findByNaturalId(naturalId)
+        .orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
   }
 
   private String extractClientIpAddress(Fan fan) {

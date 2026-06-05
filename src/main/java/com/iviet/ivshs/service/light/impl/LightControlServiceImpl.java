@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.LightDao;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import com.iviet.ivshs.dto.light.LightControlRequestBody;
 import com.iviet.ivshs.entities.Client;
@@ -19,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
-import com.iviet.ivshs.dto.system.ApiResponse;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -91,7 +91,8 @@ public class LightControlServiceImpl implements LightControlService {
 	@Override
 	@Transactional
 	public ControlDeviceResult control(Long id, LightControlRequestBody body) {
-		Light light = lightDao.findById(id).orElseThrow(() -> new BadRequestException("Light not found with id: " + id));
+		Light light = lightDao.findById(id)
+				.orElseThrow(() -> new BadRequestException("Light not found with id: " + id));
 		return applyControlParams(light, body);
 	}
 
@@ -115,7 +116,8 @@ public class LightControlServiceImpl implements LightControlService {
 	private boolean executeControl(ControlDeviceResult result, String parameter, Supplier<ResponseEntity<ApiResponse<String>>> call) {
 		try {
 			ResponseEntity<ApiResponse<String>> response = call.get();
-			if (response.getStatusCode().is2xxSuccessful()) {
+			if (response.getStatusCode()
+					.is2xxSuccessful()) {
 				result.addDetail(parameter, true, "Success");
 				return true;
 			} else {
@@ -141,7 +143,8 @@ public class LightControlServiceImpl implements LightControlService {
 	}
 
 	private Light getOrThrow(String naturalId) {
-		return lightDao.findByNaturalId(naturalId).orElseThrow(() -> new BadRequestException("Light not found with naturalId: " + naturalId));
+		return lightDao.findByNaturalId(naturalId)
+				.orElseThrow(() -> new BadRequestException("Light not found with naturalId: " + naturalId));
 	}
 
 	private String extractClientIpAddress(Light light) {

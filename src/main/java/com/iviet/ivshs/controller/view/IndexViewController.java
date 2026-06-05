@@ -4,17 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import com.iviet.ivshs.dto.system.IndexViewModel;
+import com.iviet.ivshs.dto.common.IndexViewModel;
 import com.iviet.ivshs.service.system.IndexViewService;
 
 @Controller
 @RequiredArgsConstructor
 public class IndexViewController {
-	
+
 	private final IndexViewService indexViewService;
-	
-	@GetMapping({"", "/", "/index"})
+
+	@GetMapping({
+			"",
+			"/",
+			"/index"
+	})
 	public String index(Model model) {
 		IndexViewModel _model = indexViewService.getModel();
 		model.addAllAttributes(_model.toModelAttributes());

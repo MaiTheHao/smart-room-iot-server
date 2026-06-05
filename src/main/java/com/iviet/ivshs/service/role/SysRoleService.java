@@ -2,10 +2,10 @@ package com.iviet.ivshs.service.role;
 
 import com.iviet.ivshs.dto.client.AssignGroupsToClientDto;
 import com.iviet.ivshs.dto.client.UnassignGroupsFromClientDto;
+import com.iviet.ivshs.dto.common.BatchOperationResultDto;
 import com.iviet.ivshs.dto.role.BatchAddFunctionsToGroupDto;
 import com.iviet.ivshs.dto.role.BatchRemoveFunctionsFromGroupDto;
 import com.iviet.ivshs.dto.role.ToggleGroupFunctionsDto;
-import com.iviet.ivshs.dto.system.BatchOperationResultDto;
 
 public interface SysRoleService {
 

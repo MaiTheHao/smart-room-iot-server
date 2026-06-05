@@ -12,7 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.shared.security.AuthErrorHandler.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,9 +35,25 @@ public class AuthEntryPointJwt implements AuthenticationEntryPoint {
         String clientIp = getClientIp(request);
 
         if ("WARN".equals(authErrorHandler.getLogLevel(errorType))) {
-            logger.warn("[{}] Authentication failed - URL: {}, Method: {}, IP: {}, Exception: {} | {}", errorType.getCode(), request.getRequestURI(), request.getMethod(), clientIp, authException.getClass().getSimpleName(), internalMessage);
+            logger.warn(
+                    "[{}] Authentication failed - URL: {}, Method: {}, IP: {}, Exception: {} | {}",
+                    errorType.getCode(),
+                    request.getRequestURI(),
+                    request.getMethod(),
+                    clientIp,
+                    authException.getClass()
+                            .getSimpleName(),
+                    internalMessage);
         } else {
-            logger.error("[{}] Authentication failed - URL: {}, Method: {}, IP: {}, Exception: {} | {}", errorType.getCode(), request.getRequestURI(), request.getMethod(), clientIp, authException.getClass().getSimpleName(), internalMessage);
+            logger.error(
+                    "[{}] Authentication failed - URL: {}, Method: {}, IP: {}, Exception: {} | {}",
+                    errorType.getCode(),
+                    request.getRequestURI(),
+                    request.getMethod(),
+                    clientIp,
+                    authException.getClass()
+                            .getSimpleName(),
+                    internalMessage);
         }
 
         String publicMessage = authErrorHandler.getPublicMessage(errorType);

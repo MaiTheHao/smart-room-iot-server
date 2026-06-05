@@ -1,4 +1,4 @@
-package com.iviet.ivshs.dto.system;
+package com.iviet.ivshs.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -24,7 +24,7 @@ public class ApiResponse<T> {
 
     @Builder.Default
     String scenarioId = MDC.get("scenarioId");
-    
+
     public ApiResponse(int status, String message, T data, Instant timestamp) {
         this.status = status;
         this.message = message;

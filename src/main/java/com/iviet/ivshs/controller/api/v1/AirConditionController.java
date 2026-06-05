@@ -2,12 +2,12 @@ package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
 import com.iviet.ivshs.dto.aircondition.AirConditionDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
 import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.service.aircondition.AirConditionControlService;
 import com.iviet.ivshs.service.aircondition.AirConditionService;
 import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("AirConditionControllerV1")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/air-conditions")
+@RequestMapping("/v1/air-conditions")
 public class AirConditionController {
 
     private final AirConditionService airConditionService;
@@ -64,7 +64,8 @@ public class AirConditionController {
     @Valid
     CreateAirConditionDto request) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(airConditionService.create(request)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(airConditionService.create(request)));
     }
 
     @PutMapping("/{id}")
@@ -81,7 +82,8 @@ public class AirConditionController {
     Long id) {
 
         airConditionService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Deleted successfully"));
     }
 
     // === CONTROL ENDPOINTS ===

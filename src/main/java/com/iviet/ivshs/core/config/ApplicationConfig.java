@@ -27,6 +27,11 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @Slf4j
 @Configuration("appConfig")
 @PropertySource("classpath:application.properties")
@@ -82,5 +87,15 @@ public class ApplicationConfig implements EnvironmentAware {
     @Lazy
     public Validator validator() {
         return new org.springframework.validation.beanvalidation.LocalValidatorFactoryBean();
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return mapper;
     }
 }

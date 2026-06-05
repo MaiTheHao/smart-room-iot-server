@@ -1,14 +1,13 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.client.ClientDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.permission.SysFunctionDto;
 import com.iviet.ivshs.dto.role.CreateSysGroupDto;
 import com.iviet.ivshs.dto.role.SysGroupDto;
 import com.iviet.ivshs.dto.role.SysGroupWithClientStatusDto;
 import com.iviet.ivshs.dto.role.UpdateSysGroupDto;
-import com.iviet.ivshs.dto.system.ApiResponse;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
-
 import com.iviet.ivshs.service.role.SysGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/v1")
 public class SysGroupController {
 
   private final SysGroupService groupService;
@@ -57,7 +56,8 @@ public class SysGroupController {
   @Valid
   CreateSysGroupDto request) {
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(groupService.create(request)));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.created(groupService.create(request)));
   }
 
   @PutMapping("/groups/{groupId}")
@@ -74,7 +74,8 @@ public class SysGroupController {
   Long groupId) {
 
     groupService.delete(groupId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group deleted successfully"));
+    return ResponseEntity.status(HttpStatus.NO_CONTENT)
+        .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Group deleted successfully"));
   }
 
   @GetMapping("/groups/{groupId}/functions/all")

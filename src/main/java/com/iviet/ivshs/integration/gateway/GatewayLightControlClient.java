@@ -1,15 +1,16 @@
 package com.iviet.ivshs.integration.gateway;
 
-import com.iviet.ivshs.dto.system.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
 public class GatewayLightControlClient extends GatewayDeviceControlClient {
 
-    public GatewayLightControlClient(@Qualifier("GatewayControlRestTemplate") RestTemplate restTemplate) {
+    public GatewayLightControlClient(@Qualifier("GatewayControlRestTemplate")
+    RestTemplate restTemplate) {
         super(restTemplate);
     }
 

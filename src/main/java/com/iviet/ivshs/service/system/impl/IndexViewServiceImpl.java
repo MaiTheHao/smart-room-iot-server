@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
-import com.iviet.ivshs.dto.system.IndexViewModel;
+import com.iviet.ivshs.dto.common.IndexViewModel;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.floor.FloorService;
@@ -42,60 +42,36 @@ public class IndexViewServiceImpl implements IndexViewService {
 
 		Map<Long, List<com.iviet.ivshs.dto.room.RoomDto>> floorRoomMap = (floors == null) ? Map.of()
 				: floors.stream()
-						.collect(Collectors.toMap(
-								floor -> floor.id(),
-								floor -> (rooms == null) ? List.of()
-										: rooms.stream()
-												.filter(room -> room
-														.floorId()
-														.equals(floor.id()))
-												.collect(Collectors
-														.toList())));
+						.collect(
+								Collectors.toMap(
+										floor -> floor.id(),
+										floor -> (rooms == null) ? List.of()
+												: rooms.stream()
+														.filter(
+																room -> room.floorId()
+																		.equals(floor.id()))
+														.collect(Collectors.toList())));
 
 		Map<Long, IndexViewModel.RoomInfo> roomInfoMap = (rooms == null) ? Map.of()
 				: rooms.stream()
-						.collect(Collectors.toMap(
-								room -> room.id(),
-								room -> {
-									Long hardwareCount = hardwareConfigDao
-											.countByRoomId(room.id());
-									int divisor = TelemetryTimeGroup
-											.getDivisorForRange(startedAt,
-													endedAt);
+						.collect(Collectors.toMap(room -> room.id(), room -> {
+							Long hardwareCount = hardwareConfigDao.countByRoomId(room.id());
+							int divisor = TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt);
 
-									var tempHistory = temperatureValueDao
-											.getAverageHistoryByRoom(
-													room.id(),
-													startedAt,
-													endedAt,
-													divisor);
-									Double lastestAvgTemperature = (tempHistory != null
-											&& !tempHistory.isEmpty())
-													? tempHistory.get(
-															tempHistory.size()
-																	- 1)
-															.avgTempC()
-													: null;
+							var tempHistory = temperatureValueDao.getAverageHistoryByRoom(room.id(), startedAt, endedAt, divisor);
+							Double lastestAvgTemperature = (tempHistory != null && !tempHistory.isEmpty()) ? tempHistory.get(tempHistory.size() - 1)
+									.avgTempC() : null;
 
-									var energyHistory = energyMetricDao.findHistory(
-											EnergyMetricCategory.ROOM,
-											room.id(), startedAt,
-											endedAt, divisor);
-									Double latestSumWatt = (energyHistory != null
-											&& !energyHistory.isEmpty())
-													? energyHistory.get(
-															energyHistory.size()
-																	- 1)
-															.getPower()
-													: null;
+							var energyHistory = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, room.id(), startedAt, endedAt, divisor);
+							Double latestSumWatt = (energyHistory != null && !energyHistory.isEmpty()) ? energyHistory.get(energyHistory.size() - 1)
+									.getPower() : null;
 
-									return IndexViewModel.RoomInfo.builder()
-											.hardwareCount(hardwareCount)
-											.latestAvgTemperature(
-													lastestAvgTemperature)
-											.latestSumWatt(latestSumWatt)
-											.build();
-								}));
+							return IndexViewModel.RoomInfo.builder()
+									.hardwareCount(hardwareCount)
+									.latestAvgTemperature(lastestAvgTemperature)
+									.latestSumWatt(latestSumWatt)
+									.build();
+						}));
 
 		Long totalFloors = floors != null ? (long) floors.size() : 0L;
 		Long totalRooms = rooms != null ? (long) rooms.size() : 0L;
@@ -104,13 +80,7 @@ public class IndexViewServiceImpl implements IndexViewService {
 						.mapToLong(room -> hardwareConfigDao.countByRoomId(room.id()))
 						.sum();
 
-		return new IndexViewModel(
-				floors != null ? floors : List.of(),
-				floorRoomMap,
-				roomInfoMap,
-				totalFloors,
-				totalRooms,
-				totalHardwares);
+		return new IndexViewModel(floors != null ? floors : List.of(), floorRoomMap, roomInfoMap, totalFloors, totalRooms, totalHardwares);
 	}
 
 }

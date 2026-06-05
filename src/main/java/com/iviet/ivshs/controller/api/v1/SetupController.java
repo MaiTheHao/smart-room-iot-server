@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.service.setup.SetupService;
 
 import lombok.RequiredArgsConstructor;
@@ -15,24 +14,26 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/setup")
+@RequestMapping("/v1/setup")
 @RequiredArgsConstructor
 public class SetupController {
-	
+
 	private final SetupService setupService;
-	
+
 	@PostMapping("/{clientId}")
-	public ResponseEntity<ApiResponse<?>> setup(@PathVariable(name = "clientId") Long clientId) {
+	public ResponseEntity<ApiResponse<?>> setup(@PathVariable(name = "clientId")
+	Long clientId) {
 		log.info("Device setup initiated: clientId={}", clientId);
 		setupService.setup(clientId);
-		
+
 		log.info("Device setup completed successfully: clientId={}", clientId);
-		
-		return ResponseEntity.ok(ApiResponse.builder()
-			.status(HttpStatus.OK.value())
-			.message("Device setup completed successfully")
-			.data(null)
-			.timestamp(java.time.Instant.now())
-			.build());
+
+		return ResponseEntity.ok(
+				ApiResponse.builder()
+						.status(HttpStatus.OK.value())
+						.message("Device setup completed successfully")
+						.data(null)
+						.timestamp(java.time.Instant.now())
+						.build());
 	}
 }

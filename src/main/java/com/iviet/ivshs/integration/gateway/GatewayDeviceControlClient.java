@@ -1,6 +1,6 @@
 package com.iviet.ivshs.integration.gateway;
 
-import com.iviet.ivshs.dto.system.ApiResponse;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,8 +25,6 @@ public abstract class GatewayDeviceControlClient extends BaseGatewayClient {
 
     protected ResponseEntity<ApiResponse<String>> executePut(String url, Object data) {
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(Map.of("data", data));
-        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity,
-                new ParameterizedTypeReference<ApiResponse<String>>() {
-                });
+        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 }

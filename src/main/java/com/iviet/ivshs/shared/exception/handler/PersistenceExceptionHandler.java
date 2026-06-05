@@ -1,6 +1,5 @@
 package com.iviet.ivshs.shared.exception.handler;
 
-import com.iviet.ivshs.dto.system.ApiResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -16,74 +15,75 @@ import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.iviet.ivshs.dto.common.ApiResponse;
 
 @Slf4j
 @Order(1)
 @RestControllerAdvice(annotations = RestController.class)
 public class PersistenceExceptionHandler {
 
-    // ====== DATA INTEGRITY & CONFLICT EXCEPTIONS ======
+        // ====== DATA INTEGRITY & CONFLICT EXCEPTIONS ======
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConflict(DataIntegrityViolationException ex) {
-        log.error("Database integrity violation", ex);
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, "Database conflict: Integrity constraint violation."));
-    }
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ApiResponse<Void>> handleConflict(DataIntegrityViolationException ex) {
+                log.error("Database integrity violation", ex);
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(ApiResponse.error(HttpStatus.CONFLICT, "Database conflict: Integrity constraint violation."));
+        }
 
-    @ExceptionHandler(EntityExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleEntityExists(EntityExistsException ex) {
-        log.error("Entity already exists", ex);
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT, "The entity already exists in the database."));
-    }
+        @ExceptionHandler(EntityExistsException.class)
+        public ResponseEntity<ApiResponse<Void>> handleEntityExists(EntityExistsException ex) {
+                log.error("Entity already exists", ex);
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(ApiResponse.error(HttpStatus.CONFLICT, "The entity already exists in the database."));
+        }
 
-    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<ApiResponse<Void>> handleOptimisticLocking(ObjectOptimisticLockingFailureException ex) {
-        log.error("Optimistic locking failure", ex);
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT,
-                        "Data has been modified by another transaction. Please refresh and try again."));
-    }
+        @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+        public ResponseEntity<ApiResponse<Void>> handleOptimisticLocking(ObjectOptimisticLockingFailureException ex) {
+                log.error("Optimistic locking failure", ex);
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(ApiResponse.error(HttpStatus.CONFLICT, "Data has been modified by another transaction. Please refresh and try again."));
+        }
 
-    // ====== ENTITY NOT FOUND EXCEPTIONS ======
+        // ====== ENTITY NOT FOUND EXCEPTIONS ======
 
-    @ExceptionHandler({ EntityNotFoundException.class, EmptyResultDataAccessException.class })
-    public ResponseEntity<ApiResponse<Void>> handleNotFound(Exception ex) {
-        log.warn("Database resource not found: message={}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(HttpStatus.NOT_FOUND, "Requested resource was not found in the database."));
-    }
+        @ExceptionHandler({
+                        EntityNotFoundException.class,
+                        EmptyResultDataAccessException.class
+        })
+        public ResponseEntity<ApiResponse<Void>> handleNotFound(Exception ex) {
+                log.warn("Database resource not found: message={}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(ApiResponse.error(HttpStatus.NOT_FOUND, "Requested resource was not found in the database."));
+        }
 
-    // ====== JPA & TRANSACTION SYSTEM EXCEPTIONS ======
+        // ====== JPA & TRANSACTION SYSTEM EXCEPTIONS ======
 
-    @ExceptionHandler(org.hibernate.exception.ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(
-            org.hibernate.exception.ConstraintViolationException ex) {
-        log.error("Database constraint violation", ex);
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(HttpStatus.CONFLICT,
-                        "Database conflict: Constraint violation (duplicate key, foreign key violation, etc.)."));
-    }
+        @ExceptionHandler(org.hibernate.exception.ConstraintViolationException.class)
+        public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(org.hibernate.exception.ConstraintViolationException ex) {
+                log.error("Database constraint violation", ex);
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(ApiResponse.error(HttpStatus.CONFLICT, "Database conflict: Constraint violation (duplicate key, foreign key violation, etc.)."));
+        }
 
-    @ExceptionHandler(TransactionSystemException.class)
-    public ResponseEntity<ApiResponse<Void>> handleTransactionError(TransactionSystemException ex) {
-        log.error("Transaction system error", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Data storage transaction system error."));
-    }
+        @ExceptionHandler(TransactionSystemException.class)
+        public ResponseEntity<ApiResponse<Void>> handleTransactionError(TransactionSystemException ex) {
+                log.error("Transaction system error", ex);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Data storage transaction system error."));
+        }
 
-    @ExceptionHandler(JpaSystemException.class)
-    public ResponseEntity<ApiResponse<Void>> handleJpaSystemError(JpaSystemException ex) {
-        log.error("JPA system error", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "General persistence layer error."));
-    }
+        @ExceptionHandler(JpaSystemException.class)
+        public ResponseEntity<ApiResponse<Void>> handleJpaSystemError(JpaSystemException ex) {
+                log.error("JPA system error", ex);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "General persistence layer error."));
+        }
 
-    @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidUsage(InvalidDataAccessResourceUsageException ex) {
-        log.error("Invalid database usage", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Database resource usage error."));
-    }
+        @ExceptionHandler(InvalidDataAccessResourceUsageException.class)
+        public ResponseEntity<ApiResponse<Void>> handleInvalidUsage(InvalidDataAccessResourceUsageException ex) {
+                log.error("Invalid database usage", ex);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Database resource usage error."));
+        }
 }

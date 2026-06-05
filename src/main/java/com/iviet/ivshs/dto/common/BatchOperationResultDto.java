@@ -1,4 +1,4 @@
-package com.iviet.ivshs.dto.system;
+package com.iviet.ivshs.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BatchOperationResultDto {
-    
+
     private int successCount;
     private int failedCount;
     private int skippedCount;

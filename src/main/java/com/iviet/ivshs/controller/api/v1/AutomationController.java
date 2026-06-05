@@ -14,22 +14,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.iviet.ivshs.dto.system.ApiResponse;
 import com.iviet.ivshs.dto.automation.AutomationActionDto;
 import com.iviet.ivshs.dto.automation.AutomationDto;
 import com.iviet.ivshs.dto.automation.CreateAutomationActionDto;
 import com.iviet.ivshs.dto.automation.CreateAutomationDto;
 import com.iviet.ivshs.dto.automation.UpdateAutomationActionDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.service.automation.AutomationService;
 import com.iviet.ivshs.dto.automation.UpdateAutomationDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/automations")
+@RequestMapping("/v1/automations")
 public class AutomationController {
 
     private final AutomationService automationService;
@@ -38,7 +37,8 @@ public class AutomationController {
     public ResponseEntity<ApiResponse<AutomationDto>> create(@RequestBody
     @Valid
     CreateAutomationDto request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(automationService.create(request)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(automationService.create(request)));
     }
 
     @PutMapping("/{id}")
@@ -53,7 +53,8 @@ public class AutomationController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id")
     Long id) {
         automationService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Automation deleted successfully"));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Automation deleted successfully"));
     }
 
     @GetMapping("/{id}")
@@ -86,7 +87,8 @@ public class AutomationController {
     @Valid
     CreateAutomationActionDto request) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(automationService.addAction(automationId, request)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(automationService.addAction(automationId, request)));
     }
 
     @PutMapping("/actions/{actionId}")
@@ -101,7 +103,8 @@ public class AutomationController {
     public ResponseEntity<ApiResponse<Void>> removeAction(@PathVariable(name = "actionId")
     Long actionId) {
         automationService.removeAction(actionId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Action removed successfully"));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Action removed successfully"));
     }
 
     @PatchMapping("/{id}/status")

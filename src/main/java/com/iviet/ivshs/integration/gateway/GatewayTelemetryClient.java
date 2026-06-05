@@ -1,7 +1,7 @@
 package com.iviet.ivshs.integration.gateway;
 
-import com.iviet.ivshs.dto.system.ApiResponse;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.metric.EnergyMetricDto;
 import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -39,21 +39,11 @@ public class GatewayTelemetryClient extends BaseGatewayClient {
 
     public ResponseEntity<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
         String url = buildUri(ip, API_V2, "telemetry");
-        return restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<TelemetryResponseDto>() {
-                });
+        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<TelemetryResponseDto>() {});
     }
 
     private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String endpoint) {
         String url = buildUri(ip, API_V2, endpoint);
-        return restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<ApiResponse<EnergyMetricDto>>() {
-                });
+        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<ApiResponse<EnergyMetricDto>>() {});
     }
 }

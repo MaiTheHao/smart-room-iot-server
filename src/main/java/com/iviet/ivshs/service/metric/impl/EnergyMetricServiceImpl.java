@@ -5,8 +5,8 @@ import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dao.PowerConsumptionDao;
-import com.iviet.ivshs.dto.system.ApiResponse;
 import com.iviet.ivshs.dto.client.ClientDto;
+import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.metric.EnergyMetricDto;
 import com.iviet.ivshs.shared.util.MdcTaskWrapper;
 import com.iviet.ivshs.entities.EnergyMetric;
@@ -111,16 +111,20 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         List<EnergyMetric> metricsToSave = new ArrayList<>();
 
         // Fetch all LIGHT energy metrics and collect responses
-        lightDao.findAllActiveByClientId(gateway.id()).forEach(d -> filterResponse(telemetryClient.fetchLightEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.LIGHT, d.getId(), d.getNaturalId(), metricsToSave));
+        lightDao.findAllActiveByClientId(gateway.id())
+                .forEach(d -> filterResponse(telemetryClient.fetchLightEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.LIGHT, d.getId(), d.getNaturalId(), metricsToSave));
 
         // Fetch all FAN energy metrics and collect responses
-        fanDao.findAllActiveByClientId(gateway.id()).forEach(d -> filterResponse(telemetryClient.fetchFanEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.FAN, d.getId(), d.getNaturalId(), metricsToSave));
+        fanDao.findAllActiveByClientId(gateway.id())
+                .forEach(d -> filterResponse(telemetryClient.fetchFanEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.FAN, d.getId(), d.getNaturalId(), metricsToSave));
 
         // Fetch all AIR CONDITION energy metrics and collect responses
-        airConditionDao.findAllActiveByClientId(gateway.id()).forEach(d -> filterResponse(telemetryClient.fetchAcEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.AIR_CONDITION, d.getId(), d.getNaturalId(), metricsToSave));
+        airConditionDao.findAllActiveByClientId(gateway.id())
+                .forEach(d -> filterResponse(telemetryClient.fetchAcEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.AIR_CONDITION, d.getId(), d.getNaturalId(), metricsToSave));
 
         // Fetch all ROOM (Power Consumption) energy metrics and collect responses
-        powerConsumptionDao.findAllActiveByClientId(gateway.id()).forEach(d -> filterResponse(telemetryClient.fetchRoomEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.ROOM, d.getId(), d.getNaturalId(), metricsToSave));
+        powerConsumptionDao.findAllActiveByClientId(gateway.id())
+                .forEach(d -> filterResponse(telemetryClient.fetchRoomEnergyMetric(ip, d.getNaturalId()), EnergyMetricCategory.ROOM, d.getId(), d.getNaturalId(), metricsToSave));
 
         if (!metricsToSave.isEmpty()) {
             energyMetricDao.save(metricsToSave);
@@ -137,8 +141,14 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
                 return;
             }
 
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                log.warn("Failed telemetry response: category={}, naturalId={}, status={}", category.name(), naturalId, response.getStatusCode().value());
+            if (!response.getStatusCode()
+                    .is2xxSuccessful()) {
+                log.warn(
+                        "Failed telemetry response: category={}, naturalId={}, status={}",
+                        category.name(),
+                        naturalId,
+                        response.getStatusCode()
+                                .value());
                 return;
             }
 
@@ -184,38 +194,55 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         String ip = gateway.ipAddress();
 
         // Reset ACs
-        airConditionDao.findAllActiveByClientId(gateway.id()).forEach(ac -> callResetWithRetry(() -> maintenanceClient.resetAcEnergy(ip, ac.getNaturalId()), ip, ac.getNaturalId()));
+        airConditionDao.findAllActiveByClientId(gateway.id())
+                .forEach(ac -> callResetWithRetry(() -> maintenanceClient.resetAcEnergy(ip, ac.getNaturalId()), ip, ac.getNaturalId()));
 
         // Reset Fans
-        fanDao.findAllActiveByClientId(gateway.id()).forEach(fan -> callResetWithRetry(() -> maintenanceClient.resetFanEnergy(ip, fan.getNaturalId()), ip, fan.getNaturalId()));
+        fanDao.findAllActiveByClientId(gateway.id())
+                .forEach(fan -> callResetWithRetry(() -> maintenanceClient.resetFanEnergy(ip, fan.getNaturalId()), ip, fan.getNaturalId()));
 
         // Reset Lights
-        lightDao.findAllActiveByClientId(gateway.id()).forEach(light -> callResetWithRetry(() -> maintenanceClient.resetLightEnergy(ip, light.getNaturalId()), ip, light.getNaturalId()));
+        lightDao.findAllActiveByClientId(gateway.id())
+                .forEach(light -> callResetWithRetry(() -> maintenanceClient.resetLightEnergy(ip, light.getNaturalId()), ip, light.getNaturalId()));
 
         // Reset Power Consumptions (ROOM)
-        powerConsumptionDao.findAllActiveByClientId(gateway.id()).forEach(pc -> callResetWithRetry(() -> maintenanceClient.resetRoomEnergy(ip, pc.getNaturalId()), ip, pc.getNaturalId()));
+        powerConsumptionDao.findAllActiveByClientId(gateway.id())
+                .forEach(pc -> callResetWithRetry(() -> maintenanceClient.resetRoomEnergy(ip, pc.getNaturalId()), ip, pc.getNaturalId()));
     }
 
     private void callResetWithRetry(java.util.function.Supplier<ResponseEntity<ApiResponse<String>>> resetCall, String ip, String naturalId) {
         ResponseEntity<ApiResponse<String>> response = resetCall.get();
-        if (response != null && response.getStatusCode().is2xxSuccessful()) {
+        if (response != null && response.getStatusCode()
+                .is2xxSuccessful()) {
             log.info("Device energy reset succeeded: naturalId={}, ip={}", naturalId, ip);
             return;
         }
 
-        log.warn("Device energy reset failed, retrying: naturalId={}, ip={}, status={}", naturalId, ip, response != null ? response.getStatusCode().value() : "NULL");
+        log.warn(
+                "Device energy reset failed, retrying: naturalId={}, ip={}, status={}",
+                naturalId,
+                ip,
+                response != null ? response.getStatusCode()
+                        .value() : "NULL");
 
         try {
             Thread.sleep(RESET_RETRY_DELAY.toMillis());
         } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
+            Thread.currentThread()
+                    .interrupt();
         }
 
         ResponseEntity<ApiResponse<String>> retry = resetCall.get();
-        if (retry != null && retry.getStatusCode().is2xxSuccessful()) {
+        if (retry != null && retry.getStatusCode()
+                .is2xxSuccessful()) {
             log.info("Device energy reset succeeded on retry: naturalId={}, ip={}", naturalId, ip);
         } else {
-            log.error("Device energy reset failed after retry: naturalId={}, ip={}, status={}", naturalId, ip, retry != null ? retry.getStatusCode().value() : "NULL");
+            log.error(
+                    "Device energy reset failed after retry: naturalId={}, ip={}, status={}",
+                    naturalId,
+                    ip,
+                    retry != null ? retry.getStatusCode()
+                            .value() : "NULL");
         }
     }
 }

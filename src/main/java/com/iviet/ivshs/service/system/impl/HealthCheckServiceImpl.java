@@ -2,8 +2,8 @@ package com.iviet.ivshs.service.system.impl;
 
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.RoomDao;
-import com.iviet.ivshs.dto.system.HealthCheckResponseDto;
-import com.iviet.ivshs.dto.system.HealthCheckResponseDto.DeviceDto;
+import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
+import com.iviet.ivshs.dto.common.HealthCheckResponseDto.DeviceDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.integration.gateway.GatewaySystemClient;
 import com.iviet.ivshs.service.system.HealthCheckService;
@@ -34,7 +34,9 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 	@Override
 	public HealthCheckResponseDto checkByClient(Long clientId) {
-		String ipAddress = clientDao.findGatewayById(clientId).orElseThrow(() -> new BadRequestException("Client not found ID: " + clientId)).getIpAddress();
+		String ipAddress = clientDao.findGatewayById(clientId)
+				.orElseThrow(() -> new BadRequestException("Client not found ID: " + clientId))
+				.getIpAddress();
 		return checkByClient(ipAddress);
 	}
 
@@ -46,7 +48,8 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 		try {
 			var response = gatewaySystemClient.fetchHealthCheck(ipAddress);
 
-			if (!response.getStatusCode().is2xxSuccessful()) {
+			if (!response.getStatusCode()
+					.is2xxSuccessful()) {
 				log.warn("Failed IP [{}] with status {}. Body: {}", ipAddress, response.getStatusCode(), response.getBody());
 				throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
 			}
@@ -64,13 +67,18 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 	@Override
 	public Map<String, HealthCheckResponseDto> checkByRoom(Long roomId) {
-		String roomCode = roomDao.findById(roomId).orElseThrow(() -> new BadRequestException("Room not found ID: " + roomId)).getCode();
+		String roomCode = roomDao.findById(roomId)
+				.orElseThrow(() -> new BadRequestException("Room not found ID: " + roomId))
+				.getCode();
 		return checkByRoom(roomCode);
 	}
 
 	@Override
 	public Map<String, HealthCheckResponseDto> checkByRoom(String roomCode) {
-		List<String> ipAddresses = clientDao.findGatewaysByRoomCode(roomCode).stream().map(Client::getIpAddress).toList();
+		List<String> ipAddresses = clientDao.findGatewaysByRoomCode(roomCode)
+				.stream()
+				.map(Client::getIpAddress)
+				.toList();
 
 		if (ipAddresses.isEmpty()) {
 			return Map.of();
@@ -80,16 +88,28 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 		log.info("Starting batch health check for room [{}] - {} gateways", roomCode, ipAddresses.size());
 
 		try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-			List<CompletableFuture<Map.Entry<String, HealthCheckResponseDto>>> futures = ipAddresses.stream().map(ip -> CompletableFuture.supplyAsync(MdcTaskWrapper.wrap(() -> {
-				try {
-					return Map.entry(ip, checkByClient(ip));
-				} catch (Exception e) {
-					String domainMessage = mapExceptionToMessage(e);
-					return Map.entry(ip, HealthCheckResponseDto.builder().status(500).message(domainMessage).timestamp(Instant.now().toString()).build());
-				}
-			}), executor)).toList();
+			List<CompletableFuture<Map.Entry<String, HealthCheckResponseDto>>> futures = ipAddresses.stream()
+					.map(ip -> CompletableFuture.supplyAsync(MdcTaskWrapper.wrap(() -> {
+						try {
+							return Map.entry(ip, checkByClient(ip));
+						} catch (Exception e) {
+							String domainMessage = mapExceptionToMessage(e);
+							return Map.entry(
+									ip,
+									HealthCheckResponseDto.builder()
+											.status(500)
+											.message(domainMessage)
+											.timestamp(
+													Instant.now()
+															.toString())
+											.build());
+						}
+					}), executor))
+					.toList();
 
-			Map<String, HealthCheckResponseDto> results = futures.stream().map(CompletableFuture::join).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			Map<String, HealthCheckResponseDto> results = futures.stream()
+					.map(CompletableFuture::join)
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 			log.info("Finished batch health check for room [{}] in {}ms", roomCode, System.currentTimeMillis() - start);
 			return results;
@@ -127,7 +147,11 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 		if (roomResults.isEmpty())
 			return 100; // No gateways means no issues
 
-		double averageScore = roomResults.values().stream().mapToInt(this::calculateScore).average().orElse(0.0);
+		double averageScore = roomResults.values()
+				.stream()
+				.mapToInt(this::calculateScore)
+				.average()
+				.orElse(0.0);
 
 		return (int) Math.round(averageScore);
 	}
@@ -156,7 +180,9 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 			return 100;
 		}
 
-		long activeCount = devices.stream().filter(DeviceDto::isActive).count();
+		long activeCount = devices.stream()
+				.filter(DeviceDto::isActive)
+				.count();
 		int score = (int) (((double) activeCount / devices.size()) * 100);
 		log.debug("Calculated score: {}/{} devices active = {}%", activeCount, devices.size(), score);
 		return score;

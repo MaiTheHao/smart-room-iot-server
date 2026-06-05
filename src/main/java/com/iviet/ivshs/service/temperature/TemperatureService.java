@@ -1,9 +1,8 @@
 package com.iviet.ivshs.service.temperature;
 
 import java.util.List;
-
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.temperature.CreateTemperatureDto;
-import com.iviet.ivshs.dto.system.PaginatedResponse;
 import com.iviet.ivshs.dto.temperature.TemperatureDto;
 import com.iviet.ivshs.dto.temperature.UpdateTemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
@@ -11,7 +10,7 @@ import com.iviet.ivshs.entities.Temperature;
 public interface TemperatureService {
 
     PaginatedResponse<TemperatureDto> getList(int page, int size);
-    
+
     List<TemperatureDto> getAll();
 
     PaginatedResponse<TemperatureDto> getListByRoomId(Long roomId, int page, int size);

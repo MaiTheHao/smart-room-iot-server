@@ -1,4 +1,4 @@
-package com.iviet.ivshs.dto.system;
+package com.iviet.ivshs.dto.common;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,13 +12,7 @@ import com.iviet.ivshs.dto.room.RoomDto;
 import lombok.Builder;
 import lombok.Data;
 
-public record IndexViewModel(
-    List<FloorDto> floors,
-    Map<Long, List<RoomDto>> floorRoomMap,
-    Map<Long, RoomInfo> roomInfoMap,
-    Long totalFloors,
-    Long totalRooms,
-    Long totalHardwares) {
+public record IndexViewModel(List<FloorDto> floors, Map<Long, List<RoomDto>> floorRoomMap, Map<Long, RoomInfo> roomInfoMap, Long totalFloors, Long totalRooms, Long totalHardwares) {
 
   @Data
   @Builder
