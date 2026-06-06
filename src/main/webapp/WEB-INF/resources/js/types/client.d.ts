@@ -38,7 +38,11 @@ export interface LoginDto {
 export interface JwtResponse {
     token: string;
     type: string; // Usually "Bearer"
+    id: number;
     username: string;
+    clientType: ClientType;
+    avatarUrl?: string;
+    lastLoginAt?: string;
     groups: string[]; // User roles/groups
 }
 

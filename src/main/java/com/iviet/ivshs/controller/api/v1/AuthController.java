@@ -24,6 +24,7 @@ import com.iviet.ivshs.service.client.ClientService;
 import com.iviet.ivshs.dto.client.ClientDto;
 import com.iviet.ivshs.dto.client.CreateClientDto;
 import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.auth.CustomUserDetails;
 import com.iviet.ivshs.dto.auth.JwtResponse;
 import com.iviet.ivshs.dto.auth.LoginDto;
 import com.iviet.ivshs.shared.security.JwtUtils;
@@ -50,14 +51,9 @@ public class AuthController {
                                 .setAuthentication(authentication);
                 String jwt = jwtUtils.generateJwtToken(authentication);
 
-                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-                Client client = clientService.getEntityByUsername(loginDto.getUsername());
-                List<String> groupCodes = client.getGroups()
-                                .stream()
-                                .map(g -> g.getGroupCode())
-                                .collect(Collectors.toList());
+                CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-                JwtResponse jwtResponse = JwtResponse.of(jwt, userDetails.getUsername(), groupCodes);
+                JwtResponse jwtResponse = JwtResponse.of(jwt, userDetails);
 
                 return ResponseEntity.ok(ApiResponse.ok(jwtResponse));
         }

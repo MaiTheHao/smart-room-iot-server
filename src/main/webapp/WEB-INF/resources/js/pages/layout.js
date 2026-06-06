@@ -145,15 +145,19 @@
 			if (!isAuthenticated) return;
 
 			const user = {
+				id: /*[[${#authentication.principal.id}]]*/ null,
 				username: /*[[${#authentication.name}]]*/ 'Guest',
-				avatarUrl: null,
+				clientType: /*[[${#authentication.principal.clientType}]]*/ null,
+				avatarUrl: /*[[${#authentication.principal.avatarUrl}]]*/ null,
+				lastLoginAt: /*[[${#authentication.principal.lastLoginAt}]]*/ null,
+				groups: /*[[${#authentication.principal.groups}]]*/ [],
 			};
 
 			renderUserUI(user);
 		}
 
 		function renderUserUI(user) {
-			const userNameEls = document.querySelectorAll('#userName, #userFullName');
+			const userNameEls = document.querySelectorAll('#userName');
 			const avatarEls = document.querySelectorAll('#userAvatar, #userAvatarLarge');
 
 			if (userNameEls.length > 0) {
@@ -162,6 +166,35 @@
 
 			const avatarUrl = user.avatarUrl || `https://ui-avatars.com/api/?name=${user.username}&background=random`;
 			avatarEls.forEach((el) => (el.src = avatarUrl));
+
+			// Set background image on userHeaderBg
+			const headerBg = document.getElementById('userHeaderBg');
+			if (headerBg) {
+				headerBg.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${avatarUrl}')`;
+			}
+
+			// Populate professional details
+			const detailBox = document.getElementById('userInfoDetails');
+			if (detailBox) {
+				detailBox.style.display = 'flex';
+
+				const detailName = document.getElementById('detailUserName');
+				if (detailName) {
+					detailName.textContent = user.username;
+				}
+
+				const typeBadge = document.getElementById('userTypeBadge');
+				if (typeBadge) {
+					typeBadge.textContent = user.clientType || 'N/A';
+				}
+
+				// Re-render icons inside detailBox
+				if (window.renderIcons) {
+					window.renderIcons();
+				} else if (window.lucide) {
+					lucide.createIcons();
+				}
+			}
 		}
 
 		function setActiveLink() {
