@@ -18,6 +18,8 @@ import java.util.Optional;
 @Repository
 public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
 
+    private static final String DTO_CLASS = EnergyMetricDto.class.getName();
+
     public EnergyMetricDao() {
         super(EnergyMetric.class);
     }
@@ -106,7 +108,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
 
     public Optional<EnergyMetricDto> findLatest(EnergyMetricCategory category, Long targetId) {
         String jpql = """
-                SELECT new com.iviet.ivshs.dto.energymetric.EnergyMetricDto(
+                SELECT new %s(
                     em.timestamp, em.voltage, em.current, em.power,
                     em.energy, em.frequency, em.powerFactor
                 )
@@ -114,7 +116,7 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
                 WHERE em.targetCategory = :category
                     AND em.targetId = :targetId
                 ORDER BY em.timestamp DESC
-                """;
+                """.formatted(DTO_CLASS);
 
         return entityManager.createQuery(jpql, EnergyMetricDto.class)
                 .setParameter("category", category.name())
