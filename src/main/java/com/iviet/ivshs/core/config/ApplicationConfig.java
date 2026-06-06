@@ -12,6 +12,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
@@ -55,15 +56,16 @@ public class ApplicationConfig implements EnvironmentAware {
     }
 
     @Override
-    public void setEnvironment(@NonNull Environment env) {
+    public void setEnvironment(@NonNull
+    Environment env) {
         if (!(env instanceof ConfigurableEnvironment configurableEnv)) {
             return;
         }
         String profile = env.getProperty("spring.profiles.active", "dev");
         if ("prod".equals(profile)) {
             try {
-                configurableEnv.getPropertySources().addFirst(
-                        new JndiPropertySource("jndiPropertySource"));
+                configurableEnv.getPropertySources()
+                        .addFirst(new JndiPropertySource("jndiPropertySource"));
                 log.info("JNDI PropertySource added successfully.");
             } catch (Exception e) {
                 log.error("JNDI PropertySource failed in prod — check server JNDI config!", e);
@@ -71,6 +73,12 @@ public class ApplicationConfig implements EnvironmentAware {
         } else {
             log.debug("JNDI skipped for profile='{}'", profile);
         }
+    }
+
+    // ============ ENVIRONMENT ============
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 
     // ============ MESSAGE & LOCALE ============
