@@ -89,7 +89,10 @@ public class WebSecurityConfig {
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**"))
+            auth -> auth.requestMatchers(
+                    new AntPathRequestMatcher("/api/v1/auth/signin"),
+                    new AntPathRequestMatcher("/api/v1/auth/signup")
+                )
                 .permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/**"))
                 .authenticated())

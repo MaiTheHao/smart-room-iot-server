@@ -29,7 +29,8 @@
 				"ipAddress": "192.168.1.10",
 				"macAddress": "AA:BB:CC:DD:EE:FF",
 				"avatarUrl": "https://example.com/avatar1.png",
-				"lastLoginAt": "2024-06-07T09:00:00Z"
+				"lastLoginAt": "2024-06-07T09:00:00Z",
+				"gatewayPassword": null
 			}
 		],
 		"page": 0,
@@ -67,7 +68,8 @@
 		"ipAddress": "192.168.1.10",
 		"macAddress": "AA:BB:CC:DD:EE:FF",
 		"avatarUrl": "https://example.com/avatar1.png",
-		"lastLoginAt": "2024-06-07T09:00:00Z"
+		"lastLoginAt": "2024-06-07T09:00:00Z",
+		"gatewayPassword": null
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }
@@ -108,7 +110,8 @@
 				"ipAddress": "192.168.1.11",
 				"macAddress": "11:22:33:44:55:66",
 				"avatarUrl": "https://example.com/avatar2.png",
-				"lastLoginAt": "2024-06-07T09:00:00Z"
+				"lastLoginAt": "2024-06-07T09:00:00Z",
+				"gatewayPassword": "gateway_secret"
 			}
 		],
 		"page": 0,
@@ -166,7 +169,8 @@
 		"ipAddress": "192.168.1.12",
 		"macAddress": "22:33:44:55:66:77",
 		"avatarUrl": "https://example.com/avatar3.png",
-		"lastLoginAt": null
+		"lastLoginAt": null,
+		"gatewayPassword": null
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }
@@ -221,7 +225,8 @@
 		"ipAddress": "192.168.1.12",
 		"macAddress": "22:33:44:55:66:77",
 		"avatarUrl": "https://example.com/avatar4.png",
-		"lastLoginAt": "2024-06-07T09:00:00Z"
+		"lastLoginAt": "2024-06-07T09:00:00Z",
+		"gatewayPassword": "new_gateway_secret"
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }
@@ -273,7 +278,8 @@
 		"ipAddress": "192.168.1.12",
 		"macAddress": "22:33:44:55:66:77",
 		"avatarUrl": "https://example.com/new-avatar.png",
-		"lastLoginAt": "2024-06-07T09:00:00Z"
+		"lastLoginAt": "2024-06-07T09:00:00Z",
+		"gatewayPassword": "new_gateway_secret"
 	},
 	"timestamp": "2024-06-07T09:00:00Z"
 }

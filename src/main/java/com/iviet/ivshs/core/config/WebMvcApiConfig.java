@@ -19,7 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @EnableWebMvc
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = {
-    "com.iviet.ivshs.controller.api"
+    "com.iviet.ivshs.controller.api",
+    "com.iviet.ivshs.shared.exception.handler"
 }, excludeFilters = {
     @Filter(type = FilterType.REGEX, pattern = "com\\.iviet\\.ivshs\\.shared\\.logging\\.ViewRequestLoggingAspect")
 })

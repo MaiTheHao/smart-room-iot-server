@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ import com.iviet.ivshs.dto.auth.CustomUserDetails;
 import com.iviet.ivshs.dto.auth.JwtResponse;
 import com.iviet.ivshs.dto.auth.LoginDto;
 import com.iviet.ivshs.shared.security.JwtUtils;
+import com.iviet.ivshs.shared.util.SecurityContextUtil;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -65,5 +67,12 @@ public class AuthController {
                 ClientDto createdClient = clientService.create(createDto);
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(ApiResponse.created(createdClient));
+        }
+
+        @GetMapping("/me")
+        public ResponseEntity<ApiResponse<ClientDto>> getMe() {
+                Long clientId = SecurityContextUtil.getCurrentClientId();
+                ClientDto clientDto = clientService.getById(clientId);
+                return ResponseEntity.ok(ApiResponse.ok(clientDto));
         }
 }

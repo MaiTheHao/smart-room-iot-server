@@ -173,3 +173,35 @@ async function logoutApi() {
 ```
 
 </details>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/auth/me</code> - Lấy thông tin client đang đăng nhập</summary>
+
+> Lấy thông tin chi tiết của client hiện tại từ token JWT đã được xác thực.
+
+### Request
+
+- Headers:
+  - `Authorization: Bearer <JWT token>`
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"id": 1,
+		"username": "client01",
+		"clientType": "DEVICE",
+		"ipAddress": "192.168.1.10:9090",
+		"macAddress": "AA:BB:CC:DD:EE:FF",
+		"avatarUrl": "https://example.com/avatar.png",
+		"lastLoginAt": "2026-06-08T16:30:00Z",
+		"gatewayPassword": "password123"
+	},
+	"timestamp": "2026-06-08T16:40:00Z"
+}
+```
+
+</details>
