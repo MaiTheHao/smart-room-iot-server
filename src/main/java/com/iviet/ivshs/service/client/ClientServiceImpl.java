@@ -1,5 +1,6 @@
 package com.iviet.ivshs.service.client;
 
+import com.iviet.ivshs.core.properties.GatewayProperties;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.client.ClientDto;
@@ -27,9 +28,7 @@ public class ClientServiceImpl implements ClientService {
   private final ClientDao clientDao;
   private final RoomDao roomDao;
   private final BCryptPasswordEncoder passwordEncoder;
-
-  @org.springframework.beans.factory.annotation.Value("${app.gateway.port:9090}")
-  private int defaultGatewayPort;
+  private final GatewayProperties gatewayProperties;
 
   @Override
   public List<ClientDto> getAll() {
@@ -208,7 +207,7 @@ public class ClientServiceImpl implements ClientService {
         .isEmpty()) {
       ip = ip.trim();
       if (!ip.matches(".*:\\d+$")) {
-        ip = ip + ":" + defaultGatewayPort;
+        ip = ip + ":" + gatewayProperties.getPort();
       }
       client.setIpAddress(ip);
     }
@@ -263,7 +262,7 @@ public class ClientServiceImpl implements ClientService {
       String updatedIp = updateDto.ipAddress()
           .trim();
       if (!updatedIp.matches(".*:\\d+$")) {
-        updatedIp = updatedIp + ":" + defaultGatewayPort;
+        updatedIp = updatedIp + ":" + gatewayProperties.getPort();
       }
       client.setIpAddress(updatedIp);
     }
