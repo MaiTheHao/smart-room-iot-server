@@ -4,6 +4,7 @@ import { getAllFloors } from '../../../../api/floor.api.js';
 import { getAllRoomsByFloor } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
+import { Validator } from '../../../../common/validator.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -261,15 +262,28 @@ export const ActionModal = (() => {
                 continue;
             }
 
+            const categoryValidators = Validator[category];
+            const validatorKey = key === 'temperature' ? 'temp' : (key === 'fanSpeed' ? 'fan_speed' : key);
+            const validator = categoryValidators ? categoryValidators[validatorKey] : null;
+
+            if (validator && !validator.isValidFormat(val)) {
+                if (schema.type === 'int') {
+                    await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Must be between ${schema.min} and ${schema.max}`, i18n.error || 'Error');
+                } else {
+                    await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Invalid value`, i18n.error || 'Error');
+                }
+                inputEl.focus();
+                return null;
+            }
+
             if (schema.type === 'int') {
                 const num = parseInt(val, 10);
-                if (isNaN(num) || num < schema.min || num > schema.max) {
+                if (!validator && (isNaN(num) || num < schema.min || num > schema.max)) {
                     await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Must be between ${schema.min} and ${schema.max}`, i18n.error || 'Error');
                     inputEl.focus();
                     return null;
-                } else {
-                    params[key] = num;
                 }
+                params[key] = num;
             } else {
                 params[key] = val;
             }
@@ -360,9 +374,16 @@ export const ActionModal = (() => {
     const submit = async (e) => {
         e.preventDefault();
 
-        if (!el.targetDeviceId.value) {
+        if (!Validator.id.isBlank(el.targetDeviceId.value)) {
             await Alert.warning(i18n.selectDevice || 'Please select a device', i18n.error || 'Error');
             el.targetDeviceId?.focus();
+            return;
+        }
+
+        const orderVal = el.executionOrder.value;
+        if (orderVal === '' || isNaN(orderVal) || parseInt(orderVal, 10) < 0) {
+            await Alert.warning('Execution order must be a valid non-negative integer', i18n.error || 'Error');
+            el.executionOrder?.focus();
             return;
         }
 

@@ -152,4 +152,90 @@ export const Validator = {
 			return accessRegex.test(s);
 		},
 	}),
+
+	// Device categories specific parameter validators
+	LIGHT: {
+		power: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['ON', 'OFF'].includes(val);
+			},
+		}),
+		level: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				const num = Number(val);
+				return !isNaN(num) && Number.isInteger(num) && num >= 0 && num <= 100;
+			},
+		}),
+	},
+
+	AIR_CONDITION: {
+		power: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['ON', 'OFF'].includes(val);
+			},
+		}),
+		temp: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				const num = Number(val);
+				return !isNaN(num) && Number.isInteger(num) && num >= 16 && num <= 32;
+			},
+		}),
+		mode: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['COOL', 'HEAT', 'DRY', 'FAN', 'AUTO'].includes(val);
+			},
+		}),
+		fan_speed: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				const num = Number(val);
+				return !isNaN(num) && Number.isInteger(num) && num >= 0 && num <= 5;
+			},
+		}),
+		swing: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['ON', 'OFF'].includes(val);
+			},
+		}),
+	},
+
+	FAN: {
+		power: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['ON', 'OFF'].includes(val);
+			},
+		}),
+		mode: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['NATURAL', 'SLEEP', 'NORMAL'].includes(val);
+			},
+		}),
+		speed: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				const num = Number(val);
+				return !isNaN(num) && Number.isInteger(num) && num >= 1 && num <= 3;
+			},
+		}),
+		swing: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['ON', 'OFF'].includes(val);
+			},
+		}),
+		light: createValidator({
+			formatFn: (val) => {
+				if (val === null || val === undefined || val === '') return true;
+				return ['ON', 'OFF'].includes(val);
+			},
+		}),
+	},
 };

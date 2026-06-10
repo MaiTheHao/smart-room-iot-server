@@ -5,6 +5,7 @@ import { getDevicesByRoom } from '../../../../api/device.api.js';
 import { getAllTemperaturesByRoom, getAllPowerConsumptionsByRoom } from '../../../../api/sensor.api.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
+import { Validator } from '../../../../common/validator.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
 
@@ -49,6 +50,87 @@ const DATA_SOURCE_CONFIG = {
       POWER_CONSUMPTION: [{ value: 'watt', label: 'watt' }],
     },
   },
+};
+
+const CONDITION_PARAMETER_CONFIG = {
+  DEVICE: {
+    LIGHT: {
+      power: {
+        type: 'enum',
+        options: ['ON', 'OFF']
+      },
+      level: {
+        type: 'int',
+        min: 0,
+        max: 100,
+        placeholder: '0 – 100'
+      }
+    },
+    AIR_CONDITION: {
+      power: {
+        type: 'enum',
+        options: ['ON', 'OFF']
+      },
+      temp: {
+        type: 'int',
+        min: 16,
+        max: 32,
+        placeholder: '16 – 32 °C'
+      },
+      mode: {
+        type: 'enum',
+        options: ['COOL', 'HEAT', 'DRY', 'FAN', 'AUTO']
+      },
+      fan_speed: {
+        type: 'int',
+        min: 0,
+        max: 5,
+        placeholder: '0 – 5'
+      },
+      swing: {
+        type: 'enum',
+        options: ['ON', 'OFF']
+      }
+    },
+    FAN: {
+      power: {
+        type: 'enum',
+        options: ['ON', 'OFF']
+      },
+      mode: {
+        type: 'enum',
+        options: ['NATURAL', 'SLEEP', 'NORMAL']
+      },
+      speed: {
+        type: 'int',
+        min: 1,
+        max: 3,
+        placeholder: '1 – 3'
+      },
+      swing: {
+        type: 'enum',
+        options: ['ON', 'OFF']
+      },
+      light: {
+        type: 'enum',
+        options: ['ON', 'OFF']
+      }
+    }
+  },
+  SENSOR: {
+    TEMPERATURE: {
+      temperature: {
+        type: 'float',
+        placeholder: 'Enter temperature (°C)'
+      }
+    },
+    POWER_CONSUMPTION: {
+      watt: {
+        type: 'float',
+        placeholder: 'Enter wattage (W)'
+      }
+    }
+  }
 };
 
 export const ConditionModal = (() => {
@@ -295,6 +377,7 @@ export const ConditionModal = (() => {
 
   const updateValueInput = () => {
     const ds = el.dataSource.value;
+    const cat = el.category.value;
     const prop = el.property.value;
 
     el.valueHelp.classList.add('d-none');
@@ -334,6 +417,28 @@ export const ConditionModal = (() => {
         el.value.placeholder = '1 - 31';
         el.valueHelp.textContent = 'Day of month (1 → 31)';
         el.valueHelp.classList.remove('d-none');
+      }
+    } else if (ds === 'DEVICE' || ds === 'SENSOR') {
+      const config = CONDITION_PARAMETER_CONFIG[ds]?.[cat]?.[prop];
+      if (config) {
+        if (config.type === 'enum') {
+          el.valueSelect.classList.remove('d-none');
+          el.valueSelect.innerHTML = config.options.map((opt) => `<option value="${opt}">${opt}</option>`).join('');
+        } else if (config.type === 'int') {
+          el.value.classList.remove('d-none');
+          el.value.type = 'number';
+          el.value.min = config.min;
+          el.value.max = config.max;
+          el.value.step = '1';
+          el.value.placeholder = config.placeholder || '';
+        } else if (config.type === 'float') {
+          el.value.classList.remove('d-none');
+          el.value.type = 'number';
+          el.value.step = 'any';
+          el.value.placeholder = config.placeholder || '';
+        }
+      } else {
+        el.value.classList.remove('d-none');
       }
     } else {
       el.value.classList.remove('d-none');
@@ -432,11 +537,50 @@ export const ConditionModal = (() => {
     const ds  = el.dataSource.value;
     const cfg = DATA_SOURCE_CONFIG[ds];
     const prop = el.property.value;
+    const cat = el.category.value;
 
     if (cfg?.needsTarget && !el.target.value) {
       await Alert.warning(i18n.valTargetRequired || 'Target is required', i18n.error || 'Error');
       el.target?.focus();
       return;
+    }
+
+    if (ds === 'DEVICE' || ds === 'SENSOR') {
+      const config = CONDITION_PARAMETER_CONFIG[ds]?.[cat]?.[prop];
+      if (config) {
+        const propLabel = i18n[prop] || 
+                          (prop === 'temp' ? i18n.temperature : 
+                          (prop === 'fan_speed' ? i18n.fanSpeed : 
+                          (prop === 'watt' ? 'Wattage' : prop)));
+
+        if (config.type === 'enum') {
+          const categoryValidators = Validator[cat];
+          const validator = categoryValidators ? categoryValidators[prop] : null;
+          if (validator && !validator.isValidFormat(val)) {
+            await Alert.warning(`Invalid value for ${propLabel}`, i18n.error || 'Error');
+            return;
+          }
+        } else if (config.type === 'int') {
+          const categoryValidators = Validator[cat];
+          const validator = categoryValidators ? categoryValidators[prop] : null;
+          const isValid = validator
+            ? validator.isValidFormat(val)
+            : (!isNaN(parseInt(val, 10)) && parseInt(val, 10) >= config.min && parseInt(val, 10) <= config.max);
+
+          if (!isValid) {
+            await Alert.warning(`${propLabel}: Must be between ${config.min} and ${config.max}`, i18n.error || 'Error');
+            el.value?.focus();
+            return;
+          }
+        } else if (config.type === 'float') {
+          const num = parseFloat(val);
+          if (isNaN(num)) {
+            await Alert.warning(`${propLabel}: Must be a valid float number`, i18n.error || 'Error');
+            el.value?.focus();
+            return;
+          }
+        }
+      }
     }
 
     if (ds === 'SYSTEM') {
