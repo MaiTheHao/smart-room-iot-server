@@ -1,6 +1,7 @@
 import { getDevicesByRoom, controlAc, controlFan, controlLight } from '../../api/device.api.js';
 import { StateManager } from './state_manager.js';
-import { DeviceRenderer, DeviceChart } from './ui_renderer.js';
+import { DeviceList } from './component/device_list/device_list.js';
+import { DeviceChart } from './component/device_chart/device_chart.js';
 
 export const DeviceController = {
   bindEvents() {
@@ -44,7 +45,7 @@ export const DeviceController = {
     if (err || !res.data || StateManager.getIsInteracting()) return;
 
     const newDevices = res.data;
-    DeviceRenderer.renderOrUpdateAll(newDevices);
+    DeviceList.renderOrUpdateAll(newDevices);
     StateManager.setDevices(newDevices);
   },
 

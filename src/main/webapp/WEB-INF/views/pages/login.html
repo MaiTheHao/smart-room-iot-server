@@ -1,157 +1,157 @@
 <!doctype html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title th:text="#{login.title} + ' | ' + #{app.name}">Đăng nhập | Smart Room</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="#{login.title} + ' | ' + #{app.name}">Đăng nhập | Smart Room</title>
 
-		<!-- Local Fonts & Global Styles -->
-		<link rel="stylesheet" th:href="@{/css/fonts.css}" />
-		<link rel="stylesheet" th:href="@{/css/global.css}" />
-		<!-- AdminLTE 4 -->
-		<link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
-		<link rel="icon" type="image/webp" th:href="@{/imgs/logo_genesistech.webp}" />
+    <!-- Local Fonts & Global Styles -->
+    <link rel="stylesheet" th:href="@{/css/fonts.css}" />
+    <link rel="stylesheet" th:href="@{/css/global.css}" />
+    <!-- AdminLTE 4 -->
+    <link rel="stylesheet" th:href="@{/css/lib/adminlte.min.css}" />
+    <link rel="icon" type="image/webp" th:href="@{/imgs/logo_genesistech.webp}" />
 
-		<style>
-			body {
-				background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-				min-height: 100vh;
-			}
-			.login-card {
-				border: none;
-				border-radius: 1.25rem;
-				transition: all 0.3s ease;
-			}
-			.form-floating > .form-control {
-				border-radius: 0.75rem;
-				border: 1px solid rgba(0, 0, 0, 0.05);
-				background-color: #fcfcfc;
-			}
-			.form-floating > .form-control:focus {
-				background-color: #fff;
-				box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
-			}
-			.btn-login {
-				border-radius: 0.75rem;
-				padding: 0.8rem;
-				font-weight: 700;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-			}
-		</style>
-	</head>
-	<body class="d-flex align-items-center justify-content-center p-3">
-		<div class="w-100" style="max-width: 450px">
-			<div class="card login-card shadow-sm border-0">
-				<div class="card-body p-5">
-					<!-- Header -->
-					<div class="text-center mb-5">
-						<img th:src="@{/imgs/logo_genesistech.webp}" alt="Logo" class="mb-3 rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover" />
-						<h2 class="fw-bold text-dark mb-2 fs-1">
-							<span th:text="#{app.name}">Smart Home</span>
-						</h2>
-						<p class="text-muted small px-3" th:text="#{login.msg}">Trải nghiệm cuộc sống tương lai</p>
-					</div>
+    <style>
+      body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+      }
+      .login-card {
+        border: none;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+      }
+      .form-floating > .form-control {
+        border-radius: 0.25rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background-color: #fcfcfc;
+      }
+      .form-floating > .form-control:focus {
+        background-color: #fff;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+      }
+      .btn-login {
+        border-radius: 0.25rem;
+        padding: 0.75rem;
+        font-weight: normal;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    </style>
+  </head>
+  <body class="d-flex align-items-center justify-content-center p-3">
+    <div class="w-100" style="max-width: 450px">
+      <div class="card login-card shadow-sm border-0">
+        <div class="card-body p-5">
+          <!-- Header -->
+          <div class="text-center mb-5">
+            <img th:src="@{/imgs/logo_genesistech.webp}" alt="Logo" class="mb-3 rounded-circle shadow-sm" style="width: 80px; height: 80px; object-fit: cover" />
+            <h2 class="fw-bold text-dark mb-2 fs-1">
+              <span th:text="#{app.name}">Smart Rome</span>
+            </h2>
+            <p class="text-muted small px-3" th:text="#{login.msg}">Trải nghiệm cuộc sống tương lai</p>
+          </div>
 
-					<!-- Login Form -->
-					<form th:action="@{/loginAction}" method="post" id="loginForm">
-						<div class="form-floating mb-3">
-							<input type="text" id="username" name="username" class="form-control" th:placeholder="#{login.username}" required autocomplete="username" />
-							<label for="username" class="text-muted" th:text="#{login.username}">Tên đăng nhập</label>
-						</div>
+          <!-- Login Form -->
+          <form th:action="@{/loginAction}" method="post" id="loginForm">
+            <div class="form-floating mb-3">
+              <input type="text" id="username" name="username" class="form-control" th:placeholder="#{login.username}" required autocomplete="username" />
+              <label for="username" class="text-muted" th:text="#{login.username}">Tên đăng nhập</label>
+            </div>
 
-						<div class="form-floating mb-4">
-							<input type="password" id="password" name="password" class="form-control" th:placeholder="#{login.password}" required autocomplete="current-password" />
-							<label for="password" class="text-muted" th:text="#{login.password}">Mật khẩu</label>
-						</div>
+            <div class="form-floating mb-4">
+              <input type="password" id="password" name="password" class="form-control" th:placeholder="#{login.password}" required autocomplete="current-password" />
+              <label for="password" class="text-muted" th:text="#{login.password}">Mật khẩu</label>
+            </div>
 
-						<div class="d-flex justify-content-between align-items-center mb-4">
-							<div class="form-check">
-								<input class="form-check-input" type="checkbox" id="remember" name="remember-me" />
-								<label class="form-check-label text-muted small" for="remember" th:text="#{login.remember_me}"> Ghi nhớ tôi </label>
-							</div>
-						</div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remember" name="remember-me" />
+                <label class="form-check-label text-muted small" for="remember" th:text="#{login.remember_me}"> Ghi nhớ tôi </label>
+              </div>
+            </div>
 
-						<button type="submit" class="btn btn-primary w-100 btn-login shadow-sm" th:text="#{login.button}">Đăng nhập</button>
-					</form>
+            <button type="submit" class="btn btn-primary w-100 btn-login shadow-sm" th:text="#{login.button}">Đăng nhập</button>
+          </form>
 
-					<div class="mt-2 text-center pt-3 border-top border-light">
-						<div class="d-flex justify-content-center align-items-center gap-3">
-							<a th:href="@{''(lang='vi')}" class="lang-switcher-link" th:classappend="${#locale.language == 'vi' ? 'active' : ''}" th:title="#{lang.vietnamese}">
-								<img th:src="@{/imgs/vietnam512x512.png}" class="lang-flag" alt="VI" />
-							</a>
-							<a th:href="@{''(lang='en')}" class="lang-switcher-link" th:classappend="${#locale.language == 'en' ? 'active' : ''}" th:title="#{lang.english}">
-								<img th:src="@{/imgs/united-kingdom512x512.png}" class="lang-flag" alt="EN" />
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+          <div class="mt-2 text-center pt-3 border-top border-light">
+            <div class="d-flex justify-content-center align-items-center gap-3">
+              <a th:href="@{''(lang='vi')}" class="lang-switcher-link" th:classappend="${#locale.language == 'vi' ? 'active' : ''}" th:title="#{lang.vietnamese}">
+                <img th:src="@{/imgs/vietnam512x512.png}" class="lang-flag" alt="VI" />
+              </a>
+              <a th:href="@{''(lang='en')}" class="lang-switcher-link" th:classappend="${#locale.language == 'en' ? 'active' : ''}" th:title="#{lang.english}">
+                <img th:src="@{/imgs/united-kingdom512x512.png}" class="lang-flag" alt="EN" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-		<!-- Required Scripts -->
-		<script th:src="@{/js/lib/popper.min.js}"></script>
-		<script th:src="@{/js/lib/bootstrap.min.js}"></script>
-		<script th:src="@{/js/lib/lucide.min.js}"></script>
-		<script th:src="@{/js/lib/sweetalert2.min.js}"></script>
-		<script th:src="@{/js/lib/adminlte.min.js}"></script>
+    <!-- Required Scripts -->
+    <script th:src="@{/js/lib/popper.min.js}"></script>
+    <script th:src="@{/js/lib/bootstrap.min.js}"></script>
+    <script th:src="@{/js/lib/lucide.min.js}"></script>
+    <script th:src="@{/js/lib/sweetalert2.min.js}"></script>
+    <script th:src="@{/js/lib/adminlte.min.js}"></script>
 
-		<script th:inline="javascript">
-			(function () {
-				'use strict';
+    <script th:inline="javascript">
+      (function () {
+        'use strict';
 
-				const i18n = {
-					loadingText: /*[[#{login.loading}]]*/ 'Processing...',
-					errorTitle: /*[[#{login.error.title}]]*/ 'Login Failed',
-				};
+        const i18n = {
+          loadingText: /*[[#{login.loading}]]*/ 'Processing...',
+          errorTitle: /*[[#{login.error.title}]]*/ 'Login Failed',
+        };
 
-				function Login() {
-					function bindEvents() {
-						const loginForm = document.getElementById('loginForm');
-						if (loginForm) {
-							loginForm.addEventListener('submit', function () {
-								const submitBtn = this.querySelector('button[type="submit"]');
-								if (submitBtn) {
-									submitBtn.disabled = true;
-									submitBtn.innerHTML = `
+        function Login() {
+          function bindEvents() {
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+              loginForm.addEventListener('submit', function () {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.innerHTML = `
 										<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
 										${i18n.loadingText}
 									`;
-								}
-							});
-						}
-					}
+                }
+              });
+            }
+          }
 
-					function checkErrors() {
-						const error = /*[[${errorMessage}]]*/ null;
-						if (error) {
-							Swal.fire({
-								icon: 'error',
-								title: i18n.errorTitle,
-								text: error,
-								confirmButtonColor: '#0d6efd',
-							});
-						}
-					}
+          function checkErrors() {
+            const error = /*[[${errorMessage}]]*/ null;
+            if (error) {
+              Swal.fire({
+                icon: 'error',
+                title: i18n.errorTitle,
+                text: error,
+                confirmButtonColor: '#0d6efd',
+              });
+            }
+          }
 
-					function init() {
-						if (window.lucide) {
-							lucide.createIcons();
-						}
-						checkErrors();
-						bindEvents();
-					}
+          function init() {
+            if (window.lucide) {
+              lucide.createIcons();
+            }
+            checkErrors();
+            bindEvents();
+          }
 
-					return {
-						init,
-					};
-				}
+          return {
+            init,
+          };
+        }
 
-				document.addEventListener('DOMContentLoaded', () => {
-					const loginPage = Login();
-					loginPage.init();
-				});
-			})();
-		</script>
-	</body>
+        document.addEventListener('DOMContentLoaded', () => {
+          const loginPage = Login();
+          loginPage.init();
+        });
+      })();
+    </script>
+  </body>
 </html>

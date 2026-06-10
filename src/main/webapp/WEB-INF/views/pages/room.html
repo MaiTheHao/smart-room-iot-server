@@ -1,97 +1,76 @@
 <!doctype html>
-<html
-  th:lang="${#locale.language}"
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layout.html}"
->
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
   <head>
-    <title th:text="|#{room.title} - ${room.name}|">Room Detail</title>
+    <title th:text="|#{room.title} - ${room.name != null ? room.name : '--'}|">Room Detail</title>
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/flatpickr.min.css}" />
   </head>
   <body class="room-page">
-    <div layout:fragment="header-title">
-      <span th:text="${room.name}">Room Name</span>
-    </div>
-
     <div layout:fragment="content">
       <div class="container-fluid">
         <!-- 1. Room Identity Card -->
-        <div class="card rounded-4 border-0 shadow-sm mb-4">
-          <div class="card-body p-4">
-            <div class="row align-items-center">
-              <div class="col-md-12 d-flex align-items-center">
-                <div
-                  class="d-flex align-items-center justify-content-center rounded-4 shadow-sm me-4 bg-primary bg-opacity-10 text-primary"
-                  style="width: 64px; height: 64px; min-width: 64px"
-                >
-                  <i data-lucide="door-open" style="width: 32px; height: 32px"></i>
+        <div class="card rounded-2 border-1 shadow-sm overflow-hidden mb-4" style="height: 300px; position: relative; background-color: #1e293b">
+          <img th:src="@{/imgs/fallback_room_background600x400.png}" class="w-100 h-100" style="object-fit: cover; opacity: 0.75" alt="Room image" />
+          <div
+            class="d-flex flex-column justify-content-end"
+            style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.1) 100%); padding: 24px"
+          >
+            <div>
+              <div class="d-flex align-items-center mb-1 text-white">
+                <span class="fs-1 fw-bold" th:text="${room.name} ?: '--'">--</span>
+                <div class="d-flex flex-column justify-content-center ms-3" style="line-height: 1.2">
+                  <span class="text-light fw-medium d-inline-flex align-items-center" style="font-size: 1rem"> #<span th:text="${room.id} ?: '--'">???</span> </span>
+                  <span class="text-light fw-medium d-inline-flex align-items-center" style="font-size: 0.9rem">
+                    <i data-lucide="cpu" style="width: 12px; height: 12px" class="me-1"></i>
+                    <span th:text="${room.code} ?: '--'">--</span>
+                  </span>
                 </div>
-                <div>
-                  <h3 class="fw-bold mb-1 text-dark d-flex align-items-center">
-                    <span th:text="${room.name}">--</span>
-                    <span
-                      class="ms-2 badge rounded-pill bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 fw-medium"
-                      style="font-size: 0.7rem; padding: 0.25rem 0.6rem"
-                    >
-                      <i data-lucide="cpu" style="width: 12px; height: 12px" class="me-1"></i>
-                      <span th:text="${room.code}">--</span>
-                    </span>
-                    <span class="text-muted fw-normal ms-2" style="font-size: 0.8rem"
-                      >#<span th:text="${room.id}">101</span></span
-                    >
-                  </h3>
-                  <p class="text-muted mb-3 small" th:text="${room.description}">--</p>
-                  <div class="d-flex align-items-center gap-2">
-                    <span
-                      class="badge rounded-pill px-3 py-2 border border-opacity-25"
-                      th:classappend="${
-													healthScore != null && healthScore >= 80
-															? 'bg-success bg-opacity-10 text-success border-success'
-															: (healthScore != null && healthScore >= 50
-																	? 'bg-warning bg-opacity-10 text-warning border-warning'
-																	: 'bg-danger bg-opacity-10 text-danger border-danger')
-											}"
-                    >
-                      <i data-lucide="activity" class="lucide-sm me-1"></i>
+                <button
+                  class="btn btn-link text-white p-0 ms-3 lh-1 btn-copy-text"
+                  th:data-copy-name="${room.name}"
+                  th:data-copy-id="${room.id}"
+                  th:data-copy-code="${room.code}"
+                  title="Copy Room Info"
+                  style="border: none; background: none"
+                >
+                  <i data-lucide="copy" style="width: 18px; height: 18px"></i>
+                </button>
+              </div>
+              <p class="text-white-50 mb-3 small" th:text="${room.description} ?: '--'">--</p>
+              <div class="d-flex flex-wrap gap-3">
+                <!-- Health Metric -->
+                <div class="d-flex align-items-center border rounded-2 px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important">
+                  <span
+                    class="d-flex align-items-center justify-content-center rounded-2 me-2"
+                    th:style="${'width: 28px; height: 28px; background-color: ' + (healthScore != null && healthScore >= 80 ? 'rgba(40, 167, 69, 0.25); color: #28a745;' : (healthScore != null && healthScore >= 50 ? 'rgba(255, 193, 7, 0.25); color: #ffc107;' : 'rgba(220, 53, 69, 0.25); color: #dc3545;'))}"
+                  >
+                    <i data-lucide="activity" style="width: 16px; height: 16px"></i>
+                  </span>
+                  <div style="line-height: 1.2">
+                    <span class="text-light small d-block" style="font-size: 0.75rem" th:text="#{room.health}">Health</span>
+                    <span class="fw-bold text-white small" th:text="${healthScore != null ? healthScore + '%' : '--'}">--</span>
+                  </div>
+                </div>
 
-                      <span>
-                        <span th:text="#{room.health}">Health</span>:
-                        <span
-                          class="fw-bold text-dark"
-                          th:text="${healthScore != null ? healthScore + '%' : '--'}"
-                        >
-                          --</span
-                        >
-                      </span>
-                    </span>
-                    <span
-                      class="badge rounded-pill bg-info bg-opacity-10 text-info px-3 py-2 border border-info border-opacity-25"
-                    >
-                      <i data-lucide="thermometer" class="lucide-sm me-1"></i>
-                      <span
-                        ><span th:text="#{room.temp}">Temp</span>:
-                        <span
-                          class="fw-bold text-dark"
-                          th:text="${lastestAvgTemperature != null ? #numbers.formatDecimal(lastestAvgTemperature, 1, 1) + '°C' : '--'}"
-                          >--</span
-                        ></span
-                      >
-                    </span>
-                    <span
-                      class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-2 border border-warning border-opacity-25"
-                    >
-                      <i data-lucide="zap" class="lucide-sm me-1"></i>
-                      <span
-                        ><span th:text="#{room.power}">Power</span>:
-                        <span
-                          class="fw-bold text-dark"
-                          th:text="${lastestSumWatt != null ? #numbers.formatDecimal(lastestSumWatt, 1, 1) + 'W' : '--'}"
-                          >--</span
-                        ></span
-                      >
-                    </span>
+                <!-- Temp Metric -->
+                <div class="d-flex align-items-center border rounded-2 px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important">
+                  <span class="d-flex align-items-center justify-content-center rounded-2 me-2" style="width: 28px; height: 28px; background-color: rgba(23, 162, 184, 0.25); color: #17a2b8">
+                    <i data-lucide="thermometer" style="width: 16px; height: 16px"></i>
+                  </span>
+                  <div style="line-height: 1.2">
+                    <span class="text-light small d-block" style="font-size: 0.75rem" th:text="#{room.temp}">Temp</span>
+                    <span class="fw-bold text-white small" th:text="${lastestAvgTemperature != null ? #numbers.formatDecimal(lastestAvgTemperature, 1, 1) + '°C' : '--'}">--</span>
+                  </div>
+                </div>
+
+                <!-- Power Metric -->
+                <div class="d-flex align-items-center border rounded-2 px-3 py-2" style="background-color: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important">
+                  <span class="d-flex align-items-center justify-content-center rounded-2 me-2" style="width: 28px; height: 28px; background-color: rgba(255, 193, 7, 0.25); color: #ffc107">
+                    <i data-lucide="zap" style="width: 16px; height: 16px"></i>
+                  </span>
+                  <div style="line-height: 1.2">
+                    <span class="text-light small d-block" style="font-size: 0.75rem" th:text="#{room.power}">Power</span>
+                    <span class="fw-bold text-white small" th:text="${lastestSumWatt != null ? #numbers.formatDecimal(lastestSumWatt, 1, 1) + 'W' : '--'}">--</span>
                   </div>
                 </div>
               </div>
@@ -102,41 +81,26 @@
         <!-- 2. Analytics Toolbar -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 mt-5">
           <h5 class="m-0 fw-bold text-dark d-flex align-items-center">
-            <i data-lucide="bar-chart-3" class="text-primary me-2"></i>
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-2 me-2" style="width: 32px; height: 32px">
+              <i data-lucide="bar-chart-3" style="width: 18px; height: 18px"></i>
+            </span>
             <span th:text="#{room.analytics.title}">Phân tích & Thống kê</span>
           </h5>
           <div class="d-flex gap-2 mt-2 mt-md-0">
-            <div class="input-group shadow-sm" style="max-width: 600px">
-              <span class="input-group-text bg-white border-end-0"
-                ><i data-lucide="calendar" class="lucide-sm"></i
-              ></span>
-              <input
-                type="text"
-                id="analyticsRange"
-                class="form-control border-start-0 fw-medium"
-                style="width: 45ch"
-                readonly
-              />
+            <div class="input-group shadow-sm" style="width: 370px">
+              <span class="input-group-text bg-white border-end-0"><i data-lucide="calendar" class="lucide-sm"></i></span>
+              <input type="text" id="analyticsRange" class="form-control border-start-0 fw-medium" style="width: 45ch" readonly />
             </div>
           </div>
         </div>
 
         <!-- 3. Real-time Charts -->
         <div class="row mb-4">
-          <div class="col-lg-6 mb-4 mb-lg-0">
-            <div class="card rounded-4 border-0 shadow-sm h-100">
-              <div
-                class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center"
-              >
-                <h6 class="fw-bold m-0 flex-grow-1">
-                  <i data-lucide="thermometer" class="text-danger me-2 lucide-sm"></i
-                  ><span th:text="#{room.chart.temp}">Nhiệt độ</span>
-                </h6>
-                <span
-                  class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3"
-                  id="avgTempBadge"
-                  >Avg: --</span
-                >
+          <div class="col-lg-6">
+            <div class="card rounded-2 border-1 shadow-sm h-100">
+              <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 flex-grow-1"><i data-lucide="thermometer" class="text-danger me-2 lucide-sm"></i><span th:text="#{room.chart.temp}">Nhiệt độ</span></h6>
+                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3" id="avgTempBadge">Avg: --</span>
               </div>
               <div class="card-body">
                 <div id="tempChart" style="min-height: 300px"></div>
@@ -144,19 +108,10 @@
             </div>
           </div>
           <div class="col-lg-6">
-            <div class="card rounded-4 border-0 shadow-sm h-100">
-              <div
-                class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center"
-              >
-                <h6 class="fw-bold m-0 flex-grow-1">
-                  <i data-lucide="zap" class="text-warning me-2 lucide-sm"></i
-                  ><span th:text="#{room.chart.power}">Công suất</span>
-                </h6>
-                <span
-                  class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3"
-                  id="peakPowerBadge"
-                  >Peak: --</span
-                >
+            <div class="card rounded-2 border-1 shadow-sm h-100">
+              <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 flex-grow-1"><i data-lucide="zap" class="text-warning me-2 lucide-sm"></i><span th:text="#{room.chart.power}">Công suất</span></h6>
+                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3" id="peakPowerBadge">Peak: --</span>
               </div>
               <div class="card-body">
                 <div id="powerChart" style="min-height: 300px"></div>
@@ -211,13 +166,77 @@
             metricCurrent: /*[[#{room.chart.metric.current}]]*/ 'Current',
             metricPower: /*[[#{room.chart.metric.power}]]*/ 'Power',
             metricEnergy: /*[[#{room.chart.metric.energy}]]*/ 'Energy',
-          }
+            successCopied: /*[[#{room.success.copied}]]*/ 'Copied room info to clipboard!',
+          },
         };
+      </script>
+
+      <!-- Copy Clipboard Script & Style -->
+      <style>
+        .btn-copy-text {
+          opacity: 0.5;
+          transition:
+            opacity 0.2s ease-in-out,
+            transform 0.1s ease-in-out;
+        }
+        .btn-copy-text:hover {
+          opacity: 1 !important;
+          transform: scale(1.1);
+        }
+        .btn-copy-text:active {
+          transform: scale(0.9);
+        }
+      </style>
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-copy-text');
+            if (!btn) return;
+            e.preventDefault();
+            const name = btn.getAttribute('data-copy-name') || '';
+            const id = btn.getAttribute('data-copy-id') || '';
+            const code = btn.getAttribute('data-copy-code') || '';
+
+            const textToCopy = `Name: ${name}\nID: ${id}\nCode: ${code}`;
+
+            navigator.clipboard
+              .writeText(textToCopy)
+              .then(() => {
+                // SweetAlert2 Toast
+                if (typeof Swal !== 'undefined') {
+                  const successMsg = (window.__ROOM_CONFIG__ && window.__ROOM_CONFIG__.i18n && window.__ROOM_CONFIG__.i18n.successCopied) || 'Copied room info to clipboard!';
+                  Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: successMsg,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                  });
+                }
+
+                // Icon micro-animation
+                const icon = btn.querySelector('i');
+                if (icon) {
+                  const originalIcon = icon.getAttribute('data-lucide');
+                  icon.setAttribute('data-lucide', 'check');
+                  if (window.renderIcons) window.renderIcons();
+                  setTimeout(() => {
+                    icon.setAttribute('data-lucide', originalIcon);
+                    if (window.renderIcons) window.renderIcons();
+                  }, 1500);
+                }
+              })
+              .catch((err) => {
+                console.error('Failed to copy: ', err);
+              });
+          });
+        });
       </script>
 
       <!-- Page JS -->
       <script type="module" th:src="@{/js/pages/room_detail/index.js}"></script>
     </th:block>
-
   </body>
 </html>
