@@ -15,7 +15,7 @@
 
     <th:block layout:fragment="styles"></th:block>
   </head>
-  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+  <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary">
     <div class="app-wrapper">
       <nav class="app-header navbar navbar-expand bg-body" th:fragment="header">
         <div class="container-fluid">
@@ -103,7 +103,7 @@
 
       <main class="app-main">
         <div class="app-content-header">
-          <div class="container-fluid">
+          <div class="container">
             <div class="row">
               <div class="col-sm-6">
                 <h3 class="mb-0" layout:fragment="header-title">Page Title</h3>
@@ -112,7 +112,7 @@
           </div>
         </div>
         <div class="app-content">
-          <div class="container-fluid">
+          <div class="container">
             <div layout:fragment="content"></div>
           </div>
         </div>

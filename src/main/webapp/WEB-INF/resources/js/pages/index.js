@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			.map(
 				(s) => `
 				<div class="col-12 col-md-4 mb-3 mb-md-0">
-					<div class="card border-0 shadow-sm rounded-4 h-100 transition-all">
+					<div class="card border-1 shadow-sm rounded-2 h-100 transition-all">
 						<div class="card-body p-4 d-flex align-items-center">
-							<div class="rounded-circle bg-${s.color} bg-opacity-10 p-3 me-4 text-${s.color} d-flex align-items-center justify-content-center" style="width: 64px; height: 64px">
+							<div class="rounded-2 bg-${s.color} bg-opacity-10 p-3 me-4 text-${s.color} d-flex align-items-center justify-content-center" style="width: 64px; height: 64px">
 								<i data-lucide="${s.icon}" style="width: 32px; height: 32px"></i>
 							</div>
 							<div>
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		container.innerHTML = scenes
 			.map(
 				(s) => `
-				<button class="btn btn-outline-${s.color} border-2 p-3 d-flex flex-column align-items-center rounded-4 shadow-sm scene-btn" data-scene-id="${s.id}" style="min-width: 140px">
+				<button class="btn btn-outline-${s.color} border-2 p-3 d-flex flex-column align-items-center rounded-2 shadow-sm scene-btn" data-scene-id="${s.id}" style="min-width: 140px">
 					<i data-lucide="${s.icon}" class="mb-2" style="width: 24px; height: 24px"></i>
 					<span class="fw-bold small">${s.name}</span>
 				</button>

@@ -6,6 +6,9 @@
     <link rel="stylesheet" th:href="@{/css/lib/flatpickr.min.css}" />
   </head>
   <body class="room-page">
+    <div layout:fragment="header-title">
+      <span th:text="|#{room.title} - ${room.name != null ? room.name : '--'}|">Room Detail</span>
+    </div>
     <div layout:fragment="content">
       <div class="container-fluid">
         <!-- 1. Room Identity Card -->
