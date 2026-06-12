@@ -1,17 +1,13 @@
 # Rule Module (Tự động hóa theo Điều kiện)
 
 ## 1. Tổng quan
-Module **Rule** quản lý các kịch bản logic dựa trên trạng thái hệ thống. Đây là nơi xử lý các quy tắc "Nếu... thì...", ví dụ: "Nếu nhiệt độ > 30°C thì bật quạt cấp độ 3".
+Khác với các kịch bản chạy ngay lập tức, module **Rule (Quy tắc tự động)** giúp hệ thống liên tục giám sát và tự động đưa ra các phản hồi phù hợp với môi trường thực tế dựa trên nguyên lý **"Nếu... Thì..."**.
 
-*   **Vai trò của Quartz:** Đảm bảo hệ thống hoạt động liên tục bằng cách kích hoạt một Job quét định kỳ (Global Job).
-*   **Job & Processor:**
-    *   **RuleEngineJob:** Quét toàn bộ hệ thống định kỳ.
-    *   **RuleProcessor:** Đánh giá các điều kiện hiện tại của môi trường/thiết bị và thực thi hành động nếu điều kiện thỏa mãn.
+*Ví dụ:* "Nếu nhiệt độ phòng vượt quá 30°C **thì** tự động bật quạt máy."
 
-## 2. Đặc điểm cốt lõi: Global Period
-Điểm khác biệt quan trọng nhất của Rule so với Automation là cơ chế thời gian "hệ thống":
+## 2. Đặc điểm cốt lõi
 
-*   **Thời gian định kỳ (System Period):** Tất cả các Rules đều được kiểm tra trong cùng một chu kỳ thời gian (ví dụ: quét mỗi 5 phút/lần). Thời gian này do hệ thống cấu hình chung (`scanInterval`), người dùng không thể chỉnh sửa riêng lẻ.
-*   **Phụ thuộc điều kiện:** Thời gian chạy là cố định, nhưng hành động chỉ xảy ra khi điều kiện (Nhiệt độ, Độ ẩm, Trạng thái khác) được đáp ứng.
+*   **Chu kỳ kiểm tra linh hoạt cho từng quy tắc:** Mỗi quy tắc có thể thiết lập tần suất tự kiểm tra riêng biệt. Ví dụ, một quy tắc giám sát an toàn (rò rỉ khí gas, báo cháy) cần kiểm tra liên tục mỗi 5 giây, trong khi quy tắc tưới cây chỉ cần tự động chạy kiểm tra một lần mỗi ngày vào lúc 8h sáng.
+*   **Chỉ hành động khi đủ điều kiện:** Khi đến chu kỳ kiểm tra, hệ thống sẽ xem xét các thông số đo được (như nhiệt độ, ánh sáng, trạng thái thiết bị). Nếu các thông số này khớp với điều kiện đã đặt, hành động (bật/tắt thiết bị, gửi cảnh báo) mới được kích hoạt.
 
-**Tóm lại:** Rule là "Kiểm tra điều kiện mỗi X phút, nếu đúng thì làm việc Y".
+**Tóm lại:** Rule là tính năng giúp thiết bị tự động "tự kiểm tra điều kiện sau mỗi khoảng thời gian đã hẹn trước, và tự xử lý nếu điều kiện đó đúng".
