@@ -5,7 +5,6 @@
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/flatpickr.min.css}" />
   </head>
-  <body class="room-page">
     <div layout:fragment="header-title">
       <span th:text="|#{room.title} - ${room.name != null ? room.name : '--'}|">Room Detail</span>
     </div>
@@ -241,5 +240,4 @@
       <!-- Page JS -->
       <script type="module" th:src="@{/js/pages/room_detail/index.js}"></script>
     </th:block>
-  </body>
 </html>

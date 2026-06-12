@@ -11,9 +11,10 @@ const DS_BADGE = {
   SENSOR: 'bg-warning text-dark',
 };
 
+const OPERATOR_MAP = { '=': '=', '!=': '≠', '>': '>', '<': '<', '>=': '≥', '<=': '≤' };
+
 const formatOperator = (op) => {
-  const map = { '=': '=', '!=': '≠', '>': '>', '<': '<', '>=': '≥', '<=': '≤' };
-  return map[op] || op;
+  return OPERATOR_MAP[op] ?? op;
 };
 
 const formatResourceParam = (ds, param) => {
@@ -36,8 +37,7 @@ const formatResourceParam = (ds, param) => {
 const formatValue = (row) => {
   const val = row.value;
   if (row.dataSource === 'SYSTEM') {
-    const param =
-      typeof row.resourceParam === 'string' ? JSON.parse(row.resourceParam) : row.resourceParam;
+    const param = typeof row.resourceParam === 'string' ? JSON.parse(row.resourceParam) : row.resourceParam;
     const prop = param?.property;
     if (prop === 'current_time') {
       const num = parseFloat(val);
@@ -148,8 +148,7 @@ export const UiRenderer = (() => {
           hozAlign: 'center',
           formatter: (cell) => {
             const val = cell.getValue();
-            if (!val)
-              return `<div class="d-flex align-items-center justify-content-center h-100 text-muted">—</div>`;
+            if (!val) return `<div class="d-flex align-items-center justify-content-center h-100 text-muted">—</div>`;
             const cls = val === 'AND' ? 'bg-primary' : 'bg-orange';
             return `<div class="d-flex align-items-center justify-content-center h-100">
                       <span class="badge ${cls}">${val}</span>
@@ -167,9 +166,6 @@ export const UiRenderer = (() => {
               <div class="d-flex align-items-center justify-content-center h-100 gap-1">
                 <button class="btn btn-light btn-sm rounded-pill btn-cond-edit" data-id="${id}">
                   <i data-lucide="edit-3" class="lucide-sm text-primary"></i>
-                </button>
-                <button class="btn btn-light btn-sm rounded-pill btn-cond-delete" data-id="${id}">
-                  <i data-lucide="trash-2" class="lucide-sm text-danger"></i>
                 </button>
               </div>`;
           },

@@ -252,7 +252,8 @@
       }
 
       const sidebarWrapper = document.querySelector('.sidebar-wrapper');
-      if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined') {
+      const isMobile = window.innerWidth <= 992;
+      if (sidebarWrapper && typeof OverlayScrollbarsGlobal?.OverlayScrollbars !== 'undefined' && !isMobile) {
         OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
           scrollbars: {
             theme: 'os-theme-light',

@@ -4,12 +4,11 @@
 		<title th:text="#{index.title}">Dashboard</title>
 		<link rel="stylesheet" th:href="@{/css/pages/dashboard.css}" />
 	</head>
-	<body class="dashboard-page">
 		<div layout:fragment="header-title">
 			<span th:text="#{index.title}">Dashboard</span>
 		</div>
 
-		<div layout:fragment="content">
+		<div layout:fragment="content" class="dashboard-page">
 			<!-- Summary Metrics Row -->
 			<div id="summary-container" class="row mb-4">
 				<!-- Dynamically Rendered via index.js -->
@@ -67,5 +66,4 @@
 			</script>
 			<script type="module" th:src="@{/js/pages/index.js}"></script>
 		</th:block>
-	</body>
 </html>
