@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.light.CreateLightDto;
 import com.iviet.ivshs.dto.light.LightControlRequestBody;
 import com.iviet.ivshs.dto.light.LightDto;
 import com.iviet.ivshs.dto.light.UpdateLightDto;
-import com.iviet.ivshs.service.light.LightControlService;
+import com.iviet.ivshs.service.control.LightControlService;
 import com.iviet.ivshs.service.light.LightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

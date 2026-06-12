@@ -6,10 +6,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
@@ -40,8 +38,6 @@ import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 @ComponentScan(basePackages = {
         "com.iviet.ivshs.controller.view",
         "com.iviet.ivshs.shared.exception.handler"
-}, excludeFilters = {
-        @Filter(type = FilterType.REGEX, pattern = "com\\.iviet\\.ivshs\\.shared\\.logging\\.RestRequestLoggingAspect")
 })
 public class WebMvcViewConfig implements WebMvcConfigurer, ApplicationContextAware {
 

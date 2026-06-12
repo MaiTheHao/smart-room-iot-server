@@ -3,7 +3,7 @@ package com.iviet.ivshs.controller.api.v1;
 import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
 import com.iviet.ivshs.dto.aircondition.AirConditionDto;
 import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
-import com.iviet.ivshs.service.aircondition.AirConditionControlService;
+import com.iviet.ivshs.service.control.AirConditionControlService;
 import com.iviet.ivshs.service.aircondition.AirConditionService;
 import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
 import com.iviet.ivshs.dto.common.ApiResponse;

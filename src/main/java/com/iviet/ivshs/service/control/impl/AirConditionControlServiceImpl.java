@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.aircondition.impl;
+package com.iviet.ivshs.service.control.impl;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.integration.gateway.GatewayAcControlClient;
-import com.iviet.ivshs.service.aircondition.AirConditionControlService;
+import com.iviet.ivshs.service.control.AirConditionControlService;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;

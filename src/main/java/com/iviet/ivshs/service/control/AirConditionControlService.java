@@ -1,8 +1,7 @@
-package com.iviet.ivshs.service.aircondition;
+package com.iviet.ivshs.service.control;
 
 import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
-import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;

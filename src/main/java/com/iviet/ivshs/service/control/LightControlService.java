@@ -1,8 +1,7 @@
-package com.iviet.ivshs.service.light;
+package com.iviet.ivshs.service.control;
 
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import com.iviet.ivshs.dto.light.LightControlRequestBody;
-import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 
 public interface LightControlService extends DeviceControlServiceStrategy<LightControlRequestBody> {

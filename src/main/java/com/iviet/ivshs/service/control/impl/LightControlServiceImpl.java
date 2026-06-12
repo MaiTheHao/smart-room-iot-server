@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.light.impl;
+package com.iviet.ivshs.service.control.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import com.iviet.ivshs.integration.gateway.GatewayLightControlClient;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
-import com.iviet.ivshs.service.light.LightControlService;
+import com.iviet.ivshs.service.control.LightControlService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
