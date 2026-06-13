@@ -11,86 +11,103 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.iviet.ivshs.core.properties.SecurityProperties;
+import com.iviet.ivshs.dto.auth.CustomUserDetails;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Slf4j
-@RequiredArgsConstructor
+@Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    private final SecurityProperties securityProperties;
+    private final SecurityProperties.RateLimiter rateLimiter;
+    private final Cache<String, Bucket> cache;
 
-    private final Cache<String, Bucket> cache = Caffeine.newBuilder()
-            .expireAfterAccess(10, TimeUnit.MINUTES)
-            .maximumSize(10000)
-            .build();
+    public RateLimitingFilter(SecurityProperties.RateLimiter rateLimiter) {
+        this.rateLimiter = rateLimiter;
+        this.cache = Caffeine.newBuilder()
+                .expireAfterAccess(rateLimiter.getCacheExpireMinutes(), TimeUnit.MINUTES)
+                .maximumSize(rateLimiter.getCacheMaxSize())
+                .build();
+    }
 
     private Bucket createNewBucket(String path) {
         if (isHighFrequencyPath(path)) {
             return Bucket.builder()
-                    .addLimit(Bandwidth.classic(60, Refill.intervally(60, Duration.ofMinutes(1))))
+                    .addLimit(
+                            Bandwidth.builder()
+                                    .capacity(rateLimiter.getHighFrequencyCapacity())
+                                    .refillIntervally(1, Duration.ofMillis(rateLimiter.getHighFrequencyRefillPeriodMs()))
+                                    .build())
                     .build();
         }
         return Bucket.builder()
-                .addLimit(Bandwidth.classic(20, Refill.intervally(20, Duration.ofMinutes(1))))
+                .addLimit(
+                        Bandwidth.builder()
+                                .capacity(rateLimiter.getNormalCapacity())
+                                .refillIntervally(1, Duration.ofMillis(rateLimiter.getNormalRefillPeriodMs()))
+                                .build())
                 .build();
     }
 
     private boolean isHighFrequencyPath(String path) {
-        return path.contains("/telemetries") ||
-                path.contains("/metrics") ||
-                path.contains("/power-consumptions") ||
-                path.contains("/temperatures") ||
-                path.contains("/telemetry");
+        return path.contains("/telemetries") || path.contains("/metrics") || path.contains("/power-consumptions") || path.contains("/temperatures") || path.contains("/telemetry");
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull
+    HttpServletRequest request, @NonNull
+    HttpServletResponse response, @NonNull
+    FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
 
         if (path.startsWith("/api/")) {
-            if (!securityProperties.isRateLimitEnabled()) {
+            if (!rateLimiter.isEnabled()) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            String ip = getClientIp(request);
+            String clientKey = getClientKey(request);
             String type = isHighFrequencyPath(path) ? "iot" : "gen";
-            String cacheKey = ip + ":" + type;
+            String cacheKey = clientKey + ":" + type;
 
             Bucket bucket = cache.get(cacheKey, k -> createNewBucket(path));
 
+            log.debug("Rate limiting - ClientKey: {}, Path: {}, Type: {}", clientKey, path, type);
             if (bucket.tryConsume(1)) {
+                log.debug("Rate limit success - ClientKey: {}, Path: {}, Type: {}, Available: {}", clientKey, path, type, bucket.getAvailableTokens());
+
                 filterChain.doFilter(request, response);
             } else {
-                log.debug("Rate limit exceeded - IP: {}, Path: {}, Type: {}", ip, path, type);
+                log.debug("Rate limit exceeded - ClientKey: {}, Path: {}, Type: {}, Available: {}", clientKey, path, type, bucket.getAvailableTokens());
 
                 response.setStatus(429);
                 response.setHeader("Retry-After", "60");
                 response.setContentType("application/json; charset=UTF-8");
                 String traceId = org.slf4j.MDC.get("traceId");
-                response.getWriter().write(String.format(
-                        "{\"error\": \"Too many requests\", \"message\": \"System is busy, please try again later\", \"traceId\": \"%s\"}",
-                        traceId != null ? traceId : ""));
+                response.getWriter()
+                        .write(String.format("{\"error\": \"Too many requests\", \"message\": \"System is busy, please try again later\", \"traceId\": \"%s\"}", traceId != null ? traceId : ""));
             }
         } else {
             filterChain.doFilter(request, response);
         }
+    }
+
+    private String getClientKey(HttpServletRequest request) {
+        Authentication auth = SecurityContextHolder.getContext()
+                .getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return String.valueOf(userDetails.getId());
+        }
+        return getClientIp(request);
     }
 
     private String getClientIp(HttpServletRequest request) {

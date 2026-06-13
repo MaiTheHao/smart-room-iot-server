@@ -26,67 +26,55 @@ import jakarta.servlet.ServletRegistration;
 
 public class SmrcApplication implements WebApplicationInitializer {
 
-  @Override
-  public void onStartup(ServletContext servletContext) throws ServletException {
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
 
-    // Cấu hình Root Context
-    AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-    rootContext.register(
-        ApplicationConfig.class,
-        DataSourceConfig.class,
-        WebSecurityConfig.class,
-        QuartzSchedulerConfig.class,
-        RestClientConfig.class);
+        // Cấu hình Root Context
+        AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
+        rootContext.register(ApplicationConfig.class, DataSourceConfig.class, WebSecurityConfig.class, QuartzSchedulerConfig.class, RestClientConfig.class);
 
-    servletContext.addListener(new ContextLoaderListener(rootContext));
+        servletContext.addListener(new ContextLoaderListener(rootContext));
 
-    // Cấu hình API Dispatcher Context
-    AnnotationConfigWebApplicationContext apiContext = new AnnotationConfigWebApplicationContext();
-    apiContext.register(WebMvcApiConfig.class);
-    apiContext.setParent(rootContext);
-    // Cấu hình API Dispatcher
-    DispatcherServlet apiDispatcher = new DispatcherServlet(apiContext);
-    ServletRegistration.Dynamic apiReg = servletContext.addServlet("apiDispatcher", apiDispatcher);
-    apiReg.setLoadOnStartup(1);
-    apiReg.addMapping("/api/*");
-    apiReg.setInitParameter("throwExceptionIfNoHandlerFound", "true");
+        // Cấu hình API Dispatcher Context
+        AnnotationConfigWebApplicationContext apiContext = new AnnotationConfigWebApplicationContext();
+        apiContext.register(WebMvcApiConfig.class);
+        apiContext.setParent(rootContext);
+        // Cấu hình API Dispatcher
+        DispatcherServlet apiDispatcher = new DispatcherServlet(apiContext);
+        ServletRegistration.Dynamic apiReg = servletContext.addServlet("apiDispatcher", apiDispatcher);
+        apiReg.setLoadOnStartup(1);
+        apiReg.addMapping("/api/*");
+        apiReg.setInitParameter("throwExceptionIfNoHandlerFound", "true");
 
-    // Cấu hình Web Dispatcher Context
-    AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
-    webContext.register(WebMvcViewConfig.class);
-    webContext.setParent(rootContext);
-    // Cấu hình Web Dispatcher
-    DispatcherServlet webDispatcher = new DispatcherServlet(webContext);
-    ServletRegistration.Dynamic webReg = servletContext.addServlet("webDispatcher", webDispatcher);
-    webReg.setLoadOnStartup(2);
-    webReg.addMapping("/*");
-    webReg.setInitParameter("throwExceptionIfNoHandlerFound", "true");
-    webReg.setMultipartConfig(new MultipartConfigElement(
-        "",
-        5242880,
-        20971520,
-        0));
+        // Cấu hình Web Dispatcher Context
+        AnnotationConfigWebApplicationContext webContext = new AnnotationConfigWebApplicationContext();
+        webContext.register(WebMvcViewConfig.class);
+        webContext.setParent(rootContext);
+        // Cấu hình Web Dispatcher
+        DispatcherServlet webDispatcher = new DispatcherServlet(webContext);
+        ServletRegistration.Dynamic webReg = servletContext.addServlet("webDispatcher", webDispatcher);
+        webReg.setLoadOnStartup(2);
+        webReg.addMapping("/*");
+        webReg.setInitParameter("throwExceptionIfNoHandlerFound", "true");
+        webReg.setMultipartConfig(new MultipartConfigElement("", 5242880, 20971520, 0));
 
-    // Cấu hình Encoding Filter
-    CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
-    encodingFilter.setEncoding("UTF-8");
-    encodingFilter.setForceEncoding(true);
-    FilterRegistration.Dynamic encodingReg = servletContext.addFilter("encodingFilter", encodingFilter);
-    encodingReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        // Cấu hình Encoding Filter
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
+        encodingFilter.setEncoding("UTF-8");
+        encodingFilter.setForceEncoding(true);
+        FilterRegistration.Dynamic encodingReg = servletContext.addFilter("encodingFilter", encodingFilter);
+        encodingReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 
-    // Cấu hình Request Trace Filter
-    FilterRegistration.Dynamic traceReg = servletContext.addFilter("requestTraceFilter",
-        new DelegatingFilterProxy("requestTraceFilter"));
-    traceReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        // Cấu hình Request Trace Filter
+        FilterRegistration.Dynamic traceReg = servletContext.addFilter("requestTraceFilter", new DelegatingFilterProxy("requestTraceFilter"));
+        traceReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 
-    // Cấu hình Rate Limiting Filter
-    FilterRegistration.Dynamic rateLimitReg = servletContext.addFilter("rateLimitingFilter",
-        new DelegatingFilterProxy("rateLimitingFilter"));
-    rateLimitReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        // Cấu hình Security Filter
+        FilterRegistration.Dynamic securityReg = servletContext.addFilter("springSecurityFilterChain", new DelegatingFilterProxy("springSecurityFilterChain"));
+        securityReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 
-    // Cấu hình Security Filter
-    FilterRegistration.Dynamic securityReg = servletContext.addFilter("springSecurityFilterChain",
-        new DelegatingFilterProxy("springSecurityFilterChain"));
-    securityReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
-  }
+        // Cấu hình Rate Limiting Filter
+        FilterRegistration.Dynamic rateLimitReg = servletContext.addFilter("rateLimitingFilter", new DelegatingFilterProxy("rateLimitingFilter"));
+        rateLimitReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+    }
 }
