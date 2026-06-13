@@ -38,17 +38,19 @@ public class RoomViewServiceImpl implements RoomViewService {
     Instant startedAt = endedAt.minusSeconds(engineProperties.getRoomStatusLookbackSeconds());
     var room = roomService.getById(req.getRoomId());
 
-    Double lastestAvgTemperature = null;
+    Double latestAvgTemperature = null;
     try {
-      lastestAvgTemperature = temperatureValueDao.getAverageHistoryByRoom(req.getRoomId(), startedAt, endedAt,
-          TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt)).getLast().avgTempC();
+      latestAvgTemperature = temperatureValueDao.getAverageHistoryByRoom(req.getRoomId(), startedAt, endedAt, TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt))
+          .getLast()
+          .avgTempC();
     } catch (Exception e) {
     }
 
     Double latestSumWatt = null;
     try {
-      latestSumWatt = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, req.getRoomId(), startedAt, endedAt,
-          TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt)).getLast().getPower();
+      latestSumWatt = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, req.getRoomId(), startedAt, endedAt, TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt))
+          .getLast()
+          .getPower();
     } catch (Exception e) {
     }
 
@@ -56,8 +58,8 @@ public class RoomViewServiceImpl implements RoomViewService {
 
     return RoomDetailViewModel.builder()
         .room(room)
-        .lastestAvgTemperature(lastestAvgTemperature)
-        .lastestSumWatt(latestSumWatt)
+        .latestAvgTemperature(latestAvgTemperature)
+        .latestSumWatt(latestSumWatt)
         .healthScore(healthScore)
         .build();
   }

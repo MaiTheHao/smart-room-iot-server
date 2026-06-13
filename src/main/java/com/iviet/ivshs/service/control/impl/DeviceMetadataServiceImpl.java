@@ -61,13 +61,15 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
             }
         }) : CompletableFuture.completedFuture(Collections.emptyList());
 
-        return CompletableFuture.allOf(lightFuture, fanFuture, acFuture).thenApply(v -> {
-            List<Object> all = new ArrayList<>();
-            all.addAll(lightFuture.join());
-            all.addAll(fanFuture.join());
-            all.addAll(acFuture.join());
-            return all;
-        }).join();
+        return CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
+                .thenApply(v -> {
+                    List<Object> all = new ArrayList<>();
+                    all.addAll(lightFuture.join());
+                    all.addAll(fanFuture.join());
+                    all.addAll(acFuture.join());
+                    return all;
+                })
+                .join();
     }
 
     @Override
@@ -101,13 +103,15 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
             }
         }) : CompletableFuture.completedFuture(Collections.emptyList());
 
-        return CompletableFuture.allOf(lightFuture, fanFuture, acFuture).thenApply(v -> {
-            List<Object> all = new ArrayList<>();
-            all.addAll(lightFuture.join());
-            all.addAll(fanFuture.join());
-            all.addAll(acFuture.join());
-            return all;
-        }).join();
+        return CompletableFuture.allOf(lightFuture, fanFuture, acFuture)
+                .thenApply(v -> {
+                    List<Object> all = new ArrayList<>();
+                    all.addAll(lightFuture.join());
+                    all.addAll(fanFuture.join());
+                    all.addAll(acFuture.join());
+                    return all;
+                })
+                .join();
     }
 
     @Override

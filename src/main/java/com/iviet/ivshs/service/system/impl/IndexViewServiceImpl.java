@@ -12,13 +12,13 @@ import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.common.IndexViewModel;
+import com.iviet.ivshs.dto.room.RoomDto;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.floor.FloorService;
+import com.iviet.ivshs.service.control.DeviceMetadataService;
 import com.iviet.ivshs.service.room.RoomService;
 import com.iviet.ivshs.service.system.IndexViewService;
-import com.iviet.ivshs.shared.util.LocalContextUtil;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -31,6 +31,7 @@ public class IndexViewServiceImpl implements IndexViewService {
 	private final HardwareConfigDao hardwareConfigDao;
 	private final TemperatureValueDao temperatureValueDao;
 	private final EnergyMetricDao energyMetricDao;
+	private final DeviceMetadataService deviceMetadataService;
 
 	@Override
 	public IndexViewModel getModel() {
@@ -40,7 +41,7 @@ public class IndexViewServiceImpl implements IndexViewService {
 		var floors = floorService.getAll();
 		var rooms = roomService.getAll();
 
-		Map<Long, List<com.iviet.ivshs.dto.room.RoomDto>> floorRoomMap = (floors == null) ? Map.of()
+		Map<Long, List<RoomDto>> floorRoomMap = (floors == null) ? Map.of()
 				: floors.stream()
 						.collect(
 								Collectors.toMap(
@@ -55,11 +56,11 @@ public class IndexViewServiceImpl implements IndexViewService {
 		Map<Long, IndexViewModel.RoomInfo> roomInfoMap = (rooms == null) ? Map.of()
 				: rooms.stream()
 						.collect(Collectors.toMap(room -> room.id(), room -> {
-							Long hardwareCount = hardwareConfigDao.countByRoomId(room.id());
+							Long deviceCount = deviceMetadataService.getCountByRoomId(room.id());
 							int divisor = TelemetryTimeGroup.getDivisorForRange(startedAt, endedAt);
 
 							var tempHistory = temperatureValueDao.getAverageHistoryByRoom(room.id(), startedAt, endedAt, divisor);
-							Double lastestAvgTemperature = (tempHistory != null && !tempHistory.isEmpty()) ? tempHistory.get(tempHistory.size() - 1)
+							Double latestAvgTemperature = (tempHistory != null && !tempHistory.isEmpty()) ? tempHistory.get(tempHistory.size() - 1)
 									.avgTempC() : null;
 
 							var energyHistory = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, room.id(), startedAt, endedAt, divisor);
@@ -67,8 +68,8 @@ public class IndexViewServiceImpl implements IndexViewService {
 									.getPower() : null;
 
 							return IndexViewModel.RoomInfo.builder()
-									.hardwareCount(hardwareCount)
-									.latestAvgTemperature(lastestAvgTemperature)
+									.deviceCount(deviceCount)
+									.latestAvgTemperature(latestAvgTemperature)
 									.latestSumWatt(latestSumWatt)
 									.build();
 						}));

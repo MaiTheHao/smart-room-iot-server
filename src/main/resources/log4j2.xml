@@ -6,7 +6,7 @@
     
     <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p [%X{traceId}] [%X{scenarioId}] [%c{1}]:%L - %msg%n</Property>
     
-    <Property name="MAX_FILE_SIZE">10MB</Property>
+    <Property name="MAX_FILE_SIZE">1MB</Property>
     <Property name="MAX_ROLLOVER">10</Property>
   </Properties>
 

@@ -9,19 +9,14 @@ import java.util.HashMap;
 import lombok.Builder;
 
 @Builder
-public record RoomDetailViewModel(
-	RoomDto room,
-	Double lastestAvgTemperature,
-	Double lastestSumWatt,
-	Integer healthScore
-) {
+public record RoomDetailViewModel(RoomDto room, Double latestAvgTemperature, Double latestSumWatt, Integer healthScore) {
 
 	@NonNull
 	public Map<String, Object> toModelAttributes() {
 		HashMap<String, Object> attributes = new HashMap<>();
 		attributes.put("room", room);
-		attributes.put("lastestAvgTemperature", lastestAvgTemperature);
-		attributes.put("lastestSumWatt", lastestSumWatt);
+		attributes.put("latestAvgTemperature", latestAvgTemperature);
+		attributes.put("latestSumWatt", latestSumWatt);
 		attributes.put("healthScore", healthScore);
 		return attributes;
 	}

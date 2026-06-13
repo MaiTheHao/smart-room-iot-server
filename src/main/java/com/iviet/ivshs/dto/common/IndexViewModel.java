@@ -17,7 +17,7 @@ public record IndexViewModel(List<FloorDto> floors, Map<Long, List<RoomDto>> flo
   @Data
   @Builder
   public static class RoomInfo {
-    private Long hardwareCount;
+    private Long deviceCount;
     private Double latestAvgTemperature;
     private Double latestSumWatt;
   }

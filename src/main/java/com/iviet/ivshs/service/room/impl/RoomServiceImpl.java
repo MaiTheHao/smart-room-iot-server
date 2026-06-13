@@ -4,6 +4,7 @@ import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.metric.EnergyMetricDto;
 import com.iviet.ivshs.dto.permission.CreateSysFunctionDto;
 import com.iviet.ivshs.dto.room.CreateRoomDto;
+import com.iviet.ivshs.dto.room.RoomDeviceCountDto;
 import com.iviet.ivshs.dto.room.RoomDto;
 import com.iviet.ivshs.dto.room.RoomStatusDto;
 import com.iviet.ivshs.dto.room.UpdateRoomDto;
@@ -106,7 +107,7 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	@Override
-	public List<com.iviet.ivshs.dto.room.RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds) {
+	public List<RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds) {
 		return roomDao.getDeviceCountsByRoomIds(roomIds);
 	}
 
