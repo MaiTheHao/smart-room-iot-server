@@ -37,7 +37,6 @@ export const DeviceCard = {
 
   renderCommonCard(device, isActive, controlPaneHtml) {
     const i18n = StateManager.getI18n();
-    console.log(device);
 
     return `
       <div class="px-2 py-3 device-item" data-id="${device.id}" data-natural-id="${device.naturalId}" data-category="${device.category}">
@@ -55,12 +54,8 @@ export const DeviceCard = {
                   </div>
               </div>
               <div class="d-flex align-items-center gap-3 ms-3">
-                  <div class="position-relative">
-                      <input type="checkbox" class="btn-check master-switch" id="switch${device.naturalId}" ${isActive ? 'checked' : ''} autocomplete="off">
-                      <label class="btn ${isActive ? 'btn-success border-success' : 'btn-outline-secondary'} rounded-pill px-3 py-1 d-flex align-items-center gap-2 shadow-sm" for="switch${device.naturalId}" style="font-size: 0.75rem; border-width: 1px">
-                          <i data-lucide="power" style="width: 14px; height: 14px"></i>
-                          <span class="fw-bold">${isActive ? i18n.on : i18n.off}</span>
-                      </label>
+                  <div class="form-check form-switch switch-ios mb-0">
+                      <input type="checkbox" class="form-check-input master-switch" id="switch${device.naturalId}" role="switch" ${isActive ? 'checked' : ''} autocomplete="off">
                   </div>
                   <button class="btn btn-link text-muted p-0 border-0" data-bs-toggle="collapse" data-bs-target="#deviceContent${device.naturalId}">
                       <i data-lucide="chevron-down" style="width: 18px"></i>
@@ -124,11 +119,9 @@ export const DeviceCard = {
     }
 
     const label = card.querySelector(`label[for="switch${device.naturalId}"]`);
-    const statusText = label?.querySelector('span');
 
     if (label) {
-      label.className = `btn ${isActive ? 'btn-success border-success' : 'btn-outline-secondary'} rounded-pill px-3 py-1 d-flex align-items-center gap-2 shadow-sm`;
-      if (statusText) statusText.textContent = isActive ? i18n.on : i18n.off;
+      label.className = `form-check-label text-muted small fw-bold`;
     }
 
     const inputs = card.querySelectorAll('input:not(.master-switch):not(.device-chart-range), button:not([data-bs-toggle]):not(.chart-type-group button)');

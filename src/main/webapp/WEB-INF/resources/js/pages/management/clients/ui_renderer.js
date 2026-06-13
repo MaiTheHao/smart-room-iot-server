@@ -47,6 +47,7 @@ export const UiRenderer = (() => {
           title: i18n.colId,
           field: 'id',
           width: 80,
+          minWidth: 60,
           hozAlign: 'center',
           formatter: (cell) =>
             `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-medium text-muted">#${cell.getValue()}</span></div>`,
@@ -56,6 +57,7 @@ export const UiRenderer = (() => {
           field: 'username',
           headerFilter: 'input',
           headerFilterPlaceholder: i18n.placeholderSearch,
+          minWidth: 150,
           formatter: (cell) => {
             const client = cell.getData();
             const avatarUrl =
@@ -79,6 +81,7 @@ export const UiRenderer = (() => {
               HARDWARE_GATEWAY: i18n.typeGateway || 'Gateway',
             },
           },
+          minWidth: 120,
           formatter: (cell) => {
             const value = cell.getValue();
             const isUser = value === constants.CLIENT_TYPE?.USER;
@@ -100,6 +103,7 @@ export const UiRenderer = (() => {
           title: i18n.colIp,
           field: 'ipAddress',
           headerFilter: 'input',
+          minWidth: 120,
           formatter: (cell) =>
             `<div class="d-flex align-items-center h-100"><span class="font-monospace small text-muted">${cell.getValue() || '--'}</span></div>`,
         },
@@ -107,12 +111,14 @@ export const UiRenderer = (() => {
           title: i18n.colMac,
           field: 'macAddress',
           headerFilter: 'input',
+          minWidth: 140,
           formatter: (cell) =>
             `<div class="d-flex align-items-center h-100"><span class="font-monospace small text-muted">${cell.getValue() || '--'}</span></div>`,
         },
         {
           title: i18n.colLastLogin,
           field: 'lastLoginAt',
+          minWidth: 150,
           formatter: (cell) => {
             const val = cell.getValue();
             return `<div class="d-flex align-items-center h-100">${val ? new Date(val).toLocaleString() : `<span class="text-muted small">${i18n.never || 'Never'}</span>`}</div>`;
@@ -123,6 +129,7 @@ export const UiRenderer = (() => {
           hozAlign: 'center',
           headerSort: false,
           width: 200,
+          responsive: 0,
           formatter: (cell) => {
             const data = cell.getData();
             const isGateway = data.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY;

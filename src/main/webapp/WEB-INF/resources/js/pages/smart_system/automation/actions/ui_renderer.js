@@ -32,6 +32,7 @@ export const UiRenderer = (() => {
           title: i18n.colOrder,
           field: 'executionOrder',
           width: 120,
+          minWidth: 80,
           hozAlign: 'center',
           formatter: (cell) =>
             `<div class="d-flex align-items-center justify-content-center h-100"><span class="badge bg-light text-dark border">${cell.getValue()}</span></div>`,
@@ -39,6 +40,7 @@ export const UiRenderer = (() => {
         {
           title: i18n.colTargetDevice,
           field: 'targetName',
+          minWidth: 150,
           formatter: (cell) => {
             const data = cell.getRow().getData();
             const val = data.targetName || `Device #${data.targetId}`;
@@ -50,6 +52,7 @@ export const UiRenderer = (() => {
           title: i18n.colType,
           field: 'targetType',
           width: 170,
+          minWidth: 120,
           formatter: (cell) =>
             `<div class="d-flex align-items-center h-100"><span class="badge bg-secondary">${cell.getValue()}</span></div>`,
         },
@@ -57,6 +60,7 @@ export const UiRenderer = (() => {
           title: i18n.colAction,
           field: 'actionType',
           width: 150,
+          minWidth: 100,
           formatter: (cell) => {
             const val = cell.getValue();
             const colorClass =
@@ -67,6 +71,7 @@ export const UiRenderer = (() => {
         {
           title: i18n.colParams,
           field: 'parameterValue',
+          minWidth: 120,
           formatter: (cell) => {
             const val = cell.getValue() || '';
             const truncated = val.length > 25 ? val.substring(0, 25) + '...' : val;
@@ -78,6 +83,7 @@ export const UiRenderer = (() => {
           hozAlign: 'center',
           headerSort: false,
           width: 150,
+          responsive: 0,
           formatter: (cell) => {
             const id = cell.getData()._localId;
             return `

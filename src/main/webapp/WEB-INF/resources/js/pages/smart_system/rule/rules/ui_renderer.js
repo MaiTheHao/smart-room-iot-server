@@ -36,16 +36,15 @@ export const UiRenderer = (() => {
         {
           title: i18n.colId,
           field: 'id',
-          width: 80,
+          minWidth: 60,
           hozAlign: 'center',
-          formatter: (cell) =>
-            `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-medium text-muted">#${cell.getValue()}</span></div>`,
+          formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-medium text-muted">#${cell.getValue()}</span></div>`,
         },
         {
           title: i18n.colName,
           field: 'name',
           headerFilter: 'input',
-          minWidth: 150,
+          minWidth: 120,
           formatter: (cell) => {
             return `<div class="d-flex flex-column justify-content-center h-100 py-1">
                       <div class="fw-bold text-dark small">${cell.getValue()}</div>
@@ -55,29 +54,28 @@ export const UiRenderer = (() => {
         {
           title: i18n.colPriority,
           field: 'priority',
-          width: 150,
+          minWidth: 100,
           hozAlign: 'center',
-          formatter: (cell) =>
-            `<div class="d-flex align-items-center justify-content-center h-100"><span class="badge bg-secondary rounded-pill">${cell.getValue() !== undefined ? cell.getValue() : 1}</span></div>`,
+          formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="badge bg-secondary rounded-pill">${cell.getValue() !== undefined ? cell.getValue() : 1}</span></div>`,
         },
         {
           title: i18n.colInterval,
           field: 'intervalSeconds',
-          width: 150,
+          minWidth: 100,
           hozAlign: 'center',
-          formatter: (cell) =>
-            `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-semibold text-primary">${cell.getValue() || 60}s</span></div>`,
+          formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-semibold text-primary">${cell.getValue() || 60}s</span></div>`,
         },
         {
           title: i18n.colStatus,
           field: 'isActive',
           width: 150,
+          minWidth: 100,
           hozAlign: 'center',
           formatter: (cell) => {
             const isActive = cell.getValue();
             return `<div class="d-flex align-items-center justify-content-center h-100">
-                      <div class="form-check form-switch m-0">
-                        <input class="form-check-input btn-toggle-status" type="checkbox" data-id="${cell.getData().id}" ${isActive ? 'checked' : ''} title="Toggle Active">
+                      <div class="form-check form-switch switch-ios m-0">
+                        <input class="form-check-input btn-toggle-status" type="checkbox" role="switch" data-id="${cell.getData().id}" ${isActive ? 'checked' : ''} title="Toggle Active">
                       </div>
                     </div>`;
           },
@@ -87,6 +85,7 @@ export const UiRenderer = (() => {
           hozAlign: 'center',
           headerSort: false,
           width: 250,
+          responsive: 0,
           formatter: (cell) => {
             const data = cell.getData();
             return `

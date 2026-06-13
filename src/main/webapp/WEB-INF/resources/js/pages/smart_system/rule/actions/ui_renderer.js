@@ -32,6 +32,7 @@ export const UiRenderer = (() => {
                     title: i18n.colOrder,
                     field: 'executionOrder',
                     width: 100,
+                    minWidth: 80,
                     hozAlign: 'center',
                     formatter: (cell) =>
                         `<div class="d-flex align-items-center justify-content-center h-100">
@@ -41,6 +42,7 @@ export const UiRenderer = (() => {
                 {
                     title: i18n.colTargetDevice,
                     field: 'targetName',
+                    minWidth: 150,
                     formatter: (cell) => {
                         const val = cell.getValue();
                         const rowData = cell.getData();
@@ -52,6 +54,7 @@ export const UiRenderer = (() => {
                     title: i18n.colType,
                     field: 'targetDeviceCategory',
                     width: 170,
+                    minWidth: 120,
                     formatter: (cell) => {
                         const val = cell.getValue();
                         const colorMap = {
@@ -66,6 +69,7 @@ export const UiRenderer = (() => {
                 {
                     title: i18n.colParams,
                     field: 'actionParams',
+                    minWidth: 150,
                     formatter: (cell) => {
                         const val = cell.getValue();
                         if (!val || (typeof val === 'object' && Object.keys(val).length === 0)) {
@@ -81,6 +85,7 @@ export const UiRenderer = (() => {
                     hozAlign: 'center',
                     headerSort: false,
                     width: 150,
+                    responsive: 0,
                     formatter: (cell) => {
                         const id = cell.getData()._localId;
                         return `

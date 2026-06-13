@@ -94,6 +94,7 @@ export const UiRenderer = (() => {
           title: '#',
           field: 'sortOrder',
           width: 60,
+          minWidth: 50,
           hozAlign: 'center',
           formatter: (cell) =>
             `<div class="d-flex align-items-center justify-content-center h-100">
@@ -104,6 +105,7 @@ export const UiRenderer = (() => {
           title: i18n.colDataSource,
           field: 'dataSource',
           width: 140,
+          minWidth: 100,
           formatter: (cell) => {
             const val = cell.getValue();
             const cls = DS_BADGE[val] || 'bg-secondary';
@@ -125,6 +127,7 @@ export const UiRenderer = (() => {
           title: i18n.colOperator,
           field: 'operator',
           width: 150,
+          minWidth: 100,
           hozAlign: 'center',
           formatter: (cell) =>
             `<div class="d-flex align-items-center justify-content-center h-100">
@@ -135,6 +138,7 @@ export const UiRenderer = (() => {
           title: i18n.colValue,
           field: 'value',
           width: 150,
+          minWidth: 100,
           hozAlign: 'center',
           formatter: (cell) => {
             const text = formatValue(cell.getData());
@@ -145,6 +149,7 @@ export const UiRenderer = (() => {
           title: i18n.colLogic,
           field: 'nextLogic',
           width: 150,
+          minWidth: 100,
           hozAlign: 'center',
           formatter: (cell) => {
             const val = cell.getValue();
@@ -160,6 +165,7 @@ export const UiRenderer = (() => {
           hozAlign: 'center',
           headerSort: false,
           width: 250,
+          responsive: 0,
           formatter: (cell) => {
             const id = cell.getData()._localId;
             return `

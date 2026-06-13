@@ -38,6 +38,7 @@ export const Datatable = (() => {
 					title: i18n.colId,
 					field: 'id',
 					width: 80,
+					minWidth: 60,
 					hozAlign: 'center',
 					formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-medium text-muted">#${cell.getValue()}</span></div>`,
 				},
@@ -45,6 +46,7 @@ export const Datatable = (() => {
 					title: i18n.colName,
 					field: 'name',
 					headerFilter: 'input',
+					minWidth: 150,
 					formatter: (cell) => {
                         const data = cell.getData();
                         const val = cell.getValue() || '';
@@ -61,6 +63,7 @@ export const Datatable = (() => {
 					title: i18n.colCron,
 					field: 'cronExpression',
 					width: 220,
+					minWidth: 160,
 					formatter: (cell) => {
                         const cron = cell.getValue();
                         const parsed = CronUtils.fromCron(cron);
@@ -101,12 +104,13 @@ export const Datatable = (() => {
 					title: i18n.colStatus,
 					field: 'isActive',
 					width: 120,
+					minWidth: 100,
 					hozAlign: 'center',
 					formatter: (cell) => {
 						const isActive = cell.getValue();
 						return `<div class="d-flex align-items-center justify-content-center h-100">
-                                    <div class="form-check form-switch m-0">
-                                        <input class="form-check-input btn-toggle-status" type="checkbox" data-id="${cell.getData().id}" ${isActive ? 'checked' : ''} title="Toggle Active">
+                                    <div class="form-check form-switch switch-ios m-0">
+                                        <input class="form-check-input btn-toggle-status" type="checkbox" role="switch" data-id="${cell.getData().id}" ${isActive ? 'checked' : ''} title="Toggle Active">
                                     </div>
                                 </div>`;
 					},
@@ -116,6 +120,7 @@ export const Datatable = (() => {
 					hozAlign: 'center',
 					headerSort: false,
 					width: 200,
+					responsive: 0,
 					formatter: (cell) => {
 						const data = cell.getData();
 						return `

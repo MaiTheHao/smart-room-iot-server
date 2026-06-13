@@ -39,6 +39,7 @@ export const UiRenderer = (() => {
 					title: i18n.colId,
 					field: 'id',
 					width: 80,
+					minWidth: 60,
 					hozAlign: 'center',
 					formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-medium text-muted">#${cell.getValue()}</span></div>`,
 				},
@@ -47,12 +48,14 @@ export const UiRenderer = (() => {
 					field: 'name',
 					headerFilter: 'input',
 					headerFilterPlaceholder: i18n.placeholderSearch,
+					minWidth: 150,
 					formatter: (cell) => `<div class="d-flex align-items-center h-100 py-1"><div class="fw-bold text-dark">${cell.getValue()}</div></div>`,
 				},
 				{
 					title: i18n.colCode,
 					field: 'groupCode',
 					width: 150,
+					minWidth: 120,
 					headerFilter: 'input',
 					formatter: (cell) => `<div class="d-flex align-items-center h-100"><span class="badge bg-light text-dark border badge-code">${cell.getValue()}</span></div>`,
 				},
@@ -60,6 +63,7 @@ export const UiRenderer = (() => {
 					title: i18n.colMembers,
 					field: 'id',
 					width: 120,
+					minWidth: 100,
 					hozAlign: 'center',
 					headerSort: false,
 					formatter: (cell) => {
@@ -84,6 +88,7 @@ export const UiRenderer = (() => {
 					hozAlign: 'center',
 					headerSort: false,
 					width: 150,
+					responsive: 0,
 					formatter: (cell) => {
 						return `
 							<div class="d-flex align-items-center justify-content-center h-100 gap-1">

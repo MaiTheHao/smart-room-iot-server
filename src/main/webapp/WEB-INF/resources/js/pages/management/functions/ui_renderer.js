@@ -39,6 +39,7 @@ export const UiRenderer = (() => {
 					title: i18n.colId,
 					field: 'id',
 					width: 80,
+					minWidth: 60,
 					hozAlign: 'center',
 					formatter: (cell) => `<div class="d-flex align-items-center justify-content-center h-100"><span class="fw-medium text-muted">#${cell.getValue()}</span></div>`,
 				},
@@ -47,17 +48,20 @@ export const UiRenderer = (() => {
 					field: 'name',
 					headerFilter: 'input',
 					headerFilterPlaceholder: i18n.placeholderSearch,
+					minWidth: 150,
 					formatter: (cell) => `<div class="d-flex align-items-center h-100 py-1"><div class="fw-bold text-dark">${cell.getValue()}</div></div>`,
 				},
 				{
 					title: i18n.colCode,
 					field: 'functionCode',
 					headerFilter: 'input',
+					minWidth: 150,
 					formatter: (cell) => `<div class="d-flex align-items-center h-100"><span class="badge bg-light text-dark border">${cell.getValue()}</span></div>`,
 				},
 				{
 					title: i18n.colDescription,
 					field: 'description',
+					minWidth: 150,
 					formatter: (cell) => `<div class="d-flex align-items-center h-100 text-muted small">${cell.getValue() || '--'}</div>`,
 				},
 				{
@@ -65,6 +69,7 @@ export const UiRenderer = (() => {
 					hozAlign: 'center',
 					headerSort: false,
 					width: 100,
+					responsive: 0,
 					formatter: (cell) => {
 						const data = cell.getData();
 						return `
