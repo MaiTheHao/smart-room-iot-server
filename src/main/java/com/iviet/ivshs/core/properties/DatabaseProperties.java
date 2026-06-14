@@ -8,7 +8,7 @@ import lombok.Getter;
 @Component
 public class DatabaseProperties {
 
-  @Value("${app.jdbc.jndi-name:java:comp/env/jdbc/smartroom_db}")
+  @Value("${app.jdbc.jndi-name}")
   private String jndiName;
 
   @Value("${app.jdbc.driverClassName}")
@@ -23,24 +23,24 @@ public class DatabaseProperties {
   @Value("${app.jdbc.password}")
   private String password;
 
-  @Value("${app.hibernate.hbm2ddl.auto:validate}")
+  @Value("${app.hibernate.hbm2ddl.auto}")
   private String hibernateHbm2ddlAuto;
 
-  @Value("${app.hibernate.show_sql:false}")
+  @Value("${app.hibernate.show_sql}")
   private String hibernateShowSql;
 
-  @Value("${app.hibernate.format_sql:true}")
+  @Value("${app.hibernate.format_sql}")
   private String hibernateFormatSql;
 
-  @Value("${app.hibernate.generate_statistics:false}")
+  @Value("${app.hibernate.generate_statistics}")
   private String hibernateGenerateStatistics;
 
-  @Value("${app.hibernate.jdbc.batch_size:50}")
+  @Value("${app.hibernate.jdbc.batch_size}")
   private int hibernateBatchSize;
 
-  @Value("${app.hibernate.order_inserts:true}")
+  @Value("${app.hibernate.order_inserts}")
   private String hibernateOrderInserts;
 
-  @Value("${app.hibernate.order_updates:true}")
+  @Value("${app.hibernate.order_updates}")
   private String hibernateOrderUpdates;
 }

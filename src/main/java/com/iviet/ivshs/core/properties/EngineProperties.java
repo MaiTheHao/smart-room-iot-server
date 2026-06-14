@@ -8,27 +8,27 @@ import lombok.Getter;
 @Component
 public class EngineProperties {
 
-  @Value("${app.engine.rule.computeEpsilon:0.05}")
+  @Value("${app.engine.rule.computeEpsilon}")
   private double ruleComputeEpsilon;
 
-  @Value("${app.engine.rule.scanIntervalSeconds:300}")
+  @Value("${app.engine.rule.scanIntervalSeconds}")
   private int ruleScanIntervalSeconds;
 
-  @Value("${app.engine.rule.telemetryLookbackMinutes:600}")
+  @Value("${app.engine.rule.telemetryLookbackMinutes}")
   private int ruleTelemetryLookbackMinutes;
 
-  @Value("${app.engine.telemetry.scanIntervalSeconds:120}")
+  @Value("${app.engine.telemetry.scanIntervalSeconds}")
   private int telemetryScanIntervalSeconds;
 
-  @Value("${app.engine.telemetry.roomStatusLookbackSeconds:600}")
+  @Value("${app.engine.telemetry.roomStatusLookbackSeconds}")
   private int roomStatusLookbackSeconds;
 
-  @Value("${app.engine.metric_energy.telemetry.intervalSeconds:300}")
+  @Value("${app.engine.metric_energy.telemetry.intervalSeconds}")
   private int metricEnergyIntervalSeconds;
 
-  @Value("${app.engine.metric_energy.reset.cron:0 0 0 * * ?}")
+  @Value("${app.engine.metric_energy.reset.cron}")
   private String metricEnergyResetCron;
 
-  @Value("${app.engine.metric_status.intervalSeconds:300}")
+  @Value("${app.engine.metric_status.intervalSeconds}")
   private int metricStatusIntervalSeconds;
 }

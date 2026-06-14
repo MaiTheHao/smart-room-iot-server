@@ -8,37 +8,37 @@ import lombok.Getter;
 @Component
 public class SecurityProperties {
 
-    @Value("${app.cors.allowedOrigins:*}")
+    @Value("${app.cors.allowedOrigins}")
     private String allowedOrigins;
 
-    @Value("${app.cors.allowedMethods:GET,POST,PUT,DELETE,OPTIONS}")
+    @Value("${app.cors.allowedMethods}")
     private String allowedMethods;
 
-    @Value("${app.cors.allowedHeaders:*}")
+    @Value("${app.cors.allowedHeaders}")
     private String allowedHeaders;
 
     @Getter
     @Component
     public static class RateLimiter {
-        @Value("${app.rate-limit.enabled:true}")
+        @Value("${app.rate-limit.enabled}")
         private boolean enabled;
 
-        @Value("${app.rate-limit.cache.expire-minutes:10}")
+        @Value("${app.rate-limit.cache.expire-minutes}")
         private int cacheExpireMinutes;
 
-        @Value("${app.rate-limit.cache.max-size:10000}")
+        @Value("${app.rate-limit.cache.max-size}")
         private long cacheMaxSize;
 
-        @Value("${app.rate-limit.high-frequency.capacity:100}")
+        @Value("${app.rate-limit.high-frequency.capacity}")
         private long highFrequencyCapacity;
 
-        @Value("${app.rate-limit.high-frequency.refill-period-ms:1200}")
+        @Value("${app.rate-limit.high-frequency.refill-period-ms}")
         private long highFrequencyRefillPeriodMs;
 
-        @Value("${app.rate-limit.normal.capacity:20}")
+        @Value("${app.rate-limit.normal.capacity}")
         private long normalCapacity;
 
-        @Value("${app.rate-limit.normal.refill-period-ms:3000}")
+        @Value("${app.rate-limit.normal.refill-period-ms}")
         private long normalRefillPeriodMs;
     }
 }
