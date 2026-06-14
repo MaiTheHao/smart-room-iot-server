@@ -11,6 +11,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import com.iviet.ivshs.core.config.ApplicationConfig;
 import com.iviet.ivshs.core.config.DataSourceConfig;
+import com.iviet.ivshs.core.config.FirebaseSDKConfig;
 import com.iviet.ivshs.core.config.QuartzSchedulerConfig;
 import com.iviet.ivshs.core.config.RestClientConfig;
 import com.iviet.ivshs.core.config.WebMvcApiConfig;
@@ -31,7 +32,7 @@ public class SmrcApplication implements WebApplicationInitializer {
 
         // Cấu hình Root Context
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(ApplicationConfig.class, DataSourceConfig.class, WebSecurityConfig.class, QuartzSchedulerConfig.class, RestClientConfig.class);
+        rootContext.register(ApplicationConfig.class, DataSourceConfig.class, WebSecurityConfig.class, QuartzSchedulerConfig.class, RestClientConfig.class, FirebaseSDKConfig.class);
 
         servletContext.addListener(new ContextLoaderListener(rootContext));
 
