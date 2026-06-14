@@ -73,6 +73,9 @@ public class Client extends BaseAuditEntity {
         @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
         private Set<HardwareConfig> hardwareConfigs = new HashSet<>();
 
+        @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+        private Set<ClientDevice> clientDevices = new HashSet<>();
+
         @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
         @JoinTable(name = "client_group", joinColumns = @JoinColumn(name = "client_id", nullable = false), inverseJoinColumns = @JoinColumn(name = "group_id", nullable = false), indexes = {
                         @Index(name = "idx_client_group", columnList = "client_id, group_id", unique = true)
