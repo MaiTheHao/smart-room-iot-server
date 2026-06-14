@@ -19,10 +19,10 @@ import com.iviet.ivshs.dto.automation.AutomationDto;
 import com.iviet.ivshs.dto.automation.CreateAutomationActionDto;
 import com.iviet.ivshs.dto.automation.CreateAutomationDto;
 import com.iviet.ivshs.dto.automation.UpdateAutomationActionDto;
-import com.iviet.ivshs.service.automation.AutomationService;
 import com.iviet.ivshs.dto.automation.UpdateAutomationDto;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.service.automation.AutomationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -118,13 +118,13 @@ public class AutomationController {
     @PostMapping("/{id}/execute")
     public ResponseEntity<ApiResponse<Void>> executeImmediately(@PathVariable(name = "id")
     Long id) {
-        automationService.executeAutomationImmediately(id);
+        automationService.triggerNow(id);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Automation triggered manually"));
     }
 
     @PostMapping("/reload-job")
     public ResponseEntity<ApiResponse<Void>> reloadSystemJobs() {
-        automationService.reloadAllAutomations();
+        automationService.reloadAll();
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "System Quartz Jobs reloaded"));
     }
 }

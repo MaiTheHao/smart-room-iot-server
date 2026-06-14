@@ -35,7 +35,8 @@ public class DataSourceConfig {
     @NonNull
     public DataSource dataSource() {
         String jndiName = dbProps.getJndiName();
-        if (jndiName == null || jndiName.trim().isEmpty()) {
+        if (jndiName == null || jndiName.trim()
+                .isEmpty()) {
             jndiName = DEFAULT_JNDI_NAME;
         }
 
@@ -81,7 +82,8 @@ public class DataSourceConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(@NonNull DataSource dataSource) {
+    public JdbcTemplate jdbcTemplate(@NonNull
+    DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 
@@ -89,20 +91,14 @@ public class DataSourceConfig {
     private Properties createJpaProperties() {
         Properties props = new Properties();
 
-        props.put("hibernate.hbm2ddl.auto",
-                dbProps.getHibernateHbm2ddlAuto() != null ? dbProps.getHibernateHbm2ddlAuto() : "validate");
-        props.put("hibernate.show_sql",
-                dbProps.getHibernateShowSql() != null ? dbProps.getHibernateShowSql() : "false");
-        props.put("hibernate.format_sql",
-                dbProps.getHibernateFormatSql() != null ? dbProps.getHibernateFormatSql() : "true");
-        props.put("hibernate.generate_statistics",
-                dbProps.getHibernateGenerateStatistics() != null ? dbProps.getHibernateGenerateStatistics() : "false");
+        props.put("hibernate.hbm2ddl.auto", dbProps.getHibernateHbm2ddlAuto() != null ? dbProps.getHibernateHbm2ddlAuto() : "validate");
+        props.put("hibernate.show_sql", dbProps.getHibernateShowSql() != null ? dbProps.getHibernateShowSql() : "false");
+        props.put("hibernate.format_sql", dbProps.getHibernateFormatSql() != null ? dbProps.getHibernateFormatSql() : "true");
+        props.put("hibernate.generate_statictics", dbProps.getHibernateGeneratestatictics() != null ? dbProps.getHibernateGeneratestatictics() : "false");
 
         props.put("hibernate.jdbc.batch_size", String.valueOf(dbProps.getHibernateBatchSize()));
-        props.put("hibernate.order_inserts",
-                dbProps.getHibernateOrderInserts() != null ? dbProps.getHibernateOrderInserts() : "true");
-        props.put("hibernate.order_updates",
-                dbProps.getHibernateOrderUpdates() != null ? dbProps.getHibernateOrderUpdates() : "true");
+        props.put("hibernate.order_inserts", dbProps.getHibernateOrderInserts() != null ? dbProps.getHibernateOrderInserts() : "true");
+        props.put("hibernate.order_updates", dbProps.getHibernateOrderUpdates() != null ? dbProps.getHibernateOrderUpdates() : "true");
 
         props.put("hibernate.connection.characterEncoding", "utf8");
         props.put("hibernate.connection.useUnicode", "true");
@@ -114,7 +110,8 @@ public class DataSourceConfig {
     }
 
     @Bean
-    public PlatformTransactionManager transactionManager(@NonNull EntityManagerFactory emf) {
+    public PlatformTransactionManager transactionManager(@NonNull
+    EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }
 }

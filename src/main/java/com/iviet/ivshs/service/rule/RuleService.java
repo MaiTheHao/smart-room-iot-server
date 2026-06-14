@@ -6,8 +6,9 @@ import com.iviet.ivshs.dto.rule.CreateRuleDto;
 import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
+import com.iviet.ivshs.service.base.SchedulableJobService;
 
-public interface RuleService {
+public interface RuleService extends SchedulableJobService<Rule> {
 
 	RuleDto create(CreateRuleDto dto);
 
@@ -21,18 +22,5 @@ public interface RuleService {
 
 	List<RuleDto> getAllActive();
 
-	// SYSTEM / JOB CONTROL
 	void toggleIsActive(Long ruleId, boolean isActive);
-
-	void scheduleJob(Rule rule);
-
-	void rescheduleJob(Rule rule);
-
-	void unscheduleJob(Long ruleId);
-
-	void executeRuleLogic(Long ruleId);
-
-	void executeRuleImmediately(Long ruleId);
-
-	void reloadAllRules();
 }

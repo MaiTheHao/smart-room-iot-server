@@ -17,14 +17,12 @@ import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
 import com.iviet.ivshs.mapper.RuleMapper;
-import com.iviet.ivshs.scheduler.rule.RuleProcessor;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.rule.RuleService;
 import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
-import com.iviet.ivshs.shared.util.ScheduleUtil;
-
+import com.iviet.ivshs.service.base.AbstractSchedulableJobService;
+import com.iviet.ivshs.service.rule.RuleService;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class RuleServiceImpl implements RuleService {
+public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> implements RuleService {
 
   private final RuleDao ruleDao;
   private final RuleMapper ruleMapper;
-  private final ScheduleUtil scheduleUtil;
-  private final RuleProcessor ruleProcessor;
   private final ObjectMapper objectMapper;
   private final Validator validator;
   private final List<DeviceControlServiceStrategy<?>> controlStrategies;
@@ -67,7 +63,7 @@ public class RuleServiceImpl implements RuleService {
     Rule rule = ruleMapper.fromCreateDto(dto);
     ruleDao.save(rule);
 
-    scheduleUtil.sync(rule);
+    jobScheduleService.sync(rule);
 
     log.info("Rule created successfully: id={}, name={}", rule.getId(), rule.getName());
     return ruleMapper.toDto(rule);
@@ -100,7 +96,7 @@ public class RuleServiceImpl implements RuleService {
     ruleMapper.updateFromDto(dto, rule);
     ruleDao.update(rule);
 
-    scheduleUtil.sync(rule);
+    jobScheduleService.sync(rule);
 
     log.info("Rule updated successfully: id={}, name={}", ruleId, rule.getName());
     return ruleMapper.toDto(rule);
@@ -113,7 +109,7 @@ public class RuleServiceImpl implements RuleService {
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    scheduleUtil.delete(rule);
+    jobScheduleService.delete(rule);
     ruleDao.deleteById(ruleId);
   }
 
@@ -149,55 +145,23 @@ public class RuleServiceImpl implements RuleService {
 
     rule.setIsActive(isActive);
     ruleDao.update(rule);
-    scheduleUtil.sync(rule);
+    jobScheduleService.sync(rule);
   }
 
   @Override
-  public void scheduleJob(Rule rule) {
-    scheduleUtil.sync(rule);
+  protected Rule getEntityById(Long id) {
+    return ruleDao.findById(id)
+        .orElseThrow(() -> new NotFoundException("Rule not found: " + id));
   }
 
   @Override
-  public void rescheduleJob(Rule rule) {
-    scheduleUtil.sync(rule);
+  protected List<Rule> getAllActiveEntities() {
+    return ruleDao.findAllActiveWithConditionsAndActions();
   }
 
   @Override
-  public void unscheduleJob(Long ruleId) {
-    Rule rule = ruleDao.findById(ruleId)
-        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
-    scheduleUtil.delete(rule);
-  }
-
-  @Override
-  public void executeRuleLogic(Long ruleId) {
-    Rule rule = ruleDao.findByIdWithConditionsAndActions(ruleId)
-        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
-
-    if (Boolean.FALSE.equals(rule.getIsActive()))
-      return;
-    ruleProcessor.process(rule);
-  }
-
-  @Override
-  public void executeRuleImmediately(Long ruleId) {
-    Rule rule = ruleDao.findById(ruleId)
-        .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
-    scheduleUtil.triggerNow(rule);
-  }
-
-  @Override
-  @Transactional
-  public void reloadAllRules() {
-    scheduleUtil.deleteJobGroup(Rule.JOB_GROUP);
-    List<Rule> activeRules = ruleDao.findAllActiveWithConditionsAndActions();
-    for (Rule rule : activeRules) {
-      try {
-        scheduleUtil.sync(rule);
-      } catch (Exception e) {
-        log.error("Failed to reload rule: id={}", rule.getId(), e);
-      }
-    }
+  protected String getJobGroup() {
+    return Rule.JOB_GROUP;
   }
 
   private void validateActionParams(DeviceCategory category, JsonNode params) {

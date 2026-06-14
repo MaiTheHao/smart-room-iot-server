@@ -15,7 +15,8 @@ public class MetricOrchestratorService {
     private final Map<MetricDomain, MetricServiceStrategy> strategies;
 
     public MetricOrchestratorService(List<MetricServiceStrategy> strategyList) {
-        this.strategies = strategyList.stream().collect(Collectors.toMap(MetricServiceStrategy::getSupportedDomain, strategy -> strategy));
+        this.strategies = strategyList.stream()
+                .collect(Collectors.toMap(MetricServiceStrategy::getSupportedDomain, strategy -> strategy));
     }
 
     private MetricServiceStrategy getStrategy(MetricDomain domain) {

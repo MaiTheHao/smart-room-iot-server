@@ -7,7 +7,7 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 
 import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
-import com.iviet.ivshs.scheduler.rule.RuleJob;
+import com.iviet.ivshs.scheduler.dynamic.base.GenericSchedulableJob;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -66,13 +66,14 @@ public class Rule extends BaseSchedulableEntity {
 
     @Override
     public Class<? extends Job> getJobClass() {
-        return RuleJob.class;
+        return GenericSchedulableJob.class;
     }
 
     @Override
     public JobDataMap getJobDataMap() {
         JobDataMap dataMap = new JobDataMap();
         dataMap.put("id", this.getId());
+        dataMap.put("type", "RULE");
         return dataMap;
     }
 }

@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.service.powerconsumption.PowerConsumptionValueService;
-
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;

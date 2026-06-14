@@ -1,7 +1,5 @@
 package com.iviet.ivshs.service.room;
 
-import com.iviet.ivshs.dto.room.RoomDeviceCountDto;
-
 import java.util.List;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.room.CreateRoomDto;

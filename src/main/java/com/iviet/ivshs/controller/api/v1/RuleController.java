@@ -18,9 +18,8 @@ import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.rule.CreateRuleDto;
 import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleStatusDto;
-import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.service.rule.RuleService;
-
+import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -146,7 +145,7 @@ public class RuleController {
      */
     @PostMapping("/reload")
     public ResponseEntity<ApiResponse<Void>> reloadAllRules() {
-        ruleService.reloadAllRules();
+        ruleService.reloadAll();
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "All rules reloaded in Quartz"));
     }
 
@@ -160,7 +159,7 @@ public class RuleController {
     @PostMapping("/{id}/execute")
     public ResponseEntity<ApiResponse<Void>> executeNow(@PathVariable(name = "id")
     Long id) {
-        ruleService.executeRuleImmediately(id);
+        ruleService.triggerNow(id);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Rule execution triggered immediately"));
     }
 }

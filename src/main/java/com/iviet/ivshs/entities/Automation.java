@@ -7,7 +7,7 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 
 import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
-
+import com.iviet.ivshs.scheduler.dynamic.base.GenericSchedulableJob;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,13 +49,14 @@ public class Automation extends BaseSchedulableEntity {
 
     @Override
     public Class<? extends Job> getJobClass() {
-        return com.iviet.ivshs.scheduler.automation.AutomationJob.class;
+        return GenericSchedulableJob.class;
     }
 
     @Override
     public JobDataMap getJobDataMap() {
         JobDataMap dataMap = new JobDataMap();
         dataMap.put("id", this.getId());
+        dataMap.put("type", "AUTOMATION");
         return dataMap;
     }
 }

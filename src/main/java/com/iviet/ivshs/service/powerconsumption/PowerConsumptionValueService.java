@@ -6,7 +6,7 @@ import java.util.List;
 import com.iviet.ivshs.dto.powerconsumption.CreatePowerConsumptionValueDto;
 import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumption;
-import com.iviet.ivshs.service.metric.strategy.TelemetryCRUDServiceStrategy;
+import com.iviet.ivshs.service.base.TelemetryCRUDServiceStrategy;
 
 public interface PowerConsumptionValueService extends TelemetryCRUDServiceStrategy {
 	List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant from, Instant to);

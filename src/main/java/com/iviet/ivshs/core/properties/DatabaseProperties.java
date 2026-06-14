@@ -32,8 +32,8 @@ public class DatabaseProperties {
   @Value("${app.hibernate.format_sql}")
   private String hibernateFormatSql;
 
-  @Value("${app.hibernate.generate_statistics}")
-  private String hibernateGenerateStatistics;
+  @Value("${app.hibernate.generate_statictics}")
+  private String hibernateGeneratestatictics;
 
   @Value("${app.hibernate.jdbc.batch_size}")
   private int hibernateBatchSize;

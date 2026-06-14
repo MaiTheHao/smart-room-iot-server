@@ -1,0 +1,59 @@
+package com.iviet.ivshs.scheduler.dynamic.rule.strategy.impl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.iviet.ivshs.entities.RuleCondition;
+import com.iviet.ivshs.scheduler.dynamic.rule.strategy.DeviceStateStrategy;
+import com.iviet.ivshs.scheduler.dynamic.rule.strategy.RuleDataSourceStrategy;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.RuleDataSource;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class DeviceDataSourceStrategy implements RuleDataSourceStrategy {
+
+  private final List<DeviceStateStrategy> deviceStrategies;
+
+  @Override
+  public boolean supports(RuleDataSource dataSource) {
+    return RuleDataSource.DEVICE.equals(dataSource);
+  }
+
+  @Override
+  public Object fetchValue(RuleCondition condition, Long contextId) {
+    try {
+      JsonNode params = condition.getResourceParam();
+      if (params == null) {
+        log.debug("Resource params are null for condition: {}", condition.getId());
+        return null;
+      }
+
+      String categoryStr = params.path("category").asText();
+      DeviceCategory category = DeviceCategory.valueOf(categoryStr);
+      Long deviceId = params.path("deviceId").asLong();
+      String property = params.path("property").asText();
+
+      for (DeviceStateStrategy strategy : deviceStrategies) {
+        if (strategy.supports(category)) {
+          Object value = strategy.fetchState(deviceId, property);
+          log.debug("Fetched state for condition {}: DEVICE [{}] property '{}' = {}", condition.getId(), deviceId, property, value);
+          return value;
+        }
+      }
+      log.warn("No device strategy found for category '{}' in condition {}", categoryStr, condition.getId());
+      return null;
+    } catch (IllegalArgumentException e) {
+      log.warn("Invalid category in condition {}: {}", condition.getId(), e.getMessage());
+      return null;
+    } catch (Exception e) {
+      log.error("Error fetching device data for condition {}: {}", condition.getId(), e.getMessage(), e);
+      return null;
+    }
+  }
+}

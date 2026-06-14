@@ -10,8 +10,9 @@ import com.iviet.ivshs.dto.automation.UpdateAutomationActionDto;
 import com.iviet.ivshs.dto.automation.UpdateAutomationDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.Automation;
+import com.iviet.ivshs.service.base.SchedulableJobService;
 
-public interface AutomationService {
+public interface AutomationService extends SchedulableJobService<Automation> {
 
 	// AUTOMATION MANAGEMENT
 	AutomationDto create(CreateAutomationDto dto);
@@ -35,18 +36,5 @@ public interface AutomationService {
 
 	void removeAction(Long actionId);
 
-	// SYSTEM / JOB CONTROL
 	void toggleIsActive(Long automationId, boolean isActive);
-
-	void scheduleJob(Automation automation);
-
-	void rescheduleJob(Automation automation);
-
-	void unscheduleJob(Long automationId);
-
-	void executeAutomationLogic(Long automationId);
-
-	void executeAutomationImmediately(Long automationId);
-
-	void reloadAllAutomations();
 }

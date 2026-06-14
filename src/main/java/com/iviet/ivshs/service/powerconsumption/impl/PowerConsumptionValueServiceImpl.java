@@ -11,10 +11,10 @@ import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
 import com.iviet.ivshs.dto.powerconsumption.CreatePowerConsumptionValueDto;
 import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
 import com.iviet.ivshs.entities.PowerConsumption;
+import com.iviet.ivshs.service.powerconsumption.PowerConsumptionValueService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.powerconsumption.PowerConsumptionValueService;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Instant;
@@ -37,13 +37,20 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   @Override
   @Transactional
   public void create(TelemetryResponseDto.DeviceDto data) {
-    JsonNode wattNode = data.getData().get("watt");
+    JsonNode wattNode = data.getData()
+        .get("watt");
     if (wattNode == null || !wattNode.isNumber())
       return;
     Double watt = wattNode.asDouble();
 
-    var sensor = powerConsumptionDao.findByNaturalId(data.getNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + data.getNaturalId()));
-    var record = CreatePowerConsumptionValueDto.builder().sensorNaturalId(data.getNaturalId()).watt(watt).timestamp(Instant.now()).build().toEntity();
+    var sensor = powerConsumptionDao.findByNaturalId(data.getNaturalId())
+        .orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + data.getNaturalId()));
+    var record = CreatePowerConsumptionValueDto.builder()
+        .sensorNaturalId(data.getNaturalId())
+        .watt(watt)
+        .timestamp(Instant.now())
+        .build()
+        .toEntity();
 
     record.setSensor(sensor);
     powerConsumptionValueDao.save(record);
@@ -54,7 +61,13 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
   public List<SumPowerConsumptionValueDto> getSumPowerConsumptionByRoom(Long roomId, Instant from, Instant to) {
     // from = TelemetryTimeGroup.limitRange(from, to);
     int divisor = TelemetryTimeGroup.getDivisorForRange(from, to);
-    return powerConsumptionValueDao.getSumHistoryByRoom(roomDao.findById(roomId).orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId)).getId(), from, to, divisor);
+    return powerConsumptionValueDao.getSumHistoryByRoom(
+        roomDao.findById(roomId)
+            .orElseThrow(() -> new NotFoundException("Room not found with id: " + roomId))
+            .getId(),
+        from,
+        to,
+        divisor);
   }
 
   @Override
@@ -63,7 +76,8 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
     if (dto.watt() == null)
       return;
 
-    var sensor = powerConsumptionDao.findByNaturalId(dto.sensorNaturalId()).orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + dto.sensorNaturalId()));
+    var sensor = powerConsumptionDao.findByNaturalId(dto.sensorNaturalId())
+        .orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + dto.sensorNaturalId()));
     var record = dto.toEntity();
     record.setSensor(sensor);
     powerConsumptionValueDao.save(record);
@@ -93,15 +107,26 @@ public class PowerConsumptionValueServiceImpl implements PowerConsumptionValueSe
       return;
     }
 
-    List<CreatePowerConsumptionValueDto> sortedByTimestampLatestFirst = dtoList.stream().filter(dto -> dto != null && dto.watt() != null).sorted((dto1, dto2) -> dto2.timestamp().compareTo(dto1.timestamp())).toList();
+    List<CreatePowerConsumptionValueDto> sortedByTimestampLatestFirst = dtoList.stream()
+        .filter(dto -> dto != null && dto.watt() != null)
+        .sorted(
+            (dto1, dto2) -> dto2.timestamp()
+                .compareTo(dto1.timestamp()))
+        .toList();
 
     if (sortedByTimestampLatestFirst.isEmpty()) {
       return;
     }
 
-    powerConsumptionValueDao.saveAndForget(sensor.getId(), sortedByTimestampLatestFirst.stream().map(CreatePowerConsumptionValueDto::toEntity).toList());
+    powerConsumptionValueDao.saveAndForget(
+        sensor.getId(),
+        sortedByTimestampLatestFirst.stream()
+            .map(CreatePowerConsumptionValueDto::toEntity)
+            .toList());
 
-    sensor.setCurrentWatt(sortedByTimestampLatestFirst.get(0).watt());
+    sensor.setCurrentWatt(
+        sortedByTimestampLatestFirst.get(0)
+            .watt());
     powerConsumptionDao.save(sensor);
   }
 }

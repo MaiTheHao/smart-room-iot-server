@@ -102,7 +102,7 @@
       <AppenderRef ref="SqlFile" />
     </Logger>
 
-    <!-- Hibernate statistics logger -->
+    <!-- Hibernate statictics logger -->
     <Logger name="org.hibernate.stat" 
             level="info" 
             additivity="false">

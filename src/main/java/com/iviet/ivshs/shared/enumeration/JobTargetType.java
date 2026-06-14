@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.enumeration;
 
-@Deprecated
+// @Deprecated
 public enum JobTargetType {
     LIGHT, AIR_CONDITION, FAN
 }

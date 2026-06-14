@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.enumeration;
 
-@Deprecated
+// @Deprecated
 public enum JobActionType {
     ON, OFF
 }

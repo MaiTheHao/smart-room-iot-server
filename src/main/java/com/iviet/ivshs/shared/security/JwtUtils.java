@@ -1,11 +1,16 @@
 package com.iviet.ivshs.shared.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -23,7 +28,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    private static final long DEFAULT_EXPIRATION_MS = 172800000L;
 
     private final JwtProperties jwtProperties;
 
@@ -41,10 +45,6 @@ public class JwtUtils {
         return cachedKey;
     }
 
-    private long getExpirationMs() {
-        return jwtProperties.getJwtExpirationMs() != 0 ? jwtProperties.getJwtExpirationMs() : DEFAULT_EXPIRATION_MS;
-    }
-
     public String generateJwtToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         return buildToken(userPrincipal.getUsername(), new HashMap<>());
@@ -56,7 +56,10 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(authToken);
+            Jwts.parserBuilder()
+                    .setSigningKey(getKey())
+                    .build()
+                    .parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
@@ -74,10 +77,20 @@ public class JwtUtils {
 
     private String buildToken(String subject, Map<String, Object> claims) {
         Date now = new Date();
-        return Jwts.builder().setSubject(subject).addClaims(claims).setIssuedAt(now).setExpiration(new Date(now.getTime() + getExpirationMs())).signWith(getKey(), SignatureAlgorithm.HS512).compact();
+        return Jwts.builder()
+                .setSubject(subject)
+                .addClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + jwtProperties.getJwtExpirationMs()))
+                .signWith(getKey(), SignatureAlgorithm.HS512)
+                .compact();
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
