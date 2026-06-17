@@ -36,7 +36,8 @@
 				"isActive": true,
 				"roomId": 5,
 				"power": "ON",
-				"type": "IR",
+				"specificType": "IR",
+				"duration": 0,
 				"speed": 3,
 				"mode": "NORMAL",
 				"swing": "ON",
@@ -78,7 +79,8 @@
 			"isActive": true,
 			"roomId": 5,
 			"power": "ON",
-			"type": "IR",
+			"specificType": "IR",
+			"duration": 0,
 			"speed": 3,
 			"mode": "NORMAL",
 			"swing": "ON",
@@ -94,7 +96,8 @@
 			"isActive": true,
 			"roomId": 6,
 			"power": "OFF",
-			"type": "GPIO",
+			"specificType": "GPIO",
+			"duration": null,
 			"speed": null,
 			"mode": null,
 			"swing": null,
@@ -145,7 +148,8 @@
 				"isActive": true,
 				"roomId": 5,
 				"power": "ON",
-				"type": "IR",
+				"specificType": "IR",
+				"duration": 0,
 				"speed": 3,
 				"mode": "NORMAL",
 				"swing": "ON",
@@ -193,7 +197,8 @@
 			"isActive": true,
 			"roomId": 5,
 			"power": "ON",
-			"type": "IR",
+			"specificType": "IR",
+			"duration": 0,
 			"speed": 3,
 			"mode": "NORMAL",
 			"swing": "ON",
@@ -209,7 +214,8 @@
 			"isActive": true,
 			"roomId": 5,
 			"power": "OFF",
-			"type": "GPIO",
+			"specificType": "GPIO",
+			"duration": null,
 			"speed": null,
 			"mode": null,
 			"swing": null,
@@ -252,7 +258,8 @@
 		"isActive": true,
 		"roomId": 5,
 		"power": "ON",
-		"type": "IR",
+		"specificType": "IR",
+		"duration": 0,
 		"speed": 3,
 		"mode": "NORMAL",
 		"swing": "ON",
@@ -293,7 +300,8 @@
 		"isActive": true,
 		"roomId": 5,
 		"power": "ON",
-		"type": "IR",
+		"specificType": "IR",
+		"duration": 0,
 		"speed": 3,
 		"mode": "NORMAL",
 		"swing": "ON",
@@ -422,7 +430,8 @@
 		"isActive": true,
 		"roomId": 5,
 		"power": "OFF",
-		"type": "IR",
+		"specificType": "IR",
+		"duration": 0,
 		"speed": 1,
 		"mode": "NORMAL",
 		"swing": "OFF",
@@ -445,7 +454,7 @@
 >
 > **Lưu ý:** 
 > - Dùng để cập nhật cấu hình hệ thống (name, description, device controller, etc.)
-> - Để điều khiển thiết bị vật lý (power, mode, swing, light, speed), sử dụng endpoint `/api/v1/fans/{naturalId}/control`
+> - Để điều khiển thiết bị vật lý (power, mode, swing, speed), sử dụng endpoint `/api/v1/fans/{naturalId}/control`
 > - Không thể thay đổi `type` sau khi tạo (sẽ báo lỗi)
 > - **Tất cả các trường đều optional** - chỉ gửi những trường muốn thay đổi
 
@@ -541,7 +550,8 @@
 		"isActive": true,
 		"roomId": 5,
 		"power": "ON",
-		"type": "IR",
+		"specificType": "IR",
+		"duration": 0,
 		"speed": 3,
 		"mode": "NORMAL",
 		"swing": "ON",
@@ -595,7 +605,7 @@
 > **Lưu ý:**
 > - Sử dụng `naturalId` thay vì `id` để điều khiển
 > - Tất cả các trường đều optional, chỉ gửi những trường muốn thay đổi
-> - Các trường `mode`, `speed`, `swing`, `light` chỉ có hiệu lực với quạt loại IR
+> - Các trường `mode`, `speed`, `swing` chỉ có hiệu lực với quạt loại IR
 
 ### Path Parameters
 
@@ -611,7 +621,6 @@
 | mode       | string | Không    | Chế độ (IR only): `NORMAL`, `SLEEP`, `NATURAL` |
 | speed      | int    | Không    | Tốc độ quạt (IR only): 1-3                |
 | swing      | string | Không    | Đảo gió (IR only): `ON`, `OFF`            |
-| light      | string | Không    | Đèn quạt (IR only): `ON`, `OFF`           |
 
 ### Request Example - Bật quạt và đặt tốc độ
 
@@ -638,8 +647,7 @@
 	"power": "ON",
 	"mode": "SLEEP",
 	"speed": 2,
-	"swing": "ON",
-	"light": "OFF"
+	"swing": "ON"
 }
 ```
 

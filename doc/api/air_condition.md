@@ -34,6 +34,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 				"isActive": true,
 				"roomId": 5,
 				"power": "ON",
+				"specificType": "IRSEND",
+				"duration": 0,
 				"temperature": 25,
 				"mode": "COOL",
 				"fanSpeed": 3,
@@ -89,6 +91,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 				"isActive": true,
 				"roomId": 5,
 				"power": "ON",
+				"specificType": "IRSEND",
+				"duration": 0,
 				"temperature": 25,
 				"mode": "COOL",
 				"fanSpeed": 3,
@@ -135,6 +139,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"isActive": true,
 		"roomId": 5,
 		"power": "ON",
+		"specificType": "IRSEND",
+		"duration": 0,
 		"temperature": 25,
 		"mode": "COOL",
 		"fanSpeed": 3,
@@ -205,6 +211,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"isActive": true,
 		"roomId": 5,
 		"power": "ON",
+		"specificType": "IRSEND",
+		"duration": 0,
 		"temperature": 25,
 		"mode": "COOL",
 		"fanSpeed": 3,
@@ -277,6 +285,8 @@ Quản lý thiết bị điều hòa (Air Condition) trong hệ thống Smart Ro
 		"isActive": true,
 		"roomId": 5,
 		"power": "ON",
+		"specificType": "IRSEND",
+		"duration": 0,
 		"temperature": 24,
 		"mode": "COOL",
 		"fanSpeed": 4,
@@ -344,6 +354,8 @@ Tất cả các trường đều là tùy chọn (chỉ gửi cấu hình cần 
 | mode | string | Không | Chế độ hoạt động: COOL, HEAT, DRY, FAN, AUTO |
 | fanSpeed | int | Không | Tốc độ quạt (Giá trị từ 0 đến 5) |
 | swing | string | Không | Trạng thái đảo gió: ON, OFF |
+
+> **Lưu ý:** `duration` và `specificType` là cấu hình cố định của thiết bị (setup config), được đọc tự động từ hệ thống — không truyền trong request.
 
 ### Request Example
 
