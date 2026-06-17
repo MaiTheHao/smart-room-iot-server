@@ -25,10 +25,6 @@ export const FanCard = {
               <small class="fw-bold text-muted tiny">${i18n.swing}</small>
               <div class="form-check form-switch"><input class="form-check-input fan-swing-switch" type="checkbox" ${fan.swing === 'ON' ? 'checked' : ''} ${!isActive ? 'disabled' : ''}></div>
           </div>
-          <div class="d-flex justify-content-between align-items-center">
-              <small class="fw-bold text-muted tiny">${i18n.light}</small>
-              <div class="form-check form-switch"><input class="form-check-input fan-light-switch" type="checkbox" ${fan.light === 'ON' ? 'checked' : ''} ${!isActive ? 'disabled' : ''}></div>
-          </div>
       </div>
     `;
   },
@@ -45,8 +41,5 @@ export const FanCard = {
 
     const swingSwitch = card.querySelector('.fan-swing-switch');
     if (swingSwitch) swingSwitch.checked = device.swing === 'ON';
-
-    const lightSwitch = card.querySelector('.fan-light-switch');
-    if (lightSwitch) lightSwitch.checked = device.light === 'ON';
   },
 };
