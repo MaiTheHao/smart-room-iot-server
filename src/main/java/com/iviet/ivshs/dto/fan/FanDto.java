@@ -22,6 +22,7 @@ public record FanDto(
         Long roomId,
         ActuatorPower power,
         String specificType,
+        Integer duration,
         Integer speed,
         ActuatorMode mode,
         ActuatorPower light,
@@ -33,9 +34,9 @@ public record FanDto(
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
      */
     public FanDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId,
-            ActuatorPower power, String specificType, Integer speed, ActuatorMode mode,
+            ActuatorPower power, String specificType, Integer duration, Integer speed, ActuatorMode mode,
             ActuatorPower light, ActuatorSwing swing, Long deviceControlId) {
-        this(id, naturalId, name, description, isActive, roomId, power, specificType, speed, mode, light, swing,
+        this(id, naturalId, name, description, isActive, roomId, power, specificType, duration, speed, mode, light, swing,
                 deviceControlId, DeviceCategory.FAN);
     }
 
@@ -54,6 +55,7 @@ public record FanDto(
                 .roomId(entity.getRoom() != null ? entity.getRoom().getId() : null)
                 .power(entity.getPower())
                 .specificType(entity.getSpecificType())
+                .duration(entity.getDuration())
                 .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
                 .category(DeviceCategory.FAN);
 

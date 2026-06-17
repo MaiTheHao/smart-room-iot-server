@@ -31,6 +31,9 @@ public abstract class Fan extends BaseIoTDevice<FanLan> {
 	@Column(name = "speed")
 	private Integer speed;
 
+	@Column(name = "duration")
+	private Integer duration;
+
 	public void setSpeed(Integer speed) {
 		if (speed != null && (speed < MIN_SPEED || speed > MAX_SPEED)) {
 			throw new IllegalArgumentException("Speed must be between " + MIN_SPEED + " and " + MAX_SPEED);

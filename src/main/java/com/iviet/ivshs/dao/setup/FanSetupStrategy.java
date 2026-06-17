@@ -38,6 +38,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
 
         Fan fan = createFanByType(fanType);
         setupBaseIoTProperties(fan, device, room, hardwareConfig);
+        fan.setDuration(device.getDuration());
         entityManager.persist(fan);
         entityManager.flush();
         attachTranslations(fan, device.getTranslations(), FanLan::new);
