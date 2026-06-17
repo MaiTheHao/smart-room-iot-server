@@ -18,9 +18,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
@@ -92,6 +94,7 @@ public class RestClientConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
+        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter()));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
         restTemplate.getInterceptors().add(traceForwardingInterceptor);
         restTemplate.getInterceptors().add(gatewayAuthInterceptor);
@@ -129,6 +132,7 @@ public class RestClientConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
+        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter()));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
         restTemplate.getInterceptors().add(traceForwardingInterceptor);
         restTemplate.getInterceptors().add(gatewayAuthInterceptor);
@@ -166,6 +170,7 @@ public class RestClientConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
+        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter()));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
         restTemplate.getInterceptors().add(traceForwardingInterceptor);
         restTemplate.getInterceptors().add(gatewayAuthInterceptor);
