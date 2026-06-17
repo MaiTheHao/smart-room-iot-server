@@ -69,7 +69,10 @@ export const DeviceChart = {
       series: [{ name: 'Value', data: [] }],
       xaxis: {
         type: 'datetime',
-        labels: { style: { colors: '#94a3b8', fontSize: '10px' } },
+        labels: { 
+          datetimeUTC: false,
+          style: { colors: '#94a3b8', fontSize: '10px' } 
+        },
       },
       yaxis: {
         labels: {
@@ -130,7 +133,7 @@ export const DeviceChart = {
     const color = METRIC_COLORS[type] || '#3b82f6';
     const metricKey = `metric${type.charAt(0).toUpperCase() + type.slice(1)}`;
     const seriesData = state.data.map((item) => ({
-      x: new Date(item.timestamp).getTime(),
+      x: Date.parse(item.timestamp),
       y: item[type] || 0,
     }));
 

@@ -21,7 +21,10 @@ export const RoomTempChart = {
       stroke: { curve: 'smooth', width: 3 },
       xaxis: {
         type: 'datetime',
-        labels: { style: { colors: '#94a3b8', fontSize: '11px' } },
+        labels: { 
+          datetimeUTC: false,
+          style: { colors: '#94a3b8', fontSize: '11px' } 
+        },
       },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
       tooltip: { x: { format: 'dd MMM HH:mm' } },
@@ -71,7 +74,7 @@ export const RoomTempChart = {
         series: [
           {
             name: i18n.temp || 'Temperature',
-            data: data.map((item) => ({ x: new Date(item.timestamp).getTime(), y: item.avgTempC })),
+            data: data.map((item) => ({ x: Date.parse(item.timestamp), y: item.avgTempC })),
           },
         ],
       });
