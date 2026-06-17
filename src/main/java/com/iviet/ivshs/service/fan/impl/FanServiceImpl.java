@@ -8,9 +8,7 @@ import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.fan.CreateFanDto;
 import com.iviet.ivshs.dto.fan.FanDto;
 import com.iviet.ivshs.dto.fan.UpdateFanDto;
-import com.iviet.ivshs.dto.fan.UpdateFanIrDto;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.service.fan.FanService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
@@ -158,16 +156,14 @@ public class FanServiceImpl implements FanService {
     if (dto.power() != null)
       fan.setPower(dto.power());
 
-    if (fan instanceof FanIr fanIr && dto instanceof UpdateFanIrDto irDto) {
-      if (irDto.mode() != null)
-        fanIr.setMode(irDto.mode());
-      if (irDto.speed() != null)
-        fanIr.setSpeed(irDto.speed());
-      if (irDto.swing() != null)
-        fanIr.setSwing(irDto.swing());
-      if (irDto.light() != null)
-        fanIr.setLight(irDto.light());
-    }
+    if (dto.mode() != null)
+      fan.setMode(dto.mode());
+    if (dto.speed() != null)
+      fan.setSpeed(dto.speed());
+    if (dto.swing() != null)
+      fan.setSwing(dto.swing());
+    if (dto.light() != null)
+      fan.setLight(dto.light());
 
     var lan = fan.getTranslations()
         .stream()

@@ -4,13 +4,10 @@ import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dto.setup.SetupRequest;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.FanGpio;
-import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.FanType;
-import com.iviet.ivshs.shared.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -34,6 +31,7 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
         if (fanType == null) {
             log.warn("Create: Type unknown, defaulting to GPIO: {}", device.getNaturalId());
             fanType = FanType.GPIO;
+            device.setSpecificType(fanType.name());
         }
 
         Fan fan = createFanByType(fanType);
@@ -56,10 +54,6 @@ public class FanSetupStrategy extends AbstractDeviceSetupStrategy {
     }
 
     private Fan createFanByType(FanType fanType) {
-        return switch (fanType) {
-            case IR -> new FanIr();
-            case GPIO -> new FanGpio();
-            default -> throw new BadRequestException("Unsupported fan type for setup: " + fanType);
-        };
+        return new Fan();
     }
 }

@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.scheduler.dynamic.rule.strategy.DeviceStateStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import lombok.RequiredArgsConstructor;
@@ -46,19 +45,15 @@ public class FanStateStrategy implements DeviceStateStrategy {
       return fan.getPower();
     if (PROP_SPEED.equals(lowerProp))
       return fan.getSpeed();
-    if (fan instanceof FanIr fanIr) {
-      return switch (lowerProp) {
-        case PROP_MODE -> fanIr.getMode();
-        case PROP_SWING -> fanIr.getSwing();
-        case PROP_LIGHT -> fanIr.getLight();
-        default -> {
-          log.warn("Property '{}' not supported for FAN IR ID: {}", property, deviceId);
-          yield null;
-        }
-      };
-    }
-
-    log.warn("Property '{}' not supported for FAN ID: {} (Type: {})", property, deviceId, fan.getClass().getSimpleName());
-    return null;
+      
+    return switch (lowerProp) {
+      case PROP_MODE -> fan.getMode();
+      case PROP_SWING -> fan.getSwing();
+      case PROP_LIGHT -> fan.getLight();
+      default -> {
+        log.warn("Property '{}' not supported for FAN ID: {}", property, deviceId);
+        yield null;
+      }
+    };
   }
 }

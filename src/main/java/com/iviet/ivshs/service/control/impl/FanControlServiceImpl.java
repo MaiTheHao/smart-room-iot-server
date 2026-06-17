@@ -11,7 +11,6 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.service.control.FanControlService;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
@@ -76,9 +75,9 @@ public class FanControlServiceImpl implements FanControlService {
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = new ControlDeviceResult();
     executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), mode, fan.getSpecificType(), fan.getDuration()));
-    if (result.getSuccessCount() > 0 && fan instanceof FanIr fanIr) {
-      fanIr.setMode(mode);
-      fanDao.save(fanIr);
+    if (result.getSuccessCount() > 0) {
+      fan.setMode(mode);
+      fanDao.save(fan);
     }
     return result;
   }
@@ -104,9 +103,9 @@ public class FanControlServiceImpl implements FanControlService {
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = new ControlDeviceResult();
     executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), swing, fan.getSpecificType(), fan.getDuration()));
-    if (result.getSuccessCount() > 0 && fan instanceof FanIr fanIr) {
-      fanIr.setSwing(swing);
-      fanDao.save(fanIr);
+    if (result.getSuccessCount() > 0) {
+      fan.setSwing(swing);
+      fanDao.save(fan);
     }
     return result;
   }
@@ -141,14 +140,14 @@ public class FanControlServiceImpl implements FanControlService {
         fan.setSpeed(body.speed());
       }
     }
-    if (body.mode() != null && fan instanceof FanIr fanIr) {
+    if (body.mode() != null) {
       if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), body.mode(), specificType, duration))) {
-        fanIr.setMode(body.mode());
+        fan.setMode(body.mode());
       }
     }
-    if (body.swing() != null && fan instanceof FanIr fanIr) {
+    if (body.swing() != null) {
       if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), body.swing(), specificType, duration))) {
-        fanIr.setSwing(body.swing());
+        fan.setSwing(body.swing());
       }
     }
     fanDao.save(fan);
