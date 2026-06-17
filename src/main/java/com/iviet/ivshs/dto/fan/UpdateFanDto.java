@@ -1,31 +1,38 @@
 package com.iviet.ivshs.dto.fan;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 import com.iviet.ivshs.shared.enumeration.FanType;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = UpdateFanIrDto.class, name = "IR"),
-        @JsonSubTypes.Type(value = UpdateFanGpioDto.class, name = "GPIO")
-})
-public sealed interface UpdateFanDto permits UpdateFanIrDto, UpdateFanGpioDto {
-    String name();
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
-    String naturalId();
+public record UpdateFanDto(
+        @Size(min = 1, max = 100) String name,
 
-    String description();
+        String naturalId,
 
-    Boolean isActive();
+        @Size(max = 255) String description,
 
-    Long roomId();
+        Boolean isActive,
 
-    Long deviceControlId();
+        Long roomId,
 
-    String langCode();
+        Long deviceControlId,
 
-    ActuatorPower power();
+        @Size(max = 10) String langCode,
 
-    FanType type();
+        ActuatorPower power,
+
+        FanType type,
+
+        @Min(value = 1, message = "Speed must be at least 1") @Max(value = 5, message = "Speed must be at most 5") Integer speed,
+
+        ActuatorMode mode,
+
+        ActuatorSwing swing,
+
+        ActuatorPower light) {
 }

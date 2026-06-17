@@ -3,7 +3,6 @@ package com.iviet.ivshs.dto.fan;
 import java.util.List;
 
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.FanIr;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
@@ -59,12 +58,11 @@ public record FanDto(
                 .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
                 .category(DeviceCategory.FAN);
 
-        if (entity instanceof FanIr fanIr) {
-            builder.speed(fanIr.getSpeed())
-                    .mode(fanIr.getMode())
-                    .light(fanIr.getLight())
-                    .swing(fanIr.getSwing());
-        }
+        builder.speed(entity.getSpeed())
+               .duration(entity.getDuration())
+               .mode(entity.getMode())
+               .swing(entity.getSwing())
+               .light(entity.getLight());
 
         return builder.build();
     }
