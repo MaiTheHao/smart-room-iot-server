@@ -42,7 +42,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   @Transactional
   public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, power, null, null, null, null, null);
+    return executeAcControl(ac, power, null, null, null, null);
   }
 
   @Override
@@ -50,42 +50,42 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult handleTogglePowerControl(String naturalId) {
     AirCondition ac = getOrThrow(naturalId);
     ActuatorPower newPowerState = (ac.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-    return executeAcControl(ac, newPowerState, null, null, null, null, null);
+    return executeAcControl(ac, newPowerState, null, null, null, null);
   }
 
   @Override
   @Transactional
   public ControlDeviceResult handleTemperatureControl(String naturalId, int temperature) {
     AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, temperature, null, null, null, null);
+    return executeAcControl(ac, null, temperature, null, null, null);
   }
 
   @Override
   @Transactional
   public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, null, mode, null, null, null);
+    return executeAcControl(ac, null, null, mode, null, null);
   }
 
   @Override
   @Transactional
   public ControlDeviceResult handleFanSpeedControl(String naturalId, int speed) {
     AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, null, null, speed, null, null);
+    return executeAcControl(ac, null, null, null, speed, null);
   }
 
   @Override
   @Transactional
   public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, null, null, null, swing, null);
+    return executeAcControl(ac, null, null, null, null, swing);
   }
 
   @Override
   @Transactional
   public ControlDeviceResult control(String naturalId, AirConditionControlRequestBody body) {
     AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing(), body.duration());
+    return executeAcControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing());
   }
 
   @Override
@@ -93,13 +93,21 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
   public ControlDeviceResult control(Long id, AirConditionControlRequestBody body) {
     AirCondition ac = airConditionDao.findById(id)
         .orElseThrow(() -> new BadRequestException("AirCondition not found with id: " + id));
-    return executeAcControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing(), body.duration());
+    return executeAcControl(ac, body.power(), body.temperature(), body.mode(), body.fanSpeed(), body.swing());
   }
 
-  private ControlDeviceResult executeAcControl(AirCondition ac, ActuatorPower targetPower, Integer targetTemp, ActuatorMode targetMode, Integer targetSpeed, ActuatorSwing targetSwing,
-      Integer targetDuration) {
+  /**
+   * Core control logic. duration and specificType are always read from the entity
+   * (device setup config) — they are not overridable per-request.
+   */
+  private ControlDeviceResult executeAcControl(AirCondition ac,
+      ActuatorPower targetPower,
+      Integer targetTemp,
+      ActuatorMode targetMode,
+      Integer targetSpeed,
+      ActuatorSwing targetSwing) {
 
-    boolean isOtherChanged = targetTemp != null || targetMode != null || targetSpeed != null || targetSwing != null || targetDuration != null;
+    boolean isOtherChanged = targetTemp != null || targetMode != null || targetSpeed != null || targetSwing != null;
 
     ActuatorPower targetOrAutoPower = targetPower;
     if (targetOrAutoPower == null && isOtherChanged && ac.getPower() != ActuatorPower.ON) {
@@ -111,22 +119,22 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     String gatewayIp = extractClientIpAddress(ac);
     ControlDeviceResult result = new ControlDeviceResult();
 
+    // Merge: target value takes priority, fall back to current entity state
     ActuatorPower finalPower = targetOrAutoPower != null ? targetOrAutoPower : ac.getPower();
     Integer finalTemp = targetTemp != null ? targetTemp : ac.getTemperature();
     ActuatorMode finalMode = targetMode != null ? targetMode : ac.getMode();
     Integer finalSpeed = targetSpeed != null ? targetSpeed : ac.getFanSpeed();
     ActuatorSwing finalSwing = targetSwing != null ? targetSwing : ac.getSwing();
-    Integer finalDuration = targetDuration != null ? targetDuration : ac.getDuration();
-    String specificType = ac.getSpecificType();
 
+    // duration and specificType are device setup config — always from entity
     AcRemoteRequestPayload payload = AcRemoteRequestPayload.builder()
         .power(finalPower != null ? finalPower.name() : null)
         .temperature(finalTemp)
         .mode(finalMode != null ? finalMode.name() : null)
         .speed(finalSpeed)
         .swing(finalSwing != null ? finalSwing.name() : null)
-        .duration(finalDuration)
-        .specificType(specificType)
+        .duration(ac.getDuration())
+        .specificType(ac.getSpecificType())
         .build();
 
     boolean hasFailed = false;
@@ -134,8 +142,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     if (isPowerChanged) {
       try {
         ResponseEntity<ApiResponse<String>> response = gatewayControlClient.controlAcPower(gatewayIp, ac.getNaturalId(), payload);
-        if (response.getStatusCode()
-            .is2xxSuccessful()) {
+        if (response.getStatusCode().is2xxSuccessful()) {
           result.addDetail("power", true, "Success");
           ac.setPower(targetOrAutoPower);
           airConditionDao.save(ac);
@@ -152,20 +159,13 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     if (!hasFailed && isOtherChanged) {
       try {
         ResponseEntity<ApiResponse<String>> response = gatewayControlClient.controlAcRemote(gatewayIp, ac.getNaturalId(), payload);
-        if (response.getStatusCode()
-            .is2xxSuccessful()) {
+        if (response.getStatusCode().is2xxSuccessful()) {
           result.addDetail("remote", true, "Success");
 
-          if (targetTemp != null)
-            ac.setTemperature(targetTemp);
-          if (targetMode != null)
-            ac.setMode(targetMode);
-          if (targetSpeed != null)
-            ac.setFanSpeed(targetSpeed);
-          if (targetSwing != null)
-            ac.setSwing(targetSwing);
-          if (targetDuration != null)
-            ac.setDuration(targetDuration);
+          if (targetTemp != null) ac.setTemperature(targetTemp);
+          if (targetMode != null) ac.setMode(targetMode);
+          if (targetSpeed != null) ac.setFanSpeed(targetSpeed);
+          if (targetSwing != null) ac.setSwing(targetSwing);
 
           airConditionDao.save(ac);
         } else {

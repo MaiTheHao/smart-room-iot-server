@@ -27,4 +27,13 @@ public abstract class GatewayDeviceControlClient extends BaseGatewayClient {
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(Map.of("data", data));
         return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
+
+    protected ResponseEntity<ApiResponse<String>> executePut(String url, Object data, String specificType, Integer duration) {
+        java.util.LinkedHashMap<String, Object> body = new java.util.LinkedHashMap<>();
+        body.put("data", data);
+        if (specificType != null) body.put("specificType", specificType);
+        if (duration != null) body.put("duration", duration);
+        HttpEntity<java.util.Map<String, Object>> requestEntity = new HttpEntity<>(body);
+        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
+    }
 }

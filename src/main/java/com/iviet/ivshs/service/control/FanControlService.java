@@ -18,7 +18,5 @@ public interface FanControlService extends DeviceControlServiceStrategy<FanContr
 
     ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing);
 
-    ControlDeviceResult handleLightControl(String naturalId, ActuatorPower light);
-
     ControlDeviceResult control(String naturalId, FanControlRequestBody body);
 }

@@ -15,7 +15,5 @@ public record FanControlRequestBody(
 
         @Min(value = 1, message = "Speed must be between 1 and 3") @Max(value = 3, message = "Speed must be between 1 and 3") Integer speed,
 
-        ActuatorSwing swing,
-
-        ActuatorPower light) {
+        ActuatorSwing swing) {
 }
