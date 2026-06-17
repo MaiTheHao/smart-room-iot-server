@@ -24,7 +24,7 @@ public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTran
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Column(name = "specific_type", length = 256, insertable = false, updatable = false)
+    @Column(name = "specific_type", length = 256, insertable = true, updatable = false)
     private String specificType;
 
     @ManyToOne(fetch = FetchType.LAZY)
