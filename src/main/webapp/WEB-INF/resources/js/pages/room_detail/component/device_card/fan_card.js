@@ -7,7 +7,10 @@ export const FanCard = {
   },
 
   renderControlPane(fan, isActive) {
-    const isIR = fan.type === 'IR';
+    if (fan.specificType === 'GPIO') {
+      return '';
+    }
+
     const i18n = StateManager.getI18n();
     return `
       <div class="bg-white rounded-3 p-3 border border-light">
@@ -18,26 +21,22 @@ export const FanCard = {
               </div>
               <input type="range" class="form-range fan-speed-range" min="0" max="3" value="${fan.speed || 0}" ${!isActive ? 'disabled' : ''}>
           </div>
-          ${
-            isIR
-              ? `
-              <div class="d-flex justify-content-between align-items-center mb-2 pt-2 border-top">
-                  <small class="fw-bold text-muted tiny">${i18n.swing}</small>
-                  <div class="form-check form-switch"><input class="form-check-input fan-swing-switch" type="checkbox" ${fan.swing === 'ON' ? 'checked' : ''} ${!isActive ? 'disabled' : ''}></div>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                  <small class="fw-bold text-muted tiny">${i18n.light}</small>
-                  <div class="form-check form-switch"><input class="form-check-input fan-light-switch" type="checkbox" ${fan.light === 'ON' ? 'checked' : ''} ${!isActive ? 'disabled' : ''}></div>
-              </div>
-          `
-              : ''
-          }
+          <div class="d-flex justify-content-between align-items-center mb-2 pt-2 border-top">
+              <small class="fw-bold text-muted tiny">${i18n.swing}</small>
+              <div class="form-check form-switch"><input class="form-check-input fan-swing-switch" type="checkbox" ${fan.swing === 'ON' ? 'checked' : ''} ${!isActive ? 'disabled' : ''}></div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+              <small class="fw-bold text-muted tiny">${i18n.light}</small>
+              <div class="form-check form-switch"><input class="form-check-input fan-light-switch" type="checkbox" ${fan.light === 'ON' ? 'checked' : ''} ${!isActive ? 'disabled' : ''}></div>
+          </div>
       </div>
     `;
   },
 
   updateStatus(card, device, isActive, i18n, commonUpdate) {
     commonUpdate(card, isActive, i18n);
+
+    if (device.specificType === 'GPIO') return;
 
     const speedBadge = card
       .querySelector('.fan-speed-range')
