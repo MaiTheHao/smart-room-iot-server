@@ -15,6 +15,19 @@ export const getDevicesByRoom = (roomId, category = null) => {
 };
 
 /**
+ * Get all devices in the system (non-paginated)
+ * @param {DeviceCategory} [category] - Optional filter
+ * @returns {Promise<[Error|null, ApiResponse<Object[]>]>}
+ */
+export const getAllDevices = (category = null) => {
+	let endpoint = '/api/v1/devices/all';
+	if (category) {
+		endpoint += `?category=${category}`;
+	}
+	return httpClient(endpoint);
+};
+
+/**
  * Control Air Condition
  * @param {string} naturalId
  * @param {AirConditionControlRequestBody} data

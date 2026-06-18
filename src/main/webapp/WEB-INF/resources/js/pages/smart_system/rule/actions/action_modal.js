@@ -1,8 +1,8 @@
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllFloors } from '../../../../api/floor.api.js';
-import { getAllRoomsByFloor } from '../../../../api/room.api.js';
-import { getDevicesByRoom } from '../../../../api/device.api.js';
+import { getAllRoomsByFloor, getRoomById } from '../../../../api/room.api.js';
+import { getDevicesByRoom, getAllDevices } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 
@@ -85,9 +85,39 @@ const PARAMETER_CONFIG = {
     },
 };
 
+const DEVICE_CAPABILITIES = {
+    FAN: {
+        GPIO: ['power', 'speed'],
+        IRSEND: ['power', 'speed', 'mode', 'swing'],
+        IR_CTL: ['power', 'speed', 'mode', 'swing']
+    },
+    LIGHT: {
+        GPIO: ['power', 'level'],
+        IRSEND: ['power', 'level'],
+        IR_CTL: ['power', 'level']
+    },
+    AIR_CONDITION: {
+        GPIO: ['power'],
+        IRSEND: ['power', 'temperature', 'mode', 'fanSpeed', 'swing'],
+        IR_CTL: ['power', 'temperature', 'mode', 'fanSpeed', 'swing']
+    }
+};
+
 export const ActionModal = (() => {
     let bootstrapModal = null;
     let isFloorsLoaded = false;
+    let allDevices = [];
+
+    const loadAllDevices = async () => {
+        try {
+            const [err, res] = await getAllDevices();
+            if (!err && res?.data) {
+                allDevices = res.data;
+            }
+        } catch (err) {
+            console.error('Failed to load all devices', err);
+        }
+    };
 
     const el = {
         modal: null,
@@ -164,16 +194,26 @@ export const ActionModal = (() => {
                     el.targetDeviceId.innerHTML = `<option value="" disabled selected>${i18n.noDevicesFound}</option>`;
                 } else {
                     el.targetDeviceId.innerHTML = `<option value="" disabled selected>${i18n.selectDevice}</option>`;
+                    let hasSelected = false;
                     devices.forEach((device) => {
                         const opt = document.createElement('option');
                         opt.value = device.id;
                         opt.textContent = device.name;
+                        opt.dataset.specificType = device.specificType;
                         if (selectedId && String(device.id) === String(selectedId)) {
                             opt.selected = true;
+                            hasSelected = true;
                         }
                         el.targetDeviceId.appendChild(opt);
                     });
                     el.targetDeviceId.disabled = false;
+
+                    if (hasSelected) {
+                        const selectedOpt = el.targetDeviceId.options[el.targetDeviceId.selectedIndex];
+                        const specificType = selectedOpt?.dataset?.specificType || null;
+                        const currentParams = getEnteredParams(category);
+                        renderDynamicParams(category, specificType, currentParams);
+                    }
                 }
             } else {
                 el.targetDeviceId.innerHTML = `<option value="" disabled selected>${i18n.errorLoadingDevices}</option>`;
@@ -184,12 +224,40 @@ export const ActionModal = (() => {
         }
     };
 
-    const renderDynamicParams = (category, currentParams = {}) => {
+    const getEnteredParams = (category) => {
+        const config = PARAMETER_CONFIG[category];
+        if (!config) return {};
+        const params = {};
+        for (const [key, schema] of Object.entries(config)) {
+            const inputEl = el.dynamicParamsContainer.querySelector(`[name="param_${key}"]`);
+            if (inputEl) {
+                const val = inputEl.value;
+                if (val !== '' && val !== null && val !== undefined) {
+                    params[key] = val;
+                }
+            }
+        }
+        return params;
+    };
+
+    const renderDynamicParams = (category, specificType = null, currentParams = {}) => {
         el.dynamicParamsContainer.innerHTML = '';
         const config = PARAMETER_CONFIG[category];
         if (!config) return;
 
+        if (!specificType) {
+            const selectedOpt = el.targetDeviceId.options[el.targetDeviceId.selectedIndex];
+            specificType = selectedOpt?.dataset?.specificType || null;
+        }
+
+        const allowedKeys = (specificType && DEVICE_CAPABILITIES[category]?.[specificType])
+            ? DEVICE_CAPABILITIES[category][specificType]
+            : null;
+
         Object.entries(config).forEach(([key, schema]) => {
+            if (allowedKeys && !allowedKeys.includes(key)) {
+                return;
+            }
             const col = document.createElement('div');
             col.className = 'col-12 col-md-6';
 
@@ -222,7 +290,6 @@ export const ActionModal = (() => {
 
                 col.appendChild(select);
             } else {
-
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.className = 'form-control bg-light border-0';
@@ -323,22 +390,29 @@ export const ActionModal = (() => {
         el.roomId?.addEventListener('change', () => {
             loadDevices(el.roomId.value, el.targetDeviceCategory.value);
         });
+
+        el.targetDeviceId?.addEventListener('change', () => {
+            const selectedOpt = el.targetDeviceId.options[el.targetDeviceId.selectedIndex];
+            const specificType = selectedOpt?.dataset?.specificType || null;
+            const currentParams = getEnteredParams(el.targetDeviceCategory.value);
+            renderDynamicParams(el.targetDeviceCategory.value, specificType, currentParams);
+        });
     };
 
     const open = async (localId = null) => {
         el.form.reset();
         el.localId.value = '';
         isFloorsLoaded = false;
+        allDevices = [];
 
         el.roomId.disabled = true;
         el.roomId.innerHTML = `<option value="" disabled selected>${i18n.selectRoom}</option>`;
         el.targetDeviceId.disabled = true;
         el.targetDeviceId.innerHTML = `<option value="" disabled selected>${i18n.selectRoomAndCategory}</option>`;
 
-        await loadFloors();
+        await Promise.all([loadFloors(), loadAllDevices()]);
 
         if (localId) {
-
             const data = StateManager.getAction(localId);
             if (data) {
                 el.title.textContent = i18n.editTitle;
@@ -349,19 +423,24 @@ export const ActionModal = (() => {
                 const params = typeof data.actionParams === 'string'
                     ? JSON.parse(data.actionParams)
                     : (data.actionParams || {});
-                renderDynamicParams(data.targetDeviceCategory, params);
 
-                el.targetDeviceId.innerHTML = '';
-                const opt = document.createElement('option');
-                opt.value = data.targetDeviceId;
-                opt.textContent = data.targetName || data.targetDeviceName
-                    || `Device #${data.targetDeviceId} (${i18n.keptAsIs})`;
-                opt.selected = true;
-                el.targetDeviceId.appendChild(opt);
-                el.targetDeviceId.disabled = false;
+                const device = allDevices.find(d => String(d.id) === String(data.targetDeviceId));
+                if (device) {
+                    const [roomErr, roomRes] = await getRoomById(device.roomId);
+                    if (!roomErr && roomRes?.data) {
+                        const room = roomRes.data;
+                        el.floorId.value = room.floorId;
+                        await loadRooms(room.floorId);
+                        el.roomId.value = device.roomId;
+                        await loadDevices(device.roomId, data.targetDeviceCategory, data.targetDeviceId);
+                    } else {
+                        fallbackLoad(data, params);
+                    }
+                } else {
+                    fallbackLoad(data, params);
+                }
             }
         } else {
-
             el.title.textContent = i18n.addTitle;
             el.executionOrder.value = StateManager.getActions().length;
             renderDynamicParams(el.targetDeviceCategory.value);
@@ -369,6 +448,18 @@ export const ActionModal = (() => {
 
         bootstrapModal?.show();
         window.renderIcons?.();
+    };
+
+    const fallbackLoad = (data, params) => {
+        renderDynamicParams(data.targetDeviceCategory, null, params);
+        el.targetDeviceId.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = data.targetDeviceId;
+        opt.textContent = data.targetName || data.targetDeviceName
+            || `Device #${data.targetDeviceId} (${i18n.keptAsIs})`;
+        opt.selected = true;
+        el.targetDeviceId.appendChild(opt);
+        el.targetDeviceId.disabled = false;
     };
 
     const submit = async (e) => {
