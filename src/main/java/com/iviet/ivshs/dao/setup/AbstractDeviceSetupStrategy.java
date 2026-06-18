@@ -7,6 +7,7 @@ import com.iviet.ivshs.entities.base.BaseIoTEntity;
 import com.iviet.ivshs.entities.base.BaseTranslatableEntity;
 import com.iviet.ivshs.entities.base.BaseTranslation;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -25,7 +26,7 @@ public abstract class AbstractDeviceSetupStrategy implements DeviceSetupStrategy
             HardwareConfig hardwareConfig) {
         entity.setIsActive(device.isActive());
         entity.setNaturalId(device.getNaturalId());
-        entity.setSpecificType(device.getSpecificType());
+        entity.setSpecificType(DeviceSpecificType.fromString(device.getSpecificType()));
         entity.setRoom(room);
         entity.setHardwareConfig(hardwareConfig);
 

@@ -3,6 +3,10 @@ package com.iviet.ivshs.entities.base;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
 
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -15,8 +19,7 @@ import lombok.Setter;
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTranslatableEntity<T>>>
-        extends BaseTranslatableEntity<T> {
+public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTranslatableEntity<T>>> extends BaseTranslatableEntity<T> {
 
     @Column(name = "natural_id", length = 256, unique = true, nullable = false)
     private String naturalId;
@@ -24,8 +27,9 @@ public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTran
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "specific_type", length = 256, insertable = true, updatable = false)
-    private String specificType;
+    private DeviceSpecificType specificType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
