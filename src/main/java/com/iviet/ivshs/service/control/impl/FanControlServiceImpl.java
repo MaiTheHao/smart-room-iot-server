@@ -12,11 +12,9 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.service.control.FanControlService;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.shared.enumeration.ActuatorMode;
-import com.iviet.ivshs.shared.enumeration.ActuatorPower;
-import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
+import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
@@ -40,81 +38,7 @@ public class FanControlServiceImpl implements FanControlService {
     return FanControlRequestBody.class;
   }
 
-  @Override
-  @Transactional
-  public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
-    Fan fan = getOrThrow(naturalId);
-    String gatewayIp = extractClientIpAddress(fan);
-    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), power);
-    ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), payload));
-    if (result.getSuccessCount() > 0) {
-      fan.setPower(power);
-      fanDao.save(fan);
-    }
-    return result;
-  }
 
-  @Override
-  @Transactional
-  public ControlDeviceResult handleTogglePowerControl(String naturalId) {
-    Fan fan = getOrThrow(naturalId);
-    ActuatorPower newPowerState = (fan.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-    String gatewayIp = extractClientIpAddress(fan);
-    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), newPowerState);
-    ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), payload));
-    if (result.getSuccessCount() > 0) {
-      fan.setPower(newPowerState);
-      fanDao.save(fan);
-    }
-    return result;
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
-    Fan fan = getOrThrow(naturalId);
-    String gatewayIp = extractClientIpAddress(fan);
-    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), mode);
-    ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), payload));
-    if (result.getSuccessCount() > 0) {
-      fan.setMode(mode);
-      fanDao.save(fan);
-    }
-    return result;
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleSpeedControl(String naturalId, int speed) {
-    Fan fan = getOrThrow(naturalId);
-    String gatewayIp = extractClientIpAddress(fan);
-    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), speed);
-    ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), payload));
-    if (result.getSuccessCount() > 0) {
-      fan.setSpeed(speed);
-      fanDao.save(fan);
-    }
-    return result;
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
-    Fan fan = getOrThrow(naturalId);
-    String gatewayIp = extractClientIpAddress(fan);
-    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), swing);
-    ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), payload));
-    if (result.getSuccessCount() > 0) {
-      fan.setSwing(swing);
-      fanDao.save(fan);
-    }
-    return result;
-  }
 
   @Override
   @Transactional
@@ -134,6 +58,7 @@ public class FanControlServiceImpl implements FanControlService {
   private ControlDeviceResult applyControlParams(Fan fan, FanControlRequestBody body) {
     String gatewayIp = extractClientIpAddress(fan);
     ControlDeviceResult result = new ControlDeviceResult();
+
     if (body.power() != null) {
       DeviceControlPayload powerPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.power());
       if (executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), powerPayload))) {
@@ -141,21 +66,33 @@ public class FanControlServiceImpl implements FanControlService {
       }
     }
     if (body.speed() != null) {
-      DeviceControlPayload speedPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.speed());
-      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), speedPayload))) {
-        fan.setSpeed(body.speed());
+      if (!DeviceCapabilityRegistry.isSupported(fan, "speed")) {
+        result.addDetail("speed", false, "Fan does not support speed control");
+      } else {
+        DeviceControlPayload speedPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.speed());
+        if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), speedPayload))) {
+          fan.setSpeed(body.speed());
+        }
       }
     }
     if (body.mode() != null) {
-      DeviceControlPayload modePayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.mode());
-      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), modePayload))) {
-        fan.setMode(body.mode());
+      if (!DeviceCapabilityRegistry.isSupported(fan, "mode")) {
+        result.addDetail("mode", false, "Fan does not support mode control");
+      } else {
+        DeviceControlPayload modePayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.mode());
+        if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), modePayload))) {
+          fan.setMode(body.mode());
+        }
       }
     }
     if (body.swing() != null) {
-      DeviceControlPayload swingPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.swing());
-      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), swingPayload))) {
-        fan.setSwing(body.swing());
+      if (!DeviceCapabilityRegistry.isSupported(fan, "swing")) {
+        result.addDetail("swing", false, "Fan does not support swing control");
+      } else {
+        DeviceControlPayload swingPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.swing());
+        if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), swingPayload))) {
+          fan.setSwing(body.swing());
+        }
       }
     }
     fanDao.save(fan);

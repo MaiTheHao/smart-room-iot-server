@@ -3,6 +3,7 @@ package com.iviet.ivshs.scheduler.dynamic.automation.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.LightDao;
+import com.iviet.ivshs.dto.light.LightControlRequestBody;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;
@@ -35,7 +36,7 @@ public class LightAutomationActionStrategy implements AutomationActionStrategy {
         try {
             Light light = lightDao.findById(action.getTargetId()).orElseThrow(() -> new NotFoundException("Light not found: " + action.getTargetId()));
 
-            controlService.handlePowerControl(light.getNaturalId(), newState);
+            controlService.control(light.getNaturalId(), new LightControlRequestBody(newState, null));
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {
             log.warn("Failed: TargetId={}, Reason={}", action.getTargetId(), e.getMessage());

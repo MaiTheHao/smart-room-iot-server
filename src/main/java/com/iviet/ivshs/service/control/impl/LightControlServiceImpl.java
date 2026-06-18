@@ -12,10 +12,10 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.integration.gateway.GatewayLightControlClient;
-import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.service.control.LightControlService;
+import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,51 +42,7 @@ public class LightControlServiceImpl implements LightControlService {
 		return LightControlRequestBody.class;
 	}
 
-	@Override
-	@Transactional
-	public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
-		Light light = getOrThrow(naturalId);
-		String gatewayIp = extractClientIpAddress(light);
-		DeviceControlPayload payload = DeviceControlPayload.of(light.getSpecificType(), power);
-		ControlDeviceResult result = new ControlDeviceResult();
-		executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), payload));
-		if (result.getSuccessCount() > 0) {
-			light.setPower(power);
-			lightDao.save(light);
-		}
-		return result;
-	}
 
-	@Override
-	@Transactional
-	public ControlDeviceResult handleTogglePowerControl(String naturalId) {
-		Light light = getOrThrow(naturalId);
-		ActuatorPower newPowerState = (light.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-		String gatewayIp = extractClientIpAddress(light);
-		DeviceControlPayload payload = DeviceControlPayload.of(light.getSpecificType(), newPowerState);
-		ControlDeviceResult result = new ControlDeviceResult();
-		executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), payload));
-		if (result.getSuccessCount() > 0) {
-			light.setPower(newPowerState);
-			lightDao.save(light);
-		}
-		return result;
-	}
-
-	@Override
-	@Transactional
-	public ControlDeviceResult handleLevelControl(String naturalId, int level) {
-		Light light = getOrThrow(naturalId);
-		String gatewayIp = extractClientIpAddress(light);
-		DeviceControlPayload payload = DeviceControlPayload.of(light.getSpecificType(), level);
-		ControlDeviceResult result = new ControlDeviceResult();
-		executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), payload));
-		if (result.getSuccessCount() > 0) {
-			light.setLevel(level);
-			lightDao.save(light);
-		}
-		return result;
-	}
 
 	@Override
 	@Transactional
@@ -106,6 +62,7 @@ public class LightControlServiceImpl implements LightControlService {
 	private ControlDeviceResult applyControlParams(Light light, LightControlRequestBody body) {
 		String gatewayIp = extractClientIpAddress(light);
 		ControlDeviceResult result = new ControlDeviceResult();
+
 		if (body.power() != null) {
 			DeviceControlPayload powerPayload = DeviceControlPayload.of(light.getSpecificType(), body.power());
 			if (executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), powerPayload))) {
@@ -113,9 +70,13 @@ public class LightControlServiceImpl implements LightControlService {
 			}
 		}
 		if (body.level() != null) {
-			DeviceControlPayload levelPayload = DeviceControlPayload.of(light.getSpecificType(), body.level());
-			if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), levelPayload))) {
-				light.setLevel(body.level());
+			if (!DeviceCapabilityRegistry.isSupported(light, "level")) {
+				result.addDetail("level", false, "Light does not support level control");
+			} else {
+				DeviceControlPayload levelPayload = DeviceControlPayload.of(light.getSpecificType(), body.level());
+				if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), levelPayload))) {
+					light.setLevel(body.level());
+				}
 			}
 		}
 		lightDao.save(light);

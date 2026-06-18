@@ -3,6 +3,7 @@ package com.iviet.ivshs.scheduler.dynamic.automation.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.FanDao;
+import com.iviet.ivshs.dto.fan.FanControlRequestBody;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;
@@ -34,7 +35,7 @@ public class FanAutomationActionStrategy implements AutomationActionStrategy {
         try {
             Fan fan = fanDao.findById(action.getTargetId()).orElseThrow(() -> new NotFoundException("Fan not found: " + action.getTargetId()));
 
-            controlService.handlePowerControl(fan.getNaturalId(), newState);
+            controlService.control(fan.getNaturalId(), new FanControlRequestBody(newState, null, null, null));
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {
             log.warn("Failed: TargetId={}, Reason={}", action.getTargetId(), e.getMessage());

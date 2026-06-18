@@ -38,48 +38,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     return AirConditionControlRequestBody.class;
   }
 
-  @Override
-  @Transactional
-  public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
-    AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, power, null, null, null, null);
-  }
 
-  @Override
-  @Transactional
-  public ControlDeviceResult handleTogglePowerControl(String naturalId) {
-    AirCondition ac = getOrThrow(naturalId);
-    ActuatorPower newPowerState = (ac.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
-    return executeAcControl(ac, newPowerState, null, null, null, null);
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleTemperatureControl(String naturalId, int temperature) {
-    AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, temperature, null, null, null);
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
-    AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, null, mode, null, null);
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleFanSpeedControl(String naturalId, int speed) {
-    AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, null, null, speed, null);
-  }
-
-  @Override
-  @Transactional
-  public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
-    AirCondition ac = getOrThrow(naturalId);
-    return executeAcControl(ac, null, null, null, null, swing);
-  }
 
   @Override
   @Transactional

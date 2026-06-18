@@ -1,7 +1,11 @@
 package com.iviet.ivshs.service.rule.impl;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -11,13 +15,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
+import com.iviet.ivshs.dao.FanDao;
+import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.rule.CreateRuleDto;
 import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
+import com.iviet.ivshs.entities.Fan;
+import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.mapper.RuleMapper;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
+import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
@@ -39,13 +49,15 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
   private final ObjectMapper objectMapper;
   private final Validator validator;
   private final List<DeviceControlServiceStrategy<?>> controlStrategies;
+  private final FanDao fanDao;
+  private final LightDao lightDao;
 
-  private java.util.Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
+  private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
   @PostConstruct
   private void initStrategyMap() {
     strategyMap = controlStrategies.stream()
-        .collect(Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, java.util.function.Function.identity()));
+        .collect(Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, Function.identity()));
   }
 
   @Override
@@ -58,7 +70,7 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     }
 
     dto.actions()
-        .forEach(action -> validateActionParams(action.targetDeviceCategory(), action.actionParams()));
+        .forEach(action -> validateActionParams(action.targetDeviceCategory(), action.targetDeviceId(), action.actionParams()));
 
     Rule rule = ruleMapper.fromCreateDto(dto);
     ruleDao.save(rule);
@@ -84,13 +96,9 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
 
     if (dto.actions() != null) {
       dto.actions()
-          .forEach(action -> {
-            DeviceCategory category = action.targetDeviceCategory();
-            JsonNode params = action.actionParams();
-            if (category != null && params != null) {
-              validateActionParams(category, params);
-            }
-          });
+          .stream()
+          .filter(action -> action.targetDeviceCategory() != null && action.targetDeviceId() != null && action.actionParams() != null)
+          .forEach(action -> validateActionParams(action.targetDeviceCategory(), action.targetDeviceId(), action.actionParams()));
     }
 
     ruleMapper.updateFromDto(dto, rule);
@@ -140,8 +148,9 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     Rule rule = ruleDao.findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    if (Objects.equals(rule.getIsActive(), isActive))
+    if (Objects.equals(rule.getIsActive(), isActive)) {
       return;
+    }
 
     rule.setIsActive(isActive);
     ruleDao.update(rule);
@@ -164,12 +173,54 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     return Rule.JOB_GROUP;
   }
 
-  private void validateActionParams(DeviceCategory category, JsonNode params) {
-    DeviceControlServiceStrategy<?> strategy = java.util.Optional.ofNullable(strategyMap.get(category))
+  // --- PRIVATE HELPER METHODS ---
+
+  private void validateActionParams(DeviceCategory category, Long targetDeviceId, JsonNode params) {
+    DeviceControlServiceStrategy<?> strategy = Optional.ofNullable(strategyMap.get(category))
         .orElseThrow(() -> new BadRequestException("Unsupported category: " + category));
 
+    DeviceSpecificType specificType = getSpecificType(category, targetDeviceId);
+
+    validateCapabilities(category, specificType, params);
+    validateDtoConstraints(params, strategy.getControlDtoClass());
+  }
+
+  private DeviceSpecificType getSpecificType(DeviceCategory category, Long targetDeviceId) {
+    if (category == null) {
+      return DeviceSpecificType.GPIO;
+    }
+
+    return switch (category) {
+      case FAN -> fanDao.findById(targetDeviceId)
+          .map(Fan::getSpecificType)
+          .orElseThrow(() -> new NotFoundException("Fan not found with id: " + targetDeviceId));
+      case LIGHT -> lightDao.findById(targetDeviceId)
+          .map(Light::getSpecificType)
+          .orElseThrow(() -> new NotFoundException("Light not found with id: " + targetDeviceId));
+      default -> DeviceSpecificType.GPIO;
+    };
+  }
+
+  private void validateCapabilities(DeviceCategory category, DeviceSpecificType specificType, JsonNode params) {
+    if (params == null || !params.isObject()) {
+      return;
+    }
+
+    Iterator<String> fieldNames = params.fieldNames();
+    while (fieldNames.hasNext()) {
+      String field = fieldNames.next();
+      JsonNode valNode = params.get(field);
+      if (valNode != null && !valNode.isNull()) {
+        if (!DeviceCapabilityRegistry.isSupported(category, specificType, field)) {
+          throw new BadRequestException("Device category " + category + " with type " + specificType + " does not support parameter: " + field);
+        }
+      }
+    }
+  }
+
+  private void validateDtoConstraints(JsonNode params, Class<?> dtoClass) {
     try {
-      Object dto = objectMapper.treeToValue(params, strategy.getControlDtoClass());
+      Object dto = objectMapper.treeToValue(params, dtoClass);
       var violations = validator.validate(dto);
       if (!violations.isEmpty()) {
         String errorMsg = violations.stream()

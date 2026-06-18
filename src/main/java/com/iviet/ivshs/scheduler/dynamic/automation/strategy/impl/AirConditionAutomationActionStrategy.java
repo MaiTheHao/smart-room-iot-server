@@ -3,6 +3,7 @@ package com.iviet.ivshs.scheduler.dynamic.automation.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.AirConditionDao;
+import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;
@@ -34,7 +35,7 @@ public class AirConditionAutomationActionStrategy implements AutomationActionStr
         try {
             AirCondition ac = airConditionDao.findById(action.getTargetId()).orElseThrow(() -> new NotFoundException("Air Conditioner not found: " + action.getTargetId()));
 
-            controlService.handlePowerControl(ac.getNaturalId(), newState);
+            controlService.control(ac.getNaturalId(), new AirConditionControlRequestBody(newState, null, null, null, null));
             log.info("Success: TargetId={}, State={}", action.getTargetId(), newState);
         } catch (Exception e) {
             log.warn("Failed: TargetId={}, Reason={}", action.getTargetId(), e.getMessage());
