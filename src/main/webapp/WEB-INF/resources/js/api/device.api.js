@@ -15,14 +15,21 @@ export const getDevicesByRoom = (roomId, category = null) => {
 };
 
 /**
- * Get all devices in the system (non-paginated)
- * @param {DeviceCategory} [category] - Optional filter
- * @returns {Promise<[Error|null, ApiResponse<Object[]>]>}
+ * Get device detail by ID and category
+ * @param {number|string} id
+ * @param {DeviceCategory} category
+ * @returns {Promise<[Error|null, ApiResponse<Object>]>}
  */
-export const getAllDevices = (category = null) => {
-	let endpoint = '/api/v1/devices/all';
-	if (category) {
-		endpoint += `?category=${category}`;
+export const getDeviceById = (id, category) => {
+	let endpoint = '';
+	if (category === 'LIGHT') {
+		endpoint = `/api/v1/lights/${id}`;
+	} else if (category === 'FAN') {
+		endpoint = `/api/v1/fans/${id}`;
+	} else if (category === 'AIR_CONDITION') {
+		endpoint = `/api/v1/air-conditions/${id}`;
+	} else {
+		return Promise.resolve([new Error(`Unsupported category: ${category}`), null]);
 	}
 	return httpClient(endpoint);
 };

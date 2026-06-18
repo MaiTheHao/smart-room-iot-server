@@ -2,7 +2,7 @@ import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllFloors } from '../../../../api/floor.api.js';
 import { getAllRoomsByFloor, getRoomById } from '../../../../api/room.api.js';
-import { getDevicesByRoom, getAllDevices } from '../../../../api/device.api.js';
+import { getDevicesByRoom, getDeviceById } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 
@@ -106,18 +106,6 @@ const DEVICE_CAPABILITIES = {
 export const ActionModal = (() => {
     let bootstrapModal = null;
     let isFloorsLoaded = false;
-    let allDevices = [];
-
-    const loadAllDevices = async () => {
-        try {
-            const [err, res] = await getAllDevices();
-            if (!err && res?.data) {
-                allDevices = res.data;
-            }
-        } catch (err) {
-            console.error('Failed to load all devices', err);
-        }
-    };
 
     const el = {
         modal: null,
@@ -403,14 +391,13 @@ export const ActionModal = (() => {
         el.form.reset();
         el.localId.value = '';
         isFloorsLoaded = false;
-        allDevices = [];
 
         el.roomId.disabled = true;
         el.roomId.innerHTML = `<option value="" disabled selected>${i18n.selectRoom}</option>`;
         el.targetDeviceId.disabled = true;
         el.targetDeviceId.innerHTML = `<option value="" disabled selected>${i18n.selectRoomAndCategory}</option>`;
 
-        await Promise.all([loadFloors(), loadAllDevices()]);
+        await loadFloors();
 
         if (localId) {
             const data = StateManager.getAction(localId);
@@ -424,8 +411,9 @@ export const ActionModal = (() => {
                     ? JSON.parse(data.actionParams)
                     : (data.actionParams || {});
 
-                const device = allDevices.find(d => String(d.id) === String(data.targetDeviceId));
-                if (device) {
+                const [devErr, devRes] = await getDeviceById(data.targetDeviceId, data.targetDeviceCategory);
+                if (!devErr && devRes?.data) {
+                    const device = devRes.data;
                     const [roomErr, roomRes] = await getRoomById(device.roomId);
                     if (!roomErr && roomRes?.data) {
                         const room = roomRes.data;

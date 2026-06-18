@@ -8,12 +8,11 @@ Filter action parameters dynamically in the rule action modal based on the selec
 ### Frontend Changes
 
 #### `device.api.js`
-- Expose a new function `getAllDevices(category = null)` fetching `/api/v1/devices/all` to support device lookup on the frontend.
+- Expose a new function `getDeviceById(id, category)` to retrieve the detailed metadata for a single device based on its ID and category.
 
 #### `action_modal.js`
 - Define `DEVICE_CAPABILITIES` registry mimicking `DeviceCapabilityRegistry.java`.
-- Load all devices via `getAllDevices` when opening the modal.
-- Cache device lists and lookup `specificType` and `roomId` for selected or edited devices.
+- Cache/retrieve individual device details dynamically via `getDeviceById` when editing.
 - Pre-populate Floor and Room select dropdowns on edit using `getRoomById` to retrieve the `floorId`.
 - Add a `change` event listener to the target device select to re-render parameter inputs matching the selected device's `specificType`, retaining current inputs.
 
