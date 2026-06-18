@@ -14,6 +14,7 @@ import com.iviet.ivshs.service.fan.FanService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -115,10 +116,8 @@ public class FanServiceImpl implements FanService {
     }
 
     if (dto.type() != null) {
-      String existingType = fan.getSpecificType();
-      if (existingType != null && !dto.type()
-          .name()
-          .equalsIgnoreCase(existingType)) {
+      DeviceSpecificType existingType = fan.getSpecificType();
+      if (existingType != null && dto.type() != existingType) {
         throw new BadRequestException("Cannot change Fan type after creation. Please delete and create a new device.");
       }
     }

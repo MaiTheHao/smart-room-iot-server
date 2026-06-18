@@ -3,7 +3,7 @@ package com.iviet.ivshs.dto.fan;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
-import com.iviet.ivshs.shared.enumeration.FanType;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -26,7 +26,7 @@ public record UpdateFanDto(
 
         ActuatorPower power,
 
-        FanType type,
+        DeviceSpecificType type,
 
         @Min(value = 1, message = "Speed must be at least 1") @Max(value = 5, message = "Speed must be at most 5") Integer speed,
 

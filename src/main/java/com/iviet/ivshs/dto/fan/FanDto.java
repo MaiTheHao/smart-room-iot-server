@@ -10,6 +10,7 @@ import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 import lombok.Builder;
 
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 
 @Builder
 public record FanDto(
@@ -20,7 +21,7 @@ public record FanDto(
         Boolean isActive,
         Long roomId,
         ActuatorPower power,
-        String specificType,
+        DeviceSpecificType specificType,
         Integer duration,
         Integer speed,
         ActuatorMode mode,
@@ -33,7 +34,7 @@ public record FanDto(
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
      */
     public FanDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId,
-            ActuatorPower power, String specificType, Integer duration, Integer speed, ActuatorMode mode,
+            ActuatorPower power, DeviceSpecificType specificType, Integer duration, Integer speed, ActuatorMode mode,
             ActuatorPower light, ActuatorSwing swing, Long deviceControlId) {
         this(id, naturalId, name, description, isActive, roomId, power, specificType, duration, speed, mode, light, swing,
                 deviceControlId, DeviceCategory.FAN);

@@ -7,7 +7,7 @@ import com.iviet.ivshs.entities.FanLan;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
-import com.iviet.ivshs.shared.enumeration.FanType;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -34,7 +34,7 @@ public record CreateFanDto(
 
         ActuatorPower power,
 
-        @NotNull(message = "Fan type is required") FanType type,
+        @NotNull(message = "Fan type is required") DeviceSpecificType type,
 
         @Min(value = 0, message = "Duration must be positive") Integer duration,
 
@@ -52,7 +52,7 @@ public record CreateFanDto(
         fan.setIsActive(this.isActive != null ? this.isActive : false);
         fan.setPower(this.power != null ? this.power : ActuatorPower.OFF);
         if (this.type != null) {
-            fan.setSpecificType(this.type.name());
+            fan.setSpecificType(this.type);
         }
         fan.setDuration(this.duration);
         fan.setSpeed(this.speed != null ? this.speed : 1);
