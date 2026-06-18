@@ -1,5 +1,6 @@
 package com.iviet.ivshs.dto.control;
 
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
@@ -21,5 +22,5 @@ public record AcRemoteRequestPayload(String power,
 
     Integer duration,
 
-    String specificType) {
+    DeviceSpecificType specificType) {
 }

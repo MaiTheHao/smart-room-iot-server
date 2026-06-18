@@ -7,6 +7,7 @@ import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import lombok.Builder;
 
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 
 @Builder
 public record LightDto(
@@ -16,7 +17,7 @@ public record LightDto(
         String description,
         Boolean isActive,
         ActuatorPower power,
-        String specificType,
+        DeviceSpecificType specificType,
         Integer level,
         Long roomId,
         Long deviceControlId,
@@ -26,7 +27,7 @@ public record LightDto(
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
      */
     public LightDto(Long id, String naturalId, String name, String description, Boolean isActive, ActuatorPower power,
-            String specificType, Integer level, Long roomId, Long deviceControlId) {
+            DeviceSpecificType specificType, Integer level, Long roomId, Long deviceControlId) {
         this(id, naturalId, name, description, isActive, power, specificType, level, roomId, deviceControlId,
                 DeviceCategory.LIGHT);
     }

@@ -10,6 +10,7 @@ import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import lombok.Builder;
 
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 
 @Builder
 public record AirConditionDto(
@@ -20,7 +21,7 @@ public record AirConditionDto(
         Boolean isActive,
         Long roomId,
         ActuatorPower power,
-        String specificType,
+        DeviceSpecificType specificType,
         Integer duration,
         Integer temperature,
         ActuatorMode mode,
@@ -33,7 +34,7 @@ public record AirConditionDto(
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
      */
     public AirConditionDto(Long id, String naturalId, String name, String description, Boolean isActive, Long roomId,
-            ActuatorPower power, String specificType, Integer duration, Integer temperature, ActuatorMode mode,
+            ActuatorPower power, DeviceSpecificType specificType, Integer duration, Integer temperature, ActuatorMode mode,
             Integer fanSpeed, ActuatorSwing swing, Long deviceControlId) {
         this(id, naturalId, name, description, isActive, roomId, power, specificType, duration, temperature, mode,
                 fanSpeed, swing, deviceControlId, DeviceCategory.AIR_CONDITION);
