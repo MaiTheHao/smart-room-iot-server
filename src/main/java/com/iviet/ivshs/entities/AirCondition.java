@@ -10,7 +10,6 @@ import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
@@ -35,16 +34,9 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 	public static final int MIN_FAN_SPEED = 0;
 	public static final int MAX_FAN_SPEED = 5;
 
-	public static final HashSet<ActuatorMode> SUPPORTED_MODES = new HashSet<>(Set.of(
-			ActuatorMode.COOL,
-			ActuatorMode.HEAT,
-			ActuatorMode.DRY,
-			ActuatorMode.FAN,
-			ActuatorMode.AUTO));
+	public static final HashSet<ActuatorMode> SUPPORTED_MODES = new HashSet<>(Set.of(ActuatorMode.COOL, ActuatorMode.HEAT, ActuatorMode.DRY, ActuatorMode.FAN, ActuatorMode.AUTO));
 
-	public static final HashSet<ActuatorSwing> SUPPORTED_SWINGS = new HashSet<>(Set.of(
-			ActuatorSwing.ON,
-			ActuatorSwing.OFF));
+	public static final HashSet<ActuatorSwing> SUPPORTED_SWINGS = new HashSet<>(Set.of(ActuatorSwing.ON, ActuatorSwing.OFF));
 
 	@Column(name = "temperature")
 	private Integer temperature;
@@ -66,7 +58,8 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 	@Override
 	public void addTranslation(AirConditionLan translation) {
 		translation.setOwner(this);
-		this.getTranslations().add(translation);
+		this.getTranslations()
+				.add(translation);
 	}
 
 	public void setMode(ActuatorMode mode) {
@@ -78,8 +71,7 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 
 	public void setSwing(ActuatorSwing swing) {
 		if (swing != null && !SUPPORTED_SWINGS.contains(swing)) {
-			throw new IllegalArgumentException(
-					"Unsupported swing state: " + swing + ". Supported swing states are: " + SUPPORTED_SWINGS);
+			throw new IllegalArgumentException("Unsupported swing state: " + swing + ". Supported swing states are: " + SUPPORTED_SWINGS);
 		}
 		this.swing = swing;
 	}
