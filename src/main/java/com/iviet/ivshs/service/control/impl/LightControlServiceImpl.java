@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import com.iviet.ivshs.dto.light.LightControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
@@ -46,7 +47,9 @@ public class LightControlServiceImpl implements LightControlService {
 	public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
 		Light light = getOrThrow(naturalId);
 		String gatewayIp = extractClientIpAddress(light);
-		ControlDeviceResult result = handlePowerControlCall(gatewayIp, light.getNaturalId(), power);
+		DeviceControlPayload payload = DeviceControlPayload.of(light.getSpecificType(), power);
+		ControlDeviceResult result = new ControlDeviceResult();
+		executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), payload));
 		if (result.getSuccessCount() > 0) {
 			light.setPower(power);
 			lightDao.save(light);
@@ -60,7 +63,9 @@ public class LightControlServiceImpl implements LightControlService {
 		Light light = getOrThrow(naturalId);
 		ActuatorPower newPowerState = (light.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
 		String gatewayIp = extractClientIpAddress(light);
-		ControlDeviceResult result = handlePowerControlCall(gatewayIp, light.getNaturalId(), newPowerState);
+		DeviceControlPayload payload = DeviceControlPayload.of(light.getSpecificType(), newPowerState);
+		ControlDeviceResult result = new ControlDeviceResult();
+		executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), payload));
 		if (result.getSuccessCount() > 0) {
 			light.setPower(newPowerState);
 			lightDao.save(light);
@@ -73,7 +78,9 @@ public class LightControlServiceImpl implements LightControlService {
 	public ControlDeviceResult handleLevelControl(String naturalId, int level) {
 		Light light = getOrThrow(naturalId);
 		String gatewayIp = extractClientIpAddress(light);
-		ControlDeviceResult result = handleLevelControlCall(gatewayIp, light.getNaturalId(), level);
+		DeviceControlPayload payload = DeviceControlPayload.of(light.getSpecificType(), level);
+		ControlDeviceResult result = new ControlDeviceResult();
+		executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), payload));
 		if (result.getSuccessCount() > 0) {
 			light.setLevel(level);
 			lightDao.save(light);
@@ -100,12 +107,14 @@ public class LightControlServiceImpl implements LightControlService {
 		String gatewayIp = extractClientIpAddress(light);
 		ControlDeviceResult result = new ControlDeviceResult();
 		if (body.power() != null) {
-			if (executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), body.power()))) {
+			DeviceControlPayload powerPayload = DeviceControlPayload.of(light.getSpecificType(), body.power());
+			if (executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, light.getNaturalId(), powerPayload))) {
 				light.setPower(body.power());
 			}
 		}
 		if (body.level() != null) {
-			if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), body.level()))) {
+			DeviceControlPayload levelPayload = DeviceControlPayload.of(light.getSpecificType(), body.level());
+			if (executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, light.getNaturalId(), levelPayload))) {
 				light.setLevel(body.level());
 			}
 		}
@@ -128,18 +137,6 @@ public class LightControlServiceImpl implements LightControlService {
 			result.addDetail(parameter, false, e.getMessage());
 			return false;
 		}
-	}
-
-	private ControlDeviceResult handlePowerControlCall(String gatewayIp, String naturalId, ActuatorPower power) {
-		ControlDeviceResult result = new ControlDeviceResult();
-		executeControl(result, "power", () -> gatewayControlClient.controlLightPower(gatewayIp, naturalId, power));
-		return result;
-	}
-
-	private ControlDeviceResult handleLevelControlCall(String gatewayIp, String naturalId, int level) {
-		ControlDeviceResult result = new ControlDeviceResult();
-		executeControl(result, "level", () -> gatewayControlClient.controlLightLevel(gatewayIp, naturalId, level));
-		return result;
 	}
 
 	private Light getOrThrow(String naturalId) {

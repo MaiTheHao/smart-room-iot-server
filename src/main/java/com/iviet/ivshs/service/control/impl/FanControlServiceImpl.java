@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import com.iviet.ivshs.dto.fan.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
@@ -44,8 +45,9 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handlePowerControl(String naturalId, ActuatorPower power) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
+    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), power);
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), power, fan.getSpecificType(), fan.getDuration()));
+    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), payload));
     if (result.getSuccessCount() > 0) {
       fan.setPower(power);
       fanDao.save(fan);
@@ -59,8 +61,9 @@ public class FanControlServiceImpl implements FanControlService {
     Fan fan = getOrThrow(naturalId);
     ActuatorPower newPowerState = (fan.getPower() == ActuatorPower.ON) ? ActuatorPower.OFF : ActuatorPower.ON;
     String gatewayIp = extractClientIpAddress(fan);
+    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), newPowerState);
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), newPowerState, fan.getSpecificType(), fan.getDuration()));
+    executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), payload));
     if (result.getSuccessCount() > 0) {
       fan.setPower(newPowerState);
       fanDao.save(fan);
@@ -73,8 +76,9 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleModeControl(String naturalId, ActuatorMode mode) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
+    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), mode);
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), mode, fan.getSpecificType(), fan.getDuration()));
+    executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), payload));
     if (result.getSuccessCount() > 0) {
       fan.setMode(mode);
       fanDao.save(fan);
@@ -87,8 +91,9 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleSpeedControl(String naturalId, int speed) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
+    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), speed);
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), speed, fan.getSpecificType(), fan.getDuration()));
+    executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), payload));
     if (result.getSuccessCount() > 0) {
       fan.setSpeed(speed);
       fanDao.save(fan);
@@ -101,8 +106,9 @@ public class FanControlServiceImpl implements FanControlService {
   public ControlDeviceResult handleSwingControl(String naturalId, ActuatorSwing swing) {
     Fan fan = getOrThrow(naturalId);
     String gatewayIp = extractClientIpAddress(fan);
+    DeviceControlPayload payload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), swing);
     ControlDeviceResult result = new ControlDeviceResult();
-    executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), swing, fan.getSpecificType(), fan.getDuration()));
+    executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), payload));
     if (result.getSuccessCount() > 0) {
       fan.setSwing(swing);
       fanDao.save(fan);
@@ -127,26 +133,28 @@ public class FanControlServiceImpl implements FanControlService {
 
   private ControlDeviceResult applyControlParams(Fan fan, FanControlRequestBody body) {
     String gatewayIp = extractClientIpAddress(fan);
-    String specificType = fan.getSpecificType();
-    Integer duration = fan.getDuration();
     ControlDeviceResult result = new ControlDeviceResult();
     if (body.power() != null) {
-      if (executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), body.power(), specificType, duration))) {
+      DeviceControlPayload powerPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.power());
+      if (executeControl(result, "power", () -> gatewayControlClient.controlFanPower(gatewayIp, fan.getNaturalId(), powerPayload))) {
         fan.setPower(body.power());
       }
     }
     if (body.speed() != null) {
-      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), body.speed(), specificType, duration))) {
+      DeviceControlPayload speedPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.speed());
+      if (executeControl(result, "speed", () -> gatewayControlClient.controlFanSpeed(gatewayIp, fan.getNaturalId(), speedPayload))) {
         fan.setSpeed(body.speed());
       }
     }
     if (body.mode() != null) {
-      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), body.mode(), specificType, duration))) {
+      DeviceControlPayload modePayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.mode());
+      if (executeControl(result, "mode", () -> gatewayControlClient.controlFanMode(gatewayIp, fan.getNaturalId(), modePayload))) {
         fan.setMode(body.mode());
       }
     }
     if (body.swing() != null) {
-      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), body.swing(), specificType, duration))) {
+      DeviceControlPayload swingPayload = DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.swing());
+      if (executeControl(result, "swing", () -> gatewayControlClient.controlFanSwing(gatewayIp, fan.getNaturalId(), swingPayload))) {
         fan.setSwing(body.swing());
       }
     }

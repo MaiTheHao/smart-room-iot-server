@@ -1,6 +1,7 @@
 package com.iviet.ivshs.integration.gateway;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -28,12 +29,8 @@ public abstract class GatewayDeviceControlClient extends BaseGatewayClient {
         return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 
-    protected ResponseEntity<ApiResponse<String>> executePut(String url, Object data, String specificType, Integer duration) {
-        java.util.LinkedHashMap<String, Object> body = new java.util.LinkedHashMap<>();
-        body.put("data", data);
-        if (specificType != null) body.put("specificType", specificType);
-        if (duration != null) body.put("duration", duration);
-        HttpEntity<java.util.Map<String, Object>> requestEntity = new HttpEntity<>(body);
+    protected ResponseEntity<ApiResponse<String>> executePut(String url, DeviceControlPayload payload) {
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(payload.toMap());
         return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 }
