@@ -115,6 +115,14 @@ export const DeviceController = {
       return;
     }
 
+    const fanBtn = target.closest('.fan-mode-btn');
+    if (fanBtn) {
+      const item = fanBtn.closest('.device-item');
+      const { naturalId } = item.dataset;
+      await this.handleApiCall('FAN', naturalId, { mode: fanBtn.dataset.mode });
+      return;
+    }
+
     const typeBtn = target.closest('.chart-type-group button');
     if (typeBtn) {
       const item = typeBtn.closest('.device-item');

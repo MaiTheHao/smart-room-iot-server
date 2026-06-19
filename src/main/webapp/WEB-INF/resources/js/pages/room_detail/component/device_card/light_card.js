@@ -7,14 +7,6 @@ export const LightCard = {
   },
 
   renderControlPane(light, isActive) {
-    if (
-      light.specificType === 'GPIO' ||
-      light.specificType === 'IRSEND' ||
-      light.specificType === 'IR_CTL'
-    ) {
-      return '';
-    }
-
     const i18n = StateManager.getI18n();
     return `
       <div class="bg-white rounded-3 p-3 border border-light">
@@ -29,14 +21,6 @@ export const LightCard = {
 
   updateStatus(card, device, isActive, i18n, commonUpdate) {
     commonUpdate(card, isActive, i18n);
-
-    if (
-      device.specificType === 'GPIO' ||
-      device.specificType === 'IRSEND' ||
-      device.specificType === 'IR_CTL'
-    ) {
-      return;
-    }
 
     const levelBadge = card
       .querySelector('.light-level-range')

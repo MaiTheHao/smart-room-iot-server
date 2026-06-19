@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.RuleDao;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LightDao;
+import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.rule.CreateRuleDto;
 import com.iviet.ivshs.dto.rule.RuleDto;
@@ -24,6 +25,7 @@ import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.Light;
+import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.mapper.RuleMapper;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
@@ -51,6 +53,7 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
   private final List<DeviceControlServiceStrategy<?>> controlStrategies;
   private final FanDao fanDao;
   private final LightDao lightDao;
+  private final AirConditionDao airConditionDao;
 
   private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
@@ -197,6 +200,9 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
       case LIGHT -> lightDao.findById(targetDeviceId)
           .map(Light::getSpecificType)
           .orElseThrow(() -> new NotFoundException("Light not found with id: " + targetDeviceId));
+      case AIR_CONDITION -> airConditionDao.findById(targetDeviceId)
+          .map(AirCondition::getSpecificType)
+          .orElseThrow(() -> new NotFoundException("AirCondition not found with id: " + targetDeviceId));
       default -> DeviceSpecificType.GPIO;
     };
   }

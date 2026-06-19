@@ -16,7 +16,7 @@ public final class DeviceCapabilityRegistry {
 
 	private static final Map<DeviceTypeKey, Set<String>> REGISTRY = Map.of(
 			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.GPIO),
-			Set.of("power"),
+			Set.of("power", "speed"),
 
 			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.IRSEND),
 			Set.of("power", "speed", "mode", "swing"),
@@ -25,20 +25,26 @@ public final class DeviceCapabilityRegistry {
 			Set.of("power", "speed", "mode", "swing"),
 
 			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.GPIO),
-			Set.of("power"),
+			Set.of("power", "level"),
 
 			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.IRSEND),
-			Set.of("power"),
+			Set.of("power", "level"),
 
 			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.IR_CTL),
-			Set.of("power"));
+			Set.of("power", "level"),
+
+			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.GPIO),
+			Set.of("power"),
+
+			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.IRSEND),
+			Set.of("power", "temperature", "mode", "fanSpeed", "swing"),
+
+			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.IR_CTL),
+			Set.of("power", "temperature", "mode", "fanSpeed", "swing"));
 
 	private DeviceCapabilityRegistry() {}
 
 	public static boolean isSupported(DeviceCategory category, DeviceSpecificType specificType, String property) {
-		if (category == DeviceCategory.AIR_CONDITION) {
-			return true;
-		}
 		DeviceTypeKey key = new DeviceTypeKey(category, specificType);
 		Set<String> supported = REGISTRY.get(key);
 		if (supported == null) {

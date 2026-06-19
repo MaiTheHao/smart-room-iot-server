@@ -9,11 +9,14 @@ import lombok.Builder;
 
 @Builder
 public record FanControlRequestBody(
-        ActuatorPower power,
 
-        ActuatorMode mode,
+		ActuatorPower power,
 
-        @Min(value = 1, message = "Speed must be between 1 and 3") @Max(value = 3, message = "Speed must be between 1 and 3") Integer speed,
+		ActuatorMode mode,
 
-        ActuatorSwing swing) {
+		@Min(value = 1, message = "Speed must be between 1 and 3")
+		@Max(value = 3, message = "Speed must be between 1 and 3")
+		Integer speed,
+
+		ActuatorSwing swing) {
 }
