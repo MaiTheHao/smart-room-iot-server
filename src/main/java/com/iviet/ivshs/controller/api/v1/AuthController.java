@@ -23,6 +23,8 @@ import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.auth.CustomUserDetails;
 import com.iviet.ivshs.dto.auth.JwtResponse;
 import com.iviet.ivshs.dto.auth.LoginDto;
+import com.iviet.ivshs.dto.auth.LogoutDto;
+import com.iviet.ivshs.service.clientdevice.ClientDeviceService;
 import com.iviet.ivshs.shared.security.JwtUtils;
 import com.iviet.ivshs.shared.util.SecurityContextUtil;
 
@@ -37,6 +39,8 @@ public class AuthController {
         private final JwtUtils jwtUtils;
 
         private final ClientService clientService;
+
+        private final ClientDeviceService clientDeviceService;
 
         @PostMapping("/signin")
         public ResponseEntity<ApiResponse<JwtResponse>> signin(@RequestBody @Valid LoginDto loginDto) {
@@ -65,6 +69,13 @@ public class AuthController {
                 Long clientId = SecurityContextUtil.getCurrentClientId();
                 ClientDto clientDto = clientService.getById(clientId);
                 return ResponseEntity.ok(ApiResponse.ok(clientDto));
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<ApiResponse<Void>> logout(@RequestBody @Valid LogoutDto logoutDto) {
+                Long clientId = SecurityContextUtil.getCurrentClientId();
+                clientDeviceService.logoutDevice(clientId, logoutDto.getDeviceIdentifier(), logoutDto.getPlatform());
+                return ResponseEntity.ok(ApiResponse.ok(null));
         }
 
         /*

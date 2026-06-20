@@ -131,18 +131,27 @@
 <details>
 <summary><b>POST</b> <code>/api/v1/auth/logout</code> - Đăng xuất client</summary>
 
-> Đăng xuất client khỏi hệ thống, hủy JWT token phía backend (nếu có) và xóa session phía client.
+> Đăng xuất client khỏi hệ thống, xóa cấu hình ClientDevice trong database để ngừng nhận thông báo.
 
 ### Request
 
 -   Header:
     -   `Authorization: Bearer <JWT token>`
 
+### Request Body
+
+| Tên trường | Loại   | Bắt buộc | Mô tả                        |
+| :--------- | :----- | :------- | :--------------------------- |
+| deviceIdentifier | string | Có       | Định danh duy nhất của thiết bị |
+| platform   | string | Có       | Hệ điều hành thiết bị (`WEB`, `ANDROID`, `IOS`) |
+
 ### Request Example
 
-```http
-POST /api/v1/auth/logout HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```json
+{
+	"deviceIdentifier": "device_uuid_12345",
+	"platform": "ANDROID"
+}
 ```
 
 ### Response (200 OK)
@@ -150,9 +159,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```json
 {
 	"status": 200,
-	"message": "Logout successful",
+	"message": "Success",
 	"data": null,
-	"timestamp": "2024-06-07T09:05:00Z"
+	"timestamp": "2026-06-20T11:45:00Z"
 }
 ```
 
@@ -163,8 +172,13 @@ async function logoutApi() {
 	await fetch('/api/v1/auth/logout', {
 		method: 'POST',
 		headers: {
+			'Content-Type': 'application/json',
 			Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
 		},
+		body: JSON.stringify({
+			deviceIdentifier: 'your_device_identifier',
+			platform: 'WEB'
+		})
 	});
 	localStorage.removeItem('accessToken');
 	sessionStorage.clear();

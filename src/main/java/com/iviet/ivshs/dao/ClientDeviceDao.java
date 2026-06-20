@@ -37,4 +37,14 @@ public class ClientDeviceDao extends BaseEntityDao<ClientDevice> {
                 .setParameter("fcmTokens", fcmTokens)
                 .executeUpdate();
     }
+
+    @Transactional
+    public void deleteByClientIdAndDeviceIdentifierAndPlatform(Long clientId, String deviceIdentifier, com.iviet.ivshs.shared.enumeration.Platform platform) {
+        String jpql = "DELETE FROM ClientDevice cd WHERE cd.client.id = :clientId AND cd.deviceIdentifier = :deviceIdentifier AND cd.platform = :platform";
+        entityManager.createQuery(jpql)
+                .setParameter("clientId", clientId)
+                .setParameter("deviceIdentifier", deviceIdentifier)
+                .setParameter("platform", platform)
+                .executeUpdate();
+    }
 }

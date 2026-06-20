@@ -49,4 +49,11 @@ public class ClientDeviceServiceImpl implements ClientDeviceService {
         }
         log.info("Registered/Updated device {} for client {}", request.getDeviceIdentifier(), currentClient.getId());
     }
+
+    @Override
+    @Transactional
+    public void logoutDevice(Long clientId, String deviceIdentifier, com.iviet.ivshs.shared.enumeration.Platform platform) {
+        clientDeviceDao.deleteByClientIdAndDeviceIdentifierAndPlatform(clientId, deviceIdentifier, platform);
+        log.info("Logged out device {} ({}) for client {}", deviceIdentifier, platform, clientId);
+    }
 }
