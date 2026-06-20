@@ -2,6 +2,7 @@ package com.iviet.ivshs.scheduler.dynamic.rule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.RuleAction;
+import com.iviet.ivshs.entities.RuleActionAlert;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.scheduler.dynamic.rule.strategy.RuleDataSourceStrategy;
 import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
@@ -14,6 +15,7 @@ import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.scheduler.dynamic.base.SchedulableJobProcessor;
 import com.iviet.ivshs.scheduler.dynamic.base.JobProcessorType;
 import com.iviet.ivshs.dao.RuleDao;
+import com.iviet.ivshs.service.alert.AlertService;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class RuleProcessor implements SchedulableJobProcessor {
     private final List<DeviceControlServiceStrategy<?>> controlStrategies;
     private final ObjectMapper objectMapper;
     private final RuleDao ruleDao;
+    private final AlertService alertService;
 
     private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
@@ -79,8 +82,29 @@ public class RuleProcessor implements SchedulableJobProcessor {
 
         boolean isMatched = conditions.stream().sorted(Comparator.comparingInt(RuleCondition::getSortOrder)).reduce(initCtx, this::accumulateResult, (a, b) -> a).isFinalResult();
 
+        List<RuleActionAlert> alertConfigs = rule.getAlerts();
         if (isMatched) {
             executeActions(rule);
+
+            if (alertConfigs != null) {
+                for (RuleActionAlert config : alertConfigs) {
+                    try {
+                        alertService.triggerAlert(config.getId());
+                    } catch (Exception e) {
+                        log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
+                    }
+                }
+            }
+        } else {
+            if (alertConfigs != null) {
+                for (RuleActionAlert config : alertConfigs) {
+                    try {
+                        alertService.resolveAlertIfNeeded(config.getId());
+                    } catch (Exception e) {
+                        log.error("[Alert] Failed to auto-resolve alert for config {}: {}", config.getId(), e.getMessage(), e);
+                    }
+                }
+            }
         }
     }
 

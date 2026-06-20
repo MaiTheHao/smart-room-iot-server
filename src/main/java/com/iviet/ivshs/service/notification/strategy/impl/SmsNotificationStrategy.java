@@ -1,0 +1,28 @@
+package com.iviet.ivshs.service.notification.strategy.impl;
+
+import com.iviet.ivshs.service.notification.channel.NotificationChannel;
+import com.iviet.ivshs.service.notification.request.NotificationRequest;
+import com.iviet.ivshs.service.notification.strategy.NotificationStrategy;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+/**
+ * SMS Notification Strategy — Placeholder.
+ * Tích hợp SMS Gateway (Twilio, VietGuys...) trong sprint tiếp theo.
+ */
+@Slf4j
+@Component
+public class SmsNotificationStrategy implements NotificationStrategy {
+
+    @Override
+    public NotificationChannel getChannel() {
+        return NotificationChannel.SMS;
+    }
+
+    @Override
+    public void send(NotificationRequest request) {
+        log.info("[SMS][PLACEHOLDER] Would send SMS '{}' to {} recipients. SMS Gateway not yet integrated.",
+                request.getBody(), request.getRecipients().size());
+        // TODO Sprint N+1: inject SmsGatewayClient, send body per recipient phone number.
+    }
+}

@@ -54,6 +54,7 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
   private final FanDao fanDao;
   private final LightDao lightDao;
   private final AirConditionDao airConditionDao;
+  private final com.iviet.ivshs.service.alert.AlertService alertService;
 
   private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
@@ -121,6 +122,7 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
     jobScheduleService.delete(rule);
+    alertService.deleteAlertsByRuleId(ruleId);
     ruleDao.deleteById(ruleId);
   }
 

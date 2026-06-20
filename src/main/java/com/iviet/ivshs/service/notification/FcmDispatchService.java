@@ -27,13 +27,8 @@ public class FcmDispatchService {
      */
     @Async
     public void sendToSingleDevice(String targetToken, String title, String body, Map<String, String> data) {
-        Message.Builder messageBuilder = Message.builder()
-                .setToken(targetToken)
-                .setNotification(
-                        Notification.builder()
-                                .setTitle(title)
-                                .setBody(body)
-                                .build());
+        Message.Builder messageBuilder = Message.builder().setToken(targetToken)
+                .setNotification(Notification.builder().setTitle(title).setBody(body).build());
 
         if (data != null && !data.isEmpty()) {
             messageBuilder.putAllData(data);
@@ -45,8 +40,7 @@ public class FcmDispatchService {
             String messageId = firebaseMessaging.send(message);
             log.info("Successfully sent message! Message ID: {}", messageId);
         } catch (FirebaseMessagingException e) {
-            String errorCode = e.getMessagingErrorCode() != null ? e.getMessagingErrorCode()
-                    .name() : "";
+            String errorCode = e.getMessagingErrorCode() != null ? e.getMessagingErrorCode().name() : "";
             checkAndDeleteDeadToken(errorCode, targetToken);
             log.error("Error sending FCM unicast message: {}", e.getMessage());
         }
@@ -57,16 +51,10 @@ public class FcmDispatchService {
      */
     @Async
     public void sendToMultipleDevices(List<String> tokens, String title, String body, Map<String, String> data) {
-        if (tokens == null || tokens.isEmpty())
-            return;
+        if (tokens == null || tokens.isEmpty()) return;
 
-        MulticastMessage.Builder messageBuilder = MulticastMessage.builder()
-                .addAllTokens(tokens)
-                .setNotification(
-                        Notification.builder()
-                                .setTitle(title)
-                                .setBody(body)
-                                .build());
+        MulticastMessage.Builder messageBuilder = MulticastMessage.builder().addAllTokens(tokens)
+                .setNotification(Notification.builder().setTitle(title).setBody(body).build());
 
         if (data != null && !data.isEmpty()) {
             messageBuilder.putAllData(data);
@@ -76,21 +64,20 @@ public class FcmDispatchService {
 
         try {
             BatchResponse response = firebaseMessaging.sendEachForMulticast(message);
-            log.info("Multicast result - Success: {}, Failure: {}", response.getSuccessCount(), response.getFailureCount());
+            log.info("Multicast result - Success: {}, Failure: {}", response.getSuccessCount(),
+                    response.getFailureCount());
 
             if (response.getFailureCount() > 0) {
                 List<String> deadTokens = new ArrayList<>();
                 List<SendResponse> responses = response.getResponses();
                 for (int i = 0; i < responses.size(); i++) {
-                    if (!responses.get(i)
-                            .isSuccessful()) {
+                    if (!responses.get(i).isSuccessful()) {
                         String failedToken = tokens.get(i);
-                        FirebaseMessagingException fme = responses.get(i)
-                                .getException();
+                        FirebaseMessagingException fme = responses.get(i).getException();
 
                         if (fme != null) {
-                            String errorCode = fme.getMessagingErrorCode() != null ? fme.getMessagingErrorCode()
-                                    .name() : "";
+                            String errorCode = fme.getMessagingErrorCode() != null ? fme.getMessagingErrorCode().name()
+                                    : "";
                             if ("UNREGISTERED".equals(errorCode) || "INVALID_ARGUMENT".equals(errorCode)) {
                                 deadTokens.add(failedToken);
                             }
