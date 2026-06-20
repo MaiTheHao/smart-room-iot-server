@@ -1,0 +1,180 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{alert.title}">Alert Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+  </head>
+
+  <div layout:fragment="header-title">
+    <span th:text="#{alert.title}">Alert Management</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid">
+      <!-- Filters & Actions Card -->
+      <div class="card rounded-4 border-0 shadow-sm mb-4">
+        <div class="card-body py-3">
+          <div class="row g-3 align-items-center">
+            <!-- Status Filter -->
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{alert.table.status}">Status</label>
+              <select class="form-select bg-light border-0" id="filterStatus">
+                <option value="">-- All --</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="ACKNOWLEDGED">ACKNOWLEDGED</option>
+                <option value="RESOLVED">RESOLVED</option>
+              </select>
+            </div>
+
+            <!-- Severity Filter -->
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{alert.table.severity}">Severity</label>
+              <select class="form-select bg-light border-0" id="filterSeverity">
+                <option value="">-- All --</option>
+                <option value="INFO">INFO</option>
+                <option value="WARNING">WARNING</option>
+                <option value="CRITICAL">CRITICAL</option>
+              </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="col-md-6 col-sm-12 d-flex justify-content-md-end justify-content-start align-self-end">
+              <button class="btn btn-outline-primary rounded-pill px-3" id="btnReloadAlerts">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1"></i>
+                <span th:text="#{common.reload}">Reload</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table Card -->
+      <div class="card rounded-4 border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+          <h6 class="fw-bold m-0 d-flex align-items-center">
+            <i data-lucide="bell" class="text-primary me-2 lucide-sm"></i>
+            <span th:text="#{alert.list.title}">Your Alerts List</span>
+          </h6>
+        </div>
+        <div class="card-body p-0">
+          <div id="alertsTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Detail Modal -->
+    <div class="modal fade" id="alertDetailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <i data-lucide="info" class="text-primary me-2 lucide-md"></i>
+              <span th:text="#{alert.modal.detail_title}">Alert Details</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body py-4">
+            <div class="d-flex flex-column gap-3">
+              <!-- Title -->
+              <div>
+                <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.table.title}">Title</span>
+                <div id="detailTitle" class="fw-bold text-dark fs-5">Alert Title</div>
+              </div>
+
+              <!-- Body -->
+              <div>
+                <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.table.body}">Body</span>
+                <div id="detailBody" class="bg-light p-3 rounded text-body">Alert Message Body</div>
+              </div>
+
+              <!-- Rule -->
+              <div>
+                <span class="d-block fw-semibold small text-muted text-uppercase">Rule</span>
+                <div id="detailRule" class="fw-semibold text-primary">Associated Rule</div>
+              </div>
+
+              <!-- Severity / Status -->
+              <div class="row">
+                <div class="col-6">
+                  <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.table.severity}">Severity</span>
+                  <div id="detailSeverity" class="mt-1"></div>
+                </div>
+                <div class="col-6">
+                  <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.table.status}">Status</span>
+                  <div id="detailStatus" class="mt-1"></div>
+                </div>
+              </div>
+
+              <!-- Triggered At -->
+              <div>
+                <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.table.triggered_at}">Triggered At</span>
+                <div id="detailTriggeredAt" class="text-muted small">Date Time</div>
+              </div>
+
+              <hr class="my-2 border-light" />
+
+              <!-- Acknowledge info -->
+              <div class="row">
+                <div class="col-6">
+                  <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.modal.ack_by}">Ack By</span>
+                  <div id="detailAckBy" class="fw-semibold text-dark">User</div>
+                </div>
+                <div class="col-6">
+                  <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.modal.ack_at}">Ack At</span>
+                  <div id="detailAckAt" class="text-muted small">Date Time</div>
+                </div>
+              </div>
+
+              <!-- Resolve info -->
+              <div class="row">
+                <div class="col-6">
+                  <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.modal.res_by}">Resolve By</span>
+                  <div id="detailResBy" class="fw-semibold text-dark">User</div>
+                </div>
+                <div class="col-6">
+                  <span class="d-block fw-semibold small text-muted text-uppercase" th:text="#{alert.modal.res_at}">Resolve At</span>
+                  <div id="detailResAt" class="text-muted small">Date Time</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+      window.__ALERT_CONFIG__ = {
+        i18n: {
+          colId: /*[[#{alert.table.id}]]*/ 'ID',
+          colRule: 'Rule',
+          colTitle: /*[[#{alert.table.title}]]*/ 'Title',
+          colBody: /*[[#{alert.table.body}]]*/ 'Body',
+          colSeverity: /*[[#{alert.table.severity}]]*/ 'Severity',
+          colStatus: /*[[#{alert.table.status}]]*/ 'Status',
+          colTriggeredAt: /*[[#{alert.table.triggered_at}]]*/ 'Triggered At',
+          colActions: /*[[#{alert.table.actions}]]*/ 'Actions',
+          noData: /*[[#{rule.table.no_data}]]*/ 'No alerts found.',
+          actionAck: /*[[#{alert.action.acknowledge}]]*/ 'Acknowledge',
+          actionResolve: /*[[#{alert.action.resolve}]]*/ 'Resolve',
+          actionDetail: /*[[#{alert.action.detail}]]*/ 'Details',
+          success: /*[[#{alert.toast.success}]]*/ 'Success',
+          error: /*[[#{common.error.title}]]*/ 'Error',
+          notAvailable: /*[[#{alert.modal.not_available}]]*/ 'Not Available',
+          systemResolved: /*[[#{alert.modal.resolved_system}]]*/ 'Auto-resolved'
+        }
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/smart_system/alert/index.js}"></script>
+  </th:block>
+</html>

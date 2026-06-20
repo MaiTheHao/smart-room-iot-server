@@ -53,4 +53,19 @@ public class SmartSystemViewController {
         model.addAttribute("rule", ruleService.getById(id));
         return "pages/smart_system/rule/actions.html";
     }
+
+    @GetMapping("/rules/{id}/alert")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
+    public String ruleAlertPage(@PathVariable("id")
+    Long id, Model model) {
+        model.addAttribute("rule", ruleService.getById(id));
+        return "pages/smart_system/rule/alert.html";
+    }
+
+    @GetMapping("/alerts")
+    @PreAuthorize("isAuthenticated()")
+    public String alertsPage() {
+        return "pages/smart_system/alert/index.html";
+    }
 }
+

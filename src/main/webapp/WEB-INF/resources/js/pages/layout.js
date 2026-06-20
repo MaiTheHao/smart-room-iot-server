@@ -89,6 +89,17 @@
       link: '/management/smart-system/rules',
       visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_RULE")')}]]*/ true,
     },
+    {
+      type: 'header',
+      label: /*[[#{menu.alert_system}]]*/ 'Alert System',
+      visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_ACCESS_ALERT_ALL", "F_ACCESS_ALERT_GROUP", "F_ACCESS_ALERT_OWN")')}]]*/ true,
+    },
+    {
+      label: /*[[#{menu.alerts}]]*/ 'Alert List',
+      icon: 'bell',
+      link: '/management/smart-system/alerts',
+      visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_ACCESS_ALERT_ALL", "F_ACCESS_ALERT_GROUP", "F_ACCESS_ALERT_OWN")')}]]*/ true,
+    },
   ];
 
   function Layout() {

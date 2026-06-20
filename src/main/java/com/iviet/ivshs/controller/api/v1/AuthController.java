@@ -39,13 +39,12 @@ public class AuthController {
         private final ClientService clientService;
 
         @PostMapping("/signin")
-        public ResponseEntity<ApiResponse<JwtResponse>> signin(@RequestBody
-        @Valid
-        LoginDto loginDto) {
-                Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+        public ResponseEntity<ApiResponse<JwtResponse>> signin(@RequestBody @Valid LoginDto loginDto) {
+                Authentication authentication = authenticationManager
+                                .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
+                                                loginDto.getPassword()));
 
-                SecurityContextHolder.getContext()
-                                .setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
                 String jwt = jwtUtils.generateJwtToken(authentication);
 
                 CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -56,12 +55,9 @@ public class AuthController {
         }
 
         @PostMapping("/signup")
-        public ResponseEntity<ApiResponse<ClientDto>> signup(@RequestBody
-        @Valid
-        CreateClientDto createDto) {
+        public ResponseEntity<ApiResponse<ClientDto>> signup(@RequestBody @Valid CreateClientDto createDto) {
                 ClientDto createdClient = clientService.create(createDto);
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(ApiResponse.created(createdClient));
+                return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(createdClient));
         }
 
         @GetMapping("/me")
@@ -70,4 +66,10 @@ public class AuthController {
                 ClientDto clientDto = clientService.getById(clientId);
                 return ResponseEntity.ok(ApiResponse.ok(clientDto));
         }
+
+        /*
+         * Cân bỏ sung api logour, để cho các client dùng, hiện tại logout chỉ xử lý logout đơn giản là xóa
+         * deviceIdentifier trong bảng client device, chứ chưa có thao tác với session Do mỗi app khi logout => Phải xóa
+         * đi toàn bộ fcm tokem theo device identifier để tránh noti không cần thiết
+         */
 }

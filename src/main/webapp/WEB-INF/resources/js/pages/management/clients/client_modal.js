@@ -393,7 +393,7 @@ export const MappingModule = (() => {
 			.map(
 				(group) => `
 			<div class="selection-list-item d-flex align-items-start group-item" 
-				data-search="${group.name.toLowerCase()} ${group.groupCode.toLowerCase()}">
+				data-search="${(group.name || '').toLowerCase()} ${(group.groupCode || '').toLowerCase()}">
 				<div class="form-check pt-1">
 					<input class="form-check-input scale-checkbox group-chk" type="checkbox" 
 						id="group_${group.id}" 
@@ -403,8 +403,8 @@ export const MappingModule = (() => {
 				</div>
 				<div class="ms-2 w-100 cursor-pointer" onclick="document.getElementById('group_${group.id}').click()">
 					<div class="d-flex justify-content-between align-items-center">
-						<div class="fw-bold text-dark">${group.name}</div>
-						<span class="badge bg-light text-muted border small badge-code">${group.groupCode}</span>
+						<div class="fw-bold text-dark">${group.name || ''}</div>
+						<span class="badge bg-light text-muted border small badge-code">${group.groupCode || ''}</span>
 					</div>
 					<div class="small text-muted mt-1">${group.description || ''}</div>
 				</div>

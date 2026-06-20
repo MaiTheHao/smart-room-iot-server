@@ -1,0 +1,175 @@
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+  <head>
+    <title th:text="#{smart_system.rule.alert_config.title(${rule.name})}">Alert Configuration</title>
+    <style>
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+    </style>
+  </head>
+  <div layout:fragment="header-title">
+    <span th:text="#{smart_system.rule.title}">Rule Management</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid">
+      <!-- ═══ Header Info Card ═══ -->
+      <div class="card shadow-sm border-0 mb-4 rounded-4">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <h4 class="mb-0 font-weight-bold text-dark" th:text="${rule.name}">Rule Name</h4>
+              <span class="badge ms-3" th:classappend="${rule.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${rule.isActive ? #messages.msg('common.active') : #messages.msg('common.inactive')}">Active</span>
+            </div>
+            <a th:href="@{/management/smart-system/rules}" class="btn btn-sm btn-back px-3 rounded-pill">
+              <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
+              <span th:text="#{error.back}">Back</span>
+            </a>
+          </div>
+        </div>
+        <div class="card-body pt-2 pb-3">
+          <div class="d-flex gap-4 text-muted small">
+            <div>
+              <span class="fw-bold me-1">ID:</span>
+              <span th:text="'#' + ${rule.id}">#0</span>
+              <input type="hidden" id="ruleId" th:value="${rule.id}" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Alert Config Card ═══ -->
+      <div class="card rounded-4 border-0 shadow-sm col-lg-8 mx-auto mb-4">
+        <div class="card-header bg-white border-bottom-0 py-3">
+          <h6 class="fw-bold m-0 d-flex align-items-center">
+            <i data-lucide="bell" class="text-warning me-2 lucide-sm"></i>
+            <span th:text="#{smart_system.rule.alert_config.title(${rule.name})}">Alert Configuration</span>
+          </h6>
+        </div>
+        <div class="card-body">
+          <form id="alertConfigForm" novalidate>
+            <div class="row g-3">
+              <!-- Alert Name -->
+              <div class="col-12">
+                <label for="alertName" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.alert_name}">Alert Name</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
+                  <input type="text" class="form-control bg-light border-0" id="alertName" name="alertName" th:placeholder="#{smart_system.rule.alert.placeholder.name}" required />
+                </div>
+                <div class="invalid-feedback" id="val-alertName"></div>
+              </div>
+
+              <!-- Severity & Cooldown -->
+              <div class="col-md-6">
+                <label for="alertSeverity" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.severity}">Severity</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0"><i data-lucide="alert-triangle" class="lucide-sm"></i></span>
+                  <select class="form-select bg-light border-0" id="alertSeverity" name="severity" required>
+                    <option value="INFO">INFO</option>
+                    <option value="WARNING">WARNING</option>
+                    <option value="CRITICAL">CRITICAL</option>
+                  </select>
+                </div>
+                <div class="invalid-feedback" id="val-severity"></div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="alertCooldownMinutes" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.cooldown_minutes}">Cooldown (Minutes)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0"><i data-lucide="clock" class="lucide-sm"></i></span>
+                  <input type="number" class="form-control bg-light border-0" id="alertCooldownMinutes" name="cooldownMinutes" min="0" placeholder="10" required />
+                </div>
+                <div class="invalid-feedback" id="val-cooldownMinutes"></div>
+              </div>
+
+              <!-- Recipient Groups -->
+              <div class="col-12">
+                <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.recipient_groups}">Recipient Groups</label>
+                <div id="alertRecipientGroupsContainer" class="border border-0 bg-light rounded-3 p-3" style="max-height: 150px; overflow-y: auto;">
+                  <p class="text-muted small mb-0">Loading recipient groups...</p>
+                </div>
+                <div class="invalid-feedback d-block" id="val-recipientGroups"></div>
+              </div>
+
+              <!-- Channels & Options -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.channels}">Notification Channels</label>
+                <div class="d-flex flex-column gap-2 mt-1">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="channels" value="PUSH" id="channelPush" />
+                    <label class="form-check-label text-dark" for="channelPush">Push Notification</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="channels" value="EMAIL" id="channelEmail" />
+                    <label class="form-check-label text-dark" for="channelEmail">Email</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="channels" value="SMS" id="channelSms" />
+                    <label class="form-check-label text-dark" for="channelSms">SMS</label>
+                  </div>
+                </div>
+                <div class="invalid-feedback d-block" id="val-channels"></div>
+              </div>
+
+              <div class="col-md-6 d-flex flex-column justify-content-center">
+                <label class="form-label fw-semibold small text-muted text-uppercase mb-2" th:text="#{smart_system.rule.alert_config.auto_resolve}">Auto Resolve</label>
+                <div class="form-check form-switch switch-ios">
+                  <input class="form-check-input" type="checkbox" role="switch" id="alertAutoResolve" name="autoResolve" />
+                  <label class="form-check-label fw-medium text-dark" for="alertAutoResolve">Auto-Resolve Alert</label>
+                </div>
+              </div>
+
+              <!-- Message Template -->
+              <div class="col-12">
+                <label for="alertMessageTemplate" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.message_template}">Message Template</label>
+                <textarea class="form-control bg-light border-0" id="alertMessageTemplate" name="messageTemplate" rows="4" th:placeholder="#{smart_system.rule.alert.placeholder.template}" required></textarea>
+                <div class="invalid-feedback" id="val-messageTemplate"></div>
+              </div>
+            </div>
+
+            <!-- Form Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-danger rounded-pill px-4 shadow-sm d-none" id="btnDeleteAlertConfig">
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete_config}">Delete Config</span>
+              </button>
+              <div class="d-flex gap-2 ms-auto">
+                <a th:href="@{/management/smart-system/rules}" class="btn btn-light rounded-pill px-4" th:text="#{logout.cancel.button}">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAlertConfig">
+                  <i data-lucide="save" class="lucide-sm me-1"></i>
+                  <span th:text="#{common.save_changes}">Save Changes</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+      window.__ALERT_PAGE_CONFIG__ = {
+        ruleName: /*[[${rule.name}]]*/ 'Rule',
+        i18n: {
+          saveSuccess: /*[[#{smart_system.rule.alert_config.save_success}]]*/ 'Alert configuration saved successfully.',
+          deleteSuccess: /*[[#{smart_system.rule.alert_config.delete_success}]]*/ 'Alert configuration deleted successfully.',
+          confirmDelete: /*[[#{smart_system.rule.alert_config.delete_confirm}]]*/ 'Are you sure you want to delete the alert configuration for this rule?',
+          yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+          cancel: /*[[#{logout.cancel.button}]]*/ 'Cancel',
+          success: /*[[#{common.success}]]*/ 'Success',
+          error: /*[[#{common.error.title}]]*/ 'Error'
+        }
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/smart_system/rule/alert/index.js}"></script>
+  </th:block>
+</html>
