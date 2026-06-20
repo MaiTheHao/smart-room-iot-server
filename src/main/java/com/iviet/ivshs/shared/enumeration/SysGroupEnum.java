@@ -10,6 +10,7 @@ public enum SysGroupEnum {
 	G_ADMIN("G_ADMIN"),
 	G_USER("G_USER"),
 	G_MANAGER("G_MANAGER"),
+	G_MAINTENANCE("G_MAINTENANCE"),
 	G_HARDWARE_GATEWAY("G_HARDWARE_GATEWAY");
 
 	private String code;

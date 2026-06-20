@@ -14,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,6 +53,19 @@ public class Rule extends BaseSchedulableEntity {
     public void addAction(RuleAction action) {
         actions.add(action);
         action.setRule(this);
+    }
+
+    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<RuleActionAlert> alerts = new ArrayList<>();
+
+    public void addAlertConfig(RuleActionAlert alert) {
+        this.alerts.add(alert);
+        alert.setRule(this);
+    }
+
+    public void removeAlertConfig(RuleActionAlert alert) {
+        this.alerts.remove(alert);
+        alert.setRule(null);
     }
 
     @Override

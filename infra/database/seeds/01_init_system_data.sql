@@ -46,7 +46,11 @@ VALUES
   (9, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_AUTOMATION'),
   (10, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_FLOOR_ALL'),
   (11, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ROOM_ALL'),
-  (12, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_RULE');
+  (12, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_RULE'),
+  (13, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ROLE'),
+  (14, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT_ALL'),
+  (15, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT_GROUP'),
+  (16, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT_OWN');
 
 -- ----------------------------
 -- 3. Dữ liệu bảng sys_function_lan
@@ -77,7 +81,15 @@ VALUES
   (21, NULL, NULL, NULL, NULL, 0, 'Truy cập tất cả các phòng', 'vi', 'Truy cập Tất cả Phòng', 11),
   (22, NULL, NULL, NULL, NULL, 0, 'Access all rooms', 'en', 'Access Room All', 11),
   (23, NULL, NULL, NULL, NULL, 0, 'Quản lý quy tắc hệ thống', 'vi', 'Quản lý Rule', 12),
-  (24, NULL, NULL, NULL, NULL, 0, 'Manage system rules', 'en', 'Manage Rule', 12);
+  (24, NULL, NULL, NULL, NULL, 0, 'Manage system rules', 'en', 'Manage Rule', 12),
+  (25, NULL, NULL, NULL, NULL, 0, 'Quản lý các vai trò trong hệ thống', 'vi', 'Quản lý Vai Trò', 13),
+  (26, NULL, NULL, NULL, NULL, 0, 'Manage roles in system', 'en', 'Manage Role', 13),
+  (27, NULL, NULL, NULL, NULL, 0, 'Xem toàn bộ cảnh báo', 'vi', 'Truy cập Tất cả Cảnh báo', 14),
+  (28, NULL, NULL, NULL, NULL, 0, 'View all alerts', 'en', 'Access All Alerts', 14),
+  (29, NULL, NULL, NULL, NULL, 0, 'Xem cảnh báo của nhóm', 'vi', 'Truy cập Cảnh báo Nhóm', 15),
+  (30, NULL, NULL, NULL, NULL, 0, 'View alerts of group', 'en', 'Access Group Alerts', 15),
+  (31, NULL, NULL, NULL, NULL, 0, 'Chỉ xem cảnh báo cá nhân', 'vi', 'Truy cập Cảnh báo Cá nhân', 16),
+  (32, NULL, NULL, NULL, NULL, 0, 'Only view own alerts', 'en', 'Access Own Alerts', 16);
 
 -- ----------------------------
 -- 4. Dữ liệu bảng sys_group (G_ADMIN)
@@ -85,7 +97,11 @@ VALUES
 INSERT INTO
   `sys_group` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `group_code`)
 VALUES
-  (1, NOW(), 'system', NOW(), 'system', 0, 'G_ADMIN');
+  (1, NOW(), 'system', NOW(), 'system', 0, 'G_ADMIN'),
+  (2, NOW(), 'system', NOW(), 'system', 0, 'G_USER'),
+  (3, NOW(), 'system', NOW(), 'system', 0, 'G_MANAGER'),
+  (4, NOW(), 'system', NOW(), 'system', 0, 'G_MAINTENANCE'),
+  (5, NOW(), 'system', NOW(), 'system', 0, 'G_HARDWARE_GATEWAY');
 
 -- ----------------------------
 -- 5. Dữ liệu bảng sys_group_lan
@@ -94,7 +110,15 @@ INSERT INTO
   `sys_group_lan` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `description`, `lang_code`, `name`, `owner_id`)
 VALUES
   (1, NULL, NULL, NULL, NULL, 2, 'Toàn quyền truy cập hệ thống', 'vi', 'Quản trị viên', 1),
-  (2, NULL, NULL, NULL, NULL, 0, 'Full system access', 'en', 'Administrator', 1);
+  (2, NULL, NULL, NULL, NULL, 0, 'Full system access', 'en', 'Administrator', 1),
+  (3, NULL, NULL, NULL, NULL, 0, 'Người dùng thông thường', 'vi', 'Người dùng', 2),
+  (4, NULL, NULL, NULL, NULL, 0, 'Regular user', 'en', 'User', 2),
+  (5, NULL, NULL, NULL, NULL, 0, 'Quản lý hệ thống/tòa nhà', 'vi', 'Quản lý', 3),
+  (6, NULL, NULL, NULL, NULL, 0, 'System/building manager', 'en', 'Manager', 3),
+  (7, NULL, NULL, NULL, NULL, 0, 'Xem và xử lý cảnh báo kỹ thuật', 'vi', 'Nhân viên bảo trì', 4),
+  (8, NULL, NULL, NULL, NULL, 0, 'View and handle technical alerts', 'en', 'Maintenance staff', 4),
+  (9, NULL, NULL, NULL, NULL, 0, 'Thiết bị gateway phần cứng', 'vi', 'Cổng phần cứng', 5),
+  (10, NULL, NULL, NULL, NULL, 0, 'Hardware gateway devices', 'en', 'Hardware Gateway', 5);
 
 -- ----------------------------
 -- 6. Dữ liệu bảng sys_role (Gán full quyền cho G_ADMIN)
@@ -113,7 +137,11 @@ VALUES
   (9, NOW(), 'system', NOW(), 'system', 0, 9, 1),
   (10, NOW(), 'system', NOW(), 'system', 0, 10, 1),
   (11, NOW(), 'system', NOW(), 'system', 0, 11, 1),
-  (12, NOW(), 'system', NOW(), 'system', 0, 12, 1);
+  (12, NOW(), 'system', NOW(), 'system', 0, 12, 1),
+  (13, NOW(), 'system', NOW(), 'system', 0, 13, 1),
+  (14, NOW(), 'system', NOW(), 'system', 0, 14, 1),
+  (15, NOW(), 'system', NOW(), 'system', 0, 15, 1),
+  (16, NOW(), 'system', NOW(), 'system', 0, 16, 1);
 
 -- ----------------------------
 -- 7. Dữ liệu bảng client (Tài khoản admin - username: admin, password: 123456789)
