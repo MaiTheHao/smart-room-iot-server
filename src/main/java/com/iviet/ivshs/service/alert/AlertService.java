@@ -3,7 +3,6 @@ package com.iviet.ivshs.service.alert;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertResponseDto;
 import com.iviet.ivshs.dto.alert.RuleActionAlertDto;
-import com.iviet.ivshs.dto.alert.SaveRuleActionAlertDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 
 /**
@@ -25,10 +24,10 @@ public interface AlertService {
     /**
      * Lưu/Cập nhật cấu hình cảnh báo của một Rule.
      * @param ruleId ID của Rule.
-     * @param dtos Danh sách SaveRuleActionAlertDto chứa thông tin cấu hình cảnh báo.
+     * @param dtos Danh sách RuleAlertConfigDto chứa thông tin cấu hình cảnh báo.
      * @return Danh sách RuleActionAlertDto đã được lưu.
      */
-    java.util.List<RuleActionAlertDto> saveAlertConfigs(Long ruleId, java.util.List<SaveRuleActionAlertDto> dtos);
+    java.util.List<RuleActionAlertDto> saveAlertConfigs(Long ruleId, java.util.List<com.iviet.ivshs.dto.alert.RuleAlertConfigDto> dtos);
 
     /**
      * Xóa cấu hình cảnh báo của một Rule.

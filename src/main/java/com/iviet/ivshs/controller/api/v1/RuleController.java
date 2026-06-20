@@ -1,7 +1,6 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.iviet.ivshs.dto.common.ApiResponse;
@@ -22,8 +20,6 @@ import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleStatusDto;
 import com.iviet.ivshs.service.rule.RuleService;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
-import com.iviet.ivshs.dto.alert.RuleActionAlertDto;
-import com.iviet.ivshs.dto.alert.SaveRuleActionAlertDto;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertResponseDto;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
@@ -171,49 +167,7 @@ public class RuleController {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Rule execution triggered immediately"));
     }
 
-    /**
-     * LẤY CẤU HÌNH CẢNH BÁO CỦA RULE
-     * 
-     * @param ruleId ID của Rule.
-     * @return Danh sách RuleActionAlertDto Cấu hình alert của rule.
-     */
-    @GetMapping("/{ruleId}/alert-configs")
-    public ResponseEntity<ApiResponse<List<RuleActionAlertDto>>> getAlertConfigByRuleId(
-            @PathVariable(name = "ruleId") Long ruleId) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertConfigsByRuleId(ruleId)));
-    }
 
-    /**
-     * LƯU/CẬP NHẬT CẤU HÌNH CẢNH BÁO CỦA RULE (UPSERT) Hỗ trợ cả 2 phương thức POST và PUT để ghi đè hoặc tạo mới cấu
-     * hình.
-     * 
-     * @param ruleId ID của Rule.
-     * @param request Danh sách cấu hình alert cần lưu (UPSERT).
-     * @return Danh sách RuleActionAlertDto Cấu hình alert đã lưu.
-     */
-    @RequestMapping(value = "/{ruleId}/alert-configs", method = { RequestMethod.POST, RequestMethod.PUT })
-    public ResponseEntity<ApiResponse<List<RuleActionAlertDto>>> saveAlertConfig(
-            @PathVariable(name = "ruleId") Long ruleId, @RequestBody @Valid List<SaveRuleActionAlertDto> request) {
-        List<SaveRuleActionAlertDto> dtosToSave = request.stream()
-                .map(dto -> new SaveRuleActionAlertDto(dto.id(), ruleId, dto.alertName(), dto.severity(),
-                        dto.recipientGroups(), dto.channels(), dto.messageTemplate(), dto.cooldownMinutes(),
-                        dto.autoResolve()))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.ok(alertService.saveAlertConfigs(ruleId, dtosToSave)));
-    }
-
-    /**
-     * XÓA CẤU HÌNH CẢNH BÁO CỦA RULE
-     * 
-     * @param ruleId ID của Rule.
-     * @return Phản hồi trống (HTTP 204).
-     */
-    @DeleteMapping("/{ruleId}/alert-configs")
-    public ResponseEntity<ApiResponse<Void>> deleteAlertConfig(@PathVariable(name = "ruleId") Long ruleId) {
-        alertService.deleteAlertsByRuleId(ruleId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Alert configs deleted successfully"));
-    }
 
     /**
      * LẤY DANH SÁCH ALERTS CỦA RIÊNG 1 RULE

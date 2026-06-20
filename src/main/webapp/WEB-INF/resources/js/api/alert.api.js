@@ -41,9 +41,8 @@ export const getAlertsByRuleId = (ruleId, params = {}) => {
  * @returns {Promise<[Error|null, ApiResponse<AlertResponseDto>]>}
  */
 export const acknowledgeAlert = (id) => {
-	return httpClient(`/api/v1/alerts/${id}`, {
-		method: 'PATCH',
-		body: JSON.stringify({ status: 'ACKNOWLEDGED' }),
+	return httpClient(`/api/v1/alerts/${id}/acknowledge`, {
+		method: 'POST',
 	});
 };
 
@@ -53,8 +52,7 @@ export const acknowledgeAlert = (id) => {
  * @returns {Promise<[Error|null, ApiResponse<AlertResponseDto>]>}
  */
 export const resolveAlert = (id) => {
-	return httpClient(`/api/v1/alerts/${id}`, {
-		method: 'PATCH',
-		body: JSON.stringify({ status: 'RESOLVED' }),
+	return httpClient(`/api/v1/alerts/${id}/resolve`, {
+		method: 'POST',
 	});
 };

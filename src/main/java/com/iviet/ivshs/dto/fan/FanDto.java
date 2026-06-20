@@ -1,11 +1,13 @@
 package com.iviet.ivshs.dto.fan;
 
 import java.util.List;
+import java.util.Set;
 
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 
 import lombok.Builder;
 
@@ -28,7 +30,8 @@ public record FanDto(
         ActuatorPower light,
         ActuatorSwing swing,
         Long deviceControlId,
-        DeviceCategory category) {
+        DeviceCategory category,
+        Set<String> capabilities) {
     /**
      * Constructor cho JPQL projection query (DAO layer).
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
@@ -37,7 +40,7 @@ public record FanDto(
             ActuatorPower power, DeviceSpecificType specificType, Integer duration, Integer speed, ActuatorMode mode,
             ActuatorPower light, ActuatorSwing swing, Long deviceControlId) {
         this(id, naturalId, name, description, isActive, roomId, power, specificType, duration, speed, mode, light, swing,
-                deviceControlId, DeviceCategory.FAN);
+                deviceControlId, DeviceCategory.FAN, DeviceCapabilityRegistry.getCapabilities(DeviceCategory.FAN, specificType));
     }
 
     /**
@@ -57,7 +60,8 @@ public record FanDto(
                 .specificType(entity.getSpecificType())
                 .duration(entity.getDuration())
                 .deviceControlId(entity.getHardwareConfig() != null ? entity.getHardwareConfig().getId() : null)
-                .category(DeviceCategory.FAN);
+                .category(DeviceCategory.FAN)
+                .capabilities(DeviceCapabilityRegistry.getCapabilities(DeviceCategory.FAN, entity.getSpecificType()));
 
         builder.speed(entity.getSpeed())
                .duration(entity.getDuration())

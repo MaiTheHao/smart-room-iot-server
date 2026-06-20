@@ -10,7 +10,6 @@ import com.iviet.ivshs.dao.SysGroupDao;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertResponseDto;
 import com.iviet.ivshs.dto.alert.RuleActionAlertDto;
-import com.iviet.ivshs.dto.alert.SaveRuleActionAlertDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.Client;
@@ -68,13 +67,13 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     @Transactional
-    public List<RuleActionAlertDto> saveAlertConfigs(Long ruleId, List<SaveRuleActionAlertDto> dtos) {
+    public List<RuleActionAlertDto> saveAlertConfigs(Long ruleId, List<com.iviet.ivshs.dto.alert.RuleAlertConfigDto> dtos) {
         Rule rule = ruleDao.findById(ruleId)
                 .orElseThrow(() -> new NotFoundException("Rule not found with ID: " + ruleId));
 
         // Collect IDs from incoming DTO list to delete orphans
         Set<Long> incomingIds = dtos.stream()
-                .map(SaveRuleActionAlertDto::id)
+                .map(com.iviet.ivshs.dto.alert.RuleAlertConfigDto::id)
                 .filter(java.util.Objects::nonNull)
                 .collect(Collectors.toSet());
 
@@ -88,7 +87,7 @@ public class AlertServiceImpl implements AlertService {
         }
 
         // Process incoming DTOs
-        for (SaveRuleActionAlertDto dto : dtos) {
+        for (com.iviet.ivshs.dto.alert.RuleAlertConfigDto dto : dtos) {
             if (dto.id() != null) {
                 // Update existing
                 RuleActionAlert config = rule.getAlerts().stream()

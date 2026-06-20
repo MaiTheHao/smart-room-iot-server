@@ -8,11 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-/**
- * Central dispatcher cho tất cả kênh thông báo sử dụng NotificationStrategyRegistry.
- * Class này tuân thủ Open/Closed Principle (OCP) vì khi thêm kênh mới,
- * ta chỉ cần tạo một component Strategy mới mà không cần chỉnh sửa class này.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,19 +27,16 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         for (NotificationChannel channel : request.getChannels()) {
-            registry.findStrategy(channel).ifPresentOrElse(
-                    strategy -> {
-                        log.debug("[Notification] Dispatching via '{}' to {} recipients",
-                                channel, request.getRecipients().size());
-                        try {
-                            strategy.send(request);
-                        } catch (Exception e) {
-                            log.error("[Notification] Failed to send notification via channel '{}': {}",
-                                    channel, e.getMessage(), e);
-                        }
-                    },
-                    () -> log.warn("[Notification] No strategy registered for channel '{}'. Skipping.", channel)
-            );
+            registry.findStrategy(channel).ifPresentOrElse(strategy -> {
+                log.debug("[Notification] Dispatching via '{}' to {} recipients", channel,
+                        request.getRecipients().size());
+                try {
+                    strategy.send(request);
+                } catch (Exception e) {
+                    log.error("[Notification] Failed to send notification via channel '{}': {}", channel,
+                            e.getMessage(), e);
+                }
+            }, () -> log.warn("[Notification] No strategy registered for channel '{}'. Skipping.", channel));
         }
     }
 }

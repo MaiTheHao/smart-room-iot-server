@@ -2,6 +2,7 @@ package com.iviet.ivshs.dto.rule;
 
 import java.util.List;
 
+import com.iviet.ivshs.dto.alert.RuleAlertConfigDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,5 +19,8 @@ public record CreateRuleDto(
 
 		@NotNull(message = "Conditions cannot be null") @Valid List<CreateRuleConditionDto> conditions,
 
-		@NotNull(message = "Actions cannot be null") @Valid List<CreateRuleActionDto> actions) {
+		@NotNull(message = "Actions cannot be null") @Valid List<CreateRuleActionDto> actions,
+
+		/** Optional. Nếu null → không thay đổi alert config. Nếu truyền mảng rỗng [] → xóa sạch. */
+		@Valid List<RuleAlertConfigDto> alertConfigs) {
 }

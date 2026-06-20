@@ -1,11 +1,13 @@
 package com.iviet.ivshs.dto.aircondition;
 
 import java.util.List;
+import java.util.Set;
 
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 
 import lombok.Builder;
 
@@ -28,7 +30,8 @@ public record AirConditionDto(
         Integer fanSpeed,
         ActuatorSwing swing,
         Long deviceControlId,
-        DeviceCategory category) {
+        DeviceCategory category,
+        Set<String> capabilities) {
     /**
      * Constructor cho JPQL projection query (DAO layer).
      * Thứ tự tham số phải khớp với thứ tự cột trong SELECT.
@@ -37,7 +40,7 @@ public record AirConditionDto(
             ActuatorPower power, DeviceSpecificType specificType, Integer duration, Integer temperature, ActuatorMode mode,
             Integer fanSpeed, ActuatorSwing swing, Long deviceControlId) {
         this(id, naturalId, name, description, isActive, roomId, power, specificType, duration, temperature, mode,
-                fanSpeed, swing, deviceControlId, DeviceCategory.AIR_CONDITION);
+                fanSpeed, swing, deviceControlId, DeviceCategory.AIR_CONDITION, DeviceCapabilityRegistry.getCapabilities(DeviceCategory.AIR_CONDITION, specificType));
     }
 
     public static AirConditionDto from(AirCondition entity) {
@@ -60,6 +63,7 @@ public record AirConditionDto(
                 .description(entity.getTranslations().isEmpty() ? null
                         : entity.getTranslations().iterator().next().getDescription())
                 .category(DeviceCategory.AIR_CONDITION)
+                .capabilities(DeviceCapabilityRegistry.getCapabilities(DeviceCategory.AIR_CONDITION, entity.getSpecificType()))
                 .build();
     }
 

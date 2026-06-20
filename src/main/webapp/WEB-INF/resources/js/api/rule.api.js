@@ -97,35 +97,4 @@ export const executeRuleNow = (id) => {
 	});
 };
 
-/**
- * Get rule alert configuration
- * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<RuleActionAlertDto>]>}
- */
-export const getRuleAlertConfig = (id) => {
-	return httpClient(`/api/v1/rules/${id}/alert-configs`);
-};
 
-/**
- * Save or update rule alert configuration
- * @param {number|string} id
- * @param {SaveRuleActionAlertDto} data
- * @returns {Promise<[Error|null, ApiResponse<RuleActionAlertDto>]>}
- */
-export const saveRuleAlertConfig = (id, data) => {
-	return httpClient(`/api/v1/rules/${id}/alert-configs`, {
-		method: 'POST',
-		body: JSON.stringify(data),
-	});
-};
-
-/**
- * Delete rule alert configuration
- * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<void>]>}
- */
-export const deleteRuleAlertConfig = (id) => {
-	return httpClient(`/api/v1/rules/${id}/alert-configs`, {
-		method: 'DELETE',
-	});
-};

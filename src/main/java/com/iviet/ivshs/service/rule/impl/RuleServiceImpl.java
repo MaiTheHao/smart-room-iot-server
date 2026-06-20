@@ -79,10 +79,14 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     Rule rule = ruleMapper.fromCreateDto(dto);
     ruleDao.save(rule);
 
+    if (dto.alertConfigs() != null) {
+      alertService.saveAlertConfigs(rule.getId(), dto.alertConfigs());
+    }
+
     jobScheduleService.sync(rule);
 
     log.info("Rule created successfully: id={}, name={}", rule.getId(), rule.getName());
-    return ruleMapper.toDto(rule);
+    return getById(rule.getId());
   }
 
   @Override
@@ -108,10 +112,14 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     ruleMapper.updateFromDto(dto, rule);
     ruleDao.update(rule);
 
+    if (dto.alertConfigs() != null) {
+      alertService.saveAlertConfigs(ruleId, dto.alertConfigs());
+    }
+
     jobScheduleService.sync(rule);
 
     log.info("Rule updated successfully: id={}, name={}", ruleId, rule.getName());
-    return ruleMapper.toDto(rule);
+    return getById(ruleId);
   }
 
   @Override

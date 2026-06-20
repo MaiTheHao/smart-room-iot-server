@@ -4,118 +4,8 @@
 
 ---
 
-### 1. Quản lý cấu hình Alert của Rule
-
-<details>
-<summary><b>GET</b> <code>/api/v1/rules/{ruleId}/alert-configs</code> - Lấy cấu hình alert của Rule</summary>
-
-> Lấy danh sách toàn bộ cấu hình alert (RuleActionAlert) gắn liền với Rule cụ thể.
-
-#### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :--- | :--- | :--- | :--- |
-| ruleId | Long | ID của Rule cần lấy cấu hình alert | Có |
-
-#### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"id": 1,
-			"ruleId": 10,
-			"alertName": "Cảnh báo nhiệt độ cao phòng Server",
-			"severity": "CRITICAL",
-			"recipientGroups": ["G_ADMIN", "G_MAINTENANCE"],
-			"channels": ["PUSH", "EMAIL"],
-			"messageTemplate": "Nhiệt độ phòng server đạt {temperature}°C, vượt ngưỡng an toàn.",
-			"cooldownMinutes": 15,
-			"autoResolve": true
-		}
-	],
-	"timestamp": "2026-06-20T12:00:00Z"
-}
-```
-
-</details>
-
-<details>
-<summary><b>POST / PUT</b> <code>/api/v1/rules/{ruleId}/alert-configs</code> - Lưu / Cập nhật cấu hình alert của Rule (UPSERT)</summary>
-
-> Lưu hoặc cập nhật cấu hình alert cho Rule (cơ chế UPSERT). Ghi đè toàn bộ giá trị cấu hình alert hiện tại của rule.
-
-#### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :--- | :--- | :--- | :--- |
-| ruleId | Long | ID của Rule cần lưu/cập nhật cấu hình | Có |
-
-#### Request Body
-
-```json
-[
-	{
-		"id": 1, // Optional khi tạo mới, bắt buộc khi cập nhật
-		"ruleId": 10,
-		"alertName": "Cảnh báo nhiệt độ cao phòng Server",
-		"severity": "CRITICAL",
-		"recipientGroups": ["G_ADMIN", "G_MAINTENANCE"],
-		"channels": ["PUSH", "EMAIL"],
-		"messageTemplate": "Nhiệt độ phòng server đạt {temperature}°C, vượt ngưỡng an toàn.",
-		"cooldownMinutes": 15,
-		"autoResolve": true
-	}
-]
-```
-
-#### Response (200 OK)
-
-```json
-{
-	"status": 200,
-	"message": "Success",
-	"data": [
-		{
-			"id": 1,
-			"ruleId": 10,
-			"alertName": "Cảnh báo nhiệt độ cao phòng Server",
-			"severity": "CRITICAL",
-			"recipientGroups": ["G_ADMIN", "G_MAINTENANCE"],
-			"channels": ["PUSH", "EMAIL"],
-			"messageTemplate": "Nhiệt độ phòng server đạt {temperature}°C, vượt ngưỡng an toàn.",
-			"cooldownMinutes": 15,
-			"autoResolve": true
-		}
-	],
-	"timestamp": "2026-06-20T12:00:00Z"
-}
-```
-
-</details>
-
-<br>
-
-<details>
-<summary><b>DELETE</b> <code>/api/v1/rules/{ruleId}/alert-configs</code> - Xóa cấu hình alert của Rule</summary>
-
-> Xóa tất cả cấu hình alert của một Rule.
-
-#### Path Parameters
-
-| Tên | Loại | Mô tả | Bắt buộc |
-| :--- | :--- | :--- | :--- |
-| ruleId | Long | ID của Rule cần xóa cấu hình alert | Có |
-
-#### Response (204 No Content)
-
-Không trả về nội dung response body.
-
-</details>
-
-<br>
+### 1. Cấu hình Alert lồng trong Rule CRUD
+Cấu hình alert (`alertConfigs`) giờ đây được gộp chung trực tiếp vào payload khi tạo/cập nhật Rule. Xem tài liệu Rule API để biết thêm chi tiết.
 
 ---
 
@@ -271,33 +161,15 @@ Không trả về nội dung response body.
 <br>
 
 <details>
-<summary><b>PATCH</b> <code>/api/v1/alerts/{id}</code> - Xác nhận / Giải quyết sự kiện alert</summary>
+<summary><b>POST</b> <code>/api/v1/alerts/{id}/acknowledge</code> - Xác nhận sự kiện alert</summary>
 
-> Cập nhật trạng thái sự kiện alert sang `ACKNOWLEDGED` (Xác nhận đã nhận thông tin) hoặc `RESOLVED` (Xác nhận sự cố đã được xử lý/giải quyết).
+> Cập nhật trạng thái sự kiện alert sang `ACKNOWLEDGED` (Xác nhận đã nhận thông tin).
 
 #### Path Parameters
 
 | Tên | Loại | Mô tả | Bắt buộc |
 | :--- | :--- | :--- | :--- |
 | id | Long | ID của sự kiện alert | Có |
-
-#### Request Body
-
-Lưu ý: Chỉ cho phép cập nhật `status` sang `ACKNOWLEDGED` hoặc `RESOLVED`.
-
-```json
-{
-	"status": "ACKNOWLEDGED"
-}
-```
-
-hoặc:
-
-```json
-{
-	"status": "RESOLVED"
-}
-```
 
 #### Response (200 OK)
 
@@ -320,6 +192,47 @@ hoặc:
 		"resolvedAt": null,
 		"resolvedById": null,
 		"resolvedByUsername": null
+	},
+	"timestamp": "2026-06-20T12:00:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>POST</b> <code>/api/v1/alerts/{id}/resolve</code> - Giải quyết sự kiện alert</summary>
+
+> Cập nhật trạng thái sự kiện alert sang `RESOLVED` (Xác nhận sự cố đã được xử lý/giải quyết).
+
+#### Path Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc |
+| :--- | :--- | :--- | :--- |
+| id | Long | ID của sự kiện alert | Có |
+
+#### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": {
+		"id": 101,
+		"ruleId": 10,
+		"ruleName": "Rule kiểm tra nhiệt độ",
+		"title": "Cảnh báo nhiệt độ cao phòng Server",
+		"body": "Nhiệt độ phòng server đạt 42°C, vượt ngưỡng an toàn.",
+		"severity": "CRITICAL",
+		"status": "RESOLVED",
+		"triggeredAt": "2026-06-20T11:45:00Z",
+		"acknowledgedAt": "2026-06-20T11:55:00Z",
+		"acknowledgedById": 2,
+		"acknowledgedByUsername": "maintenance_user",
+		"resolvedAt": "2026-06-20T12:00:00Z",
+		"resolvedById": 2,
+		"resolvedByUsername": "maintenance_user"
 	},
 	"timestamp": "2026-06-20T12:00:00Z"
 }

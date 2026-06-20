@@ -14,7 +14,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,9 +25,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "rule", indexes = {
-        @Index(name = "idx_rule_status", columnList = "is_active")
-})
+@Table(name = "rule", indexes = { @Index(name = "idx_rule_status", columnList = "is_active") })
 public class Rule extends BaseSchedulableEntity {
 
     public static final String JOB_GROUP = "RULE_ENGINE_SYSTEM";

@@ -132,6 +132,9 @@ public class RuleMapperImpl implements RuleMapper {
                 .intervalSeconds(entity.getIntervalSeconds())
                 .conditions(ruleConditionMapper.toDtoList(entity.getConditions()))
                 .actions(ruleActionMapper.toDtoList(entity.getActions()))
+                .alertConfigs(entity.getAlerts() != null ? entity.getAlerts().stream()
+                        .map(com.iviet.ivshs.dto.alert.RuleActionAlertDto::from)
+                        .collect(java.util.stream.Collectors.toList()) : java.util.List.of())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

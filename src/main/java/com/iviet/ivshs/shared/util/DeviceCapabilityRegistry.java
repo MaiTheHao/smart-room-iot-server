@@ -65,4 +65,29 @@ public final class DeviceCapabilityRegistry {
 
 		return isSupported(category, device.getSpecificType(), property);
 	}
+
+	public static Set<String> getCapabilities(DeviceCategory category, DeviceSpecificType specificType) {
+		DeviceTypeKey key = new DeviceTypeKey(category, specificType);
+		Set<String> supported = REGISTRY.get(key);
+		return supported != null ? supported : Set.of();
+	}
+
+	public static Set<String> getCapabilities(BaseIoTDevice<?> device) {
+		if (device == null) {
+			return Set.of();
+		}
+
+		DeviceCategory category = switch (device) {
+		case Fan f -> DeviceCategory.FAN;
+		case Light l -> DeviceCategory.LIGHT;
+		case AirCondition ac -> DeviceCategory.AIR_CONDITION;
+		default -> null;
+		};
+
+		if (category == null) {
+			return Set.of();
+		}
+
+		return getCapabilities(category, device.getSpecificType());
+	}
 }
