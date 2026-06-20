@@ -7,15 +7,18 @@ import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.service.alert.AlertService;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
+import com.iviet.ivshs.dto.alert.UpdateAlertStatusDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 /**
  * REST Controller cho Alert Management.
@@ -61,21 +64,20 @@ public class AlertController {
     }
 
     /**
-     * POST /api/v1/alerts/{id}/acknowledge
-     * Xác nhận đã biết về alert. No-op nếu đã ACKNOWLEDGED hoặc RESOLVED.
+     * PATCH /api/v1/alerts/{id}
+     * Cập nhật trạng thái alert (Xác nhận hoặc Giải quyết).
      */
-    @PostMapping("/{id}/acknowledge")
-    public ResponseEntity<ApiResponse<AlertResponseDto>> acknowledgeAlert(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.acknowledge(id)));
-    }
-
-    /**
-     * POST /api/v1/alerts/{id}/resolve
-     * Giải quyết alert thủ công. Dispatch ALERT_RESOLVED notification tới recipients.
-     * No-op nếu đã RESOLVED.
-     */
-    @PostMapping("/{id}/resolve")
-    public ResponseEntity<ApiResponse<AlertResponseDto>> resolveAlert(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.resolve(id)));
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<AlertResponseDto>> updateAlertStatus(
+            @PathVariable(name = "id") Long id,
+            @RequestBody @Valid UpdateAlertStatusDto request) {
+        AlertStatus status = request.status();
+        if (status == AlertStatus.ACKNOWLEDGED) {
+            return ResponseEntity.ok(ApiResponse.ok(alertService.acknowledge(id)));
+        } else if (status == AlertStatus.RESOLVED) {
+            return ResponseEntity.ok(ApiResponse.ok(alertService.resolve(id)));
+        } else {
+            throw new IllegalArgumentException("Invalid status update: only ACKNOWLEDGED or RESOLVED status updates are allowed manually");
+        }
     }
 }

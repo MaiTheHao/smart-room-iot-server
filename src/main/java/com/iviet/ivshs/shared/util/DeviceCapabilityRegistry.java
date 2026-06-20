@@ -15,26 +15,19 @@ public final class DeviceCapabilityRegistry {
 	}
 
 	private static final Map<DeviceTypeKey, Set<String>> REGISTRY = Map.of(
-			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.GPIO),
-			Set.of("power", "speed"),
+			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.GPIO), Set.of("power", "speed"),
 
-			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.IRSEND),
-			Set.of("power", "speed", "mode", "swing"),
+			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.IRSEND), Set.of("power", "speed", "mode", "swing"),
 
-			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.IR_CTL),
-			Set.of("power", "speed", "mode", "swing"),
+			new DeviceTypeKey(DeviceCategory.FAN, DeviceSpecificType.IR_CTL), Set.of("power", "speed", "mode", "swing"),
 
-			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.GPIO),
-			Set.of("power", "level"),
+			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.GPIO), Set.of("power", "level"),
 
-			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.IRSEND),
-			Set.of("power", "level"),
+			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.IRSEND), Set.of("power", "level"),
 
-			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.IR_CTL),
-			Set.of("power", "level"),
+			new DeviceTypeKey(DeviceCategory.LIGHT, DeviceSpecificType.IR_CTL), Set.of("power", "level"),
 
-			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.GPIO),
-			Set.of("power"),
+			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.GPIO), Set.of("power"),
 
 			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.IRSEND),
 			Set.of("power", "temperature", "mode", "fanSpeed", "swing"),
@@ -42,7 +35,8 @@ public final class DeviceCapabilityRegistry {
 			new DeviceTypeKey(DeviceCategory.AIR_CONDITION, DeviceSpecificType.IR_CTL),
 			Set.of("power", "temperature", "mode", "fanSpeed", "swing"));
 
-	private DeviceCapabilityRegistry() {}
+	private DeviceCapabilityRegistry() {
+	}
 
 	public static boolean isSupported(DeviceCategory category, DeviceSpecificType specificType, String property) {
 		DeviceTypeKey key = new DeviceTypeKey(category, specificType);
@@ -57,17 +51,18 @@ public final class DeviceCapabilityRegistry {
 		if (device == null) {
 			return false;
 		}
-		DeviceCategory category = null;
-		if (device instanceof Fan) {
-			category = DeviceCategory.FAN;
-		} else if (device instanceof Light) {
-			category = DeviceCategory.LIGHT;
-		} else if (device instanceof AirCondition) {
-			category = DeviceCategory.AIR_CONDITION;
-		}
+
+		DeviceCategory category = switch (device) {
+		case Fan f -> DeviceCategory.FAN;
+		case Light l -> DeviceCategory.LIGHT;
+		case AirCondition ac -> DeviceCategory.AIR_CONDITION;
+		default -> null;
+		};
+
 		if (category == null) {
 			return false;
 		}
+
 		return isSupported(category, device.getSpecificType(), property);
 	}
 }

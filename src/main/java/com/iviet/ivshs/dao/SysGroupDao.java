@@ -78,6 +78,24 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
     return entityManager.createQuery(jpql, Client.class).setParameter("groupId", groupId).setFirstResult(page * size).setMaxResults(size).getResultList();
   }
 
+  public List<ClientDto> findClientsByGroupCode(String groupCode) {
+    return findClientsByGroupCode(groupCode, 0, Integer.MAX_VALUE);
+  }
+
+  public List<ClientDto> findClientsByGroupCode(String groupCode, int page, int size) {
+    String jpql = "SELECT new %s(c.id, c.username, c.clientType, c.ipAddress, c.macAddress, c.avatarUrl, c.lastLoginAt, c.gatewayPassword) " + "FROM SysGroup g JOIN g.clients c WHERE g.groupCode = :groupCode ORDER BY c.username ASC";
+    return entityManager.createQuery(String.format(jpql, CLIENT_DTO), ClientDto.class).setParameter("groupCode", groupCode).setFirstResult(page * size).setMaxResults(size).getResultList();
+  }
+
+  public List<Client> findClientEntitiesByGroupCode(String groupCode) {
+    return findClientEntitiesByGroupCode(groupCode, 0, Integer.MAX_VALUE);
+  }
+
+  public List<Client> findClientEntitiesByGroupCode(String groupCode, int page, int size) {
+    String jpql = "SELECT c FROM SysGroup g JOIN g.clients c WHERE g.groupCode = :groupCode ORDER BY c.username ASC";
+    return entityManager.createQuery(jpql, Client.class).setParameter("groupCode", groupCode).setFirstResult(page * size).setMaxResults(size).getResultList();
+  }
+
   public List<SysGroupDto> findAllByClientId(Long clientId, String langCode) {
     return findAllByClientId(clientId, langCode, 0, Integer.MAX_VALUE);
   }

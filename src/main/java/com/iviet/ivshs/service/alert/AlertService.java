@@ -57,6 +57,11 @@ public interface AlertService {
     PaginatedResponse<AlertResponseDto> getAlerts(AlertFilterDto filter);
 
     /**
+     * Lấy danh sách alerts của riêng 1 Rule phân trang, filter theo RBAC của user hiện tại.
+     */
+    PaginatedResponse<AlertResponseDto> getAlertsByRuleId(Long ruleId, AlertFilterDto filter);
+
+    /**
      * Lấy chi tiết 1 alert theo ID. Throw ForbiddenException nếu không có quyền.
      */
     AlertResponseDto getAlertById(Long alertId);

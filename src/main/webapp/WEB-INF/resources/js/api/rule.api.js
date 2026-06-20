@@ -103,7 +103,7 @@ export const executeRuleNow = (id) => {
  * @returns {Promise<[Error|null, ApiResponse<RuleActionAlertDto>]>}
  */
 export const getRuleAlertConfig = (id) => {
-	return httpClient(`/api/v1/rules/${id}/alert-config`);
+	return httpClient(`/api/v1/rules/${id}/alert-configs`);
 };
 
 /**
@@ -113,7 +113,7 @@ export const getRuleAlertConfig = (id) => {
  * @returns {Promise<[Error|null, ApiResponse<RuleActionAlertDto>]>}
  */
 export const saveRuleAlertConfig = (id, data) => {
-	return httpClient(`/api/v1/rules/${id}/alert-config`, {
+	return httpClient(`/api/v1/rules/${id}/alert-configs`, {
 		method: 'POST',
 		body: JSON.stringify(data),
 	});
@@ -125,7 +125,7 @@ export const saveRuleAlertConfig = (id, data) => {
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const deleteRuleAlertConfig = (id) => {
-	return httpClient(`/api/v1/rules/${id}/alert-config`, {
+	return httpClient(`/api/v1/rules/${id}/alert-configs`, {
 		method: 'DELETE',
 	});
 };

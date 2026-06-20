@@ -5,6 +5,8 @@ import com.iviet.ivshs.entities.base.BaseAuditEntity;
 import com.iviet.ivshs.shared.enumeration.Severity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Cấu hình alert cho một Rule cụ thể (quan hệ 1:1 với Rule).
@@ -42,7 +44,8 @@ public class RuleActionAlert extends BaseAuditEntity {
      * Ví dụ: ["G_ADMIN", "G_MAINTENANCE"]
      * JsonNodeConverter @autoApply = true — không cần @Convert thủ công.
      */
-    @Column(name = "recipient_groups", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "recipient_groups")
     private JsonNode recipientGroups;
 
     /**
@@ -50,7 +53,8 @@ public class RuleActionAlert extends BaseAuditEntity {
      * Ví dụ: ["PUSH", "EMAIL"]
      * JsonNodeConverter @autoApply = true — không cần @Convert thủ công.
      */
-    @Column(name = "channels", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "channels")
     private JsonNode channels;
 
     /**

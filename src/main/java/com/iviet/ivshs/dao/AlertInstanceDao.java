@@ -167,4 +167,105 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         if (severity != null) q.setParameter("severity", severity);
         return q.getSingleResult();
     }
+
+    // ========== Query by ruleId with RBAC ==========
+
+    public List<AlertInstance> findAllByRuleId(Long ruleId, AlertStatus status, Severity severity, int page, int size) {
+        StringBuilder jpql = new StringBuilder(
+            "SELECT ai FROM AlertInstance ai WHERE ai.alertConfig.rule.id = :ruleId"
+        );
+        if (status   != null) jpql.append(" AND ai.status = :status");
+        if (severity != null) jpql.append(" AND ai.severity = :severity");
+        jpql.append(" ORDER BY ai.triggeredAt DESC");
+
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class)
+                .setParameter("ruleId", ruleId);
+        if (status   != null) q.setParameter("status",   status);
+        if (severity != null) q.setParameter("severity", severity);
+        return q.setFirstResult(page * size).setMaxResults(size).getResultList();
+    }
+
+    public long countAllByRuleId(Long ruleId, AlertStatus status, Severity severity) {
+        StringBuilder jpql = new StringBuilder("SELECT COUNT(ai) FROM AlertInstance ai WHERE ai.alertConfig.rule.id = :ruleId");
+        if (status   != null) jpql.append(" AND ai.status = :status");
+        if (severity != null) jpql.append(" AND ai.severity = :severity");
+
+        var q = entityManager.createQuery(jpql.toString(), Long.class)
+                .setParameter("ruleId", ruleId);
+        if (status   != null) q.setParameter("status",   status);
+        if (severity != null) q.setParameter("severity", severity);
+        return q.getSingleResult();
+    }
+
+    public List<AlertInstance> findAllByRuleIdAndGroupCode(
+            Long ruleId, String groupCode, AlertStatus status, Severity severity, int page, int size) {
+        StringBuilder jpql = new StringBuilder("""
+            SELECT ai FROM AlertInstance ai
+            JOIN ai.alertConfig raa
+            WHERE raa.rule.id = :ruleId AND JSON_CONTAINS(raa.recipientGroups, :groupCodeJson) = 1
+            """);
+        if (status   != null) jpql.append(" AND ai.status = :status");
+        if (severity != null) jpql.append(" AND ai.severity = :severity");
+        jpql.append(" ORDER BY ai.triggeredAt DESC");
+
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class)
+                .setParameter("ruleId", ruleId)
+                .setParameter("groupCodeJson", "\"" + groupCode + "\"");
+        if (status   != null) q.setParameter("status",   status);
+        if (severity != null) q.setParameter("severity", severity);
+        return q.setFirstResult(page * size).setMaxResults(size).getResultList();
+    }
+
+    public long countByRuleIdAndGroupCode(Long ruleId, String groupCode, AlertStatus status, Severity severity) {
+        StringBuilder jpql = new StringBuilder("""
+            SELECT COUNT(ai) FROM AlertInstance ai
+            JOIN ai.alertConfig raa
+            WHERE raa.rule.id = :ruleId AND JSON_CONTAINS(raa.recipientGroups, :groupCodeJson) = 1
+            """);
+        if (status   != null) jpql.append(" AND ai.status = :status");
+        if (severity != null) jpql.append(" AND ai.severity = :severity");
+
+        var q = entityManager.createQuery(jpql.toString(), Long.class)
+                .setParameter("ruleId", ruleId)
+                .setParameter("groupCodeJson", "\"" + groupCode + "\"");
+        if (status   != null) q.setParameter("status",   status);
+        if (severity != null) q.setParameter("severity", severity);
+        return q.getSingleResult();
+    }
+
+    public List<AlertInstance> findAllByRuleIdAndRecipientClientId(
+            Long ruleId, Long clientId, AlertStatus status, Severity severity, int page, int size) {
+        StringBuilder jpql = new StringBuilder("""
+            SELECT ai FROM AlertInstance ai
+            JOIN ai.recipients r
+            WHERE ai.alertConfig.rule.id = :ruleId AND r.id = :clientId
+            """);
+        if (status   != null) jpql.append(" AND ai.status = :status");
+        if (severity != null) jpql.append(" AND ai.severity = :severity");
+        jpql.append(" ORDER BY ai.triggeredAt DESC");
+
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class)
+                .setParameter("ruleId", ruleId)
+                .setParameter("clientId", clientId);
+        if (status   != null) q.setParameter("status",   status);
+        if (severity != null) q.setParameter("severity", severity);
+        return q.setFirstResult(page * size).setMaxResults(size).getResultList();
+    }
+
+    public long countByRuleIdAndRecipientClientId(Long ruleId, Long clientId, AlertStatus status, Severity severity) {
+        StringBuilder jpql = new StringBuilder("""
+            SELECT COUNT(ai) FROM AlertInstance ai
+            JOIN ai.recipients r
+            WHERE ai.alertConfig.rule.id = :ruleId AND r.id = :clientId
+            """);
+        if (status   != null) jpql.append(" AND ai.status = :status");
+        if (severity != null) jpql.append(" AND ai.severity = :severity");
+
+        var q = entityManager.createQuery(jpql.toString(), Long.class)
+                .setParameter("ruleId", ruleId)
+                .setParameter("clientId", clientId);
+        if (status   != null) q.setParameter("status",   status);
+        if (severity != null) q.setParameter("severity", severity);
+        return q.getSingleResult();
+    }
 }

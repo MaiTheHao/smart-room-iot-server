@@ -289,6 +289,38 @@ public class AlertServiceImpl implements AlertService {
     }
 
     @Override
+    public PaginatedResponse<AlertResponseDto> getAlertsByRuleId(Long ruleId, AlertFilterDto filter) {
+        Long currentClientId = SecurityContextUtil.getCurrentClientId();
+        List<String> userGroups = SecurityContextUtil.getCurrentUsername() != null ?
+                SecurityContextUtil.getCurrentFunctions() != null ? 
+                new ArrayList<>(clientDao.findById(currentClientId)
+                        .orElseThrow(() -> new NotFoundException("Client not found"))
+                        .getGroups().stream().map(g -> g.getGroupCode()).collect(Collectors.toList())) : List.of() : List.of();
+
+        List<AlertInstance> alerts;
+        long total;
+
+        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode())) {
+            alerts = alertInstanceDao.findAllByRuleId(ruleId, filter.status(), filter.severity(), filter.page(), filter.size());
+            total  = alertInstanceDao.countAllByRuleId(ruleId, filter.status(), filter.severity());
+
+        } else if (userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
+            String groupCode = SysGroupEnum.G_MAINTENANCE.getCode();
+            alerts = alertInstanceDao.findAllByRuleIdAndGroupCode(ruleId, groupCode, filter.status(), filter.severity(), filter.page(), filter.size());
+            total  = alertInstanceDao.countByRuleIdAndGroupCode(ruleId, groupCode, filter.status(), filter.severity());
+
+        } else {
+            alerts = alertInstanceDao.findAllByRuleIdAndRecipientClientId(ruleId, currentClientId, filter.status(), filter.severity(), filter.page(), filter.size());
+            total  = alertInstanceDao.countByRuleIdAndRecipientClientId(ruleId, currentClientId, filter.status(), filter.severity());
+        }
+
+        List<AlertResponseDto> dtos = alerts.stream()
+                .map(AlertResponseDto::from)
+                .collect(Collectors.toList());
+        return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
+    }
+
+    @Override
     public AlertResponseDto getAlertById(Long alertId) {
         AlertInstance alert = alertInstanceDao.findByIdWithRecipients(alertId)
                 .orElseThrow(() -> new NotFoundException("Alert not found: " + alertId));
@@ -374,12 +406,10 @@ public class AlertServiceImpl implements AlertService {
         StreamSupport.stream(recipientGroups.spliterator(), false)
                 .map(JsonNode::asText)
                 .filter(code -> !code.isBlank())
-                .forEach(groupCode ->
-                    sysGroupDao.findEntityByCode(groupCode).ifPresent(group -> {
-                        List<Client> groupClients = sysGroupDao.findClientEntitiesByGroupId(group.getId());
-                        recipients.addAll(groupClients);
-                    })
-                );
+                .forEach(groupCode -> {
+                    List<Client> groupClients = sysGroupDao.findClientEntitiesByGroupCode(groupCode);
+                    recipients.addAll(groupClients);
+                });
         log.debug("[Alert] Resolved {} unique recipients from groups {}", recipients.size(), recipientGroups);
         return recipients;
     }

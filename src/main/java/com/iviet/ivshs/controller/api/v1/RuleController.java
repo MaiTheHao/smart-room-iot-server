@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.iviet.ivshs.dto.common.ApiResponse;
@@ -23,6 +24,10 @@ import com.iviet.ivshs.service.rule.RuleService;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.dto.alert.RuleActionAlertDto;
 import com.iviet.ivshs.dto.alert.SaveRuleActionAlertDto;
+import com.iviet.ivshs.dto.alert.AlertFilterDto;
+import com.iviet.ivshs.dto.alert.AlertResponseDto;
+import com.iviet.ivshs.shared.enumeration.AlertStatus;
+import com.iviet.ivshs.shared.enumeration.Severity;
 import com.iviet.ivshs.service.alert.AlertService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,22 +46,21 @@ public class RuleController {
     /**
      * TẠO MỚI RULE
      * 
-     * @apiNote API để tạo một Rule mới. Yêu cầu payload chuẩn xác gồm các thuộc tính cơ bản (name, priority, intervalSeconds) và đi kèm mảng conditions, actions.
+     * @apiNote API để tạo một Rule mới. Yêu cầu payload chuẩn xác gồm các thuộc tính cơ bản (name, priority,
+     * intervalSeconds) và đi kèm mảng conditions, actions.
      * @param request Payload DTO CreateRuleDto chứa thông tin khởi tạo rule.
      * @return RuleDto cấu trúc Rule vừa được tạo cùng với ID mới.
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<RuleDto>> create(@RequestBody
-    @Valid
-    CreateRuleDto request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(ruleService.create(request)));
+    public ResponseEntity<ApiResponse<RuleDto>> create(@RequestBody @Valid CreateRuleDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(ruleService.create(request)));
     }
 
     /**
      * LẤY DANH SÁCH TẤT CẢ RULE (CHỈ LẤY ACTIVE)
      * 
-     * @apiNote Dùng cho hệ thống load toàn bộ Rule đang được đánh dấu isActive = true, không phân trang. Thường dùng khi frontend cần select/list hoặc trigger nạp lại.
+     * @apiNote Dùng cho hệ thống load toàn bộ Rule đang được đánh dấu isActive = true, không phân trang. Thường dùng
+     * khi frontend cần select/list hoặc trigger nạp lại.
      * @return List<RuleDto> Danh sách các Rule đang hoạt động.
      */
     @GetMapping("/all")
@@ -73,9 +77,9 @@ public class RuleController {
      * @return PaginatedResponse<RuleDto> Bao gồm dữ liệu và tổng số trang/bản ghi.
      */
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginatedResponse<RuleDto>>> getList(@RequestParam(name = "page", defaultValue = "0")
-    int page, @RequestParam(name = "size", defaultValue = "10")
-    int size) {
+    public ResponseEntity<ApiResponse<PaginatedResponse<RuleDto>>> getList(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(ApiResponse.ok(ruleService.getAll(page, size)));
     }
 
@@ -87,26 +91,25 @@ public class RuleController {
      * @return RuleDto Chi tiết rule.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RuleDto>> getById(@PathVariable(name = "id")
-    Long id) {
+    public ResponseEntity<ApiResponse<RuleDto>> getById(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(ApiResponse.ok(ruleService.getById(id)));
     }
 
     /**
      * CẬP NHẬT RULE (PARTIAL UPDATE / REPLACE ARRAYS)
      * 
-     * @apiNote Cơ chế cập nhật: - Các trường Object Root (name, priority, intervalSeconds, isActive): Nếu null bị bỏ qua (GIỮ NGUYÊN). Nếu có giá trị sẽ GHI ĐÈ. - Các trường Mảng Array (conditions, actions): + Nếu KHÔNG TRUYỀN null -> Mặc kệ (GIỮ NGUYÊN mảng cũ trong DB). + Nếu TRUYỀN mảng (kể cả mảng
-     *          RỖNG []) -> XÓA SẠCH mảng cũ và REPLACE bằng mảng mới truyền lên.
+     * @apiNote Cơ chế cập nhật: - Các trường Object Root (name, priority, intervalSeconds, isActive): Nếu null bị bỏ
+     * qua (GIỮ NGUYÊN). Nếu có giá trị sẽ GHI ĐÈ. - Các trường Mảng Array (conditions, actions): + Nếu KHÔNG TRUYỀN
+     * null -> Mặc kệ (GIỮ NGUYÊN mảng cũ trong DB). + Nếu TRUYỀN mảng (kể cả mảng RỖNG []) -> XÓA SẠCH mảng cũ và
+     * REPLACE bằng mảng mới truyền lên.
      * 
      * @param id ID của Rule cần update.
      * @param request Payload update.
      * @return RuleDto Dữ liệu Rule sau khi được update thành công.
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<RuleDto>> update(@PathVariable(name = "id")
-    Long id, @RequestBody
-    @Valid
-    UpdateRuleDto request) {
+    public ResponseEntity<ApiResponse<RuleDto>> update(@PathVariable(name = "id") Long id,
+            @RequestBody @Valid UpdateRuleDto request) {
         return ResponseEntity.ok(ApiResponse.ok(ruleService.update(id, request)));
     }
 
@@ -118,8 +121,7 @@ public class RuleController {
      * @return Xóa thành công trả về HTTP NO_CONTENT (204).
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id")
-    Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id") Long id) {
         ruleService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Rule deleted successfully"));
@@ -128,24 +130,25 @@ public class RuleController {
     /**
      * BẬT/TẮT TRẠNG THÁI ACTIVE RULE
      * 
-     * @apiNote Cập nhật nhanh cờ isActive. Khi tắt, job sẽ lập tức bị hủy khỏi RAM máy chủ Quartz. Khi bật, nó sẽ được lập lịch lại.
+     * @apiNote Cập nhật nhanh cờ isActive. Khi tắt, job sẽ lập tức bị hủy khỏi RAM máy chủ Quartz. Khi bật, nó sẽ được
+     * lập lịch lại.
      * @param id Định danh Rule.
      * @param request Payload chứa trạng thái isActive (true/false).
      * @return Phản hồi trống (HTTP 200).
      */
     @PatchMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<Void>> toggleStatus(@PathVariable(name = "id")
-    Long id, @RequestBody
-    @Valid
-    UpdateRuleStatusDto request) {
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(@PathVariable(name = "id") Long id,
+            @RequestBody @Valid UpdateRuleStatusDto request) {
         ruleService.toggleIsActive(id, request.isActive());
-        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Rule status updated: " + request.isActive()));
+        return ResponseEntity
+                .ok(ApiResponse.success(HttpStatus.OK, null, "Rule status updated: " + request.isActive()));
     }
 
     /**
      * ĐỌC LẠI TOÀN BỘ LẬP LỊCH TỪ CƠ SỞ DỮ LIỆU
      * 
-     * @apiNote Clear toàn bộ Job thuộc RULE_ENGINE_SYSTEM trong Quartz, đọc lại những Rule đang active=true từ DB và add lại lên Quartz RAM. Dùng làm nút Backup chửa cháy khi Quartz bị lỗi lệch pha.
+     * @apiNote Clear toàn bộ Job thuộc RULE_ENGINE_SYSTEM trong Quartz, đọc lại những Rule đang active=true từ DB và
+     * add lại lên Quartz RAM. Dùng làm nút Backup chửa cháy khi Quartz bị lỗi lệch pha.
      * @return Phản hồi thành công (HTTP 200).
      */
     @PostMapping("/reload")
@@ -157,13 +160,13 @@ public class RuleController {
     /**
      * THỰC THI RULE IMMEDIATELY (TRIGGER NOW)
      * 
-     * @apiNote Cưỡng ép Quartz kích nổ (Fire) Job lập tức bỏ qua chu kỳ interval. (Lưu ý: Trigger tự do 1 lần chứ không thay đổi chu kỳ hiện tại).
+     * @apiNote Cưỡng ép Quartz kích nổ (Fire) Job lập tức bỏ qua chu kỳ interval. (Lưu ý: Trigger tự do 1 lần chứ không
+     * thay đổi chu kỳ hiện tại).
      * @param id ID của Rule.
      * @return Phản hồi trống (HTTP 200).
      */
     @PostMapping("/{id}/execute")
-    public ResponseEntity<ApiResponse<Void>> executeNow(@PathVariable(name = "id")
-    Long id) {
+    public ResponseEntity<ApiResponse<Void>> executeNow(@PathVariable(name = "id") Long id) {
         ruleService.triggerNow(id);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Rule execution triggered immediately"));
     }
@@ -171,51 +174,64 @@ public class RuleController {
     /**
      * LẤY CẤU HÌNH CẢNH BÁO CỦA RULE
      * 
-     * @param id ID của Rule.
+     * @param ruleId ID của Rule.
      * @return Danh sách RuleActionAlertDto Cấu hình alert của rule.
      */
-    @GetMapping("/{id}/alert-config")
-    public ResponseEntity<ApiResponse<List<RuleActionAlertDto>>> getAlertConfigByRuleId(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertConfigsByRuleId(id)));
+    @GetMapping("/{ruleId}/alert-configs")
+    public ResponseEntity<ApiResponse<List<RuleActionAlertDto>>> getAlertConfigByRuleId(
+            @PathVariable(name = "ruleId") Long ruleId) {
+        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertConfigsByRuleId(ruleId)));
     }
 
     /**
-     * LƯU/CẬP NHẬT CẤU HÌNH CẢNH BÁO CỦA RULE
+     * LƯU/CẬP NHẬT CẤU HÌNH CẢNH BÁO CỦA RULE (UPSERT) Hỗ trợ cả 2 phương thức POST và PUT để ghi đè hoặc tạo mới cấu
+     * hình.
      * 
-     * @param id ID của Rule.
-     * @param request Danh sách cấu hình alert cần lưu.
+     * @param ruleId ID của Rule.
+     * @param request Danh sách cấu hình alert cần lưu (UPSERT).
      * @return Danh sách RuleActionAlertDto Cấu hình alert đã lưu.
      */
-    @PostMapping("/{id}/alert-config")
+    @RequestMapping(value = "/{ruleId}/alert-configs", method = { RequestMethod.POST, RequestMethod.PUT })
     public ResponseEntity<ApiResponse<List<RuleActionAlertDto>>> saveAlertConfig(
-            @PathVariable(name = "id") Long id,
-            @RequestBody @Valid List<SaveRuleActionAlertDto> request) {
+            @PathVariable(name = "ruleId") Long ruleId, @RequestBody @Valid List<SaveRuleActionAlertDto> request) {
         List<SaveRuleActionAlertDto> dtosToSave = request.stream()
-                .map(dto -> new SaveRuleActionAlertDto(
-                        dto.id(),
-                        id,
-                        dto.alertName(),
-                        dto.severity(),
-                        dto.recipientGroups(),
-                        dto.channels(),
-                        dto.messageTemplate(),
-                        dto.cooldownMinutes(),
-                        dto.autoResolve()
-                ))
+                .map(dto -> new SaveRuleActionAlertDto(dto.id(), ruleId, dto.alertName(), dto.severity(),
+                        dto.recipientGroups(), dto.channels(), dto.messageTemplate(), dto.cooldownMinutes(),
+                        dto.autoResolve()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.ok(alertService.saveAlertConfigs(id, dtosToSave)));
+        return ResponseEntity.ok(ApiResponse.ok(alertService.saveAlertConfigs(ruleId, dtosToSave)));
     }
 
     /**
      * XÓA CẤU HÌNH CẢNH BÁO CỦA RULE
      * 
-     * @param id ID của Rule.
+     * @param ruleId ID của Rule.
      * @return Phản hồi trống (HTTP 204).
      */
-    @DeleteMapping("/{id}/alert-config")
-    public ResponseEntity<ApiResponse<Void>> deleteAlertConfig(@PathVariable(name = "id") Long id) {
-        alertService.deleteAlertsByRuleId(id);
+    @DeleteMapping("/{ruleId}/alert-configs")
+    public ResponseEntity<ApiResponse<Void>> deleteAlertConfig(@PathVariable(name = "ruleId") Long ruleId) {
+        alertService.deleteAlertsByRuleId(ruleId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.success(HttpStatus.NO_CONTENT, null, "Alert configs deleted successfully"));
+    }
+
+    /**
+     * LẤY DANH SÁCH ALERTS CỦA RIÊNG 1 RULE
+     * 
+     * @param ruleId ID của Rule.
+     * @param status Optional status filter.
+     * @param severity Optional severity filter.
+     * @param page Page number.
+     * @param size Page size.
+     * @return Paginated list of AlertResponseDto.
+     */
+    @GetMapping("/{ruleId}/alerts")
+    public ResponseEntity<ApiResponse<PaginatedResponse<AlertResponseDto>>> getAlertsByRuleId(
+            @PathVariable(name = "ruleId") Long ruleId, @RequestParam(required = false) AlertStatus status,
+            @RequestParam(required = false) Severity severity,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        AlertFilterDto filter = new AlertFilterDto(status, severity, page, size);
+        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertsByRuleId(ruleId, filter)));
     }
 }
