@@ -26,26 +26,28 @@ public class SecurityContextUtil {
         return getCustomUserDetails().getUsername();
     }
 
+    public Set<String> getCurrentGroups() {
+        return getCustomUserDetails().getGroups();
+    }
+
     public Set<String> getCurrentFunctions() {
-        return getCustomUserDetails().getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        return getCustomUserDetails().getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
     }
 
     public boolean hasPermission(String functionCode) {
-        if (functionCode == null || functionCode.isBlank())
-            return false;
+        if (functionCode == null || functionCode.isBlank()) return false;
         return getCurrentFunctions().contains(functionCode);
     }
 
     public boolean hasAllPermissions(Collection<String> functionCodes) {
-        if (functionCodes == null || functionCodes.isEmpty())
-            return false;
+        if (functionCodes == null || functionCodes.isEmpty()) return false;
         Set<String> userFunctions = getCurrentFunctions();
         return userFunctions.containsAll(functionCodes);
     }
 
     public boolean hasAnyPermission(Collection<String> functionCodes) {
-        if (functionCodes == null || functionCodes.isEmpty())
-            return false;
+        if (functionCodes == null || functionCodes.isEmpty()) return false;
         Set<String> userFunctions = getCurrentFunctions();
         return functionCodes.stream().anyMatch(userFunctions::contains);
     }

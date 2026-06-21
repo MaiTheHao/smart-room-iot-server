@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -21,9 +21,9 @@ public class JwtResponse {
     private String clientType;
     private String avatarUrl;
     private Date lastLoginAt;
-    private List<String> groups;
+    private Set<String> groups;
 
-    public static JwtResponse of(String token, String username, List<String> groups) {
+    public static JwtResponse of(String token, String username, Set<String> groups) {
         return JwtResponse.builder()
                 .token(token)
                 .type("Bearer")

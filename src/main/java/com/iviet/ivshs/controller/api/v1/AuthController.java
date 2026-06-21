@@ -77,10 +77,4 @@ public class AuthController {
                 clientDeviceService.logoutDevice(clientId, logoutDto.getDeviceIdentifier(), logoutDto.getPlatform());
                 return ResponseEntity.ok(ApiResponse.ok(null));
         }
-
-        /*
-         * Cân bỏ sung api logour, để cho các client dùng, hiện tại logout chỉ xử lý logout đơn giản là xóa
-         * deviceIdentifier trong bảng client device, chứ chưa có thao tác với session Do mỗi app khi logout => Phải xóa
-         * đi toàn bộ fcm tokem theo device identifier để tránh noti không cần thiết
-         */
 }

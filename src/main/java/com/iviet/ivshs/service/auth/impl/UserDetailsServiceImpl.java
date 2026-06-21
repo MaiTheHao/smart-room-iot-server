@@ -38,29 +38,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     String cleanUsername = username.trim();
     log.trace("Searching for user: {}", cleanUsername);
 
-    Client client = clientDao.findByUsername(cleanUsername)
-        .orElseGet(() -> {
-          log.warn("Authentication failed: User [{}] not found", cleanUsername);
-          throw new UsernameNotFoundException("User not found: " + cleanUsername);
-        });
+    Client client = clientDao.findByUsername(cleanUsername).orElseGet(() -> {
+      log.warn("Authentication failed: User [{}] not found", cleanUsername);
+      throw new UsernameNotFoundException("User not found: " + cleanUsername);
+    });
 
-    return buildUserDetails(client);
-  }
+    List<String> functionCodes = functionDao.findAllByClientId(client.getId(), "null").stream()
+        .map(func -> func.functionCode()).collect(Collectors.toList());
 
-  private CustomUserDetails buildUserDetails(Client client) {
-    List<String> functionCodes = functionDao.findAllByClientId(client.getId(), "null")
-        .stream()
-        .map(func -> func.functionCode())
-        .collect(Collectors.toList());
-
-    Set<SimpleGrantedAuthority> authorities = functionCodes.stream()
-        .map(SimpleGrantedAuthority::new)
+    Set<SimpleGrantedAuthority> authorities = functionCodes.stream().map(SimpleGrantedAuthority::new)
         .collect(Collectors.toSet());
 
-    log.info("User authenticated: ID={}, Username={}, AuthoritiesCount={}", 
-        client.getId(), client.getUsername(), authorities.size());
+    log.info("User authenticated: ID={}, Username={}, AuthoritiesCount={}", client.getId(), client.getUsername(),
+        authorities.size());
     log.debug("Granting authorities to [{}]: {}", client.getUsername(), functionCodes);
-
     return new CustomUserDetails(client, authorities);
   }
 }

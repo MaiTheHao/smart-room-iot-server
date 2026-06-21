@@ -9,7 +9,8 @@ import com.iviet.ivshs.shared.enumeration.ClientType;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
@@ -17,17 +18,28 @@ public class CustomUserDetails extends User {
     private final Long id;
     private final ClientType clientType;
     private final String avatarUrl;
+
+    @Getter(lombok.AccessLevel.NONE)
     private final Date lastLoginAt;
-    private final List<String> groups;
-    
+
+    private final Set<String> groups;
+
     public CustomUserDetails(Client client, Collection<? extends GrantedAuthority> authorities) {
-        super(client.getUsername(), client.getPasswordHash() != null ? client.getPasswordHash() : "", authorities);
+        super(Objects.requireNonNull(client, "Client must not be null").getUsername(),
+                Objects.requireNonNullElse(client.getPasswordHash(), ""), authorities);
+
         this.id = client.getId();
         this.clientType = client.getClientType();
         this.avatarUrl = client.getAvatarUrl();
-        this.lastLoginAt = client.getLastLoginAt();
-        this.groups = client.getGroups() != null ? client.getGroups().stream()
-                .map(g -> g.getGroupCode())
-                .collect(Collectors.toList()) : List.of();
+
+        this.lastLoginAt = client.getLastLoginAt() != null ? new Date(client.getLastLoginAt().getTime()) : null;
+
+        this.groups = client.getGroups() != null
+                ? client.getGroups().stream().map(g -> g.getGroupCode()).collect(Collectors.toUnmodifiableSet())
+                : Set.of();
+    }
+
+    public Date getLastLoginAt() {
+        return this.lastLoginAt != null ? new Date(this.lastLoginAt.getTime()) : null;
     }
 }
