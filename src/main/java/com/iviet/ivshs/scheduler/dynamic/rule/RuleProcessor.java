@@ -2,12 +2,14 @@ package com.iviet.ivshs.scheduler.dynamic.rule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.RuleAction;
-import com.iviet.ivshs.entities.RuleActionAlert;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.scheduler.dynamic.rule.strategy.RuleDataSourceStrategy;
 import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
 import com.iviet.ivshs.core.properties.EngineProperties;
 import com.iviet.ivshs.entities.Rule;
+import com.iviet.ivshs.entities.AlertConfig;
+import com.iviet.ivshs.dao.AlertConfigDao;
+import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.enumeration.ConditionLogic;
 import com.iviet.ivshs.shared.enumeration.ConditionOperator;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
@@ -39,6 +41,7 @@ public class RuleProcessor implements SchedulableJobProcessor {
     private final List<DeviceControlServiceStrategy<?>> controlStrategies;
     private final ObjectMapper objectMapper;
     private final RuleDao ruleDao;
+    private final AlertConfigDao alertConfigDao;
     private final AlertService alertService;
 
     private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
@@ -73,27 +76,27 @@ public class RuleProcessor implements SchedulableJobProcessor {
 
         boolean isMatched = conditions.stream().sorted(Comparator.comparingInt(RuleCondition::getSortOrder)).reduce(initCtx, this::accumulateResult, (a, b) -> a).isFinalResult();
 
-        List<RuleActionAlert> alertConfigs = rule.getAlerts();
+        // Lấy configs từ AlertConfigDao thay vì từ Rule.getAlerts()
+        List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(
+            AlertNamespace.RULE, String.valueOf(id)
+        );
+
         if (isMatched) {
             executeActions(rule);
 
-            if (alertConfigs != null) {
-                for (RuleActionAlert config : alertConfigs) {
-                    try {
-                        alertService.triggerAlert(config.getId());
-                    } catch (Exception e) {
-                        log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
-                    }
+            for (AlertConfig config : alertConfigs) {
+                try {
+                    alertService.triggerAlert(config.getId());
+                } catch (Exception e) {
+                    log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
                 }
             }
         } else {
-            if (alertConfigs != null) {
-                for (RuleActionAlert config : alertConfigs) {
-                    try {
-                        alertService.resolveAlertIfNeeded(config.getId());
-                    } catch (Exception e) {
-                        log.error("[Alert] Failed to auto-resolve alert for config {}: {}", config.getId(), e.getMessage(), e);
-                    }
+            for (AlertConfig config : alertConfigs) {
+                try {
+                    alertService.resolveAlertIfNeeded(config.getId());
+                } catch (Exception e) {
+                    log.error("[Alert] Failed to auto-resolve alert for config {}: {}", config.getId(), e.getMessage(), e);
                 }
             }
         }

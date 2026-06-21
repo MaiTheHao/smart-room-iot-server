@@ -1,24 +1,26 @@
 package com.iviet.ivshs.dto.alert;
 
-import com.iviet.ivshs.entities.AlertInstance;
+import com.iviet.ivshs.entities.AlertRecipient;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
 
 import java.time.Instant;
 
 /**
- * Response DTO cho một AlertInstance.
- * Được trả về bởi GET /api/v1/alerts và GET /api/v1/alerts/{id}.
- * Dùng Java record (immutable, tự có constructor, equals, hashCode, toString).
+ * Response DTO cho một AlertRecipient (sự cố alert).
+ * Trả về bởi GET /api/v1/alerts và GET /api/v1/alerts/{id}.
  */
 public record AlertResponseDto(
         Long id,
-        Long ruleId,
-        String ruleName,
+        Long alertConfigId,
+        String alertConfigName,
+        String namespace,
+        String sourceId,
         String title,
         String body,
         Severity severity,
         AlertStatus status,
+        Integer triggerCount,
         Instant triggeredAt,
         Instant acknowledgedAt,
         Long acknowledgedById,
@@ -27,27 +29,25 @@ public record AlertResponseDto(
         Long resolvedById,
         String resolvedByUsername
 ) {
-    /**
-     * Static factory từ entity AlertInstance.
-     * QUAN TRỌNG: Các relation rule, acknowledgedBy, resolvedBy phải được
-     * load trong transaction trước khi gọi hàm này để tránh LazyInitializationException.
-     */
-    public static AlertResponseDto from(AlertInstance alert) {
+    public static AlertResponseDto from(AlertRecipient alert) {
         return new AlertResponseDto(
                 alert.getId(),
-                alert.getAlertConfig().getRule().getId(),
-                alert.getAlertConfig().getRule().getName(),
+                alert.getAlertConfig().getId(),
+                alert.getAlertConfig().getAlertName(),
+                alert.getAlertConfig().getNamespace().name(),
+                alert.getAlertConfig().getSourceId(),
                 alert.getTitle(),
                 alert.getBody(),
                 alert.getSeverity(),
                 alert.getStatus(),
+                alert.getTriggerCount(),
                 alert.getTriggeredAt(),
                 alert.getAcknowledgedAt(),
                 alert.getAcknowledgedBy() != null ? alert.getAcknowledgedBy().getId()       : null,
                 alert.getAcknowledgedBy() != null ? alert.getAcknowledgedBy().getUsername() : null,
                 alert.getResolvedAt(),
-                alert.getResolvedBy() != null ? alert.getResolvedBy().getId()       : null,
-                alert.getResolvedBy() != null ? alert.getResolvedBy().getUsername() : null
+                alert.getResolvedBy()     != null ? alert.getResolvedBy().getId()           : null,
+                alert.getResolvedBy()     != null ? alert.getResolvedBy().getUsername()     : null
         );
     }
 }

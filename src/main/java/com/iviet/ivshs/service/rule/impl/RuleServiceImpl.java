@@ -34,6 +34,8 @@ import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
 import com.iviet.ivshs.service.base.AbstractSchedulableJobService;
 import com.iviet.ivshs.service.rule.RuleService;
+import com.iviet.ivshs.service.alert.AlertConfigService;
+import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +55,7 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
   private final FanDao fanDao;
   private final LightDao lightDao;
   private final AirConditionDao airConditionDao;
-  private final com.iviet.ivshs.service.alert.AlertService alertService;
+  private final AlertConfigService alertConfigService;
 
   private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
@@ -77,8 +79,6 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
 
     Rule rule = ruleMapper.fromCreateDto(dto);
     ruleDao.save(rule);
-
-    if (dto.alertConfigs() != null) alertService.saveAlertConfigs(rule.getId(), dto.alertConfigs());
 
     jobScheduleService.sync(rule);
 
@@ -106,8 +106,6 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     ruleMapper.updateFromDto(dto, rule);
     ruleDao.update(rule);
 
-    if (dto.alertConfigs() != null) alertService.saveAlertConfigs(ruleId, dto.alertConfigs());
-
     jobScheduleService.sync(rule);
 
     log.info("Rule updated successfully: id={}, name={}", ruleId, rule.getName());
@@ -121,7 +119,7 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
     Rule rule = ruleDao.findById(ruleId).orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
     jobScheduleService.delete(rule);
-    alertService.deleteAlertsByRuleId(ruleId);
+    alertConfigService.deleteAllBySource(AlertNamespace.RULE, String.valueOf(ruleId));
     ruleDao.deleteById(ruleId);
   }
 
@@ -188,14 +186,14 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
 
   private DeviceSpecificType getSpecificType(DeviceCategory category, Long targetDeviceId) {
     return switch (category) {
-    case null -> DeviceSpecificType.GPIO;
-    case FAN -> fanDao.findById(targetDeviceId).map(Fan::getSpecificType)
-        .orElseThrow(() -> new NotFoundException("Fan not found with id: " + targetDeviceId));
-    case LIGHT -> lightDao.findById(targetDeviceId).map(Light::getSpecificType)
-        .orElseThrow(() -> new NotFoundException("Light not found with id: " + targetDeviceId));
-    case AIR_CONDITION -> airConditionDao.findById(targetDeviceId).map(AirCondition::getSpecificType)
-        .orElseThrow(() -> new NotFoundException("AirCondition not found with id: " + targetDeviceId));
-    default -> DeviceSpecificType.GPIO;
+      case null -> DeviceSpecificType.GPIO;
+      case FAN -> fanDao.findById(targetDeviceId).map(Fan::getSpecificType)
+          .orElseThrow(() -> new NotFoundException("Fan not found with id: " + targetDeviceId));
+      case LIGHT -> lightDao.findById(targetDeviceId).map(Light::getSpecificType)
+          .orElseThrow(() -> new NotFoundException("Light not found with id: " + targetDeviceId));
+      case AIR_CONDITION -> airConditionDao.findById(targetDeviceId).map(AirCondition::getSpecificType)
+          .orElseThrow(() -> new NotFoundException("AirCondition not found with id: " + targetDeviceId));
+      default -> DeviceSpecificType.GPIO;
     };
   }
 

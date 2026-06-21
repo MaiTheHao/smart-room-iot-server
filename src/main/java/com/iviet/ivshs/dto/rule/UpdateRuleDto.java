@@ -1,7 +1,6 @@
 package com.iviet.ivshs.dto.rule;
 
 import java.util.List;
-import com.iviet.ivshs.dto.alert.RuleAlertConfigDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
@@ -18,8 +17,5 @@ public record UpdateRuleDto(
 
 		@Valid List<UpdateRuleConditionDto> conditions,
 
-		@Valid List<UpdateRuleActionDto> actions,
-
-		/** Optional. Nếu null → không thay đổi alert config. Nếu truyền mảng rỗng [] → xóa sạch. */
-		@Valid List<RuleAlertConfigDto> alertConfigs) {
+		@Valid List<UpdateRuleActionDto> actions) {
 }

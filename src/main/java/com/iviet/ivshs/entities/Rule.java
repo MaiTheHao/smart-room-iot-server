@@ -52,18 +52,7 @@ public class Rule extends BaseSchedulableEntity {
         action.setRule(this);
     }
 
-    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<RuleActionAlert> alerts = new ArrayList<>();
 
-    public void addAlertConfig(RuleActionAlert alert) {
-        this.alerts.add(alert);
-        alert.setRule(this);
-    }
-
-    public void removeAlertConfig(RuleActionAlert alert) {
-        this.alerts.remove(alert);
-        alert.setRule(null);
-    }
 
     @Override
     public String getJobName() {

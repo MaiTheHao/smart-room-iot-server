@@ -24,10 +24,9 @@ public enum SysFunctionEnum {
 	F_ACCESS_FLOOR_ALL("F_ACCESS_FLOOR_ALL"),
 	F_ACCESS_ROOM_ALL("F_ACCESS_ROOM_ALL"),
 
-	// ========== ALERT ACCESS FUNCTIONS ==========
-	F_ACCESS_ALERT_ALL("F_ACCESS_ALERT_ALL"),       // G_ADMIN: xem toàn bộ alerts
-	F_ACCESS_ALERT_GROUP("F_ACCESS_ALERT_GROUP"),   // G_MAINTENANCE: xem alerts của group
-	F_ACCESS_ALERT_OWN("F_ACCESS_ALERT_OWN");       // G_USER: chỉ xem "My Alerts"
+	// ========== ALERT FUNCTIONS (TINH GỌN) ==========
+	F_ACCESS_ALERT("F_ACCESS_ALERT"),   // Xem alerts thuộc group của mình
+	F_HANDLE_ALERT("F_HANDLE_ALERT");   // Acknowledge/Resolve alerts
 
 	private String code;
 

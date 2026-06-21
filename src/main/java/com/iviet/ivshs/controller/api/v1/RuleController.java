@@ -22,6 +22,7 @@ import com.iviet.ivshs.service.rule.RuleService;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertResponseDto;
+import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
 import com.iviet.ivshs.service.alert.AlertService;
@@ -98,6 +99,6 @@ public class RuleController {
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
         AlertFilterDto filter = new AlertFilterDto(status, severity, page, size);
-        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertsByRuleId(ruleId, filter)));
+        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertsBySource(AlertNamespace.RULE, String.valueOf(ruleId), filter)));
     }
 }
