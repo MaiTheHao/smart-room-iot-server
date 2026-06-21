@@ -152,4 +152,14 @@ public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
     String jpql = "SELECT COUNT(g) FROM Client c JOIN c.groups g WHERE c.id = :clientId";
     return entityManager.createQuery(jpql, Long.class).setParameter("clientId", clientId).getSingleResult();
   }
+
+  public List<Client> findClientEntitiesByGroupIds(java.util.Collection<Long> groupIds) {
+    if (groupIds == null || groupIds.isEmpty()) {
+      return List.of();
+    }
+    String jpql = "SELECT DISTINCT c FROM SysGroup g JOIN g.clients c WHERE g.id IN :groupIds";
+    return entityManager.createQuery(jpql, Client.class)
+            .setParameter("groupIds", groupIds)
+            .getResultList();
+  }
 }

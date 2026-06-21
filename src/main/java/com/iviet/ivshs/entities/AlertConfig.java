@@ -82,12 +82,4 @@ public class AlertConfig extends BaseAuditEntity {
     @Column(name = "cooldown_minutes", nullable = false)
     @Builder.Default
     private Integer cooldownMinutes = 0;
-
-    /**
-     * Nếu true: khi nguồn (Rule/Gateway) trở lại bình thường,
-     * hệ thống tự động resolve toàn bộ alert đang ACTIVE/ACKNOWLEDGED.
-     */
-    @Column(name = "auto_resolve", nullable = false)
-    @Builder.Default
-    private Boolean autoResolve = false;
 }

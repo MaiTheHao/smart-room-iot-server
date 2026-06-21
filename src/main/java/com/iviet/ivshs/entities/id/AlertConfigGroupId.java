@@ -1,4 +1,4 @@
-package com.iviet.ivshs.entities;
+package com.iviet.ivshs.entities.id;
 
 import java.io.Serializable;
 import java.util.Objects;

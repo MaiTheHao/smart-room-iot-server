@@ -1,80 +1,86 @@
 package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
-import com.iviet.ivshs.dto.alert.AlertResponseDto;
+import com.iviet.ivshs.dto.alert.AlertInstanceDto;
+import com.iviet.ivshs.dto.alert.AlertTriggerRequestDto;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.service.alert.AlertService;
+import com.iviet.ivshs.entities.AlertInstanceLog;
+import com.iviet.ivshs.service.alert.AlertInstanceLogService;
+import com.iviet.ivshs.service.alert.AlertInstanceService;
+import com.iviet.ivshs.service.alert.AlertTriggerService;
+import com.iviet.ivshs.shared.enumeration.AlertActionType;
+import com.iviet.ivshs.shared.enumeration.AlertActorType;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
+import com.iviet.ivshs.shared.util.SecurityContextUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-/**
- * REST Controller cho Alert Management.
- * Tất cả endpoint RBAC được xử lý trong AlertService dựa trên group của user hiện tại.
- * Route: /api/v1/alerts (prefix /api được thêm bởi Spring Security filter hoặc global prefix config)
- */
+import java.util.List;
+
 @Slf4j
 @RestController("alertController")
 @RequiredArgsConstructor
 @RequestMapping("/v1/alerts")
 public class AlertController {
 
-    private final AlertService alertService;
+    private final AlertInstanceService alertInstanceService;
+    private final AlertTriggerService alertTriggerService;
+    private final AlertInstanceLogService AlertInstanceLogService;
 
-    /**
-     * GET /api/v1/alerts
-     * Lấy danh sách alerts với filter và phân trang.
-     * RBAC: Admin → tất cả | Maintenance → của group | User → "My Alerts"
-     *
-     * @param status   Optional: ACTIVE | ACKNOWLEDGED | RESOLVED
-     * @param severity Optional: INFO | WARNING | CRITICAL
-     * @param page     Trang (0-based). Default: 0.
-     * @param size     Kích thước trang. Default: 10. Max: 100.
-     */
-    @GetMapping
-    public ResponseEntity<ApiResponse<PaginatedResponse<AlertResponseDto>>> getAlerts(
-            @RequestParam(required = false) AlertStatus status,
-            @RequestParam(required = false) Severity severity,
-            @RequestParam(name = "page", defaultValue = "0")  int page,
+    @GetMapping("/instances")
+    public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlerts(
+            @RequestParam(required = false) AlertStatus status, @RequestParam(required = false) Severity severity,
+            @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
-
         AlertFilterDto filter = new AlertFilterDto(status, severity, page, size);
-        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlerts(filter)));
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlerts(filter)));
     }
 
-    /**
-     * GET /api/v1/alerts/{id}
-     * Chi tiết 1 alert. Throw 403 nếu user không có quyền xem.
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<AlertResponseDto>> getAlertById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertById(id)));
+    @GetMapping("/{alertId}/instances")
+    public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlertsByConfig(
+            @PathVariable Long alertId, @RequestParam(required = false) AlertStatus status,
+            @RequestParam(required = false) Severity severity,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        AlertFilterDto filter = new AlertFilterDto(status, severity, page, size);
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertsByConfig(alertId, filter)));
     }
 
-    /**
-     * POST /api/v1/alerts/{id}/acknowledge
-     * Xác nhận cảnh báo.
-     */
-    @PostMapping("/{id}/acknowledge")
-    public ResponseEntity<ApiResponse<AlertResponseDto>> acknowledgeAlert(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.acknowledge(id)));
+    @GetMapping("/{alertId}/instances/{instanceId}")
+    public ResponseEntity<ApiResponse<AlertInstanceDto>> getAlertById(@PathVariable Long alertId,
+            @PathVariable Long instanceId) {
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertById(instanceId)));
     }
 
-    /**
-     * POST /api/v1/alerts/{id}/resolve
-     * Giải quyết cảnh báo.
-     */
-    @PostMapping("/{id}/resolve")
-    public ResponseEntity<ApiResponse<AlertResponseDto>> resolveAlert(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(ApiResponse.ok(alertService.resolve(id)));
+    @PostMapping("/{alertId}/instances/{instanceId}/acknowledge")
+    public ResponseEntity<ApiResponse<AlertInstanceDto>> acknowledgeAlert(@PathVariable Long alertId,
+            @PathVariable Long instanceId) {
+        Long currentClientId = SecurityContextUtil.getCurrentClientId();
+        AlertTriggerRequestDto request = AlertTriggerRequestDto.builder().alertInstanceId(instanceId)
+                .actionType(AlertActionType.ACKNOWLEDGED).actorType(AlertActorType.USER)
+                .actorId(String.valueOf(currentClientId)).build();
+        alertTriggerService.trigger(request);
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertById(instanceId)));
+    }
+
+    @PostMapping("/{alertId}/instances/{instanceId}/resolve")
+    public ResponseEntity<ApiResponse<AlertInstanceDto>> resolveAlert(@PathVariable Long alertId,
+            @PathVariable Long instanceId) {
+        Long currentClientId = SecurityContextUtil.getCurrentClientId();
+        AlertTriggerRequestDto request = AlertTriggerRequestDto.builder().alertInstanceId(instanceId)
+                .actionType(AlertActionType.RESOLVED).actorType(AlertActorType.USER)
+                .actorId(String.valueOf(currentClientId)).build();
+        alertTriggerService.trigger(request);
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertById(instanceId)));
+    }
+
+    @GetMapping("/{alertId}/instances/{instanceId}/logs")
+    public ResponseEntity<ApiResponse<List<AlertInstanceLog>>> getAlertLogs(@PathVariable Long alertId,
+            @PathVariable Long instanceId) {
+        return ResponseEntity.ok(ApiResponse.ok(AlertInstanceLogService.getLogsByAlertId(instanceId)));
     }
 }

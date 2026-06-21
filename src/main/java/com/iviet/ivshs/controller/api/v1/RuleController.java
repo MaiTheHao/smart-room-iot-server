@@ -20,12 +20,6 @@ import com.iviet.ivshs.dto.rule.RuleDto;
 import com.iviet.ivshs.dto.rule.UpdateRuleStatusDto;
 import com.iviet.ivshs.service.rule.RuleService;
 import com.iviet.ivshs.dto.rule.UpdateRuleDto;
-import com.iviet.ivshs.dto.alert.AlertFilterDto;
-import com.iviet.ivshs.dto.alert.AlertResponseDto;
-import com.iviet.ivshs.shared.enumeration.AlertNamespace;
-import com.iviet.ivshs.shared.enumeration.AlertStatus;
-import com.iviet.ivshs.shared.enumeration.Severity;
-import com.iviet.ivshs.service.alert.AlertService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 public class RuleController {
 
     private final RuleService ruleService;
-    private final AlertService alertService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<RuleDto>> create(@RequestBody @Valid CreateRuleDto request) {
@@ -90,15 +83,5 @@ public class RuleController {
     public ResponseEntity<ApiResponse<Void>> executeNow(@PathVariable(name = "id") Long id) {
         ruleService.triggerNow(id);
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "Rule execution triggered immediately"));
-    }
-
-    @GetMapping("/{ruleId}/alerts")
-    public ResponseEntity<ApiResponse<PaginatedResponse<AlertResponseDto>>> getAlertsByRuleId(
-            @PathVariable(name = "ruleId") Long ruleId, @RequestParam(required = false) AlertStatus status,
-            @RequestParam(required = false) Severity severity,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        AlertFilterDto filter = new AlertFilterDto(status, severity, page, size);
-        return ResponseEntity.ok(ApiResponse.ok(alertService.getAlertsBySource(AlertNamespace.RULE, String.valueOf(ruleId), filter)));
     }
 }

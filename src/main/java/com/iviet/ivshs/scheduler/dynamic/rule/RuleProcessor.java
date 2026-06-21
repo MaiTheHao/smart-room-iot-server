@@ -17,7 +17,10 @@ import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.scheduler.dynamic.base.SchedulableJobProcessor;
 import com.iviet.ivshs.scheduler.dynamic.base.JobProcessorType;
 import com.iviet.ivshs.dao.RuleDao;
-import com.iviet.ivshs.service.alert.AlertService;
+import com.iviet.ivshs.dto.alert.AlertTriggerRequestDto;
+import com.iviet.ivshs.service.alert.AlertTriggerService;
+import com.iviet.ivshs.shared.enumeration.AlertActionType;
+import com.iviet.ivshs.shared.enumeration.AlertActorType;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -42,14 +45,16 @@ public class RuleProcessor implements SchedulableJobProcessor {
     private final ObjectMapper objectMapper;
     private final RuleDao ruleDao;
     private final AlertConfigDao alertConfigDao;
-    private final AlertService alertService;
+    private final AlertTriggerService alertTriggerService;
 
     private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
 
     @PostConstruct
     private void init() {
-        strategyMap = controlStrategies.stream().collect(Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, Function.identity()));
-        log.info("RuleProcessor initialized with epsilon = {} and categories: {}", engineProperties.getRuleComputeEpsilon(), strategyMap.keySet());
+        strategyMap = controlStrategies.stream().collect(
+                Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, Function.identity()));
+        log.info("RuleProcessor initialized with epsilon = {} and categories: {}",
+                engineProperties.getRuleComputeEpsilon(), strategyMap.keySet());
     }
 
     @Override
@@ -60,9 +65,8 @@ public class RuleProcessor implements SchedulableJobProcessor {
     @Override
     public void processJob(Long id) {
         Rule rule = ruleDao.findByIdWithConditionsAndActions(id)
-            .orElseThrow(() -> new NotFoundException("Rule not found: " + id));
-        if (!Boolean.TRUE.equals(rule.getIsActive()))
-            return;
+                .orElseThrow(() -> new NotFoundException("Rule not found: " + id));
+        if (!Boolean.TRUE.equals(rule.getIsActive())) return;
 
         List<RuleCondition> conditions = rule.getConditions();
         if (conditions == null || conditions.isEmpty()) {
@@ -74,29 +78,24 @@ public class RuleProcessor implements SchedulableJobProcessor {
 
         EvaluationContext initCtx = new EvaluationContext();
 
-        boolean isMatched = conditions.stream().sorted(Comparator.comparingInt(RuleCondition::getSortOrder)).reduce(initCtx, this::accumulateResult, (a, b) -> a).isFinalResult();
+        boolean isMatched = conditions.stream().sorted(Comparator.comparingInt(RuleCondition::getSortOrder))
+                .reduce(initCtx, this::accumulateResult, (a, b) -> a).isFinalResult();
 
         // Lấy configs từ AlertConfigDao thay vì từ Rule.getAlerts()
-        List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(
-            AlertNamespace.RULE, String.valueOf(id)
-        );
+        List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(AlertNamespace.RULE,
+                String.valueOf(id));
 
         if (isMatched) {
             executeActions(rule);
 
             for (AlertConfig config : alertConfigs) {
                 try {
-                    alertService.triggerAlert(config.getId());
+                    AlertTriggerRequestDto request = AlertTriggerRequestDto.builder().alertConfig(config)
+                            .actionType(AlertActionType.TRIGGERED).actorType(AlertActorType.SYSTEM)
+                            .actorId("RULE_ENGINE").build();
+                    alertTriggerService.trigger(request);
                 } catch (Exception e) {
                     log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
-                }
-            }
-        } else {
-            for (AlertConfig config : alertConfigs) {
-                try {
-                    alertService.resolveAlertIfNeeded(config.getId());
-                } catch (Exception e) {
-                    log.error("[Alert] Failed to auto-resolve alert for config {}: {}", config.getId(), e.getMessage(), e);
                 }
             }
         }
@@ -116,7 +115,8 @@ public class RuleProcessor implements SchedulableJobProcessor {
             ctx.setFirst(false);
         } else {
             ConditionLogic logic = ctx.getPrevLogic();
-            boolean newResult = (logic == ConditionLogic.OR) ? ctx.isFinalResult() || isMet : ctx.isFinalResult() && isMet;
+            boolean newResult = (logic == ConditionLogic.OR) ? ctx.isFinalResult() || isMet
+                    : ctx.isFinalResult() && isMet;
             ctx.setFinalResult(newResult);
         }
 
@@ -125,18 +125,19 @@ public class RuleProcessor implements SchedulableJobProcessor {
     }
 
     private boolean evaluateCondition(RuleCondition cond) {
-        return ruleDataSourceStrategies.stream().filter(s -> s.supports(cond.getDataSource())).findFirst().map(strategy -> {
-            try {
-                Object val = strategy.fetchValue(cond, null);
-                return val != null && compareValues(val.toString(), cond.getValue(), cond.getOperator());
-            } catch (Exception e) {
-                log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
-                return false;
-            }
-        }).orElseGet(() -> {
-            log.warn("No strategy for: {}", cond.getDataSource());
-            return false;
-        });
+        return ruleDataSourceStrategies.stream().filter(s -> s.supports(cond.getDataSource())).findFirst()
+                .map(strategy -> {
+                    try {
+                        Object val = strategy.fetchValue(cond, null);
+                        return val != null && compareValues(val.toString(), cond.getValue(), cond.getOperator());
+                    } catch (Exception e) {
+                        log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
+                        return false;
+                    }
+                }).orElseGet(() -> {
+                    log.warn("No strategy for: {}", cond.getDataSource());
+                    return false;
+                });
     }
 
     private boolean compareValues(String actual, String target, ConditionOperator op) {
@@ -145,58 +146,58 @@ public class RuleProcessor implements SchedulableJobProcessor {
             double v2 = Double.parseDouble(target);
 
             boolean res = switch (op) {
-                case GT -> v1 > v2;
-                case LT -> v1 < v2;
-                case EQ -> Math.abs(v1 - v2) < engineProperties.getRuleComputeEpsilon();
-                case NEQ -> Math.abs(v1 - v2) >= engineProperties.getRuleComputeEpsilon();
-                case GTE -> v1 >= v2;
-                case LTE -> v1 <= v2;
-                default -> false;
+            case GT -> v1 > v2;
+            case LT -> v1 < v2;
+            case EQ -> Math.abs(v1 - v2) < engineProperties.getRuleComputeEpsilon();
+            case NEQ -> Math.abs(v1 - v2) >= engineProperties.getRuleComputeEpsilon();
+            case GTE -> v1 >= v2;
+            case LTE -> v1 <= v2;
+            default -> false;
             };
             log.debug("Numeric: {} {} {} -> {}", v1, op.getSymbol(), v2, res);
             return res;
         } catch (NumberFormatException e) {
             boolean res = switch (op) {
-                case GT -> actual.compareToIgnoreCase(target) > 0;
-                case LT -> actual.compareToIgnoreCase(target) < 0;
-                case EQ -> actual.equals(target);
-                case NEQ -> !actual.equals(target);
-                case GTE -> actual.compareToIgnoreCase(target) >= 0;
-                case LTE -> actual.compareToIgnoreCase(target) <= 0;
-                default -> {
-                    log.warn("Invalid operator for non-numeric: {}", op);
-                    yield false;
-                }
+            case GT -> actual.compareToIgnoreCase(target) > 0;
+            case LT -> actual.compareToIgnoreCase(target) < 0;
+            case EQ -> actual.equals(target);
+            case NEQ -> !actual.equals(target);
+            case GTE -> actual.compareToIgnoreCase(target) >= 0;
+            case LTE -> actual.compareToIgnoreCase(target) <= 0;
+            default -> {
+                log.warn("Invalid operator for non-numeric: {}", op);
+                yield false;
+            }
             };
             log.debug("String: '{}' {} '{}' -> {}", actual, op.getSymbol(), target, res);
             return res;
         }
     }
 
-    @SuppressWarnings({
-            "unchecked",
-            "rawtypes"
-    })
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void executeActions(Rule rule) {
         List<RuleAction> actions = rule.getActions();
-        if (actions == null || actions.isEmpty())
-            return;
+        if (actions == null || actions.isEmpty()) return;
 
-        actions.stream().sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0)).forEach(action -> {
-            DeviceControlServiceStrategy strategy = strategyMap.get(action.getTargetDeviceCategory());
-            if (strategy == null) {
-                log.error("Missing strategy for category: {}", action.getTargetDeviceCategory());
-                return;
-            }
+        actions.stream().sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
+                .forEach(action -> {
+                    DeviceControlServiceStrategy strategy = strategyMap.get(action.getTargetDeviceCategory());
+                    if (strategy == null) {
+                        log.error("Missing strategy for category: {}", action.getTargetDeviceCategory());
+                        return;
+                    }
 
-            try {
-                Object controlDto = objectMapper.treeToValue(action.getActionParams(), strategy.getControlDtoClass());
-                strategy.control(action.getTargetDeviceId(), controlDto);
-                log.info("Executed Rule [{}] action for device [{}]", rule.getName(), action.getTargetDeviceId());
-            } catch (Exception e) {
-                log.error("Failed to execute Rule {} action {}: {}", rule.getId(), action.getId(), e.getMessage());
-            }
-        });
+                    try {
+                        Object controlDto = objectMapper.treeToValue(action.getActionParams(),
+                                strategy.getControlDtoClass());
+                        strategy.control(action.getTargetDeviceId(), controlDto);
+                        log.info("Executed Rule [{}] action for device [{}]", rule.getName(),
+                                action.getTargetDeviceId());
+                    } catch (Exception e) {
+                        log.error("Failed to execute Rule {} action {}: {}", rule.getId(), action.getId(),
+                                e.getMessage());
+                    }
+                });
     }
 
     @Data

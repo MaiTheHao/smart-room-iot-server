@@ -1,11 +1,12 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.entities.id.AlertConfigGroupId;
+
 import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * Join table: alert_config ↔ sys_group.
- * Xác định các nhóm nào sẽ nhận thông báo khi config này được kích hoạt.
+ * Join table: alert_config ↔ sys_group. Xác định các nhóm nào sẽ nhận thông báo khi config này được kích hoạt.
  */
 @Entity
 @Getter

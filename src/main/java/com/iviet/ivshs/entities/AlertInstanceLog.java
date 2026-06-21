@@ -8,9 +8,8 @@ import lombok.*;
 import java.time.Instant;
 
 /**
- * Append-only audit log cho mọi thay đổi trạng thái của alert incident.
- * Polymorphic actor: USER (con người) | SYSTEM (tự động) | EXTERNAL_API.
- * Không kế thừa BaseAuditEntity (tự quản lý created_at).
+ * Append-only audit log cho mọi thay đổi trạng thái của alert incident. Polymorphic actor: USER (con người) | SYSTEM
+ * (tự động) | EXTERNAL_API. Không kế thừa BaseAuditEntity (tự quản lý created_at).
  */
 @Entity
 @Getter
@@ -18,10 +17,9 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "alert_incident_log", indexes = {
-    @Index(name = "idx_ail_alert_created_at", columnList = "alert_id, created_at")
-})
-public class AlertIncidentLog {
+@Table(name = "alert_instance_log", indexes = {
+        @Index(name = "idx_ail_alert_created_at", columnList = "alert_id, created_at") })
+public class AlertInstanceLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +27,7 @@ public class AlertIncidentLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "alert_id", nullable = false)
-    private AlertRecipient alert;
+    private AlertInstance alert;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false, length = 50)
@@ -40,9 +38,8 @@ public class AlertIncidentLog {
     private AlertActorType actorType;
 
     /**
-     * Mã định danh linh hoạt.
-     * Nếu actorType = USER: lưu clientId dạng String ("15").
-     * Nếu actorType = SYSTEM: lưu tên process ("RULE_ENGINE").
+     * Mã định danh linh hoạt. Nếu actorType = USER: lưu clientId dạng String ("15"). Nếu actorType = SYSTEM: lưu tên
+     * process ("RULE_ENGINE").
      */
     @Column(name = "actor_id", nullable = false, length = 256)
     private String actorId;

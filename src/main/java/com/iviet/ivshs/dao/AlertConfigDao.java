@@ -2,6 +2,8 @@ package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
 import com.iviet.ivshs.entities.AlertConfig;
+import com.iviet.ivshs.entities.AlertConfigGroup;
+import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import org.springframework.stereotype.Repository;
 
@@ -46,5 +48,38 @@ public class AlertConfigDao extends BaseAuditEntityDao<AlertConfig> {
                 .setParameter("namespace", namespace)
                 .setParameter("sourceId", sourceId)
                 .executeUpdate();
+    }
+
+    /** Lấy danh sách groupCode liên kết với một configId. */
+    public List<String> findGroupCodesByConfigId(Long configId) {
+        String jpql = "SELECT acg.group.groupCode FROM AlertConfigGroup acg WHERE acg.alertConfig.id = :configId";
+        return entityManager.createQuery(jpql, String.class)
+                .setParameter("configId", configId)
+                .getResultList();
+    }
+
+    /** Lưu liên kết giữa AlertConfig và SysGroup. */
+    public void saveGroupAssociation(AlertConfig config, SysGroup group) {
+        AlertConfigGroup acg = AlertConfigGroup.builder()
+                .alertConfig(config)
+                .group(group)
+                .build();
+        entityManager.persist(acg);
+    }
+
+    /** Xóa các liên kết group của một alert config. */
+    public int deleteGroupAssociations(Long configId) {
+        String jpql = "DELETE FROM AlertConfigGroup acg WHERE acg.alertConfig.id = :configId";
+        return entityManager.createQuery(jpql)
+                .setParameter("configId", configId)
+                .executeUpdate();
+    }
+
+    /** Lấy danh sách SysGroup liên kết với một configId. */
+    public List<SysGroup> findGroupsByConfigId(Long alertConfigId) {
+        String jpql = "SELECT acg.group FROM AlertConfigGroup acg WHERE acg.alertConfig.id = :id";
+        return entityManager.createQuery(jpql, SysGroup.class)
+                .setParameter("id", alertConfigId)
+                .getResultList();
     }
 }

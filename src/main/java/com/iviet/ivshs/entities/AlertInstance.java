@@ -9,9 +9,7 @@ import lombok.*;
 import java.time.Instant;
 
 /**
- * Đại diện cho một sự kiện alert được kích hoạt (Alert Incident/Event).
- * Tên bảng: alert_recipient (rename từ alert_instance).
- * Vòng đời: ACTIVE → ACKNOWLEDGED → RESOLVED.
+ * Đại diện cho một sự kiện alert được kích hoạt (Alert Incident/Event). Tên bảng: alert_instance. Vòng đời: ACTIVE → ACKNOWLEDGED → RESOLVED.
  */
 @Entity
 @Getter
@@ -19,13 +17,12 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "alert_recipient", indexes = {
-    @Index(name = "idx_alert_recipient_config_id",   columnList = "alert_config_id"),
-    @Index(name = "idx_alert_recipient_status",       columnList = "status"),
-    @Index(name = "idx_alert_recipient_status_time",  columnList = "status, triggered_at"),
-    @Index(name = "idx_alert_recipient_triggered_at", columnList = "triggered_at")
-})
-public class AlertRecipient extends BaseAuditEntity {
+@Table(name = "alert_instance", indexes = {
+        @Index(name = "idx_alert_instance_config_id", columnList = "alert_config_id"),
+        @Index(name = "idx_alert_instance_status", columnList = "status"),
+        @Index(name = "idx_alert_instance_status_time", columnList = "status, triggered_at"),
+        @Index(name = "idx_alert_instance_triggered_at", columnList = "triggered_at") })
+public class AlertInstance extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "alert_config_id", nullable = false)
@@ -50,8 +47,8 @@ public class AlertRecipient extends BaseAuditEntity {
     private Instant triggeredAt;
 
     /**
-     * Số lần Rule/nguồn match lại trong thời gian cooldown.
-     * Mỗi lần RE_TRIGGERED tăng 1. Bắt đầu = 1 (lần kích hoạt đầu).
+     * Số lần Rule/nguồn match lại trong thời gian cooldown. Mỗi lần RE_TRIGGERED tăng 1. Bắt đầu = 1 (lần kích hoạt
+     * đầu).
      */
     @Column(name = "trigger_count", nullable = false)
     @Builder.Default

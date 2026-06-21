@@ -8,51 +8,51 @@ import { httpClient } from './http-client.js';
 /**
  * Get paginated alerts
  * @param {Object} params - { status, severity, page, size }
- * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertResponseDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertInstanceDto>>]>}
  */
 export const getAlerts = (params = {}) => {
-	const query = new URLSearchParams(params).toString();
-	return httpClient(`/api/v1/alerts?${query}`);
+  const query = new URLSearchParams(params).toString();
+  return httpClient(`/api/v1/alerts?${query}`);
 };
 
 /**
  * Get alert by ID
  * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<AlertResponseDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
  */
 export const getAlertById = (id) => {
-	return httpClient(`/api/v1/alerts/${id}`);
+  return httpClient(`/api/v1/alerts/${id}`);
 };
 
 /**
  * Get alerts of a single rule
  * @param {number|string} ruleId
  * @param {Object} params - { status, severity, page, size }
- * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertResponseDto>>]>}
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertInstanceDto>>]>}
  */
 export const getAlertsByRuleId = (ruleId, params = {}) => {
-	const query = new URLSearchParams(params).toString();
-	return httpClient(`/api/v1/rules/${ruleId}/alerts?${query}`);
+  const query = new URLSearchParams(params).toString();
+  return httpClient(`/api/v1/rules/${ruleId}/alerts?${query}`);
 };
 
 /**
  * Acknowledge alert
  * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<AlertResponseDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
  */
 export const acknowledgeAlert = (id) => {
-	return httpClient(`/api/v1/alerts/${id}/acknowledge`, {
-		method: 'POST',
-	});
+  return httpClient(`/api/v1/alerts/${id}/acknowledge`, {
+    method: 'POST',
+  });
 };
 
 /**
  * Resolve alert
  * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<AlertResponseDto>]>}
+ * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
  */
 export const resolveAlert = (id) => {
-	return httpClient(`/api/v1/alerts/${id}/resolve`, {
-		method: 'POST',
-	});
+  return httpClient(`/api/v1/alerts/${id}/resolve`, {
+    method: 'POST',
+  });
 };
