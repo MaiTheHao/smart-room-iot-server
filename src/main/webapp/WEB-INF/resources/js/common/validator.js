@@ -141,14 +141,15 @@ export const Validator = {
 		max: 256,
 		formatFn: (val) => {
 			if (!val || typeof val !== 'string') return false;
-			const s = val.trim().toUpperCase();
+			const s = val.trim();
 
-			// Pattern 1: F_MANAGE_<domain>
+			// Pattern 1: F_MANAGE_<domain> — always uppercase
 			const manageRegex = /^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALL|SOME)$/;
 			if (manageRegex.test(s)) return true;
 
 			// Pattern 2: F_ACCESS_<domain>_<identify>
-			const accessRegex = /^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\-]+|ALL)$/;
+			// Suffix (room/floor code) is case-sensitive — do NOT uppercase.
+			const accessRegex = /^F_ACCESS_(FLOOR|ROOM)_([A-Za-z0-9_\-]+|ALL)$/;
 			return accessRegex.test(s);
 		},
 	}),

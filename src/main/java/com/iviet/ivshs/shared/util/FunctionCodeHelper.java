@@ -17,7 +17,7 @@ public class FunctionCodeHelper {
 
     private static final Pattern MANAGE_PATTERN = Pattern
             .compile("^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALL|SOME)$");
-    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\\-]+|ALL)$");
+    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Za-z0-9_\\-]+|ALL)$");
     private static final Pattern GROUP_PATTERN = Pattern.compile("^G_[A-Z0-9_]+$");
 
     // --- Build Methods ---
@@ -46,7 +46,7 @@ public class FunctionCodeHelper {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " cannot be null or blank");
         }
-        return prefix + value.toUpperCase();
+        return prefix + value;
     }
 
     // --- Extraction Methods ---

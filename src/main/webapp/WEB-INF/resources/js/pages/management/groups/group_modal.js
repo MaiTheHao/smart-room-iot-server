@@ -111,7 +111,8 @@ export const MainForm = (() => {
 				elements.groupCode?.focus();
 				return null;
 			}
-			if (data.groupCode) data.groupCode = data.groupCode.toUpperCase();
+			// NOTE: Do NOT uppercase here — group code case is managed by the backend.
+			// Uppercasing at the frontend could cause mismatches if conventions change.
 		}
 
 		if (data.description && !Validator.description.isHigherMax(data.description)) {

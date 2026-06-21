@@ -149,11 +149,10 @@ public class SysGroupServiceImpl implements SysGroupService {
       throw new BadRequestException("Data and Group code are required");
     }
 
-    String code = dto.groupCode()
-        .trim()
-        .toUpperCase();
+    String code = dto.groupCode().trim().toUpperCase();
     if (!FunctionCodeHelper.isValidGroupCode(code)) {
-      throw new BadRequestException("Invalid group code format. Must start with G_ and contain only uppercase letters, numbers, and underscores.");
+      throw new BadRequestException(
+          "Invalid group code format. Must start with G_ and contain only uppercase letters, numbers, and underscores.");
     }
     _checkDuplicate(code, null);
 
@@ -167,14 +166,11 @@ public class SysGroupServiceImpl implements SysGroupService {
 
     SysGroupLan groupLan = new SysGroupLan();
     groupLan.setLangCode(langCode);
-    groupLan.setName(
-        dto.name() != null ? dto.name()
-            .trim() : "");
+    groupLan.setName(dto.name() != null ? dto.name().trim() : "");
     groupLan.setDescription(dto.description());
     groupLan.setOwner(group);
 
-    group.getTranslations()
-        .add(groupLan);
+    group.getTranslations().add(groupLan);
     groupDao.save(group);
 
     return SysGroupDto.from(group, groupLan);
@@ -183,31 +179,24 @@ public class SysGroupServiceImpl implements SysGroupService {
   @Override
   @Transactional
   public SysGroupDto update(Long id, UpdateSysGroupDto dto) {
-    SysGroup group = groupDao.findById(id)
-        .orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
+    SysGroup group = groupDao.findById(id).orElseThrow(() -> new NotFoundException("Group not found with ID: " + id));
 
     String langCode = LocalContextUtil.resolveLangCode(dto.langCode());
     if (!languageDao.existsByCode(langCode)) {
       throw new NotFoundException("Language not found: " + langCode);
     }
 
-    SysGroupLan groupLan = group.getTranslations()
-        .stream()
-        .filter(lan -> langCode.equals(lan.getLangCode()))
-        .findFirst()
-        .orElseGet(() -> {
+    SysGroupLan groupLan = group.getTranslations().stream().filter(lan -> langCode.equals(lan.getLangCode()))
+        .findFirst().orElseGet(() -> {
           var newLan = new SysGroupLan();
           newLan.setLangCode(langCode);
           newLan.setOwner(group);
-          group.getTranslations()
-              .add(newLan);
+          group.getTranslations().add(newLan);
           return newLan;
         });
 
     if (dto.name() != null) {
-      groupLan.setName(
-          dto.name()
-              .trim());
+      groupLan.setName(dto.name().trim());
     }
     if (dto.description() != null) {
       groupLan.setDescription(dto.description());
@@ -226,7 +215,8 @@ public class SysGroupServiceImpl implements SysGroupService {
 
     long clientCount = groupDao.countClientsByGroupId(id);
     if (clientCount > 0) {
-      throw new BadRequestException("Cannot delete group. It has " + clientCount + " client(s). " + "Please remove all clients from this group first.");
+      throw new BadRequestException("Cannot delete group. It has " + clientCount + " client(s). "
+          + "Please remove all clients from this group first.");
     }
 
     groupDao.deleteById(id);
@@ -262,12 +252,10 @@ public class SysGroupServiceImpl implements SysGroupService {
   }
 
   private void _checkDuplicate(String code, Long currentId) {
-    groupDao.findEntityByCode(code)
-        .ifPresent(existing -> {
-          if (currentId == null || !existing.getId()
-              .equals(currentId)) {
-            throw new BadRequestException("Group code already exists: " + code);
-          }
-        });
+    groupDao.findEntityByCode(code).ifPresent(existing -> {
+      if (currentId == null || !existing.getId().equals(currentId)) {
+        throw new BadRequestException("Group code already exists: " + code);
+      }
+    });
   }
 }
