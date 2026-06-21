@@ -1,14 +1,14 @@
 package com.iviet.ivshs.service.notification.strategy.impl;
 
-import com.iviet.ivshs.service.notification.channel.NotificationChannel;
-import com.iviet.ivshs.service.notification.request.NotificationRequest;
+import com.iviet.ivshs.dto.notification.NotificationRequest;
 import com.iviet.ivshs.service.notification.strategy.NotificationStrategy;
+import com.iviet.ivshs.shared.enumeration.NotificationChannel;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * SMS Notification Strategy — Placeholder.
- * Tích hợp SMS Gateway (Twilio, VietGuys...) trong sprint tiếp theo.
+ * SMS Notification Strategy — Placeholder. Tích hợp SMS Gateway (Twilio, VietGuys...) trong sprint tiếp theo.
  */
 @Slf4j
 @Component

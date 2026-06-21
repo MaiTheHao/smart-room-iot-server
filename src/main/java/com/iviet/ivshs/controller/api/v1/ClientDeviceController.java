@@ -3,7 +3,7 @@ package com.iviet.ivshs.controller.api.v1;
 import com.iviet.ivshs.dto.clientdevice.RegisterClientDeviceDto;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.service.clientdevice.ClientDeviceService;
-import com.iviet.ivshs.service.notification.FcmDispatchService;
+import com.iviet.ivshs.service.notification.strategy.impl.FcmNotificationStrategy;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -24,28 +24,23 @@ import java.util.Map;
 public class ClientDeviceController {
 
     private final ClientDeviceService clientDeviceService;
-    private final FcmDispatchService fcmDispatchService;
+    private final FcmNotificationStrategy fcmNotificationStrategy;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> registerDevice(@RequestBody
-    @Valid
-    RegisterClientDeviceDto request) {
+    public ResponseEntity<ApiResponse<Void>> registerDevice(@RequestBody @Valid RegisterClientDeviceDto request) {
         clientDeviceService.registerDevice(request);
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    // TODO: Đây là API TEST
+    @Deprecated
     @PostMapping("/test-fcm")
-    public ResponseEntity<ApiResponse<Void>> testFcm(@RequestBody
-    @Valid
-    TestFcmRequest request) {
-        if (request.getTokens() != null && !request.getTokens()
-                .isEmpty()) {
-            fcmDispatchService.sendToMultipleDevices(request.getTokens(), request.getTitle(), request.getBody(), request.getData());
-        } else if (request.getToken() != null && !request.getToken()
-                .trim()
-                .isEmpty()) {
-            fcmDispatchService.sendToSingleDevice(request.getToken(), request.getTitle(), request.getBody(), request.getData());
+    public ResponseEntity<ApiResponse<Void>> testFcm(@RequestBody @Valid TestFcmRequest request) {
+        if (request.getTokens() != null && !request.getTokens().isEmpty()) {
+            fcmNotificationStrategy.sendToMultipleDevices(request.getTokens(), request.getTitle(), request.getBody(),
+                    request.getData());
+        } else if (request.getToken() != null && !request.getToken().trim().isEmpty()) {
+            fcmNotificationStrategy.sendToSingleDevice(request.getToken(), request.getTitle(), request.getBody(),
+                    request.getData());
         }
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
@@ -59,4 +54,3 @@ public class ClientDeviceController {
         private Map<String, String> data;
     }
 }
-

@@ -1,11 +1,14 @@
 package com.iviet.ivshs.service.notification.impl;
 
+import com.iviet.ivshs.dto.notification.NotificationRequest;
 import com.iviet.ivshs.service.notification.NotificationService;
-import com.iviet.ivshs.service.notification.channel.NotificationChannel;
-import com.iviet.ivshs.service.notification.request.NotificationRequest;
 import com.iviet.ivshs.service.notification.strategy.NotificationStrategyRegistry;
+import com.iviet.ivshs.shared.enumeration.NotificationChannel;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -15,6 +18,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationStrategyRegistry registry;
 
+    @Async
     @Override
     public void sendNotification(NotificationRequest request) {
         if (request.getRecipients() == null || request.getRecipients().isEmpty()) {
