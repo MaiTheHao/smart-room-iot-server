@@ -11,15 +11,15 @@ import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertResponseDto;
 import com.iviet.ivshs.dto.alert.RuleActionAlertDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.notification.NotificationRequest;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Rule;
 import com.iviet.ivshs.entities.RuleActionAlert;
 import com.iviet.ivshs.service.alert.AlertService;
 import com.iviet.ivshs.service.notification.NotificationService;
-import com.iviet.ivshs.service.notification.channel.NotificationChannel;
-import com.iviet.ivshs.service.notification.request.NotificationRequest;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
+import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 import com.iviet.ivshs.shared.enumeration.SysGroupEnum;
 import com.iviet.ivshs.shared.exception.ForbiddenException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
@@ -46,13 +46,13 @@ import java.util.stream.StreamSupport;
 @Transactional(readOnly = true)
 public class AlertServiceImpl implements AlertService {
 
-    private final AlertInstanceDao    alertInstanceDao;
-    private final RuleActionAlertDao  ruleActionAlertDao;
-    private final ClientDao           clientDao;
-    private final SysGroupDao         sysGroupDao;
+    private final AlertInstanceDao alertInstanceDao;
+    private final RuleActionAlertDao ruleActionAlertDao;
+    private final ClientDao clientDao;
+    private final SysGroupDao sysGroupDao;
     private final NotificationService notificationService;
-    private final RuleDao             ruleDao;
-    private final ObjectMapper        objectMapper;
+    private final RuleDao ruleDao;
+    private final ObjectMapper objectMapper;
 
     // =====================================================================
     // Alert Configuration Methods
@@ -60,22 +60,20 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     public List<RuleActionAlertDto> getAlertConfigsByRuleId(Long ruleId) {
-        return ruleActionAlertDao.findAllByRuleId(ruleId).stream()
-                .map(RuleActionAlertDto::from)
+        return ruleActionAlertDao.findAllByRuleId(ruleId).stream().map(RuleActionAlertDto::from)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public List<RuleActionAlertDto> saveAlertConfigs(Long ruleId, List<com.iviet.ivshs.dto.alert.RuleAlertConfigDto> dtos) {
+    public List<RuleActionAlertDto> saveAlertConfigs(Long ruleId,
+            List<com.iviet.ivshs.dto.alert.RuleAlertConfigDto> dtos) {
         Rule rule = ruleDao.findById(ruleId)
                 .orElseThrow(() -> new NotFoundException("Rule not found with ID: " + ruleId));
 
         // Collect IDs from incoming DTO list to delete orphans
-        Set<Long> incomingIds = dtos.stream()
-                .map(com.iviet.ivshs.dto.alert.RuleAlertConfigDto::id)
-                .filter(java.util.Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Long> incomingIds = dtos.stream().map(com.iviet.ivshs.dto.alert.RuleAlertConfigDto::id)
+                .filter(java.util.Objects::nonNull).collect(Collectors.toSet());
 
         // Remove configs from rule.getAlerts() whose IDs are not in the new incoming list
         List<RuleActionAlert> toRemove = rule.getAlerts().stream()
@@ -90,9 +88,7 @@ public class AlertServiceImpl implements AlertService {
         for (com.iviet.ivshs.dto.alert.RuleAlertConfigDto dto : dtos) {
             if (dto.id() != null) {
                 // Update existing
-                RuleActionAlert config = rule.getAlerts().stream()
-                        .filter(c -> dto.id().equals(c.getId()))
-                        .findFirst()
+                RuleActionAlert config = rule.getAlerts().stream().filter(c -> dto.id().equals(c.getId())).findFirst()
                         .orElseThrow(() -> new NotFoundException("Alert config not found with ID: " + dto.id()));
                 config.setAlertName(dto.alertName());
                 config.setSeverity(dto.severity());
@@ -119,9 +115,7 @@ public class AlertServiceImpl implements AlertService {
 
         ruleDao.update(rule);
 
-        return rule.getAlerts().stream()
-                .map(RuleActionAlertDto::from)
-                .collect(Collectors.toList());
+        return rule.getAlerts().stream().map(RuleActionAlertDto::from).collect(Collectors.toList());
     }
 
     @Override
@@ -148,10 +142,10 @@ public class AlertServiceImpl implements AlertService {
         if (config.getCooldownMinutes() > 0) {
             Optional<AlertInstance> latestOpen = alertInstanceDao.findLatestOpenByConfigId(config.getId());
             if (latestOpen.isPresent()) {
-                Instant cooldownEnd = latestOpen.get().getTriggeredAt()
-                        .plusSeconds(config.getCooldownMinutes() * 60L);
+                Instant cooldownEnd = latestOpen.get().getTriggeredAt().plusSeconds(config.getCooldownMinutes() * 60L);
                 if (Instant.now().isBefore(cooldownEnd)) {
-                    log.info("[Alert] Alert config {} is in cooldown until {} — skipping trigger", config.getId(), cooldownEnd);
+                    log.info("[Alert] Alert config {} is in cooldown until {} — skipping trigger", config.getId(),
+                            cooldownEnd);
                     return;
                 }
             }
@@ -161,40 +155,28 @@ public class AlertServiceImpl implements AlertService {
         Set<Client> recipients = resolveRecipients(config.getRecipientGroups());
 
         // 4. Tạo và lưu AlertInstance (status = ACTIVE).
-        AlertInstance alert = AlertInstance.builder()
-                .alertConfig(config)
-                .title(config.getAlertName())
-                .body(config.getMessageTemplate())
-                .severity(config.getSeverity())
-                .status(AlertStatus.ACTIVE)
-                .triggeredAt(Instant.now())
-                .recipients(new HashSet<>(recipients))
-                .build();
+        AlertInstance alert = AlertInstance.builder().alertConfig(config).title(config.getAlertName())
+                .body(config.getMessageTemplate()).severity(config.getSeverity()).status(AlertStatus.ACTIVE)
+                .triggeredAt(Instant.now()).recipients(new HashSet<>(recipients)).build();
         alertInstanceDao.save(alert);
         alertInstanceDao.flush(); // Flush để có ID trước khi dùng trong FCM data
 
-        log.info("[Alert] AlertInstance created: id={}, configId={}, severity={}, recipients={}",
-                alert.getId(), config.getId(), config.getSeverity(), recipients.size());
+        log.info("[Alert] AlertInstance created: id={}, configId={}, severity={}, recipients={}", alert.getId(),
+                config.getId(), config.getSeverity(), recipients.size());
 
         // 5. Build FCM data payload (tất cả values phải là String theo FCM v1 spec).
         Map<String, String> data = buildFcmData("ALERT_TRIGGERED", alert, "ACTIVE");
 
         // 6. Parse danh sách channels từ JSON config.
         List<NotificationChannel> channels = parseJsonStringArray(config.getChannels()).stream()
-                .map(NotificationChannel::fromValue)
-                .collect(Collectors.toList());
+                .map(NotificationChannel::fromValue).collect(Collectors.toList());
 
         // 7. Load lại recipients với clientDevices (LAZY) trong transaction hiện tại.
         Set<Client> recipientsWithDevices = loadRecipientsWithDevices(recipients);
 
         // 8. Build request
-        NotificationRequest request = NotificationRequest.builder()
-                .recipients(recipientsWithDevices)
-                .channels(channels)
-                .title(config.getAlertName())
-                .body(config.getMessageTemplate())
-                .data(data)
-                .build();
+        NotificationRequest request = NotificationRequest.builder().recipients(recipientsWithDevices).channels(channels)
+                .title(config.getAlertName()).body(config.getMessageTemplate()).data(data).build();
 
         // 9. Dispatch qua NotificationService (Strategy Pattern: FCM/Email/SMS).
         notificationService.sendNotification(request);
@@ -216,8 +198,7 @@ public class AlertServiceImpl implements AlertService {
         if (openAlerts.isEmpty()) return;
 
         List<NotificationChannel> channels = parseJsonStringArray(config.getChannels()).stream()
-                .map(NotificationChannel::fromValue)
-                .collect(Collectors.toList());
+                .map(NotificationChannel::fromValue).collect(Collectors.toList());
         Instant now = Instant.now();
 
         for (AlertInstance alert : openAlerts) {
@@ -232,17 +213,12 @@ public class AlertServiceImpl implements AlertService {
             // 4. Gửi recovery notification.
             Map<String, String> data = buildFcmData("ALERT_RESOLVED", alert, "RESOLVED");
             String resolvedTitle = "Cảnh báo đã phục hồi: " + config.getAlertName();
-            String resolvedBody  = "Tình trạng đã trở lại bình thường.";
+            String resolvedBody = "Tình trạng đã trở lại bình thường.";
 
             Set<Client> recipientsWithDevices = loadRecipientsWithDevices(alert.getRecipients());
-            
-            NotificationRequest request = NotificationRequest.builder()
-                    .recipients(recipientsWithDevices)
-                    .channels(channels)
-                    .title(resolvedTitle)
-                    .body(resolvedBody)
-                    .data(data)
-                    .build();
+
+            NotificationRequest request = NotificationRequest.builder().recipients(recipientsWithDevices)
+                    .channels(channels).title(resolvedTitle).body(resolvedBody).data(data).build();
 
             notificationService.sendNotification(request);
         }
@@ -255,67 +231,42 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public PaginatedResponse<AlertResponseDto> getAlerts(AlertFilterDto filter) {
         Long currentClientId = SecurityContextUtil.getCurrentClientId();
-        List<String> userGroups = SecurityContextUtil.getCurrentUsername() != null ?
-                SecurityContextUtil.getCurrentFunctions() != null ? 
-                new ArrayList<>(clientDao.findById(currentClientId)
-                        .orElseThrow(() -> new NotFoundException("Client not found"))
-                        .getGroups().stream().map(g -> g.getGroupCode()).collect(Collectors.toList())) : List.of() : List.of();
-
+        Set<String> userGroups = getCurrentUserGroupCodes();
         List<AlertInstance> alerts;
         long total;
 
-        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode())) {
-            // Admin: xem toàn bộ alerts trong hệ thống
+        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode()) || userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
             alerts = alertInstanceDao.findAll(filter.status(), filter.severity(), filter.page(), filter.size());
-            total  = alertInstanceDao.countAll(filter.status(), filter.severity());
-
-        } else if (userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
-            // Maintenance: xem alerts được gửi tới group G_MAINTENANCE
-            String groupCode = SysGroupEnum.G_MAINTENANCE.getCode();
-            alerts = alertInstanceDao.findAllByGroupCode(groupCode, filter.status(), filter.severity(), filter.page(), filter.size());
-            total  = alertInstanceDao.countByGroupCode(groupCode, filter.status(), filter.severity());
-
+            total = alertInstanceDao.countAll(filter.status(), filter.severity());
         } else {
-            // End user: chỉ xem "My Alerts" — những alert mà mình là recipient
-            alerts = alertInstanceDao.findAllByRecipientClientId(currentClientId, filter.status(), filter.severity(), filter.page(), filter.size());
-            total  = alertInstanceDao.countByRecipientClientId(currentClientId, filter.status(), filter.severity());
+            alerts = alertInstanceDao.findAllByRecipientClientId(currentClientId, filter.status(), filter.severity(),
+                    filter.page(), filter.size());
+            total = alertInstanceDao.countByRecipientClientId(currentClientId, filter.status(), filter.severity());
         }
 
-        List<AlertResponseDto> dtos = alerts.stream()
-                .map(AlertResponseDto::from)
-                .collect(Collectors.toList());
+        List<AlertResponseDto> dtos = alerts.stream().map(AlertResponseDto::from).collect(Collectors.toList());
         return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
     }
 
     @Override
     public PaginatedResponse<AlertResponseDto> getAlertsByRuleId(Long ruleId, AlertFilterDto filter) {
         Long currentClientId = SecurityContextUtil.getCurrentClientId();
-        List<String> userGroups = SecurityContextUtil.getCurrentUsername() != null ?
-                SecurityContextUtil.getCurrentFunctions() != null ? 
-                new ArrayList<>(clientDao.findById(currentClientId)
-                        .orElseThrow(() -> new NotFoundException("Client not found"))
-                        .getGroups().stream().map(g -> g.getGroupCode()).collect(Collectors.toList())) : List.of() : List.of();
-
+        Set<String> userGroups = getCurrentUserGroupCodes();
         List<AlertInstance> alerts;
         long total;
 
-        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode())) {
-            alerts = alertInstanceDao.findAllByRuleId(ruleId, filter.status(), filter.severity(), filter.page(), filter.size());
-            total  = alertInstanceDao.countAllByRuleId(ruleId, filter.status(), filter.severity());
-
-        } else if (userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
-            String groupCode = SysGroupEnum.G_MAINTENANCE.getCode();
-            alerts = alertInstanceDao.findAllByRuleIdAndGroupCode(ruleId, groupCode, filter.status(), filter.severity(), filter.page(), filter.size());
-            total  = alertInstanceDao.countByRuleIdAndGroupCode(ruleId, groupCode, filter.status(), filter.severity());
-
+        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode()) || userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
+            alerts = alertInstanceDao.findAllByRuleId(ruleId, filter.status(), filter.severity(), filter.page(),
+                    filter.size());
+            total = alertInstanceDao.countAllByRuleId(ruleId, filter.status(), filter.severity());
         } else {
-            alerts = alertInstanceDao.findAllByRuleIdAndRecipientClientId(ruleId, currentClientId, filter.status(), filter.severity(), filter.page(), filter.size());
-            total  = alertInstanceDao.countByRuleIdAndRecipientClientId(ruleId, currentClientId, filter.status(), filter.severity());
+            alerts = alertInstanceDao.findAllByRuleIdAndRecipientClientId(ruleId, currentClientId, filter.status(),
+                    filter.severity(), filter.page(), filter.size());
+            total = alertInstanceDao.countByRuleIdAndRecipientClientId(ruleId, currentClientId, filter.status(),
+                    filter.severity());
         }
 
-        List<AlertResponseDto> dtos = alerts.stream()
-                .map(AlertResponseDto::from)
-                .collect(Collectors.toList());
+        List<AlertResponseDto> dtos = alerts.stream().map(AlertResponseDto::from).collect(Collectors.toList());
         return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
     }
 
@@ -365,23 +316,18 @@ public class AlertServiceImpl implements AlertService {
             log.info("[Alert] Alert {} manually resolved by client {}", alertId, currentClientId);
 
             // Dispatch ALERT_RESOLVED push notification
-            List<RuleActionAlert> configs = ruleActionAlertDao.findAllByRuleId(alert.getAlertConfig().getRule().getId());
+            List<RuleActionAlert> configs = ruleActionAlertDao
+                    .findAllByRuleId(alert.getAlertConfig().getRule().getId());
             for (RuleActionAlert config : configs) {
                 List<NotificationChannel> channels = parseJsonStringArray(config.getChannels()).stream()
-                        .map(NotificationChannel::fromValue)
-                        .collect(Collectors.toList());
+                        .map(NotificationChannel::fromValue).collect(Collectors.toList());
                 Map<String, String> data = buildFcmData("ALERT_RESOLVED", alert, "RESOLVED");
                 String resolvedTitle = "Cảnh báo đã giải quyết: " + config.getAlertName();
-                String resolvedBody  = "Sự cố đã được xử lý bởi " + currentClient.getUsername() + ".";
+                String resolvedBody = "Sự cố đã được xử lý bởi " + currentClient.getUsername() + ".";
                 Set<Client> recipientsWithDevices = loadRecipientsWithDevices(alert.getRecipients());
-                
-                NotificationRequest request = NotificationRequest.builder()
-                        .recipients(recipientsWithDevices)
-                        .channels(channels)
-                        .title(resolvedTitle)
-                        .body(resolvedBody)
-                        .data(data)
-                        .build();
+
+                NotificationRequest request = NotificationRequest.builder().recipients(recipientsWithDevices)
+                        .channels(channels).title(resolvedTitle).body(resolvedBody).data(data).build();
 
                 notificationService.sendNotification(request);
             }
@@ -394,17 +340,15 @@ public class AlertServiceImpl implements AlertService {
     // =====================================================================
 
     /**
-     * Đọc mảng JSON group codes và trả về tất cả Client thuộc các groups đó.
-     * Input: JsonNode đại diện cho ["G_ADMIN", "G_MAINTENANCE"]
+     * Đọc mảng JSON group codes và trả về tất cả Client thuộc các groups đó. Input: JsonNode đại diện cho ["G_ADMIN",
+     * "G_MAINTENANCE"]
      */
     private Set<Client> resolveRecipients(JsonNode recipientGroups) {
         Set<Client> recipients = new HashSet<>();
         if (recipientGroups == null || !recipientGroups.isArray()) {
             return recipients;
         }
-        StreamSupport.stream(recipientGroups.spliterator(), false)
-                .map(JsonNode::asText)
-                .filter(code -> !code.isBlank())
+        StreamSupport.stream(recipientGroups.spliterator(), false).map(JsonNode::asText).filter(code -> !code.isBlank())
                 .forEach(groupCode -> {
                     List<Client> groupClients = sysGroupDao.findClientEntitiesByGroupCode(groupCode);
                     recipients.addAll(groupClients);
@@ -413,38 +357,36 @@ public class AlertServiceImpl implements AlertService {
         return recipients;
     }
 
-    /**
-     * Load lại tập Client với clientDevices được FETCH trong transaction hiện tại.
-     * Cần thiết vì Client.clientDevices = FetchType.LAZY —
-     * nếu không reload, FcmNotificationStrategy sẽ gặp LazyInitializationException.
-     */
     private Set<Client> loadRecipientsWithDevices(Set<Client> recipients) {
-        if (recipients == null || recipients.isEmpty()) return Set.of();
-        return recipients.stream()
-                .map(c -> clientDao.findById(c.getId()).orElse(null))
-                .filter(c -> c != null)
+        if (recipients == null || recipients.isEmpty()) {
+            return Set.of();
+        }
+        Set<Long> ids = recipients.stream()
+                .map(Client::getId)
+                .filter(java.util.Objects::nonNull)
                 .collect(Collectors.toSet());
+        return clientDao.findAllWithDevicesByIdIn(ids);
     }
 
-    /**
-     * Build FCM v1 data map. TẤT CẢ values phải là String theo FCM v1 API spec.
-     * Deep link format: smartroom://alert/{id}
-     */
+    private Set<String> getCurrentUserGroupCodes() {
+        try {
+            return SecurityContextUtil.getCurrentGroups();
+        } catch (Exception e) {
+            return Set.of();
+        }
+    }
+
     private Map<String, String> buildFcmData(String type, AlertInstance alert, String statusStr) {
         Map<String, String> data = new HashMap<>();
-        data.put("type",      type);
-        data.put("entityId",  String.valueOf(alert.getId()));
-        data.put("severity",  alert.getSeverity().name());
-        data.put("status",    statusStr);
-        data.put("deepLink",  "smartroom://alert/" + alert.getId());
+        data.put("type", type);
+        data.put("entityId", String.valueOf(alert.getId()));
+        data.put("severity", alert.getSeverity().name());
+        data.put("status", statusStr);
+        data.put("deepLink", "smartroom://alert/" + alert.getId());
         data.put("timestamp", String.valueOf(Instant.now().toEpochMilli()));
         return data;
     }
 
-    /**
-     * Parse JsonNode mảng strings thành List<String>.
-     * Trả về List.of() nếu node là null hoặc không phải array.
-     */
     private List<String> parseJsonStringArray(JsonNode jsonNode) {
         if (jsonNode == null || !jsonNode.isArray()) return List.of();
         List<String> result = new ArrayList<>();
@@ -455,36 +397,18 @@ public class AlertServiceImpl implements AlertService {
         return result;
     }
 
-    /**
-     * Kiểm tra quyền đọc alert của user hiện tại:
-     * G_ADMIN    → luôn pass
-     * G_MAINTENANCE → pass nếu G_MAINTENANCE trong recipient_groups config của Rule
-     * G_USER     → pass chỉ khi clientId có trong alert.recipients (alert_recipient table)
-     */
     private void checkReadAccess(AlertInstance alert) {
-        Long currentClientId = SecurityContextUtil.getCurrentClientId();
-        List<String> userGroups = clientDao.findById(currentClientId)
-                .orElseThrow(() -> new NotFoundException("Client not found"))
-                .getGroups().stream().map(g -> g.getGroupCode()).collect(Collectors.toList());
+        Set<String> userGroups = getCurrentUserGroupCodes();
 
-        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode())) return;
-
-        if (userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
-            List<RuleActionAlert> configs = ruleActionAlertDao.findAllByRuleId(alert.getAlertConfig().getRule().getId());
-            for (RuleActionAlert config : configs) {
-                JsonNode groups = config.getRecipientGroups();
-                if (groups != null && groups.isArray()) {
-                    boolean hasAccess = StreamSupport.stream(groups.spliterator(), false)
-                            .anyMatch(n -> SysGroupEnum.G_MAINTENANCE.getCode().equals(n.asText()));
-                    if (hasAccess) return;
-                }
-            }
+        if (userGroups.contains(SysGroupEnum.G_ADMIN.getCode()) || userGroups.contains(SysGroupEnum.G_MAINTENANCE.getCode())) {
+            return;
         }
 
-        // G_USER: kiểm tra danh sách recipient
-        boolean isRecipient = alert.getRecipients().stream()
-                .anyMatch(c -> currentClientId.equals(c.getId()));
-        if (isRecipient) return;
+        Long currentClientId = SecurityContextUtil.getCurrentClientId();
+        boolean isRecipient = alert.getRecipients().stream().anyMatch(c -> currentClientId.equals(c.getId()));
+        if (isRecipient) {
+            return;
+        }
 
         throw new ForbiddenException("You do not have access to alert " + alert.getId());
     }

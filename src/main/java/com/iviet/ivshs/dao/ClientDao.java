@@ -150,4 +150,14 @@ public class ClientDao extends BaseAuditEntityDao<Client> {
                 .setParameter("clientType", ClientType.HARDWARE_GATEWAY)
                 .getResultList();
     }
+
+    public java.util.Set<Client> findAllWithDevicesByIdIn(java.util.Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return java.util.Set.of();
+        }
+        String jpql = "SELECT DISTINCT c FROM Client c LEFT JOIN FETCH c.clientDevices WHERE c.id IN :ids";
+        return new java.util.HashSet<>(entityManager.createQuery(jpql, Client.class)
+                .setParameter("ids", ids)
+                .getResultList());
+    }
 }
