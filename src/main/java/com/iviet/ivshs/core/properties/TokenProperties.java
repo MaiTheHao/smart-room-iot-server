@@ -4,14 +4,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import lombok.Getter;
 
-@Deprecated
 @Getter
 @Component
-public class JwtProperties {
+public class TokenProperties {
 
   @Value("${app.jwt.secret}")
-  private String jwtSecret;
+  private String accessSecret;
 
   @Value("${app.jwt.expirationMs}")
-  private long jwtExpirationMs;
+  private long accessExpMs;
 }

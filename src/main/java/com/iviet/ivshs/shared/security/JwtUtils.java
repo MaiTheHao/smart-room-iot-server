@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 @Component
 @RequiredArgsConstructor
 public class JwtUtils {
@@ -56,10 +57,7 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getKey())
-                    .build()
-                    .parseClaimsJws(authToken);
+            Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
@@ -77,20 +75,12 @@ public class JwtUtils {
 
     private String buildToken(String subject, Map<String, Object> claims) {
         Date now = new Date();
-        return Jwts.builder()
-                .setSubject(subject)
-                .addClaims(claims)
-                .setIssuedAt(now)
+        return Jwts.builder().setSubject(subject).addClaims(claims).setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + jwtProperties.getJwtExpirationMs()))
-                .signWith(getKey(), SignatureAlgorithm.HS512)
-                .compact();
+                .signWith(getKey(), SignatureAlgorithm.HS512).compact();
     }
 
     private Claims getClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        return Jwts.parserBuilder().setSigningKey(getKey()).build().parseClaimsJws(token).getBody();
     }
 }

@@ -5,6 +5,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Module: System & Auth
 -- ----------------------------
+DROP TABLE IF EXISTS `client_device`;
 DROP TABLE IF EXISTS `client`;
 DROP TABLE IF EXISTS `client_group`;
 DROP TABLE IF EXISTS `sys_group`;
@@ -49,6 +50,9 @@ DROP TABLE IF EXISTS `automation_action`;
 DROP TABLE IF EXISTS `rule`;
 DROP TABLE IF EXISTS `rule_condition`;
 DROP TABLE IF EXISTS `rule_action`;
+DROP TABLE IF EXISTS `rule_action_alert`;
+DROP TABLE IF EXISTS `alert_instance`;
+DROP TABLE IF EXISTS `alert_recipient`;
 
 
 -- ----------------------------

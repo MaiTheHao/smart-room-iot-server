@@ -85,18 +85,18 @@ VALUES
 INSERT INTO
   `sys_function_lan` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `description`, `lang_code`, `name`, `owner_id`)
 VALUES
-  (25, NULL, NULL, NULL, NULL, 0, 'Quyền xem dữ liệu Tầng Trệt', 'vi', 'Truy cập Tầng Trệt', 100),
-  (26, NULL, NULL, NULL, NULL, 0, 'Permission to view Ground Floor', 'en', 'Access Ground Floor', 100),
-  (27, NULL, NULL, NULL, NULL, 0, 'Quyền xem dữ liệu Lầu 1', 'vi', 'Truy cập Lầu 1', 101),
-  (28, NULL, NULL, NULL, NULL, 0, 'Permission to view 1st Floor', 'en', 'Access 1st Floor', 101),
-  (29, NULL, NULL, NULL, NULL, 0, 'Quyền hạn cao cấp điều khiển Server', 'vi', 'Truy Cập Server', 200),
-  (30, NULL, NULL, NULL, NULL, 0, 'Control devices in Server Room', 'en', 'Server Access', 200),
-  (31, NULL, NULL, NULL, NULL, 0, 'Quyền điều khiển thiết bị Phòng Khách', 'vi', 'Truy Cập Phòng Khách', 201),
-  (32, NULL, NULL, NULL, NULL, 0, 'Control devices in Living Room', 'en', 'Living Room Access', 201),
-  (33, NULL, NULL, NULL, NULL, 0, 'Quyền điều khiển thiết bị Nhà Bếp', 'vi', 'Truy Cập Nhà Bếp', 202),
-  (34, NULL, NULL, NULL, NULL, 0, 'Control devices in Kitchen', 'en', 'Kitchen Access', 202),
-  (35, NULL, NULL, NULL, NULL, 0, 'Quyền điều khiển thiết bị Phòng Ngủ', 'vi', 'Truy Cập Phòng Ngủ', 203),
-  (36, NULL, NULL, NULL, NULL, 0, 'Control devices in Bedroom', 'en', 'Bedroom Access', 203);
+  (100, NULL, NULL, NULL, NULL, 0, 'Quyền xem dữ liệu Tầng Trệt', 'vi', 'Truy cập Tầng Trệt', 100),
+  (101, NULL, NULL, NULL, NULL, 0, 'Permission to view Ground Floor', 'en', 'Access Ground Floor', 100),
+  (102, NULL, NULL, NULL, NULL, 0, 'Quyền xem dữ liệu Lầu 1', 'vi', 'Truy cập Lầu 1', 101),
+  (103, NULL, NULL, NULL, NULL, 0, 'Permission to view 1st Floor', 'en', 'Access 1st Floor', 101),
+  (104, NULL, NULL, NULL, NULL, 0, 'Quyền hạn cao cấp điều khiển Server', 'vi', 'Truy Cập Server', 200),
+  (105, NULL, NULL, NULL, NULL, 0, 'Control devices in Server Room', 'en', 'Server Access', 200),
+  (106, NULL, NULL, NULL, NULL, 0, 'Quyền điều khiển thiết bị Phòng Khách', 'vi', 'Truy Cập Phòng Khách', 201),
+  (107, NULL, NULL, NULL, NULL, 0, 'Control devices in Living Room', 'en', 'Living Room Access', 201),
+  (108, NULL, NULL, NULL, NULL, 0, 'Quyền điều khiển thiết bị Nhà Bếp', 'vi', 'Truy Cập Nhà Bếp', 202),
+  (109, NULL, NULL, NULL, NULL, 0, 'Control devices in Kitchen', 'en', 'Kitchen Access', 202),
+  (110, NULL, NULL, NULL, NULL, 0, 'Quyền điều khiển thiết bị Phòng Ngủ', 'vi', 'Truy Cập Phòng Ngủ', 203),
+  (111, NULL, NULL, NULL, NULL, 0, 'Control devices in Bedroom', 'en', 'Bedroom Access', 203);
 
 -- ----------------------------
 -- 7. Dữ liệu bổ sung bảng sys_role
@@ -104,12 +104,12 @@ VALUES
 INSERT INTO
   `sys_role` (`id`, `created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `function_id`, `group_id`)
 VALUES
-  (13, NOW(), 'system', NOW(), 'system', 0, 100, 1),
-  (14, NOW(), 'system', NOW(), 'system', 0, 101, 1),
-  (15, NOW(), 'system', NOW(), 'system', 0, 200, 1),
-  (16, NOW(), 'system', NOW(), 'system', 0, 201, 1),
-  (17, NOW(), 'system', NOW(), 'system', 0, 202, 1),
-  (18, NOW(), 'system', NOW(), 'system', 0, 203, 1);
+  (100, NOW(), 'system', NOW(), 'system', 0, 100, 1),
+  (101, NOW(), 'system', NOW(), 'system', 0, 101, 1),
+  (102, NOW(), 'system', NOW(), 'system', 0, 200, 1),
+  (103, NOW(), 'system', NOW(), 'system', 0, 201, 1),
+  (104, NOW(), 'system', NOW(), 'system', 0, 202, 1),
+  (105, NOW(), 'system', NOW(), 'system', 0, 203, 1);
 
 SET
   FOREIGN_KEY_CHECKS = 1;

@@ -6,6 +6,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Module: System & Auth
 -- ----------------------------
 TRUNCATE TABLE `client`;
+TRUNCATE TABLE `client_device`;
 TRUNCATE TABLE `client_group`;
 TRUNCATE TABLE `sys_group`;
 TRUNCATE TABLE `sys_group_lan`;
@@ -49,6 +50,9 @@ TRUNCATE TABLE `automation_action`;
 TRUNCATE TABLE `rule`;
 TRUNCATE TABLE `rule_condition`;
 TRUNCATE TABLE `rule_action`;
+TRUNCATE TABLE `rule_action_alert`;
+TRUNCATE TABLE `alert_instance`;
+TRUNCATE TABLE `alert_recipient`;
 
 -- ----------------------------
 -- Module: Quartz Scheduler

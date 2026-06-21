@@ -22,8 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -57,16 +55,9 @@ public class RuleProcessor implements SchedulableJobProcessor {
     }
 
     @Override
-    @Transactional
     public void processJob(Long id) {
         Rule rule = ruleDao.findByIdWithConditionsAndActions(id)
             .orElseThrow(() -> new NotFoundException("Rule not found: " + id));
-        if (Boolean.FALSE.equals(rule.getIsActive())) return;
-        this.process(rule);
-    }
-
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public void process(Rule rule) {
         if (!Boolean.TRUE.equals(rule.getIsActive()))
             return;
 

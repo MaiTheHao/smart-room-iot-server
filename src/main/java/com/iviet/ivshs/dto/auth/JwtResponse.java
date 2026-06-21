@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.Set;
 
+@Deprecated
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class JwtResponse {
-    
+
     private String token;
     private String type;
     private Long id;
@@ -24,24 +25,14 @@ public class JwtResponse {
     private Set<String> groups;
 
     public static JwtResponse of(String token, String username, Set<String> groups) {
-        return JwtResponse.builder()
-                .token(token)
-                .type("Bearer")
-                .username(username)
-                .groups(groups)
-                .build();
+        return JwtResponse.builder().token(token).type("Bearer").username(username).groups(groups).build();
     }
 
     public static JwtResponse of(String token, CustomUserDetails userDetails) {
-        return JwtResponse.builder()
-                .token(token)
-                .type("Bearer")
-                .id(userDetails.getId())
+        return JwtResponse.builder().token(token).type("Bearer").id(userDetails.getId())
                 .username(userDetails.getUsername())
                 .clientType(userDetails.getClientType() != null ? userDetails.getClientType().name() : null)
-                .avatarUrl(userDetails.getAvatarUrl())
-                .lastLoginAt(userDetails.getLastLoginAt())
-                .groups(userDetails.getGroups())
-                .build();
+                .avatarUrl(userDetails.getAvatarUrl()).lastLoginAt(userDetails.getLastLoginAt())
+                .groups(userDetails.getGroups()).build();
     }
 }
