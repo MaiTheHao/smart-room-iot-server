@@ -16,8 +16,8 @@ public class FunctionCodeHelper {
     public static final String GROUP_PREFIX = "G_";
 
     private static final Pattern MANAGE_PATTERN = Pattern
-            .compile("^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALERT|ALL|SOME)$");
-    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\\-]+|ALL)$|^F_ACCESS_ALERT$|^F_HANDLE_ALERT$");
+            .compile("^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALL|SOME)$");
+    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Za-z0-9_\\-]+|ALL)$");
     private static final Pattern GROUP_PATTERN = Pattern.compile("^G_[A-Z0-9_]+$");
 
     // --- Build Methods ---
@@ -46,7 +46,7 @@ public class FunctionCodeHelper {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " cannot be null or blank");
         }
-        return prefix + value.toUpperCase();
+        return prefix + value;
     }
 
     // --- Extraction Methods ---
@@ -75,12 +75,9 @@ public class FunctionCodeHelper {
     }
 
     private static Set<String> extractCodes(Collection<String> functionCodes, String prefix) {
-        if (functionCodes == null)
-            return Set.of();
-        return functionCodes.stream()
-                .filter(code -> code != null && code.startsWith(prefix))
-                .map(code -> code.substring(prefix.length()))
-                .collect(Collectors.toSet());
+        if (functionCodes == null) return Set.of();
+        return functionCodes.stream().filter(code -> code != null && code.startsWith(prefix))
+                .map(code -> code.substring(prefix.length())).collect(Collectors.toSet());
     }
 
     // --- Validation Methods ---
@@ -94,14 +91,12 @@ public class FunctionCodeHelper {
     }
 
     public static boolean isValidFunctionCode(String functionCode) {
-        if (functionCode == null)
-            return false;
+        if (functionCode == null) return false;
         return MANAGE_PATTERN.matcher(functionCode).matches() || ACCESS_PATTERN.matcher(functionCode).matches();
     }
 
     public static boolean isValidGroupCode(String groupCode) {
-        if (groupCode == null)
-            return false;
+        if (groupCode == null) return false;
         return GROUP_PATTERN.matcher(groupCode).matches();
     }
 }
