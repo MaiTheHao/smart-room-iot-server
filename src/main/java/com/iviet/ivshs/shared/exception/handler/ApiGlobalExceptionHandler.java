@@ -192,6 +192,14 @@ public class ApiGlobalExceptionHandler {
                 .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "Authentication failed: " + ex.getMessage()));
     }
 
+    @ExceptionHandler({org.springframework.security.access.AccessDeniedException.class, org.springframework.security.authorization.AuthorizationDeniedException.class})
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(Exception ex) {
+        log.warn("Access denied: message={}", ex.getMessage());
+        log.debug("Access denied details", ex);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(HttpStatus.FORBIDDEN, "Access denied: " + ex.getMessage()));
+    }
+
     // ====== CUSTOM DOMAIN EXCEPTIONS ======
 
     @ExceptionHandler(UnauthorizedException.class)

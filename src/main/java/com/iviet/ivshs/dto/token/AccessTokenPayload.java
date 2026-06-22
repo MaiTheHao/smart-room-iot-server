@@ -2,7 +2,6 @@ package com.iviet.ivshs.dto.token;
 
 import java.util.Map;
 import java.time.Instant;
-import java.util.Date;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,10 +64,10 @@ public class AccessTokenPayload extends TokenPayload {
             Object groupsVal = claims.get("groups");
             if (groupsVal instanceof Set) {
                 @SuppressWarnings("unchecked")
-                 Set<String> set = (Set<String>) groupsVal;
-                 this.groups = set;
+                Set<String> set = (Set<String>) groupsVal;
+                this.groups = set;
             } else if (groupsVal instanceof java.util.Collection) {
-                 this.groups = new java.util.HashSet<>((java.util.Collection<String>) groupsVal);
+                this.groups = new java.util.HashSet<>((java.util.Collection<String>) groupsVal);
             }
         }
     }

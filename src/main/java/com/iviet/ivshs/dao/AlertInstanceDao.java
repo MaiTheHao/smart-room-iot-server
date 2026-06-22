@@ -21,6 +21,22 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
     }
 
     /**
+     * Tìm AlertInstance theo ID cùng với việc nạp trước (Fetch Join) AlertConfig và danh sách channels.
+     */
+    public Optional<AlertInstance> findByIdWithConfigAndChannels(Long id) {
+        if (id == null) return Optional.empty();
+        String jpql = """
+                SELECT ar FROM AlertInstance ar
+                JOIN FETCH ar.alertConfig ac
+                WHERE ar.id = :id
+                """;
+        return entityManager.createQuery(jpql, AlertInstance.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
+    }
+
+    /**
      * Tìm alert event đang mở (ACTIVE/ACKNOWLEDGED) gần nhất của một AlertConfig. Dùng để kiểm tra cooldown trước khi
      * tạo alert mới.
      */
@@ -59,6 +75,9 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
             AlertNamespace namespace, Instant from, Instant to, int page, int size) {
         StringBuilder jpql = new StringBuilder("""
                 SELECT DISTINCT ar FROM AlertInstance ar
+                JOIN FETCH ar.alertConfig
+                LEFT JOIN FETCH ar.acknowledgedBy
+                LEFT JOIN FETCH ar.resolvedBy
                 JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
                 JOIN arg.group g
                 JOIN g.clients c
@@ -106,7 +125,7 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
 
     /** Lấy tất cả alert events (Admin view — không giới hạn). */
     public List<AlertInstance> findAll(AlertStatus status, Severity severity, int page, int size) {
-        StringBuilder jpql = new StringBuilder("SELECT ar FROM AlertInstance ar WHERE 1=1");
+        StringBuilder jpql = new StringBuilder("SELECT ar FROM AlertInstance ar JOIN FETCH ar.alertConfig LEFT JOIN FETCH ar.acknowledgedBy LEFT JOIN FETCH ar.resolvedBy WHERE 1=1");
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
         jpql.append(" ORDER BY ar.triggeredAt DESC");
@@ -135,6 +154,9 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
             AlertStatus status, Severity severity, int page, int size) {
         StringBuilder jpql = new StringBuilder("""
                 SELECT DISTINCT ar FROM AlertInstance ar
+                JOIN FETCH ar.alertConfig
+                LEFT JOIN FETCH ar.acknowledgedBy
+                LEFT JOIN FETCH ar.resolvedBy
                 JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
                 JOIN arg.group g
                 JOIN g.clients c
@@ -178,6 +200,9 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
             Severity severity, int page, int size) {
         StringBuilder jpql = new StringBuilder("""
                 SELECT DISTINCT ar FROM AlertInstance ar
+                JOIN FETCH ar.alertConfig
+                LEFT JOIN FETCH ar.acknowledgedBy
+                LEFT JOIN FETCH ar.resolvedBy
                 JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
                 JOIN arg.group g
                 JOIN g.clients c

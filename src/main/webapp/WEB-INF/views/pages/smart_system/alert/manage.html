@@ -147,8 +147,8 @@
                   <div class="invalid-feedback d-block" id="val-cfgRecipientGroups"></div>
                 </div>
 
-                <!-- Channels & Auto Resolve -->
-                <div class="col-md-6">
+                <!-- Channels -->
+                <div class="col-12">
                   <label class="form-label fw-semibold small text-muted text-uppercase mb-1"
                     th:text="#{smart_system.alert.field.channels}">Channels</label>
                   <div class="d-flex flex-column gap-2 mt-1">
@@ -169,15 +169,6 @@
                     </div>
                   </div>
                   <div class="invalid-feedback d-block" id="val-cfgChannels"></div>
-                </div>
-                <div class="col-md-6 d-flex flex-column justify-content-center">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-2"
-                    th:text="#{smart_system.alert.field.auto_resolve}">Auto Resolve</label>
-                  <div class="form-check form-switch switch-ios">
-                    <input class="form-check-input" type="checkbox" role="switch" id="cfgAutoResolve" name="autoResolve" />
-                    <label class="form-check-label fw-medium text-dark" for="cfgAutoResolve"
-                      th:text="#{smart_system.alert.field.auto_resolve_label}">Auto-Resolve</label>
-                  </div>
                 </div>
 
                 <!-- Message Template -->
@@ -229,7 +220,6 @@
           colSeverity:        /*[[#{smart_system.alert.col.severity}]]*/ 'Severity',
           colCooldown:        /*[[#{smart_system.alert.col.cooldown}]]*/ 'Cooldown',
           colChannels:        /*[[#{smart_system.alert.col.channels}]]*/ 'Channels',
-          colAutoResolve:     /*[[#{smart_system.alert.col.auto_resolve}]]*/ 'Auto Resolve',
           colActions:         /*[[#{smart_system.alert.col.actions}]]*/ 'Actions',
           colCooldownUnit:    /*[[#{smart_system.alert.col.cooldown_unit}]]*/ 'mins',
           confirmDeleteBatch: /*[[#{common.confirm.delete_batch}]]*/ 'Delete {0} items?',

@@ -2,6 +2,7 @@ package com.iviet.ivshs.controller.api.v1;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,6 +35,7 @@ public class AutomationController {
     private final AutomationService automationService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<AutomationDto>> create(@RequestBody
     @Valid
     CreateAutomationDto request) {
@@ -42,6 +44,7 @@ public class AutomationController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<AutomationDto>> update(@PathVariable(name = "id")
     Long id, @RequestBody
     @Valid
@@ -50,6 +53,7 @@ public class AutomationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable(name = "id")
     Long id) {
         automationService.delete(id);
@@ -58,12 +62,14 @@ public class AutomationController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<AutomationDto>> getById(@PathVariable(name = "id")
     Long id) {
         return ResponseEntity.ok(ApiResponse.ok(automationService.getById(id)));
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AutomationDto>>> getAll(@RequestParam(name = "page", defaultValue = "0")
     int page, @RequestParam(name = "size", defaultValue = "20")
     int size) {
@@ -71,17 +77,20 @@ public class AutomationController {
     }
 
     @GetMapping("/active")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<List<AutomationDto>>> getAllActive() {
         return ResponseEntity.ok(ApiResponse.ok(automationService.getAllActive()));
     }
 
     @GetMapping("/{id}/actions")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<List<AutomationActionDto>>> getActions(@PathVariable(name = "id")
     Long automationId) {
         return ResponseEntity.ok(ApiResponse.ok(automationService.getActions(automationId)));
     }
 
     @PostMapping("/{id}/actions")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<AutomationActionDto>> addAction(@PathVariable(name = "id")
     Long automationId, @RequestBody
     @Valid
@@ -92,6 +101,7 @@ public class AutomationController {
     }
 
     @PutMapping("/actions/{actionId}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<AutomationActionDto>> updateAction(@PathVariable(name = "actionId")
     Long actionId, @RequestBody
     @Valid
@@ -100,6 +110,7 @@ public class AutomationController {
     }
 
     @DeleteMapping("/actions/{actionId}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<Void>> removeAction(@PathVariable(name = "actionId")
     Long actionId) {
         automationService.removeAction(actionId);
@@ -108,6 +119,7 @@ public class AutomationController {
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(@PathVariable(name = "id")
     Long id, @RequestParam(name = "isActive")
     boolean isActive) {
@@ -116,6 +128,7 @@ public class AutomationController {
     }
 
     @PostMapping("/{id}/execute")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<Void>> executeImmediately(@PathVariable(name = "id")
     Long id) {
         automationService.triggerNow(id);
@@ -123,6 +136,7 @@ public class AutomationController {
     }
 
     @PostMapping("/reload-job")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_AUTOMATION')")
     public ResponseEntity<ApiResponse<Void>> reloadSystemJobs() {
         automationService.reloadAll();
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, null, "System Quartz Jobs reloaded"));

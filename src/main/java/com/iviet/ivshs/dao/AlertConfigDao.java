@@ -83,6 +83,15 @@ public class AlertConfigDao extends BaseAuditEntityDao<AlertConfig> {
                 .getResultList();
     }
 
+    /** Lấy danh sách AlertConfigGroup fetch group liên kết với danh sách configIds. Tránh N+1 query. */
+    public List<AlertConfigGroup> findAssociationsByConfigIds(List<Long> configIds) {
+        if (configIds == null || configIds.isEmpty()) return List.of();
+        String jpql = "SELECT acg FROM AlertConfigGroup acg JOIN FETCH acg.group WHERE acg.alertConfig.id IN :configIds";
+        return entityManager.createQuery(jpql, AlertConfigGroup.class)
+                .setParameter("configIds", configIds)
+                .getResultList();
+    }
+
     /** Lấy tất cả AlertConfig (có thể filter theo namespace optional). Dùng cho trang manage độc lập. */
     public List<AlertConfig> findAll(AlertNamespace namespace, int page, int size) {
         StringBuilder jpql = new StringBuilder("SELECT ac FROM AlertConfig ac WHERE 1=1");

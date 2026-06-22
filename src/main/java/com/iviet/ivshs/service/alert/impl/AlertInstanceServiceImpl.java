@@ -64,7 +64,7 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
     @Override
     @Transactional
     public AlertInstance updateStatus(Long alertId, AlertStatus status, AlertActorType actorType, String actorId) {
-        AlertInstance alert = alertInstanceDao.findById(alertId)
+        AlertInstance alert = alertInstanceDao.findByIdWithConfigAndChannels(alertId)
                 .orElseThrow(() -> new NotFoundException("Alert does not exist: " + alertId));
 
         Client currentClient = null;

@@ -3,23 +3,25 @@ package com.iviet.ivshs.service.alert.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.AlertConfigDao;
 import com.iviet.ivshs.dao.SysGroupDao;
+import com.iviet.ivshs.dao.RuleDao;
+import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.AlertConfigDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertConfig;
+import com.iviet.ivshs.entities.AlertConfigGroup;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.service.alert.AlertConfigService;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
+import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,19 +31,25 @@ public class AlertConfigServiceImpl implements AlertConfigService {
 
     private final AlertConfigDao alertConfigDao;
     private final SysGroupDao sysGroupDao;
+    private final RuleDao ruleDao;
+    private final ClientDao clientDao;
     private final ObjectMapper objectMapper;
 
     @Override
     public List<AlertConfigDto> getConfigsBySource(AlertNamespace namespace, String sourceId) {
-        return alertConfigDao.findAllByNamespaceAndSourceId(namespace, sourceId).stream().map(this::toResponseDto)
-                .collect(Collectors.toList());
+        List<AlertConfig> configs = alertConfigDao.findAllByNamespaceAndSourceId(namespace, sourceId);
+        List<Long> configIds = configs.stream().map(AlertConfig::getId).toList();
+        List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(configIds);
+        return AlertConfigDto.toDtos(configs, groups);
     }
 
     @Override
     public PaginatedResponse<AlertConfigDto> getAllConfigs(AlertNamespace namespace, int page, int size) {
         List<AlertConfig> configs = alertConfigDao.findAll(namespace, page, size);
         long total = alertConfigDao.countAll(namespace);
-        List<AlertConfigDto> dtos = configs.stream().map(this::toResponseDto).toList();
+        List<Long> configIds = configs.stream().map(AlertConfig::getId).toList();
+        List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(configIds);
+        List<AlertConfigDto> dtos = AlertConfigDto.toDtos(configs, groups);
         return new PaginatedResponse<>(dtos, page, size, total);
     }
 
@@ -49,12 +57,25 @@ public class AlertConfigServiceImpl implements AlertConfigService {
     public AlertConfigDto getConfigById(Long id) {
         AlertConfig config = alertConfigDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Alert config not found: " + id));
-        return toResponseDto(config);
+        List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(List.of(id));
+        return AlertConfigDto.toDto(config, groups);
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AlertConfigDto createConfig(CreateAlertConfigDto dto) {
+        // Validate recipient groups exist
+        validateGroupCodes(dto.recipientGroupCodes());
+
+        // Validate sourceId existence depending on namespace
+        validateSourceId(dto.namespace(), dto.sourceId());
+
+        // Check for duplicate alertCode under the same namespace and sourceId
+        if (alertConfigDao.findByPolymorphicKey(dto.namespace(), dto.alertCode(), dto.sourceId()).isPresent()) {
+            throw new BadRequestException("Alert configuration with alertCode '" + dto.alertCode()
+                    + "' already exists for this namespace and source.");
+        }
+
         AlertConfig config = dto.toEntity(objectMapper);
         alertConfigDao.save(config);
 
@@ -62,12 +83,16 @@ public class AlertConfigServiceImpl implements AlertConfigService {
 
         log.info("[AlertConfig] Created config id={} namespace={} source={}", config.getId(), dto.namespace(),
                 dto.sourceId());
-        return toResponseDto(config);
+        List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(List.of(config.getId()));
+        return AlertConfigDto.toDto(config, groups);
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AlertConfigDto updateConfig(Long id, UpdateAlertConfigDto dto) {
+        // Validate recipient groups exist
+        validateGroupCodes(dto.recipientGroupCodes());
+
         AlertConfig config = alertConfigDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Alert config not found: " + id));
 
@@ -78,11 +103,12 @@ public class AlertConfigServiceImpl implements AlertConfigService {
         alertConfigDao.deleteGroupAssociations(id);
         saveGroupAssociations(config, dto.recipientGroupCodes());
 
-        return toResponseDto(config);
+        List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(List.of(id));
+        return AlertConfigDto.toDto(config, groups);
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteConfig(Long id) {
         AlertConfig config = alertConfigDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Alert config not found: " + id));
@@ -91,13 +117,46 @@ public class AlertConfigServiceImpl implements AlertConfigService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void deleteAllBySource(AlertNamespace namespace, String sourceId) {
         int deleted = alertConfigDao.deleteAllByNamespaceAndSourceId(namespace, sourceId);
         log.info("[AlertConfig] Deleted {} configs for namespace={} sourceId={}", deleted, namespace, sourceId);
     }
 
     // ===== Private helpers =====
+
+    private void validateGroupCodes(List<String> groupCodes) {
+        if (groupCodes == null || groupCodes.isEmpty()) {
+            throw new BadRequestException("Recipient groups must not be empty");
+        }
+        for (String code : groupCodes) {
+            sysGroupDao.findEntityByCode(code)
+                    .orElseThrow(() -> new BadRequestException("Recipient group not found: " + code));
+        }
+    }
+
+    private void validateSourceId(AlertNamespace namespace, String sourceId) {
+        if (namespace == null || sourceId == null || sourceId.isBlank()) {
+            throw new BadRequestException("Namespace and source ID are required");
+        }
+        if (namespace == AlertNamespace.RULE) {
+            try {
+                Long ruleId = Long.parseLong(sourceId);
+                ruleDao.findById(ruleId)
+                        .orElseThrow(() -> new BadRequestException("Linked Rule ID does not exist: " + ruleId));
+            } catch (NumberFormatException e) {
+                throw new BadRequestException("Source ID for RULE namespace must be a valid numeric Rule ID");
+            }
+        } else if (namespace == AlertNamespace.GATEWAY) {
+            try {
+                Long gatewayId = Long.parseLong(sourceId);
+                clientDao.findGatewayById(gatewayId).orElseThrow(
+                        () -> new BadRequestException("Linked Gateway Client ID does not exist: " + gatewayId));
+            } catch (NumberFormatException e) {
+                throw new BadRequestException("Source ID for GATEWAY namespace must be a valid numeric Gateway ID");
+            }
+        }
+    }
 
     private void saveGroupAssociations(AlertConfig config, List<String> groupCodes) {
         if (groupCodes == null || groupCodes.isEmpty()) return;
@@ -106,16 +165,5 @@ public class AlertConfigServiceImpl implements AlertConfigService {
                     .orElseThrow(() -> new NotFoundException("Group not found: " + code));
             alertConfigDao.saveGroupAssociation(config, group);
         }
-    }
-
-    private AlertConfigDto toResponseDto(AlertConfig config) {
-        List<String> groupCodes = alertConfigDao.findGroupCodesByConfigId(config.getId());
-
-        List<String> channels = new ArrayList<>();
-        if (config.getChannels() != null && config.getChannels().isArray()) {
-            config.getChannels().forEach(node -> channels.add(node.asText()));
-        }
-
-        return AlertConfigDto.from(config, groupCodes, channels);
     }
 }

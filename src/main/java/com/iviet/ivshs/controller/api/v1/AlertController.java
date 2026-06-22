@@ -6,7 +6,6 @@ import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertInstanceDto;
 import com.iviet.ivshs.dto.alert.AlertInstanceLogDto;
-import com.iviet.ivshs.dto.alert.AlertTriggerRequestDto;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.service.alert.AlertConfigService;
@@ -26,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -43,23 +43,27 @@ public class AlertController {
     private final AlertConfigService alertConfigService;
 
     @PostMapping()
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT')")
     public ResponseEntity<ApiResponse<AlertConfigDto>> createConfig(@RequestBody @Valid CreateAlertConfigDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(alertConfigService.createConfig(dto)));
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT')")
     public ResponseEntity<ApiResponse<AlertConfigDto>> updateConfig(@PathVariable Long id,
             @RequestBody @Valid UpdateAlertConfigDto dto) {
         return ResponseEntity.ok(ApiResponse.ok(alertConfigService.updateConfig(id, dto)));
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<AlertConfigDto>> getConfigById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok(alertConfigService.getConfigById(id)));
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT')")
     public ResponseEntity<ApiResponse<Void>> deleteConfig(@PathVariable Long id) {
         alertConfigService.deleteConfig(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
@@ -67,24 +71,22 @@ public class AlertController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertConfigDto>>> getConfigs(
-            @RequestParam(required = false) AlertNamespace namespace,
-            @RequestParam(required = false) String sourceId,
+            @RequestParam(required = false) AlertNamespace namespace, @RequestParam(required = false) String sourceId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size) {
         if (namespace != null && sourceId != null) {
-            // Lọc theo source cụ thể (dùng cho rule detail page)
             List<AlertConfigDto> configs = alertConfigService.getConfigsBySource(namespace, sourceId);
             return ResponseEntity.ok(ApiResponse.ok(PaginatedResponse.ofList(configs, page, size)));
         }
-        // Lấy tất cả (dùng cho trang manage độc lập — yêu cầu F_MANAGE_ALERT)
         return ResponseEntity.ok(ApiResponse.ok(alertConfigService.getAllConfigs(namespace, page, size)));
     }
 
     @GetMapping("/instances")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlerts(
-            @RequestParam(required = false) AlertStatus status,
-            @RequestParam(required = false) Severity severity,
+            @RequestParam(required = false) AlertStatus status, @RequestParam(required = false) Severity severity,
             @RequestParam(required = false) AlertNamespace namespace,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,
@@ -95,6 +97,7 @@ public class AlertController {
     }
 
     @GetMapping("/{alertId}/instances")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlertsByConfig(
             @PathVariable Long alertId, @RequestParam(required = false) AlertStatus status,
             @RequestParam(required = false) Severity severity,
@@ -105,12 +108,14 @@ public class AlertController {
     }
 
     @GetMapping("/{alertId}/instances/{instanceId}")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<AlertInstanceDto>> getAlertById(@PathVariable Long alertId,
             @PathVariable Long instanceId) {
         return ResponseEntity.ok(ApiResponse.ok(validateAlertRelation(alertId, instanceId)));
     }
 
     @PostMapping("/{alertId}/instances/{instanceId}/acknowledge")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<AlertInstanceDto>> acknowledgeAlert(@PathVariable Long alertId,
             @PathVariable Long instanceId) {
         validateAlertRelation(alertId, instanceId);
@@ -121,6 +126,7 @@ public class AlertController {
     }
 
     @PostMapping("/{alertId}/instances/{instanceId}/resolve")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<AlertInstanceDto>> resolveAlert(@PathVariable Long alertId,
             @PathVariable Long instanceId) {
         validateAlertRelation(alertId, instanceId);
@@ -131,6 +137,7 @@ public class AlertController {
     }
 
     @GetMapping("/{alertId}/instances/{instanceId}/logs")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<List<AlertInstanceLogDto>>> getAlertLogs(@PathVariable Long alertId,
             @PathVariable Long instanceId) {
         validateAlertRelation(alertId, instanceId);
