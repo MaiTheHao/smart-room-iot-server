@@ -16,8 +16,8 @@ public class FunctionCodeHelper {
     public static final String GROUP_PREFIX = "G_";
 
     private static final Pattern MANAGE_PATTERN = Pattern
-            .compile("^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALL|SOME)$");
-    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\\-]+|ALL)$");
+            .compile("^F_MANAGE_(CLIENT|FLOOR|ROOM|DEVICE|FUNCTION|GROUP|AUTOMATION|RULE|ALERT|ALL|SOME)$");
+    private static final Pattern ACCESS_PATTERN = Pattern.compile("^F_ACCESS_(FLOOR|ROOM)_([A-Z0-9_\\-]+|ALL)$|^F_ACCESS_ALERT$|^F_HANDLE_ALERT$");
     private static final Pattern GROUP_PATTERN = Pattern.compile("^G_[A-Z0-9_]+$");
 
     // --- Build Methods ---

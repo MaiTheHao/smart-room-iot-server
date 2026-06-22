@@ -1,0 +1,168 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{smart_system.alert.instance.detail.title}">Alert Detail</title>
+    <style>
+      /* Timeline */
+      .timeline { position: relative; padding-left: 2rem; }
+      .timeline::before { content: ''; position: absolute; left: 0.6rem; top: 0; bottom: 0; width: 2px; background: #e9ecef; }
+      .tl-item { position: relative; padding-bottom: 1.5rem; }
+      .tl-item:last-child { padding-bottom: 0; }
+      .tl-dot {
+        position: absolute; left: -1.55rem; top: 0.2rem;
+        width: 1rem; height: 1rem; border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 2px currentColor;
+      }
+      .tl-dot.TRIGGERED     { color: #6c757d;  background: #6c757d; }
+      .tl-dot.ACKNOWLEDGED  { color: #ffc107;  background: #ffc107; }
+      .tl-dot.RESOLVED      { color: #198754;  background: #198754; }
+      .tl-dot.RE_TRIGGERED  { color: #fd7e14;  background: #fd7e14; }
+      .tl-dot.AUTO_RESOLVED { color: #0dcaf0;  background: #0dcaf0; }
+      .tl-time { font-size: 0.75rem; color: #adb5bd; margin-bottom: 0.15rem; }
+      .tl-content { background: #f8f9fa; border-radius: 0.5rem; padding: 0.65rem 0.85rem; }
+      .tl-msg { font-size: 0.85rem; color: #495057; margin-bottom: 0.25rem; }
+      .tl-payload { font-size: 0.75rem; color: #6c757d; white-space: pre-wrap; margin: 0; }
+      /* Severity colors */
+      .severity-CRITICAL { color: #dc3545; }
+      .severity-WARNING  { color: #ffc107; }
+      .severity-INFO     { color: #0dcaf0; }
+      .border-severity-CRITICAL { border-left: 4px solid #dc3545 !important; }
+      .border-severity-WARNING  { border-left: 4px solid #ffc107 !important; }
+      .border-severity-INFO     { border-left: 4px solid #0dcaf0 !important; }
+      .info-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: #adb5bd; display: block; margin-bottom: 0.1rem; }
+      .info-val   { font-size: 0.88rem; color: #212529; font-weight: 500; }
+      .chip-ns    { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.73rem; font-weight: 700; background: #e2e8f0; color: #475569; }
+      .chip-code  { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.73rem; font-weight: 600; background: #f1f5f9; color: #334155; font-family: monospace; }
+      .btn-back { background: none; border: 1px solid #dee2e6; color: #6c757d; transition: all 0.2s; }
+      .btn-back:hover { background: #f1f3f5; color: #343a40; }
+    </style>
+  </head>
+
+  <div layout:fragment="header-title">
+    <span th:text="#{smart_system.alert.instance.detail.title}">Alert Detail</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid">
+
+      <!-- Page Header with Back + Action Buttons -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <a th:href="@{/management/smart-system/alerts}" class="btn btn-sm btn-back px-3 rounded-pill">
+          <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
+          <span th:text="#{error.back}">Back</span>
+        </a>
+        <div class="d-flex gap-2" id="actionBtns">
+          <button class="btn btn-warning btn-sm rounded-pill px-4 shadow-sm d-none" id="btnAcknowledge"
+            th:data-alert-id="${alertId}" th:data-instance-id="${instanceId}">
+            <i data-lucide="check" class="lucide-sm me-1"></i>
+            <span th:text="#{smart_system.alert.instance.action.acknowledge}">Acknowledge</span>
+          </button>
+          <button class="btn btn-success btn-sm rounded-pill px-4 shadow-sm d-none" id="btnResolve"
+            th:data-alert-id="${alertId}" th:data-instance-id="${instanceId}">
+            <i data-lucide="check-check" class="lucide-sm me-1"></i>
+            <span th:text="#{smart_system.alert.instance.action.resolve}">Resolve</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Card: Alert Info -->
+      <div class="card rounded-4 border-0 shadow-sm mb-4" id="detailTopCard">
+        <div class="card-header bg-white border-0 pt-4 pb-0 border-severity-INFO" id="detailCardHeader" style="border-radius: 0.75rem 0.75rem 0 0;">
+          <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-2">
+            <div>
+              <span class="badge me-1" id="detailSeverityBadge">–</span>
+              <span class="badge" id="detailStatusBadge">–</span>
+            </div>
+            <div class="d-flex gap-2">
+              <span class="chip-ns" id="detailNamespace">–</span>
+              <span class="chip-code" id="detailAlertCode">–</span>
+            </div>
+          </div>
+          <h4 class="fw-bold text-dark mb-1" id="detailTitle">–</h4>
+          <p class="text-muted mb-3" id="detailBody">–</p>
+        </div>
+        <div class="card-body pt-3">
+          <div class="row g-3">
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.source_id}">Source ID</span>
+              <div class="info-val font-monospace" id="detailSourceId">–</div>
+            </div>
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.triggered_at}">Triggered At</span>
+              <div class="info-val" id="detailTriggeredAt">–</div>
+            </div>
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.trigger_count}">Trigger Count</span>
+              <div class="info-val fw-bold" id="detailTriggerCount">–</div>
+            </div>
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.ack_by}">Ack By</span>
+              <div class="info-val" id="detailAckBy">–</div>
+            </div>
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.ack_at}">Ack At</span>
+              <div class="info-val" id="detailAckAt">–</div>
+            </div>
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.resolved_by}">Resolved By</span>
+              <div class="info-val" id="detailResolvedBy">–</div>
+            </div>
+            <div class="col-md-3 col-6">
+              <span class="info-label" th:text="#{smart_system.alert.instance.detail.resolved_at}">Resolved At</span>
+              <div class="info-val" id="detailResolvedAt">–</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Card: Activity Timeline -->
+      <div class="card rounded-4 border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+          <h6 class="fw-bold m-0 d-flex align-items-center">
+            <i data-lucide="git-commit-horizontal" class="text-primary me-2 lucide-sm"></i>
+            <span th:text="#{smart_system.alert.instance.log.timeline}">Activity Timeline</span>
+          </h6>
+        </div>
+        <div class="card-body">
+          <div id="timelineLoading" class="text-center text-muted py-4">
+            <div class="spinner-border spinner-border-sm me-2"></div>
+            <span th:text="#{common.loading}">Loading...</span>
+          </div>
+          <div id="timelineEmpty" class="text-center text-muted py-4 d-none">
+            <p class="mb-0" th:text="#{smart_system.alert.instance.log.no_logs}">No activity logs found.</p>
+          </div>
+          <div id="timelineFeed" class="timeline d-none"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+      window.__ALERT_DETAIL_CONFIG__ = {
+        alertId:    /*[[${alertId}]]*/ null,
+        instanceId: /*[[${instanceId}]]*/ null,
+        i18n: {
+          error:       /*[[#{common.error.title}]]*/ 'Error',
+          success:     /*[[#{smart_system.alert.instance.toast.success}]]*/ 'Success',
+          ackSuccess:  /*[[#{smart_system.alert.instance.action.ack_success}]]*/ 'Alert acknowledged.',
+          resSuccess:  /*[[#{smart_system.alert.instance.action.resolve_success}]]*/ 'Alert resolved.',
+          notAvail:    /*[[#{smart_system.alert.instance.not_available}]]*/ 'N/A',
+          autoResolved: /*[[#{smart_system.alert.instance.resolved_system}]]*/ 'Auto-resolved',
+          cancel:      /*[[#{logout.cancel.button}]]*/ 'Cancel',
+          confirmAck:  /*[[#{smart_system.alert.instance.confirm.acknowledge}]]*/ 'Acknowledge this alert?',
+          confirmRes:  /*[[#{smart_system.alert.instance.confirm.resolve}]]*/ 'Resolve this alert?',
+          yes:         /*[[#{common.yes}]]*/ 'Yes',
+        }
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/smart_system/alert/detail/index.js}"></script>
+  </th:block>
+</html>

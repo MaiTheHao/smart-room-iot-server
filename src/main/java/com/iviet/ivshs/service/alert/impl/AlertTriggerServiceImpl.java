@@ -1,8 +1,10 @@
 package com.iviet.ivshs.service.alert.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.AlertConfigDao;
 import com.iviet.ivshs.dao.AlertInstanceDao;
 import com.iviet.ivshs.dto.alert.AlertTriggerRequestDto;
+import com.iviet.ivshs.dto.alert.CreateAlertInstanceLogDto;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.service.alert.AlertInstanceLogService;
 import com.iviet.ivshs.service.alert.AlertInstanceService;
@@ -25,7 +27,7 @@ import java.util.Optional;
 public class AlertTriggerServiceImpl implements AlertTriggerService {
 
     private final AlertInstanceService alertInstanceService;
-    private final AlertInstanceLogService AlertInstanceLogService;
+    private final AlertInstanceLogService alertInstanceLogService;
     private final AlertConfigDao alertConfigDao;
     private final AlertInstanceDao alertInstanceDao;
     private final ApplicationEventPublisher eventPublisher;
@@ -34,54 +36,73 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
     @Transactional
     public void trigger(AlertTriggerRequestDto request) {
         AlertActionType actionType = request.getActionType();
-        AlertInstance alert = null;
-        String logMessage = request.getCustomMessage();
-        AlertConfig config = request.getAlertConfig();
-
-        if (actionType == AlertActionType.TRIGGERED) {
-            if (config == null && request.getAlertConfigId() != null) {
-                config = alertConfigDao.findById(request.getAlertConfigId())
-                        .orElseThrow(() -> new NotFoundException("Cấu hình cảnh báo không tồn tại"));
-            }
-
-            if (config == null) {
-                log.warn("Kích hoạt cảnh báo không thành công: Thiếu cấu hình cảnh báo.");
-                return;
-            }
-
-            Optional<AlertInstance> latestOpen = alertInstanceDao.findLatestOpenByConfigId(config.getId());
-            if (latestOpen.isPresent()) {
-                AlertInstance existingAlert = latestOpen.get();
-                if (config.getCooldownMinutes() > 0) {
-                    Instant cooldownEnd = existingAlert.getTriggeredAt().plusSeconds(config.getCooldownMinutes() * 60L);
-                    if (Instant.now().isBefore(cooldownEnd)) {
-                        log.debug("Cảnh báo {} đang trong thời gian cooldown. Bỏ qua.", config.getId());
-                        return;
-                    }
-                }
-                alert = alertInstanceService.incrementTriggerCount(existingAlert.getId());
-                actionType = AlertActionType.RE_TRIGGERED;
-                logMessage = "Sự kiện tiếp diễn (Re-trigger) do sự cố vẫn chưa được giải quyết";
-            } else {
-                alert = alertInstanceService.createActiveAlert(config, request.getTemplateData());
-                logMessage = "Sự cố bắt đầu — cấu hình [" + config.getAlertName() + "] kích hoạt";
-            }
-        } else {
-            AlertStatus status = (actionType == AlertActionType.ACKNOWLEDGED) ? AlertStatus.ACKNOWLEDGED
-                    : AlertStatus.RESOLVED;
-
-            alert = alertInstanceService.updateStatus(request.getAlertInstanceId(), status, request.getActorType(),
-                    request.getActorId());
-            config = alert.getAlertConfig();
-
-            if (logMessage == null) {
-                logMessage = (actionType == AlertActionType.ACKNOWLEDGED) ? "Sự cố đã được xác nhận"
-                        : "Sự cố đã được giải quyết";
-            }
+        if (actionType != AlertActionType.TRIGGERED) {
+            log.warn("Invalid action type {} for trigger method.", actionType);
+            return;
         }
 
-        AlertInstanceLogService.createLog(alert, actionType, request.getActorType(), request.getActorId(), logMessage);
+        AlertInstance alert = null;
+        String logMessage = request.getLogMessage();
+        AlertConfig config = request.getAlertConfig();
+
+        if (config == null && request.getAlertConfigId() != null) {
+            config = alertConfigDao.findById(request.getAlertConfigId())
+                    .orElseThrow(() -> new NotFoundException("Alert configuration not found"));
+        }
+
+        if (config == null) {
+            log.warn("Failed to trigger alert: Missing alert configuration.");
+            return;
+        }
+
+        Optional<AlertInstance> latestOpen = alertInstanceDao.findLatestOpenByConfigId(config.getId());
+        if (latestOpen.isPresent()) {
+            AlertInstance existingAlert = latestOpen.get();
+            if (config.getCooldownMinutes() > 0) {
+                Instant cooldownEnd = existingAlert.getTriggeredAt().plusSeconds(config.getCooldownMinutes() * 60L);
+                if (Instant.now().isBefore(cooldownEnd)) {
+                    log.debug("Alert config ID {} is in cooldown. Skipped.", config.getId());
+                    return;
+                }
+            }
+            alert = alertInstanceService.incrementTriggerCount(existingAlert.getId());
+            actionType = AlertActionType.RE_TRIGGERED;
+            logMessage = logMessage != null ? logMessage : "Alert re-triggered";
+        } else {
+            alert = alertInstanceService.createActiveAlert(config, request.getTemplateData());
+            logMessage = logMessage != null ? logMessage : "Alert started";
+        }
+
+        CreateAlertInstanceLogDto logDto = CreateAlertInstanceLogDto.builder().alertId(alert.getId())
+                .actionType(actionType).actorType(request.getActorType()).actorId(request.getActorId())
+                .message(logMessage).payload(request.getPayload()).build();
+        alertInstanceLogService.createLog(logDto);
         eventPublisher.publishEvent(new AlertNotificationEvent(this, config, alert, actionType, request.getActorType(),
                 request.getActorId()));
+    }
+
+    @Override
+    @Transactional
+    public void handleAction(Long alertInstanceId, AlertActionType actionType, AlertActorType actorType, String actorId,
+            String logMessage, JsonNode payload) {
+
+        AlertStatus status = switch (actionType) {
+            case ACKNOWLEDGED -> AlertStatus.ACKNOWLEDGED;
+            case RESOLVED, AUTO_RESOLVED -> AlertStatus.RESOLVED;
+            default -> throw new IllegalArgumentException("Unsupported action type for handleAction: " + actionType);
+        };
+
+        AlertInstance alert = alertInstanceService.updateStatus(alertInstanceId, status, actorType, actorId);
+        AlertConfig config = alert.getAlertConfig();
+
+        if (logMessage == null) {
+            logMessage = (actionType == AlertActionType.ACKNOWLEDGED) ? "Alert acknowledged" : "Alert resolved";
+        }
+
+        CreateAlertInstanceLogDto logDto = CreateAlertInstanceLogDto.builder().alertId(alert.getId())
+                .actionType(actionType).actorType(actorType).actorId(actorId).message(logMessage).payload(payload)
+                .build();
+        alertInstanceLogService.createLog(logDto);
+        eventPublisher.publishEvent(new AlertNotificationEvent(this, config, alert, actionType, actorType, actorId));
     }
 }

@@ -82,4 +82,25 @@ public class AlertConfigDao extends BaseAuditEntityDao<AlertConfig> {
                 .setParameter("id", alertConfigId)
                 .getResultList();
     }
+
+    /** Lấy tất cả AlertConfig (có thể filter theo namespace optional). Dùng cho trang manage độc lập. */
+    public List<AlertConfig> findAll(AlertNamespace namespace, int page, int size) {
+        StringBuilder jpql = new StringBuilder("SELECT ac FROM AlertConfig ac WHERE 1=1");
+        if (namespace != null) jpql.append(" AND ac.namespace = :namespace");
+        jpql.append(" ORDER BY ac.id DESC");
+
+        var q = entityManager.createQuery(jpql.toString(), AlertConfig.class);
+        if (namespace != null) q.setParameter("namespace", namespace);
+        return q.setFirstResult(page * size).setMaxResults(size).getResultList();
+    }
+
+    /** Đếm tổng AlertConfig (có thể filter theo namespace optional). */
+    public long countAll(AlertNamespace namespace) {
+        StringBuilder jpql = new StringBuilder("SELECT COUNT(ac) FROM AlertConfig ac WHERE 1=1");
+        if (namespace != null) jpql.append(" AND ac.namespace = :namespace");
+
+        var q = entityManager.createQuery(jpql.toString(), Long.class);
+        if (namespace != null) q.setParameter("namespace", namespace);
+        return q.getSingleResult();
+    }
 }

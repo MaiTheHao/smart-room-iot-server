@@ -65,7 +65,7 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
     @Transactional
     public AlertInstance updateStatus(Long alertId, AlertStatus status, AlertActorType actorType, String actorId) {
         AlertInstance alert = alertInstanceDao.findById(alertId)
-                .orElseThrow(() -> new NotFoundException("Cảnh báo không tồn tại: " + alertId));
+                .orElseThrow(() -> new NotFoundException("Alert does not exist: " + alertId));
 
         Client currentClient = null;
         if (actorType == AlertActorType.USER) {
@@ -74,14 +74,14 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
                 try {
                     parsedClientId = Long.valueOf(actorId);
                 } catch (NumberFormatException e) {
-                    log.warn("Không thể chuyển đổi actorId sang kiểu Long: '{}'", actorId);
+                    log.warn("Could not parse actor ID to Long: '{}'", actorId);
                 }
             }
             if (parsedClientId != null) {
                 final Long currentClientId = parsedClientId;
                 checkHandleAccess(alert, currentClientId);
                 currentClient = clientDao.findById(currentClientId)
-                        .orElseThrow(() -> new NotFoundException("Client không tồn tại: " + currentClientId));
+                        .orElseThrow(() -> new NotFoundException("Client does not exist: " + currentClientId));
             }
         }
 
@@ -105,8 +105,9 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
 
         if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
             alerts = alertInstanceDao.findAllByClientGroups(currentClientId, filter.status(), filter.severity(),
-                    filter.page(), filter.size());
-            total = alertInstanceDao.countByClientGroups(currentClientId, filter.status(), filter.severity());
+                    filter.namespace(), filter.from(), filter.to(), filter.page(), filter.size());
+            total = alertInstanceDao.countByClientGroups(currentClientId, filter.status(), filter.severity(),
+                    filter.namespace(), filter.from(), filter.to());
         }
 
         List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
@@ -134,7 +135,7 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
     @Override
     public AlertInstanceDto getAlertById(Long alertId) {
         AlertInstance alert = alertInstanceDao.findById(alertId)
-                .orElseThrow(() -> new NotFoundException("Cảnh báo không tồn tại: " + alertId));
+                .orElseThrow(() -> new NotFoundException("Alert does not exist: " + alertId));
         checkReadAccess(alert, SecurityContextUtil.getCurrentClientId());
         return AlertInstanceDto.from(alert);
     }
@@ -158,15 +159,15 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
 
     private void checkReadAccess(AlertInstance alert, Long currentClientId) {
         SecurityContextUtil.requirePermission(SysFunctionEnum.F_ACCESS_ALERT.getCode(),
-                "Bạn không có quyền truy cập cảnh báo.");
+                "You do not have permission to access alerts.");
         boolean inGroup = alertInstanceDao.isClientInAlertGroups(alert.getId(), currentClientId);
-        if (!inGroup) throw new ForbiddenException("Bạn không có quyền xem cảnh báo này: " + alert.getId());
+        if (!inGroup) throw new ForbiddenException("You do not have permission to view this alert: " + alert.getId());
     }
 
     private void checkHandleAccess(AlertInstance alert, Long currentClientId) {
         SecurityContextUtil.requirePermission(SysFunctionEnum.F_HANDLE_ALERT.getCode(),
-                "Bạn không có quyền xử lý cảnh báo.");
+                "You do not have permission to handle alerts.");
         boolean inGroup = alertInstanceDao.isClientInAlertGroups(alert.getId(), currentClientId);
-        if (!inGroup) throw new ForbiddenException("Bạn không có quyền xử lý cảnh báo này: " + alert.getId());
+        if (!inGroup) throw new ForbiddenException("You do not have permission to handle this alert: " + alert.getId());
     }
 }

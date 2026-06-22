@@ -1,9 +1,12 @@
 package com.iviet.ivshs.entities;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -49,8 +52,9 @@ public class AlertInstanceLog {
     private String message;
 
     /** JSON payload chứa dữ liệu telemetry vi phạm. Schema-less. */
-    @Column(name = "payload", columnDefinition = "TEXT")
-    private String payload;
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "payload")
+    private JsonNode payload;
 
     /** Thời điểm chính xác đến mili-giây. */
     @Column(name = "created_at", nullable = false)

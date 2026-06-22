@@ -1,0 +1,248 @@
+<!doctype html>
+<html
+  th:lang="${#locale.language}"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout.html}"
+>
+  <head>
+    <title th:text="#{smart_system.alert.manage.title}">Alert Configuration Management</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+  </head>
+
+  <div layout:fragment="header-title">
+    <span th:text="#{smart_system.alert.manage.title}">Alert Config Management</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid">
+
+      <!-- ═══ Alerts Table Card ═══ -->
+      <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow mb-4">
+        <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+          <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
+            <i data-lucide="settings-2" class="text-primary me-2 lucide-sm"></i>
+            <span th:text="#{smart_system.alert.table.title}">Alert Configurations</span>
+          </h6>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm rounded-pill px-3" id="btnAddAlertConfig">
+              <i data-lucide="plus" class="lucide-sm me-1"></i>
+              <span th:text="#{common.add}">Add</span>
+            </button>
+            <button class="btn btn-danger btn-sm rounded-pill px-3" id="btnDeleteSelected" disabled>
+              <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+              <span th:text="#{common.delete}">Delete</span>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div id="alertConfigsTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert Config Modal Form -->
+    <div class="modal fade" id="alertConfigModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <i data-lucide="bell" class="text-warning me-2 lucide-md"></i>
+              <span id="alertConfigModalTitle">Add Alert Configuration</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="alertConfigForm" novalidate>
+            <div class="modal-body py-4">
+              <input type="hidden" id="editConfigId" />
+              <div class="row g-3">
+
+                <!-- Alert Name -->
+                <div class="col-12">
+                  <label for="cfgAlertName" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.alert_name}">Alert Name</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
+                    <input type="text" class="form-control bg-light border-0" id="cfgAlertName" name="alertName"
+                      th:placeholder="#{smart_system.alert.placeholder.name}" required />
+                  </div>
+                  <div class="invalid-feedback" id="val-cfgAlertName"></div>
+                </div>
+
+                <!-- Alert Code -->
+                <div class="col-md-6">
+                  <label for="cfgAlertCode" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.alert_code}">Alert Code</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
+                    <input type="text" class="form-control bg-light border-0 font-monospace" id="cfgAlertCode"
+                      name="alertCode" placeholder="TEMP_HIGH_ALERT" required />
+                  </div>
+                  <div class="invalid-feedback" id="val-cfgAlertCode"></div>
+                </div>
+
+                <!-- Namespace -->
+                <div class="col-md-6">
+                  <label for="cfgNamespace" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.namespace}">Namespace</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="layers" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="cfgNamespace" name="namespace" required>
+                      <option value="RULE">RULE</option>
+                      <option value="GATEWAY">GATEWAY</option>
+                      <option value="SYSTEM">SYSTEM</option>
+                    </select>
+                  </div>
+                  <div class="invalid-feedback" id="val-cfgNamespace"></div>
+                </div>
+
+                <!-- Source ID -->
+                <div class="col-12">
+                  <label for="cfgSourceId" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.source_id}">Source ID</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="link" class="lucide-sm"></i></span>
+                    <input type="text" class="form-control bg-light border-0 font-monospace" id="cfgSourceId"
+                      name="sourceId" placeholder="rule_10" required />
+                    <select class="form-select bg-light border-0 d-none" id="cfgSourceIdSelect" name="sourceIdSelect">
+                      <option value="" disabled selected>Select Rule...</option>
+                    </select>
+                  </div>
+                  <div class="invalid-feedback" id="val-cfgSourceId"></div>
+                </div>
+
+                <!-- Severity & Cooldown -->
+                <div class="col-md-6">
+                  <label for="cfgSeverity" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.severity}">Severity</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="alert-triangle" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="cfgSeverity" name="severity" required>
+                      <option value="INFO">INFO</option>
+                      <option value="WARNING">WARNING</option>
+                      <option value="CRITICAL">CRITICAL</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="cfgCooldownMinutes" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.cooldown_minutes}">Cooldown (mins)</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="clock" class="lucide-sm"></i></span>
+                    <input type="number" class="form-control bg-light border-0" id="cfgCooldownMinutes"
+                      name="cooldownMinutes" min="0" placeholder="10" required />
+                  </div>
+                  <div class="invalid-feedback" id="val-cfgCooldownMinutes"></div>
+                </div>
+
+                <!-- Recipient Groups -->
+                <div class="col-12">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.recipient_groups}">Recipient Groups</label>
+                  <div id="cfgRecipientGroupsContainer" class="border border-0 bg-light rounded-3 p-3"
+                    style="max-height: 150px; overflow-y: auto;">
+                    <p class="text-muted small mb-0" th:text="#{smart_system.alert.loading_groups}">Loading groups...</p>
+                  </div>
+                  <div class="invalid-feedback d-block" id="val-cfgRecipientGroups"></div>
+                </div>
+
+                <!-- Channels & Auto Resolve -->
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.channels}">Channels</label>
+                  <div class="d-flex flex-column gap-2 mt-1">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="channels" value="PUSH" id="cfgChannelPush" />
+                      <label class="form-check-label text-dark" for="cfgChannelPush"
+                        th:text="#{smart_system.alert.channel.push}">Push</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="channels" value="EMAIL" id="cfgChannelEmail" />
+                      <label class="form-check-label text-dark" for="cfgChannelEmail"
+                        th:text="#{smart_system.alert.channel.email}">Email</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="channels" value="SMS" id="cfgChannelSms" />
+                      <label class="form-check-label text-dark" for="cfgChannelSms"
+                        th:text="#{smart_system.alert.channel.sms}">SMS</label>
+                    </div>
+                  </div>
+                  <div class="invalid-feedback d-block" id="val-cfgChannels"></div>
+                </div>
+                <div class="col-md-6 d-flex flex-column justify-content-center">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-2"
+                    th:text="#{smart_system.alert.field.auto_resolve}">Auto Resolve</label>
+                  <div class="form-check form-switch switch-ios">
+                    <input class="form-check-input" type="checkbox" role="switch" id="cfgAutoResolve" name="autoResolve" />
+                    <label class="form-check-label fw-medium text-dark" for="cfgAutoResolve"
+                      th:text="#{smart_system.alert.field.auto_resolve_label}">Auto-Resolve</label>
+                  </div>
+                </div>
+
+                <!-- Message Template -->
+                <div class="col-12">
+                  <label for="cfgMessageTemplate" class="form-label fw-semibold small text-muted text-uppercase mb-1"
+                    th:text="#{smart_system.alert.field.message_template}">Message Template</label>
+                  <textarea class="form-control bg-light border-0" id="cfgMessageTemplate" name="messageTemplate"
+                    rows="4" th:placeholder="#{smart_system.alert.placeholder.template}" required></textarea>
+                  <div class="invalid-feedback" id="val-cfgMessageTemplate"></div>
+                </div>
+
+              </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal"
+                th:text="#{logout.cancel.button}">Cancel</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAlertConfig">
+                <i data-lucide="check" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+      window.__ALERT_MANAGE_CONFIG__ = {
+        i18n: {
+          addTitle:           /*[[#{smart_system.alert.modal.add_title}]]*/ 'Add Alert Config',
+          editTitle:          /*[[#{smart_system.alert.modal.edit_title}]]*/ 'Edit Alert Config',
+          confirmDelete:      /*[[#{smart_system.alert.delete_confirm}]]*/ 'Delete this config?',
+          deleteConfirmText:  /*[[#{smart_system.alert.delete_confirm_text}]]*/ 'This action cannot be undone.',
+          yesDelete:          /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+          cancel:             /*[[#{logout.cancel.button}]]*/ 'Cancel',
+          success:            /*[[#{smart_system.alert.save_success}]]*/ 'Success',
+          error:              /*[[#{common.error.title}]]*/ 'Error',
+          noData:             /*[[#{smart_system.alert.no_data}]]*/ 'No alert configs found.',
+          errLoadGroups:      /*[[#{smart_system.alert.err_load_groups}]]*/ 'Failed to load groups.',
+          noGroups:           /*[[#{smart_system.alert.no_groups}]]*/ 'No groups available.',
+          valSelectGroup:     /*[[#{smart_system.alert.val_select_group}]]*/ 'Select at least one group.',
+          valSelectChannel:   /*[[#{smart_system.alert.val_select_channel}]]*/ 'Select at least one channel.',
+          colAlertName:       /*[[#{smart_system.alert.col.alert_name}]]*/ 'Alert Name',
+          colAlertCode:       /*[[#{smart_system.alert.col.alert_code}]]*/ 'Alert Code',
+          colNamespace:       /*[[#{smart_system.alert.col.namespace}]]*/ 'Namespace',
+          colSourceId:        /*[[#{smart_system.alert.col.source_id}]]*/ 'Source ID',
+          colSeverity:        /*[[#{smart_system.alert.col.severity}]]*/ 'Severity',
+          colCooldown:        /*[[#{smart_system.alert.col.cooldown}]]*/ 'Cooldown',
+          colChannels:        /*[[#{smart_system.alert.col.channels}]]*/ 'Channels',
+          colAutoResolve:     /*[[#{smart_system.alert.col.auto_resolve}]]*/ 'Auto Resolve',
+          colActions:         /*[[#{smart_system.alert.col.actions}]]*/ 'Actions',
+          colCooldownUnit:    /*[[#{smart_system.alert.col.cooldown_unit}]]*/ 'mins',
+          confirmDeleteBatch: /*[[#{common.confirm.delete_batch}]]*/ 'Delete {0} items?',
+          confirmDeleteSingle: /*[[#{common.confirm.delete_single}]]*/ 'Delete {0} item?',
+          edit:               /*[[#{common.edit}]]*/ 'Edit',
+          delete:             /*[[#{common.delete}]]*/ 'Delete',
+          yes:                /*[[#{common.yes}]]*/ 'Yes',
+          no:                 /*[[#{common.no}]]*/ 'No',
+          info:               /*[[#{common.info}]]*/ 'Info',
+          errLoadData:        /*[[#{smart_system.alert.err_load_data}]]*/ 'Failed to load configs.',
+        }
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/smart_system/alert/manage/index.js}"></script>
+  </th:block>
+</html>

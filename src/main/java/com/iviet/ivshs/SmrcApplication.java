@@ -33,7 +33,8 @@ public class SmrcApplication implements WebApplicationInitializer {
 
         // Cấu hình Root Context
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(ApplicationConfig.class, AsyncConfig.class, DataSourceConfig.class, WebSecurityConfig.class, QuartzSchedulerConfig.class, RestClientConfig.class, FirebaseSDKConfig.class);
+        rootContext.register(ApplicationConfig.class, AsyncConfig.class, DataSourceConfig.class,
+                WebSecurityConfig.class, QuartzSchedulerConfig.class, RestClientConfig.class, FirebaseSDKConfig.class);
 
         servletContext.addListener(new ContextLoaderListener(rootContext));
 
@@ -68,15 +69,24 @@ public class SmrcApplication implements WebApplicationInitializer {
         encodingReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 
         // Cấu hình Request Trace Filter
-        FilterRegistration.Dynamic traceReg = servletContext.addFilter("requestTraceFilter", new DelegatingFilterProxy("requestTraceFilter"));
+        FilterRegistration.Dynamic traceReg = servletContext.addFilter("requestTraceFilter",
+                new DelegatingFilterProxy("requestTraceFilter"));
         traceReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 
         // Cấu hình Security Filter
-        FilterRegistration.Dynamic securityReg = servletContext.addFilter("springSecurityFilterChain", new DelegatingFilterProxy("springSecurityFilterChain"));
+        FilterRegistration.Dynamic securityReg = servletContext.addFilter("springSecurityFilterChain",
+                new DelegatingFilterProxy("springSecurityFilterChain"));
         securityReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
 
         // Cấu hình Rate Limiting Filter
-        FilterRegistration.Dynamic rateLimitReg = servletContext.addFilter("rateLimitingFilter", new DelegatingFilterProxy("rateLimitingFilter"));
+        FilterRegistration.Dynamic rateLimitReg = servletContext.addFilter("rateLimitingFilter",
+                new DelegatingFilterProxy("rateLimitingFilter"));
         rateLimitReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     }
 }
+
+// context Hãy cải tiến
+// [AlertConfigService.java](file;file:///home/maithehao/Workspace/projects/smart-room-iot/smartroom_server/src/main/java/com/iviet/ivshs/service/alert/AlertConfigService.java)
+// dùng DTO AlertConfigFilterDto dùng cho get
+// ConfigFilterDto có pagination page limit có optional loc theo
+// namespace[FunctionCodeHelper.java#L0-106](textBlock;file:///home/maithehao/Workspace/projects/smart-room-iot/smartroom_server/src/main/java/com/iviet/ivshs/shared/util/FunctionCodeHelper.java#L0-106)

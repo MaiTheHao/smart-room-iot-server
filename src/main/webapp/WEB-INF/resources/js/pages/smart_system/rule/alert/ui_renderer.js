@@ -83,18 +83,6 @@ export const UiRenderer = (() => {
           }
         },
         {
-          title: i18n.colAutoResolve || 'Auto Resolve',
-          field: 'autoResolve',
-          width: 120,
-          hozAlign: 'center',
-          formatter: (cell) => {
-            const val = cell.getValue();
-            return `<div class="d-flex align-items-center justify-content-center h-100">
-              <span class="badge ${val ? 'bg-success' : 'bg-secondary'}">${val ? (i18n.yes || 'Yes') : (i18n.no || 'No')}</span>
-            </div>`;
-          }
-        },
-        {
           title: i18n.colActions || 'Actions',
           hozAlign: 'center',
           headerSort: false,

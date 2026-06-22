@@ -1,7 +1,7 @@
 <!doctype html>
 <html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
   <head>
-    <title th:text="#{smart_system.rule.alert_config.title(${rule.name})}">Alert Configuration</title>
+    <title th:text="#{smart_system.alert.rule_title(${rule.name})}">Alert Configuration</title>
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
     <style>
@@ -59,7 +59,7 @@
         <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
           <h6 class="fw-bold m-0 me-auto d-flex align-items-center">
             <i data-lucide="bell" class="text-warning me-2 lucide-sm"></i>
-            <span th:text="#{smart_system.rule.alert_config.title(${rule.name})}">Alert Configuration</span>
+            <span th:text="#{smart_system.alert.rule_title(${rule.name})}">Alert Configuration</span>
           </h6>
           <div class="d-flex gap-2">
             <button class="btn btn-primary btn-sm rounded-pill px-3" id="btnAddAlertConfig">
@@ -96,17 +96,17 @@
               <div class="row g-3">
                 <!-- Alert Name -->
                 <div class="col-12">
-                  <label for="alertName" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.alert_name}">Alert Name</label>
+                  <label for="alertName" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.alert_name}">Alert Name</label>
                   <div class="input-group">
                     <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
-                    <input type="text" class="form-control bg-light border-0" id="alertName" name="alertName" th:placeholder="#{smart_system.rule.alert.placeholder.name}" required />
+                    <input type="text" class="form-control bg-light border-0" id="alertName" name="alertName" th:placeholder="#{smart_system.alert.placeholder.name}" required />
                   </div>
                   <div class="invalid-feedback" id="val-alertName"></div>
                 </div>
 
                 <!-- Severity & Cooldown -->
                 <div class="col-md-6">
-                  <label for="alertSeverity" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.severity}">Severity</label>
+                  <label for="alertSeverity" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.severity}">Severity</label>
                   <div class="input-group">
                     <span class="input-group-text bg-light border-0"><i data-lucide="alert-triangle" class="lucide-sm"></i></span>
                     <select class="form-select bg-light border-0" id="alertSeverity" name="severity" required>
@@ -119,7 +119,7 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="alertCooldownMinutes" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.cooldown_minutes}">Cooldown (Minutes)</label>
+                  <label for="alertCooldownMinutes" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.cooldown_minutes}">Cooldown (Minutes)</label>
                   <div class="input-group">
                     <span class="input-group-text bg-light border-0"><i data-lucide="clock" class="lucide-sm"></i></span>
                     <input type="number" class="form-control bg-light border-0" id="alertCooldownMinutes" name="cooldownMinutes" min="0" placeholder="10" required />
@@ -129,45 +129,45 @@
 
                 <!-- Recipient Groups -->
                 <div class="col-12">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.recipient_groups}">Recipient Groups</label>
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.recipient_groups}">Recipient Groups</label>
                   <div id="alertRecipientGroupsContainer" class="border border-0 bg-light rounded-3 p-3" style="max-height: 150px; overflow-y: auto;">
-                    <p class="text-muted small mb-0" th:text="#{smart_system.rule.alert_config.loading_groups}">Loading recipient groups...</p>
+                    <p class="text-muted small mb-0" th:text="#{smart_system.alert.loading_groups}">Loading recipient groups...</p>
                   </div>
                   <div class="invalid-feedback d-block" id="val-recipientGroups"></div>
                 </div>
 
                 <!-- Channels & Options -->
                 <div class="col-md-6">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.channels}">Notification Channels</label>
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.channels}">Notification Channels</label>
                   <div class="d-flex flex-column gap-2 mt-1">
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" name="channels" value="PUSH" id="channelPush" />
-                      <label class="form-check-label text-dark" for="channelPush" th:text="#{smart_system.rule.alert_config.channel.push}">Push Notification</label>
+                      <label class="form-check-label text-dark" for="channelPush" th:text="#{smart_system.alert.channel.push}">Push Notification</label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" name="channels" value="EMAIL" id="channelEmail" />
-                      <label class="form-check-label text-dark" for="channelEmail" th:text="#{smart_system.rule.alert_config.channel.email}">Email</label>
+                      <label class="form-check-label text-dark" for="channelEmail" th:text="#{smart_system.alert.channel.email}">Email</label>
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" name="channels" value="SMS" id="channelSms" />
-                      <label class="form-check-label text-dark" for="channelSms" th:text="#{smart_system.rule.alert_config.channel.sms}">SMS</label>
+                      <label class="form-check-label text-dark" for="channelSms" th:text="#{smart_system.alert.channel.sms}">SMS</label>
                     </div>
                   </div>
                   <div class="invalid-feedback d-block" id="val-channels"></div>
                 </div>
 
                 <div class="col-md-6 d-flex flex-column justify-content-center">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-2" th:text="#{smart_system.rule.alert_config.auto_resolve}">Auto Resolve</label>
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-2" th:text="#{smart_system.alert.field.auto_resolve}">Auto Resolve</label>
                   <div class="form-check form-switch switch-ios">
                     <input class="form-check-input" type="checkbox" role="switch" id="alertAutoResolve" name="autoResolve" />
-                    <label class="form-check-label fw-medium text-dark" for="alertAutoResolve" th:text="#{smart_system.rule.alert_config.auto_resolve_label}">Auto-Resolve Alert</label>
+                    <label class="form-check-label fw-medium text-dark" for="alertAutoResolve" th:text="#{smart_system.alert.field.auto_resolve_label}">Auto-Resolve Alert</label>
                   </div>
                 </div>
 
                 <!-- Message Template -->
                 <div class="col-12">
-                  <label for="alertMessageTemplate" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.alert_config.message_template}">Message Template</label>
-                  <textarea class="form-control bg-light border-0" id="alertMessageTemplate" name="messageTemplate" rows="4" th:placeholder="#{smart_system.rule.alert.placeholder.template}" required></textarea>
+                  <label for="alertMessageTemplate" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.message_template}">Message Template</label>
+                  <textarea class="form-control bg-light border-0" id="alertMessageTemplate" name="messageTemplate" rows="4" th:placeholder="#{smart_system.alert.placeholder.template}" required></textarea>
                   <div class="invalid-feedback" id="val-messageTemplate"></div>
                 </div>
               </div>
@@ -190,37 +190,37 @@
       window.__ALERT_PAGE_CONFIG__ = {
         ruleName: /*[[${rule.name}]]*/ 'Rule',
         i18n: {
-          saveSuccess: /*[[#{smart_system.rule.alert_config.save_success}]]*/ 'Alert configurations saved successfully.',
-          deleteSuccess: /*[[#{smart_system.rule.alert_config.delete_success}]]*/ 'Alert configuration deleted.',
-          confirmDelete: /*[[#{smart_system.rule.alert_config.delete_confirm}]]*/ 'Are you sure you want to delete this configuration?',
+          saveSuccess: /*[[#{smart_system.alert.save_success}]]*/ 'Alert configurations saved successfully.',
+          deleteSuccess: /*[[#{smart_system.alert.delete_success}]]*/ 'Alert configuration deleted.',
+          confirmDelete: /*[[#{smart_system.alert.delete_confirm}]]*/ 'Are you sure you want to delete this configuration?',
           yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete',
           cancel: /*[[#{logout.cancel.button}]]*/ 'Cancel',
           success: /*[[#{common.success}]]*/ 'Success',
           error: /*[[#{common.error.title}]]*/ 'Error',
-          noData: /*[[#{smart_system.rule.alert_config.no_data}]]*/ 'No alert configurations found.',
-          colAlertName: /*[[#{smart_system.rule.alert_config.col.alert_name}]]*/ 'Alert Name',
-          colSeverity: /*[[#{smart_system.rule.alert_config.col.severity}]]*/ 'Severity',
-          colCooldown: /*[[#{smart_system.rule.alert_config.col.cooldown}]]*/ 'Cooldown',
-          colRecipientGroups: /*[[#{smart_system.rule.alert_config.col.recipient_groups}]]*/ 'Recipient Groups',
-          colChannels: /*[[#{smart_system.rule.alert_config.col.channels}]]*/ 'Channels',
-          colAutoResolve: /*[[#{smart_system.rule.alert_config.col.auto_resolve}]]*/ 'Auto Resolve',
-          colActions: /*[[#{smart_system.rule.alert_config.col.actions}]]*/ 'Actions',
-          addTitle: /*[[#{smart_system.rule.alert_config.add_title}]]*/ 'Add Alert Config',
-          editTitle: /*[[#{smart_system.rule.alert_config.edit_title}]]*/ 'Edit Alert Config',
-          errLoadGroups: /*[[#{smart_system.rule.alert_config.err_load_groups}]]*/ 'Failed to load recipient groups.',
-          noGroups: /*[[#{smart_system.rule.alert_config.no_groups}]]*/ 'No groups available.',
-          valSelectGroup: /*[[#{smart_system.rule.alert_config.val_select_group}]]*/ 'Please select at least one recipient group.',
-          valSelectChannel: /*[[#{smart_system.rule.alert_config.val_select_channel}]]*/ 'Please select at least one notification channel.',
-          errLoadData: /*[[#{smart_system.rule.alert_config.err_load_data}]]*/ 'Failed to load alert configurations.',
-          deleteConfirmText: /*[[#{smart_system.rule.alert_config.delete_confirm_text}]]*/ 'Are you sure you want to delete this alert config?',
-          noChanges: /*[[#{smart_system.rule.alert_config.no_changes}]]*/ 'No changes to save.',
-          saving: /*[[#{smart_system.rule.alert_config.saving}]]*/ 'Saving...',
+          noData: /*[[#{smart_system.alert.no_data}]]*/ 'No alert configurations found.',
+          colAlertName: /*[[#{smart_system.alert.col.alert_name}]]*/ 'Alert Name',
+          colSeverity: /*[[#{smart_system.alert.col.severity}]]*/ 'Severity',
+          colCooldown: /*[[#{smart_system.alert.col.cooldown}]]*/ 'Cooldown',
+          colRecipientGroups: /*[[#{smart_system.alert.col.recipient_groups}]]*/ 'Recipient Groups',
+          colChannels: /*[[#{smart_system.alert.col.channels}]]*/ 'Channels',
+          colAutoResolve: /*[[#{smart_system.alert.col.auto_resolve}]]*/ 'Auto Resolve',
+          colActions: /*[[#{smart_system.alert.col.actions}]]*/ 'Actions',
+          addTitle: /*[[#{smart_system.alert.modal.add_title}]]*/ 'Add Alert Config',
+          editTitle: /*[[#{smart_system.alert.modal.edit_title}]]*/ 'Edit Alert Config',
+          errLoadGroups: /*[[#{smart_system.alert.err_load_groups}]]*/ 'Failed to load recipient groups.',
+          noGroups: /*[[#{smart_system.alert.no_groups}]]*/ 'No groups available.',
+          valSelectGroup: /*[[#{smart_system.alert.val_select_group}]]*/ 'Please select at least one recipient group.',
+          valSelectChannel: /*[[#{smart_system.alert.val_select_channel}]]*/ 'Please select at least one notification channel.',
+          errLoadData: /*[[#{smart_system.alert.err_load_data}]]*/ 'Failed to load alert configurations.',
+          deleteConfirmText: /*[[#{smart_system.alert.delete_confirm_text}]]*/ 'Are you sure you want to delete this alert config?',
+          noChanges: /*[[#{smart_system.alert.no_changes}]]*/ 'No changes to save.',
+          saving: /*[[#{smart_system.alert.saving}]]*/ 'Saving...',
           yes: /*[[#{common.yes}]]*/ 'Yes',
           no: /*[[#{common.no}]]*/ 'No',
           confirmDeleteBatch: /*[[#{common.confirm.delete_batch}]]*/ 'Delete {0} items?',
           confirmDeleteSingle: /*[[#{common.confirm.delete_single}]]*/ 'Delete {0} item?',
           info: /*[[#{common.info}]]*/ 'Info',
-          colCooldownUnit: /*[[#{smart_system.rule.alert_config.col.cooldown_unit}]]*/ 'mins',
+          colCooldownUnit: /*[[#{smart_system.alert.col.cooldown_unit}]]*/ 'mins',
           edit: /*[[#{common.edit}]]*/ 'Edit',
           delete: /*[[#{common.delete}]]*/ 'Delete'
         }

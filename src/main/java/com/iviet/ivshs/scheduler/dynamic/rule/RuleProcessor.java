@@ -22,6 +22,7 @@ import com.iviet.ivshs.service.alert.AlertTriggerService;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +64,7 @@ public class RuleProcessor implements SchedulableJobProcessor {
     }
 
     @Override
+    @Transactional
     public void processJob(Long id) {
         Rule rule = ruleDao.findByIdWithConditionsAndActions(id)
                 .orElseThrow(() -> new NotFoundException("Rule not found: " + id));
@@ -81,18 +83,22 @@ public class RuleProcessor implements SchedulableJobProcessor {
         boolean isMatched = conditions.stream().sorted(Comparator.comparingInt(RuleCondition::getSortOrder))
                 .reduce(initCtx, this::accumulateResult, (a, b) -> a).isFinalResult();
 
-        // Lấy configs từ AlertConfigDao thay vì từ Rule.getAlerts()
         List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(AlertNamespace.RULE,
                 String.valueOf(id));
 
         if (isMatched) {
             executeActions(rule);
 
+            initCtx.getTemplateData().put("rule_name", rule.getName());
+            initCtx.getTemplateData().put("rule_id", rule.getId());
+
             for (AlertConfig config : alertConfigs) {
                 try {
                     AlertTriggerRequestDto request = AlertTriggerRequestDto.builder().alertConfig(config)
-                            .actionType(AlertActionType.TRIGGERED).actorType(AlertActorType.SYSTEM)
-                            .actorId("RULE_ENGINE").build();
+                            .actionType(AlertActionType.TRIGGERED).actorType(AlertActorType.RULE_ENGINE)
+                            .actorId(rule.getId().toString()).templateData(initCtx.getTemplateData())
+                            .logMessage("RULE: " + rule.getName() + " #" + rule.getId() + " triggered!")
+                            .payload(objectMapper.valueToTree(initCtx.getTemplateData())).build();
                     alertTriggerService.trigger(request);
                 } catch (Exception e) {
                     log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
@@ -108,7 +114,11 @@ public class RuleProcessor implements SchedulableJobProcessor {
         tempCond.setOperator(cond.getOperator());
         tempCond.setValue(cond.getValue());
 
-        boolean isMet = evaluateCondition(tempCond);
+        ConditionEvaluationResult evalResult = evaluateCondition(tempCond);
+        boolean isMet = evalResult.isMet();
+
+        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_value", evalResult.actualValue());
+        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_threshold", cond.getValue());
 
         if (ctx.isFirst()) {
             ctx.setFinalResult(isMet);
@@ -124,19 +134,21 @@ public class RuleProcessor implements SchedulableJobProcessor {
         return ctx;
     }
 
-    private boolean evaluateCondition(RuleCondition cond) {
+    private ConditionEvaluationResult evaluateCondition(RuleCondition cond) {
         return ruleDataSourceStrategies.stream().filter(s -> s.supports(cond.getDataSource())).findFirst()
                 .map(strategy -> {
                     try {
                         Object val = strategy.fetchValue(cond, null);
-                        return val != null && compareValues(val.toString(), cond.getValue(), cond.getOperator());
+                        boolean isMet = val != null
+                                && compareValues(val.toString(), cond.getValue(), cond.getOperator());
+                        return new ConditionEvaluationResult(isMet, val);
                     } catch (Exception e) {
                         log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
-                        return false;
+                        return new ConditionEvaluationResult(false, null);
                     }
                 }).orElseGet(() -> {
                     log.warn("No strategy for: {}", cond.getDataSource());
-                    return false;
+                    return new ConditionEvaluationResult(false, null);
                 });
     }
 
@@ -205,5 +217,9 @@ public class RuleProcessor implements SchedulableJobProcessor {
         private boolean finalResult = true;
         private boolean isFirst = true;
         private ConditionLogic prevLogic;
+        private java.util.Map<String, Object> templateData = new java.util.HashMap<>();
+    }
+
+    private record ConditionEvaluationResult(boolean isMet, Object actualValue) {
     }
 }

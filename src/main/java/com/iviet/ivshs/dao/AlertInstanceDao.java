@@ -9,6 +9,7 @@ import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,8 +55,8 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
      * Lấy tất cả alert events mà user thuộc ít nhất một group nhận tin. Luồng mới: alert_recipient →
      * alert_recipient_group → client_group → client_id.
      */
-    public List<AlertInstance> findAllByClientGroups(Long clientId, AlertStatus status, Severity severity, int page,
-            int size) {
+    public List<AlertInstance> findAllByClientGroups(Long clientId, AlertStatus status, Severity severity,
+            AlertNamespace namespace, Instant from, Instant to, int page, int size) {
         StringBuilder jpql = new StringBuilder("""
                 SELECT DISTINCT ar FROM AlertInstance ar
                 JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
@@ -65,15 +66,22 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
                 """);
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
+        if (namespace != null) jpql.append(" AND ar.alertConfig.namespace = :namespace");
+        if (from != null) jpql.append(" AND ar.triggeredAt >= :from");
+        if (to != null) jpql.append(" AND ar.triggeredAt <= :to");
         jpql.append(" ORDER BY ar.triggeredAt DESC");
 
         var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("clientId", clientId);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
+        if (namespace != null) q.setParameter("namespace", namespace);
+        if (from != null) q.setParameter("from", from);
+        if (to != null) q.setParameter("to", to);
         return q.setFirstResult(page * size).setMaxResults(size).getResultList();
     }
 
-    public long countByClientGroups(Long clientId, AlertStatus status, Severity severity) {
+    public long countByClientGroups(Long clientId, AlertStatus status, Severity severity,
+            AlertNamespace namespace, Instant from, Instant to) {
         StringBuilder jpql = new StringBuilder("""
                 SELECT COUNT(DISTINCT ar) FROM AlertInstance ar
                 JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
@@ -83,10 +91,16 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
                 """);
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
+        if (namespace != null) jpql.append(" AND ar.alertConfig.namespace = :namespace");
+        if (from != null) jpql.append(" AND ar.triggeredAt >= :from");
+        if (to != null) jpql.append(" AND ar.triggeredAt <= :to");
 
         var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("clientId", clientId);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
+        if (namespace != null) q.setParameter("namespace", namespace);
+        if (from != null) q.setParameter("from", from);
+        if (to != null) q.setParameter("to", to);
         return q.getSingleResult();
     }
 

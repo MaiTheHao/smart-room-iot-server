@@ -96,9 +96,6 @@ export const UiRenderer = (() => {
                 <a href="/management/smart-system/rules/${data.id}/actions" class="btn btn-light btn-sm rounded-pill" title="${i18n.manageActions}">
                   <i data-lucide="settings-2" class="lucide-sm text-info"></i>
                 </a>
-                <a href="/management/smart-system/rules/${data.id}/alert" class="btn btn-light btn-sm rounded-pill" title="Alert Config">
-                  <i data-lucide="bell" class="lucide-sm text-warning"></i>
-                </a>
                 <button class="btn btn-light btn-sm rounded-pill btn-execute" data-id="${data.id}" title="Run Now">
                   <i data-lucide="play" class="lucide-sm text-success"></i>
                 </button>

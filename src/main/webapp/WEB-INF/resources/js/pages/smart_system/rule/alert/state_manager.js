@@ -65,7 +65,6 @@ export const StateManager = (() => {
       channels: a.channels,
       messageTemplate: a.messageTemplate,
       cooldownMinutes: a.cooldownMinutes,
-      autoResolve: a.autoResolve
     }));
   };
 

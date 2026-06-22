@@ -40,11 +40,6 @@ public class RuleDao extends BaseAuditEntityDao<Rule> {
                                 .setParameter("id", ruleId)
                                 .getResultList();
 
-                String jpqlAlerts = "SELECT r FROM Rule r LEFT JOIN FETCH r.alerts WHERE r.id = :id";
-                entityManager.createQuery(jpqlAlerts, Rule.class)
-                                .setParameter("id", ruleId)
-                                .getResultList();
-
                 return Optional.of(rule);
         }
 

@@ -53,9 +53,9 @@ public class AlertNotificationListener {
                     .channels(channels).title(config.getAlertName()).body(alert.getBody()).data(data).build();
 
             notificationService.sendNotification(request);
-            log.info("Đã gửi notification async cho alert {}", alert.getId());
+            log.info("Successfully sent async notification for alert ID: {}", alert.getId());
         } catch (Exception e) {
-            log.error("Lỗi khi gửi thông báo FCM cho cảnh báo {}: {}", alert.getId(), e.getMessage(), e);
+            log.error("Failed to send FCM notification for alert ID {}: {}", alert.getId(), e.getMessage(), e);
         }
     }
 

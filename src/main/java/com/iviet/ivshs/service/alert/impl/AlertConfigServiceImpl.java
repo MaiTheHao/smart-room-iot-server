@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.AlertConfigDao;
 import com.iviet.ivshs.dao.SysGroupDao;
 import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
+import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.AlertConfigDto;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.service.alert.AlertConfigService;
@@ -36,6 +38,14 @@ public class AlertConfigServiceImpl implements AlertConfigService {
     }
 
     @Override
+    public PaginatedResponse<AlertConfigDto> getAllConfigs(AlertNamespace namespace, int page, int size) {
+        List<AlertConfig> configs = alertConfigDao.findAll(namespace, page, size);
+        long total = alertConfigDao.countAll(namespace);
+        List<AlertConfigDto> dtos = configs.stream().map(this::toResponseDto).toList();
+        return new PaginatedResponse<>(dtos, page, size, total);
+    }
+
+    @Override
     public AlertConfigDto getConfigById(Long id) {
         AlertConfig config = alertConfigDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Alert config not found: " + id));
@@ -45,10 +55,7 @@ public class AlertConfigServiceImpl implements AlertConfigService {
     @Override
     @Transactional
     public AlertConfigDto createConfig(CreateAlertConfigDto dto) {
-        AlertConfig config = AlertConfig.builder().namespace(dto.namespace()).alertCode(dto.alertCode())
-                .sourceId(dto.sourceId()).alertName(dto.alertName()).severity(dto.severity())
-                .channels(objectMapper.valueToTree(dto.channels())).messageTemplate(dto.messageTemplate())
-                .cooldownMinutes(dto.cooldownMinutes()).build();
+        AlertConfig config = dto.toEntity(objectMapper);
         alertConfigDao.save(config);
 
         saveGroupAssociations(config, dto.recipientGroupCodes());
@@ -60,15 +67,11 @@ public class AlertConfigServiceImpl implements AlertConfigService {
 
     @Override
     @Transactional
-    public AlertConfigDto updateConfig(Long id, CreateAlertConfigDto dto) {
+    public AlertConfigDto updateConfig(Long id, UpdateAlertConfigDto dto) {
         AlertConfig config = alertConfigDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Alert config not found: " + id));
 
-        config.setAlertName(dto.alertName());
-        config.setSeverity(dto.severity());
-        config.setChannels(objectMapper.valueToTree(dto.channels()));
-        config.setMessageTemplate(dto.messageTemplate());
-        config.setCooldownMinutes(dto.cooldownMinutes());
+        dto.updateEntity(config, objectMapper);
         alertConfigDao.update(config);
 
         // Xóa và tạo lại group associations

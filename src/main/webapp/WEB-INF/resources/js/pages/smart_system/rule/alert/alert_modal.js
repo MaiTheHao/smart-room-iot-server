@@ -21,7 +21,6 @@ export const AlertConfigModal = (() => {
     el.severity = document.getElementById('alertSeverity');
     el.cooldownMinutes = document.getElementById('alertCooldownMinutes');
     el.recipientGroupsContainer = document.getElementById('alertRecipientGroupsContainer');
-    el.autoResolve = document.getElementById('alertAutoResolve');
     el.messageTemplate = document.getElementById('alertMessageTemplate');
 
     if (el.modal) {
@@ -101,7 +100,6 @@ export const AlertConfigModal = (() => {
         el.alertName.value = data.alertName || '';
         el.severity.value = data.severity || 'INFO';
         el.cooldownMinutes.value = data.cooldownMinutes !== undefined ? data.cooldownMinutes : 10;
-        el.autoResolve.checked = !!data.autoResolve;
         el.messageTemplate.value = data.messageTemplate || '';
 
         selectedGroups = data.recipientGroups || [];
@@ -112,7 +110,6 @@ export const AlertConfigModal = (() => {
       el.alertName.value = '';
       el.severity.value = 'WARNING';
       el.cooldownMinutes.value = 10;
-      el.autoResolve.checked = true;
       el.messageTemplate.value = '';
     }
 
@@ -135,8 +132,6 @@ export const AlertConfigModal = (() => {
     const severity = el.severity.value;
     const cooldownMinutes = el.cooldownMinutes.value;
     const messageTemplate = el.messageTemplate.value.trim();
-    const autoResolve = !!el.autoResolve.checked;
-
     const recipientGroups = [];
     const groupCheckboxes = el.recipientGroupsContainer.querySelectorAll('input[name="recipientGroups"]:checked');
     groupCheckboxes.forEach((cb) => {
@@ -185,7 +180,6 @@ export const AlertConfigModal = (() => {
       channels,
       messageTemplate,
       cooldownMinutes: parseInt(cooldownMinutes, 10),
-      autoResolve,
     };
 
     const localId = el.localId.value;

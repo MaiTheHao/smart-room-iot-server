@@ -2,7 +2,6 @@ package com.iviet.ivshs.dto.alert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.entities.AlertConfig;
-import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.enumeration.Severity;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -12,14 +11,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record CreateAlertConfigDto(Long id,
-
-    @NotNull(message = "Namespace is required") AlertNamespace namespace,
-
-    @NotBlank(message = "Alert code is required") String alertCode,
-
-    @NotBlank(message = "Source ID is required") String sourceId,
-
+public record UpdateAlertConfigDto(
     @NotBlank(message = "Alert name is required") String alertName,
 
     @NotNull(message = "Severity is required") Severity severity,
@@ -31,11 +23,12 @@ public record CreateAlertConfigDto(Long id,
     @NotBlank(message = "Message template is required") String messageTemplate,
 
     @NotNull @Min(0) Integer cooldownMinutes
-
 ) {
-  public AlertConfig toEntity(ObjectMapper objectMapper) {
-    return AlertConfig.builder().namespace(namespace()).alertCode(alertCode()).sourceId(sourceId())
-        .alertName(alertName()).severity(severity()).channels(objectMapper.valueToTree(channels()))
-        .messageTemplate(messageTemplate()).cooldownMinutes(cooldownMinutes()).build();
-  }
+    public void updateEntity(AlertConfig config, ObjectMapper objectMapper) {
+        config.setAlertName(alertName());
+        config.setSeverity(severity());
+        config.setChannels(objectMapper.valueToTree(channels()));
+        config.setMessageTemplate(messageTemplate());
+        config.setCooldownMinutes(cooldownMinutes());
+    }
 }
