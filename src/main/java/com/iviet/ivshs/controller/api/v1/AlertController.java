@@ -96,59 +96,59 @@ public class AlertController {
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlerts(filter)));
     }
 
-    @GetMapping("/{alertId}/instances")
+    @GetMapping("/{alertConfigId}/instances")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlertsByConfig(
-            @PathVariable Long alertId, @RequestParam(required = false) AlertStatus status,
+            @PathVariable Long alertConfigId, @RequestParam(required = false) AlertStatus status,
             @RequestParam(required = false) Severity severity,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
         AlertFilterDto filter = new AlertFilterDto(status, severity, null, null, null, page, size);
-        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertsByConfig(alertId, filter)));
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertsByConfig(alertConfigId, filter)));
     }
 
-    @GetMapping("/{alertId}/instances/{instanceId}")
+    @GetMapping("/{alertConfigId}/instances/{instanceId}")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
-    public ResponseEntity<ApiResponse<AlertInstanceDto>> getAlertById(@PathVariable Long alertId,
+    public ResponseEntity<ApiResponse<AlertInstanceDto>> getAlertById(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
-        return ResponseEntity.ok(ApiResponse.ok(validateAlertRelation(alertId, instanceId)));
+        return ResponseEntity.ok(ApiResponse.ok(validateAlertRelation(alertConfigId, instanceId)));
     }
 
-    @PostMapping("/{alertId}/instances/{instanceId}/acknowledge")
+    @PostMapping("/{alertConfigId}/instances/{instanceId}/acknowledge")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_HANDLE_ALERT')")
-    public ResponseEntity<ApiResponse<AlertInstanceDto>> acknowledgeAlert(@PathVariable Long alertId,
+    public ResponseEntity<ApiResponse<AlertInstanceDto>> acknowledgeAlert(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
-        validateAlertRelation(alertId, instanceId);
+        validateAlertRelation(alertConfigId, instanceId);
         Long currentClientId = SecurityContextUtil.getCurrentClientId();
         alertTriggerService.handleAction(instanceId, AlertActionType.ACKNOWLEDGED, AlertActorType.USER,
                 String.valueOf(currentClientId), null, null);
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertById(instanceId)));
     }
 
-    @PostMapping("/{alertId}/instances/{instanceId}/resolve")
+    @PostMapping("/{alertConfigId}/instances/{instanceId}/resolve")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_HANDLE_ALERT')")
-    public ResponseEntity<ApiResponse<AlertInstanceDto>> resolveAlert(@PathVariable Long alertId,
+    public ResponseEntity<ApiResponse<AlertInstanceDto>> resolveAlert(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
-        validateAlertRelation(alertId, instanceId);
+        validateAlertRelation(alertConfigId, instanceId);
         Long currentClientId = SecurityContextUtil.getCurrentClientId();
         alertTriggerService.handleAction(instanceId, AlertActionType.RESOLVED, AlertActorType.USER,
                 String.valueOf(currentClientId), null, null);
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertById(instanceId)));
     }
 
-    @GetMapping("/{alertId}/instances/{instanceId}/logs")
+    @GetMapping("/{alertConfigId}/instances/{instanceId}/logs")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
-    public ResponseEntity<ApiResponse<List<AlertInstanceLogDto>>> getAlertLogs(@PathVariable Long alertId,
+    public ResponseEntity<ApiResponse<List<AlertInstanceLogDto>>> getAlertLogs(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
-        validateAlertRelation(alertId, instanceId);
+        validateAlertRelation(alertConfigId, instanceId);
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceLogService.getLogsByAlertId(instanceId)));
     }
 
-    private AlertInstanceDto validateAlertRelation(Long alertId, Long instanceId) {
+    private AlertInstanceDto validateAlertRelation(Long alertConfigId, Long instanceId) {
         AlertInstanceDto alert = alertInstanceService.getAlertById(instanceId);
-        if (!alert.alertConfigId().equals(alertId)) {
+        if (!alert.alertConfigId().equals(alertConfigId)) {
             throw new NotFoundException(
-                    "Alert instance " + instanceId + " does not belong to configuration " + alertId);
+                    "Alert instance " + instanceId + " does not belong to configuration " + alertConfigId);
         }
         return alert;
     }

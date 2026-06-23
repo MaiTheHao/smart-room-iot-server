@@ -59,12 +59,12 @@
         </a>
         <div class="d-flex gap-2" id="actionBtns">
           <button class="btn btn-warning btn-sm rounded-pill px-4 shadow-sm d-none" id="btnAcknowledge"
-            th:data-alert-id="${alertId}" th:data-instance-id="${instanceId}">
+            th:data-alert-id="${alertConfigId}" th:data-instance-id="${instanceId}">
             <i data-lucide="check" class="lucide-sm me-1"></i>
             <span th:text="#{smart_system.alert.instance.action.acknowledge}">Acknowledge</span>
           </button>
           <button class="btn btn-success btn-sm rounded-pill px-4 shadow-sm d-none" id="btnResolve"
-            th:data-alert-id="${alertId}" th:data-instance-id="${instanceId}">
+            th:data-alert-id="${alertConfigId}" th:data-instance-id="${instanceId}">
             <i data-lucide="check-check" class="lucide-sm me-1"></i>
             <span th:text="#{smart_system.alert.instance.action.resolve}">Resolve</span>
           </button>
@@ -147,7 +147,7 @@
   <th:block layout:fragment="scripts">
     <script th:inline="javascript">
       window.__ALERT_DETAIL_CONFIG__ = {
-        alertId:    /*[[${alertId}]]*/ null,
+        alertConfigId: /*[[${alertConfigId}]]*/ null,
         instanceId: /*[[${instanceId}]]*/ null,
         i18n: {
           error:       /*[[#{common.error.title}]]*/ 'Error',

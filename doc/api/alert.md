@@ -19,7 +19,7 @@
 | alertName | string | Có | Tên hiển thị của cấu hình cảnh báo |
 | severity | Severity | Có | Mức độ nghiêm trọng (`INFO`, `WARNING`, `CRITICAL`) |
 | recipientGroupCodes | array[string] | Có | Danh sách mã nhóm nhận tin cảnh báo |
-| channels | array[string] | Có | Danh sách kênh gửi tin (ví dụ: `FCM`, `EMAIL`, `SMS`) |
+| channels | array[string] | Có | Danh sách kênh gửi tin (giá trị hợp lệ: `PUSH`, `EMAIL`, `SMS`) |
 | messageTemplate | string | Có | Mẫu tin nhắn cảnh báo |
 | cooldownMinutes | integer | Có | Thời gian chờ tối thiểu giữa các lần gửi cảnh báo (phút, tối thiểu 0) |
 
@@ -33,7 +33,7 @@
 	"alertName": "Cấu hình cảnh báo nhiệt độ cao",
 	"severity": "CRITICAL",
 	"recipientGroupCodes": ["ADMIN_GROUP", "OPERATOR_GROUP"],
-	"channels": ["FCM", "EMAIL"],
+	"channels": ["PUSH", "EMAIL"],
 	"messageTemplate": "Nhiệt độ thiết bị {deviceName} vượt quá ngưỡng {threshold}°C.",
 	"cooldownMinutes": 15
 }
@@ -53,7 +53,7 @@
 		"alertName": "Cấu hình cảnh báo nhiệt độ cao",
 		"severity": "CRITICAL",
 		"recipientGroupCodes": ["ADMIN_GROUP", "OPERATOR_GROUP"],
-		"channels": ["FCM", "EMAIL"],
+		"channels": ["PUSH", "EMAIL"],
 		"messageTemplate": "Nhiệt độ thiết bị {deviceName} vượt quá ngưỡng {threshold}°C.",
 		"cooldownMinutes": 15,
 		"createdAt": "2026-06-22T09:30:00Z",
@@ -96,7 +96,7 @@
 	"alertName": "Cấu hình cảnh báo nhiệt độ quá cao",
 	"severity": "CRITICAL",
 	"recipientGroupCodes": ["ADMIN_GROUP"],
-	"channels": ["FCM"],
+	"channels": ["PUSH"],
 	"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
 	"cooldownMinutes": 10
 }
@@ -116,7 +116,7 @@
 		"alertName": "Cấu hình cảnh báo nhiệt độ quá cao",
 		"severity": "CRITICAL",
 		"recipientGroupCodes": ["ADMIN_GROUP"],
-		"channels": ["FCM"],
+		"channels": ["PUSH"],
 		"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
 		"cooldownMinutes": 10,
 		"createdAt": "2026-06-22T09:30:00Z",
@@ -155,7 +155,7 @@
 		"alertName": "Cấu hình cảnh báo nhiệt độ quá cao",
 		"severity": "CRITICAL",
 		"recipientGroupCodes": ["ADMIN_GROUP"],
-		"channels": ["FCM"],
+		"channels": ["PUSH"],
 		"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
 		"cooldownMinutes": 10,
 		"createdAt": "2026-06-22T09:30:00Z",
@@ -213,22 +213,28 @@
 {
 	"status": 200,
 	"message": "Success",
-	"data": [
-		{
-			"id": 1,
-			"namespace": "RULE",
-			"alertCode": "TEMP_HIGH_ALERT",
-			"sourceId": "rule_10",
-			"alertName": "Cấu hình cảnh báo nhiệt độ quá cao",
-			"severity": "CRITICAL",
-			"recipientGroupCodes": ["ADMIN_GROUP"],
-			"channels": ["FCM"],
-			"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
-			"cooldownMinutes": 10,
-			"createdAt": "2026-06-22T09:30:00Z",
-			"updatedAt": "2026-06-22T09:32:00Z"
-		}
-	],
+	"data": {
+		"content": [
+			{
+				"id": 1,
+				"namespace": "RULE",
+				"alertCode": "TEMP_HIGH_ALERT",
+				"sourceId": "rule_10",
+				"alertName": "Cấu hình cảnh báo nhiệt độ quá cao",
+				"severity": "CRITICAL",
+				"recipientGroupCodes": ["ADMIN_GROUP"],
+				"channels": ["PUSH"],
+				"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
+				"cooldownMinutes": 10,
+				"createdAt": "2026-06-22T09:30:00Z",
+				"updatedAt": "2026-06-22T09:32:00Z"
+			}
+		],
+		"page": 0,
+		"size": 20,
+		"totalElements": 1,
+		"totalPages": 1
+	},
 	"timestamp": "2026-06-22T09:34:00Z"
 }
 ```
@@ -297,7 +303,7 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/alerts/{alertId}/instances</code> - Danh sách sự kiện cảnh báo theo ID cấu hình</summary>
+<summary><b>GET</b> <code>/api/v1/alerts/{alertConfigId}/instances</code> - Danh sách sự kiện cảnh báo theo ID cấu hình</summary>
 
 > Lấy danh sách phân trang các sự kiện cảnh báo thuộc về một ID cấu hình cảnh báo (alertId/alertConfigId).
 
@@ -305,7 +311,7 @@
 
 | Tên | Loại | Mô tả | Bắt buộc/Mặc định |
 | :--- | :--- | :--- | :--- |
-| alertId | Long | ID của cấu hình cảnh báo | Có |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
 
 ### Query Parameters
 
@@ -358,7 +364,7 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/alerts/{alertId}/instances/{instanceId}</code> - Chi tiết một sự kiện cảnh báo</summary>
+<summary><b>GET</b> <code>/api/v1/alerts/{alertConfigId}/instances/{instanceId}</code> - Chi tiết một sự kiện cảnh báo</summary>
 
 > Lấy chi tiết thông tin một sự kiện cảnh báo cụ thể.
 
@@ -366,7 +372,7 @@
 
 | Tên | Loại | Mô tả | Bắt buộc/Mặc định |
 | :--- | :--- | :--- | :--- |
-| alertId | Long | ID của cấu hình cảnh báo | Có |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
 | instanceId | Long | ID của sự kiện cảnh báo | Có |
 
 ### Response (200 OK)
@@ -403,7 +409,7 @@
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/alerts/{alertId}/instances/{instanceId}/acknowledge</code> - Xác nhận sự kiện cảnh báo</summary>
+<summary><b>POST</b> <code>/api/v1/alerts/{alertConfigId}/instances/{instanceId}/acknowledge</code> - Xác nhận sự kiện cảnh báo</summary>
 
 > Người dùng xác nhận đã biết/đọc thông báo sự kiện cảnh báo này. Trạng thái cảnh báo chuyển sang `ACKNOWLEDGED`.
 
@@ -411,7 +417,7 @@
 
 | Tên | Loại | Mô tả | Bắt buộc/Mặc định |
 | :--- | :--- | :--- | :--- |
-| alertId | Long | ID của cấu hình cảnh báo | Có |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
 | instanceId | Long | ID của sự kiện cảnh báo | Có |
 
 ### Response (200 OK)
@@ -448,7 +454,7 @@
 <br>
 
 <details>
-<summary><b>POST</b> <code>/api/v1/alerts/{alertId}/instances/{instanceId}/resolve</code> - Giải quyết sự kiện cảnh báo</summary>
+<summary><b>POST</b> <code>/api/v1/alerts/{alertConfigId}/instances/{instanceId}/resolve</code> - Giải quyết sự kiện cảnh báo</summary>
 
 > Xác nhận sự cố cảnh báo đã được giải quyết hoặc xử lý. Trạng thái cảnh báo chuyển sang `RESOLVED`.
 
@@ -456,7 +462,7 @@
 
 | Tên | Loại | Mô tả | Bắt buộc/Mặc định |
 | :--- | :--- | :--- | :--- |
-| alertId | Long | ID của cấu hình cảnh báo | Có |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
 | instanceId | Long | ID của sự kiện cảnh báo | Có |
 
 ### Response (200 OK)
@@ -493,7 +499,7 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/alerts/{alertId}/instances/{instanceId}/logs</code> - Lấy lịch sử log của sự kiện cảnh báo</summary>
+<summary><b>GET</b> <code>/api/v1/alerts/{alertConfigId}/instances/{instanceId}/logs</code> - Lấy lịch sử log của sự kiện cảnh báo</summary>
 
 > Truy vấn danh sách các hành động lịch sử (logs) tác động lên sự kiện cảnh báo cụ thể.
 
@@ -501,7 +507,7 @@
 
 | Tên | Loại | Mô tả | Bắt buộc/Mặc định |
 | :--- | :--- | :--- | :--- |
-| alertId | Long | ID của cấu hình cảnh báo | Có |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
 | instanceId | Long | ID của sự kiện cảnh báo | Có |
 
 ### Response (200 OK)
@@ -588,5 +594,13 @@
 | `USER` | Người dùng |
 | `SYSTEM` | Hệ thống tự động |
 | `RULE_ENGINE` | Bộ máy quy tắc (Rule Engine) |
+
+### NotificationChannel
+
+| Giá trị | Mô tả |
+| :--- | :--- |
+| `PUSH` | Đẩy thông báo qua Firebase Cloud Messaging (FCM) |
+| `EMAIL` | Gửi email thông báo qua SMTP |
+| `SMS` | Gửi tin nhắn SMS qua cổng dịch vụ |
 
 ---

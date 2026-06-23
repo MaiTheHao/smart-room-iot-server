@@ -85,55 +85,55 @@ export const getAlerts = (params = {}) => {
 
 /**
  * Get alert instances by configuration ID (paginated)
- * @param {number|string} alertId
+ * @param {number|string} alertConfigId
  * @param {Object} params - { status, severity, page, size }
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertInstanceDto>>]>}
  */
-export const getAlertsByConfig = (alertId, params = {}) => {
+export const getAlertsByConfig = (alertConfigId, params = {}) => {
   const query = new URLSearchParams(params).toString();
-  return httpClient(`/api/v1/alerts/${alertId}/instances?${query}`);
+  return httpClient(`/api/v1/alerts/${alertConfigId}/instances?${query}`);
 };
 
 /**
  * Get detailed alert instance
- * @param {number|string} alertId
+ * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
  */
-export const getAlertById = (alertId, instanceId) => {
-  return httpClient(`/api/v1/alerts/${alertId}/instances/${instanceId}`);
+export const getAlertById = (alertConfigId, instanceId) => {
+  return httpClient(`/api/v1/alerts/${alertConfigId}/instances/${instanceId}`);
 };
 
 /**
  * Acknowledge alert instance
- * @param {number|string} alertId
+ * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
  */
-export const acknowledgeAlert = (alertId, instanceId) => {
-  return httpClient(`/api/v1/alerts/${alertId}/instances/${instanceId}/acknowledge`, {
+export const acknowledgeAlert = (alertConfigId, instanceId) => {
+  return httpClient(`/api/v1/alerts/${alertConfigId}/instances/${instanceId}/acknowledge`, {
     method: 'POST',
   });
 };
 
 /**
  * Resolve alert instance
- * @param {number|string} alertId
+ * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
  */
-export const resolveAlert = (alertId, instanceId) => {
-  return httpClient(`/api/v1/alerts/${alertId}/instances/${instanceId}/resolve`, {
+export const resolveAlert = (alertConfigId, instanceId) => {
+  return httpClient(`/api/v1/alerts/${alertConfigId}/instances/${instanceId}/resolve`, {
     method: 'POST',
   });
 };
 
 /**
  * Get alert logs of an instance
- * @param {number|string} alertId
+ * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceLogDto[]>]>}
  */
-export const getAlertLogs = (alertId, instanceId) => {
-  return httpClient(`/api/v1/alerts/${alertId}/instances/${instanceId}/logs`);
+export const getAlertLogs = (alertConfigId, instanceId) => {
+  return httpClient(`/api/v1/alerts/${alertConfigId}/instances/${instanceId}/logs`);
 };

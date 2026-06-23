@@ -4,7 +4,7 @@ import { Alert } from '../../../../common/notification_util.js';
 
 const cfg = window.__ALERT_DETAIL_CONFIG__ || {};
 const { i18n = {} } = cfg;
-const alertId    = cfg.alertId;
+const alertConfigId = cfg.alertConfigId;
 const instanceId = cfg.instanceId;
 
 // ─── Severity / Status helpers ───────────────────────────────────────────────
@@ -143,7 +143,7 @@ async function handleAck() {
   });
   if (!result.isConfirmed) return;
 
-  const [err] = await acknowledgeAlert(alertId, instanceId);
+  const [err] = await acknowledgeAlert(alertConfigId, instanceId);
   if (err) return Swal.fire(i18n.error, err.message, 'error');
   Swal.fire({ title: i18n.success, text: i18n.ackSuccess, icon: 'success', timer: 1500, showConfirmButton: false });
   await loadPage();
@@ -157,7 +157,7 @@ async function handleResolve() {
   });
   if (!result.isConfirmed) return;
 
-  const [err] = await resolveAlert(alertId, instanceId);
+  const [err] = await resolveAlert(alertConfigId, instanceId);
   if (err) return Swal.fire(i18n.error, err.message, 'error');
   Swal.fire({ title: i18n.success, text: i18n.resSuccess, icon: 'success', timer: 1500, showConfirmButton: false });
   await loadPage();
@@ -167,8 +167,8 @@ async function handleResolve() {
 async function loadPage() {
   try {
     const [[errA, resA], [errL, resL]] = await Promise.all([
-      getAlertById(alertId, instanceId),
-      getAlertLogs(alertId, instanceId),
+      getAlertById(alertConfigId, instanceId),
+      getAlertLogs(alertConfigId, instanceId),
     ]);
     if (errA) throw errA;
     renderTopCard(resA.data);
@@ -180,8 +180,8 @@ async function loadPage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!alertId || !instanceId) {
-    console.error('[AlertDetail] Missing alertId or instanceId');
+  if (!alertConfigId || !instanceId) {
+    console.error('[AlertDetail] Missing alertConfigId or instanceId');
     return;
   }
 
