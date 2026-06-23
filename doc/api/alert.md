@@ -34,7 +34,7 @@
 	"severity": "CRITICAL",
 	"recipientGroupCodes": ["ADMIN_GROUP", "OPERATOR_GROUP"],
 	"channels": ["PUSH", "EMAIL"],
-	"messageTemplate": "Nhiệt độ thiết bị {deviceName} vượt quá ngưỡng {threshold}°C.",
+	"messageTemplate": "Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).",
 	"cooldownMinutes": 15
 }
 ```
@@ -54,7 +54,7 @@
 		"severity": "CRITICAL",
 		"recipientGroupCodes": ["ADMIN_GROUP", "OPERATOR_GROUP"],
 		"channels": ["PUSH", "EMAIL"],
-		"messageTemplate": "Nhiệt độ thiết bị {deviceName} vượt quá ngưỡng {threshold}°C.",
+		"messageTemplate": "Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).",
 		"cooldownMinutes": 15,
 		"createdAt": "2026-06-22T09:30:00Z",
 		"updatedAt": "2026-06-22T09:30:00Z"
@@ -97,7 +97,7 @@
 	"severity": "CRITICAL",
 	"recipientGroupCodes": ["ADMIN_GROUP"],
 	"channels": ["PUSH"],
-	"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
+	"messageTemplate": "Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).",
 	"cooldownMinutes": 10
 }
 ```
@@ -117,7 +117,7 @@
 		"severity": "CRITICAL",
 		"recipientGroupCodes": ["ADMIN_GROUP"],
 		"channels": ["PUSH"],
-		"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
+		"messageTemplate": "Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).",
 		"cooldownMinutes": 10,
 		"createdAt": "2026-06-22T09:30:00Z",
 		"updatedAt": "2026-06-22T09:32:00Z"
@@ -156,7 +156,7 @@
 		"severity": "CRITICAL",
 		"recipientGroupCodes": ["ADMIN_GROUP"],
 		"channels": ["PUSH"],
-		"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
+		"messageTemplate": "Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).",
 		"cooldownMinutes": 10,
 		"createdAt": "2026-06-22T09:30:00Z",
 		"updatedAt": "2026-06-22T09:32:00Z"
@@ -224,7 +224,7 @@
 				"severity": "CRITICAL",
 				"recipientGroupCodes": ["ADMIN_GROUP"],
 				"channels": ["PUSH"],
-				"messageTemplate": "CẢNH BÁO KHẨN CẤP: Thiết bị {deviceName} đạt {temperature}°C.",
+				"messageTemplate": "Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).",
 				"cooldownMinutes": 10,
 				"createdAt": "2026-06-22T09:30:00Z",
 				"updatedAt": "2026-06-22T09:32:00Z"
@@ -276,7 +276,7 @@
 				"namespace": "RULE",
 				"sourceId": "rule_10",
 				"title": "Cảnh báo nhiệt độ quá cao",
-				"body": "CẢNH BÁO KHẨN CẤP: Thiết bị Điều hòa phòng khách đạt 45°C.",
+				"body": "Quy tắc Cấu hình cảnh báo nhiệt độ quá cao bị kích hoạt: Nhiệt độ đạt 45°C (ngưỡng 40°C).",
 				"severity": "CRITICAL",
 				"status": "ACTIVE",
 				"triggerCount": 1,
@@ -337,7 +337,7 @@
 				"namespace": "RULE",
 				"sourceId": "rule_10",
 				"title": "Cảnh báo nhiệt độ quá cao",
-				"body": "CẢNH BÁO KHẨN CẤP: Thiết bị Điều hòa phòng khách đạt 45°C.",
+				"body": "Quy tắc Cấu hình cảnh báo nhiệt độ quá cao bị kích hoạt: Nhiệt độ đạt 45°C (ngưỡng 40°C).",
 				"severity": "CRITICAL",
 				"status": "ACTIVE",
 				"triggerCount": 1,
@@ -388,7 +388,7 @@
 		"namespace": "RULE",
 		"sourceId": "rule_10",
 		"title": "Cảnh báo nhiệt độ quá cao",
-		"body": "CẢNH BÁO KHẨN CẤP: Thiết bị Điều hòa phòng khách đạt 45°C.",
+		"body": "Quy tắc Cấu hình cảnh báo nhiệt độ quá cao bị kích hoạt: Nhiệt độ đạt 45°C (ngưỡng 40°C).",
 		"severity": "CRITICAL",
 		"status": "ACTIVE",
 		"triggerCount": 1,
@@ -433,7 +433,7 @@
 		"namespace": "RULE",
 		"sourceId": "rule_10",
 		"title": "Cảnh báo nhiệt độ quá cao",
-		"body": "CẢNH BÁO KHẨN CẤP: Thiết bị Điều hòa phòng khách đạt 45°C.",
+		"body": "Quy tắc Cấu hình cảnh báo nhiệt độ quá cao bị kích hoạt: Nhiệt độ đạt 45°C (ngưỡng 40°C).",
 		"severity": "CRITICAL",
 		"status": "ACKNOWLEDGED",
 		"triggerCount": 1,
@@ -478,7 +478,7 @@
 		"namespace": "RULE",
 		"sourceId": "rule_10",
 		"title": "Cảnh báo nhiệt độ quá cao",
-		"body": "CẢNH BÁO KHẨN CẤP: Thiết bị Điều hòa phòng khách đạt 45°C.",
+		"body": "Quy tắc Cấu hình cảnh báo nhiệt độ quá cao bị kích hoạt: Nhiệt độ đạt 45°C (ngưỡng 40°C).",
 		"severity": "CRITICAL",
 		"status": "RESOLVED",
 		"triggerCount": 1,
@@ -604,3 +604,31 @@
 | `SMS` | Gửi tin nhắn SMS qua cổng dịch vụ |
 
 ---
+
+## Cơ chế Message Template
+
+Hệ thống sử dụng cơ chế nội suy chuỗi để tạo nội dung chi tiết cho sự kiện cảnh báo (`body` của `AlertInstance`) dựa trên mẫu tin nhắn (`messageTemplate`) của cấu hình cảnh báo.
+
+### Cú pháp mẫu tin nhắn
+Mẫu tin nhắn sử dụng cú pháp hai dấu ngoặc nhọn: `{{tên_biến}}`. Bất kỳ chuỗi nào nằm trong `{{...}}` sẽ được thay thế bằng giá trị tương ứng từ dữ liệu ngữ cảnh (nếu có). Nếu không tìm thấy biến trong ngữ cảnh, chuỗi `{{tên_biến}}` sẽ được giữ nguyên dưới dạng văn bản thô.
+
+### Giới hạn hỗ trợ hiện tại
+Hiện tại, cơ chế này **chỉ khả thi (hỗ trợ) đối với phân vùng nghiệp vụ `RULE`** (cảnh báo kích hoạt từ Rule Engine). Các phân vùng khác (`GATEWAY`, `SYSTEM`) chưa cung cấp dữ liệu ngữ cảnh để nạp vào template.
+
+### Danh sách các biến khả dụng (cho `RULE`)
+
+Khi một quy tắc (Rule) kích hoạt cảnh báo, các biến sau sẽ tự động được truyền vào để sử dụng trong `messageTemplate`:
+
+| Tên biến | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `rule_id` | Long | ID của quy tắc (Rule ID) |
+| `rule_name` | String | Tên của quy tắc (Rule Name) |
+| `cond{sortOrder}_value` | Object | Giá trị thực tế đo được tại điều kiện có số thứ tự `sortOrder` |
+| `cond{sortOrder}_threshold` | String | Ngưỡng giá trị thiết lập tại điều kiện có số thứ tự `sortOrder` |
+
+> *Ví dụ: Nếu Rule có điều kiện thứ 1 (`sortOrder` = 1) là nhiệt độ cảm biến > 40, ta có các biến tương ứng là `{{cond0_value}}` (ví dụ: `45`) và `{{cond0_threshold}}` (ví dụ: `40`).*
+
+### Ví dụ mẫu tin nhắn cho Rule
+- **Template:** `Quy tắc {{rule_name}} bị kích hoạt: Nhiệt độ đạt {{cond0_value}}°C (ngưỡng {{cond0_threshold}}°C).`
+- **Nội dung thực tế sinh ra (`body`):** `Quy tắc Cấu hình cảnh báo nhiệt độ quá cao bị kích hoạt: Nhiệt độ đạt 45°C (ngưỡng 40°C).`
+
