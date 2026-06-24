@@ -246,16 +246,6 @@ export const AlertConfigModal = (() => {
       isValid = false;
     }
 
-    if (recipientGroupCodes.length === 0) {
-      Toast.warning(i18n.valSelectGroup || 'Please select at least one recipient group.');
-      isValid = false;
-    }
-
-    if (channels.length === 0) {
-      Toast.warning(i18n.valSelectChannel || 'Please select at least one notification channel.');
-      isValid = false;
-    }
-
     if (!isValid) return;
 
     const dto = {

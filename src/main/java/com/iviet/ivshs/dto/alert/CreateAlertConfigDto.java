@@ -25,9 +25,9 @@ public record CreateAlertConfigDto(Long id,
 
     @NotNull(message = "Severity is required") Severity severity,
 
-    @NotEmpty(message = "Recipient groups are required and must not be empty") List<String> recipientGroupCodes,
+    List<String> recipientGroupCodes,
 
-    @NotEmpty(message = "Channels are required and must not be empty") List<String> channels,
+    List<String> channels,
 
     @NotBlank(message = "Message template is required") String messageTemplate,
 

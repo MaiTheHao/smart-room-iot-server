@@ -98,7 +98,6 @@ public class RuleProcessor implements SchedulableJobProcessor {
                     AlertTriggerRequestDto request = AlertTriggerRequestDto.builder().alertConfig(config)
                             .actionType(AlertActionType.TRIGGERED).actorType(AlertActorType.RULE_ENGINE)
                             .actorId(rule.getId().toString()).templateData(initCtx.getTemplateData())
-                            .logMessage("RULE: " + rule.getName() + " #" + rule.getId() + " triggered!")
                             .payload(objectMapper.valueToTree(initCtx.getTemplateData())).build();
                     alertTriggerService.trigger(request);
                 } catch (Exception e) {

@@ -170,22 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
   filterNs?.addEventListener('change', applyFilters);
   filterStatus?.addEventListener('change', applyFilters);
 
-  document.getElementById('btnReloadAlerts')?.addEventListener('click', () => {
-    State.page = 0;
-    loadAlerts(false);
-  });
-
-  document.getElementById('btnClearFilters')?.addEventListener('click', () => {
-    if (filterNs)     filterNs.value     = '';
-    if (filterStatus) filterStatus.value = '';
-    if (filterDate) {
-      const fp = filterDate._flatpickr;
-      if (fp) fp.clear();
-    }
-    delete State.params.from;
-    delete State.params.to;
-    applyFilters();
-  });
+  // Clear and Reload buttons removed from UI, automatic trigger on change active.
 
   loadMoreBtn?.addEventListener('click', () => {
     State.page++;

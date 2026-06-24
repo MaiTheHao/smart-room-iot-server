@@ -18,8 +18,8 @@
 | sourceId | string | Có | ID nguồn phát sinh cảnh báo (ví dụ ID của Rule hoặc Gateway) |
 | alertName | string | Có | Tên hiển thị của cấu hình cảnh báo |
 | severity | Severity | Có | Mức độ nghiêm trọng (`INFO`, `WARNING`, `CRITICAL`) |
-| recipientGroupCodes | array[string] | Có | Danh sách mã nhóm nhận tin cảnh báo |
-| channels | array[string] | Có | Danh sách kênh gửi tin (giá trị hợp lệ: `PUSH`, `EMAIL`, `SMS`) |
+| recipientGroupCodes | array[string] | Không | Danh sách mã nhóm nhận tin cảnh báo |
+| channels | array[string] | Không | Danh sách kênh gửi tin (giá trị hợp lệ: `PUSH`, `EMAIL`, `SMS`) |
 | messageTemplate | string | Có | Mẫu tin nhắn cảnh báo |
 | cooldownMinutes | integer | Có | Thời gian chờ tối thiểu giữa các lần gửi cảnh báo (phút, tối thiểu 0) |
 
@@ -84,8 +84,8 @@
 | :--- | :--- | :--- | :--- |
 | alertName | string | Có | Tên hiển thị mới của cấu hình cảnh báo |
 | severity | Severity | Có | Mức độ nghiêm trọng mới (`INFO`, `WARNING`, `CRITICAL`) |
-| recipientGroupCodes | array[string] | Có | Danh sách mã nhóm nhận tin cảnh báo mới |
-| channels | array[string] | Có | Danh sách kênh gửi tin mới |
+| recipientGroupCodes | array[string] | Không | Danh sách mã nhóm nhận tin cảnh báo mới |
+| channels | array[string] | Không | Danh sách kênh gửi tin mới |
 | messageTemplate | string | Có | Mẫu tin nhắn cảnh báo mới |
 | cooldownMinutes | integer | Có | Thời gian chờ tối thiểu mới (phút, tối thiểu 0) |
 

@@ -24,9 +24,19 @@ public class AlertMessageTemplateServiceImpl implements AlertMessageTemplateServ
             String key = matcher.group(1).trim();
             if (safeData.containsKey(key)) {
                 Object val = safeData.get(key);
-                matcher.appendReplacement(result, Matcher.quoteReplacement(val != null ? val.toString() : ""));
+                if (val == null) {
+                    matcher.appendReplacement(result, Matcher.quoteReplacement("[NULL: " + key + "]"));
+                } else if (val.toString().isEmpty()) {
+                    matcher.appendReplacement(result, Matcher.quoteReplacement("[EMPTY: " + key + "]"));
+                } else {
+                    try {
+                        matcher.appendReplacement(result, Matcher.quoteReplacement(val.toString()));
+                    } catch (Exception e) {
+                        matcher.appendReplacement(result, Matcher.quoteReplacement("[ERROR: " + key + " - " + e.getMessage() + "]"));
+                    }
+                }
             } else {
-                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(0)));
+                matcher.appendReplacement(result, Matcher.quoteReplacement("[NOT_FOUND: " + key + "]"));
             }
         }
         matcher.appendTail(result);

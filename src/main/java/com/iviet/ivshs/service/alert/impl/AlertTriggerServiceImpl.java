@@ -75,7 +75,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
             }
         } else {
             alert = alertInstanceService.createActiveAlert(config, request.getTemplateData());
-            logMessage = logMessage != null ? logMessage : "Alert started";
+            logMessage = logMessage != null ? logMessage : alert.getBody();
         }
 
         CreateAlertInstanceLogDto logDto = CreateAlertInstanceLogDto.builder().alertId(alert.getId())

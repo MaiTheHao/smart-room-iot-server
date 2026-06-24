@@ -143,7 +143,7 @@ public class AlertConfigServiceImpl implements AlertConfigService {
 
     private void validateGroupCodes(List<String> groupCodes) {
         if (groupCodes == null || groupCodes.isEmpty()) {
-            throw new BadRequestException("Recipient groups must not be empty");
+            return;
         }
         for (String code : groupCodes) {
             sysGroupDao.findEntityByCode(code)

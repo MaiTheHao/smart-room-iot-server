@@ -119,7 +119,7 @@ function renderTimeline(logs = [], append = false) {
   }
 
   // Sort descending by timestamp (newest logs first)
-  const sorted = [...logs].sort((a, b) => new Date(b.actionAt) - new Date(a.actionAt));
+  const sorted = [...logs].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   
   // Xóa class tl-item-last cũ của phần tử cuối cùng nếu có append
   if (append && feedEl) {
@@ -140,7 +140,7 @@ function renderTimeline(logs = [], append = false) {
     item.className = `tl-item${isLast ? ' tl-item-last' : ''}`;
     item.innerHTML = `
       <div class="tl-dot ${dotClass}"></div>
-      <div class="tl-time">${fmt(log.actionAt)}</div>
+      <div class="tl-time">${fmt(log.createdAt)}</div>
       <div class="tl-content">
         <div class="d-flex gap-2 align-items-center mb-1 flex-wrap">
           <span class="badge bg-secondary rounded-pill">${escapeHtml(log.actionType || '')}</span>
