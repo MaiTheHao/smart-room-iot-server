@@ -36,7 +36,7 @@ public class AlertInstanceLogDao {
         if (filter.actorType() != null) {
             jpql.append(" AND ail.actorType = :actorType");
         }
-        jpql.append(" ORDER BY ail.createdAt ASC");
+        jpql.append(" ORDER BY ail.createdAt DESC");
 
         var q = entityManager.createQuery(jpql.toString(), AlertInstanceLog.class)
                 .setParameter("alertId", alertId);

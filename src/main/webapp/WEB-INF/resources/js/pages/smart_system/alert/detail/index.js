@@ -91,29 +91,49 @@ function renderTopCard(a) {
   }
 }
 
+const LOG_PAGE_SIZE = 10;
+const LogState = {
+  page: 0,
+  hasMore: false,
+  loading: false,
+};
+
 // ─── Render timeline ──────────────────────────────────────────────────────────
-function renderTimeline(logs) {
+function renderTimeline(logs = [], append = false) {
   const feedEl   = document.getElementById('timelineFeed');
   const emptyEl  = document.getElementById('timelineEmpty');
   const loadingEl = document.getElementById('timelineLoading');
+  const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
 
   loadingEl?.classList.add('d-none');
 
-  if (!logs || logs.length === 0) {
-    emptyEl?.classList.remove('d-none');
-    return;
+  if (!append) {
+    if (!logs || logs.length === 0) {
+      emptyEl?.classList.remove('d-none');
+      feedEl?.classList.add('d-none');
+      if (loadMoreBtn) loadMoreBtn.classList.add('d-none');
+      return;
+    }
+    feedEl?.classList.remove('d-none');
+    feedEl.innerHTML = '';
   }
 
-  feedEl?.classList.remove('d-none');
-  feedEl.innerHTML = '';
+  // Sort descending by timestamp (newest logs first)
+  const sorted = [...logs].sort((a, b) => new Date(b.actionAt) - new Date(a.actionAt));
+  
+  // Xóa class tl-item-last cũ của phần tử cuối cùng nếu có append
+  if (append && feedEl) {
+    const lastItem = feedEl.querySelector('.tl-item-last');
+    if (lastItem) {
+      lastItem.classList.remove('tl-item-last');
+    }
+  }
 
-  // Sort ascending by timestamp
-  const sorted = [...logs].sort((a, b) => new Date(a.actionAt) - new Date(b.actionAt));
   sorted.forEach((log, idx) => {
     const dotClass = ACTION_DOT_CLASS[log.actionType] || 'TRIGGERED';
     const isLast = idx === sorted.length - 1;
     const payloadHtml = (log.payload && log.payload !== 'null')
-      ? `<pre class="tl-payload mt-1 mb-0">${escapeHtml(log.payload)}</pre>`
+      ? `<pre class="tl-payload mt-1 mb-0">${escapeHtml(typeof log.payload === 'object' ? JSON.stringify(log.payload, null, 2) : log.payload)}</pre>`
       : '';
 
     const item = document.createElement('div');
@@ -130,8 +150,16 @@ function renderTimeline(logs) {
         ${payloadHtml}
       </div>
     `;
-    feedEl.appendChild(item);
+    feedEl?.appendChild(item);
   });
+
+  if (loadMoreBtn) {
+    if (LogState.hasMore) {
+      loadMoreBtn.classList.remove('d-none');
+    } else {
+      loadMoreBtn.classList.add('d-none');
+    }
+  }
 }
 
 // ─── Action handlers ──────────────────────────────────────────────────────────
@@ -163,16 +191,46 @@ async function handleResolve() {
   await loadPage();
 }
 
+// ─── Load logs separated ──────────────────────────────────────────────────────
+async function loadLogs(append = false) {
+  if (LogState.loading) return;
+  LogState.loading = true;
+
+  const loadMoreBtn = document.getElementById('loadMoreLogsBtn');
+  if (loadMoreBtn && !append) {
+    loadMoreBtn.classList.add('d-none');
+  }
+
+  try {
+    const [err, res] = await getAlertLogs(alertConfigId, instanceId, {
+      page: LogState.page,
+      size: LOG_PAGE_SIZE,
+    });
+    if (err) throw err;
+
+    const { content = [], totalPages = 0 } = res.data ?? {};
+    LogState.hasMore = LogState.page + 1 < totalPages;
+    renderTimeline(content, append);
+  } catch (err) {
+    console.error('[AlertDetail] Failed to load logs', err);
+    if (!append) {
+      document.getElementById('timelineLoading')?.classList.add('d-none');
+      document.getElementById('timelineEmpty')?.classList.remove('d-none');
+    }
+  } finally {
+    LogState.loading = false;
+  }
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function loadPage() {
   try {
-    const [[errA, resA], [errL, resL]] = await Promise.all([
-      getAlertById(alertConfigId, instanceId),
-      getAlertLogs(alertConfigId, instanceId),
-    ]);
+    const [errA, resA] = await getAlertById(alertConfigId, instanceId);
     if (errA) throw errA;
     renderTopCard(resA.data);
-    renderTimeline(errL ? [] : (resL.data || []));
+    
+    LogState.page = 0;
+    await loadLogs(false);
   } catch (err) {
     Swal.fire(i18n.error, err.message || i18n.error, 'error');
   }
@@ -187,6 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btnAcknowledge')?.addEventListener('click', handleAck);
   document.getElementById('btnResolve')?.addEventListener('click', handleResolve);
+  document.getElementById('loadMoreLogsBtn')?.addEventListener('click', () => {
+    LogState.page++;
+    loadLogs(true);
+  });
 
   loadPage();
 });
