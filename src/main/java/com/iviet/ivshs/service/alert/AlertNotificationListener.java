@@ -11,6 +11,7 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.service.alert.event.AlertNotificationEvent;
 import com.iviet.ivshs.service.notification.NotificationService;
+import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,8 +50,12 @@ public class AlertNotificationListener {
             List<NotificationChannel> channels = parseChannels(config.getChannels());
             Map<String, String> data = buildFcmData(event.getActionType().name(), alert);
 
+            String bodyMessage = (event.getActionType() == AlertActionType.RE_TRIGGERED && event.getLogMessage() != null)
+                    ? event.getLogMessage()
+                    : alert.getBody();
+
             NotificationRequest request = NotificationRequest.builder().recipients(recipientsWithDevices)
-                    .channels(channels).title(config.getAlertName()).body(alert.getBody()).data(data).build();
+                    .channels(channels).title(config.getAlertName()).body(bodyMessage).data(data).build();
 
             notificationService.sendNotification(request);
             log.info("Successfully sent async notification for alert ID: {}", alert.getId());

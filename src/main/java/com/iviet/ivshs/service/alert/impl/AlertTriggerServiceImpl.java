@@ -8,6 +8,7 @@ import com.iviet.ivshs.dto.alert.CreateAlertInstanceLogDto;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.service.alert.AlertInstanceLogService;
 import com.iviet.ivshs.service.alert.AlertInstanceService;
+import com.iviet.ivshs.service.alert.AlertMessageTemplateService;
 import com.iviet.ivshs.service.alert.AlertTriggerService;
 import com.iviet.ivshs.service.alert.event.AlertNotificationEvent;
 import com.iviet.ivshs.shared.enumeration.*;
@@ -31,6 +32,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
     private final AlertConfigDao alertConfigDao;
     private final AlertInstanceDao alertInstanceDao;
     private final ApplicationEventPublisher eventPublisher;
+    private final AlertMessageTemplateService alertMessageTemplateService;
 
     @Override
     @Transactional
@@ -67,7 +69,9 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
             }
             alert = alertInstanceService.incrementTriggerCount(existingAlert.getId());
             actionType = AlertActionType.RE_TRIGGERED;
-            logMessage = logMessage != null ? logMessage : "Alert re-triggered";
+            if (logMessage == null) {
+                logMessage = alertMessageTemplateService.buildMessage(config.getMessageTemplate(), request.getTemplateData());
+            }
         } else {
             alert = alertInstanceService.createActiveAlert(config, request.getTemplateData());
             logMessage = logMessage != null ? logMessage : "Alert started";
@@ -78,7 +82,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
                 .message(logMessage).payload(request.getPayload()).build();
         alertInstanceLogService.createLog(logDto);
         eventPublisher.publishEvent(new AlertNotificationEvent(this, config, alert, actionType, request.getActorType(),
-                request.getActorId()));
+                request.getActorId(), logMessage));
     }
 
     @Override
@@ -103,6 +107,6 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
                 .actionType(actionType).actorType(actorType).actorId(actorId).message(logMessage).payload(payload)
                 .build();
         alertInstanceLogService.createLog(logDto);
-        eventPublisher.publishEvent(new AlertNotificationEvent(this, config, alert, actionType, actorType, actorId));
+        eventPublisher.publishEvent(new AlertNotificationEvent(this, config, alert, actionType, actorType, actorId, logMessage));
     }
 }

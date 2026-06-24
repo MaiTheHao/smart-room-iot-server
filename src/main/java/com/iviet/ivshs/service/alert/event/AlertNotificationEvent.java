@@ -14,14 +14,16 @@ public class AlertNotificationEvent extends ApplicationEvent {
     private final AlertActionType actionType;
     private final AlertActorType actorType;
     private final String actorId;
+    private final String logMessage;
 
     public AlertNotificationEvent(Object source, AlertConfig config, AlertInstance alert, AlertActionType actionType,
-            AlertActorType actorType, String actorId) {
+            AlertActorType actorType, String actorId, String logMessage) {
         super(source);
         this.config = config;
         this.alert = alert;
         this.actionType = actionType;
         this.actorType = actorType;
         this.actorId = actorId;
+        this.logMessage = logMessage;
     }
 }
