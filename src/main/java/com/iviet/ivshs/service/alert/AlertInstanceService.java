@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertInstanceDto;
+import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertInstance;
@@ -27,4 +28,8 @@ public interface AlertInstanceService {
     AlertInstanceDto getAlertById(Long alertId);
 
     PaginatedResponse<AlertInstanceDto> getAlertsByConfig(Long alertConfigId, AlertFilterDto filter);
+
+    PaginatedResponse<AlertInstanceDto> getAlertsByConfig(Long alertConfigId, AlertInstanceSubFilterDto filter);
+
+    long countAlertsByConfig(Long alertConfigId, AlertInstanceSubFilterDto filter);
 }

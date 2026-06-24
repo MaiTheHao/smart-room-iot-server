@@ -7,6 +7,7 @@ import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
+import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -269,5 +270,91 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
                 WHERE arg.alert.id = :alertId
                 """;
         return entityManager.createQuery(jpql, SysGroup.class).setParameter("alertId", alertId).getResultList();
+    }
+
+    public List<AlertInstance> findAllByConfigAndClientGroups(Long clientId, Long configId, AlertInstanceSubFilterDto filter) {
+        StringBuilder jpql = new StringBuilder("""
+                SELECT DISTINCT ar FROM AlertInstance ar
+                JOIN FETCH ar.alertConfig
+                LEFT JOIN FETCH ar.acknowledgedBy
+                LEFT JOIN FETCH ar.resolvedBy
+                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
+                JOIN arg.group g
+                JOIN g.clients c
+                WHERE c.id = :clientId
+                  AND ar.alertConfig.id = :configId
+                """);
+        if (filter.status() != null) {
+            jpql.append(" AND ar.status = :status");
+        }
+        if (filter.severity() != null) {
+            jpql.append(" AND ar.severity = :severity");
+        }
+        if (filter.from() != null) {
+            jpql.append(" AND ar.triggeredAt >= :from");
+        }
+        if (filter.to() != null) {
+            jpql.append(" AND ar.triggeredAt <= :to");
+        }
+        jpql.append(" ORDER BY ar.triggeredAt DESC");
+
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class)
+                .setParameter("clientId", clientId)
+                .setParameter("configId", configId);
+        if (filter.status() != null) {
+            q.setParameter("status", filter.status());
+        }
+        if (filter.severity() != null) {
+            q.setParameter("severity", filter.severity());
+        }
+        if (filter.from() != null) {
+            q.setParameter("from", filter.from());
+        }
+        if (filter.to() != null) {
+            q.setParameter("to", filter.to());
+        }
+        return q.setFirstResult(filter.page() * filter.size())
+                .setMaxResults(filter.size())
+                .getResultList();
+    }
+
+    public long countByConfigAndClientGroups(Long clientId, Long configId, AlertInstanceSubFilterDto filter) {
+        StringBuilder jpql = new StringBuilder("""
+                SELECT COUNT(DISTINCT ar) FROM AlertInstance ar
+                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
+                JOIN arg.group g
+                JOIN g.clients c
+                WHERE c.id = :clientId
+                  AND ar.alertConfig.id = :configId
+                """);
+        if (filter.status() != null) {
+            jpql.append(" AND ar.status = :status");
+        }
+        if (filter.severity() != null) {
+            jpql.append(" AND ar.severity = :severity");
+        }
+        if (filter.from() != null) {
+            jpql.append(" AND ar.triggeredAt >= :from");
+        }
+        if (filter.to() != null) {
+            jpql.append(" AND ar.triggeredAt <= :to");
+        }
+
+        var q = entityManager.createQuery(jpql.toString(), Long.class)
+                .setParameter("clientId", clientId)
+                .setParameter("configId", configId);
+        if (filter.status() != null) {
+            q.setParameter("status", filter.status());
+        }
+        if (filter.severity() != null) {
+            q.setParameter("severity", filter.severity());
+        }
+        if (filter.from() != null) {
+            q.setParameter("from", filter.from());
+        }
+        if (filter.to() != null) {
+            q.setParameter("to", filter.to());
+        }
+        return q.getSingleResult();
     }
 }

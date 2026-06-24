@@ -2,7 +2,9 @@ package com.iviet.ivshs.service.alert.impl;
 
 import com.iviet.ivshs.dao.AlertInstanceLogDao;
 import com.iviet.ivshs.dto.alert.AlertInstanceLogDto;
+import com.iviet.ivshs.dto.alert.AlertInstanceLogFilterDto;
 import com.iviet.ivshs.dto.alert.CreateAlertInstanceLogDto;
+import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.AlertInstanceLog;
 import com.iviet.ivshs.service.alert.AlertInstanceLogService;
@@ -45,5 +47,20 @@ public class AlertInstanceLogServiceImpl implements AlertInstanceLogService {
         return alertInstanceLogDao.findAllByAlertId(alertId).stream()
                 .map(AlertInstanceLogDto::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public PaginatedResponse<AlertInstanceLogDto> getLogsByAlertId(Long alertId, AlertInstanceLogFilterDto filter) {
+        List<AlertInstanceLog> logs = alertInstanceLogDao.findAllByAlertId(alertId, filter);
+        long total = alertInstanceLogDao.countByAlertId(alertId, filter);
+        List<AlertInstanceLogDto> dtos = logs.stream()
+                .map(AlertInstanceLogDto::from)
+                .collect(Collectors.toList());
+        return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
+    }
+
+    @Override
+    public long countLogsByAlertId(Long alertId, AlertInstanceLogFilterDto filter) {
+        return alertInstanceLogDao.countByAlertId(alertId, filter);
     }
 }

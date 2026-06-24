@@ -8,6 +8,7 @@ import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.AlertConfigDto;
+import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertConfigGroup;
@@ -51,6 +52,21 @@ public class AlertConfigServiceImpl implements AlertConfigService {
         List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(configIds);
         List<AlertConfigDto> dtos = AlertConfigDto.toDtos(configs, groups);
         return new PaginatedResponse<>(dtos, page, size, total);
+    }
+
+    @Override
+    public PaginatedResponse<AlertConfigDto> getAllConfigs(AlertConfigFilterDto filter) {
+        List<AlertConfig> configs = alertConfigDao.findAllByFilter(filter);
+        long total = alertConfigDao.countAllByFilter(filter);
+        List<Long> configIds = configs.stream().map(AlertConfig::getId).toList();
+        List<AlertConfigGroup> groups = alertConfigDao.findAssociationsByConfigIds(configIds);
+        List<AlertConfigDto> dtos = AlertConfigDto.toDtos(configs, groups);
+        return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
+    }
+
+    @Override
+    public long countConfigs(AlertConfigFilterDto filter) {
+        return alertConfigDao.countAllByFilter(filter);
     }
 
     @Override

@@ -196,16 +196,19 @@
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/alerts</code> - Tìm kiếm cấu hình cảnh báo theo nguồn</summary>
+<summary><b>GET</b> <code>/api/v1/alerts</code> - Tìm kiếm cấu hình cảnh báo</summary>
 
-> Lấy danh sách cấu hình cảnh báo lọc theo Namespace và Source ID.
+> Lấy danh sách phân trang cấu hình cảnh báo lọc linh hoạt theo Namespace, Alert Code, và Source ID.
 
 ### Query Parameters
 
 | Tên | Loại | Mô tả | Bắt buộc/Mặc định |
 | :--- | :--- | :--- | :--- |
-| namespace | AlertNamespace | Phân vùng nghiệp vụ của cảnh báo | Có |
-| sourceId | string | ID nguồn phát sinh cảnh báo | Có |
+| namespace | AlertNamespace | Phân vùng nghiệp vụ của cảnh báo | Không |
+| alertCode | string | Mã định danh duy nhất của cảnh báo | Không |
+| sourceId | string | ID nguồn phát sinh cảnh báo | Không |
+| page | int | Trang hiện tại | 0 |
+| size | int | Kích thước mỗi trang | 10 |
 
 ### Response (200 OK)
 
@@ -231,10 +234,38 @@
 			}
 		],
 		"page": 0,
-		"size": 20,
+		"size": 10,
 		"totalElements": 1,
 		"totalPages": 1
 	},
+	"timestamp": "2026-06-22T09:34:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/alerts/count</code> - Đếm số lượng cấu hình cảnh báo</summary>
+
+> Trả về tổng số lượng cấu hình cảnh báo thỏa mãn các tiêu chí lọc.
+
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc/Mặc định |
+| :--- | :--- | :--- | :--- |
+| namespace | AlertNamespace | Phân vùng nghiệp vụ của cảnh báo | Không |
+| alertCode | string | Mã định danh duy nhất của cảnh báo | Không |
+| sourceId | string | ID nguồn phát sinh cảnh báo | Không |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 1,
 	"timestamp": "2026-06-22T09:34:00Z"
 }
 ```
@@ -355,6 +386,41 @@
 		"totalElements": 1,
 		"totalPages": 1
 	},
+	"timestamp": "2026-06-22T09:35:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/alerts/{alertConfigId}/instances/count</code> - Đếm số lượng sự kiện cảnh báo theo ID cấu hình</summary>
+
+> Trả về tổng số lượng sự kiện cảnh báo của một ID cấu hình thỏa mãn các tiêu chí lọc.
+
+### Path Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc/Mặc định |
+| :--- | :--- | :--- | :--- |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
+
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc/Mặc định |
+| :--- | :--- | :--- | :--- |
+| status | AlertStatus | Lọc theo trạng thái cảnh báo | Không |
+| severity | Severity | Lọc theo mức độ nghiêm trọng | Không |
+| from | Instant | Lọc từ thời điểm | Không |
+| to | Instant | Lọc tới thời điểm | Không |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 1,
 	"timestamp": "2026-06-22T09:35:00Z"
 }
 ```
@@ -501,7 +567,7 @@
 <details>
 <summary><b>GET</b> <code>/api/v1/alerts/{alertConfigId}/instances/{instanceId}/logs</code> - Lấy lịch sử log của sự kiện cảnh báo</summary>
 
-> Truy vấn danh sách các hành động lịch sử (logs) tác động lên sự kiện cảnh báo cụ thể.
+> Truy vấn danh sách phân trang các hành động lịch sử (logs) tác động lên sự kiện cảnh báo cụ thể.
 
 ### Path Parameters
 
@@ -510,37 +576,86 @@
 | alertConfigId | Long | ID của cấu hình cảnh báo | Có |
 | instanceId | Long | ID của sự kiện cảnh báo | Có |
 
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc/Mặc định |
+| :--- | :--- | :--- | :--- |
+| actionType | AlertActionType | Lọc theo loại hành động tác động | Không |
+| actorType | AlertActorType | Lọc theo loại tác nhân | Không |
+| page | int | Trang hiện tại | 0 |
+| size | int | Số lượng phần tử/trang | 10 |
+
 ### Response (200 OK)
 
 ```json
 {
 	"status": 200,
 	"message": "Success",
-	"data": [
-		{
-			"id": 501,
-			"alertId": 101,
-			"actionType": "TRIGGERED",
-			"actorType": "RULE_ENGINE",
-			"actorId": "engine_core",
-			"message": "Cảnh báo nhiệt độ cao được kích hoạt từ rule_10",
-			"payload": {
-				"temperature": 45,
-				"threshold": 40
+	"data": {
+		"content": [
+			{
+				"id": 501,
+				"alertId": 101,
+				"actionType": "TRIGGERED",
+				"actorType": "RULE_ENGINE",
+				"actorId": "engine_core",
+				"message": "Cảnh báo nhiệt độ cao được kích hoạt từ rule_10",
+				"payload": {
+					"temperature": 45,
+					"threshold": 40
+				},
+				"createdAt": "2026-06-22T09:31:00Z"
 			},
-			"createdAt": "2026-06-22T09:31:00Z"
-		},
-		{
-			"id": 502,
-			"alertId": 101,
-			"actionType": "ACKNOWLEDGED",
-			"actorType": "USER",
-			"actorId": "3",
-			"message": "User operator_user đã xác nhận cảnh báo",
-			"payload": null,
-			"createdAt": "2026-06-22T09:36:00Z"
-		}
-	],
+			{
+				"id": 502,
+				"alertId": 101,
+				"actionType": "ACKNOWLEDGED",
+				"actorType": "USER",
+				"actorId": "3",
+				"message": "User operator_user đã xác nhận cảnh báo",
+				"payload": null,
+				"createdAt": "2026-06-22T09:36:00Z"
+			}
+		],
+		"page": 0,
+		"size": 10,
+		"totalElements": 2,
+		"totalPages": 1
+	},
+	"timestamp": "2026-06-22T09:42:00Z"
+}
+```
+
+</details>
+
+<br>
+
+<details>
+<summary><b>GET</b> <code>/api/v1/alerts/{alertConfigId}/instances/{instanceId}/logs/count</code> - Đếm số lượng log của sự kiện cảnh báo</summary>
+
+> Trả về tổng số lượng log của một sự kiện cảnh báo thỏa mãn các tiêu chí lọc.
+
+### Path Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc/Mặc định |
+| :--- | :--- | :--- | :--- |
+| alertConfigId | Long | ID của cấu hình cảnh báo | Có |
+| instanceId | Long | ID của sự kiện cảnh báo | Có |
+
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc/Mặc định |
+| :--- | :--- | :--- | :--- |
+| actionType | AlertActionType | Lọc theo loại hành động tác động | Không |
+| actorType | AlertActorType | Lọc theo loại tác nhân | Không |
+
+### Response (200 OK)
+
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": 2,
 	"timestamp": "2026-06-22T09:42:00Z"
 }
 ```

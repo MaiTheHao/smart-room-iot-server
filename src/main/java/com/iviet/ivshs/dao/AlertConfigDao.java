@@ -5,6 +5,7 @@ import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertConfigGroup;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
+import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -110,6 +111,59 @@ public class AlertConfigDao extends BaseAuditEntityDao<AlertConfig> {
 
         var q = entityManager.createQuery(jpql.toString(), Long.class);
         if (namespace != null) q.setParameter("namespace", namespace);
+        return q.getSingleResult();
+    }
+
+    public List<AlertConfig> findAllByFilter(AlertConfigFilterDto filter) {
+        StringBuilder jpql = new StringBuilder("SELECT ac FROM AlertConfig ac WHERE 1=1");
+        if (filter.namespace() != null) {
+            jpql.append(" AND ac.namespace = :namespace");
+        }
+        if (filter.alertCode() != null && !filter.alertCode().isBlank()) {
+            jpql.append(" AND ac.alertCode = :alertCode");
+        }
+        if (filter.sourceId() != null && !filter.sourceId().isBlank()) {
+            jpql.append(" AND ac.sourceId = :sourceId");
+        }
+        jpql.append(" ORDER BY ac.id DESC");
+
+        var q = entityManager.createQuery(jpql.toString(), AlertConfig.class);
+        if (filter.namespace() != null) {
+            q.setParameter("namespace", filter.namespace());
+        }
+        if (filter.alertCode() != null && !filter.alertCode().isBlank()) {
+            q.setParameter("alertCode", filter.alertCode());
+        }
+        if (filter.sourceId() != null && !filter.sourceId().isBlank()) {
+            q.setParameter("sourceId", filter.sourceId());
+        }
+        return q.setFirstResult(filter.page() * filter.size())
+                .setMaxResults(filter.size())
+                .getResultList();
+    }
+
+    public long countAllByFilter(AlertConfigFilterDto filter) {
+        StringBuilder jpql = new StringBuilder("SELECT COUNT(ac) FROM AlertConfig ac WHERE 1=1");
+        if (filter.namespace() != null) {
+            jpql.append(" AND ac.namespace = :namespace");
+        }
+        if (filter.alertCode() != null && !filter.alertCode().isBlank()) {
+            jpql.append(" AND ac.alertCode = :alertCode");
+        }
+        if (filter.sourceId() != null && !filter.sourceId().isBlank()) {
+            jpql.append(" AND ac.sourceId = :sourceId");
+        }
+
+        var q = entityManager.createQuery(jpql.toString(), Long.class);
+        if (filter.namespace() != null) {
+            q.setParameter("namespace", filter.namespace());
+        }
+        if (filter.alertCode() != null && !filter.alertCode().isBlank()) {
+            q.setParameter("alertCode", filter.alertCode());
+        }
+        if (filter.sourceId() != null && !filter.sourceId().isBlank()) {
+            q.setParameter("sourceId", filter.sourceId());
+        }
         return q.getSingleResult();
     }
 }

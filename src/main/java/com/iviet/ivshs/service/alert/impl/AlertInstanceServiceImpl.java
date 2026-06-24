@@ -5,6 +5,7 @@ import com.iviet.ivshs.dao.AlertInstanceDao;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertInstanceDto;
+import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.service.alert.AlertMessageTemplateService;
@@ -155,6 +156,30 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
 
         List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
         return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
+    }
+
+    @Override
+    public PaginatedResponse<AlertInstanceDto> getAlertsByConfig(Long alertConfigId, AlertInstanceSubFilterDto filter) {
+        Long currentClientId = SecurityContextUtil.getCurrentClientId();
+        List<AlertInstance> alerts = List.of();
+        long total = 0;
+
+        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
+            alerts = alertInstanceDao.findAllByConfigAndClientGroups(currentClientId, alertConfigId, filter);
+            total = alertInstanceDao.countByConfigAndClientGroups(currentClientId, alertConfigId, filter);
+        }
+
+        List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
+        return new PaginatedResponse<>(dtos, filter.page(), filter.size(), total);
+    }
+
+    @Override
+    public long countAlertsByConfig(Long alertConfigId, AlertInstanceSubFilterDto filter) {
+        Long currentClientId = SecurityContextUtil.getCurrentClientId();
+        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
+            return alertInstanceDao.countByConfigAndClientGroups(currentClientId, alertConfigId, filter);
+        }
+        return 0L;
     }
 
     private void checkReadAccess(AlertInstance alert, Long currentClientId) {

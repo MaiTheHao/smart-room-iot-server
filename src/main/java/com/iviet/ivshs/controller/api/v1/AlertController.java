@@ -3,9 +3,12 @@ package com.iviet.ivshs.controller.api.v1;
 import com.iviet.ivshs.dto.alert.AlertConfigDto;
 import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
+import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
 import com.iviet.ivshs.dto.alert.AlertFilterDto;
 import com.iviet.ivshs.dto.alert.AlertInstanceDto;
 import com.iviet.ivshs.dto.alert.AlertInstanceLogDto;
+import com.iviet.ivshs.dto.alert.AlertInstanceLogFilterDto;
+import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.service.alert.AlertConfigService;
@@ -73,14 +76,14 @@ public class AlertController {
     @GetMapping()
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertConfigDto>>> getConfigs(
-            @RequestParam(required = false) AlertNamespace namespace, @RequestParam(required = false) String sourceId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        if (namespace != null && sourceId != null) {
-            List<AlertConfigDto> configs = alertConfigService.getConfigsBySource(namespace, sourceId);
-            return ResponseEntity.ok(ApiResponse.ok(PaginatedResponse.ofList(configs, page, size)));
-        }
-        return ResponseEntity.ok(ApiResponse.ok(alertConfigService.getAllConfigs(namespace, page, size)));
+            @Valid AlertConfigFilterDto filter) {
+        return ResponseEntity.ok(ApiResponse.ok(alertConfigService.getAllConfigs(filter)));
+    }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
+    public ResponseEntity<ApiResponse<Long>> countConfigs(@Valid AlertConfigFilterDto filter) {
+        return ResponseEntity.ok(ApiResponse.ok(alertConfigService.countConfigs(filter)));
     }
 
     @GetMapping("/instances")
@@ -99,12 +102,15 @@ public class AlertController {
     @GetMapping("/{alertConfigId}/instances")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlertsByConfig(
-            @PathVariable Long alertConfigId, @RequestParam(required = false) AlertStatus status,
-            @RequestParam(required = false) Severity severity,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        AlertFilterDto filter = new AlertFilterDto(status, severity, null, null, null, page, size);
+            @PathVariable Long alertConfigId, @Valid AlertInstanceSubFilterDto filter) {
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertsByConfig(alertConfigId, filter)));
+    }
+
+    @GetMapping("/{alertConfigId}/instances/count")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    public ResponseEntity<ApiResponse<Long>> countAlertsByConfig(
+            @PathVariable Long alertConfigId, @Valid AlertInstanceSubFilterDto filter) {
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.countAlertsByConfig(alertConfigId, filter)));
     }
 
     @GetMapping("/{alertConfigId}/instances/{instanceId}")
@@ -138,10 +144,20 @@ public class AlertController {
 
     @GetMapping("/{alertConfigId}/instances/{instanceId}/logs")
     @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
-    public ResponseEntity<ApiResponse<List<AlertInstanceLogDto>>> getAlertLogs(@PathVariable Long alertConfigId,
-            @PathVariable Long instanceId) {
+    public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceLogDto>>> getAlertLogs(
+            @PathVariable Long alertConfigId, @PathVariable Long instanceId,
+            @Valid AlertInstanceLogFilterDto filter) {
         validateAlertRelation(alertConfigId, instanceId);
-        return ResponseEntity.ok(ApiResponse.ok(alertInstanceLogService.getLogsByAlertId(instanceId)));
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceLogService.getLogsByAlertId(instanceId, filter)));
+    }
+
+    @GetMapping("/{alertConfigId}/instances/{instanceId}/logs/count")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    public ResponseEntity<ApiResponse<Long>> countAlertLogs(
+            @PathVariable Long alertConfigId, @PathVariable Long instanceId,
+            @Valid AlertInstanceLogFilterDto filter) {
+        validateAlertRelation(alertConfigId, instanceId);
+        return ResponseEntity.ok(ApiResponse.ok(alertInstanceLogService.countLogsByAlertId(instanceId, filter)));
     }
 
     private AlertInstanceDto validateAlertRelation(Long alertConfigId, Long instanceId) {

@@ -3,6 +3,7 @@ package com.iviet.ivshs.service.alert;
 import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
 import com.iviet.ivshs.dto.alert.AlertConfigDto;
+import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 
@@ -15,6 +16,12 @@ public interface AlertConfigService {
 
     /** Lấy tất cả config có phân trang, filter namespace optional (dùng cho trang manage độc lập). */
     PaginatedResponse<AlertConfigDto> getAllConfigs(AlertNamespace namespace, int page, int size);
+
+    /** Lấy tất cả config dùng query filter DTO. */
+    PaginatedResponse<AlertConfigDto> getAllConfigs(AlertConfigFilterDto filter);
+
+    /** Đếm tất cả config dùng query filter DTO. */
+    long countConfigs(AlertConfigFilterDto filter);
 
     /** Lấy chi tiết một config theo ID. */
     AlertConfigDto getConfigById(Long id);
