@@ -91,6 +91,7 @@ public class RuleProcessor implements SchedulableJobProcessor {
 
             initCtx.getTemplateData().put("rule_name", rule.getName());
             initCtx.getTemplateData().put("rule_id", rule.getId());
+            initCtx.getTemplateData().put("total_conditions", conditions.size());
 
             for (AlertConfig config : alertConfigs) {
                 try {
@@ -117,9 +118,6 @@ public class RuleProcessor implements SchedulableJobProcessor {
         ConditionEvaluationResult evalResult = evaluateCondition(tempCond);
         boolean isMet = evalResult.isMet();
 
-        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_value", evalResult.actualValue());
-        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_threshold", cond.getValue());
-
         if (ctx.isFirst()) {
             ctx.setFinalResult(isMet);
             ctx.setFirst(false);
@@ -129,6 +127,10 @@ public class RuleProcessor implements SchedulableJobProcessor {
                     : ctx.isFinalResult() && isMet;
             ctx.setFinalResult(newResult);
         }
+
+        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_value", evalResult.actualValue());
+        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_threshold", cond.getValue());
+        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_operator", cond.getOperator() != null ? cond.getOperator().getSymbol() : "");
 
         ctx.setPrevLogic(cond.getNextLogic());
         return ctx;
