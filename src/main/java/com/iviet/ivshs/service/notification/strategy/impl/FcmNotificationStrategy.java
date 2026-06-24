@@ -1,6 +1,7 @@
 package com.iviet.ivshs.service.notification.strategy.impl;
 
 import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.AndroidConfig;
 import com.iviet.ivshs.dao.ClientDeviceDao;
 import com.iviet.ivshs.dto.notification.NotificationRequest;
 import com.iviet.ivshs.entities.ClientDevice;
@@ -34,6 +35,11 @@ public class FcmNotificationStrategy implements NotificationStrategy {
 
     @Override
     public void send(NotificationRequest request) {
+        if (request == null || request.getRecipients() == null) {
+            log.warn("Notification request or recipients list is null — skipping");
+            return;
+        }
+
         Thread.startVirtualThread(() -> {
             try {
                 processAndDispatch(request);
@@ -44,7 +50,9 @@ public class FcmNotificationStrategy implements NotificationStrategy {
     }
 
     private void processAndDispatch(NotificationRequest request) {
-        List<String> fcmTokens = request.getRecipients().stream().flatMap(client -> client.getClientDevices().stream())
+        List<String> fcmTokens = request.getRecipients().stream()
+                .filter(client -> client != null && client.getClientDevices() != null)
+                .flatMap(client -> client.getClientDevices().stream()).filter(device -> device != null)
                 .map(ClientDevice::getFcmToken).filter(token -> token != null && !token.isBlank()).distinct().toList();
 
         if (fcmTokens.isEmpty()) {
@@ -87,7 +95,8 @@ public class FcmNotificationStrategy implements NotificationStrategy {
 
         Thread.startVirtualThread(() -> {
             Message.Builder messageBuilder = Message.builder().setToken(targetToken)
-                    .setNotification(Notification.builder().setTitle(title).setBody(body).build());
+                    .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                    .setAndroidConfig(AndroidConfig.builder().setPriority(AndroidConfig.Priority.HIGH).build());
 
             if (data != null && !data.isEmpty()) {
                 messageBuilder.putAllData(data);
@@ -97,8 +106,9 @@ public class FcmNotificationStrategy implements NotificationStrategy {
                 String messageId = firebaseMessaging.send(messageBuilder.build());
                 log.info("Message sent successfully! ID: {}", messageId);
             } catch (FirebaseMessagingException e) {
-                String errorCode = e.getMessagingErrorCode() != null ? e.getMessagingErrorCode().name() : "";
-                checkAndDeleteDeadToken(errorCode, targetToken);
+                MessagingErrorCode errorCode = e.getMessagingErrorCode();
+                String codeName = errorCode != null ? errorCode.name() : "";
+                checkAndDeleteDeadToken(codeName, targetToken);
                 log.error("Error sending FCM Unicast message: {}", e.getMessage());
             }
         });
@@ -106,7 +116,8 @@ public class FcmNotificationStrategy implements NotificationStrategy {
 
     private void sendMulticastBatch(List<String> batch, String title, String body, Map<String, String> data) {
         MulticastMessage.Builder messageBuilder = MulticastMessage.builder().addAllTokens(batch)
-                .setNotification(Notification.builder().setTitle(title).setBody(body).build());
+                .setNotification(Notification.builder().setTitle(title).setBody(body).build())
+                .setAndroidConfig(AndroidConfig.builder().setPriority(AndroidConfig.Priority.HIGH).build());
 
         if (data != null && !data.isEmpty()) {
             messageBuilder.putAllData(data);
@@ -127,15 +138,10 @@ public class FcmNotificationStrategy implements NotificationStrategy {
 
     private void handleDeadTokens(List<SendResponse> responses, List<String> tokens) {
         List<String> deadTokens = IntStream.range(0, responses.size()).filter(i -> !responses.get(i).isSuccessful())
-                .filter(i -> {
-                    FirebaseMessagingException fme = responses.get(i).getException();
-                    if (fme != null) {
-                        String errorCode = fme.getMessagingErrorCode() != null ? fme.getMessagingErrorCode().name()
-                                : "";
-                        return DEAD_TOKEN_CODES.contains(errorCode);
-                    }
-                    return false;
-                }).mapToObj(tokens::get).toList();
+                .filter(i -> responses.get(i).getException() instanceof FirebaseMessagingException fme
+                        && fme.getMessagingErrorCode() != null
+                        && DEAD_TOKEN_CODES.contains(fme.getMessagingErrorCode().name()))
+                .mapToObj(tokens::get).toList();
 
         if (!deadTokens.isEmpty()) {
             log.info("Detected {} dead tokens. Deleting in bulk from DB...", deadTokens.size());

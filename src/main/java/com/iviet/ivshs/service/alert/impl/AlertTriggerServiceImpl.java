@@ -70,7 +70,8 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
             alert = alertInstanceService.incrementTriggerCount(existingAlert.getId());
             actionType = AlertActionType.RE_TRIGGERED;
             if (logMessage == null) {
-                logMessage = alertMessageTemplateService.buildMessage(config.getMessageTemplate(), request.getTemplateData());
+                logMessage = alertMessageTemplateService.buildMessage(config.getMessageTemplate(),
+                        request.getTemplateData());
             }
         } else {
             alert = alertInstanceService.createActiveAlert(config, request.getTemplateData());
@@ -91,9 +92,9 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
             String logMessage, JsonNode payload) {
 
         AlertStatus status = switch (actionType) {
-            case ACKNOWLEDGED -> AlertStatus.ACKNOWLEDGED;
-            case RESOLVED, AUTO_RESOLVED -> AlertStatus.RESOLVED;
-            default -> throw new IllegalArgumentException("Unsupported action type for handleAction: " + actionType);
+        case ACKNOWLEDGED -> AlertStatus.ACKNOWLEDGED;
+        case RESOLVED -> AlertStatus.RESOLVED;
+        default -> throw new IllegalArgumentException("Unsupported action type for handleAction: " + actionType);
         };
 
         AlertInstance alert = alertInstanceService.updateStatus(alertInstanceId, status, actorType, actorId);
@@ -107,6 +108,7 @@ public class AlertTriggerServiceImpl implements AlertTriggerService {
                 .actionType(actionType).actorType(actorType).actorId(actorId).message(logMessage).payload(payload)
                 .build();
         alertInstanceLogService.createLog(logDto);
-        eventPublisher.publishEvent(new AlertNotificationEvent(this, config, alert, actionType, actorType, actorId, logMessage));
+        eventPublisher.publishEvent(
+                new AlertNotificationEvent(this, config, alert, actionType, actorType, actorId, logMessage));
     }
 }

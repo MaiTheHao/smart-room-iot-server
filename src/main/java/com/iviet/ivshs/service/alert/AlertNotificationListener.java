@@ -73,13 +73,14 @@ public class AlertNotificationListener {
         return clientDao.findAllWithDevicesByIdIn(clientIds);
     }
 
-    private Map<String, String> buildFcmData(String type, AlertInstance alert) {
+    private Map<String, String> buildFcmData(String actionType, AlertInstance alert) {
         Map<String, String> data = new HashMap<>();
-        data.put("type", type);
+        data.put("type", "ALERT");
+        data.put("status", actionType);
         data.put("entityId", String.valueOf(alert.getId()));
         data.put("severity", alert.getSeverity().name());
         data.put("deepLink", "smartroom://alert/" + alert.getId());
-        data.put("timestamp", String.valueOf(Instant.now().toEpochMilli()));
+        data.put("timestamp", Instant.now().toString());
         return data;
     }
 
