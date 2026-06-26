@@ -41,26 +41,28 @@ public class AlertNotificationListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAlertNotificationEvent(AlertNotificationEvent event) {
-        AlertConfig config = event.getConfig();
-        AlertInstance alert = event.getAlert();
+        AlertConfig alertConfig = event.getConfig();
+        AlertInstance alertInstance = event.getAlert();
 
         try {
-            List<SysGroup> recipientGroups = alertInstanceDao.findGroupsByAlertId(alert.getId());
+            List<SysGroup> recipientGroups = alertInstanceDao.findGroupsByAlertId(alertInstance.getId());
             Set<Client> recipientsWithDevices = loadDevicesForGroups(recipientGroups);
-            List<NotificationChannel> channels = parseChannels(config.getChannels());
-            Map<String, String> data = buildFcmData(event.getActionType().name(), alert);
+            List<NotificationChannel> channels = parseChannels(alertConfig.getChannels());
+            Long alertConfigId = alertConfig.getId();
+            Long alertInstanceId = alertInstance.getId();
+            Map<String, String> data = buildFcmData(event.getActionType().name(), alertConfigId, alertInstanceId, alertInstance.getSeverity().name());
 
             String bodyMessage = (event.getActionType() == AlertActionType.RE_TRIGGERED && event.getLogMessage() != null)
                     ? event.getLogMessage()
-                    : alert.getBody();
+                    : alertInstance.getBody();
 
             NotificationRequest request = NotificationRequest.builder().recipients(recipientsWithDevices)
-                    .channels(channels).title(config.getAlertName()).body(bodyMessage).data(data).build();
+                    .channels(channels).title(alertConfig.getAlertName()).body(bodyMessage).data(data).build();
 
             notificationService.sendNotification(request);
-            log.info("Successfully sent async notification for alert ID: {}", alert.getId());
+            log.info("Successfully sent async notification for alert ID: {}", alertInstance.getId());
         } catch (Exception e) {
-            log.error("Failed to send FCM notification for alert ID {}: {}", alert.getId(), e.getMessage(), e);
+            log.error("Failed to send FCM notification for alert ID {}: {}", alertInstance.getId(), e.getMessage(), e);
         }
     }
 
@@ -73,13 +75,13 @@ public class AlertNotificationListener {
         return clientDao.findAllWithDevicesByIdIn(clientIds);
     }
 
-    private Map<String, String> buildFcmData(String actionType, AlertInstance alert) {
+    private Map<String, String> buildFcmData(String actionType, Long alertConfigId, Long alertInstanceId, String severity) {
         Map<String, String> data = new HashMap<>();
         data.put("type", "ALERT");
         data.put("status", actionType);
-        data.put("entityId", String.valueOf(alert.getId()));
-        data.put("severity", alert.getSeverity().name());
-        data.put("deepLink", "smartroom://alert/" + alert.getId());
+        data.put("entityId", String.valueOf(alertInstanceId));
+        data.put("severity", severity);
+        data.put("deepLink", String.format("smartroom://alert_detail/%d/%d", alertConfigId, alertInstanceId));
         data.put("timestamp", Instant.now().toString());
         return data;
     }
