@@ -2,12 +2,17 @@ import { getAllGroups } from '../../../../api/group.api.js';
 import { createConfig, updateConfig } from '../../../../api/alert.api.js';
 import { Toast } from '../../../../common/notification_util.js';
 import { getAllActiveRules } from '../../../../api/rule.api.js';
+import { STRATEGIES } from './strategies/index.js';
+import { TemplateEditor } from './editor/editor.js';
 
 const { i18n } = window.__ALERT_MANAGE_CONFIG__;
 
 export const AlertConfigModal = (() => {
   let bootstrapModal = null;
   let saveCallback = null;
+
+  let rulesLoaded = false;
+  let rulesLoading = false;
 
   const el = {};
 
@@ -29,10 +34,40 @@ export const AlertConfigModal = (() => {
     el.messageTemplate = document.getElementById('cfgMessageTemplate');
 
     if (el.namespace) {
-      el.namespace.addEventListener('change', (e) => {
-        toggleSourceIdInput(e.target.value);
+      el.namespace.addEventListener('change', async (e) => {
+        const newNamespace = e.target.value;
+        await toggleSourceIdInput(newNamespace);
+        const sId = newNamespace === 'RULE' ? el.sourceIdSelect.value : el.sourceId.value;
+        await updateTemplateTokensByStrategy(newNamespace, sId, false);
       });
     }
+
+    el.variablesContainer = document.getElementById('cfgTemplateVariables');
+    el.editorContainer = document.getElementById('cfgMessageTemplateEditor');
+    el.previewContainer = document.getElementById('cfgMessageTemplatePreview');
+
+    el.templateEditor = new TemplateEditor({
+      editorEl: el.editorContainer,
+      textareaEl: el.messageTemplate,
+      previewEl: el.previewContainer,
+      variablesContainerEl: el.variablesContainer
+    });
+
+    if (el.sourceIdSelect) {
+      const triggerLoad = () => {
+        loadActiveRulesDropdown(el.sourceIdSelect.value);
+      };
+      el.sourceIdSelect.addEventListener('focus', triggerLoad);
+      el.sourceIdSelect.addEventListener('mousedown', triggerLoad);
+
+      el.sourceIdSelect.addEventListener('change', async () => {
+        if (el.namespace.value === 'RULE') {
+          await updateTemplateTokensByStrategy('RULE', el.sourceIdSelect.value, false);
+        }
+      });
+    }
+
+
 
     if (el.modal) {
       bootstrapModal = typeof bootstrap !== 'undefined' ? new bootstrap.Modal(el.modal) : null;
@@ -94,10 +129,25 @@ export const AlertConfigModal = (() => {
   };
 
   const loadActiveRulesDropdown = async (selectedValue = '') => {
-    const select = el.sourceIdSelect;
-    if (!select) return;
+    if (rulesLoaded || rulesLoading) return;
+    rulesLoading = true;
 
+    const select = el.sourceIdSelect;
+    if (!select) {
+      rulesLoading = false;
+      return;
+    }
+
+    const [err, res] = await getAllActiveRules();
+    if (err) {
+      Toast.error('Failed to load active rules.');
+      rulesLoading = false;
+      return;
+    }
+
+    const rules = res.data || [];
     select.replaceChildren();
+
     const defaultOpt = document.createElement('option');
     defaultOpt.value = '';
     defaultOpt.disabled = true;
@@ -105,13 +155,6 @@ export const AlertConfigModal = (() => {
     defaultOpt.textContent = 'Select Rule...';
     select.appendChild(defaultOpt);
 
-    const [err, res] = await getAllActiveRules();
-    if (err) {
-      Toast.error('Failed to load active rules.');
-      return;
-    }
-
-    const rules = res.data || [];
     rules.forEach((rule) => {
       const opt = document.createElement('option');
       opt.value = rule.id.toString();
@@ -121,6 +164,42 @@ export const AlertConfigModal = (() => {
       }
       select.appendChild(opt);
     });
+
+    rulesLoaded = true;
+    rulesLoading = false;
+  };
+
+  const updateTemplateTokensByStrategy = async (namespace, sourceId, shouldReloadTemplate = false, initialText = null) => {
+    const strategy = STRATEGIES[namespace];
+    if (!strategy) {
+      if (shouldReloadTemplate) {
+        el.templateEditor.load(initialText || '', []);
+      } else {
+        el.templateEditor.updateTokens([]);
+      }
+      return;
+    }
+
+    let contextData = null;
+    if (sourceId) {
+      contextData = await strategy.fetchData(sourceId);
+    }
+
+    const tokens = strategy.getTokens(contextData);
+
+    if (shouldReloadTemplate) {
+      const textToLoad = initialText !== null ? initialText : el.messageTemplate.value;
+      el.templateEditor.load(textToLoad, tokens);
+    } else {
+      el.templateEditor.updateTokens(tokens);
+    }
+
+    if (namespace === 'RULE' && contextData && el.sourceIdSelect && !rulesLoaded) {
+      const opt = el.sourceIdSelect.querySelector(`option[value="${contextData.id}"]`);
+      if (opt) {
+        opt.textContent = `${contextData.id} - ${contextData.name}`;
+      }
+    }
   };
 
   const toggleSourceIdInput = async (namespace, sourceIdValue = '') => {
@@ -129,7 +208,23 @@ export const AlertConfigModal = (() => {
       el.sourceId.disabled = true;
       el.sourceIdSelect.classList.remove('d-none');
       el.sourceIdSelect.disabled = false;
-      await loadActiveRulesDropdown(sourceIdValue);
+
+      el.sourceIdSelect.replaceChildren();
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.disabled = true;
+      defaultOpt.selected = !sourceIdValue;
+      defaultOpt.textContent = 'Select Rule...';
+      el.sourceIdSelect.appendChild(defaultOpt);
+
+      if (sourceIdValue) {
+        const opt = document.createElement('option');
+        opt.value = sourceIdValue.toString();
+        opt.selected = true;
+        opt.textContent = sourceIdValue.toString();
+        el.sourceIdSelect.appendChild(opt);
+      }
+      rulesLoaded = false;
     } else {
       el.sourceIdSelect.classList.add('d-none');
       el.sourceIdSelect.disabled = true;
@@ -140,6 +235,9 @@ export const AlertConfigModal = (() => {
   };
 
   const open = async (id = null, data = null) => {
+    rulesLoaded = false;
+    rulesLoading = false;
+
     el.form.reset();
     el.id.value = '';
     clearValidation();
@@ -178,7 +276,11 @@ export const AlertConfigModal = (() => {
       el.alertCode.disabled = false;
     }
 
+    const textValue = data ? (data.messageTemplate || '') : '';
+    el.messageTemplate.value = textValue;
+
     await toggleSourceIdInput(ns, sId);
+    await updateTemplateTokensByStrategy(ns, sId, true, textValue);
 
     await loadRecipientGroups(selectedGroups);
 
@@ -194,6 +296,8 @@ export const AlertConfigModal = (() => {
   const submit = async (e) => {
     e.preventDefault();
     clearValidation();
+
+    el.templateEditor.syncToTextarea();
 
     const alertName = el.alertName.value.trim();
     const alertCode = el.alertCode.value.trim();
