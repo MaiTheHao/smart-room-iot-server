@@ -58,6 +58,9 @@ public class RestRequestLoggingAspect {
         Object result = null;
         try {
             result = joinPoint.proceed();
+        } catch (com.iviet.ivshs.shared.exception.BaseException baseEx) {
+            log.warn("Request failed (business error): type={}, id={}, status={}, message={}", LOG_TYPE, traceId, baseEx.getStatus(), baseEx.getMessage());
+            throw baseEx;
         } catch (Throwable throwable) {
             log.error("Request failed: type={}, id={}", LOG_TYPE, traceId, throwable);
             throw throwable;

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.iviet.ivshs.dao.base.BaseTranslatableEntityDao;
 import com.iviet.ivshs.dto.permission.SysFunctionDto;
 import com.iviet.ivshs.dto.permission.SysFunctionWithGroupStatusDto;
+import com.iviet.ivshs.dto.permission.GroupPermissionMapping;
 import com.iviet.ivshs.entities.SysFunction;
 
 @Repository
@@ -258,5 +259,20 @@ public class SysFunctionDao extends BaseTranslatableEntityDao<SysFunction> {
         """;
 
     return entityManager.createQuery(jpql, Long.class).setParameter("clientId", clientId).getSingleResult();
+  }
+
+  public List<GroupPermissionMapping> findGroupPermissionMappingsByClientId(Long clientId) {
+    String dtoClass = GroupPermissionMapping.class.getName();
+    String jpql = String.format("""
+        SELECT new %s(g.id, f.functionCode)
+        FROM SysFunction f
+        JOIN f.roles r
+        JOIN r.group g
+        JOIN g.clients c
+        WHERE c.id = :clientId
+        """, dtoClass);
+    return entityManager.createQuery(jpql, GroupPermissionMapping.class)
+            .setParameter("clientId", clientId)
+            .getResultList();
   }
 }

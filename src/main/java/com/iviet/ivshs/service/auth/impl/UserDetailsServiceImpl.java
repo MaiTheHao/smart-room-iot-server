@@ -1,8 +1,12 @@
 package com.iviet.ivshs.service.auth.impl;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +21,7 @@ import org.springframework.util.StringUtils;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.SysFunctionDao;
 import com.iviet.ivshs.dto.auth.CustomUserDetails;
+import com.iviet.ivshs.dto.permission.GroupPermissionMapping;
 import com.iviet.ivshs.entities.Client;
 
 @Slf4j
@@ -43,15 +48,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       throw new UsernameNotFoundException("User not found: " + cleanUsername);
     });
 
-    List<String> functionCodes = functionDao.findAllByClientId(client.getId(), "null").stream()
-        .map(func -> func.functionCode()).collect(Collectors.toList());
+    List<GroupPermissionMapping> mappings = functionDao.findGroupPermissionMappingsByClientId(client.getId());
 
-    Set<SimpleGrantedAuthority> authorities = functionCodes.stream().map(SimpleGrantedAuthority::new)
-        .collect(Collectors.toSet());
+    Map<Long, Set<String>> groupPermissions = new HashMap<>();
+    Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 
-    log.info("User authenticated: ID={}, Username={}, AuthoritiesCount={}", client.getId(), client.getUsername(),
-        authorities.size());
-    log.debug("Granting authorities to [{}]: {}", client.getUsername(), functionCodes);
-    return new CustomUserDetails(client, authorities);
+    for (GroupPermissionMapping mapping : mappings) {
+      authorities.add(new SimpleGrantedAuthority(mapping.functionCode()));
+      groupPermissions
+          .computeIfAbsent(mapping.groupId(), k -> new HashSet<>())
+          .add(mapping.functionCode());
+    }
+
+    log.info("User authenticated: ID={}, Username={}, AuthoritiesCount={}, GroupPermissionsMappingCount={}",
+        client.getId(), client.getUsername(), authorities.size(), groupPermissions.size());
+    return new CustomUserDetails(client, authorities, groupPermissions);
   }
 }

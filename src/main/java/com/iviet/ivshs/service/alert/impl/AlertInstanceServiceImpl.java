@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -100,15 +102,19 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
 
     @Override
     public PaginatedResponse<AlertInstanceDto> getAlerts(AlertFilterDto filter) {
-        Long currentClientId = SecurityContextUtil.getCurrentClientId();
         List<AlertInstance> alerts = List.of();
         long total = 0;
 
-        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
-            alerts = alertInstanceDao.findAllByClientGroups(currentClientId, filter.status(), filter.severity(),
-                    filter.namespace(), filter.from(), filter.to(), filter.page(), filter.size());
-            total = alertInstanceDao.countByClientGroups(currentClientId, filter.status(), filter.severity(),
-                    filter.namespace(), filter.from(), filter.to());
+        boolean hasAccess = SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+
+        if (hasAccess) {
+            Set<Long> allowedGroups = SecurityContextUtil.getAllowedGroups(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+            if (!allowedGroups.isEmpty()) {
+                alerts = alertInstanceDao.findAllByGroupIds(allowedGroups, filter.status(), filter.severity(),
+                        filter.namespace(), filter.from(), filter.to(), filter.page(), filter.size());
+                total = alertInstanceDao.countByGroupIds(allowedGroups, filter.status(), filter.severity(),
+                        filter.namespace(), filter.from(), filter.to());
+            }
         }
 
         List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
@@ -118,15 +124,19 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
     @Override
     public PaginatedResponse<AlertInstanceDto> getAlertsBySource(AlertNamespace namespace, String sourceId,
             AlertFilterDto filter) {
-        Long currentClientId = SecurityContextUtil.getCurrentClientId();
         List<AlertInstance> alerts = List.of();
         long total = 0;
 
-        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
-            alerts = alertInstanceDao.findAllBySourceAndClientGroups(currentClientId, namespace, sourceId,
-                    filter.status(), filter.severity(), filter.page(), filter.size());
-            total = alertInstanceDao.countBySourceAndClientGroups(currentClientId, namespace, sourceId, filter.status(),
-                    filter.severity());
+        boolean hasAccess = SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+
+        if (hasAccess) {
+            Set<Long> allowedGroups = SecurityContextUtil.getAllowedGroups(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+            if (!allowedGroups.isEmpty()) {
+                alerts = alertInstanceDao.findAllBySourceAndGroupIds(allowedGroups, namespace, sourceId,
+                        filter.status(), filter.severity(), filter.page(), filter.size());
+                total = alertInstanceDao.countBySourceAndGroupIds(allowedGroups, namespace, sourceId, filter.status(),
+                        filter.severity());
+            }
         }
 
         List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
@@ -137,21 +147,25 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
     public AlertInstanceDto getAlertById(Long alertId) {
         AlertInstance alert = alertInstanceDao.findById(alertId)
                 .orElseThrow(() -> new NotFoundException("Alert does not exist: " + alertId));
-        checkReadAccess(alert, SecurityContextUtil.getCurrentClientId());
+        checkReadAccess(alert, null);
         return AlertInstanceDto.from(alert);
     }
 
     @Override
     public PaginatedResponse<AlertInstanceDto> getAlertsByConfig(Long alertConfigId, AlertFilterDto filter) {
-        Long currentClientId = SecurityContextUtil.getCurrentClientId();
         List<AlertInstance> alerts = List.of();
         long total = 0;
 
-        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
-            alerts = alertInstanceDao.findAllByConfigAndClientGroups(currentClientId, alertConfigId, filter.status(),
-                    filter.severity(), filter.page(), filter.size());
-            total = alertInstanceDao.countByConfigAndClientGroups(currentClientId, alertConfigId, filter.status(),
-                    filter.severity());
+        boolean hasAccess = SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+
+        if (hasAccess) {
+            Set<Long> allowedGroups = SecurityContextUtil.getAllowedGroups(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+            if (!allowedGroups.isEmpty()) {
+                alerts = alertInstanceDao.findAllByConfigAndGroupIds(allowedGroups, alertConfigId, filter.status(),
+                        filter.severity(), filter.page(), filter.size());
+                total = alertInstanceDao.countByConfigAndGroupIds(allowedGroups, alertConfigId, filter.status(),
+                        filter.severity());
+            }
         }
 
         List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
@@ -160,13 +174,17 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
 
     @Override
     public PaginatedResponse<AlertInstanceDto> getAlertsByConfig(Long alertConfigId, AlertInstanceSubFilterDto filter) {
-        Long currentClientId = SecurityContextUtil.getCurrentClientId();
         List<AlertInstance> alerts = List.of();
         long total = 0;
 
-        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
-            alerts = alertInstanceDao.findAllByConfigAndClientGroups(currentClientId, alertConfigId, filter);
-            total = alertInstanceDao.countByConfigAndClientGroups(currentClientId, alertConfigId, filter);
+        boolean hasAccess = SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+
+        if (hasAccess) {
+            Set<Long> allowedGroups = SecurityContextUtil.getAllowedGroups(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+            if (!allowedGroups.isEmpty()) {
+                alerts = alertInstanceDao.findAllByConfigAndGroupIds(allowedGroups, alertConfigId, filter);
+                total = alertInstanceDao.countByConfigAndGroupIds(allowedGroups, alertConfigId, filter);
+            }
         }
 
         List<AlertInstanceDto> dtos = alerts.stream().map(AlertInstanceDto::from).toList();
@@ -175,24 +193,40 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
 
     @Override
     public long countAlertsByConfig(Long alertConfigId, AlertInstanceSubFilterDto filter) {
-        Long currentClientId = SecurityContextUtil.getCurrentClientId();
-        if (SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode())) {
-            return alertInstanceDao.countByConfigAndClientGroups(currentClientId, alertConfigId, filter);
+        boolean hasAccess = SecurityContextUtil.hasPermission(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+
+        if (hasAccess) {
+            Set<Long> allowedGroups = SecurityContextUtil.getAllowedGroups(SysFunctionEnum.F_ACCESS_ALERT.getCode());
+            if (!allowedGroups.isEmpty()) {
+                return alertInstanceDao.countByConfigAndGroupIds(allowedGroups, alertConfigId, filter);
+            }
         }
         return 0L;
     }
 
+    private void checkAlertPermission(AlertInstance alert, String permission) {
+
+        if (alert.getAlertInstanceGroups() == null || alert.getAlertInstanceGroups().isEmpty()) {
+            throw new ForbiddenException("This alert is not assigned to any group.");
+        }
+
+        java.util.Set<Long> alertGroupIds = alert.getAlertInstanceGroups().stream()
+                .map(rg -> rg.getGroup().getId())
+                .collect(java.util.stream.Collectors.toSet());
+
+        boolean hasAccess = alertGroupIds.stream()
+                .anyMatch(groupId -> SecurityContextUtil.hasPermission(groupId, permission));
+
+        if (!hasAccess) {
+            throw new ForbiddenException("You do not have permission (" + permission + ") for this alert: " + alert.getId());
+        }
+    }
+
     private void checkReadAccess(AlertInstance alert, Long currentClientId) {
-        SecurityContextUtil.requirePermission(SysFunctionEnum.F_ACCESS_ALERT.getCode(),
-                "You do not have permission to access alerts.");
-        boolean inGroup = alertInstanceDao.isClientInAlertGroups(alert.getId(), currentClientId);
-        if (!inGroup) throw new ForbiddenException("You do not have permission to view this alert: " + alert.getId());
+        checkAlertPermission(alert, SysFunctionEnum.F_ACCESS_ALERT.getCode());
     }
 
     private void checkHandleAccess(AlertInstance alert, Long currentClientId) {
-        SecurityContextUtil.requirePermission(SysFunctionEnum.F_HANDLE_ALERT.getCode(),
-                "You do not have permission to handle alerts.");
-        boolean inGroup = alertInstanceDao.isClientInAlertGroups(alert.getId(), currentClientId);
-        if (!inGroup) throw new ForbiddenException("You do not have permission to handle this alert: " + alert.getId());
+        checkAlertPermission(alert, SysFunctionEnum.F_HANDLE_ALERT.getCode());
     }
 }

@@ -77,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
   AlertConfigModal.init(loadData);
 
   document.getElementById('btnAddAlertConfig')?.addEventListener('click', () => AlertConfigModal.open());
-  document.getElementById('alertConfigForm')?.addEventListener('submit', (e) => AlertConfigModal.submit(e));
   document.getElementById('btnDeleteSelected')?.addEventListener('click', () => {
     handleBatchDelete(UiRenderer.getSelectedData());
   });

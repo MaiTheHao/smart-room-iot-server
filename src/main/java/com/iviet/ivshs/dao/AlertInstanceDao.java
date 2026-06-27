@@ -11,6 +11,7 @@ import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,9 +32,7 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
                 JOIN FETCH ar.alertConfig ac
                 WHERE ar.id = :id
                 """;
-        return entityManager.createQuery(jpql, AlertInstance.class)
-                .setParameter("id", id)
-                .getResultStream()
+        return entityManager.createQuery(jpql, AlertInstance.class).setParameter("id", id).getResultStream()
                 .findFirst();
     }
 
@@ -69,21 +68,23 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
     // ===== RBAC QUERIES: Dynamic Group-based =====
 
     /**
-     * Lấy tất cả alert events mà user thuộc ít nhất một group nhận tin. Luồng mới: alert_recipient →
-     * alert_recipient_group → client_group → client_id.
+     * Lấy tất cả alert instances mà thuộc ít nhất một group trong danh sách groupIds. Nếu groupIds = null, lấy tất cả
+     * alert instances không giới hạn group.
      */
-    public List<AlertInstance> findAllByClientGroups(Long clientId, AlertStatus status, Severity severity,
+    public List<AlertInstance> findAllByGroupIds(Collection<Long> groupIds, AlertStatus status, Severity severity,
             AlertNamespace namespace, Instant from, Instant to, int page, int size) {
+        boolean filterGroups = (groupIds != null);
         StringBuilder jpql = new StringBuilder("""
                 SELECT DISTINCT ar FROM AlertInstance ar
                 JOIN FETCH ar.alertConfig
                 LEFT JOIN FETCH ar.acknowledgedBy
                 LEFT JOIN FETCH ar.resolvedBy
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
                 """);
+        if (filterGroups) {
+            jpql.append(" JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append(" WHERE 1=1");
+        }
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
         if (namespace != null) jpql.append(" AND ar.alertConfig.namespace = :namespace");
@@ -91,7 +92,8 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         if (to != null) jpql.append(" AND ar.triggeredAt <= :to");
         jpql.append(" ORDER BY ar.triggeredAt DESC");
 
-        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("clientId", clientId);
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
         if (namespace != null) q.setParameter("namespace", namespace);
@@ -100,22 +102,24 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         return q.setFirstResult(page * size).setMaxResults(size).getResultList();
     }
 
-    public long countByClientGroups(Long clientId, AlertStatus status, Severity severity,
+    public long countByGroupIds(Collection<Long> groupIds, AlertStatus status, Severity severity,
             AlertNamespace namespace, Instant from, Instant to) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT COUNT(DISTINCT ar) FROM AlertInstance ar
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                """);
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder();
+        if (filterGroups) {
+            jpql.append(
+                    "SELECT COUNT(DISTINCT ar) FROM AlertInstance ar JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append("SELECT COUNT(ar) FROM AlertInstance ar WHERE 1=1");
+        }
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
         if (namespace != null) jpql.append(" AND ar.alertConfig.namespace = :namespace");
         if (from != null) jpql.append(" AND ar.triggeredAt >= :from");
         if (to != null) jpql.append(" AND ar.triggeredAt <= :to");
 
-        var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("clientId", clientId);
+        var q = entityManager.createQuery(jpql.toString(), Long.class);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
         if (namespace != null) q.setParameter("namespace", namespace);
@@ -124,9 +128,10 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         return q.getSingleResult();
     }
 
-    /** Lấy tất cả alert events (Admin view — không giới hạn). */
+    /** Lấy tất cả alert instances (Admin view — không giới hạn). */
     public List<AlertInstance> findAll(AlertStatus status, Severity severity, int page, int size) {
-        StringBuilder jpql = new StringBuilder("SELECT ar FROM AlertInstance ar JOIN FETCH ar.alertConfig LEFT JOIN FETCH ar.acknowledgedBy LEFT JOIN FETCH ar.resolvedBy WHERE 1=1");
+        StringBuilder jpql = new StringBuilder(
+                "SELECT ar FROM AlertInstance ar JOIN FETCH ar.alertConfig LEFT JOIN FETCH ar.acknowledgedBy LEFT JOIN FETCH ar.resolvedBy WHERE 1=1");
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
         jpql.append(" ORDER BY ar.triggeredAt DESC");
@@ -149,92 +154,91 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
     }
 
     /**
-     * Lấy các alert events theo source & namespace mà user thuộc ít nhất một group nhận tin.
+     * Lấy các alert instances theo source & namespace mà thuộc ít nhất một group trong danh sách groupIds.
      */
-    public List<AlertInstance> findAllBySourceAndClientGroups(Long clientId, AlertNamespace namespace, String sourceId,
-            AlertStatus status, Severity severity, int page, int size) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT DISTINCT ar FROM AlertInstance ar
-                JOIN FETCH ar.alertConfig
-                LEFT JOIN FETCH ar.acknowledgedBy
-                LEFT JOIN FETCH ar.resolvedBy
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                  AND ar.alertConfig.namespace = :namespace
-                  AND ar.alertConfig.sourceId = :sourceId
-                """);
+    public List<AlertInstance> findAllBySourceAndGroupIds(Collection<Long> groupIds, AlertNamespace namespace,
+            String sourceId, AlertStatus status, Severity severity, int page, int size) {
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT ar FROM AlertInstance ar JOIN FETCH ar.alertConfig LEFT JOIN FETCH ar.acknowledgedBy LEFT JOIN FETCH ar.resolvedBy");
+        if (filterGroups) {
+            jpql.append(" JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append(" WHERE 1=1");
+        }
+        jpql.append(" AND ar.alertConfig.namespace = :namespace AND ar.alertConfig.sourceId = :sourceId");
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
         jpql.append(" ORDER BY ar.triggeredAt DESC");
 
-        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("clientId", clientId)
-                .setParameter("namespace", namespace).setParameter("sourceId", sourceId);
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("namespace", namespace)
+                .setParameter("sourceId", sourceId);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
         return q.setFirstResult(page * size).setMaxResults(size).getResultList();
     }
 
-    public long countBySourceAndClientGroups(Long clientId, AlertNamespace namespace, String sourceId,
+    public long countBySourceAndGroupIds(Collection<Long> groupIds, AlertNamespace namespace, String sourceId,
             AlertStatus status, Severity severity) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT COUNT(DISTINCT ar) FROM AlertInstance ar
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                  AND ar.alertConfig.namespace = :namespace
-                  AND ar.alertConfig.sourceId = :sourceId
-                """);
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder();
+        if (filterGroups) {
+            jpql.append(
+                    "SELECT COUNT(DISTINCT ar) FROM AlertInstance ar JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append("SELECT COUNT(ar) FROM AlertInstance ar WHERE 1=1");
+        }
+        jpql.append(" AND ar.alertConfig.namespace = :namespace AND ar.alertConfig.sourceId = :sourceId");
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
 
-        var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("clientId", clientId)
-                .setParameter("namespace", namespace).setParameter("sourceId", sourceId);
+        var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("namespace", namespace)
+                .setParameter("sourceId", sourceId);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
         return q.getSingleResult();
     }
 
-    public List<AlertInstance> findAllByConfigAndClientGroups(Long clientId, Long configId, AlertStatus status,
+    public List<AlertInstance> findAllByConfigAndGroupIds(Collection<Long> groupIds, Long configId, AlertStatus status,
             Severity severity, int page, int size) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT DISTINCT ar FROM AlertInstance ar
-                JOIN FETCH ar.alertConfig
-                LEFT JOIN FETCH ar.acknowledgedBy
-                LEFT JOIN FETCH ar.resolvedBy
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                  AND ar.alertConfig.id = :configId
-                """);
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT ar FROM AlertInstance ar JOIN FETCH ar.alertConfig LEFT JOIN FETCH ar.acknowledgedBy LEFT JOIN FETCH ar.resolvedBy");
+        if (filterGroups) {
+            jpql.append(" JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append(" WHERE 1=1");
+        }
+        jpql.append(" AND ar.alertConfig.id = :configId");
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
         jpql.append(" ORDER BY ar.triggeredAt DESC");
 
-        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("clientId", clientId)
-                .setParameter("configId", configId);
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("configId", configId);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
         return q.setFirstResult(page * size).setMaxResults(size).getResultList();
     }
 
-    public long countByConfigAndClientGroups(Long clientId, Long configId, AlertStatus status, Severity severity) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT COUNT(DISTINCT ar) FROM AlertInstance ar
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                  AND ar.alertConfig.id = :configId
-                """);
+    public long countByConfigAndGroupIds(Collection<Long> groupIds, Long configId, AlertStatus status,
+            Severity severity) {
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder();
+        if (filterGroups) {
+            jpql.append(
+                    "SELECT COUNT(DISTINCT ar) FROM AlertInstance ar JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append("SELECT COUNT(ar) FROM AlertInstance ar WHERE 1=1");
+        }
+        jpql.append(" AND ar.alertConfig.id = :configId");
         if (status != null) jpql.append(" AND ar.status = :status");
         if (severity != null) jpql.append(" AND ar.severity = :severity");
 
-        var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("clientId", clientId)
-                .setParameter("configId", configId);
+        var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("configId", configId);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (status != null) q.setParameter("status", status);
         if (severity != null) q.setParameter("severity", severity);
         return q.getSingleResult();
@@ -272,18 +276,17 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         return entityManager.createQuery(jpql, SysGroup.class).setParameter("alertId", alertId).getResultList();
     }
 
-    public List<AlertInstance> findAllByConfigAndClientGroups(Long clientId, Long configId, AlertInstanceSubFilterDto filter) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT DISTINCT ar FROM AlertInstance ar
-                JOIN FETCH ar.alertConfig
-                LEFT JOIN FETCH ar.acknowledgedBy
-                LEFT JOIN FETCH ar.resolvedBy
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                  AND ar.alertConfig.id = :configId
-                """);
+    public List<AlertInstance> findAllByConfigAndGroupIds(Collection<Long> groupIds, Long configId,
+            AlertInstanceSubFilterDto filter) {
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT ar FROM AlertInstance ar JOIN FETCH ar.alertConfig LEFT JOIN FETCH ar.acknowledgedBy LEFT JOIN FETCH ar.resolvedBy");
+        if (filterGroups) {
+            jpql.append(" JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append(" WHERE 1=1");
+        }
+        jpql.append(" AND ar.alertConfig.id = :configId");
         if (filter.status() != null) {
             jpql.append(" AND ar.status = :status");
         }
@@ -298,9 +301,8 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         }
         jpql.append(" ORDER BY ar.triggeredAt DESC");
 
-        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class)
-                .setParameter("clientId", clientId)
-                .setParameter("configId", configId);
+        var q = entityManager.createQuery(jpql.toString(), AlertInstance.class).setParameter("configId", configId);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (filter.status() != null) {
             q.setParameter("status", filter.status());
         }
@@ -313,20 +315,19 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
         if (filter.to() != null) {
             q.setParameter("to", filter.to());
         }
-        return q.setFirstResult(filter.page() * filter.size())
-                .setMaxResults(filter.size())
-                .getResultList();
+        return q.setFirstResult(filter.page() * filter.size()).setMaxResults(filter.size()).getResultList();
     }
 
-    public long countByConfigAndClientGroups(Long clientId, Long configId, AlertInstanceSubFilterDto filter) {
-        StringBuilder jpql = new StringBuilder("""
-                SELECT COUNT(DISTINCT ar) FROM AlertInstance ar
-                JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id
-                JOIN arg.group g
-                JOIN g.clients c
-                WHERE c.id = :clientId
-                  AND ar.alertConfig.id = :configId
-                """);
+    public long countByConfigAndGroupIds(Collection<Long> groupIds, Long configId, AlertInstanceSubFilterDto filter) {
+        boolean filterGroups = (groupIds != null);
+        StringBuilder jpql = new StringBuilder();
+        if (filterGroups) {
+            jpql.append(
+                    "SELECT COUNT(DISTINCT ar) FROM AlertInstance ar JOIN AlertInstanceGroup arg ON arg.alert.id = ar.id WHERE arg.group.id IN (:groupIds)");
+        } else {
+            jpql.append("SELECT COUNT(ar) FROM AlertInstance ar WHERE 1=1");
+        }
+        jpql.append(" AND ar.alertConfig.id = :configId");
         if (filter.status() != null) {
             jpql.append(" AND ar.status = :status");
         }
@@ -340,9 +341,8 @@ public class AlertInstanceDao extends BaseAuditEntityDao<AlertInstance> {
             jpql.append(" AND ar.triggeredAt <= :to");
         }
 
-        var q = entityManager.createQuery(jpql.toString(), Long.class)
-                .setParameter("clientId", clientId)
-                .setParameter("configId", configId);
+        var q = entityManager.createQuery(jpql.toString(), Long.class).setParameter("configId", configId);
+        if (filterGroups) q.setParameter("groupIds", groupIds);
         if (filter.status() != null) {
             q.setParameter("status", filter.status());
         }

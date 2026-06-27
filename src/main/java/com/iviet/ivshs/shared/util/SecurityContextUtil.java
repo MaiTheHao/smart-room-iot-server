@@ -40,6 +40,24 @@ public class SecurityContextUtil {
         return getCurrentFunctions().contains(functionCode);
     }
 
+    public boolean hasPermission(Long groupId, String functionCode) {
+        if (functionCode == null || functionCode.isBlank() || groupId == null) return false;
+        try {
+            return getCustomUserDetails().hasPermission(groupId, functionCode);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Set<Long> getAllowedGroups(String functionCode) {
+        if (functionCode == null || functionCode.isBlank()) return Set.of();
+        try {
+            return getCustomUserDetails().getAllowedGroups(functionCode);
+        } catch (Exception e) {
+            return Set.of();
+        }
+    }
+
     public boolean hasAllPermissions(Collection<String> functionCodes) {
         if (functionCodes == null || functionCodes.isEmpty()) return false;
         Set<String> userFunctions = getCurrentFunctions();

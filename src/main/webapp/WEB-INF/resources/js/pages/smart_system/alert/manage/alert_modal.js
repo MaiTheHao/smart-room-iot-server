@@ -50,7 +50,7 @@ export const AlertConfigModal = (() => {
       editorEl: el.editorContainer,
       textareaEl: el.messageTemplate,
       previewEl: el.previewContainer,
-      variablesContainerEl: el.variablesContainer
+      variablesContainerEl: el.variablesContainer,
     });
 
     if (el.sourceIdSelect) {
@@ -67,10 +67,20 @@ export const AlertConfigModal = (() => {
       });
     }
 
-
+    if (el.form) {
+      el.form.addEventListener('submit', (e) => {
+        submit(e);
+      });
+    }
 
     if (el.modal) {
       bootstrapModal = typeof bootstrap !== 'undefined' ? new bootstrap.Modal(el.modal) : null;
+
+      el.modal.querySelectorAll('[data-bs-dismiss="modal"]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          bootstrapModal?.hide();
+        });
+      });
     }
   };
 
@@ -245,8 +255,8 @@ export const AlertConfigModal = (() => {
     let selectedGroups = [];
     let selectedChannels = ['PUSH', 'EMAIL'];
 
-    const ns = data ? (data.namespace || 'RULE') : 'RULE';
-    const sId = data ? (data.sourceId || '') : '';
+    const ns = data ? data.namespace || 'RULE' : 'RULE';
+    const sId = data ? data.sourceId || '' : '';
 
     if (id && data) {
       el.title.textContent = i18n.editTitle || 'Edit Alert Configuration';
@@ -262,8 +272,6 @@ export const AlertConfigModal = (() => {
       selectedGroups = data.recipientGroupCodes || [];
       selectedChannels = data.channels || [];
 
-      // AlertCode and Namespace might not be editable depending on rules, but let's keep them editable unless designed otherwise.
-      // In typical CRUD, we can edit them or read-only them. Let's make alertCode read-only in edit mode for safety.
       el.alertCode.disabled = true;
     } else {
       el.title.textContent = i18n.addTitle || 'Add Alert Configuration';
@@ -276,7 +284,7 @@ export const AlertConfigModal = (() => {
       el.alertCode.disabled = false;
     }
 
-    const textValue = data ? (data.messageTemplate || '') : '';
+    const textValue = data ? data.messageTemplate || '' : '';
     el.messageTemplate.value = textValue;
 
     await toggleSourceIdInput(ns, sId);
@@ -386,5 +394,9 @@ export const AlertConfigModal = (() => {
     }
   };
 
-  return { init, open, submit };
+  const close = () => {
+    bootstrapModal?.hide();
+  };
+
+  return { init, open, close, submit };
 })();
