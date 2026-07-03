@@ -9,31 +9,20 @@ import com.iviet.ivshs.dto.setup.SetupRequest;
 import com.iviet.ivshs.integration.gateway.*;
 import com.iviet.ivshs.shared.enumeration.ClientType;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Slf4j
 @Service
-public class Esp32GatewayAdapter extends Esp32BaseClient implements GatewayAdapter {
+@RequiredArgsConstructor
+public class Esp32GatewayAdapter implements GatewayAdapter {
 
-    private final RestTemplate controlRestTemplate;
-    private final RestTemplate telemetryRestTemplate;
-    private final RestTemplate authRestTemplate;
-
-    public Esp32GatewayAdapter(
-            @Qualifier("GatewayControlRestTemplate") RestTemplate controlRestTemplate,
-            @Qualifier("GatewayTelemetryRestTemplate") RestTemplate telemetryRestTemplate,
-            @Qualifier("GatewayApiClient") RestTemplate authRestTemplate) {
-        this.controlRestTemplate = controlRestTemplate;
-        this.telemetryRestTemplate = telemetryRestTemplate;
-        this.authRestTemplate = authRestTemplate;
-    }
+    private final Esp32AuthClient authClient;
+    private final Esp32SystemClient systemClient;
+    private final Esp32LightControlClient lightClient;
+    private final Esp32FanControlClient fanClient;
 
     @Override
     public ClientType getSupportedType() {
@@ -42,17 +31,12 @@ public class Esp32GatewayAdapter extends Esp32BaseClient implements GatewayAdapt
 
     @Override
     public ResponseEntity<ApiResponse<GatewayLoginResponse>> login(String ip, LoginDto loginDto) {
-        String url = buildEsp32Uri(ip, "auth/login");
-        HttpEntity<LoginDto> request = new HttpEntity<>(loginDto);
-        return authRestTemplate.exchange(url, HttpMethod.POST, request,
-            new ParameterizedTypeReference<ApiResponse<GatewayLoginResponse>>() {});
+        return authClient.login(ip, loginDto);
     }
 
     @Override
     public ResponseEntity<SetupRequest> fetchSetup(String ip) {
-        String url = buildEsp32Uri(ip, "setup");
-        return telemetryRestTemplate.exchange(url, HttpMethod.GET, null,
-            new ParameterizedTypeReference<SetupRequest>() {});
+        return systemClient.fetchSetup(ip);
     }
 
     @Override
@@ -62,17 +46,12 @@ public class Esp32GatewayAdapter extends Esp32BaseClient implements GatewayAdapt
 
     @Override
     public GatewayOperationResult controlDevice(String ip, GatewayCommand command) {
-        Map<String, Object> body = buildControlBody(command);
-        if (body == null) {
-            return GatewayOperationResult.notSupported(
-                command.category() + " control is not supported on ESP32");
-        }
         try {
-            String url = buildEsp32Uri(ip, "control");
-            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body);
-            ResponseEntity<ApiResponse<String>> response = controlRestTemplate.exchange(
-                url, HttpMethod.POST, request,
-                new ParameterizedTypeReference<ApiResponse<String>>() {});
+            ResponseEntity<ApiResponse<String>> response = dispatchControl(ip, command);
+            if (response == null) {
+                return GatewayOperationResult.notSupported(
+                    command.category() + " control is not supported on ESP32");
+            }
             return response.getStatusCode().is2xxSuccessful()
                 ? GatewayOperationResult.ok()
                 : GatewayOperationResult.failure("ESP32 error: " + response.getStatusCode());
@@ -81,27 +60,13 @@ public class Esp32GatewayAdapter extends Esp32BaseClient implements GatewayAdapt
         }
     }
 
-    private Map<String, Object> buildControlBody(GatewayCommand command) {
+    private ResponseEntity<ApiResponse<String>> dispatchControl(String ip, GatewayCommand command) {
         if (command.category() == DeviceCategory.LIGHT) {
-            Object power = command.param("power");
-            if (power == null) return null;
-            Map<String, Object> body = new LinkedHashMap<>();
-            body.put("naturalId", command.naturalId());
-            body.put("category", "LIGHTING");
-            body.put("power", Boolean.TRUE.equals(power) ? "ON" : "OFF");
-            return body;
+            return lightClient.controlLight(ip, command);
         }
 
         if (command.category() == DeviceCategory.FAN) {
-            Map<String, Object> body = new LinkedHashMap<>();
-            body.put("naturalId", command.naturalId());
-            body.put("category", "FAN");
-            Object power = command.param("power");
-            Object speed = command.param("speed");
-            if (power != null) body.put("power", Boolean.TRUE.equals(power) ? "ON" : "OFF");
-            if (speed != null) body.put("speed", speed);
-            if (body.size() == 2) return null;
-            return body;
+            return fanClient.controlFan(ip, command);
         }
 
         return null;

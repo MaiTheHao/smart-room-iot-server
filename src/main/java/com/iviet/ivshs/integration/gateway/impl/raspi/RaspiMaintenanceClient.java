@@ -2,7 +2,8 @@ package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
-
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.shared.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -19,23 +20,9 @@ public class RaspiMaintenanceClient extends BaseGatewayClient {
     @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
 
-    public ResponseEntity<ApiResponse<String>> resetAcEnergy(String ip, String naturalId) {
-        return executeReset(ip, String.format("ac/%s/resetEnergy", naturalId));
-    }
-
-    public ResponseEntity<ApiResponse<String>> resetFanEnergy(String ip, String naturalId) {
-        return executeReset(ip, String.format("fan/%s/resetEnergy", naturalId));
-    }
-
-    public ResponseEntity<ApiResponse<String>> resetLightEnergy(String ip, String naturalId) {
-        return executeReset(ip, String.format("light/%s/resetEnergy", naturalId));
-    }
-
-    public ResponseEntity<ApiResponse<String>> resetRoomEnergy(String ip, String naturalId) {
-        return executeReset(ip, String.format("power-consumption/resetEnergy/%s", naturalId));
-    }
-
-    public ResponseEntity<ApiResponse<String>> resetByPath(String ip, String pathSegment, String naturalId) {
+    public ResponseEntity<ApiResponse<String>> resetEnergy(String ip, GatewayCommand command) {
+        String pathSegment = resolveGatewayPath(command);
+        String naturalId = command.naturalId();
         String endpoint;
         if ("power-consumption".equals(pathSegment)) {
             endpoint = String.format("power-consumption/resetEnergy/%s", naturalId);
@@ -43,6 +30,19 @@ public class RaspiMaintenanceClient extends BaseGatewayClient {
             endpoint = String.format("%s/%s/resetEnergy", pathSegment, naturalId);
         }
         return executeReset(ip, endpoint);
+    }
+
+    private String resolveGatewayPath(GatewayCommand command) {
+        String hint = command.metaGatewayPath();
+        if (hint != null) return hint;
+        return switch (command.category()) {
+            case LIGHT -> "light";
+            case FAN -> "fan";
+            case AIR_CONDITION -> "ac";
+            case POWER_CONSUMPTION -> "power-consumption";
+            default -> throw new BadRequestException(
+                "No gateway path mapping for DeviceCategory: " + command.category());
+        };
     }
 
     private ResponseEntity<ApiResponse<String>> executeReset(String ip, String endpoint) {

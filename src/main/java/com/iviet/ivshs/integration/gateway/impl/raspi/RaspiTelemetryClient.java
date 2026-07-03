@@ -4,6 +4,8 @@ import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.metric.EnergyMetricDto;
 import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.shared.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,29 +23,27 @@ public class RaspiTelemetryClient extends BaseGatewayClient {
     @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
 
-    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchLightEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, String.format("light/%s/telemetry", naturalId));
+    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchEnergyMetric(String ip, GatewayCommand command) {
+        String pathSegment = resolveGatewayPath(command);
+        return executeGetTelemetry(ip, String.format("%s/%s/telemetry", pathSegment, command.naturalId()));
     }
 
-    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchFanEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, String.format("fan/%s/telemetry", naturalId));
-    }
-
-    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchAcEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, String.format("ac/%s/telemetry", naturalId));
-    }
-
-    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchRoomEnergyMetric(String ip, String naturalId) {
-        return executeGetTelemetry(ip, String.format("power-consumption/%s/telemetry", naturalId));
+    private String resolveGatewayPath(GatewayCommand command) {
+        String hint = command.metaGatewayPath();
+        if (hint != null) return hint;
+        return switch (command.category()) {
+            case LIGHT -> "light";
+            case FAN -> "fan";
+            case AIR_CONDITION -> "ac";
+            case POWER_CONSUMPTION -> "power-consumption";
+            default -> throw new BadRequestException(
+                "No gateway path mapping for DeviceCategory: " + command.category());
+        };
     }
 
     public ResponseEntity<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
         String url = buildUri(ip, API_V2, "telemetry");
         return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<TelemetryResponseDto>() {});
-    }
-
-    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchByPath(String ip, String pathSegment, String naturalId) {
-        return executeGetTelemetry(ip, String.format("%s/%s/telemetry", pathSegment, naturalId));
     }
 
     private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String endpoint) {

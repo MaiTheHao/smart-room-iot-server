@@ -2,6 +2,7 @@ package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.AcRemoteRequestPayload;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,15 +20,36 @@ public class RaspiAcControlClient extends RaspiDeviceControlClient {
         super(restTemplate);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcRemote(String ip, String naturalId, AcRemoteRequestPayload payload) {
-        String url = buildUrl(ip, "ac", naturalId, "remote");
-        HttpEntity<AcRemoteRequestPayload> requestEntity = new HttpEntity<>(payload);
+    public ResponseEntity<ApiResponse<String>> controlAc(String ip, GatewayCommand command) {
+        String naturalId = command.naturalId();
+        AcRemoteRequestPayload acPayload = buildAcPayload(command);
+        Object power = command.param("power");
+
+        String action = (power != null) ? "power" : "remote";
+        String url = buildUrl(ip, "ac", naturalId, action);
+        HttpEntity<AcRemoteRequestPayload> requestEntity = new HttpEntity<>(acPayload);
         return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
     }
 
-    public ResponseEntity<ApiResponse<String>> controlAcPower(String ip, String naturalId, AcRemoteRequestPayload payload) {
-        String url = buildUrl(ip, "ac", naturalId, "power");
-        HttpEntity<AcRemoteRequestPayload> requestEntity = new HttpEntity<>(payload);
-        return restTemplate.exchange(url, HttpMethod.PUT, requestEntity, new ParameterizedTypeReference<ApiResponse<String>>() {});
+    private AcRemoteRequestPayload buildAcPayload(GatewayCommand cmd) {
+        return AcRemoteRequestPayload.builder()
+            .power(stringParam(cmd, "power"))
+            .temperature(intParam(cmd, "temperature"))
+            .mode(stringParam(cmd, "mode"))
+            .speed(intParam(cmd, "speed"))
+            .swing(stringParam(cmd, "swing"))
+            .duration(cmd.duration())
+            .specificType(cmd.specificType())
+            .build();
+    }
+
+    private String stringParam(GatewayCommand cmd, String key) {
+        Object val = cmd.param(key);
+        return val != null ? val.toString() : null;
+    }
+
+    private Integer intParam(GatewayCommand cmd, String key) {
+        Object val = cmd.param(key);
+        return val instanceof Number n ? n.intValue() : null;
     }
 }

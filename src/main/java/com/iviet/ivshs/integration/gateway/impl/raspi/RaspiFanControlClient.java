@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.DeviceControlPayload;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
@@ -15,19 +16,29 @@ public class RaspiFanControlClient extends RaspiDeviceControlClient {
         super(restTemplate);
     }
 
-    public ResponseEntity<ApiResponse<String>> controlFanPower(String ip, String naturalId, DeviceControlPayload payload) {
-        return executePut(buildUrl(ip, "fan", naturalId, "power"), payload);
-    }
+    public ResponseEntity<ApiResponse<String>> controlFan(String ip, GatewayCommand command) {
+        String naturalId = command.naturalId();
+        Object power = command.param("power");
+        Object speed = command.param("speed");
+        Object mode = command.param("mode");
+        Object swing = command.param("swing");
 
-    public ResponseEntity<ApiResponse<String>> controlFanSpeed(String ip, String naturalId, DeviceControlPayload payload) {
-        return executePut(buildUrl(ip, "fan", naturalId, "speed"), payload);
-    }
-
-    public ResponseEntity<ApiResponse<String>> controlFanMode(String ip, String naturalId, DeviceControlPayload payload) {
-        return executePut(buildUrl(ip, "fan", naturalId, "mode"), payload);
-    }
-
-    public ResponseEntity<ApiResponse<String>> controlFanSwing(String ip, String naturalId, DeviceControlPayload payload) {
-        return executePut(buildUrl(ip, "fan", naturalId, "swing"), payload);
+        if (power != null) {
+            return executePut(buildUrl(ip, "fan", naturalId, "power"), 
+                DeviceControlPayload.of(command.specificType(), command.duration(), power));
+        }
+        if (speed != null) {
+            return executePut(buildUrl(ip, "fan", naturalId, "speed"), 
+                DeviceControlPayload.of(command.specificType(), command.duration(), speed));
+        }
+        if (mode != null) {
+            return executePut(buildUrl(ip, "fan", naturalId, "mode"), 
+                DeviceControlPayload.of(command.specificType(), command.duration(), mode));
+        }
+        if (swing != null) {
+            return executePut(buildUrl(ip, "fan", naturalId, "swing"), 
+                DeviceControlPayload.of(command.specificType(), command.duration(), swing));
+        }
+        return null;
     }
 }
