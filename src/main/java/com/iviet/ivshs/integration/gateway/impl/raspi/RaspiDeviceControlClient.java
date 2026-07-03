@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.DeviceControlPayload;
@@ -12,11 +12,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-public abstract class GatewayDeviceControlClient extends BaseGatewayClient {
+public abstract class RaspiDeviceControlClient extends BaseGatewayClient {
 
     protected final RestTemplate restTemplate;
 
-    protected GatewayDeviceControlClient(RestTemplate restTemplate) {
+    protected RaspiDeviceControlClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

@@ -185,7 +185,7 @@ public class ClientServiceImpl implements ClientService {
       throw new BadRequestException("Username already exists: " + username);
     }
 
-    if (createDto.clientType() == ClientType.HARDWARE_GATEWAY) {
+    if (createDto.clientType().isGateway()) {
       String ipAddress = createDto.ipAddress() == null ? null
           : createDto.ipAddress()
               .trim();
@@ -212,7 +212,7 @@ public class ClientServiceImpl implements ClientService {
       client.setIpAddress(ip);
     }
 
-    if (createDto.clientType() == ClientType.HARDWARE_GATEWAY) {
+    if (createDto.clientType().isGateway()) {
       if (createDto.gatewayPassword() != null && !createDto.gatewayPassword()
           .trim()
           .isEmpty()) {
@@ -241,7 +241,7 @@ public class ClientServiceImpl implements ClientService {
         .orElseThrow(() -> new NotFoundException("Client not found with ID: " + clientId));
 
     ClientType targetType = updateDto.clientType() != null ? updateDto.clientType() : client.getClientType();
-    if (targetType == ClientType.HARDWARE_GATEWAY) {
+    if (targetType.isGateway()) {
       String finalIp = (updateDto.ipAddress() != null && !updateDto.ipAddress()
           .trim()
           .isEmpty()) ? updateDto.ipAddress()
@@ -287,7 +287,7 @@ public class ClientServiceImpl implements ClientService {
               .trim());
     } else if (updateDto.password() != null && !updateDto.password()
         .trim()
-        .isEmpty() && client.getClientType() == ClientType.HARDWARE_GATEWAY) {
+        .isEmpty() && client.getClientType().isGateway()) {
       client.setGatewayPassword(
           updateDto.password()
               .trim());

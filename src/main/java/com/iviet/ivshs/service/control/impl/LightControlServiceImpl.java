@@ -1,20 +1,20 @@
 package com.iviet.ivshs.service.control.impl;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.iviet.ivshs.dao.LightDao;
-import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
-import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import com.iviet.ivshs.dto.light.LightControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Light;
-import com.iviet.ivshs.integration.gateway.GatewayLightControlClient;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.service.control.LightControlService;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class LightControlServiceImpl implements LightControlService {
 
   private final LightDao lightDao;
-  private final GatewayLightControlClient gatewayControlClient;
+  private final GatewayAdapterRegistry gatewayAdapterRegistry;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -53,22 +53,28 @@ public class LightControlServiceImpl implements LightControlService {
   }
 
   private ControlDeviceResult applyControlParams(Light light, LightControlRequestBody body) {
-    String gatewayIp = extractClientIpAddress(light);
+    Client gatewayClient = extractClient(light);
+    GatewayAdapter adapter = gatewayAdapterRegistry.get(gatewayClient.getClientType());
+    String ip = gatewayClient.getIpAddress();
     String naturalId = light.getNaturalId();
     ControlDeviceResult result = new ControlDeviceResult();
 
-    processParameter(light, result, "power", body.power(), () -> gatewayControlClient.controlLightPower(gatewayIp,
-        naturalId, DeviceControlPayload.of(light.getSpecificType(), body.power())), light::setPower);
+    processParameter(light, result, "power", body.power(), () ->
+        adapter.controlDevice(ip, GatewayCommand.of(
+            naturalId, DeviceCategory.LIGHT, light.getSpecificType(), "power", body.power())),
+        light::setPower);
 
-    processParameter(light, result, "level", body.level(), () -> gatewayControlClient.controlLightLevel(gatewayIp,
-        naturalId, DeviceControlPayload.of(light.getSpecificType(), body.level())), light::setLevel);
+    processParameter(light, result, "level", body.level(), () ->
+        adapter.controlDevice(ip, GatewayCommand.of(
+            naturalId, DeviceCategory.LIGHT, light.getSpecificType(), "level", body.level())),
+        light::setLevel);
 
     lightDao.save(light);
     return result;
   }
 
   private <T> void processParameter(Light light, ControlDeviceResult result, String parameter, T value,
-      Supplier<ResponseEntity<ApiResponse<String>>> gatewayCall, Consumer<T> entitySetter) {
+      Supplier<GatewayOperationResult> gatewayCall, Consumer<T> entitySetter) {
     if (value == null) {
       return;
     }
@@ -77,24 +83,10 @@ public class LightControlServiceImpl implements LightControlService {
           "Light of type " + light.getSpecificType() + " does not support " + parameter + " control");
       return;
     }
-    if (executeControl(result, parameter, gatewayCall)) {
+    GatewayOperationResult opResult = gatewayCall.get();
+    result.addDetail(parameter, opResult.success(), opResult.message());
+    if (opResult.success()) {
       entitySetter.accept(value);
-    }
-  }
-
-  private boolean executeControl(ControlDeviceResult result, String parameter,
-      Supplier<ResponseEntity<ApiResponse<String>>> call) {
-    try {
-      ResponseEntity<ApiResponse<String>> response = call.get();
-      if (response.getStatusCode().is2xxSuccessful()) {
-        result.addDetail(parameter, true, "Success");
-        return true;
-      }
-      result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
-      return false;
-    } catch (Exception e) {
-      result.addDetail(parameter, false, e.getMessage());
-      return false;
     }
   }
 
@@ -103,7 +95,7 @@ public class LightControlServiceImpl implements LightControlService {
         .orElseThrow(() -> new BadRequestException("Light not found with naturalId: " + naturalId));
   }
 
-  private String extractClientIpAddress(Light light) {
+  private Client extractClient(Light light) {
     HardwareConfig control = light.getHardwareConfig();
     if (control == null) {
       throw new BadRequestException("DeviceControl not found for Light: " + light.getId());
@@ -112,10 +104,9 @@ public class LightControlServiceImpl implements LightControlService {
     if (client == null) {
       throw new BadRequestException("Client not found for DeviceControl: " + control.getId());
     }
-    String gatewayIp = client.getIpAddress();
-    if (gatewayIp == null || gatewayIp.isBlank()) {
+    if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
       throw new BadRequestException("IP Address not found for Client: " + client.getId());
     }
-    return gatewayIp;
+    return client;
   }
 }

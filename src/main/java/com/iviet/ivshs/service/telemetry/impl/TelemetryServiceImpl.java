@@ -9,6 +9,9 @@ import com.iviet.ivshs.service.room.RoomService;
 import com.iviet.ivshs.service.base.TelemetryCRUDServiceStrategy;
 import com.iviet.ivshs.service.telemetry.TelemetryService;
 import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
+import com.iviet.ivshs.integration.gateway.GatewayFetchResult;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +31,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 	private final ClientService clientService;
 	private final RoomService roomService;
 	private final List<TelemetryCRUDServiceStrategy> strategies;
-	private final com.iviet.ivshs.integration.gateway.GatewayTelemetryClient telemetryClient;
+	private final GatewayAdapterRegistry gatewayAdapterRegistry;
 	private final Map<DeviceCategory, TelemetryCRUDServiceStrategy> strategyMap = new EnumMap<>(DeviceCategory.class);
 
 	@PostConstruct
@@ -111,36 +114,38 @@ public class TelemetryServiceImpl implements TelemetryService {
 	}
 
 	protected void processTakeByGateway(ClientDto gateway) {
-		var response = telemetryClient.fetchGlobalTelemetry(gateway.ipAddress());
+		GatewayAdapter adapter = gatewayAdapterRegistry.get(gateway.clientType());
+		GatewayFetchResult<TelemetryResponseDto> result = adapter.fetchGlobalTelemetry(gateway.ipAddress());
 
-		if (!response.getStatusCode()
-				.is2xxSuccessful() || response.getBody() == null) {
-			log.warn("Failed to fetch telemetry for gateway [{}]: status={}", gateway.username(), response.getStatusCode());
+		if (!result.success()) {
+			log.debug("Global telemetry skipped for gateway [{}]: {}",
+				gateway.username(), result.message());
 			return;
 		}
 
-		var body = response.getBody();
-		if (body == null || body.getData() == null || body.getData()
-				.getDevices() == null) {
+		result.getData().ifPresent(data -> processTelemetryData(gateway, data));
+	}
+
+	private void processTelemetryData(ClientDto gateway, TelemetryResponseDto data) {
+		if (data == null || data.getData() == null || data.getData().getDevices() == null) {
 			log.info("Gateway [{}]: No telemetry data available", gateway.username());
 			return;
 		}
 
-		List<TelemetryResponseDto.DeviceDto> telemetryData = body.getData()
-				.getDevices();
-
+		List<TelemetryResponseDto.DeviceDto> telemetryData = data.getData().getDevices();
 		int processedCount = 0;
-		for (var data : telemetryData) {
+
+		for (var deviceData : telemetryData) {
 			try {
-				TelemetryCRUDServiceStrategy strategy = strategyMap.get(data.getCategory());
+				TelemetryCRUDServiceStrategy strategy = strategyMap.get(deviceData.getCategory());
 				if (strategy != null) {
-					strategy.create(data);
+					strategy.create(deviceData);
 					processedCount++;
 				} else {
-					log.warn("No strategy for category {} at sensor {}", data.getCategory(), data.getNaturalId());
+					log.warn("No strategy for category {} at sensor {}", deviceData.getCategory(), deviceData.getNaturalId());
 				}
 			} catch (Exception e) {
-				log.error("Failed to process sensor {} for gateway {}: {}", data.getNaturalId(), gateway.username(), e.getMessage());
+				log.error("Failed to process sensor {} for gateway {}: {}", deviceData.getNaturalId(), gateway.username(), e.getMessage());
 			}
 		}
 		log.info("Gateway {}: Processed {}/{} records", gateway.username(), processedCount, telemetryData.size());

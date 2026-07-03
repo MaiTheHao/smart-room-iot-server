@@ -5,13 +5,13 @@ import java.net.URI;
 
 import com.iviet.ivshs.dto.auth.LoginDto;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.integration.gateway.GatewayAuthClient;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.service.client.ClientService;
 import com.iviet.ivshs.dao.ClientDao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -27,12 +27,12 @@ public class GatewayAuthInterceptor implements ClientHttpRequestInterceptor {
 
     private final ClientService clientService;
     private final ClientDao clientDao;
-    private final ObjectFactory<GatewayAuthClient> gatewayAuthClientFactory;
+    private final GatewayAdapterRegistry gatewayAdapterRegistry;
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         URI uri = request.getURI();
-        String ip = uri.getAuthority(); // host:port
+        String ip = uri.getAuthority();
 
         Client client = clientDao.findGatewayByIpAddress(ip).orElse(null);
 
@@ -41,31 +41,27 @@ public class GatewayAuthInterceptor implements ClientHttpRequestInterceptor {
             return execution.execute(request, body);
         }
 
-        // 1. Add current token if exists
         if (client.getAccessToken() != null && !client.getAccessToken().isBlank()) {
             request.getHeaders().setBearerAuth(client.getAccessToken());
         }
 
         ClientHttpResponse response = execution.execute(request, body);
 
-        // 2. Handle 401 or 403
         if (response.getStatusCode() == HttpStatus.UNAUTHORIZED || response.getStatusCode() == HttpStatus.FORBIDDEN) {
             log.info("Gateway {} returned {}. Attempting auto-login...", ip, response.getStatusCode());
 
             if (client.getUsername() != null && client.getGatewayPassword() != null) {
                 try {
-                    GatewayAuthClient authClient = gatewayAuthClientFactory.getObject();
+                    GatewayAdapter adapter = gatewayAdapterRegistry.get(client.getClientType());
                     LoginDto loginDto = new LoginDto(client.getUsername(), client.getGatewayPassword());
 
-                    var loginResponse = authClient.login(ip, loginDto);
+                    var loginResponse = adapter.login(ip, loginDto);
                     if (loginResponse.getStatusCode().is2xxSuccessful() && loginResponse.getBody() != null) {
                         String newToken = loginResponse.getBody().getData().getToken();
                         log.info("Auto-login successful for gateway {}. Retrying original request.", ip);
 
-                        // Persist new token
                         clientService.updateAccessToken(client.getId(), newToken);
 
-                        // Retry request with new token
                         HttpRequest wrappedRequest = new HttpRequestWrapper(request);
                         wrappedRequest.getHeaders().setBearerAuth(newToken);
                         return execution.execute(wrappedRequest, body);

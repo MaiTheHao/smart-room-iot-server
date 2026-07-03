@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
 import com.iviet.ivshs.dto.setup.SetupRequest;
@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
 @RequiredArgsConstructor
-public class GatewaySystemClient extends BaseGatewayClient {
+public class RaspiSystemClient extends BaseGatewayClient {
 
     @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;

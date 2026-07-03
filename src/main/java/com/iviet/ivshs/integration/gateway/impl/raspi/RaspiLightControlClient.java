@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -8,9 +8,9 @@ import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
-public class GatewayLightControlClient extends GatewayDeviceControlClient {
+public class RaspiLightControlClient extends RaspiDeviceControlClient {
 
-    public GatewayLightControlClient(@Qualifier("GatewayControlRestTemplate")
+    public RaspiLightControlClient(@Qualifier("GatewayControlRestTemplate")
     RestTemplate restTemplate) {
         super(restTemplate);
     }

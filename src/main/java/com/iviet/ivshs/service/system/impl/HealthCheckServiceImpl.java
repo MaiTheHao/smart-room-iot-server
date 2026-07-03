@@ -5,7 +5,9 @@ import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
 import com.iviet.ivshs.dto.common.HealthCheckResponseDto.DeviceDto;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.integration.gateway.GatewaySystemClient;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
+import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
 import com.iviet.ivshs.service.system.HealthCheckService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.ExternalServiceException;
@@ -30,14 +32,27 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
 	private final ClientDao clientDao;
 	private final RoomDao roomDao;
-	private final GatewaySystemClient gatewaySystemClient;
+	private final GatewayAdapterRegistry gatewayAdapterRegistry;
 
 	@Override
 	public HealthCheckResponseDto checkByClient(Long clientId) {
-		String ipAddress = clientDao.findGatewayById(clientId)
-				.orElseThrow(() -> new BadRequestException("Client not found ID: " + clientId))
-				.getIpAddress();
-		return checkByClient(ipAddress);
+		Client client = clientDao.findGatewayById(clientId)
+				.orElseThrow(() -> new BadRequestException("Client not found ID: " + clientId));
+		GatewayAdapter adapter = gatewayAdapterRegistry.get(client.getClientType());
+		GatewayOperationResult healthResult = adapter.fetchHealthCheck(client.getIpAddress());
+
+		if (!healthResult.success()) {
+			return HealthCheckResponseDto.builder()
+					.status(503)
+					.message(healthResult.message())
+					.timestamp(Instant.now().toString())
+					.build();
+		}
+		return HealthCheckResponseDto.builder()
+				.status(200)
+				.message("OK")
+				.timestamp(Instant.now().toString())
+				.build();
 	}
 
 	@Override
@@ -46,18 +61,29 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 		log.info("Starting health check for IP: {}", ipAddress);
 
 		try {
-			var response = gatewaySystemClient.fetchHealthCheck(ipAddress);
+			Client client = clientDao.findGatewayByIpAddress(ipAddress)
+					.orElseThrow(() -> new BadRequestException("Client not found IP: " + ipAddress));
+			GatewayAdapter adapter = gatewayAdapterRegistry.get(client.getClientType());
+			GatewayOperationResult healthResult = adapter.fetchHealthCheck(ipAddress);
 
-			if (!response.getStatusCode()
-					.is2xxSuccessful()) {
-				log.warn("Failed IP [{}] with status {}. Body: {}", ipAddress, response.getStatusCode(), response.getBody());
-				throw new ExternalServiceException("Health check failed with status " + response.getStatusCode());
+			if (!healthResult.success()) {
+				log.warn("Health check not supported or failed for IP [{}]: {}", ipAddress, healthResult.message());
+				return HealthCheckResponseDto.builder()
+						.status(503)
+						.message(healthResult.message())
+						.timestamp(Instant.now().toString())
+						.build();
 			}
 
-			HealthCheckResponseDto result = response.getBody();
 			log.info("Finished health check for IP: {} in {}ms", ipAddress, System.currentTimeMillis() - start);
-			return result;
+			return HealthCheckResponseDto.builder()
+					.status(200)
+					.message("OK")
+					.timestamp(Instant.now().toString())
+					.build();
 		} catch (ExternalServiceException e) {
+			throw e;
+		} catch (BadRequestException e) {
 			throw e;
 		} catch (Exception e) {
 			log.error("Unexpected error for IP [{}]: {}", ipAddress, e.getMessage());
@@ -145,7 +171,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 		Map<String, HealthCheckResponseDto> roomResults = checkByRoom(roomId);
 
 		if (roomResults.isEmpty())
-			return 100; // No gateways means no issues
+			return 100;
 
 		double averageScore = roomResults.values()
 				.stream()

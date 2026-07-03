@@ -1,21 +1,21 @@
 package com.iviet.ivshs.service.control.impl;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.iviet.ivshs.dao.FanDao;
-import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
-import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import com.iviet.ivshs.dto.fan.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.service.control.FanControlService;
-import com.iviet.ivshs.integration.gateway.GatewayFanControlClient;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class FanControlServiceImpl implements FanControlService {
 
   private final FanDao fanDao;
-  private final GatewayFanControlClient gatewayControlClient;
+  private final GatewayAdapterRegistry gatewayAdapterRegistry;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -54,7 +54,9 @@ public class FanControlServiceImpl implements FanControlService {
   }
 
   private ControlDeviceResult applyControlParams(Fan fan, FanControlRequestBody body) {
-    String gatewayIp = extractClientIpAddress(fan);
+    Client gatewayClient = extractClient(fan);
+    GatewayAdapter adapter = gatewayAdapterRegistry.get(gatewayClient.getClientType());
+    String ip = gatewayClient.getIpAddress();
     String naturalId = fan.getNaturalId();
     ControlDeviceResult result = new ControlDeviceResult();
 
@@ -63,10 +65,8 @@ public class FanControlServiceImpl implements FanControlService {
         result,
         "power",
         body.power(),
-        () -> gatewayControlClient.controlFanPower(
-            gatewayIp,
-            naturalId,
-            DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.power())),
+        () -> adapter.controlDevice(ip, GatewayCommand.of(
+            naturalId, DeviceCategory.FAN, fan.getSpecificType(), fan.getDuration(), "power", body.power())),
         fan::setPower);
 
     processParameter(
@@ -74,10 +74,8 @@ public class FanControlServiceImpl implements FanControlService {
         result,
         "speed",
         body.speed(),
-        () -> gatewayControlClient.controlFanSpeed(
-            gatewayIp,
-            naturalId,
-            DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.speed())),
+        () -> adapter.controlDevice(ip, GatewayCommand.of(
+            naturalId, DeviceCategory.FAN, fan.getSpecificType(), fan.getDuration(), "speed", body.speed())),
         fan::setSpeed);
 
     processParameter(
@@ -85,10 +83,8 @@ public class FanControlServiceImpl implements FanControlService {
         result,
         "mode",
         body.mode(),
-        () -> gatewayControlClient.controlFanMode(
-            gatewayIp,
-            naturalId,
-            DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.mode())),
+        () -> adapter.controlDevice(ip, GatewayCommand.of(
+            naturalId, DeviceCategory.FAN, fan.getSpecificType(), fan.getDuration(), "mode", body.mode())),
         fan::setMode);
 
     processParameter(
@@ -96,10 +92,8 @@ public class FanControlServiceImpl implements FanControlService {
         result,
         "swing",
         body.swing(),
-        () -> gatewayControlClient.controlFanSwing(
-            gatewayIp,
-            naturalId,
-            DeviceControlPayload.of(fan.getSpecificType(), fan.getDuration(), body.swing())),
+        () -> adapter.controlDevice(ip, GatewayCommand.of(
+            naturalId, DeviceCategory.FAN, fan.getSpecificType(), fan.getDuration(), "swing", body.swing())),
         fan::setSwing);
 
     fanDao.save(fan);
@@ -107,7 +101,7 @@ public class FanControlServiceImpl implements FanControlService {
   }
 
   private <T> void processParameter(Fan fan, ControlDeviceResult result, String parameter, T value,
-      Supplier<ResponseEntity<ApiResponse<String>>> gatewayCall, Consumer<T> entitySetter) {
+      Supplier<GatewayOperationResult> gatewayCall, Consumer<T> entitySetter) {
     if (value == null) { return; }
     if (!DeviceCapabilityRegistry.isSupported(fan, parameter)) {
       result.addDetail(
@@ -116,25 +110,10 @@ public class FanControlServiceImpl implements FanControlService {
           "Fan of type " + fan.getSpecificType() + " does not support " + parameter + " control");
       return;
     }
-    if (executeControl(result, parameter, gatewayCall)) {
+    GatewayOperationResult opResult = gatewayCall.get();
+    result.addDetail(parameter, opResult.success(), opResult.message());
+    if (opResult.success()) {
       entitySetter.accept(value);
-    }
-  }
-
-  private boolean executeControl(ControlDeviceResult result, String parameter,
-      Supplier<ResponseEntity<ApiResponse<String>>> call) {
-    try {
-      ResponseEntity<ApiResponse<String>> response = call.get();
-      if (response.getStatusCode()
-          .is2xxSuccessful()) {
-        result.addDetail(parameter, true, "Success");
-        return true;
-      }
-      result.addDetail(parameter, false, "Gateway error: " + response.getStatusCode());
-      return false;
-    } catch (Exception e) {
-      result.addDetail(parameter, false, e.getMessage());
-      return false;
     }
   }
 
@@ -143,15 +122,14 @@ public class FanControlServiceImpl implements FanControlService {
         .orElseThrow(() -> new BadRequestException("Fan not found with naturalId: " + naturalId));
   }
 
-  private String extractClientIpAddress(Fan fan) {
+  private Client extractClient(Fan fan) {
     HardwareConfig control = fan.getHardwareConfig();
     if (control == null) { throw new BadRequestException("DeviceControl not found for Fan: " + fan.getId()); }
     Client client = control.getClient();
     if (client == null) { throw new BadRequestException("Client not found for DeviceControl: " + control.getId()); }
-    String gatewayIp = client.getIpAddress();
-    if (gatewayIp == null || gatewayIp.isBlank()) {
+    if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
       throw new BadRequestException("IP Address not found for Client: " + client.getId());
     }
-    return gatewayIp;
+    return client;
   }
 }

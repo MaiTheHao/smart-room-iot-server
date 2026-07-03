@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
 @RequiredArgsConstructor
-public class GatewayMaintenanceClient extends BaseGatewayClient {
+public class RaspiMaintenanceClient extends BaseGatewayClient {
 
     @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
@@ -35,7 +35,16 @@ public class GatewayMaintenanceClient extends BaseGatewayClient {
         return executeReset(ip, String.format("power-consumption/resetEnergy/%s", naturalId));
     }
 
-    // --- Private Helper Methods ---
+    public ResponseEntity<ApiResponse<String>> resetByPath(String ip, String pathSegment, String naturalId) {
+        String endpoint;
+        if ("power-consumption".equals(pathSegment)) {
+            endpoint = String.format("power-consumption/resetEnergy/%s", naturalId);
+        } else {
+            endpoint = String.format("%s/%s/resetEnergy", pathSegment, naturalId);
+        }
+        return executeReset(ip, endpoint);
+    }
+
     private ResponseEntity<ApiResponse<String>> executeReset(String ip, String endpoint) {
         String url = buildUri(ip, API_V2, endpoint);
         return restTemplate.exchange(url, HttpMethod.PUT, HttpEntity.EMPTY, new ParameterizedTypeReference<ApiResponse<String>>() {});

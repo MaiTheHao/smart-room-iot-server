@@ -1,7 +1,8 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.dto.control.AcRemoteRequestPayload;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -11,9 +12,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
 @Service
-public class GatewayAcControlClient extends GatewayDeviceControlClient {
+public class RaspiAcControlClient extends RaspiDeviceControlClient {
 
-    public GatewayAcControlClient(@Qualifier("GatewayControlRestTemplate")
+    public RaspiAcControlClient(@Qualifier("GatewayControlRestTemplate")
     RestTemplate restTemplate) {
         super(restTemplate);
     }

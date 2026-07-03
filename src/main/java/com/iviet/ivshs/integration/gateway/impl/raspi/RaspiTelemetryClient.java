@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 import com.iviet.ivshs.dto.common.ApiResponse;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GatewayTelemetryClient extends BaseGatewayClient {
+public class RaspiTelemetryClient extends BaseGatewayClient {
 
     @Qualifier("GatewayTelemetryRestTemplate")
     private final RestTemplate restTemplate;
@@ -40,6 +40,10 @@ public class GatewayTelemetryClient extends BaseGatewayClient {
     public ResponseEntity<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
         String url = buildUri(ip, API_V2, "telemetry");
         return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<TelemetryResponseDto>() {});
+    }
+
+    public ResponseEntity<ApiResponse<EnergyMetricDto>> fetchByPath(String ip, String pathSegment, String naturalId) {
+        return executeGetTelemetry(ip, String.format("%s/%s/telemetry", pathSegment, naturalId));
     }
 
     private ResponseEntity<ApiResponse<EnergyMetricDto>> executeGetTelemetry(String ip, String endpoint) {

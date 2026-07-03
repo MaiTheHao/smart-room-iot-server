@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 import com.iviet.ivshs.dto.auth.GatewayLoginResponse;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
-public class GatewayAuthClient extends BaseGatewayClient {
+public class RaspiAuthClient extends BaseGatewayClient {
 
     private final RestTemplate restTemplate;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.integration.gateway;
+package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -8,9 +8,9 @@ import com.iviet.ivshs.dto.control.DeviceControlPayload;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 @Service
-public class GatewayFanControlClient extends GatewayDeviceControlClient {
+public class RaspiFanControlClient extends RaspiDeviceControlClient {
 
-    public GatewayFanControlClient(@Qualifier("GatewayControlRestTemplate")
+    public RaspiFanControlClient(@Qualifier("GatewayControlRestTemplate")
     RestTemplate restTemplate) {
         super(restTemplate);
     }

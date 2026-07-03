@@ -7,8 +7,8 @@ import com.iviet.ivshs.dao.setup.DeviceSetupOrchestrator;
 import com.iviet.ivshs.dto.setup.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
-import com.iviet.ivshs.integration.gateway.GatewaySystemClient;
-import com.iviet.ivshs.shared.enumeration.ClientType;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.ExternalServiceException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
@@ -26,7 +26,7 @@ public class SetupServiceImpl implements SetupService {
   private final ClientService clientService;
   private final RoomService roomService;
   private final DeviceSetupOrchestrator deviceSetupOrchestrator;
-  private final GatewaySystemClient gatewaySystemClient;
+  private final GatewayAdapterRegistry gatewayAdapterRegistry;
 
   @Override
   @Transactional
@@ -45,7 +45,7 @@ public class SetupServiceImpl implements SetupService {
   private Client validateAndGetGateway(Long clientId) {
     Client client = clientService.getEntityById(clientId);
 
-    if (client.getClientType() != ClientType.HARDWARE_GATEWAY) {
+    if (!client.getClientType().isGateway()) {
       throw new BadRequestException("Client ID " + clientId + " is not a hardware gateway");
     }
 
@@ -58,7 +58,8 @@ public class SetupServiceImpl implements SetupService {
 
   private SetupRequest fetchSetupData(Client client) {
     try {
-      ResponseEntity<SetupRequest> response = gatewaySystemClient.fetchSetup(client.getIpAddress());
+      GatewayAdapter adapter = gatewayAdapterRegistry.get(client.getClientType());
+      ResponseEntity<SetupRequest> response = adapter.fetchSetup(client.getIpAddress());
 
       if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
         throw new ExternalServiceException("Gateway returned error status: " + response.getStatusCode());

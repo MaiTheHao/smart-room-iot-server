@@ -1,17 +1,21 @@
 package com.iviet.ivshs.service.control.impl;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.control.AcRemoteRequestPayload;
 import com.iviet.ivshs.dto.control.ControlDeviceResult;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
-import com.iviet.ivshs.integration.gateway.GatewayAcControlClient;
+import com.iviet.ivshs.integration.gateway.GatewayAdapter;
+import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
 import com.iviet.ivshs.service.control.AirConditionControlService;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
@@ -26,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class AirConditionControlServiceImpl implements AirConditionControlService {
 
   private final AirConditionDao airConditionDao;
-  private final GatewayAcControlClient gatewayControlClient;
+  private final GatewayAdapterRegistry gatewayAdapterRegistry;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -63,71 +67,57 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     }
 
     boolean isPowerChanged = targetOrAutoPower != null && targetOrAutoPower != ac.getPower();
-    String gatewayIp = extractClientIpAddress(ac);
-    AcRemoteRequestPayload payload = buildPayload(ac, targetOrAutoPower, targetTemp, targetMode, targetSpeed,
-        targetSwing);
+    Client gatewayClient = extractClient(ac);
+    GatewayAdapter adapter = gatewayAdapterRegistry.get(gatewayClient.getClientType());
+    String ip = gatewayClient.getIpAddress();
+    GatewayCommand command = buildCommand(ac, targetOrAutoPower, targetTemp, targetMode, targetSpeed, targetSwing);
 
     ControlDeviceResult result = new ControlDeviceResult();
     boolean hasFailed = false;
 
     if (isPowerChanged) {
-      hasFailed = !executePowerControl(ac, gatewayIp, targetOrAutoPower, payload, result);
+      hasFailed = !executeControl(adapter, ip, command, result, "power");
+      if (ac.getPower() != null && targetOrAutoPower != null) {
+        ac.setPower(targetOrAutoPower);
+      }
     }
 
     if (!hasFailed && isOtherChanged) {
-      executeRemoteControl(ac, gatewayIp, targetTemp, targetMode, targetSpeed, targetSwing, payload, result);
+      if (executeControl(adapter, ip, command, result, "remote")) {
+        if (targetTemp != null) ac.setTemperature(targetTemp);
+        if (targetMode != null) ac.setMode(targetMode);
+        if (targetSpeed != null) ac.setFanSpeed(targetSpeed);
+        if (targetSwing != null) ac.setSwing(targetSwing);
+      }
     }
 
+    airConditionDao.save(ac);
     return result;
   }
 
-  private AcRemoteRequestPayload buildPayload(AirCondition ac, ActuatorPower power, Integer temp, ActuatorMode mode,
+  private GatewayCommand buildCommand(AirCondition ac, ActuatorPower power, Integer temp, ActuatorMode mode,
       Integer speed, ActuatorSwing swing) {
-    return AcRemoteRequestPayload.builder()
-        .power(power != null ? power.name() : (ac.getPower() != null ? ac.getPower().name() : null))
-        .temperature(temp != null ? temp : ac.getTemperature())
-        .mode(mode != null ? mode.name() : (ac.getMode() != null ? ac.getMode().name() : null))
-        .speed(speed != null ? speed : ac.getFanSpeed())
-        .swing(swing != null ? swing.name() : (ac.getSwing() != null ? ac.getSwing().name() : null))
-        .duration(ac.getDuration()).specificType(ac.getSpecificType()).build();
+    Map<String, Object> acParams = new LinkedHashMap<>();
+    if (power != null) acParams.put("power", power.name());
+    if (temp != null) acParams.put("temperature", temp);
+    if (mode != null) acParams.put("mode", mode.name());
+    if (speed != null) acParams.put("speed", speed);
+    if (swing != null) acParams.put("swing", swing.name());
+
+    return new GatewayCommand(
+        ac.getNaturalId(), DeviceCategory.AIR_CONDITION,
+        ac.getSpecificType(), ac.getDuration(), acParams, Map.of());
   }
 
-  private boolean executePowerControl(AirCondition ac, String gatewayIp, ActuatorPower targetPower,
-      AcRemoteRequestPayload payload, ControlDeviceResult result) {
+  private boolean executeControl(GatewayAdapter adapter, String ip, GatewayCommand command,
+      ControlDeviceResult result, String paramName) {
     try {
-      ResponseEntity<ApiResponse<String>> response = gatewayControlClient.controlAcPower(gatewayIp, ac.getNaturalId(),
-          payload);
-      if (response.getStatusCode().is2xxSuccessful()) {
-        result.addDetail("power", true, "Success");
-        ac.setPower(targetPower);
-        airConditionDao.save(ac);
-        return true;
-      }
-      result.addDetail("power", false, "Gateway error: " + response.getStatusCode());
-      return false;
+      GatewayOperationResult opResult = adapter.controlDevice(ip, command);
+      result.addDetail(paramName, opResult.success(), opResult.message());
+      return opResult.success();
     } catch (Exception e) {
-      result.addDetail("power", false, e.getMessage());
+      result.addDetail(paramName, false, e.getMessage());
       return false;
-    }
-  }
-
-  private void executeRemoteControl(AirCondition ac, String gatewayIp, Integer temp, ActuatorMode mode, Integer speed,
-      ActuatorSwing swing, AcRemoteRequestPayload payload, ControlDeviceResult result) {
-    try {
-      ResponseEntity<ApiResponse<String>> response = gatewayControlClient.controlAcRemote(gatewayIp, ac.getNaturalId(),
-          payload);
-      if (response.getStatusCode().is2xxSuccessful()) {
-        result.addDetail("remote", true, "Success");
-        if (temp != null) ac.setTemperature(temp);
-        if (mode != null) ac.setMode(mode);
-        if (speed != null) ac.setFanSpeed(speed);
-        if (swing != null) ac.setSwing(swing);
-        airConditionDao.save(ac);
-      } else {
-        result.addDetail("remote", false, "Gateway error: " + response.getStatusCode());
-      }
-    } catch (Exception e) {
-      result.addDetail("remote", false, e.getMessage());
     }
   }
 
@@ -136,7 +126,7 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
         .orElseThrow(() -> new BadRequestException("AirCondition not found with naturalId: " + naturalId));
   }
 
-  private String extractClientIpAddress(AirCondition ac) {
+  private Client extractClient(AirCondition ac) {
     HardwareConfig control = ac.getHardwareConfig();
     if (control == null) {
       throw new BadRequestException("DeviceControl not found for AirCondition: " + ac.getId());
@@ -145,10 +135,9 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     if (client == null) {
       throw new BadRequestException("Client not found for DeviceControl: " + control.getId());
     }
-    String gatewayIp = client.getIpAddress();
-    if (gatewayIp == null || gatewayIp.isBlank()) {
+    if (client.getIpAddress() == null || client.getIpAddress().isBlank()) {
       throw new BadRequestException("IP Address not found for Client: " + client.getId());
     }
-    return gatewayIp;
+    return client;
   }
 }
