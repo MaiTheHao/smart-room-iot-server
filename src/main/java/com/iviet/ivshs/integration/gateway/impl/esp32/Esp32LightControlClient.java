@@ -3,6 +3,7 @@ package com.iviet.ivshs.integration.gateway.impl.esp32;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,7 +30,7 @@ public class Esp32LightControlClient extends Esp32BaseClient {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("naturalId", command.naturalId());
         body.put("category", DeviceCategory.LIGHT);
-        body.put("power", Boolean.TRUE.equals(power) ? "ON" : "OFF");
+        body.put("power", ActuatorPower.ON.equals(power) ? "ON" : "OFF");
 
         String url = buildEsp32Uri(ip, "control");
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body);

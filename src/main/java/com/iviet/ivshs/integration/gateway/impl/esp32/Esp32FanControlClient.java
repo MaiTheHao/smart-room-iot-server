@@ -2,6 +2,7 @@ package com.iviet.ivshs.integration.gateway.impl.esp32;
 
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,7 +27,7 @@ public class Esp32FanControlClient extends Esp32BaseClient {
         body.put("category", "FAN");
         Object power = command.param("power");
         Object speed = command.param("speed");
-        if (power != null) body.put("power", Boolean.TRUE.equals(power) ? "ON" : "OFF");
+        if (power != null) body.put("power", ActuatorPower.ON.equals(power) ? "ON" : "OFF");
         if (speed != null) body.put("speed", speed);
         if (body.size() == 2) return null;
 
