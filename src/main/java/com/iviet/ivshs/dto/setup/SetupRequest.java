@@ -54,6 +54,7 @@ public class SetupRequest {
             private String name;
             private Map<String, TranslationDetail> translations;
 
+
             @JsonProperty("isActive")
             @Builder.Default
             private boolean isActive = true;

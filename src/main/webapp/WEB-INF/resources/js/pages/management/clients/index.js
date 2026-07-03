@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			CLIENT_TYPE: {
 				USER: 'USER',
 				HARDWARE_GATEWAY: 'HARDWARE_GATEWAY',
+				HARDWARE_GATEWAY_ESP32: 'HARDWARE_GATEWAY_ESP32',
 			},
 		},
 		i18n: {},

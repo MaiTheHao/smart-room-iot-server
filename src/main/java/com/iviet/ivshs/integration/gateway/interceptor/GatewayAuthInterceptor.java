@@ -10,8 +10,10 @@ import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.service.client.ClientService;
 import com.iviet.ivshs.dao.ClientDao;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -22,12 +24,32 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class GatewayAuthInterceptor implements ClientHttpRequestInterceptor {
 
     private final ClientService clientService;
     private final ClientDao clientDao;
     private final GatewayAdapterRegistry gatewayAdapterRegistry;
+    private final RestTemplate gatewayControlRestTemplate;
+    private final RestTemplate gatewayTelemetryRestTemplate;
+
+    public GatewayAuthInterceptor(
+            ClientService clientService,
+            ClientDao clientDao,
+            GatewayAdapterRegistry gatewayAdapterRegistry,
+            @Qualifier("GatewayControlRestTemplate") RestTemplate gatewayControlRestTemplate,
+            @Qualifier("GatewayTelemetryRestTemplate") RestTemplate gatewayTelemetryRestTemplate) {
+        this.clientService = clientService;
+        this.clientDao = clientDao;
+        this.gatewayAdapterRegistry = gatewayAdapterRegistry;
+        this.gatewayControlRestTemplate = gatewayControlRestTemplate;
+        this.gatewayTelemetryRestTemplate = gatewayTelemetryRestTemplate;
+    }
+
+    @PostConstruct
+    public void registerInterceptors() {
+        gatewayControlRestTemplate.getInterceptors().add(this);
+        gatewayTelemetryRestTemplate.getInterceptors().add(this);
+    }
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {

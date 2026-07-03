@@ -29,7 +29,8 @@
 	"status": 200,
 	"message": "Lấy JSON cấu hình thiết bị thành công",
 	"data": {
-		"configDevice": [
+		"roomCode": "A101",
+		"devices": [
 			{
 				"naturalId": "LIGHT_01",
 				"category": "LIGHTING",
@@ -44,6 +45,7 @@
 					}
 				},
 				"peripheralType": "RELAY",
+				"controlType": "GPIO",
 				"specificType": "GPIO",
 				"gpioPin": [13]
 			}

@@ -9,10 +9,16 @@ export const StateManager = (() => {
 	const getI18n = () => config.i18n;
 	const getConstants = () => config.constants || {};
 
+	const isGateway = (type) => {
+		const types = getConstants().CLIENT_TYPE || {};
+		return type === types.HARDWARE_GATEWAY || type === types.HARDWARE_GATEWAY_ESP32;
+	};
+
 	return {
 		init,
 		getConfig,
 		getI18n,
 		getConstants,
+		isGateway,
 	};
 })();

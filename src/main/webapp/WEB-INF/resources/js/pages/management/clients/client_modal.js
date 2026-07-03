@@ -37,8 +37,7 @@ export const MainForm = (() => {
 		}
 
 		elements.clientType?.addEventListener('change', (e) => {
-			const constants = StateManager.getConstants();
-			const isGateway = e.target.value === constants.CLIENT_TYPE?.HARDWARE_GATEWAY;
+			const isGateway = StateManager.isGateway(e.target.value);
 			const isEdit = !!elements.clientId.value;
 			toggleGatewayFields(isGateway && !isEdit);
 		});
@@ -95,7 +94,7 @@ export const MainForm = (() => {
 			toggleGatewayFields(false);
 		} else {
 			if (elements.clientType) {
-				toggleGatewayFields(elements.clientType.value === constants.CLIENT_TYPE?.HARDWARE_GATEWAY);
+				toggleGatewayFields(StateManager.isGateway(elements.clientType.value));
 			}
 		}
 
@@ -145,7 +144,7 @@ export const MainForm = (() => {
 			return null;
 		}
 
-		if (data.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY) {
+		if (StateManager.isGateway(data.clientType)) {
 			if (!Validator.ip.isBlank(data.ipAddress)) {
 				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colIp || ''), i18n.error || 'Error');
 				const ipEl = elements.form.querySelector('#ipAddress');
@@ -175,7 +174,7 @@ export const MainForm = (() => {
 			return null;
 		}
 
-		if (!isUpdate && data.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY) {
+		if (!isUpdate && StateManager.isGateway(data.clientType)) {
 			if (!Validator.generic.isBlank(data.gatewayPassword)) {
 				data.gatewayPassword = data.password;
 			}
@@ -241,7 +240,7 @@ export const PasswordForm = (() => {
 		if (elements.clientId) elements.clientId.value = clientData.id;
 		if (elements.title) elements.title.textContent = (i18n.pwdTitle || '').replace('{0}', clientData.username);
 
-		const isGateway = clientData.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY;
+		const isGateway = StateManager.isGateway(clientData.clientType);
 		if (elements.gatewayContainer) {
 			elements.gatewayContainer.style.display = isGateway ? 'block' : 'none';
 		}

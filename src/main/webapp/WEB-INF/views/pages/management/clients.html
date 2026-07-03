@@ -111,6 +111,7 @@
                       <select class="form-select bg-light border-0" id="clientType" name="clientType">
                         <option value="USER" th:text="#{management.client.type.user}">User</option>
                         <option value="HARDWARE_GATEWAY" th:text="#{management.client.type.gateway}">Gateway</option>
+                        <option value="HARDWARE_GATEWAY_ESP32" th:text="#{management.client.type.esp32_gateway}">ESP32 Gateway</option>
                       </select>
                     </div>
                     <div class="invalid-feedback" id="val-clientType"></div>
@@ -280,11 +281,13 @@
             CLIENT_TYPE: {
               USER: 'USER',
               HARDWARE_GATEWAY: 'HARDWARE_GATEWAY',
+              HARDWARE_GATEWAY_ESP32: 'HARDWARE_GATEWAY_ESP32',
             },
           },
           i18n: {
             typeUser: /*[[#{management.client.type.user}]]*/ 'User',
             typeGateway: /*[[#{management.client.type.gateway}]]*/ 'Gateway',
+            typeEsp32Gateway: /*[[#{management.client.type.esp32_gateway}]]*/ 'ESP32 Gateway',
             noData: /*[[#{client.table.no_data}]]*/ 'No clients found.',
             never: /*[[#{index.room.offline}]]*/ 'Never',
             loading: /*[[#{client.table.loading}]]*/ 'Loading...',

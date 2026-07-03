@@ -136,7 +136,7 @@
 | :--------- | :----------- | :------- | :--------------------------------------- |
 | username   | string       | Có       | Tên đăng nhập (3-100 ký tự, duy nhất)    |
 | password   | string       | Có       | Mật khẩu (6-100 ký tự)                   |
-| clientType | ClientTypeV1 | Có       | Loại client (`USER`, `HARDWARE_GATEWAY`) |
+| clientType | ClientTypeV1 | Có       | Loại client (`USER`, `HARDWARE_GATEWAY`, `HARDWARE_GATEWAY_ESP32`) |
 | ipAddress  | string       | Không    | Địa chỉ IP (IPv4/IPv6, tối đa 45 ký tự)  |
 | macAddress      | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
 | avatarUrl       | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
@@ -195,7 +195,7 @@
 | :--------- | :----------- | :------- | :--------------------------------------- |
 | username   | string       | Không    | Tên đăng nhập (3-100 ký tự, duy nhất)    |
 | password   | string       | Không    | Mật khẩu (6-100 ký tự)                   |
-| clientType | ClientTypeV1 | Không    | Loại client (`USER`, `HARDWARE_GATEWAY`) |
+| clientType | ClientTypeV1 | Không    | Loại client (`USER`, `HARDWARE_GATEWAY`, `HARDWARE_GATEWAY_ESP32`) |
 | ipAddress  | string       | Không    | Địa chỉ IP (IPv4/IPv6, tối đa 45 ký tự)  |
 | macAddress      | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
 | avatarUrl       | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
@@ -251,7 +251,7 @@
 | :--------- | :----------- | :------- | :--------------------------------------- |
 | username   | string       | Không    | Tên đăng nhập (3-100 ký tự, duy nhất)    |
 | password   | string       | Không    | Mật khẩu (6-100 ký tự)                   |
-| clientType | ClientTypeV1 | Không    | Loại client (`USER`, `HARDWARE_GATEWAY`) |
+| clientType | ClientTypeV1 | Không    | Loại client (`USER`, `HARDWARE_GATEWAY`, `HARDWARE_GATEWAY_ESP32`) |
 | ipAddress  | string       | Không    | Địa chỉ IP (IPv4/IPv6, tối đa 45 ký tự)  |
 | macAddress      | string       | Không    | Địa chỉ MAC (tối đa 100 ký tự)           |
 | avatarUrl       | string (URL) | Không    | Đường dẫn avatar (tối đa 255 ký tự)      |
@@ -344,7 +344,8 @@
 
 | Giá trị          | Mô tả                   |
 | :--------------- | :---------------------- |
-| USER             | Người dùng thông thường |
-| HARDWARE_GATEWAY | Gateway phần cứng       |
+| USER                    | Người dùng thông thường |
+| HARDWARE_GATEWAY        | Gateway phần cứng       |
+| HARDWARE_GATEWAY_ESP32  | Gateway phần cứng ESP32 |
 
 ---

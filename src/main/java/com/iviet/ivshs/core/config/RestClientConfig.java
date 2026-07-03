@@ -1,7 +1,6 @@
 package com.iviet.ivshs.core.config;
 
 import com.iviet.ivshs.core.properties.HttpClientProperties;
-import com.iviet.ivshs.integration.gateway.interceptor.GatewayAuthInterceptor;
 import com.iviet.ivshs.integration.gateway.interceptor.TraceForwardingInterceptor;
 import com.iviet.ivshs.shared.exception.handler.RestTemplateResponseErrorHandler;
 
@@ -19,6 +18,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
@@ -28,9 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RestClientConfig {
 
-    private final GatewayAuthInterceptor gatewayAuthInterceptor;
     private final TraceForwardingInterceptor traceForwardingInterceptor;
     private final HttpClientProperties httpClientProperties;
+    private final ObjectMapper objectMapper;
 
     @Bean
     @Primary
@@ -94,10 +94,9 @@ public class RestClientConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
-        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter()));
+        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter(objectMapper)));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
         restTemplate.getInterceptors().add(traceForwardingInterceptor);
-        restTemplate.getInterceptors().add(gatewayAuthInterceptor);
         return restTemplate;
     }
 
@@ -132,10 +131,9 @@ public class RestClientConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
-        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter()));
+        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter(objectMapper)));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
         restTemplate.getInterceptors().add(traceForwardingInterceptor);
-        restTemplate.getInterceptors().add(gatewayAuthInterceptor);
         return restTemplate;
     }
 
@@ -170,10 +168,9 @@ public class RestClientConfig {
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
 
         RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(factory));
-        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter()));
+        restTemplate.setMessageConverters(List.of(new MappingJackson2HttpMessageConverter(objectMapper)));
         restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
         restTemplate.getInterceptors().add(traceForwardingInterceptor);
-        restTemplate.getInterceptors().add(gatewayAuthInterceptor);
         return restTemplate;
     }
 }

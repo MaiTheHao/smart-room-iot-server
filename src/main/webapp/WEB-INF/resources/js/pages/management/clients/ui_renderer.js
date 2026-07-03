@@ -78,23 +78,37 @@ export const UiRenderer = (() => {
             values: {
               '': i18n.allTypes || 'All Types',
               USER: i18n.typeUser || 'User',
-              HARDWARE_GATEWAY: i18n.typeGateway || 'Gateway',
+              HARDWARE_GATEWAY: i18n.typeGateway || 'Raspberry Pi Gateway',
+              HARDWARE_GATEWAY_ESP32: i18n.typeEsp32Gateway || 'ESP32 Gateway',
             },
           },
           minWidth: 120,
           formatter: (cell) => {
             const value = cell.getValue();
             const isUser = value === constants.CLIENT_TYPE?.USER;
+            const isEsp32 = value === constants.CLIENT_TYPE?.HARDWARE_GATEWAY_ESP32;
             const icon = isUser ? 'user' : 'cpu';
-            const cls = isUser ? 'bg-primary text-primary' : 'bg-purple text-purple';
-            const customStyle = !isUser
-              ? 'style="--bs-purple: #6610f2; color: #6610f2 !important; background-color: rgba(102, 16, 242, 0.1) !important; border-color: rgba(102, 16, 242, 0.25) !important;"'
-              : '';
+            
+            let cls = 'bg-primary text-primary';
+            let customStyle = '';
+            let label = i18n.typeUser || 'User';
+
+            if (!isUser) {
+              if (isEsp32) {
+                cls = 'bg-info text-info';
+                customStyle = 'style="--bs-info: #0dcaf0; color: #0dcaf0 !important; background-color: rgba(13, 202, 240, 0.1) !important; border-color: rgba(13, 202, 240, 0.25) !important;"';
+                label = i18n.typeEsp32Gateway || 'ESP32 Gateway';
+              } else {
+                cls = 'bg-purple text-purple';
+                customStyle = 'style="--bs-purple: #6610f2; color: #6610f2 !important; background-color: rgba(102, 16, 242, 0.1) !important; border-color: rgba(102, 16, 242, 0.25) !important;"';
+                label = i18n.typeGateway || 'Raspberry Pi Gateway';
+              }
+            }
 
             return `
 							<div class="d-flex align-items-center h-100">
 								<span class="badge rounded-pill bg-opacity-10 border border-opacity-25 px-3 py-2 ${cls}" ${customStyle}>
-									<i data-lucide="${icon}" class="lucide-sm me-1"></i>${isUser ? i18n.typeUser || 'User' : i18n.typeGateway || 'Gateway'}
+									<i data-lucide="${icon}" class="lucide-sm me-1"></i>${label}
 								</span>
 							</div>`;
           },
@@ -132,7 +146,7 @@ export const UiRenderer = (() => {
           responsive: 0,
           formatter: (cell) => {
             const data = cell.getData();
-            const isGateway = data.clientType === constants.CLIENT_TYPE?.HARDWARE_GATEWAY;
+            const isGateway = StateManager.isGateway(data.clientType);
             const setupBtn = isGateway
               ? `
 							<button class="btn btn-light btn-sm rounded-pill btn-setup me-1" data-id="${data.id}" data-username="${data.username}" title="${i18n.setupTitle || ''}">
