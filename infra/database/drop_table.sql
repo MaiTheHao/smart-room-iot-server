@@ -37,7 +37,6 @@ DROP TABLE IF EXISTS `temperature_lan`;
 DROP TABLE IF EXISTS `temperature_value`;
 DROP TABLE IF EXISTS `power_consumption`;
 DROP TABLE IF EXISTS `power_consumption_lan`;
-DROP TABLE IF EXISTS `power_consumption_value`;
 DROP TABLE IF EXISTS `energy_metrics`;
 DROP TABLE IF EXISTS `fan`;
 DROP TABLE IF EXISTS `fan_lan`;

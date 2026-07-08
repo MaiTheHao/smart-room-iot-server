@@ -1,15 +1,9 @@
 package com.iviet.ivshs.entities;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.iviet.ivshs.entities.base.BaseIoTSensor;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Index;
 
@@ -33,8 +27,5 @@ public class PowerConsumption extends BaseIoTSensor<PowerConsumptionLan> {
 
     @Column(name = "current_watt")
     private Double currentWatt;
-
-    @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<PowerConsumptionValue> consumptionValues = new HashSet<>();
 
 }

@@ -437,19 +437,6 @@ CREATE TABLE `power_consumption_lan` (
   CONSTRAINT `fk_power_consumption_lan_power_consumption` FOREIGN KEY (`owner_id`) REFERENCES `power_consumption` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `power_consumption_value` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `timestamp` datetime(6) NOT NULL,
-  `watt` double DEFAULT NULL,
-  `sensor_id` bigint NOT NULL,
-  `unix_minute` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_sensor_timestamp` (`sensor_id`, `timestamp`),
-  KEY `idx_timestamp` (`timestamp`),
-  KEY `idx_pcv_unix_minute` (`unix_minute`),
-  CONSTRAINT `fk_power_consumption_value_power_consumption` FOREIGN KEY (`sensor_id`) REFERENCES `power_consumption` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE `energy_metrics` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `target_category` varchar(50) NOT NULL COMMENT 'Enum: LIGHT, FAN, AC, ROOM',

@@ -7,15 +7,18 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.core.properties.EngineProperties;
-import com.iviet.ivshs.dao.PowerConsumptionValueDao;
+import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
-import com.iviet.ivshs.dto.powerconsumption.SumPowerConsumptionValueDto;
+import com.iviet.ivshs.dto.metric.EnergyMetricDto;
 import com.iviet.ivshs.dto.temperature.AverageTemperatureValueDto;
 import com.iviet.ivshs.entities.RuleCondition;
 import com.iviet.ivshs.scheduler.dynamic.rule.strategy.RuleDataSourceStrategy;
+import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.RuleDataSource;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,8 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
 
   private final TemperatureValueDao temperatureValueDao;
-  private final PowerConsumptionValueDao powerConsumptionValueDao;
+  private final EnergyMetricDao energyMetricDao;
   private final EngineProperties engineProperties;
+
+  @PersistenceContext
+  private EntityManager entityManager;
 
   private static final String PROP_AVG_TEMPERATURE = "avg_temperature";
   private static final String PROP_SUM_WATT = "sum_watt";
@@ -75,10 +81,19 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
           yield getLastElement(history) != null ? getLastElement(history).avgTempC() : null;
         }
         case PROP_SUM_WATT -> {
+          List<Long> sensorIds = entityManager.createQuery(
+              "SELECT pc.id FROM PowerConsumption pc WHERE pc.room.id = :roomId AND pc.isActive = true", Long.class)
+              .setParameter("roomId", roomId)
+              .getResultList();
+          if (sensorIds.isEmpty()) {
+            log.warn("No active power consumption sensor found in room {}", roomId);
+            yield null;
+          }
+          Long sensorId = sensorIds.get(0);
           int divisor = TelemetryTimeGroup.getDivisorForRange(startTime, now);
-          List<SumPowerConsumptionValueDto> history = powerConsumptionValueDao.getSumHistoryByRoom(roomId, startTime, now, divisor);
-          log.debug("Fetched {} watt records for ROOM {} in the last {} minutes (Condition: {})", history.size(), roomId, lookbackMinutes, condition.getId());
-          yield getLastElement(history) != null ? getLastElement(history).getSumWatt() : null;
+          List<EnergyMetricDto> history = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, sensorId, startTime, now, divisor);
+          log.debug("Fetched {} power records for ROOM {} (sensor {}) in the last {} minutes (Condition: {})", history.size(), roomId, sensorId, lookbackMinutes, condition.getId());
+          yield getLastElement(history) != null ? getLastElement(history).getPower() : null;
         }
         default -> {
           log.warn("Property '{}' not supported for ROOM data source in condition {}", property, condition.getId());
