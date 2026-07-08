@@ -6,7 +6,6 @@
 
 ### **POST** `/auth/login` - Đăng nhập vào thiết bị SmartRoom
 
-
 > Đăng nhập vào thiết bị SmartRoom để lấy JWT token. Token này được sử dụng để xác thực cho các request điều khiển thiết bị sau này.
 
 ### Request Headers
@@ -21,14 +20,14 @@
 | Tên trường | Loại | Bắt buộc | Mô tả |
 | :--------- | :--- | :------- | :---- |
 | username | string | Có | Tên đăng nhập |
-| password | string | Có | Mật khẩu đăng nhập|
+| password | string | Có | Mật khẩu đăng nhập |
 
 ### Request Example
 
 ```json
 {
-	"username": "admin",
-	"password": "admin123"
+	"username": "vuesp",
+	"password": "123456789"
 }
 ```
 
@@ -39,9 +38,9 @@
 	"status": 200,
 	"message": "Đăng nhập thành công",
 	"data": {
-		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6InN1cGVyX3VzZXIiLCJleHAiOjE3NDg3NjU0MzJ9.signature"
+		"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZ1ZXNwIiwicm9sZSI6InN1cGVyX3VzZXIiLCJleHAiOjE3NDg3NjU0MzJ9.signature"
 	},
-	"timestamp": "2026-07-03T12:31:09Z"
+	"timestamp": "2026-07-07T03:28:27Z"
 }
 ```
 
@@ -51,7 +50,7 @@
 {
 	"status": 401,
 	"message": "username hoặc password không đúng",
-	"timestamp": "2026-07-03T12:31:09Z"
+	"timestamp": "2026-07-07T03:28:27Z"
 }
 ```
 
@@ -63,7 +62,7 @@
 {
 	"status": 500,
 	"message": "Server chưa đồng bộ xong thời gian, hãy thử lại sau vài giây!",
-	"timestamp": "2026-07-03T12:31:09Z"
+	"timestamp": "2026-07-07T03:28:27Z"
 }
 ```
 
@@ -73,7 +72,7 @@
 {
 	"status": 400,
 	"message": "Thiếu body request hoặc body không đúng định dạng",
-	"timestamp": "2026-07-03T12:31:09Z"
+	"timestamp": "2026-07-07T03:28:27Z"
 }
 ```
 
@@ -91,3 +90,4 @@ Sau khi đăng nhập thành công, server trả về JWT token với các thôn
 
 - Token được sử dụng trong header `Authorization: Bearer <token>` cho các API điều khiển thiết bị
 - Token có thời gian sống là 1 giờ kể từ lúc phát hành
+- Username/password mặc định là `vuesp` / `123456789` (có thể thay đổi trong code)
