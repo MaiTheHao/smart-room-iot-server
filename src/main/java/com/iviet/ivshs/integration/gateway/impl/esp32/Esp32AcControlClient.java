@@ -1,0 +1,65 @@
+package com.iviet.ivshs.integration.gateway.impl.esp32;
+
+import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.integration.gateway.GatewayCommand;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class Esp32AcControlClient extends Esp32BaseClient {
+
+    @Qualifier("GatewayControlRestTemplate")
+    private final RestTemplate restTemplate;
+
+    public ResponseEntity<ApiResponse<String>> controlAc(String ip, GatewayCommand command) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("naturalId", command.naturalId());
+        body.put("category", DeviceCategory.AIR_CONDITION);
+
+        Object power = command.param("power");
+        Object temperature = command.param("temperature");
+        Object mode = command.param("mode");
+        Object fanSpeed = command.param("fanSpeed");
+        if (fanSpeed == null) {
+            fanSpeed = command.param("speed");
+        }
+        Object swing = command.param("swing");
+
+        if (power != null) {
+            body.put("power", ActuatorPower.ON.equals(power) ? "ON" : "OFF");
+        }
+        if (temperature != null) {
+            body.put("temperature", temperature);
+        }
+        if (mode != null) {
+            body.put("mode", mode);
+        }
+        if (fanSpeed != null) {
+            body.put("fanSpeed", fanSpeed);
+        }
+        if (swing != null) {
+            body.put("swing", swing);
+        }
+
+        if (body.size() == 2) {
+            return null;
+        }
+
+        String url = buildEsp32Uri(ip, "control");
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body);
+        return restTemplate.exchange(url, HttpMethod.POST, request,
+            new ParameterizedTypeReference<ApiResponse<String>>() {});
+    }
+}
