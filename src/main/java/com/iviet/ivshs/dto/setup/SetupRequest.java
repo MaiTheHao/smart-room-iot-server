@@ -52,10 +52,14 @@ public class SetupRequest {
             private String bleMac;
             private String apiEndpoint;
             private String name;
-            private Map<String, TranslationDetail> translations;
+    private Map<String, TranslationDetail> translations;
 
+    // Note: The nested 'internal' block from ESP32 configuration payload is
+    // gateway-specific (e.g. IR sender hex codes or relay metadata). The Java
+    // server does not require this configuration, hence it is deliberately omitted
+    // from this DTO.
 
-            @JsonProperty("isActive")
+    @JsonProperty("isActive")
             @Builder.Default
             private boolean isActive = true;
 
