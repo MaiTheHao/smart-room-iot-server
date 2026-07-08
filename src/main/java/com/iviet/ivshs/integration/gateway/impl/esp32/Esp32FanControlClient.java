@@ -3,6 +3,7 @@ package com.iviet.ivshs.integration.gateway.impl.esp32;
 import com.iviet.ivshs.dto.common.ApiResponse;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -24,11 +25,17 @@ public class Esp32FanControlClient extends Esp32BaseClient {
     public ResponseEntity<ApiResponse<String>> controlFan(String ip, GatewayCommand command) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("naturalId", command.naturalId());
-        body.put("category", "FAN");
+        body.put("category", DeviceCategory.FAN);
         Object power = command.param("power");
         Object speed = command.param("speed");
+        Object mode = command.param("mode");
+        Object swing = command.param("swing");
+
         if (power != null) body.put("power", ActuatorPower.ON.equals(power) ? "ON" : "OFF");
         if (speed != null) body.put("speed", speed);
+        if (mode != null) body.put("mode", mode);
+        if (swing != null) body.put("swing", swing);
+
         if (body.size() == 2) return null;
 
         String url = buildEsp32Uri(ip, "control");
