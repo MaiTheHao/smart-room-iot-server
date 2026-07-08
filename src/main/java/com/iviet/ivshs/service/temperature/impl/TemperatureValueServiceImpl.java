@@ -7,6 +7,7 @@ import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
 import com.iviet.ivshs.dto.temperature.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.temperature.CreateTemperatureValueDto;
+import com.iviet.ivshs.dto.temperature.TemperatureValueDto;
 import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
@@ -87,7 +88,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<?> getHistory(Long sensorId, Instant from, Instant to) {
+  public List<TemperatureValueDto> getHistory(Long sensorId, Instant from, Instant to) {
     Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
     return temperatureValueDao.getRawHistoryBySensor(sensorId, limitedFrom, to);
   }

@@ -10,6 +10,7 @@ import com.iviet.ivshs.service.base.TelemetryCRUDServiceStrategy;
 import com.iviet.ivshs.service.telemetry.SensorTelemetryServiceStrategy;
 
 public interface TemperatureValueService extends TelemetryCRUDServiceStrategy, SensorTelemetryServiceStrategy {
+	
 	List<AverageTemperatureValueDto> getAverageTemperatureByRoom(Long roomId, Instant from, Instant to);
 
 	void create(CreateTemperatureValueDto dto);
