@@ -229,7 +229,7 @@ public class LightServiceImpl implements LightService {
   }
 
   @Override
-  public List<?> getDeviceAll() {
+  public List<?> getAllDevice() {
     return getAll();
   }
 

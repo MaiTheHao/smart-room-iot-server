@@ -219,7 +219,7 @@ public class FanServiceImpl implements FanService {
   }
 
   @Override
-  public List<?> getDeviceAll() {
+  public List<?> getAllDevice() {
     return getAll();
   }
 

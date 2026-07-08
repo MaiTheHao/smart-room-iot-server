@@ -6,5 +6,5 @@ import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 public interface DeviceMetadataServiceStrategy {
     DeviceCategory getSupportedCategory();
     List<?> getDeviceByRoomId(Long roomId);
-    List<?> getDeviceAll();
+    List<?> getAllDevice();
 }

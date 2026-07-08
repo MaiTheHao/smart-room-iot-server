@@ -31,11 +31,11 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
     public List<SensorMetadataDto> getAllByRoomId(Long roomId, DeviceCategory category) {
         if (category != null) {
             validateCategory(category);
-            return strategies.get(category).getMetadataByRoomId(roomId);
+            return strategies.get(category).getSensorByRoomId(roomId);
         }
 
         return strategies.values().stream()
-            .flatMap(strategy -> strategy.getMetadataByRoomId(roomId).stream())
+            .flatMap(strategy -> strategy.getSensorByRoomId(roomId).stream())
             .collect(Collectors.toList());
     }
 
@@ -43,11 +43,11 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
     public List<SensorMetadataDto> getAll(DeviceCategory category) {
         if (category != null) {
             validateCategory(category);
-            return strategies.get(category).getMetadataAll();
+            return strategies.get(category).getAllSensor();
         }
 
         return strategies.values().stream()
-            .flatMap(strategy -> strategy.getMetadataAll().stream())
+            .flatMap(strategy -> strategy.getAllSensor().stream())
             .collect(Collectors.toList());
     }
 

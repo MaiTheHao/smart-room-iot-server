@@ -6,6 +6,6 @@ import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 public interface SensorMetadataServiceStrategy {
     DeviceCategory getSupportedCategory();
-    List<SensorMetadataDto> getMetadataByRoomId(Long roomId);
-    List<SensorMetadataDto> getMetadataAll();
+    List<SensorMetadataDto> getSensorByRoomId(Long roomId);
+    List<SensorMetadataDto> getAllSensor();
 }

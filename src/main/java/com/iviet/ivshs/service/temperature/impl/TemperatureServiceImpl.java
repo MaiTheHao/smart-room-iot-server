@@ -214,14 +214,14 @@ public class TemperatureServiceImpl implements TemperatureService {
   }
 
   @Override
-  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getMetadataByRoomId(Long roomId) {
+  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getSensorByRoomId(Long roomId) {
     return this.getAllByRoomId(roomId).stream()
         .map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromTemperature)
         .toList();
   }
 
   @Override
-  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getMetadataAll() {
+  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getAllSensor() {
     return this.getAll().stream()
         .map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromTemperature)
         .toList();

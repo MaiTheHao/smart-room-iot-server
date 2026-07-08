@@ -43,11 +43,11 @@ public class DeviceMetadataServiceImpl implements DeviceMetadataService {
     public List<Object> getAll(DeviceCategory category) {
         if (category != null) {
             validateCategory(category);
-            return new ArrayList<>(strategies.get(category).getDeviceAll());
+            return new ArrayList<>(strategies.get(category).getAllDevice());
         }
 
         return strategies.values().stream()
-            .flatMap(strategy -> strategy.getDeviceAll().stream())
+            .flatMap(strategy -> strategy.getAllDevice().stream())
             .collect(Collectors.toList());
     }
 

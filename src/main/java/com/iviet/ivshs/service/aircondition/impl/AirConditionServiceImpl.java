@@ -235,7 +235,7 @@ public class AirConditionServiceImpl implements AirConditionService {
   }
 
   @Override
-  public List<?> getDeviceAll() {
+  public List<?> getAllDevice() {
     return getAll();
   }
 
