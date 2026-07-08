@@ -23,6 +23,7 @@ public class Esp32GatewayAdapter implements GatewayAdapter {
     private final Esp32SystemClient systemClient;
     private final Esp32LightControlClient lightClient;
     private final Esp32FanControlClient fanClient;
+    private final Esp32AcControlClient acClient;
 
     @Override
     public ClientType getSupportedType() {
@@ -67,6 +68,10 @@ public class Esp32GatewayAdapter implements GatewayAdapter {
 
         if (command.category() == DeviceCategory.FAN) {
             return fanClient.controlFan(ip, command);
+        }
+
+        if (command.category() == DeviceCategory.AIR_CONDITION) {
+            return acClient.controlAc(ip, command);
         }
 
         return null;
