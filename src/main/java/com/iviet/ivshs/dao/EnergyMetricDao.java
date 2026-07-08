@@ -106,6 +106,37 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
                 .toList();
     }
 
+    public List<EnergyMetricDto> findRawHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
+        String jpql = """
+                SELECT em
+                FROM EnergyMetric em
+                WHERE em.targetCategory = :category
+                    AND em.targetId = :targetId
+                    AND em.timestamp BETWEEN :from AND :to
+                ORDER BY em.timestamp ASC
+                """;
+
+        List<EnergyMetric> results = entityManager.createQuery(jpql, EnergyMetric.class)
+                .setParameter("category", category.name())
+                .setParameter("targetId", targetId)
+                .setParameter("from", from)
+                .setParameter("to", to)
+                .setMaxResults(10_000)
+                .getResultList();
+
+        return results.stream()
+                .map(em -> EnergyMetricDto.builder()
+                        .timestamp(em.getTimestamp())
+                        .voltage(em.getVoltage())
+                        .current(em.getCurrent())
+                        .power(em.getPower())
+                        .energy(em.getEnergy())
+                        .frequency(em.getFrequency())
+                        .powerFactor(em.getPowerFactor())
+                        .build())
+                .toList();
+    }
+
     public Optional<EnergyMetricDto> findLatest(EnergyMetricCategory category, Long targetId) {
         String jpql = """
                 SELECT new %s(

@@ -207,4 +207,23 @@ public class TemperatureServiceImpl implements TemperatureService {
   public Long countByRoomId(Long roomId) {
     return temperatureDao.countByRoomId(roomId);
   }
+
+  @Override
+  public com.iviet.ivshs.shared.enumeration.DeviceCategory getSupportedCategory() {
+    return com.iviet.ivshs.shared.enumeration.DeviceCategory.TEMPERATURE;
+  }
+
+  @Override
+  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getMetadataByRoomId(Long roomId) {
+    return this.getAllByRoomId(roomId).stream()
+        .map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromTemperature)
+        .toList();
+  }
+
+  @Override
+  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getMetadataAll() {
+    return this.getAll().stream()
+        .map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromTemperature)
+        .toList();
+  }
 }

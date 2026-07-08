@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.powerconsumption.PowerConsumptionDto;
 import com.iviet.ivshs.dto.powerconsumption.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
-public interface PowerConsumptionService {
+public interface PowerConsumptionService extends com.iviet.ivshs.service.control.SensorMetadataServiceStrategy {
 
     PaginatedResponse<PowerConsumptionDto> getList(int page, int size);
 

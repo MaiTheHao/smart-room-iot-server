@@ -25,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,9 @@ import java.util.concurrent.Executors;
 public class EnergyMetricServiceImpl implements EnergyMetricService {
 
     private static final java.time.Duration RESET_RETRY_DELAY = java.time.Duration.ofSeconds(3);
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final ClientService clientService;
     private final EnergyMetricDao energyMetricDao;
@@ -246,5 +252,32 @@ public class EnergyMetricServiceImpl implements EnergyMetricService {
         } else {
             log.error("Device energy reset failed after retry: naturalId={}, ip={}, message={}", naturalId, ip, retry.message());
         }
+    }
+
+    @Override
+    public DeviceCategory getSupportedCategory() {
+        return DeviceCategory.POWER_CONSUMPTION;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<?> getHistory(Long sensorId, Instant from, Instant to) {
+        Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
+        return energyMetricDao.findRawHistory(EnergyMetricCategory.ROOM, sensorId, limitedFrom, to);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<?> getHistoryByNaturalId(String naturalId, Instant from, Instant to) {
+        Long sensorId = entityManager
+            .createQuery("SELECT pc.id FROM PowerConsumption pc WHERE pc.naturalId = :naturalId", Long.class)
+            .setParameter("naturalId", naturalId)
+            .setMaxResults(1)
+            .getResultStream()
+            .findFirst()
+            .orElseThrow(() -> new com.iviet.ivshs.shared.exception.NotFoundException(
+                "Power consumption sensor not found with natural ID: " + naturalId));
+        Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
+        return energyMetricDao.findRawHistory(EnergyMetricCategory.ROOM, sensorId, limitedFrom, to);
     }
 }

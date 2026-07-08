@@ -248,4 +248,23 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	public Long countByRoomId(Long roomId) {
 		return powerConsumptionDao.countByRoomId(roomId);
 	}
+
+	@Override
+	public com.iviet.ivshs.shared.enumeration.DeviceCategory getSupportedCategory() {
+		return com.iviet.ivshs.shared.enumeration.DeviceCategory.POWER_CONSUMPTION;
+	}
+
+	@Override
+	public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getMetadataByRoomId(Long roomId) {
+		return this.getAllByRoomId(roomId).stream()
+				.map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromPowerConsumption)
+				.toList();
+	}
+
+	@Override
+	public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getMetadataAll() {
+		return this.getAll().stream()
+				.map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromPowerConsumption)
+				.toList();
+	}
 }

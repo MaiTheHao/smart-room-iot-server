@@ -86,6 +86,20 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public List<?> getHistory(Long sensorId, Instant from, Instant to) {
+    Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
+    return temperatureValueDao.getRawHistoryBySensor(sensorId, limitedFrom, to);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<?> getHistoryByNaturalId(String naturalId, Instant from, Instant to) {
+    Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
+    return temperatureValueDao.getRawHistoryBySensorNaturalId(naturalId, limitedFrom, to);
+  }
+
+  @Override
   @Transactional
   public void createBatchWithSensor(Temperature sensor, List<CreateTemperatureValueDto> dtoList) {
     if (dtoList == null || dtoList.isEmpty()) {

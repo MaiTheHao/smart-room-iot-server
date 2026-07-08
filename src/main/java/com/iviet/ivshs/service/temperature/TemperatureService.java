@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.temperature.TemperatureDto;
 import com.iviet.ivshs.dto.temperature.UpdateTemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
 
-public interface TemperatureService {
+public interface TemperatureService extends com.iviet.ivshs.service.control.SensorMetadataServiceStrategy {
 
     PaginatedResponse<TemperatureDto> getList(int page, int size);
 

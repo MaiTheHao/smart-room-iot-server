@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseTelemetryDao;
 import com.iviet.ivshs.dto.temperature.AverageTemperatureValueDto;
+import com.iviet.ivshs.dto.temperature.TemperatureValueDto;
 import com.iviet.ivshs.entities.TemperatureValue;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 
@@ -79,6 +80,79 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 				""".formatted(AverageTemperatureValueDto.class.getName());
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class).setParameter("clientId", clientId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
+	}
+
+	public List<AverageTemperatureValueDto> getAverageHistoryBySensor(Long sensorId, Instant startedAt, Instant endedAt, int divisor) {
+		String jpql = """
+				SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+				FROM TemperatureValue tv
+				WHERE tv.sensor.id = :sensorId
+				AND tv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
+				ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
+				""".formatted(AverageTemperatureValueDto.class.getName());
+
+		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
+				.setParameter("sensorId", sensorId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.setParameter("divisor", divisor)
+				.getResultList();
+	}
+
+	public List<AverageTemperatureValueDto> getAverageHistoryBySensorNaturalId(String naturalId, Instant startedAt, Instant endedAt, int divisor) {
+		String jpql = """
+				SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+				FROM TemperatureValue tv
+				WHERE tv.sensor.naturalId = :naturalId
+				AND tv.timestamp BETWEEN :startedAt AND :endedAt
+				GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
+				ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
+				""".formatted(AverageTemperatureValueDto.class.getName());
+
+		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
+				.setParameter("naturalId", naturalId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.setParameter("divisor", divisor)
+				.getResultList();
+	}
+	public List<TemperatureValueDto> getRawHistoryBySensor(Long sensorId, Instant startedAt, Instant endedAt) {
+		String jpql = """
+				SELECT tv
+				FROM TemperatureValue tv
+				WHERE tv.sensor.id = :sensorId
+				AND tv.timestamp BETWEEN :startedAt AND :endedAt
+				ORDER BY tv.timestamp ASC
+				""";
+
+		List<TemperatureValue> results = entityManager.createQuery(jpql, TemperatureValue.class)
+				.setParameter("sensorId", sensorId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.setMaxResults(10_000)
+				.getResultList();
+
+		return results.stream().map(TemperatureValueDto::from).toList();
+	}
+
+	public List<TemperatureValueDto> getRawHistoryBySensorNaturalId(String naturalId, Instant startedAt, Instant endedAt) {
+		String jpql = """
+				SELECT tv
+				FROM TemperatureValue tv
+				WHERE tv.sensor.naturalId = :naturalId
+				AND tv.timestamp BETWEEN :startedAt AND :endedAt
+				ORDER BY tv.timestamp ASC
+				""";
+
+		List<TemperatureValue> results = entityManager.createQuery(jpql, TemperatureValue.class)
+				.setParameter("naturalId", naturalId)
+				.setParameter("startedAt", startedAt)
+				.setParameter("endedAt", endedAt)
+				.setMaxResults(10_000)
+				.getResultList();
+
+		return results.stream().map(TemperatureValueDto::from).toList();
 	}
 
 	public void deleteBySensorIdAndTimestampBetween(Long sensorId, Instant startedAt, Instant endedAt) {
