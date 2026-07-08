@@ -50,9 +50,11 @@ TRUNCATE TABLE `automation_action`;
 TRUNCATE TABLE `rule`;
 TRUNCATE TABLE `rule_condition`;
 TRUNCATE TABLE `rule_action`;
-TRUNCATE TABLE `rule_action_alert`;
+TRUNCATE TABLE `alert_config`;
+TRUNCATE TABLE `alert_config_group`;
 TRUNCATE TABLE `alert_instance`;
-TRUNCATE TABLE `alert_recipient`;
+TRUNCATE TABLE `alert_instance_group`;
+TRUNCATE TABLE `alert_instance_log`;
 
 -- ----------------------------
 -- Module: Quartz Scheduler
