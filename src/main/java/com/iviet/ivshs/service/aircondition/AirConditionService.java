@@ -6,8 +6,9 @@ import com.iviet.ivshs.dto.aircondition.AirConditionDto;
 import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
 import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
 import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
 
-public interface AirConditionService {
+public interface AirConditionService extends DeviceMetadataServiceStrategy {
 
     PaginatedResponse<AirConditionDto> getList(int page, int size);
 

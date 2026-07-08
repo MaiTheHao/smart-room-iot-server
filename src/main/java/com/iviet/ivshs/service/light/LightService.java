@@ -5,8 +5,9 @@ import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.light.CreateLightDto;
 import com.iviet.ivshs.dto.light.LightDto;
 import com.iviet.ivshs.dto.light.UpdateLightDto;
+import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
 
-public interface LightService {
+public interface LightService extends DeviceMetadataServiceStrategy {
 
     PaginatedResponse<LightDto> getList(int page, int size);
 

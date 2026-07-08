@@ -11,6 +11,7 @@ import com.iviet.ivshs.dto.light.UpdateLightDto;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.entities.LightLan;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
@@ -215,6 +216,21 @@ public class LightServiceImpl implements LightService {
     if (roomId == null)
       throw new BadRequestException("Room ID is required");
     return lightDao.countByRoomId(roomId);
+  }
+
+  @Override
+  public DeviceCategory getSupportedCategory() {
+    return DeviceCategory.LIGHT;
+  }
+
+  @Override
+  public List<?> getDeviceByRoomId(Long roomId) {
+    return getAllByRoomId(roomId);
+  }
+
+  @Override
+  public List<?> getDeviceAll() {
+    return getAll();
   }
 
   private Light getLightOrThrow(Long lightId) {

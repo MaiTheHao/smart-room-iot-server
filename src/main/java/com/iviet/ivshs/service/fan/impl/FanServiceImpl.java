@@ -14,6 +14,7 @@ import com.iviet.ivshs.service.fan.FanService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
@@ -205,6 +206,21 @@ public class FanServiceImpl implements FanService {
     if (roomId == null)
       throw new BadRequestException("Room ID is required");
     return fanDao.countByRoomId(roomId);
+  }
+
+  @Override
+  public DeviceCategory getSupportedCategory() {
+    return DeviceCategory.FAN;
+  }
+
+  @Override
+  public List<?> getDeviceByRoomId(Long roomId) {
+    return getAllByRoomId(roomId);
+  }
+
+  @Override
+  public List<?> getDeviceAll() {
+    return getAll();
   }
 
   private Fan getFanOrThrow(Long id) {

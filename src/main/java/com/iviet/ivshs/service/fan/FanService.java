@@ -5,8 +5,9 @@ import com.iviet.ivshs.dto.common.PaginatedResponse;
 import com.iviet.ivshs.dto.fan.CreateFanDto;
 import com.iviet.ivshs.dto.fan.FanDto;
 import com.iviet.ivshs.dto.fan.UpdateFanDto;
+import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
 
-public interface FanService {
+public interface FanService extends DeviceMetadataServiceStrategy {
 
   PaginatedResponse<FanDto> getList(int page, int size);
 
