@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes;
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,12 +56,22 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
 	@Column(name = "duration")
 	private Integer duration;
 
-	@Override
-	public void addTranslation(AirConditionLan translation) {
-		translation.setOwner(this);
-		this.getTranslations()
-				.add(translation);
-	}
+    @Override
+    public void addTranslation(AirConditionLan translation) {
+        translation.setOwner(this);
+        this.getTranslations()
+                .add(translation);
+    }
+
+    @Override
+    public Object extractBusinessData() {
+        return null;
+    }
+
+    @Override
+    public DeviceCategory getCategory() {
+        return DeviceCategory.AIR_CONDITION;
+    }
 
 	public void setMode(ActuatorMode mode) {
 		if (mode != null && !SUPPORTED_MODES.contains(mode)) {

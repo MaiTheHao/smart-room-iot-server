@@ -88,6 +88,30 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
         size);
   }
 
+  public List<T> findAllByRoomIdWithTranslations(Long roomId) {
+    return findAll(
+        root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId),
+        (root, cq) -> {
+          cq.distinct(true);
+          root.fetch("translations", JoinType.LEFT);
+          root.fetch("room", JoinType.LEFT);
+          root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
+          cq.orderBy(entityManager.getCriteriaBuilder().desc(root.get("createdAt")));
+        });
+  }
+
+  public List<T> findAllWithTranslations() {
+    return findAll(
+        null,
+        (root, cq) -> {
+          cq.distinct(true);
+          root.fetch("translations", JoinType.LEFT);
+          root.fetch("room", JoinType.LEFT);
+          root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
+          cq.orderBy(entityManager.getCriteriaBuilder().desc(root.get("createdAt")));
+        });
+  }
+
   public Optional<T> findByDeviceControlId(Long controlId) {
     return findOne(
         root -> entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("id"), controlId),

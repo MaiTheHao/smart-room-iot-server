@@ -10,6 +10,7 @@ import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -83,5 +84,15 @@ public class Fan extends BaseIoTDevice<FanLan> {
         translation.setOwner(this);
         this.getTranslations()
                 .add(translation);
+    }
+
+    @Override
+    public Object extractBusinessData() {
+        return null;
+    }
+
+    @Override
+    public DeviceCategory getCategory() {
+        return DeviceCategory.FAN;
     }
 }

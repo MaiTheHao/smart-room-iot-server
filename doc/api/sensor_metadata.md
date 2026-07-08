@@ -40,15 +40,8 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 			"isActive": true,
 			"roomId": 10,
 			"category": "TEMPERATURE",
-			"sensor": {
-				"id": 1,
-				"naturalId": "TEMP001",
-				"name": "Cảm biến nhiệt phòng khách",
-				"description": "Cảm biến nhiệt độ tầng 1",
-				"isActive": true,
-				"currentValue": 26.5,
-				"roomId": 10,
-				"deviceControlId": 1
+			"data": {
+				"currentValue": 26.5
 			}
 		},
 		{
@@ -59,15 +52,8 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 			"isActive": true,
 			"roomId": 10,
 			"category": "POWER_CONSUMPTION",
-			"sensor": {
-				"id": 1,
-				"naturalId": "PWR001",
-				"name": "Cảm biến điện phòng khách",
-				"description": "Cảm biến điện năng tầng 1",
-				"isActive": true,
-				"currentWatt": 150.0,
-				"roomId": 10,
-				"deviceControlId": 2
+			"data": {
+				"currentWatt": 150.0
 			}
 		}
 	],
@@ -129,15 +115,8 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 			"isActive": true,
 			"roomId": 10,
 			"category": "TEMPERATURE",
-			"sensor": {
-				"id": 1,
-				"naturalId": "TEMP001",
-				"name": "Cảm biến nhiệt phòng khách",
-				"description": "Cảm biến nhiệt độ tầng 1",
-				"isActive": true,
-				"currentValue": 26.5,
-				"roomId": 10,
-				"deviceControlId": 1
+			"data": {
+				"currentValue": 26.5
 			}
 		},
 		{
@@ -148,15 +127,8 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 			"isActive": true,
 			"roomId": 10,
 			"category": "POWER_CONSUMPTION",
-			"sensor": {
-				"id": 1,
-				"naturalId": "PWR001",
-				"name": "Cảm biến điện phòng khách",
-				"description": "Cảm biến điện năng tầng 1",
-				"isActive": true,
-				"currentWatt": 150.0,
-				"roomId": 10,
-				"deviceControlId": 2
+			"data": {
+				"currentWatt": 150.0
 			}
 		}
 	],

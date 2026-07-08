@@ -1,6 +1,7 @@
 package com.iviet.ivshs.entities;
 
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -36,5 +37,15 @@ public class Light extends BaseIoTDevice<LightLan> {
             throw new IllegalArgumentException("Level must be between " + MIN_LEVEL + " and " + MAX_LEVEL);
         }
         this.level = level;
+    }
+
+    @Override
+    public Object extractBusinessData() {
+        return null;
+    }
+
+    @Override
+    public DeviceCategory getCategory() {
+        return DeviceCategory.LIGHT;
     }
 }

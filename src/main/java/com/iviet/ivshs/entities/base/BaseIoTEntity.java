@@ -3,6 +3,7 @@ package com.iviet.ivshs.entities.base;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Room;
 
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -38,6 +39,10 @@ public abstract class BaseIoTEntity<T extends BaseTranslation<? extends BaseTran
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "hardware_config_id", unique = true)
     private HardwareConfig hardwareConfig;
+
+    public abstract Object extractBusinessData();
+
+    public abstract DeviceCategory getCategory();
 
     @Override
     public void touch() {

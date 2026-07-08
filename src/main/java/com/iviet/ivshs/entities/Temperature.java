@@ -3,7 +3,9 @@ package com.iviet.ivshs.entities;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.iviet.ivshs.dto.sensor.TemperatureSensorData;
 import com.iviet.ivshs.entities.base.BaseIoTSensor;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -36,5 +38,15 @@ public class Temperature extends BaseIoTSensor<TemperatureLan> {
 
     @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<TemperatureValue> temperatureValues = new HashSet<>();
+
+    @Override
+    public TemperatureSensorData extractBusinessData() {
+        return new TemperatureSensorData(this.currentValue);
+    }
+
+    @Override
+    public DeviceCategory getCategory() {
+        return DeviceCategory.TEMPERATURE;
+    }
 
 }

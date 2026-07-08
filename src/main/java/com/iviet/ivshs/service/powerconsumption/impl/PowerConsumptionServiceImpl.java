@@ -255,16 +255,31 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getSensorByRoomId(Long roomId) {
-		return this.getAllByRoomId(roomId).stream()
-				.map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromPowerConsumption)
+		return powerConsumptionDao.findAllByRoomIdWithTranslations(roomId).stream()
+				.map(entity -> {
+					PowerConsumptionLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
+					return com.iviet.ivshs.dto.sensor.SensorMetadataDto.from(entity, lan);
+				})
 				.toList();
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getAllSensor() {
-		return this.getAll().stream()
-				.map(com.iviet.ivshs.dto.sensor.SensorMetadataDto::fromPowerConsumption)
+		return powerConsumptionDao.findAllWithTranslations().stream()
+				.map(entity -> {
+					PowerConsumptionLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
+					return com.iviet.ivshs.dto.sensor.SensorMetadataDto.from(entity, lan);
+				})
 				.toList();
+	}
+
+	private PowerConsumptionLan resolveTranslation(PowerConsumption entity, String langCode) {
+		return entity.getTranslations().stream()
+				.filter(t -> t.getLangCode().equals(langCode))
+				.findFirst()
+				.orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
 	}
 }

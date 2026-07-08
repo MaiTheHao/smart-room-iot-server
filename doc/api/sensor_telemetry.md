@@ -8,7 +8,8 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 
 - Tham số `category` là **bắt buộc** để định tuyến đến bảng dữ liệu tương ứng, tránh xung đột ID giữa các bảng.
 - Khoảng thời gian tối đa 365 ngày.
-- Dữ liệu được time-bucketing tự động dựa trên khoảng thời gian.
+- Dữ liệu trả về ở dạng **raw values** (bản ghi gốc), không áp dụng time-bucketing hay average.
+- Giới hạn tối đa **10.000 bản ghi** cho mỗi request để tránh quá tải.
 
 ---
 
@@ -32,19 +33,23 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 | to       | Instant| Thời điểm kết thúc (ISO-8601)                                      | Có       |
 
 ### Response (200 OK) - Temperature
-Trả về danh sách `AverageTemperatureValueDto`:
+Trả về danh sách `TemperatureValueDto` (raw values):
 ```json
 {
 	"status": 200,
 	"message": "Success",
 	"data": [
 		{
-			"timestamp": 1719878400,
-			"avgTempC": 26.5
+			"id": 1001,
+			"sensorId": 5,
+			"tempC": 26.5,
+			"timestamp": "2024-06-07T08:00:00Z"
 		},
 		{
-			"timestamp": 1719878700,
-			"avgTempC": 26.8
+			"id": 1002,
+			"sensorId": 5,
+			"tempC": 26.8,
+			"timestamp": "2024-06-07T08:05:00Z"
 		}
 	],
 	"timestamp": "2024-06-07T09:00:00Z"
@@ -52,7 +57,7 @@ Trả về danh sách `AverageTemperatureValueDto`:
 ```
 
 ### Response (200 OK) - Power Consumption
-Trả về danh sách `EnergyMetricDto` (lấy từ bảng `energy_metrics`):
+Trả về danh sách `EnergyMetricDto` (raw values từ bảng `energy_metrics`, không group/avg):
 ```json
 {
 	"status": 200,
@@ -68,7 +73,7 @@ Trả về danh sách `EnergyMetricDto` (lấy từ bảng `energy_metrics`):
 			"powerFactor": 0.98
 		},
 		{
-			"timestamp": "2024-06-07T09:00:00Z",
+			"timestamp": "2024-06-07T08:01:00Z",
 			"voltage": 221.0,
 			"current": 1.5,
 			"power": 331.5,
@@ -104,19 +109,23 @@ Trả về danh sách `EnergyMetricDto` (lấy từ bảng `energy_metrics`):
 | to       | Instant| Thời điểm kết thúc (ISO-8601)                                      | Có       |
 
 ### Response (200 OK) - Temperature
-Trả về danh sách `AverageTemperatureValueDto`:
+Trả về danh sách `TemperatureValueDto` (raw values):
 ```json
 {
 	"status": 200,
 	"message": "Success",
 	"data": [
 		{
-			"timestamp": 1719878400,
-			"avgTempC": 26.5
+			"id": 2001,
+			"sensorId": 5,
+			"tempC": 26.5,
+			"timestamp": "2024-06-07T08:00:00Z"
 		},
 		{
-			"timestamp": 1719878700,
-			"avgTempC": 26.8
+			"id": 2002,
+			"sensorId": 5,
+			"tempC": 26.8,
+			"timestamp": "2024-06-07T08:05:00Z"
 		}
 	],
 	"timestamp": "2024-06-07T09:00:00Z"
@@ -124,7 +133,7 @@ Trả về danh sách `AverageTemperatureValueDto`:
 ```
 
 ### Response (200 OK) - Power Consumption
-Trả về danh sách `EnergyMetricDto` (lấy từ bảng `energy_metrics`):
+Trả về danh sách `EnergyMetricDto` (raw values từ bảng `energy_metrics`, không group/avg):
 ```json
 {
 	"status": 200,
@@ -140,7 +149,7 @@ Trả về danh sách `EnergyMetricDto` (lấy từ bảng `energy_metrics`):
 			"powerFactor": 0.98
 		},
 		{
-			"timestamp": "2024-06-07T09:00:00Z",
+			"timestamp": "2024-06-07T08:01:00Z",
 			"voltage": 221.0,
 			"current": 1.5,
 			"power": 331.5,

@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dto.sensor;
 
-import com.iviet.ivshs.dto.powerconsumption.PowerConsumptionDto;
-import com.iviet.ivshs.dto.temperature.TemperatureDto;
+import com.iviet.ivshs.entities.base.BaseIoTSensor;
+import com.iviet.ivshs.entities.base.BaseTranslation;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 public record SensorMetadataDto(
@@ -12,19 +12,13 @@ public record SensorMetadataDto(
     Boolean isActive,
     Long roomId,
     DeviceCategory category,
-    Object sensor
+    SensorSpecificData data
 ) {
-    public static SensorMetadataDto fromTemperature(TemperatureDto dto) {
+    public static SensorMetadataDto from(BaseIoTSensor<?> entity, BaseTranslation<?> lan) {
         return new SensorMetadataDto(
-            dto.id(), dto.naturalId(), dto.name(), dto.description(),
-            dto.isActive(), dto.roomId(), DeviceCategory.TEMPERATURE, dto
-        );
-    }
-
-    public static SensorMetadataDto fromPowerConsumption(PowerConsumptionDto dto) {
-        return new SensorMetadataDto(
-            dto.id(), dto.naturalId(), dto.name(), dto.description(),
-            dto.isActive(), dto.roomId(), DeviceCategory.POWER_CONSUMPTION, dto
+            entity.getId(), entity.getNaturalId(), lan.getName(), lan.getDescription(),
+            entity.getIsActive(), entity.getRoom().getId(), entity.getCategory(),
+            entity.extractBusinessData()
         );
     }
 }

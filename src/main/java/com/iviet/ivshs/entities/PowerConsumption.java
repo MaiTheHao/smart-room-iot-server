@@ -1,6 +1,8 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.dto.sensor.PowerConsumptionSensorData;
 import com.iviet.ivshs.entities.base.BaseIoTSensor;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,5 +29,15 @@ public class PowerConsumption extends BaseIoTSensor<PowerConsumptionLan> {
 
     @Column(name = "current_watt")
     private Double currentWatt;
+
+    @Override
+    public PowerConsumptionSensorData extractBusinessData() {
+        return new PowerConsumptionSensorData(this.currentWatt);
+    }
+
+    @Override
+    public DeviceCategory getCategory() {
+        return DeviceCategory.POWER_CONSUMPTION;
+    }
 
 }
