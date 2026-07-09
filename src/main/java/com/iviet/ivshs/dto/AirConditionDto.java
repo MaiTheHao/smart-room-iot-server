@@ -90,4 +90,14 @@ public record AirConditionDto(
         entity.setSwing(dto.swing());
         return entity;
     }
+
+    public static String jpqlProjection(String acAlias, String acLangAlias) {
+        return "%s.id, %s.naturalId, %s.name, %s.description, %s.isActive, %s.room.id, %s.power, %s.specificType, %s.duration, %s.temperature, %s.mode, %s.fanSpeed, %s.swing, %s.hardwareConfig.id"
+            .formatted(
+                acAlias, acAlias, acLangAlias, acLangAlias,
+                acAlias, acAlias, acAlias, acAlias,
+                acAlias, acAlias, acAlias, acAlias,
+                acAlias, acAlias
+            );
+    }
 }

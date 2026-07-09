@@ -21,14 +21,11 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 	@Override
 	public Optional<AirConditionDto> findByNaturalId(String naturalId, String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				WHERE ac.naturalId = :naturalId
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("naturalId", naturalId)
@@ -40,14 +37,11 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
 	public Optional<AirConditionDto> findById(Long id, String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				WHERE ac.id = :id
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("id", id)
@@ -59,14 +53,11 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
 	public List<AirConditionDto> findAll(int page, int size, String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				ORDER BY ac.id ASC
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("langCode", langCode)
@@ -77,14 +68,11 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
 	public List<AirConditionDto> findAll(String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				ORDER BY ac.id ASC
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("langCode", langCode)
@@ -93,15 +81,12 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
 	public List<AirConditionDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				WHERE ac.room.id = :roomId
 				ORDER BY ac.id ASC
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("roomId", roomId)
@@ -113,15 +98,12 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 
 	public List<AirConditionDto> findAllByRoomId(Long roomId, String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				WHERE ac.room.id = :roomId
 				ORDER BY ac.id ASC
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("roomId", roomId)
@@ -132,14 +114,11 @@ public class AirConditionDao extends BaseIoTActuatorDao<AirCondition> {
 	@Override
 	public Optional<AirConditionDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
 		String jpql = """
-				SELECT new %s(
-						ac.id, ac.naturalId, tl.name, tl.description, ac.isActive, ac.room.id,
-						ac.power, ac.specificType, ac.duration, ac.temperature, ac.mode, ac.fanSpeed, ac.swing, ac.hardwareConfig.id
-				)
+				SELECT new %s(%s)
 				FROM AirCondition ac
 				LEFT JOIN ac.translations tl ON tl.langCode = :langCode
 				WHERE ac.room.id = :roomId AND ac.naturalId = :naturalId
-				""".formatted(DTO_CLASS);
+				""".formatted(DTO_CLASS, AirConditionDto.jpqlProjection("ac", "tl"));
 
 		return entityManager.createQuery(jpql, AirConditionDto.class)
 				.setParameter("roomId", roomId)
