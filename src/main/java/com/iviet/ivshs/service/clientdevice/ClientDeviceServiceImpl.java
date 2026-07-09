@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.clientdevice;
 
 import com.iviet.ivshs.dao.ClientDeviceDao;
-import com.iviet.ivshs.dto.clientdevice.RegisterClientDeviceDto;
+import com.iviet.ivshs.dto.RegisterClientDeviceDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.ClientDevice;
 import com.iviet.ivshs.service.client.ClientService;

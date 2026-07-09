@@ -1,7 +1,7 @@
 package com.iviet.ivshs.integration.gateway.impl.raspi;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.control.AcRemoteRequestPayload;
+import com.iviet.ivshs.dto.AcRemoteRequestPayload;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
 
 import org.springframework.http.ResponseEntity;

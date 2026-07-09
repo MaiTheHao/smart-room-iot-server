@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.clientdevice;
 
-import com.iviet.ivshs.dto.clientdevice.RegisterClientDeviceDto;
+import com.iviet.ivshs.dto.RegisterClientDeviceDto;
 
 public interface ClientDeviceService {
     void registerDevice(RegisterClientDeviceDto request);

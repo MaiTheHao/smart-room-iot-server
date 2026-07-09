@@ -1,6 +1,6 @@
 package com.iviet.ivshs.dao;
 
-import com.iviet.ivshs.dto.alert.AlertInstanceLogFilterDto;
+import com.iviet.ivshs.dto.AlertInstanceLogFilterDto;
 import com.iviet.ivshs.entities.AlertInstanceLog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

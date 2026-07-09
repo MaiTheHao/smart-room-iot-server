@@ -1,10 +1,11 @@
 package com.iviet.ivshs.service.temperature;
 
 import java.util.List;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.temperature.CreateTemperatureDto;
-import com.iviet.ivshs.dto.temperature.TemperatureDto;
-import com.iviet.ivshs.dto.temperature.UpdateTemperatureDto;
+
+import com.iviet.ivshs.dto.CreateTemperatureDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.TemperatureDto;
+import com.iviet.ivshs.dto.UpdateTemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
 
 public interface TemperatureService extends com.iviet.ivshs.service.control.SensorMetadataServiceStrategy {

@@ -1,10 +1,10 @@
 package com.iviet.ivshs.service.floor.impl;
 
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.floor.CreateFloorDto;
-import com.iviet.ivshs.dto.floor.FloorDto;
-import com.iviet.ivshs.dto.floor.UpdateFloorDto;
-import com.iviet.ivshs.dto.permission.CreateSysFunctionDto;
+import com.iviet.ivshs.dto.CreateFloorDto;
+import com.iviet.ivshs.dto.FloorDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateFloorDto;
+import com.iviet.ivshs.dto.CreateSysFunctionDto;
 import com.iviet.ivshs.dao.FloorDao;
 import com.iviet.ivshs.dao.LanguageDao;
 

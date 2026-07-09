@@ -1,11 +1,11 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.room.CreateRoomDto;
-import com.iviet.ivshs.dto.room.RoomDto;
-import com.iviet.ivshs.dto.room.RoomStatusDto;
-import com.iviet.ivshs.dto.room.UpdateRoomDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreateRoomDto;
+import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dto.RoomStatusDto;
+import com.iviet.ivshs.dto.UpdateRoomDto;
 import com.iviet.ivshs.service.room.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

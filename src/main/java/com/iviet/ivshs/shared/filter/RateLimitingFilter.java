@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.iviet.ivshs.core.properties.SecurityProperties;
-import com.iviet.ivshs.dto.auth.CustomUserDetails;
+import com.iviet.ivshs.dto.CustomUserDetails;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;

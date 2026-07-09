@@ -1,16 +1,16 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.alert.AlertConfigDto;
-import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
-import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
-import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
-import com.iviet.ivshs.dto.alert.AlertFilterDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceLogDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceLogFilterDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.AlertConfigDto;
+import com.iviet.ivshs.dto.AlertConfigFilterDto;
+import com.iviet.ivshs.dto.AlertFilterDto;
+import com.iviet.ivshs.dto.AlertInstanceDto;
+import com.iviet.ivshs.dto.AlertInstanceLogDto;
+import com.iviet.ivshs.dto.AlertInstanceLogFilterDto;
+import com.iviet.ivshs.dto.AlertInstanceSubFilterDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.CreateAlertConfigDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateAlertConfigDto;
 import com.iviet.ivshs.service.alert.AlertConfigService;
 import com.iviet.ivshs.service.alert.AlertInstanceLogService;
 import com.iviet.ivshs.service.alert.AlertInstanceService;

@@ -12,7 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.shared.security.AuthErrorHandler.ErrorType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

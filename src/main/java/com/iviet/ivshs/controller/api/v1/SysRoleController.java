@@ -1,12 +1,12 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.client.AssignGroupsToClientDto;
-import com.iviet.ivshs.dto.client.UnassignGroupsFromClientDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.BatchOperationResultDto;
-import com.iviet.ivshs.dto.role.BatchAddFunctionsToGroupDto;
-import com.iviet.ivshs.dto.role.BatchRemoveFunctionsFromGroupDto;
-import com.iviet.ivshs.dto.role.ToggleGroupFunctionsDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.AssignGroupsToClientDto;
+import com.iviet.ivshs.dto.BatchOperationResultDto;
+import com.iviet.ivshs.dto.UnassignGroupsFromClientDto;
+import com.iviet.ivshs.dto.BatchAddFunctionsToGroupDto;
+import com.iviet.ivshs.dto.BatchRemoveFunctionsFromGroupDto;
+import com.iviet.ivshs.dto.ToggleGroupFunctionsDto;
 import com.iviet.ivshs.service.role.SysRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

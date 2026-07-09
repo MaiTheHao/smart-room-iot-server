@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.temperature.AverageTemperatureValueDto;
+
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.service.temperature.TemperatureValueService;
 
 import lombok.RequiredArgsConstructor;

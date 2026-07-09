@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dao.PowerConsumptionDao;
-import com.iviet.ivshs.dto.setup.SetupRequest;
+import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.entities.PowerConsumptionLan;

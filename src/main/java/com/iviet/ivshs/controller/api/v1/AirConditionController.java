@@ -1,14 +1,15 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
-import com.iviet.ivshs.dto.aircondition.AirConditionDto;
-import com.iviet.ivshs.dto.aircondition.CreateAirConditionDto;
 import com.iviet.ivshs.service.control.AirConditionControlService;
 import com.iviet.ivshs.service.aircondition.AirConditionService;
-import com.iviet.ivshs.dto.aircondition.UpdateAirConditionDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.AirConditionControlRequestBody;
+import com.iviet.ivshs.dto.AirConditionDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import com.iviet.ivshs.dto.CreateAirConditionDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateAirConditionDto;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

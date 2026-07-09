@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service.client;
 
-import com.iviet.ivshs.dto.client.ClientDto;
-import com.iviet.ivshs.dto.client.CreateClientDto;
-import com.iviet.ivshs.dto.client.UpdateClientDto;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.CreateClientDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateClientDto;
 import com.iviet.ivshs.entities.Client;
 
 import java.util.List;

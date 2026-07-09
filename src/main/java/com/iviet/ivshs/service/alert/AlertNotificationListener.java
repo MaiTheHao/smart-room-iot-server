@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.AlertInstanceDao;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.SysGroupDao;
-import com.iviet.ivshs.dto.notification.NotificationRequest;
+import com.iviet.ivshs.dto.NotificationRequest;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.Client;

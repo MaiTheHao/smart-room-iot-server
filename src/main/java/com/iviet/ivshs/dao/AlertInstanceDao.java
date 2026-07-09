@@ -1,13 +1,14 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
+import com.iviet.ivshs.dto.AlertInstanceSubFilterDto;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.AlertInstanceGroup;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.enumeration.AlertStatus;
 import com.iviet.ivshs.shared.enumeration.Severity;
-import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
+
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;

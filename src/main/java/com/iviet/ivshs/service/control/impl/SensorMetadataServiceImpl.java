@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.SensorMetadataDao;
-import com.iviet.ivshs.dto.sensor.SensorMetadataDto;
+import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.service.control.SensorMetadataService;
 import com.iviet.ivshs.service.control.SensorMetadataServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;

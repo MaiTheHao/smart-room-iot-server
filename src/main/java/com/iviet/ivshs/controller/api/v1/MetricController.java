@@ -1,6 +1,6 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.service.metric.MetricOrchestratorService;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import lombok.RequiredArgsConstructor;

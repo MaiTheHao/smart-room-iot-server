@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.exception.handler;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.shared.exception.ExternalServiceException;
 import com.iviet.ivshs.shared.exception.NetworkTimeoutException;
 import com.iviet.ivshs.shared.exception.RemoteResourceNotFoundException;

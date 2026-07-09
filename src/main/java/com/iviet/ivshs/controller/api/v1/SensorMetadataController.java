@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.sensor.SensorMetadataDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.service.control.SensorMetadataService;
 import com.iviet.ivshs.service.permission.PermissionService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;

@@ -1,9 +1,10 @@
 package com.iviet.ivshs.service.alert;
 
-import com.iviet.ivshs.dto.alert.AlertInstanceLogDto;
-import com.iviet.ivshs.dto.alert.CreateAlertInstanceLogDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceLogFilterDto;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.AlertInstanceLogDto;
+import com.iviet.ivshs.dto.AlertInstanceLogFilterDto;
+import com.iviet.ivshs.dto.CreateAlertInstanceLogDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+
 import java.util.List;
 
 public interface AlertInstanceLogService {

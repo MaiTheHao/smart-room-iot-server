@@ -1,7 +1,7 @@
 package com.iviet.ivshs.integration.gateway.impl.raspi;
 
-import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
-import com.iviet.ivshs.dto.setup.SetupRequest;
+import com.iviet.ivshs.dto.HealthCheckResponseDto;
+import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 
 import lombok.RequiredArgsConstructor;

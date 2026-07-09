@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.iviet.ivshs.dao.AirConditionDao;
-import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
-import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.AirConditionControlRequestBody;
+import com.iviet.ivshs.dto.ControlDeviceResult;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;

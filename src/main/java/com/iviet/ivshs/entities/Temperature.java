@@ -3,7 +3,7 @@ package com.iviet.ivshs.entities;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.iviet.ivshs.dto.sensor.TemperatureSensorData;
+import com.iviet.ivshs.dto.TemperatureSensorData;
 import com.iviet.ivshs.entities.base.BaseIoTSensor;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 

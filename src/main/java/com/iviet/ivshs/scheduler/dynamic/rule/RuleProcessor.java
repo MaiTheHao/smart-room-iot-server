@@ -17,7 +17,7 @@ import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.scheduler.dynamic.base.SchedulableJobProcessor;
 import com.iviet.ivshs.scheduler.dynamic.base.JobProcessorType;
 import com.iviet.ivshs.dao.RuleDao;
-import com.iviet.ivshs.dto.alert.AlertTriggerRequestDto;
+import com.iviet.ivshs.dto.AlertTriggerRequestDto;
 import com.iviet.ivshs.service.alert.AlertTriggerService;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;

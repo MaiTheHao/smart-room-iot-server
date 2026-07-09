@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.core.properties.EngineProperties;
 import com.iviet.ivshs.dao.EnergyMetricDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
-import com.iviet.ivshs.dto.room.RoomDetailViewModel;
+import com.iviet.ivshs.dto.RoomDetailViewModel;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.service.system.HealthCheckService;

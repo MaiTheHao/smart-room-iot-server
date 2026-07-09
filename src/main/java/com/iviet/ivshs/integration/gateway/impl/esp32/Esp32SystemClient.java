@@ -1,6 +1,5 @@
 package com.iviet.ivshs.integration.gateway.impl.esp32;
 
-import com.iviet.ivshs.dto.setup.SetupRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,6 +7,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.iviet.ivshs.dto.SetupRequest;
 
 @Service
 @RequiredArgsConstructor

@@ -1,11 +1,10 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.temperature.CreateTemperatureDto;
-import com.iviet.ivshs.dto.temperature.TemperatureDto;
-import com.iviet.ivshs.dto.temperature.UpdateTemperatureDto;
-
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.CreateTemperatureDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.TemperatureDto;
+import com.iviet.ivshs.dto.UpdateTemperatureDto;
 import com.iviet.ivshs.service.temperature.TemperatureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

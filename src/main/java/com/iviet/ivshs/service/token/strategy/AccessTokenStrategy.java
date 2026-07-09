@@ -1,13 +1,13 @@
 package com.iviet.ivshs.service.token.strategy;
 
 import com.iviet.ivshs.core.properties.TokenProperties;
+import com.iviet.ivshs.dto.AccessTokenPayload;
 
 import java.time.Instant;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.dto.token.AccessTokenPayload;
 import com.iviet.ivshs.service.token.TokenStrategy;
 import com.iviet.ivshs.service.token.provider.JwtProvider;
 import com.iviet.ivshs.shared.enumeration.TokenType;

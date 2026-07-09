@@ -1,6 +1,6 @@
 package com.iviet.ivshs.integration.gateway.impl.esp32;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;

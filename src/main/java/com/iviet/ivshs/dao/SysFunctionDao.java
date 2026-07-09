@@ -6,9 +6,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseTranslatableEntityDao;
-import com.iviet.ivshs.dto.permission.SysFunctionDto;
-import com.iviet.ivshs.dto.permission.SysFunctionWithGroupStatusDto;
-import com.iviet.ivshs.dto.permission.GroupPermissionMapping;
+import com.iviet.ivshs.dto.SysFunctionDto;
+import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDto;
+import com.iviet.ivshs.dto.GroupPermissionMapping;
 import com.iviet.ivshs.entities.SysFunction;
 
 @Repository

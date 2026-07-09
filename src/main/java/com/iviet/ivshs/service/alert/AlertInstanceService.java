@@ -2,10 +2,10 @@ package com.iviet.ivshs.service.alert;
 
 import java.util.Map;
 
-import com.iviet.ivshs.dto.alert.AlertFilterDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceSubFilterDto;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.AlertFilterDto;
+import com.iviet.ivshs.dto.AlertInstanceDto;
+import com.iviet.ivshs.dto.AlertInstanceSubFilterDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;

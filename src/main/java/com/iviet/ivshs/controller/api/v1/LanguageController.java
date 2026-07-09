@@ -1,10 +1,10 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.language.CreateLanguageDto;
-import com.iviet.ivshs.dto.language.LanguageDto;
-import com.iviet.ivshs.dto.language.UpdateLanguageDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreateLanguageDto;
+import com.iviet.ivshs.dto.LanguageDto;
+import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.service.language.LanguageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

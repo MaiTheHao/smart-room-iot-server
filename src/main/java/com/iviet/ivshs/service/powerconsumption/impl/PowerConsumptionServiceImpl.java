@@ -8,10 +8,11 @@ import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dao.PowerConsumptionDao;
 import com.iviet.ivshs.dao.RoomDao;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.powerconsumption.CreatePowerConsumptionDto;
-import com.iviet.ivshs.dto.powerconsumption.PowerConsumptionDto;
-import com.iviet.ivshs.dto.powerconsumption.UpdatePowerConsumptionDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreatePowerConsumptionDto;
+import com.iviet.ivshs.dto.PowerConsumptionDto;
+import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
+import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.PowerConsumption;
@@ -256,22 +257,22 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getSensorByRoomId(Long roomId) {
+	public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
 		return powerConsumptionDao.findAllByRoomIdWithTranslations(roomId).stream()
 				.map(entity -> {
 					PowerConsumptionLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
-					return com.iviet.ivshs.dto.sensor.SensorMetadataDto.from(entity, lan);
+					return SensorMetadataDto.from(entity, lan);
 				})
 				.toList();
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getAllSensor() {
+	public List<SensorMetadataDto> getAllSensor() {
 		return powerConsumptionDao.findAllWithTranslations().stream()
 				.map(entity -> {
 					PowerConsumptionLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
-					return com.iviet.ivshs.dto.sensor.SensorMetadataDto.from(entity, lan);
+					return SensorMetadataDto.from(entity, lan);
 				})
 				.toList();
 	}

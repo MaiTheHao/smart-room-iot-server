@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.iviet.ivshs.dao.FanDao;
-import com.iviet.ivshs.dto.control.ControlDeviceResult;
-import com.iviet.ivshs.dto.fan.FanControlRequestBody;
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;

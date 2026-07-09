@@ -1,0 +1,18 @@
+package com.iviet.ivshs.dto;
+
+import java.time.Instant;
+import java.util.List;
+import lombok.Builder;
+
+@Builder
+public record RuleDto(
+		Long id,
+		String name,
+		Integer priority,
+		Boolean isActive,
+		Integer intervalSeconds,
+		List<RuleConditionDto> conditions,
+		List<RuleActionDto> actions,
+		Instant createdAt,
+		Instant updatedAt) {
+}

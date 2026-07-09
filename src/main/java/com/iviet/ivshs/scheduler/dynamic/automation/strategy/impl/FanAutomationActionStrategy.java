@@ -3,7 +3,7 @@ package com.iviet.ivshs.scheduler.dynamic.automation.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.FanDao;
-import com.iviet.ivshs.dto.fan.FanControlRequestBody;
+import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;

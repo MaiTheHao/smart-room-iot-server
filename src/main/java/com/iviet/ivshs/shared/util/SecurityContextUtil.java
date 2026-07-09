@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.util;
 
-import com.iviet.ivshs.dto.auth.CustomUserDetails;
+import com.iviet.ivshs.dto.CustomUserDetails;
 import com.iviet.ivshs.shared.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.shared.exception.ForbiddenException;
 import com.iviet.ivshs.shared.exception.UnauthorizedException;

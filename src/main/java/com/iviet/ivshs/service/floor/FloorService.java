@@ -1,10 +1,11 @@
 package com.iviet.ivshs.service.floor;
 
 import java.util.List;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.floor.CreateFloorDto;
-import com.iviet.ivshs.dto.floor.FloorDto;
-import com.iviet.ivshs.dto.floor.UpdateFloorDto;
+
+import com.iviet.ivshs.dto.CreateFloorDto;
+import com.iviet.ivshs.dto.FloorDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateFloorDto;
 import com.iviet.ivshs.entities.Floor;
 
 public interface FloorService {

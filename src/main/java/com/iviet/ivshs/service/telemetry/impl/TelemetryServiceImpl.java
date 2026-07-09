@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.telemetry.impl;
 
-import com.iviet.ivshs.dto.client.ClientDto;
-import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.shared.util.MdcTaskWrapper;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;

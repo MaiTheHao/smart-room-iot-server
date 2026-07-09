@@ -1,10 +1,10 @@
 package com.iviet.ivshs.service.alert;
 
-import com.iviet.ivshs.dto.alert.CreateAlertConfigDto;
-import com.iviet.ivshs.dto.alert.UpdateAlertConfigDto;
-import com.iviet.ivshs.dto.alert.AlertConfigDto;
-import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.AlertConfigDto;
+import com.iviet.ivshs.dto.AlertConfigFilterDto;
+import com.iviet.ivshs.dto.CreateAlertConfigDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateAlertConfigDto;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 
 import java.util.List;

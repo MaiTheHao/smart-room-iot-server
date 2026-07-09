@@ -1,12 +1,12 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.control.ControlDeviceResult;
-import com.iviet.ivshs.dto.light.CreateLightDto;
-import com.iviet.ivshs.dto.light.LightControlRequestBody;
-import com.iviet.ivshs.dto.light.LightDto;
-import com.iviet.ivshs.dto.light.UpdateLightDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreateLightDto;
+import com.iviet.ivshs.dto.LightControlRequestBody;
+import com.iviet.ivshs.dto.LightDto;
+import com.iviet.ivshs.dto.UpdateLightDto;
 import com.iviet.ivshs.service.control.LightControlService;
 import com.iviet.ivshs.service.light.LightService;
 import jakarta.validation.Valid;

@@ -1,8 +1,9 @@
 package com.iviet.ivshs.integration.gateway.impl.esp32;
 
-import com.iviet.ivshs.dto.auth.GatewayLoginResponse;
-import com.iviet.ivshs.dto.auth.LoginDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.GatewayLoginResponse;
+import com.iviet.ivshs.dto.LoginDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;

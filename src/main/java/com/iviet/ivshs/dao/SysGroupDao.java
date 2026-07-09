@@ -5,10 +5,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseTranslatableEntityDao;
-import com.iviet.ivshs.dto.client.ClientDto;
-import com.iviet.ivshs.dto.permission.SysFunctionDto;
-import com.iviet.ivshs.dto.role.SysGroupDto;
-import com.iviet.ivshs.dto.role.SysGroupWithClientStatusDto;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.SysFunctionDto;
+import com.iviet.ivshs.dto.SysGroupDto;
+import com.iviet.ivshs.dto.SysGroupWithClientStatusDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
 

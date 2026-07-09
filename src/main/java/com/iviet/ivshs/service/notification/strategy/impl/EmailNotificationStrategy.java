@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.notification.strategy.impl;
 
-import com.iviet.ivshs.dto.notification.NotificationRequest;
+import com.iviet.ivshs.dto.NotificationRequest;
 import com.iviet.ivshs.service.notification.strategy.NotificationStrategy;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 

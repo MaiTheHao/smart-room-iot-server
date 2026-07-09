@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.auth.impl;
 
-import com.iviet.ivshs.dto.auth.LoginViewModel;
 import com.iviet.ivshs.service.language.I18nMessageService;
+import com.iviet.ivshs.dto.LoginViewModel;
 import com.iviet.ivshs.service.auth.LoginViewService;
 import com.iviet.ivshs.shared.constant.I18nMessageConstant;
 import jakarta.servlet.http.HttpServletRequest;

@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.iviet.ivshs.dto.common.ApiResponse;
+
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.service.setup.SetupService;
 
 import lombok.RequiredArgsConstructor;

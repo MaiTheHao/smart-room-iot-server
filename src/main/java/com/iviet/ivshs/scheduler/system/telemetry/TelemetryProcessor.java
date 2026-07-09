@@ -2,7 +2,7 @@ package com.iviet.ivshs.scheduler.system.telemetry;
 
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.dto.room.RoomDto;
+import com.iviet.ivshs.dto.RoomDto;
 import com.iviet.ivshs.service.room.RoomService;
 import com.iviet.ivshs.service.telemetry.TelemetryService;
 import lombok.RequiredArgsConstructor;

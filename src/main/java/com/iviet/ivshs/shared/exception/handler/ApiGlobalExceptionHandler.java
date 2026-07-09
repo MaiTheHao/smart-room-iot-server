@@ -1,6 +1,6 @@
 package com.iviet.ivshs.shared.exception.handler;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.BaseException;
 import com.iviet.ivshs.shared.exception.ForbiddenException;

@@ -3,7 +3,7 @@ package com.iviet.ivshs.scheduler.dynamic.automation.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.LightDao;
-import com.iviet.ivshs.dto.light.LightControlRequestBody;
+import com.iviet.ivshs.dto.LightControlRequestBody;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.entities.Light;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;

@@ -1,10 +1,10 @@
 package com.iviet.ivshs.service.language.impl;
 
 import com.iviet.ivshs.dao.LanguageDao;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.language.CreateLanguageDto;
-import com.iviet.ivshs.dto.language.LanguageDto;
-import com.iviet.ivshs.dto.language.UpdateLanguageDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreateLanguageDto;
+import com.iviet.ivshs.dto.LanguageDto;
+import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
 import com.iviet.ivshs.service.language.LanguageService;
 import com.iviet.ivshs.shared.exception.BadRequestException;

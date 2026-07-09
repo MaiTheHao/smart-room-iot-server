@@ -1,6 +1,6 @@
 package com.iviet.ivshs.entities;
 
-import com.iviet.ivshs.dto.sensor.PowerConsumptionSensorData;
+import com.iviet.ivshs.dto.PowerConsumptionSensorData;
 import com.iviet.ivshs.entities.base.BaseIoTSensor;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 

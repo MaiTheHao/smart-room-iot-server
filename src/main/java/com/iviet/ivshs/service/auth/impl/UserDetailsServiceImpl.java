@@ -20,8 +20,8 @@ import org.springframework.util.StringUtils;
 
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.SysFunctionDao;
-import com.iviet.ivshs.dto.auth.CustomUserDetails;
-import com.iviet.ivshs.dto.permission.GroupPermissionMapping;
+import com.iviet.ivshs.dto.CustomUserDetails;
+import com.iviet.ivshs.dto.GroupPermissionMapping;
 import com.iviet.ivshs.entities.Client;
 
 @Slf4j

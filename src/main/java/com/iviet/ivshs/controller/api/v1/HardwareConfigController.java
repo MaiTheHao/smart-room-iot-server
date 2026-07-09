@@ -1,10 +1,10 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.hardwareconfig.CreateDeviceControlDto;
-import com.iviet.ivshs.dto.hardwareconfig.DeviceControlDto;
-import com.iviet.ivshs.dto.hardwareconfig.UpdateDeviceControlDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.CreateDeviceControlDto;
+import com.iviet.ivshs.dto.DeviceControlDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateDeviceControlDto;
 import com.iviet.ivshs.service.hardwareconfig.HardwareConfigService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,14 +1,15 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.fan.FanDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.control.ControlDeviceResult;
-import com.iviet.ivshs.dto.fan.CreateFanDto;
-import com.iviet.ivshs.dto.fan.FanControlRequestBody;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import com.iviet.ivshs.dto.CreateFanDto;
+import com.iviet.ivshs.dto.FanControlRequestBody;
+import com.iviet.ivshs.dto.FanDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateFanDto;
 import com.iviet.ivshs.service.control.FanControlService;
 import com.iviet.ivshs.service.fan.FanService;
-import com.iviet.ivshs.dto.fan.UpdateFanDto;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

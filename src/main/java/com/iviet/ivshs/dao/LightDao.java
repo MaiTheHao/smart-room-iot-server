@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 import com.iviet.ivshs.dao.base.BaseIoTActuatorDao;
-import com.iviet.ivshs.dto.light.LightDto;
+import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.entities.Light;
 
 @Repository

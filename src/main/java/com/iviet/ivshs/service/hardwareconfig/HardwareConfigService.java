@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service.hardwareconfig;
 
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.hardwareconfig.CreateDeviceControlDto;
-import com.iviet.ivshs.dto.hardwareconfig.DeviceControlDto;
-import com.iviet.ivshs.dto.hardwareconfig.UpdateDeviceControlDto;
+import com.iviet.ivshs.dto.CreateDeviceControlDto;
+import com.iviet.ivshs.dto.DeviceControlDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateDeviceControlDto;
 
 public interface HardwareConfigService {
     DeviceControlDto getById(Long deviceControlId);

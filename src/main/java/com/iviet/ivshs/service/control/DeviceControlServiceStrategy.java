@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.control;
 
-import com.iviet.ivshs.dto.control.ControlDeviceResult;
+import com.iviet.ivshs.dto.ControlDeviceResult;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
 public interface DeviceControlServiceStrategy<T> {

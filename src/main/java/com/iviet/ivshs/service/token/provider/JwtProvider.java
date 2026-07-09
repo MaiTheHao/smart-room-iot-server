@@ -11,7 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.dto.token.TokenPayload;
+import com.iviet.ivshs.dto.TokenPayload;
 import com.iviet.ivshs.shared.exception.InvalidTokenException;
 import com.iviet.ivshs.shared.exception.TokenExpiredException;
 

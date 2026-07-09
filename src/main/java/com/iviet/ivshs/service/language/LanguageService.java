@@ -1,9 +1,9 @@
 package com.iviet.ivshs.service.language;
 
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.language.CreateLanguageDto;
-import com.iviet.ivshs.dto.language.LanguageDto;
-import com.iviet.ivshs.dto.language.UpdateLanguageDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreateLanguageDto;
+import com.iviet.ivshs.dto.LanguageDto;
+import com.iviet.ivshs.dto.UpdateLanguageDto;
 
 public interface LanguageService {
     PaginatedResponse<LanguageDto> getList(int page, int size);

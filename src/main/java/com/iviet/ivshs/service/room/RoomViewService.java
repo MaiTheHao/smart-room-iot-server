@@ -1,6 +1,6 @@
 package com.iviet.ivshs.service.room;
 
-import com.iviet.ivshs.dto.room.RoomDetailViewModel;
+import com.iviet.ivshs.dto.RoomDetailViewModel;
 
 import lombok.Builder;
 import lombok.Data;

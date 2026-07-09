@@ -1,11 +1,11 @@
 package com.iviet.ivshs.integration.gateway;
 
-import com.iviet.ivshs.dto.auth.GatewayLoginResponse;
-import com.iviet.ivshs.dto.auth.LoginDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.metric.EnergyMetricDto;
-import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
-import com.iviet.ivshs.dto.setup.SetupRequest;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.GatewayLoginResponse;
+import com.iviet.ivshs.dto.LoginDto;
+import com.iviet.ivshs.dto.SetupRequest;
+import com.iviet.ivshs.dto.EnergyMetricDto;
+import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.shared.enumeration.ClientType;
 import org.springframework.http.ResponseEntity;
 

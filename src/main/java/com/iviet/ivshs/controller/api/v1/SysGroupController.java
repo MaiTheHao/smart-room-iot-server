@@ -1,13 +1,13 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.client.ClientDto;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.permission.SysFunctionDto;
-import com.iviet.ivshs.dto.role.CreateSysGroupDto;
-import com.iviet.ivshs.dto.role.SysGroupDto;
-import com.iviet.ivshs.dto.role.SysGroupWithClientStatusDto;
-import com.iviet.ivshs.dto.role.UpdateSysGroupDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.ClientDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.SysFunctionDto;
+import com.iviet.ivshs.dto.CreateSysGroupDto;
+import com.iviet.ivshs.dto.SysGroupDto;
+import com.iviet.ivshs.dto.SysGroupWithClientStatusDto;
+import com.iviet.ivshs.dto.UpdateSysGroupDto;
 import com.iviet.ivshs.service.role.SysGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,9 @@
 package com.iviet.ivshs.integration.gateway.impl.raspi;
 
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.metric.EnergyMetricDto;
-import com.iviet.ivshs.dto.metric.TelemetryResponseDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.EnergyMetricDto;
+import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,10 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.floor.CreateFloorDto;
-import com.iviet.ivshs.dto.floor.FloorDto;
-import com.iviet.ivshs.dto.floor.UpdateFloorDto;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.CreateFloorDto;
+import com.iviet.ivshs.dto.FloorDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateFloorDto;
 import com.iviet.ivshs.service.floor.FloorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

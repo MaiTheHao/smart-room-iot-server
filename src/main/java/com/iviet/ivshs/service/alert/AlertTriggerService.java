@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.alert;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.iviet.ivshs.dto.alert.AlertTriggerRequestDto;
+import com.iviet.ivshs.dto.AlertTriggerRequestDto;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;
 

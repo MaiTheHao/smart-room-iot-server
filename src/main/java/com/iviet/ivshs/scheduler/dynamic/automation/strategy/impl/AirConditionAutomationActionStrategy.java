@@ -3,7 +3,7 @@ package com.iviet.ivshs.scheduler.dynamic.automation.strategy.impl;
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.AirConditionDao;
-import com.iviet.ivshs.dto.aircondition.AirConditionControlRequestBody;
+import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;

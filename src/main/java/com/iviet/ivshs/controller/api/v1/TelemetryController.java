@@ -2,7 +2,8 @@ package com.iviet.ivshs.controller.api.v1;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.iviet.ivshs.dto.common.ApiResponse;
+
+import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.service.telemetry.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

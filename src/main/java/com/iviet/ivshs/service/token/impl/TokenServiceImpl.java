@@ -3,7 +3,7 @@ package com.iviet.ivshs.service.token.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.iviet.ivshs.dto.token.TokenPayload;
+import com.iviet.ivshs.dto.TokenPayload;
 import com.iviet.ivshs.service.token.TokenRegistry;
 import com.iviet.ivshs.service.token.TokenService;
 import com.iviet.ivshs.service.token.TokenStrategy;

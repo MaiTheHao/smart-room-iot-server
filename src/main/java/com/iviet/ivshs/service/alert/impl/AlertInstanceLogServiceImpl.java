@@ -1,10 +1,10 @@
 package com.iviet.ivshs.service.alert.impl;
 
 import com.iviet.ivshs.dao.AlertInstanceLogDao;
-import com.iviet.ivshs.dto.alert.AlertInstanceLogDto;
-import com.iviet.ivshs.dto.alert.AlertInstanceLogFilterDto;
-import com.iviet.ivshs.dto.alert.CreateAlertInstanceLogDto;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.AlertInstanceLogDto;
+import com.iviet.ivshs.dto.AlertInstanceLogFilterDto;
+import com.iviet.ivshs.dto.CreateAlertInstanceLogDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.AlertInstanceLog;
 import com.iviet.ivshs.service.alert.AlertInstanceLogService;

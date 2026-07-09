@@ -1,11 +1,12 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
+import com.iviet.ivshs.dto.AlertConfigFilterDto;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertConfigGroup;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
-import com.iviet.ivshs.dto.alert.AlertConfigFilterDto;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

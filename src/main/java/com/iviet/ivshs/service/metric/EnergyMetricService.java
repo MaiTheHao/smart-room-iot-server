@@ -1,7 +1,7 @@
 package com.iviet.ivshs.service.metric;
 
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
-import com.iviet.ivshs.dto.metric.EnergyMetricDto;
+import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.service.telemetry.SensorTelemetryServiceStrategy;
 import java.time.Instant;
 import java.util.List;

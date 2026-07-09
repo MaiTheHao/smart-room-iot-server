@@ -1,10 +1,11 @@
 package com.iviet.ivshs.service.powerconsumption;
 
 import java.util.List;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.powerconsumption.CreatePowerConsumptionDto;
-import com.iviet.ivshs.dto.powerconsumption.PowerConsumptionDto;
-import com.iviet.ivshs.dto.powerconsumption.UpdatePowerConsumptionDto;
+
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreatePowerConsumptionDto;
+import com.iviet.ivshs.dto.PowerConsumptionDto;
+import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
 public interface PowerConsumptionService extends com.iviet.ivshs.service.control.SensorMetadataServiceStrategy {

@@ -5,9 +5,9 @@ import com.iviet.ivshs.mapper.RuleActionMapper;
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.dao.LightDao;
-import com.iviet.ivshs.dto.rule.CreateRuleActionDto;
-import com.iviet.ivshs.dto.rule.RuleActionDto;
-import com.iviet.ivshs.dto.rule.UpdateRuleActionDto;
+import com.iviet.ivshs.dto.CreateRuleActionDto;
+import com.iviet.ivshs.dto.RuleActionDto;
+import com.iviet.ivshs.dto.UpdateRuleActionDto;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 

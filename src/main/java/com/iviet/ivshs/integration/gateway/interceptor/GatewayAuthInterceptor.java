@@ -3,12 +3,12 @@ package com.iviet.ivshs.integration.gateway.interceptor;
 import java.io.IOException;
 import java.net.URI;
 
-import com.iviet.ivshs.dto.auth.LoginDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.service.client.ClientService;
 import com.iviet.ivshs.dao.ClientDao;
+import com.iviet.ivshs.dto.LoginDto;
 
 import lombok.extern.slf4j.Slf4j;
 import jakarta.annotation.PostConstruct;

@@ -1,10 +1,9 @@
 package com.iviet.ivshs.service.temperature.impl;
 
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.temperature.CreateTemperatureDto;
-import com.iviet.ivshs.dto.temperature.TemperatureDto;
-import com.iviet.ivshs.dto.temperature.UpdateTemperatureDto;
-
+import com.iviet.ivshs.dto.CreateTemperatureDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.TemperatureDto;
+import com.iviet.ivshs.dto.UpdateTemperatureDto;
 import com.iviet.ivshs.dao.*;
 
 import com.iviet.ivshs.entities.*;
@@ -215,22 +214,22 @@ public class TemperatureServiceImpl implements TemperatureService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getSensorByRoomId(Long roomId) {
+  public List<com.iviet.ivshs.dto.SensorMetadataDto> getSensorByRoomId(Long roomId) {
     return temperatureDao.findAllByRoomIdWithTranslations(roomId).stream()
         .map(entity -> {
           TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
-          return com.iviet.ivshs.dto.sensor.SensorMetadataDto.from(entity, lan);
+          return com.iviet.ivshs.dto.SensorMetadataDto.from(entity, lan);
         })
         .toList();
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<com.iviet.ivshs.dto.sensor.SensorMetadataDto> getAllSensor() {
+  public List<com.iviet.ivshs.dto.SensorMetadataDto> getAllSensor() {
     return temperatureDao.findAllWithTranslations().stream()
         .map(entity -> {
           TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
-          return com.iviet.ivshs.dto.sensor.SensorMetadataDto.from(entity, lan);
+          return com.iviet.ivshs.dto.SensorMetadataDto.from(entity, lan);
         })
         .toList();
   }

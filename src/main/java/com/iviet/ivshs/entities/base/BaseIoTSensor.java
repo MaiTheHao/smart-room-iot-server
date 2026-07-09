@@ -1,6 +1,6 @@
 package com.iviet.ivshs.entities.base;
 
-import com.iviet.ivshs.dto.sensor.SensorSpecificData;
+import com.iviet.ivshs.dto.SensorSpecificData;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;

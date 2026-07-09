@@ -1,7 +1,8 @@
 package com.iviet.ivshs.service.system;
 
 import java.util.Map;
-import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
+
+import com.iviet.ivshs.dto.HealthCheckResponseDto;
 
 public interface HealthCheckService {
     HealthCheckResponseDto checkByClient(String ipAddress);

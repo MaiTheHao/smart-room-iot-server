@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dao.setup;
 
 import com.iviet.ivshs.dao.AirConditionDao;
-import com.iviet.ivshs.dto.setup.SetupRequest;
+import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
 import com.iviet.ivshs.entities.HardwareConfig;

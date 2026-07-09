@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.setup.DeviceSetupOrchestrator;
-import com.iviet.ivshs.dto.setup.SetupRequest;
+import com.iviet.ivshs.dto.SetupRequest;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.Room;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;

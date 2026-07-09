@@ -2,13 +2,13 @@ package com.iviet.ivshs.service.automation;
 
 import java.util.List;
 
-import com.iviet.ivshs.dto.automation.AutomationActionDto;
-import com.iviet.ivshs.dto.automation.AutomationDto;
-import com.iviet.ivshs.dto.automation.CreateAutomationActionDto;
-import com.iviet.ivshs.dto.automation.CreateAutomationDto;
-import com.iviet.ivshs.dto.automation.UpdateAutomationActionDto;
-import com.iviet.ivshs.dto.automation.UpdateAutomationDto;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
+import com.iviet.ivshs.dto.AutomationActionDto;
+import com.iviet.ivshs.dto.AutomationDto;
+import com.iviet.ivshs.dto.CreateAutomationActionDto;
+import com.iviet.ivshs.dto.CreateAutomationDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.UpdateAutomationActionDto;
+import com.iviet.ivshs.dto.UpdateAutomationDto;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.service.base.SchedulableJobService;
 

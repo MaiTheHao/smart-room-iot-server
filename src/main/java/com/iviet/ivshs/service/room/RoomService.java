@@ -1,11 +1,13 @@
 package com.iviet.ivshs.service.room;
 
 import java.util.List;
-import com.iviet.ivshs.dto.common.PaginatedResponse;
-import com.iviet.ivshs.dto.room.CreateRoomDto;
-import com.iviet.ivshs.dto.room.RoomDto;
-import com.iviet.ivshs.dto.room.RoomStatusDto;
-import com.iviet.ivshs.dto.room.UpdateRoomDto;
+
+import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.CreateRoomDto;
+import com.iviet.ivshs.dto.RoomDto;
+import com.iviet.ivshs.dto.RoomStatusDto;
+import com.iviet.ivshs.dto.UpdateRoomDto;
+import com.iviet.ivshs.dto.RoomDeviceCountDto;
 import com.iviet.ivshs.entities.Room;
 
 public interface RoomService {
@@ -17,7 +19,7 @@ public interface RoomService {
 
   List<RoomDto> getAll();
 
-  List<com.iviet.ivshs.dto.room.RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds);
+  List<RoomDeviceCountDto> getDeviceCountsByRoomIds(List<Long> roomIds);
 
   RoomDto getById(Long roomId);
 

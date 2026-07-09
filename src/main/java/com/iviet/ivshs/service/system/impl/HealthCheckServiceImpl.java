@@ -2,8 +2,8 @@ package com.iviet.ivshs.service.system.impl;
 
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.RoomDao;
-import com.iviet.ivshs.dto.common.HealthCheckResponseDto;
-import com.iviet.ivshs.dto.common.HealthCheckResponseDto.DeviceDto;
+import com.iviet.ivshs.dto.HealthCheckResponseDto;
+import com.iviet.ivshs.dto.HealthCheckResponseDto.DeviceDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;

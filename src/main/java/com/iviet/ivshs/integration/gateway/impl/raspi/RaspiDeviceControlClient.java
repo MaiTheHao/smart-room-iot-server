@@ -1,7 +1,7 @@
 package com.iviet.ivshs.integration.gateway.impl.raspi;
 
-import com.iviet.ivshs.dto.common.ApiResponse;
-import com.iviet.ivshs.dto.control.DeviceControlPayload;
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.DeviceControlPayload;
 import com.iviet.ivshs.integration.gateway.base.BaseGatewayClient;
 
 import org.springframework.core.ParameterizedTypeReference;

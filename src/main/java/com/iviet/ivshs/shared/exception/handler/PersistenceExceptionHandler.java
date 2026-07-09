@@ -15,7 +15,8 @@ import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.iviet.ivshs.dto.common.ApiResponse;
+
+import com.iviet.ivshs.dto.ApiResponse;
 
 @Slf4j
 @Order(1)

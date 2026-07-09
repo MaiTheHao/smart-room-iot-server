@@ -1,7 +1,7 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseEntityDao;
-import com.iviet.ivshs.dto.metric.EnergyMetricDto;
+import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 
