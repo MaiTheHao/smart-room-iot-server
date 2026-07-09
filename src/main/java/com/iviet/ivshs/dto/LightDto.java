@@ -37,4 +37,13 @@ public record LightDto(Long id, String naturalId, String name, String descriptio
                 .category(DeviceCategory.LIGHT)
                 .capabilities(DeviceCapabilityRegistry.getCapabilities(DeviceCategory.LIGHT, entity.getSpecificType())).build();
     }
+
+    public static String jpqlProjection(String lightAlias, String lightLangAlias) {
+        return "%s.id, %s.naturalId, %s.name, %s.description, %s.isActive, %s.power, %s.specificType, %s.level, %s.room.id, %s.hardwareConfig.id"
+            .formatted(
+                lightAlias, lightAlias, lightLangAlias, lightLangAlias,
+                lightAlias, lightAlias, lightAlias, lightAlias,
+                lightAlias, lightAlias
+            );
+    }
 }
