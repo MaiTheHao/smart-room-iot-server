@@ -9,4 +9,9 @@ public record SysGroupDto(Long id, String groupCode, String name, String descrip
     public static SysGroupDto from(SysGroup entity, SysGroupLan groupLan) {
         return SysGroupDto.builder().id(entity.getId()).groupCode(entity.getGroupCode()).name(groupLan.getName()).description(groupLan.getDescription()).build();
     }
+
+    public static String jpqlProjection(String groupAlias, String groupLangAlias) {
+        return "%s.id, %s.groupCode, %s.name, %s.description"
+            .formatted(groupAlias, groupAlias, groupLangAlias, groupLangAlias);
+    }
 }

@@ -30,6 +30,11 @@ public record ClientDto(
                 .build();
     }
 
+    public static String jpqlProjection(String clientAlias) {
+        return "%s.id, %s.username, %s.clientType, %s.ipAddress, %s.macAddress, %s.avatarUrl, %s.lastLoginAt, %s.gatewayPassword"
+            .formatted(clientAlias, clientAlias, clientAlias, clientAlias, clientAlias, clientAlias, clientAlias, clientAlias);
+    }
+
     public static Client toEntity(ClientDto dto) {
         if (dto == null)
             return null;
