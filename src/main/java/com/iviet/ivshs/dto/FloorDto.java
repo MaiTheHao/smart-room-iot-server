@@ -32,4 +32,9 @@ public record FloorDto(
         floor.setLevel(dto.level());
         return floor;
     }
+
+    public static String jpqlProjection(String floorAlias, String floorLangAlias) {
+        return "%s.id, %s.name, %s.code, %s.description, %s.level, %s.version"
+            .formatted(floorAlias, floorLangAlias, floorAlias, floorLangAlias, floorAlias, floorAlias);
+    }
 }
