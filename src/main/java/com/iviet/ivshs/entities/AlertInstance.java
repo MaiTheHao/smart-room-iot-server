@@ -7,8 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Đại diện cho một sự kiện alert được kích hoạt (Alert Incident/Event). Tên bảng: alert_instance. Vòng đời: ACTIVE → ACKNOWLEDGED → RESOLVED.
