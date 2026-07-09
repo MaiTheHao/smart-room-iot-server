@@ -1,23 +1,13 @@
----
-
-<div align="center">
-
-# SMART ROOM IoT SERVER
-
-**Nền tảng Điều phối Quản trị Tòa nhà & Thiết bị IoT Tiên tiến**
-
-[![Java 21](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
-[![Spring 6](https://img.shields.io/badge/Spring-6.2-green?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Tomcat](https://img.shields.io/badge/Tomcat-10.1-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=black)](https://tomcat.apache.org/)
-
----
-
-### _"Nền tảng IoT Plug-and-Play Đích thực"_
-
-_Tối ưu, Sạch và Được thiết kế để Mở rộng Dễ dàng._
-
+<div align="center" style="font-size: 32px;">
+  <strong>SmartHome Backend</strong>
 </div>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21" />
+  <img src="https://img.shields.io/badge/Spring-6.2-green?style=for-the-badge&logo=spring&logoColor=white" alt="Spring Framework 6.2" />
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL 8.0" />
+  <img src="https://img.shields.io/badge/Tomcat-10.1-F8DC75?style=for-the-badge&logo=apachetomcat&logoColor=black" alt="Apache Tomcat 10.1" />
+</p>
 
 ---
 
