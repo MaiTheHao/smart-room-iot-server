@@ -20,7 +20,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreateRuleDto;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleStatusDto;
-import com.iviet.ivshs.service.rule.RuleService;
+import com.iviet.ivshs.service.RuleService;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

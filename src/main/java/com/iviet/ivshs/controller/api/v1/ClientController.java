@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.CreateClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateClientDto;
 import com.iviet.ivshs.entities.Client;
-import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

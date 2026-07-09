@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.telemetry;
+package com.iviet.ivshs.service.strategy;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.floor.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.CreateFloorDto;
 import com.iviet.ivshs.dto.FloorDto;
@@ -10,9 +10,9 @@ import com.iviet.ivshs.dao.LanguageDao;
 
 import com.iviet.ivshs.entities.FloorLan;
 import com.iviet.ivshs.entities.Floor;
-import com.iviet.ivshs.service.floor.FloorService;
-import com.iviet.ivshs.service.permission.PermissionService;
-import com.iviet.ivshs.service.permission.SysFunctionService;
+import com.iviet.ivshs.service.FloorService;
+import com.iviet.ivshs.service.PermissionService;
+import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

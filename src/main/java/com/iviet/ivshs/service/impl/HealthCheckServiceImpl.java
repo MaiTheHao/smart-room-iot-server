@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.system.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dao.RoomDao;
@@ -8,7 +8,7 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
-import com.iviet.ivshs.service.system.HealthCheckService;
+import com.iviet.ivshs.service.HealthCheckService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.ExternalServiceException;
 import com.iviet.ivshs.shared.exception.NetworkTimeoutException;

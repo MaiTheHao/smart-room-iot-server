@@ -2,8 +2,8 @@ package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.RegisterClientDeviceDto;
-import com.iviet.ivshs.service.clientdevice.ClientDeviceService;
-import com.iviet.ivshs.service.notification.strategy.impl.FcmNotificationStrategy;
+import com.iviet.ivshs.service.ClientDeviceService;
+import com.iviet.ivshs.service.strategy.FcmNotificationStrategy;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

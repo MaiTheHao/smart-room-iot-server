@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.setup.SetupService;
+import com.iviet.ivshs.service.SetupService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

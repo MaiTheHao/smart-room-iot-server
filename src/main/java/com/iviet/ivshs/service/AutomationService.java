@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.automation;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAutomationActionDto;
 import com.iviet.ivshs.dto.UpdateAutomationDto;
 import com.iviet.ivshs.entities.Automation;
-import com.iviet.ivshs.service.base.SchedulableJobService;
+import com.iviet.ivshs.service.SchedulableJobService;
 
 public interface AutomationService extends SchedulableJobService<Automation> {
 

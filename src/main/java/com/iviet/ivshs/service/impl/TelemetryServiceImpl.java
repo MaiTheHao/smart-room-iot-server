@@ -1,14 +1,14 @@
-package com.iviet.ivshs.service.telemetry.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.shared.util.MdcTaskWrapper;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
-import com.iviet.ivshs.service.room.RoomService;
-import com.iviet.ivshs.service.base.TelemetryCRUDServiceStrategy;
-import com.iviet.ivshs.service.telemetry.TelemetryService;
-import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.service.RoomService;
+import com.iviet.ivshs.service.strategy.TelemetryCRUDServiceStrategy;
+import com.iviet.ivshs.service.TelemetryService;
+import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.integration.gateway.GatewayFetchResult;

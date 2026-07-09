@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.system.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,10 +15,10 @@ import com.iviet.ivshs.dto.IndexViewModel;
 import com.iviet.ivshs.dto.RoomDto;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
-import com.iviet.ivshs.service.floor.FloorService;
-import com.iviet.ivshs.service.control.DeviceMetadataService;
-import com.iviet.ivshs.service.room.RoomService;
-import com.iviet.ivshs.service.system.IndexViewService;
+import com.iviet.ivshs.service.FloorService;
+import com.iviet.ivshs.service.DeviceMetadataService;
+import com.iviet.ivshs.service.RoomService;
+import com.iviet.ivshs.service.IndexViewService;
 import lombok.RequiredArgsConstructor;
 
 @Service

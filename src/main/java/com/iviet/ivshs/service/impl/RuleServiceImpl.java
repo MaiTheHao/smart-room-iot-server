@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.rule.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -31,10 +31,10 @@ import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
 import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.control.DeviceControlServiceStrategy;
-import com.iviet.ivshs.service.base.AbstractSchedulableJobService;
-import com.iviet.ivshs.service.rule.RuleService;
-import com.iviet.ivshs.service.alert.AlertConfigService;
+import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
+import com.iviet.ivshs.service.AbstractSchedulableJobService;
+import com.iviet.ivshs.service.RuleService;
+import com.iviet.ivshs.service.AlertConfigService;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validator;

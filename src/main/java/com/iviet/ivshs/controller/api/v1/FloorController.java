@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.CreateFloorDto;
 import com.iviet.ivshs.dto.FloorDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateFloorDto;
-import com.iviet.ivshs.service.floor.FloorService;
+import com.iviet.ivshs.service.FloorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

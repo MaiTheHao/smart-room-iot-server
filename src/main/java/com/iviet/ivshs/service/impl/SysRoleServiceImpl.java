@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.role.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.AssignGroupsToClientDto;
 import com.iviet.ivshs.dto.BatchOperationResultDto;
@@ -15,7 +15,7 @@ import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysFunction;
 import com.iviet.ivshs.entities.SysGroup;
 import com.iviet.ivshs.entities.SysRole;
-import com.iviet.ivshs.service.role.SysRoleService;
+import com.iviet.ivshs.service.SysRoleService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;

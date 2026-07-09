@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.scheduler.dynamic.rule.strategy.SensorStateStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.service.temperature.TemperatureService;
+import com.iviet.ivshs.service.TemperatureService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

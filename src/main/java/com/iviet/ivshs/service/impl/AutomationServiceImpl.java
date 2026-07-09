@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.automation.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,8 +20,8 @@ import com.iviet.ivshs.dto.UpdateAutomationActionDto;
 import com.iviet.ivshs.dto.UpdateAutomationDto;
 import com.iviet.ivshs.entities.Automation;
 import com.iviet.ivshs.entities.AutomationAction;
-import com.iviet.ivshs.service.automation.AutomationService;
-import com.iviet.ivshs.service.base.AbstractSchedulableJobService;
+import com.iviet.ivshs.service.AutomationService;
+import com.iviet.ivshs.service.AbstractSchedulableJobService;
 import com.iviet.ivshs.shared.enumeration.JobTargetType;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

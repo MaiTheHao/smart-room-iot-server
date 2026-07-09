@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.notification.strategy;
+package com.iviet.ivshs.service.strategy;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

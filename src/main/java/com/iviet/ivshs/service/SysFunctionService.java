@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.permission;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreateSysFunctionDto;

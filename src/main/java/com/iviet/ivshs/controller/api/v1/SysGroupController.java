@@ -8,7 +8,7 @@ import com.iviet.ivshs.dto.CreateSysGroupDto;
 import com.iviet.ivshs.dto.SysGroupDto;
 import com.iviet.ivshs.dto.SysGroupWithClientStatusDto;
 import com.iviet.ivshs.dto.UpdateSysGroupDto;
-import com.iviet.ivshs.service.role.SysGroupService;
+import com.iviet.ivshs.service.SysGroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

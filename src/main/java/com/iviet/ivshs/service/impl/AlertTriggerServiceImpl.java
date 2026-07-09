@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.AlertConfigDao;
@@ -6,11 +6,11 @@ import com.iviet.ivshs.dao.AlertInstanceDao;
 import com.iviet.ivshs.dto.AlertTriggerRequestDto;
 import com.iviet.ivshs.dto.CreateAlertInstanceLogDto;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.service.alert.AlertInstanceLogService;
-import com.iviet.ivshs.service.alert.AlertInstanceService;
-import com.iviet.ivshs.service.alert.AlertMessageTemplateService;
-import com.iviet.ivshs.service.alert.AlertTriggerService;
-import com.iviet.ivshs.service.alert.event.AlertNotificationEvent;
+import com.iviet.ivshs.service.AlertInstanceLogService;
+import com.iviet.ivshs.service.AlertInstanceService;
+import com.iviet.ivshs.service.AlertMessageTemplateService;
+import com.iviet.ivshs.service.AlertTriggerService;
+import com.iviet.ivshs.service.AlertNotificationEvent;
 import com.iviet.ivshs.shared.enumeration.*;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;

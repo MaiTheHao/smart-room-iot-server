@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreateLanguageDto;
 import com.iviet.ivshs.dto.LanguageDto;
 import com.iviet.ivshs.dto.UpdateLanguageDto;
-import com.iviet.ivshs.service.language.LanguageService;
+import com.iviet.ivshs.service.LanguageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

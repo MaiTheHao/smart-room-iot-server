@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.AlertConfigDao;
@@ -13,7 +13,7 @@ import com.iviet.ivshs.dto.UpdateAlertConfigDto;
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertConfigGroup;
 import com.iviet.ivshs.entities.SysGroup;
-import com.iviet.ivshs.service.alert.AlertConfigService;
+import com.iviet.ivshs.service.AlertConfigService;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

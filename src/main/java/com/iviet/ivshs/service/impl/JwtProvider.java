@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.token.provider;
+package com.iviet.ivshs.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

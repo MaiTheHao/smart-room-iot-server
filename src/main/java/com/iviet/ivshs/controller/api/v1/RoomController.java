@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.CreateRoomDto;
 import com.iviet.ivshs.dto.RoomDto;
 import com.iviet.ivshs.dto.RoomStatusDto;
 import com.iviet.ivshs.dto.UpdateRoomDto;
-import com.iviet.ivshs.service.room.RoomService;
+import com.iviet.ivshs.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.telemetry;
+package com.iviet.ivshs.service;
 
 public interface TelemetryService {
 	void takeByGateway(String gatewayUsername);

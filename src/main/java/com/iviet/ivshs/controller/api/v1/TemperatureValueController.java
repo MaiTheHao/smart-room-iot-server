@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
-import com.iviet.ivshs.service.temperature.TemperatureValueService;
+import com.iviet.ivshs.service.TemperatureValueService;
 
 import lombok.RequiredArgsConstructor;
 

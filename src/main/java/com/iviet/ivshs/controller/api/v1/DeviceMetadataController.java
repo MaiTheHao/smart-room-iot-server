@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.control.DeviceMetadataService;
+import com.iviet.ivshs.service.DeviceMetadataService;
 
 import lombok.RequiredArgsConstructor;
 

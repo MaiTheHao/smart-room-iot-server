@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.role.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -12,7 +12,7 @@ import com.iviet.ivshs.dao.SysGroupDao;
 
 import com.iviet.ivshs.entities.SysGroupLan;
 import com.iviet.ivshs.entities.SysGroup;
-import com.iviet.ivshs.service.role.SysGroupService;
+import com.iviet.ivshs.service.SysGroupService;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

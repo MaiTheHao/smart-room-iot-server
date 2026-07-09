@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.language.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.LanguageDao;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.CreateLanguageDto;
 import com.iviet.ivshs.dto.LanguageDto;
 import com.iviet.ivshs.dto.UpdateLanguageDto;
 import com.iviet.ivshs.entities.Language;
-import com.iviet.ivshs.service.language.LanguageService;
+import com.iviet.ivshs.service.LanguageService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;

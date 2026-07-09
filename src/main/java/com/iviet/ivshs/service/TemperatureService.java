@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.temperature;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import com.iviet.ivshs.dto.TemperatureDto;
 import com.iviet.ivshs.dto.UpdateTemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
 
-public interface TemperatureService extends com.iviet.ivshs.service.control.SensorMetadataServiceStrategy {
+public interface TemperatureService extends com.iviet.ivshs.service.strategy.SensorMetadataServiceStrategy {
 
     PaginatedResponse<TemperatureDto> getList(int page, int size);
 

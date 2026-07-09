@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.aircondition;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.dto.CreateAirConditionDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAirConditionDto;
-import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
+import com.iviet.ivshs.service.strategy.DeviceMetadataServiceStrategy;
 
 public interface AirConditionService extends DeviceMetadataServiceStrategy {
 

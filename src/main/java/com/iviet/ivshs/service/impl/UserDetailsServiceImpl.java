@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.auth.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;

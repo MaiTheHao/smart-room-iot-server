@@ -1,12 +1,12 @@
-package com.iviet.ivshs.service.token.impl;
+package com.iviet.ivshs.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.TokenPayload;
-import com.iviet.ivshs.service.token.TokenRegistry;
-import com.iviet.ivshs.service.token.TokenService;
-import com.iviet.ivshs.service.token.TokenStrategy;
+import com.iviet.ivshs.service.TokenRegistry;
+import com.iviet.ivshs.service.TokenService;
+import com.iviet.ivshs.service.strategy.TokenStrategy;
 import com.iviet.ivshs.shared.enumeration.TokenType;
 
 @Service

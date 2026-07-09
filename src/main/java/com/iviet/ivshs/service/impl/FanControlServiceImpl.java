@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.control.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +11,7 @@ import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.service.control.FanControlService;
+import com.iviet.ivshs.service.FanControlService;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;

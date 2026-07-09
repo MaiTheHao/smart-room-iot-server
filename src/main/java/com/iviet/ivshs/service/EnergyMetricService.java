@@ -1,8 +1,9 @@
-package com.iviet.ivshs.service.metric;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.dto.EnergyMetricDto;
-import com.iviet.ivshs.service.telemetry.SensorTelemetryServiceStrategy;
+import com.iviet.ivshs.service.strategy.MetricServiceStrategy;
+import com.iviet.ivshs.service.strategy.SensorTelemetryServiceStrategy;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

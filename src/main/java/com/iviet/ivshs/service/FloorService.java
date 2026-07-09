@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.floor;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 

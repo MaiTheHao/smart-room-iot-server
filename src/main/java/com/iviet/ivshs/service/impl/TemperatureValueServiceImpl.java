@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.temperature.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.RoomDao;
@@ -12,7 +12,7 @@ import com.iviet.ivshs.entities.Temperature;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.temperature.TemperatureValueService;
+import com.iviet.ivshs.service.TemperatureValueService;
 import lombok.RequiredArgsConstructor;
 import java.time.Instant;
 import java.util.List;

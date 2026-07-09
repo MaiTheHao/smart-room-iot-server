@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert;
+package com.iviet.ivshs.service;
 
 import java.util.Map;
 

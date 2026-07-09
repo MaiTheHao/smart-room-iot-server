@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.client;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.CreateClientDto;

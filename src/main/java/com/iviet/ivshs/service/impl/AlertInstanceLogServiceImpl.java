@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.AlertInstanceLogDao;
 import com.iviet.ivshs.dto.AlertInstanceLogDto;
@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.CreateAlertInstanceLogDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.AlertInstanceLog;
-import com.iviet.ivshs.service.alert.AlertInstanceLogService;
+import com.iviet.ivshs.service.AlertInstanceLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

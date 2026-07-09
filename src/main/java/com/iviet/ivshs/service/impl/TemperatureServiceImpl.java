@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.temperature.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.CreateTemperatureDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.UpdateTemperatureDto;
 import com.iviet.ivshs.dao.*;
 
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.service.temperature.TemperatureService;
+import com.iviet.ivshs.service.TemperatureService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.shared.util.LocalContextUtil;

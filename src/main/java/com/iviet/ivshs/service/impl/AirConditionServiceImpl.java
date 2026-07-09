@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.aircondition.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.HardwareConfigDao;
@@ -11,7 +11,7 @@ import com.iviet.ivshs.dto.UpdateAirConditionDto;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AirConditionLan;
 import com.iviet.ivshs.entities.HardwareConfig;
-import com.iviet.ivshs.service.aircondition.AirConditionService;
+import com.iviet.ivshs.service.AirConditionService;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;

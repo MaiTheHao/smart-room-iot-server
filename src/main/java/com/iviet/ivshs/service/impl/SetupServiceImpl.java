@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.setup.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +12,9 @@ import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.ExternalServiceException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.room.RoomService;
-import com.iviet.ivshs.service.setup.SetupService;
-import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.service.RoomService;
+import com.iviet.ivshs.service.SetupService;
+import com.iviet.ivshs.service.ClientService;
 import org.springframework.http.ResponseEntity;
 
 import lombok.RequiredArgsConstructor;

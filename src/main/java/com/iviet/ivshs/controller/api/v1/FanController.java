@@ -7,8 +7,8 @@ import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.dto.FanDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateFanDto;
-import com.iviet.ivshs.service.control.FanControlService;
-import com.iviet.ivshs.service.fan.FanService;
+import com.iviet.ivshs.service.FanControlService;
+import com.iviet.ivshs.service.FanService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.schedule;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
 import com.iviet.ivshs.shared.exception.InternalServerErrorException;

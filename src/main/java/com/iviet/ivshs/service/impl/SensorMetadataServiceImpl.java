@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.control.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.SensorMetadataDao;
 import com.iviet.ivshs.dto.SensorMetadataDto;
-import com.iviet.ivshs.service.control.SensorMetadataService;
-import com.iviet.ivshs.service.control.SensorMetadataServiceStrategy;
+import com.iviet.ivshs.service.SensorMetadataService;
+import com.iviet.ivshs.service.strategy.SensorMetadataServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 

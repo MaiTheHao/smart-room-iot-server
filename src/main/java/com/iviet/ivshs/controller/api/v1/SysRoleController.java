@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.UnassignGroupsFromClientDto;
 import com.iviet.ivshs.dto.BatchAddFunctionsToGroupDto;
 import com.iviet.ivshs.dto.BatchRemoveFunctionsFromGroupDto;
 import com.iviet.ivshs.dto.ToggleGroupFunctionsDto;
-import com.iviet.ivshs.service.role.SysRoleService;
+import com.iviet.ivshs.service.SysRoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

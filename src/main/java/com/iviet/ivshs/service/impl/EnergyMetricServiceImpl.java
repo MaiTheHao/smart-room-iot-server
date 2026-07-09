@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.metric.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.AirConditionDao;
 import com.iviet.ivshs.dao.EnergyMetricDao;
@@ -18,8 +18,8 @@ import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
-import com.iviet.ivshs.service.client.ClientService;
-import com.iviet.ivshs.service.metric.EnergyMetricService;
+import com.iviet.ivshs.service.ClientService;
+import com.iviet.ivshs.service.EnergyMetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

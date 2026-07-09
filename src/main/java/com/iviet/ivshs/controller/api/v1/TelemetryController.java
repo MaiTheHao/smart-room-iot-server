@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.telemetry.TelemetryService;
+import com.iviet.ivshs.service.TelemetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

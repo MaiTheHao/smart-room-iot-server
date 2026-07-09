@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.FanControlRequestBody;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;
-import com.iviet.ivshs.service.control.FanControlService;
+import com.iviet.ivshs.service.FanControlService;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.JobActionType;
 import com.iviet.ivshs.shared.enumeration.JobTargetType;

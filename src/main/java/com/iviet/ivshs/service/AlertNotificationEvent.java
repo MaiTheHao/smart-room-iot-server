@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert.event;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertInstance;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.client;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.core.properties.GatewayProperties;
 import com.iviet.ivshs.dao.ClientDao;

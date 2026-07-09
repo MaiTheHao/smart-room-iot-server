@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.base;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert;
+package com.iviet.ivshs.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dto.AlertTriggerRequestDto;

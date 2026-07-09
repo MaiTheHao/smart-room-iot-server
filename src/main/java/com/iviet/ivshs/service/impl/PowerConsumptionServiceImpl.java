@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.powerconsumption.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.entities.PowerConsumptionLan;
 import com.iviet.ivshs.entities.HardwareConfig;
 import com.iviet.ivshs.entities.PowerConsumption;
-import com.iviet.ivshs.service.powerconsumption.PowerConsumptionService;
+import com.iviet.ivshs.service.PowerConsumptionService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.shared.util.LocalContextUtil;

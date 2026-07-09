@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.AlertConfigDao;
 import com.iviet.ivshs.dao.AlertInstanceDao;
@@ -8,8 +8,8 @@ import com.iviet.ivshs.dto.AlertInstanceDto;
 import com.iviet.ivshs.dto.AlertInstanceSubFilterDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.entities.*;
-import com.iviet.ivshs.service.alert.AlertMessageTemplateService;
-import com.iviet.ivshs.service.alert.AlertInstanceService;
+import com.iviet.ivshs.service.AlertMessageTemplateService;
+import com.iviet.ivshs.service.AlertInstanceService;
 import com.iviet.ivshs.shared.enumeration.*;
 import com.iviet.ivshs.shared.exception.ForbiddenException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

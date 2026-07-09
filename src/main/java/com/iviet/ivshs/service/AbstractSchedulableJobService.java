@@ -1,10 +1,10 @@
-package com.iviet.ivshs.service.base;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import com.iviet.ivshs.entities.base.BaseSchedulableEntity;
-import com.iviet.ivshs.service.schedule.JobScheduleService;
+import com.iviet.ivshs.service.JobScheduleService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.control.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
-import com.iviet.ivshs.service.control.LightControlService;
+import com.iviet.ivshs.service.LightControlService;
 import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
 import lombok.RequiredArgsConstructor;
 

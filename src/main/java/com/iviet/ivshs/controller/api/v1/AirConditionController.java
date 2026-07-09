@@ -1,7 +1,7 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.service.control.AirConditionControlService;
-import com.iviet.ivshs.service.aircondition.AirConditionService;
+import com.iviet.ivshs.service.AirConditionControlService;
+import com.iviet.ivshs.service.AirConditionService;
 import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.dto.AirConditionDto;
 import com.iviet.ivshs.dto.ApiResponse;

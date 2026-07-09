@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreatePowerConsumptionDto;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
-import com.iviet.ivshs.service.powerconsumption.PowerConsumptionService;
+import com.iviet.ivshs.service.PowerConsumptionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.light.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.LanguageDao;
@@ -15,7 +15,7 @@ import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.light.LightService;
+import com.iviet.ivshs.service.LightService;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 import lombok.RequiredArgsConstructor;
 

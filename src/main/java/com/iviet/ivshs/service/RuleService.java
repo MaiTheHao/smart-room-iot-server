@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.rule;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.CreateRuleDto;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.service.base.SchedulableJobService;
+import com.iviet.ivshs.service.SchedulableJobService;
 
 public interface RuleService extends SchedulableJobService<Rule> {
 

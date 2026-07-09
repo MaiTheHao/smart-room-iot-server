@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.hardwareconfig.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +11,7 @@ import com.iviet.ivshs.dto.DeviceControlDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateDeviceControlDto;
 import com.iviet.ivshs.entities.HardwareConfig;
-import com.iviet.ivshs.service.hardwareconfig.HardwareConfigService;
+import com.iviet.ivshs.service.HardwareConfigService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;

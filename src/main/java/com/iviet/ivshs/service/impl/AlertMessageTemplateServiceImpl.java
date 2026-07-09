@@ -1,6 +1,6 @@
-package com.iviet.ivshs.service.alert.impl;
+package com.iviet.ivshs.service.impl;
 
-import com.iviet.ivshs.service.alert.AlertMessageTemplateService;
+import com.iviet.ivshs.service.AlertMessageTemplateService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

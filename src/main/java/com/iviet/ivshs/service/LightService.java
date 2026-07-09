@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.light;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreateLightDto;
 import com.iviet.ivshs.dto.LightDto;
 import com.iviet.ivshs.dto.UpdateLightDto;
-import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
+import com.iviet.ivshs.service.strategy.DeviceMetadataServiceStrategy;
 
 public interface LightService extends DeviceMetadataServiceStrategy {
 

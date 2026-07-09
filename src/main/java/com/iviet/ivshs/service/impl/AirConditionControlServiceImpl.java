@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.control.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
 import com.iviet.ivshs.integration.gateway.GatewayCommand;
 import com.iviet.ivshs.integration.gateway.GatewayOperationResult;
-import com.iviet.ivshs.service.control.AirConditionControlService;
+import com.iviet.ivshs.service.AirConditionControlService;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;

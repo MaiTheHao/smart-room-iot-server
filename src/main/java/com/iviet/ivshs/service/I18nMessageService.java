@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.language;
+package com.iviet.ivshs.service;
 
 import org.springframework.lang.NonNull;
 

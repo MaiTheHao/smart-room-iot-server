@@ -24,7 +24,7 @@ import com.iviet.ivshs.dto.CreateAutomationDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateAutomationActionDto;
 import com.iviet.ivshs.dto.UpdateAutomationDto;
-import com.iviet.ivshs.service.automation.AutomationService;
+import com.iviet.ivshs.service.AutomationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

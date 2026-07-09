@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.token;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.TokenPayload;
 import com.iviet.ivshs.shared.enumeration.TokenType;

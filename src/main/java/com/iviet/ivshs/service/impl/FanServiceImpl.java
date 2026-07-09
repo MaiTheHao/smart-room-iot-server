@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.fan.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.HardwareConfigDao;
 import com.iviet.ivshs.dao.FanDao;
@@ -10,7 +10,7 @@ import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateFanDto;
 import com.iviet.ivshs.entities.Fan;
 import com.iviet.ivshs.entities.FanLan;
-import com.iviet.ivshs.service.fan.FanService;
+import com.iviet.ivshs.service.FanService;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.InternalServerErrorException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

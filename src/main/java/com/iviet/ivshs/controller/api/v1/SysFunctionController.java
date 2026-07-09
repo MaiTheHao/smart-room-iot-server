@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.CreateSysFunctionDto;
 import com.iviet.ivshs.dto.SysFunctionDto;
 import com.iviet.ivshs.dto.SysFunctionWithGroupStatusDto;
 import com.iviet.ivshs.dto.UpdateSysFunctionDto;
-import com.iviet.ivshs.service.permission.SysFunctionService;
+import com.iviet.ivshs.service.SysFunctionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

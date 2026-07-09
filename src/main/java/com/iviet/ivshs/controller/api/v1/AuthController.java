@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.ClientDto;
 import com.iviet.ivshs.dto.CreateClientDto;
@@ -24,7 +24,7 @@ import com.iviet.ivshs.dto.CustomUserDetails;
 import com.iviet.ivshs.dto.JwtResponse;
 import com.iviet.ivshs.dto.LoginDto;
 import com.iviet.ivshs.dto.LogoutDto;
-import com.iviet.ivshs.service.clientdevice.ClientDeviceService;
+import com.iviet.ivshs.service.ClientDeviceService;
 import com.iviet.ivshs.shared.security.JwtUtils;
 import com.iviet.ivshs.shared.util.SecurityContextUtil;
 

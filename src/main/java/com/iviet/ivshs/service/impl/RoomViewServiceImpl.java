@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.room.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.time.Instant;
 
@@ -11,9 +11,9 @@ import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.RoomDetailViewModel;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
-import com.iviet.ivshs.service.system.HealthCheckService;
-import com.iviet.ivshs.service.room.RoomService;
-import com.iviet.ivshs.service.room.RoomViewService;
+import com.iviet.ivshs.service.HealthCheckService;
+import com.iviet.ivshs.service.RoomService;
+import com.iviet.ivshs.service.RoomViewService;
 
 import lombok.RequiredArgsConstructor;
 

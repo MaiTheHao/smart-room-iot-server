@@ -6,8 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.iviet.ivshs.service.room.RoomViewService;
-import com.iviet.ivshs.service.room.RoomViewService.RoomDetailCriteria;
+import com.iviet.ivshs.service.RoomViewService;
+import com.iviet.ivshs.service.RoomViewService.RoomDetailCriteria;
 import lombok.RequiredArgsConstructor;
 
 @Controller

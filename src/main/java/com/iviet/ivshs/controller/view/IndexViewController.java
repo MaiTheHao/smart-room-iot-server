@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import com.iviet.ivshs.dto.IndexViewModel;
-import com.iviet.ivshs.service.system.IndexViewService;
+import com.iviet.ivshs.service.IndexViewService;
 
 @Controller
 @RequiredArgsConstructor

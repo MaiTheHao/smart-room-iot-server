@@ -1,10 +1,10 @@
-package com.iviet.ivshs.service.clientdevice;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dao.ClientDeviceDao;
 import com.iviet.ivshs.dto.RegisterClientDeviceDto;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.ClientDevice;
-import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.fan;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import com.iviet.ivshs.dto.CreateFanDto;
 import com.iviet.ivshs.dto.FanDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateFanDto;
-import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
+import com.iviet.ivshs.service.strategy.DeviceMetadataServiceStrategy;
 
 public interface FanService extends DeviceMetadataServiceStrategy {
 

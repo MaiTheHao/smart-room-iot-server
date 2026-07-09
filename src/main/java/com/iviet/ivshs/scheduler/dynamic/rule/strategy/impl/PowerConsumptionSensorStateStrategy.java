@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import com.iviet.ivshs.entities.PowerConsumption;
 import com.iviet.ivshs.scheduler.dynamic.rule.strategy.SensorStateStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.service.powerconsumption.PowerConsumptionService;
+import com.iviet.ivshs.service.PowerConsumptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

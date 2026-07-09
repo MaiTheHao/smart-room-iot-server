@@ -1,5 +1,6 @@
-package com.iviet.ivshs.service.metric;
+package com.iviet.ivshs.service.factory;
 
+import com.iviet.ivshs.service.strategy.MetricServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import org.springframework.stereotype.Service;

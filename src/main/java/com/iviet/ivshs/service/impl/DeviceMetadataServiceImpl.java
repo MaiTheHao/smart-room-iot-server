@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.control.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.DeviceMetadataDao;
-import com.iviet.ivshs.service.control.DeviceMetadataService;
-import com.iviet.ivshs.service.control.DeviceMetadataServiceStrategy;
+import com.iviet.ivshs.service.DeviceMetadataService;
+import com.iviet.ivshs.service.strategy.DeviceMetadataServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 

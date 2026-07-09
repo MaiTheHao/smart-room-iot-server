@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.CreateDeviceControlDto;
 import com.iviet.ivshs.dto.DeviceControlDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.UpdateDeviceControlDto;
-import com.iviet.ivshs.service.hardwareconfig.HardwareConfigService;
+import com.iviet.ivshs.service.HardwareConfigService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

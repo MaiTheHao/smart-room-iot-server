@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.powerconsumption;
+package com.iviet.ivshs.service;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.dto.UpdatePowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
 
-public interface PowerConsumptionService extends com.iviet.ivshs.service.control.SensorMetadataServiceStrategy {
+public interface PowerConsumptionService extends com.iviet.ivshs.service.strategy.SensorMetadataServiceStrategy {
 
     PaginatedResponse<PowerConsumptionDto> getList(int page, int size);
 

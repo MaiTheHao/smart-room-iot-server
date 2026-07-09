@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.service.powerconsumption.PowerConsumptionService;
-import com.iviet.ivshs.service.temperature.TemperatureService;
+import com.iviet.ivshs.service.PowerConsumptionService;
+import com.iviet.ivshs.service.TemperatureService;
 import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.service.permission.PermissionService;
-import com.iviet.ivshs.service.telemetry.SensorTelemetryOrchestratorService;
+import com.iviet.ivshs.service.PermissionService;
+import com.iviet.ivshs.service.factory.SensorTelemetryOrchestratorService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 

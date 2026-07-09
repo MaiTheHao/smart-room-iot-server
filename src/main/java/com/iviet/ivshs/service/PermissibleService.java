@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.permission;
+package com.iviet.ivshs.service;
 
 public class PermissibleService {
 

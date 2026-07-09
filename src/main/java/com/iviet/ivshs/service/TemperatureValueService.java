@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.temperature;
+package com.iviet.ivshs.service;
 
 import java.time.Instant;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.CreateTemperatureValueDto;
 import com.iviet.ivshs.entities.Temperature;
-import com.iviet.ivshs.service.base.TelemetryCRUDServiceStrategy;
-import com.iviet.ivshs.service.telemetry.SensorTelemetryServiceStrategy;
+import com.iviet.ivshs.service.strategy.TelemetryCRUDServiceStrategy;
+import com.iviet.ivshs.service.strategy.SensorTelemetryServiceStrategy;
 
 public interface TemperatureValueService extends TelemetryCRUDServiceStrategy, SensorTelemetryServiceStrategy {
 	

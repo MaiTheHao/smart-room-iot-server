@@ -1,11 +1,11 @@
-package com.iviet.ivshs.service.notification.strategy.impl;
+package com.iviet.ivshs.service.strategy;
 
 import com.google.firebase.messaging.*;
 import com.google.firebase.messaging.AndroidConfig;
 import com.iviet.ivshs.dao.ClientDeviceDao;
 import com.iviet.ivshs.dto.NotificationRequest;
 import com.iviet.ivshs.entities.ClientDevice;
-import com.iviet.ivshs.service.notification.strategy.NotificationStrategy;
+import com.iviet.ivshs.service.strategy.NotificationStrategy;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

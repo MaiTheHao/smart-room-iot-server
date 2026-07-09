@@ -11,7 +11,7 @@ import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.JobActionType;
 import com.iviet.ivshs.shared.enumeration.JobTargetType;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.control.LightControlService;
+import com.iviet.ivshs.service.LightControlService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -6,7 +6,7 @@ import java.net.URI;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.integration.gateway.GatewayAdapter;
 import com.iviet.ivshs.integration.gateway.GatewayAdapterRegistry;
-import com.iviet.ivshs.service.client.ClientService;
+import com.iviet.ivshs.service.ClientService;
 import com.iviet.ivshs.dao.ClientDao;
 import com.iviet.ivshs.dto.LoginDto;
 

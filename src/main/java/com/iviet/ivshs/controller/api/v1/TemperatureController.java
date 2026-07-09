@@ -5,7 +5,7 @@ import com.iviet.ivshs.dto.CreateTemperatureDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.TemperatureDto;
 import com.iviet.ivshs.dto.UpdateTemperatureDto;
-import com.iviet.ivshs.service.temperature.TemperatureService;
+import com.iviet.ivshs.service.TemperatureService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

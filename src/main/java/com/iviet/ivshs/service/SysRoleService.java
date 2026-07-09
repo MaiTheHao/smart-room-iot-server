@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.role;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.AssignGroupsToClientDto;
 import com.iviet.ivshs.dto.BatchOperationResultDto;

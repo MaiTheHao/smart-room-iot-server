@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.permission.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreateSysFunctionDto;
@@ -10,7 +10,7 @@ import com.iviet.ivshs.dao.SysFunctionDao;
 
 import com.iviet.ivshs.entities.SysFunctionLan;
 import com.iviet.ivshs.entities.SysFunction;
-import com.iviet.ivshs.service.permission.SysFunctionService;
+import com.iviet.ivshs.service.SysFunctionService;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;

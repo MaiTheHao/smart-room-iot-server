@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.clientdevice;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.RegisterClientDeviceDto;
 

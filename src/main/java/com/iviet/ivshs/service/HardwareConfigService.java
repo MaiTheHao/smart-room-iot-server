@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.hardwareconfig;
+package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.CreateDeviceControlDto;
 import com.iviet.ivshs.dto.DeviceControlDto;

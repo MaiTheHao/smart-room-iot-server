@@ -1,10 +1,10 @@
-package com.iviet.ivshs.service.permission.impl;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dao.FloorDao;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.shared.enumeration.SysFunctionEnum;
 import com.iviet.ivshs.shared.exception.ForbiddenException;
-import com.iviet.ivshs.service.permission.PermissionService;
+import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.shared.util.RequestContextUtil;
 import com.iviet.ivshs.shared.util.SecurityContextUtil;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.alert;
+package com.iviet.ivshs.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.AlertInstanceDao;
@@ -9,8 +9,8 @@ import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
-import com.iviet.ivshs.service.alert.event.AlertNotificationEvent;
-import com.iviet.ivshs.service.notification.NotificationService;
+import com.iviet.ivshs.service.AlertNotificationEvent;
+import com.iviet.ivshs.service.NotificationService;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 import lombok.RequiredArgsConstructor;

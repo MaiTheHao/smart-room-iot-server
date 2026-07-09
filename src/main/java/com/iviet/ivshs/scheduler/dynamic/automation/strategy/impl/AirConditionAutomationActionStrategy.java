@@ -7,7 +7,7 @@ import com.iviet.ivshs.dto.AirConditionControlRequestBody;
 import com.iviet.ivshs.entities.AirCondition;
 import com.iviet.ivshs.entities.AutomationAction;
 import com.iviet.ivshs.scheduler.dynamic.automation.strategy.AutomationActionStrategy;
-import com.iviet.ivshs.service.control.AirConditionControlService;
+import com.iviet.ivshs.service.AirConditionControlService;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 import com.iviet.ivshs.shared.enumeration.JobActionType;
 import com.iviet.ivshs.shared.enumeration.JobTargetType;
