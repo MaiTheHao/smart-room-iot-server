@@ -22,6 +22,15 @@ public record TemperatureDto(
                 DeviceCategory.TEMPERATURE);
     }
 
+    public static String jpqlProjection(String tempAlias, String tempLangAlias) {
+        return "%s.id, %s.name, %s.description, %s.isActive, %s.currentValue, %s.naturalId, %s.room.id, %s.hardwareConfig.id"
+            .formatted(
+                tempAlias, tempLangAlias, tempLangAlias,
+                tempAlias, tempAlias, tempAlias,
+                tempAlias, tempAlias
+            );
+    }
+
     public static TemperatureDto from(Temperature entity, TemperatureLan temperatureLan) {
         return TemperatureDto.builder()
                 .id(entity.getId())

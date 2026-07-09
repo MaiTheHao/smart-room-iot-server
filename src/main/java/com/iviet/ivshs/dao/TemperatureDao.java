@@ -20,12 +20,12 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
 
   public Optional<TemperatureDto> findById(Long id, String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.id = :id
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("id", id)
@@ -37,12 +37,12 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
 
   public List<TemperatureDto> findAll(int page, int size, String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         ORDER BY t.id ASC
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("langCode", langCode)
@@ -53,12 +53,12 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
 
   public List<TemperatureDto> findAll(String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         ORDER BY t.id ASC
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("langCode", langCode)
@@ -67,13 +67,13 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
 
   public List<TemperatureDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.room.id = :roomId
         ORDER BY t.id ASC
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("roomId", roomId)
@@ -85,13 +85,13 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
 
   public List<TemperatureDto> findAllByRoomId(Long roomId, String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.room.id = :roomId
         ORDER BY t.id ASC
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("roomId", roomId)
@@ -102,12 +102,12 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
   @Override
   public Optional<TemperatureDto> findByNaturalId(String naturalId, String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.naturalId = :naturalId
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("naturalId", naturalId)
@@ -120,12 +120,12 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
   @Override
   public Optional<TemperatureDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
     String jpql = """
-        SELECT new %s(t.id, tl.name, tl.description, t.isActive, t.currentValue, t.naturalId, t.room.id, t.hardwareConfig.id)
+        SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.room.id = :roomId AND t.naturalId = :naturalId
         """
-        .formatted(DTO_CLASS);
+        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
     return entityManager.createQuery(jpql, TemperatureDto.class)
         .setParameter("roomId", roomId)
