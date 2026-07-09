@@ -22,14 +22,12 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         }
 
         public Optional<RoomDto> findByCode(String code, String langCode) {
-                String dtoPath = RoomDto.class.getName();
-
                 String jpql = """
-                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                SELECT new %s(%s)
                                 FROM Room r
                                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                                 WHERE r.code = :code
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDto.class.getName(), RoomDto.jpqlProjection("r", "rlan"));
 
                 return entityManager.createQuery(jpql, RoomDto.class)
                                 .setParameter("code", code)
@@ -40,14 +38,12 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         }
 
         public Optional<RoomDto> findById(Long roomId, String langCode) {
-                String dtoPath = RoomDto.class.getName();
-
                 String jpql = """
-                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                SELECT new %s(%s)
                                 FROM Room r
                                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                                 WHERE r.id = :roomId
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDto.class.getName(), RoomDto.jpqlProjection("r", "rlan"));
 
                 return entityManager.createQuery(jpql, RoomDto.class)
                                 .setParameter("roomId", roomId)
@@ -58,14 +54,12 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         }
 
         public List<RoomDto> findAllByFloorId(Long floorId, int page, int size, String langCode) {
-                String dtoPath = RoomDto.class.getName();
-
                 String jpql = """
-                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                SELECT new %s(%s)
                                 FROM Room r
                                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                                 WHERE r.floor.id = :floorId
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDto.class.getName(), RoomDto.jpqlProjection("r", "rlan"));
 
                 return entityManager.createQuery(jpql, RoomDto.class)
                                 .setParameter("floorId", floorId)
@@ -76,14 +70,12 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         }
 
         public List<RoomDto> findAllByFloorId(Long floorId, String langCode) {
-                String dtoPath = RoomDto.class.getName();
-
                 String jpql = """
-                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                SELECT new %s(%s)
                                 FROM Room r
                                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
                                 WHERE r.floor.id = :floorId
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDto.class.getName(), RoomDto.jpqlProjection("r", "rlan"));
 
                 return entityManager.createQuery(jpql, RoomDto.class)
                                 .setParameter("floorId", floorId)
@@ -92,13 +84,11 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         }
 
         public List<RoomDto> findAll(String langCode) {
-                String dtoPath = RoomDto.class.getName();
-
                 String jpql = """
-                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                SELECT new %s(%s)
                                 FROM Room r
                                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDto.class.getName(), RoomDto.jpqlProjection("r", "rlan"));
 
                 return entityManager.createQuery(jpql, RoomDto.class)
                                 .setParameter("langCode", langCode)
@@ -106,13 +96,11 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
         }
 
         public List<RoomDto> findAll(int page, int size, String langCode) {
-                String dtoPath = RoomDto.class.getName();
-
                 String jpql = """
-                                SELECT new %s(r.id, r.code, rlan.name, rlan.description, r.floor.id, r.version)
+                                SELECT new %s(%s)
                                 FROM Room r
                                 LEFT JOIN r.translations rlan ON rlan.langCode = :langCode
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDto.class.getName(), RoomDto.jpqlProjection("r", "rlan"));
 
                 return entityManager.createQuery(jpql, RoomDto.class)
                                 .setParameter("langCode", langCode)
@@ -129,17 +117,11 @@ public class RoomDao extends BaseAuditEntityDao<Room> {
                 if (roomIds == null || roomIds.isEmpty())
                         return List.of();
 
-                String dtoPath = RoomDeviceCountDto.class.getName();
                 String jpql = """
-                                SELECT new %s(
-                                    r.id,
-                                    (SELECT COUNT(l) FROM Light l WHERE l.room.id = r.id),
-                                    (SELECT COUNT(ac) FROM AirCondition ac WHERE ac.room.id = r.id),
-                                    (SELECT COUNT(f) FROM Fan f WHERE f.room.id = r.id)
-                                )
+                                SELECT new %s(%s)
                                 FROM Room r
                                 WHERE r.id IN :roomIds
-                                """.formatted(dtoPath);
+                                """.formatted(RoomDeviceCountDto.class.getName(), RoomDeviceCountDto.jpqlProjection("r"));
 
                 return entityManager.createQuery(jpql, RoomDeviceCountDto.class)
                                 .setParameter("roomIds", roomIds)

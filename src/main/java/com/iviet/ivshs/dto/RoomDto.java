@@ -26,4 +26,9 @@ public record RoomDto(
             entity.getVersion()
         );
     }
+
+    public static String jpqlProjection(String roomAlias, String roomLangAlias) {
+        return "%s.id, %s.code, %s.name, %s.description, %s.floor.id, %s.version"
+            .formatted(roomAlias, roomAlias, roomLangAlias, roomLangAlias, roomAlias, roomAlias);
+    }
 }
