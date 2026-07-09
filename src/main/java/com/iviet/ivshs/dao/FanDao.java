@@ -21,14 +21,11 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     @Override
     public Optional<FanDto> findByNaturalId(String naturalId, String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 WHERE f.naturalId = :naturalId
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("naturalId", naturalId)
@@ -41,14 +38,11 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
     @Override
     public Optional<FanDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 WHERE f.room.id = :roomId AND f.naturalId = :naturalId
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("roomId", roomId)
@@ -61,14 +55,11 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
 
     public Optional<FanDto> findById(Long id, String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 WHERE f.id = :id
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("id", id)
@@ -80,14 +71,11 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
 
     public List<FanDto> findAll(int page, int size, String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 ORDER BY f.id ASC
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("langCode", langCode)
@@ -98,14 +86,11 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
 
     public List<FanDto> findAll(String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 ORDER BY f.id ASC
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("langCode", langCode)
@@ -114,15 +99,12 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
 
     public List<FanDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 WHERE f.room.id = :roomId
                 ORDER BY f.id ASC
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("roomId", roomId)
@@ -134,15 +116,12 @@ public class FanDao extends BaseIoTActuatorDao<Fan> {
 
     public List<FanDto> findAllByRoomId(Long roomId, String langCode) {
         String jpql = """
-                SELECT new %s(
-                    f.id, f.naturalId, tl.name, tl.description, f.isActive, f.room.id,
-                    f.power, f.specificType, f.duration, f.speed, f.mode, f.light, f.swing, f.hardwareConfig.id
-                )
+                SELECT new %s(%s)
                 FROM Fan f
                 LEFT JOIN f.translations tl ON tl.langCode = :langCode
                 WHERE f.room.id = :roomId
                 ORDER BY f.id ASC
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, FanDto.jpqlProjection("f", "tl"));
 
         return entityManager.createQuery(jpql, FanDto.class)
                 .setParameter("roomId", roomId)

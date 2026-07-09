@@ -44,6 +44,24 @@ public record FanDto(
     }
 
     /**
+     * JPQL projection fragment for use in DAO layer SELECT queries.
+     * Thứ tự cột khớp với constructor {@link #FanDto(Long, String, String, String, Boolean, Long, ActuatorPower, DeviceSpecificType, Integer, Integer, ActuatorMode, ActuatorPower, ActuatorSwing, Long)}.
+     *
+     * @param fanAlias     alias của Fan entity (vd "f")
+     * @param fanLangAlias alias của translations join (vd "tl")
+     * @return comma-separated column list cho JPQL SELECT
+     */
+    public static String jpqlProjection(String fanAlias, String fanLangAlias) {
+        return "%s.id, %s.naturalId, %s.name, %s.description, %s.isActive, %s.room.id, %s.power, %s.specificType, %s.duration, %s.speed, %s.mode, %s.light, %s.swing, %s.hardwareConfig.id"
+                .formatted(
+                        fanAlias, fanAlias, fanLangAlias, fanLangAlias,
+                        fanAlias, fanAlias, fanAlias, fanAlias,
+                        fanAlias, fanAlias, fanAlias, fanAlias,
+                        fanAlias, fanAlias
+                );
+    }
+
+    /**
      * Factory method từ entity — dùng khi load entity trực tiếp (không qua
      * projection).
      */
