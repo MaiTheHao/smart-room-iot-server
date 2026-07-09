@@ -24,6 +24,7 @@ public class Esp32GatewayAdapter implements GatewayAdapter {
     private final Esp32LightControlClient lightClient;
     private final Esp32FanControlClient fanClient;
     private final Esp32AcControlClient acClient;
+    private final Esp32TelemetryClient telemetryClient;
 
     @Override
     public ClientType getSupportedType() {
@@ -84,7 +85,15 @@ public class Esp32GatewayAdapter implements GatewayAdapter {
 
     @Override
     public GatewayFetchResult<TelemetryResponseDto> fetchGlobalTelemetry(String ip) {
-        return GatewayFetchResult.notSupported("ESP32 does not expose global telemetry API");
+        try {
+            ResponseEntity<TelemetryResponseDto> response = telemetryClient.fetchGlobalTelemetry(ip);
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return GatewayFetchResult.ok(response.getBody());
+            }
+            return GatewayFetchResult.failure("HTTP " + response.getStatusCode());
+        } catch (Exception e) {
+            return GatewayFetchResult.failure(e.getMessage());
+        }
     }
 
     @Override

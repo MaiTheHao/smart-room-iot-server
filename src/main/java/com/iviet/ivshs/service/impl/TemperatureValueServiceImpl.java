@@ -14,11 +14,13 @@ import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.service.TemperatureValueService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,9 +39,23 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   @Transactional
   public void create(TelemetryResponseDto.DeviceDto data) {
     JsonNode tempCNode = data.getData().get("tempC");
-    if (tempCNode == null || !tempCNode.isNumber())
+    if (tempCNode == null)
       return;
-    Double tempC = tempCNode.asDouble();
+
+    Double tempC;
+    if (tempCNode.isNumber()) {
+      tempC = tempCNode.asDouble();
+    } else if (tempCNode.isTextual()) {
+      try {
+        tempC = Double.parseDouble(tempCNode.asText());
+      } catch (NumberFormatException e) {
+        log.error("Failed to parse tempC string value '{}' for sensor {}: {}", 
+            tempCNode.asText(), data.getNaturalId(), e.getMessage());
+        return;
+      }
+    } else {
+      return;
+    }
 
     var sensor = temperatureDao.findByNaturalId(data.getNaturalId()).orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + data.getNaturalId()));
     var record = CreateTemperatureValueDto.builder().sensorNaturalId(data.getNaturalId()).tempC(tempC).timestamp(Instant.now()).build().toEntity();
