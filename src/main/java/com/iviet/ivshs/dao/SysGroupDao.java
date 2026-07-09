@@ -15,9 +15,9 @@ import com.iviet.ivshs.entities.SysGroup;
 @Repository
 public class SysGroupDao extends BaseTranslatableEntityDao<SysGroup> {
 
-  private final String GROUP_DTO = SysGroupDto.class.getName();
-  private final String FUNC_DTO = SysFunctionDto.class.getName();
-  private final String CLIENT_DTO = ClientDto.class.getName();
+  private static final String GROUP_DTO = SysGroupDto.class.getName();
+  private static final String FUNC_DTO = SysFunctionDto.class.getName();
+  private static final String CLIENT_DTO = ClientDto.class.getName();
 
   public SysGroupDao() {
     super(SysGroup.class);

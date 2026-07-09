@@ -12,6 +12,8 @@ import com.iviet.ivshs.entities.Floor;
 @Repository
 public class FloorDao extends BaseAuditEntityDao<Floor> {
 
+        private static final String DTO_CLASS = FloorDto.class.getName();
+
         public FloorDao() {
                 super(Floor.class);
         }
@@ -21,14 +23,12 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         }
 
         public Optional<FloorDto> findByCode(String code, String langCode) {
-                String dtoClassPath = FloorDto.class.getName();
-
                 String jpql = """
                                 SELECT new %s(%s)
                                 FROM Floor f
                                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                                 WHERE f.code = :code
-                                """.formatted(dtoClassPath, FloorDto.jpqlProjection("f", "flan"));
+                                """.formatted(DTO_CLASS, FloorDto.jpqlProjection("f", "flan"));
 
                 List<FloorDto> results = entityManager.createQuery(jpql, FloorDto.class)
                                 .setParameter("code", code)
@@ -40,14 +40,12 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         }
 
         public Optional<FloorDto> findById(Long floorId, String langCode) {
-                String dtoClassPath = FloorDto.class.getName();
-
                 String jpql = """
                                 SELECT new %s(%s)
                                 FROM Floor f
                                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
                                 WHERE f.id = :floorId
-                                """.formatted(dtoClassPath, FloorDto.jpqlProjection("f", "flan"));
+                                """.formatted(DTO_CLASS, FloorDto.jpqlProjection("f", "flan"));
 
                 List<FloorDto> results = entityManager.createQuery(jpql, FloorDto.class)
                                 .setParameter("floorId", floorId)
@@ -59,13 +57,11 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         }
 
         public List<FloorDto> findAll(int page, int size, String langCode) {
-                String dtoClassPath = FloorDto.class.getName();
-
                 String jpql = """
                                 SELECT new %s(%s)
                                 FROM Floor f
                                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
-                                """.formatted(dtoClassPath, FloorDto.jpqlProjection("f", "flan"));
+                                """.formatted(DTO_CLASS, FloorDto.jpqlProjection("f", "flan"));
 
                 List<FloorDto> results = entityManager.createQuery(jpql, FloorDto.class)
                                 .setParameter("langCode", langCode)
@@ -77,13 +73,11 @@ public class FloorDao extends BaseAuditEntityDao<Floor> {
         }
 
         public List<FloorDto> findAll(String langCode) {
-                String dtoClassPath = FloorDto.class.getName();
-
                 String jpql = """
                                 SELECT new %s(%s)
                                 FROM Floor f
                                 LEFT JOIN f.translations flan ON flan.langCode = :langCode
-                                """.formatted(dtoClassPath, FloorDto.jpqlProjection("f", "flan"));
+                                """.formatted(DTO_CLASS, FloorDto.jpqlProjection("f", "flan"));
 
                 List<FloorDto> results = entityManager.createQuery(jpql, FloorDto.class)
                                 .setParameter("langCode", langCode)
