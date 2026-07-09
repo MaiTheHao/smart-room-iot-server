@@ -9,4 +9,9 @@ public record SysFunctionDto(Long id, String functionCode, String name, String d
     public static SysFunctionDto from(SysFunction entity, SysFunctionLan functionLan) {
         return SysFunctionDto.builder().id(entity.getId()).functionCode(entity.getFunctionCode()).name(functionLan.getName()).description(functionLan.getDescription()).build();
     }
+
+    public static String jpqlProjection(String funcAlias, String funcLangAlias) {
+        return "%s.id, %s.functionCode, %s.name, %s.description"
+            .formatted(funcAlias, funcAlias, funcLangAlias, funcLangAlias);
+    }
 }
