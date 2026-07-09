@@ -50,4 +50,9 @@ public class EnergyMetricDto {
         metric.setPowerFactor(this.powerFactor);
         return metric;
     }
+
+    public static String jpqlProjection(String emAlias) {
+        return "%s.timestamp, %s.voltage, %s.current, %s.power, %s.energy, %s.frequency, %s.powerFactor"
+            .formatted(emAlias, emAlias, emAlias, emAlias, emAlias, emAlias, emAlias);
+    }
 }

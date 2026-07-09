@@ -139,15 +139,12 @@ public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
 
     public Optional<EnergyMetricDto> findLatest(EnergyMetricCategory category, Long targetId) {
         String jpql = """
-                SELECT new %s(
-                    em.timestamp, em.voltage, em.current, em.power,
-                    em.energy, em.frequency, em.powerFactor
-                )
+                SELECT new %s(%s)
                 FROM EnergyMetric em
                 WHERE em.targetCategory = :category
                     AND em.targetId = :targetId
                 ORDER BY em.timestamp DESC
-                """.formatted(DTO_CLASS);
+                """.formatted(DTO_CLASS, EnergyMetricDto.jpqlProjection("em"));
 
         return entityManager.createQuery(jpql, EnergyMetricDto.class)
                 .setParameter("category", category.name())
