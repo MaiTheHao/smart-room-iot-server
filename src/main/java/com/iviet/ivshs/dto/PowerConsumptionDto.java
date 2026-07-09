@@ -22,6 +22,15 @@ public record PowerConsumptionDto(
                 DeviceCategory.POWER_CONSUMPTION);
     }
 
+    public static String jpqlProjection(String pcAlias, String pcLangAlias) {
+        return "%s.id, %s.name, %s.description, %s.isActive, %s.currentWatt, %s.naturalId, %s.room.id, %s.hardwareConfig.id"
+            .formatted(
+                pcAlias, pcLangAlias, pcLangAlias,
+                pcAlias, pcAlias, pcAlias,
+                pcAlias, pcAlias
+            );
+    }
+
     public static PowerConsumptionDto from(PowerConsumption entity, PowerConsumptionLan powerLan) {
         return PowerConsumptionDto.builder()
                 .id(entity.getId())
