@@ -15,6 +15,8 @@ import com.iviet.ivshs.shared.exception.BadRequestException;
 
 @Repository
 public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
+	private static final String DTO_CLASS = AverageTemperatureValueDto.class.getName();
+
 	public TemperatureValueDao() {
 		super(TemperatureValue.class);
 	}
@@ -58,39 +60,39 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByRoom(Long roomId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-				SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+				SELECT new %s(%s)
 				FROM TemperatureValue tv
 				WHERE tv.sensor.room.id = :roomId
 				AND tv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
 				ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
-				""".formatted(AverageTemperatureValueDto.class.getName());
+				""".formatted(DTO_CLASS, AverageTemperatureValueDto.jpqlProjection("tv"));
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class).setParameter("roomId", roomId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryByClient(Long clientId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-				SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+				SELECT new %s(%s)
 				FROM TemperatureValue tv
 				WHERE tv.sensor.hardwareConfig.client.id = :clientId
 				AND tv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
 				ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
-				""".formatted(AverageTemperatureValueDto.class.getName());
+				""".formatted(DTO_CLASS, AverageTemperatureValueDto.jpqlProjection("tv"));
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class).setParameter("clientId", clientId).setParameter("startedAt", startedAt).setParameter("endedAt", endedAt).setParameter("divisor", divisor).getResultList();
 	}
 
 	public List<AverageTemperatureValueDto> getAverageHistoryBySensor(Long sensorId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-				SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+				SELECT new %s(%s)
 				FROM TemperatureValue tv
 				WHERE tv.sensor.id = :sensorId
 				AND tv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
 				ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
-				""".formatted(AverageTemperatureValueDto.class.getName());
+				""".formatted(DTO_CLASS, AverageTemperatureValueDto.jpqlProjection("tv"));
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 				.setParameter("sensorId", sensorId)
@@ -102,13 +104,13 @@ public class TemperatureValueDao extends BaseTelemetryDao<TemperatureValue> {
 
 	public List<AverageTemperatureValueDto> getAverageHistoryBySensorNaturalId(String naturalId, Instant startedAt, Instant endedAt, int divisor) {
 		String jpql = """
-				SELECT new %s((tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L, AVG(tv.tempC))
+				SELECT new %s(%s)
 				FROM TemperatureValue tv
 				WHERE tv.sensor.naturalId = :naturalId
 				AND tv.timestamp BETWEEN :startedAt AND :endedAt
 				GROUP BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L
 				ORDER BY (tv.unixMinute - MOD(tv.unixMinute, :divisor)) * 60L ASC
-				""".formatted(AverageTemperatureValueDto.class.getName());
+				""".formatted(DTO_CLASS, AverageTemperatureValueDto.jpqlProjection("tv"));
 
 		return entityManager.createQuery(jpql, AverageTemperatureValueDto.class)
 				.setParameter("naturalId", naturalId)

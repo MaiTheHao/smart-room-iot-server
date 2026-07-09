@@ -11,4 +11,9 @@ public record AverageTemperatureValueDto(
     public AverageTemperatureValueDto(Long unixSeconds, Double avgTempC) {
         this(Instant.ofEpochSecond(unixSeconds), avgTempC);
     }
+
+    public static String jpqlProjection(String tvAlias) {
+        return "(%s.unixMinute - MOD(%s.unixMinute, :divisor)) * 60L, AVG(%s.tempC)"
+            .formatted(tvAlias, tvAlias, tvAlias);
+    }
 }
