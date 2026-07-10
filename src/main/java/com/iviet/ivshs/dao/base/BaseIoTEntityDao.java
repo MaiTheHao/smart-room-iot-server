@@ -135,4 +135,12 @@ public abstract class BaseIoTEntityDao<T extends BaseIoTEntity<?>> extends BaseT
   public long countByRoomId(Long roomId) {
     return count(root -> entityManager.getCriteriaBuilder().equal(root.get("room").get("id"), roomId));
   }
+
+  public List<T> findAllActive() {
+    return findAll(
+        root -> entityManager.getCriteriaBuilder().isTrue(root.get("isActive")),
+        (root, cq) -> {
+          root.fetch("room", jakarta.persistence.criteria.JoinType.LEFT);
+        });
+  }
 }
