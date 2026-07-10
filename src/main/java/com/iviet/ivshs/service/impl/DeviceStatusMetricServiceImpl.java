@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.DeviceStatusMetricDto;
 import com.iviet.ivshs.entities.*;
+import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.entities.base.BaseIoTEntity;
 import com.iviet.ivshs.service.DeviceStatusMetricService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
@@ -26,8 +27,6 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
     private final LightDao lightDao;
     private final FanDao fanDao;
     private final AirConditionDao airConditionDao;
-    private final PowerConsumptionDao powerConsumptionDao;
-    private final TemperatureDao temperatureDao;
     private final DeviceStatusMetricDao deviceStatusMetricDao;
     private final ObjectMapper objectMapper;
 
@@ -70,8 +69,6 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         processCategory(lightDao.findAllActive(),          DeviceCategory.LIGHT,            latestVersionMap, metricsToSave, now);
         processCategory(fanDao.findAllActive(),             DeviceCategory.FAN,             latestVersionMap, metricsToSave, now);
         processCategory(airConditionDao.findAllActive(),    DeviceCategory.AIR_CONDITION,   latestVersionMap, metricsToSave, now);
-        processCategory(powerConsumptionDao.findAllActive(), DeviceCategory.POWER_CONSUMPTION, latestVersionMap, metricsToSave, now);
-        processCategory(temperatureDao.findAllActive(),     DeviceCategory.TEMPERATURE,     latestVersionMap, metricsToSave, now);
 
         if (!metricsToSave.isEmpty()) {
             deviceStatusMetricDao.save(metricsToSave);
@@ -81,7 +78,7 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         }
     }
 
-    private <T extends BaseIoTEntity<?>> void processCategory(
+    private <T extends BaseIoTDevice<?>> void processCategory(
             List<T> activeEntities,
             DeviceCategory category,
             java.util.Map<String, Long> latestVersionMap,
