@@ -130,7 +130,7 @@ Hệ thống sử dụng **Spring Framework 6.2.17 (Custom Spring — Non Boot)*
 | `dao/base` | Base DAO hierarchy: BaseDao → BaseEntityDao → (BaseAuditEntityDao, BaseTranslatableEntityDao, BaseIoTEntityDao, BaseTelemetryDao) |
 | `dao/setup` | Device Setup Strategy Pattern: AbstractDeviceSetupStrategy, DeviceSetupOrchestrator, + 5 implementations |
 | `entities` | 37+ Entity classes, base classes, composite keys, JPA converters |
-| `dto` | 80+ DTO classes: Request/Response, ViewModel, ApiResponse, PaginatedResponse |
+| `dto` | 80+ DTO classes: Request/Response, ViewModel, ApiResponse, PaginatedResponse, sealed interfaces (`SensorSpecificData`, `DeviceSpecificData`) và data records (`TemperatureSensorData`, `PowerConsumptionSensorData`, `LightData`, `FanData`, `AirConditionData`) |
 | `mapper` | MapStruct interfaces: RuleMapper, RuleConditionMapper, RuleActionMapper, CreateMapper, UpdateMapper |
 | `integration/gateway` | Gateway Adapter Pattern: GatewayAdapter interface, GatewayAdapterRegistry, GatewayCommand, GatewayFetchResult |
 | `integration/gateway/impl/esp32` | ESP32 Gateway implementation: Esp32GatewayAdapter, Esp32AuthClient, Esp32LightControlClient, Esp32FanControlClient, Esp32AcControlClient, Esp32SystemClient |
@@ -458,7 +458,9 @@ sequenceDiagram
     deactivate Proc
 ```
 
-### 4.9 Luồng Energy Metric
+### 4.9 Luồng Energy Metric & Device Status Backup
+
+#### 4.9.1 Energy Metric
 
 Hệ thống theo dõi điện năng tiêu thụ với hai tác vụ Quartz:
 
@@ -466,7 +468,70 @@ Hệ thống theo dõi điện năng tiêu thụ với hai tác vụ Quartz:
 |:---|:---|:---|
 | `EnergyMetricTelemetryJob` | Thu thập chỉ số điện năng từ Gateway, tính toán consumption (kW/h) | Mỗi 5 phút |
 | `EnergyMetricResetJob` | Reset chỉ số hàng ngày, lưu snapshot vào bảng `energy_metric` | 00:00 hàng ngày |
-| `DeviceStatusMetricJob` | Thu thập trạng thái hoạt động của thiết bị (on/off time) | Mỗi 15 phút |
+
+#### 4.9.2 Device Status Backup
+
+`DeviceStatusMetricJob` (Quartz, chạy mỗi 15 phút) thu thập trạng thái hoạt động của tất cả thiết bị và cảm biến (đèn, quạt, điều hòa, nhiệt độ, điện năng) và lưu vào bảng `device_status_metrics` dưới dạng JsonNode.
+
+**Kiến trúc xử lý dữ liệu business:**
+
+Hệ thống sử dụng sealed interface hierarchy để đồng bộ hóa cách trích xuất dữ liệu business từ entity:
+
+```
+BaseIoTEntity.extractBusinessData() → Object
+├── BaseIoTSensor.extractBusinessData() → SensorSpecificData (sealed)
+│   ├── Temperature          → TemperatureSensorData(currentValue)
+│   └── PowerConsumption    → PowerConsumptionSensorData(currentWatt)
+└── BaseIoTDevice.extractBusinessData() → DeviceSpecificData (sealed)
+    ├── Light               → LightData(power, level)
+    ├── Fan                 → FanData(power, speed, duration, mode, swing, light)
+    └── AirCondition        → AirConditionData(power, temperature, mode, fanSpeed, swing, duration)
+```
+
+**Luồng xử lý `DeviceStatusMetricJob`:**
+
+```mermaid
+sequenceDiagram
+    participant Job as DeviceStatusMetricJob (Quartz)
+    participant Svc as DeviceStatusMetricServiceImpl
+    participant Entity as BaseIoTEntity (Light/Fan/AC/...)
+    participant DTO as DeviceStatusMetricDto
+    participant Dao as DeviceStatusMetricDao
+
+    Job->>Svc: backupDeviceStatuses()
+    activate Svc
+
+    loop For each category (LIGHT, FAN, AIR_CONDITION, POWER_CONSUMPTION, TEMPERATURE)
+        Svc->>Dao: findAllLatestForEachDevice()
+        Dao-->>Svc: Latest version map
+
+        Svc->>Entity: findAllActive()
+        activate Entity
+        Svc->>Entity: extractBusinessData()
+        Entity-->>Svc: DeviceSpecificData / SensorSpecificData (typed record)
+        deactivate Entity
+
+        Svc->>DTO: businessDataToJsonNode(businessData, objectMapper)
+        activate DTO
+        DTO->>DTO: mapper.valueToTree(businessData)
+        DTO-->>Svc: JsonNode
+        deactivate DTO
+
+        Svc->>Svc: createMetricEntity(category, id, timestamp, jsonNode, version)
+    end
+
+    Svc->>Dao: save(metricsToSave)
+    deactivate Svc
+```
+
+**Điểm nổi bật của kiến trúc:**
+
+- **Generic processor**: Một method `processCategory()` duy nhất xử lý tất cả 5 category, loại bỏ hoàn toàn code hardcode build ObjectNode thủ công.
+- **Type safety**: Mỗi entity trả về đúng kiểu dữ liệu business của nó thông qua sealed interface (compile-time check).
+- **DTO chịu trách nhiệm convert**: `DeviceStatusMetricDto.businessDataToJsonNode()` dùng `ObjectMapper.valueToTree()` để chuyển đổi POJO → JsonNode — tách biệt hoàn toàn khỏi entity và service.
+- **Dễ mở rộng**: Thêm device type mới chỉ cần tạo record implement `DeviceSpecificData` + implement `extractBusinessData()` — không cần sửa service.
+
+**Backward compatibility:** JSON output giữ nguyên format (field names, null exclusion, enum serialization) so với code hardcode trước đây.
 
 ### 4.10 Luồng Gateway Integration (Adapter Pattern)
 
@@ -530,7 +595,8 @@ Toàn bộ entity được tổ chức theo nhóm nghiệp vụ:
 - **Các thực thể thiết bị chuyên biệt:** `Light`, `Fan`, `AirCondition` kế thừa `BaseIoTDevice`
 
 **3. Nhóm Cảm biến & Dữ liệu (Sensors & Logs):**
-- **Bảng:** `temperature`, `power_consumption`, `temperature_value`, `energy_metric`
+- **Bảng:** `temperature`, `power_consumption`, `temperature_value`, `energy_metric`, `device_status_metrics`
+- **Nghiệp vụ:** `device_status_metrics` lưu trạng thái thiết bị dạng JsonNode theo thời gian, phục vụ giám sát lịch sử hoạt động.
 - **Nghiệp vụ:** Tách biệt "Trạng thái hiện tại" và "Lịch sử dữ liệu". Dữ liệu lịch sử dạng **Append-only**.
 
 **4. Nhóm Tự động hóa (Rules & Automation):**

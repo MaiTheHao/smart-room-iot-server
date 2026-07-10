@@ -1,5 +1,7 @@
 package com.iviet.ivshs.entities;
 
+import com.iviet.ivshs.dto.DeviceSpecificData;
+import com.iviet.ivshs.dto.LightData;
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 
@@ -40,8 +42,8 @@ public class Light extends BaseIoTDevice<LightLan> {
     }
 
     @Override
-    public Object extractBusinessData() {
-        return null;
+    public DeviceSpecificData extractBusinessData() {
+        return new LightData(this.getPower(), this.level);
     }
 
     @Override

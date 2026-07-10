@@ -1,10 +1,11 @@
 package com.iviet.ivshs.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.DeviceStatusMetricDto;
 import com.iviet.ivshs.entities.*;
+import com.iviet.ivshs.entities.base.BaseIoTEntity;
 import com.iviet.ivshs.service.DeviceStatusMetricService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
@@ -39,12 +40,7 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
     @Transactional(readOnly = true)
     public Object getLatest(String category, Long targetId) {
         return deviceStatusMetricDao.findLatest(category, targetId)
-                .map(dsm -> DeviceStatusMetricDto.builder()
-                        .timestamp(dsm.getTimestamp())
-                        .targetCategory(dsm.getTargetCategory())
-                        .targetId(dsm.getTargetId())
-                        .statusData(dsm.getStatusData())
-                        .build())
+                .map(DeviceStatusMetricDto::fromEntity)
                 .orElse(null);
     }
 
@@ -52,12 +48,7 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
     @Transactional(readOnly = true)
     public List<DeviceStatusMetricDto> getHistory(String category, Long targetId, Instant from, Instant to) {
         return deviceStatusMetricDao.findHistory(category, targetId, from, to).stream()
-                .map(dsm -> DeviceStatusMetricDto.builder()
-                        .timestamp(dsm.getTimestamp())
-                        .targetCategory(dsm.getTargetCategory())
-                        .targetId(dsm.getTargetId())
-                        .statusData(dsm.getStatusData())
-                        .build())
+                .map(DeviceStatusMetricDto::fromEntity)
                 .toList();
     }
 
@@ -76,81 +67,11 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         List<DeviceStatusMetric> metricsToSave = new ArrayList<>();
         Instant now = Instant.now();
 
-        // 1. Process active Lights
-        lightDao.findAllActive().forEach(light -> {
-            String key = DeviceCategory.LIGHT.name() + ":" + light.getId();
-            Long latestVersion = latestVersionMap.get(key);
-            Long currentVersion = light.getVersion() != null ? light.getVersion() : 0L;
-
-            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
-                ObjectNode data = objectMapper.createObjectNode();
-                if (light.getPower() != null) data.put("power", light.getPower().name());
-                if (light.getLevel() != null) data.put("level", light.getLevel());
-                metricsToSave.add(createMetricEntity(DeviceCategory.LIGHT, light.getId(), now, data, currentVersion));
-            }
-        });
-
-        // 2. Process active Fans
-        fanDao.findAllActive().forEach(fan -> {
-            String key = DeviceCategory.FAN.name() + ":" + fan.getId();
-            Long latestVersion = latestVersionMap.get(key);
-            Long currentVersion = fan.getVersion() != null ? fan.getVersion() : 0L;
-
-            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
-                ObjectNode data = objectMapper.createObjectNode();
-                if (fan.getPower() != null) data.put("power", fan.getPower().name());
-                if (fan.getSpeed() != null) data.put("speed", fan.getSpeed());
-                if (fan.getDuration() != null) data.put("duration", fan.getDuration());
-                if (fan.getMode() != null) data.put("mode", fan.getMode().name());
-                if (fan.getSwing() != null) data.put("swing", fan.getSwing().name());
-                if (fan.getLight() != null) data.put("light", fan.getLight().name());
-                metricsToSave.add(createMetricEntity(DeviceCategory.FAN, fan.getId(), now, data, currentVersion));
-            }
-        });
-
-        // 3. Process active ACs
-        airConditionDao.findAllActive().forEach(ac -> {
-            String key = DeviceCategory.AIR_CONDITION.name() + ":" + ac.getId();
-            Long latestVersion = latestVersionMap.get(key);
-            Long currentVersion = ac.getVersion() != null ? ac.getVersion() : 0L;
-
-            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
-                ObjectNode data = objectMapper.createObjectNode();
-                if (ac.getPower() != null) data.put("power", ac.getPower().name());
-                if (ac.getTemperature() != null) data.put("temperature", ac.getTemperature());
-                if (ac.getMode() != null) data.put("mode", ac.getMode().name());
-                if (ac.getFanSpeed() != null) data.put("fanSpeed", ac.getFanSpeed());
-                if (ac.getSwing() != null) data.put("swing", ac.getSwing().name());
-                if (ac.getDuration() != null) data.put("duration", ac.getDuration());
-                metricsToSave.add(createMetricEntity(DeviceCategory.AIR_CONDITION, ac.getId(), now, data, currentVersion));
-            }
-        });
-
-        // 4. Process active Power Consumption sensors
-        powerConsumptionDao.findAllActive().forEach(pc -> {
-            String key = DeviceCategory.POWER_CONSUMPTION.name() + ":" + pc.getId();
-            Long latestVersion = latestVersionMap.get(key);
-            Long currentVersion = pc.getVersion() != null ? pc.getVersion() : 0L;
-
-            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
-                ObjectNode data = objectMapper.createObjectNode();
-                if (pc.getCurrentWatt() != null) data.put("currentWatt", pc.getCurrentWatt());
-                metricsToSave.add(createMetricEntity(DeviceCategory.POWER_CONSUMPTION, pc.getId(), now, data, currentVersion));
-            }
-        });
-
-        // 5. Process active Temperature sensors
-        temperatureDao.findAllActive().forEach(temp -> {
-            String key = DeviceCategory.TEMPERATURE.name() + ":" + temp.getId();
-            Long latestVersion = latestVersionMap.get(key);
-            Long currentVersion = temp.getVersion() != null ? temp.getVersion() : 0L;
-
-            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
-                ObjectNode data = objectMapper.createObjectNode();
-                if (temp.getCurrentValue() != null) data.put("currentValue", temp.getCurrentValue());
-                metricsToSave.add(createMetricEntity(DeviceCategory.TEMPERATURE, temp.getId(), now, data, currentVersion));
-            }
-        });
+        processCategory(lightDao.findAllActive(),          DeviceCategory.LIGHT,            latestVersionMap, metricsToSave, now);
+        processCategory(fanDao.findAllActive(),             DeviceCategory.FAN,             latestVersionMap, metricsToSave, now);
+        processCategory(airConditionDao.findAllActive(),    DeviceCategory.AIR_CONDITION,   latestVersionMap, metricsToSave, now);
+        processCategory(powerConsumptionDao.findAllActive(), DeviceCategory.POWER_CONSUMPTION, latestVersionMap, metricsToSave, now);
+        processCategory(temperatureDao.findAllActive(),     DeviceCategory.TEMPERATURE,     latestVersionMap, metricsToSave, now);
 
         if (!metricsToSave.isEmpty()) {
             deviceStatusMetricDao.save(metricsToSave);
@@ -160,7 +81,27 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         }
     }
 
-    private DeviceStatusMetric createMetricEntity(DeviceCategory category, Long id, Instant timestamp, ObjectNode data, Long version) {
+    private <T extends BaseIoTEntity<?>> void processCategory(
+            List<T> activeEntities,
+            DeviceCategory category,
+            java.util.Map<String, Long> latestVersionMap,
+            List<DeviceStatusMetric> metricsToSave,
+            Instant now
+    ) {
+        for (T entity : activeEntities) {
+            String key = category.name() + ":" + entity.getId();
+            Long latestVersion = latestVersionMap.get(key);
+            Long currentVersion = entity.getVersion() != null ? entity.getVersion() : 0L;
+
+            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
+                Object businessData = entity.extractBusinessData();
+                JsonNode statusData = DeviceStatusMetricDto.businessDataToJsonNode(businessData, objectMapper);
+                metricsToSave.add(createMetricEntity(category, entity.getId(), now, statusData, currentVersion));
+            }
+        }
+    }
+
+    private DeviceStatusMetric createMetricEntity(DeviceCategory category, Long id, Instant timestamp, JsonNode data, Long version) {
         DeviceStatusMetric metric = new DeviceStatusMetric();
         metric.setTargetCategory(category.name());
         metric.setTargetId(id);

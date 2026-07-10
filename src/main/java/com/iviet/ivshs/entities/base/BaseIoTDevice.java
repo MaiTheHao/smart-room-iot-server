@@ -3,6 +3,7 @@ package com.iviet.ivshs.entities.base;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.iviet.ivshs.dto.DeviceSpecificData;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
 
 import jakarta.persistence.Column;
@@ -19,4 +20,7 @@ public abstract class BaseIoTDevice<L extends BaseTranslation<? extends BaseTran
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	@Column(name = "power", length = 256)
 	private ActuatorPower power;
+
+	@Override
+	public abstract DeviceSpecificData extractBusinessData();
 }

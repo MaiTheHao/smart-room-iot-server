@@ -6,6 +6,8 @@ import java.util.Set;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.iviet.ivshs.dto.DeviceSpecificData;
+import com.iviet.ivshs.dto.FanData;
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorPower;
@@ -87,8 +89,9 @@ public class Fan extends BaseIoTDevice<FanLan> {
     }
 
     @Override
-    public Object extractBusinessData() {
-        return null;
+    public DeviceSpecificData extractBusinessData() {
+        return new FanData(this.getPower(), this.speed, this.duration,
+                           this.mode, this.swing, this.light);
     }
 
     @Override

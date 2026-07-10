@@ -88,6 +88,7 @@ Hệ thống cung cấp nền tảng vận hành IoT ổn định và dễ mở 
 - **Thu thập tự động**: Quartz Job Scheduler tự động quét và thu thập dữ liệu từ các Gateway định kỳ.
 - **Biểu đồ thời gian thực**: Theo dõi biến động nhiệt độ, độ ẩm và điện năng tiêu thụ qua biểu đồ **ApexCharts**.
 - **Energy Metric**: Hệ thống thu thập và tính toán điện năng tiêu thụ theo ngày, tự động reset chỉ số.
+- **Device Status Backup**: Quartz Job `DeviceStatusMetricJob` tự động thu thập trạng thái hoạt động của thiết bị (đèn, quạt, điều hòa, cảm biến) định kỳ, sử dụng cơ chế `extractBusinessData()` thống nhất qua sealed interface hierarchy (`DeviceSpecificData` / `SensorSpecificData`), chuyển đổi sang JsonNode tại tầng DTO.
 
 ### Điều khiển & Tự động hóa (Control & Automation)
 - **Điều khiển từ xa**: Gửi lệnh bật/tắt và điều chỉnh thông số thiết bị tức thì qua REST API với **Strategy Pattern** (FanControl, LightControl, AirConditionControl).
@@ -112,3 +113,4 @@ Hệ thống cung cấp nền tảng vận hành IoT ổn định và dễ mở 
 - **Chi tiết kỹ thuật:** [SYSTEM.md](./SYSTEM.md) — Phân tích đặc tả kiến trúc, sơ đồ thực thể và quy trình nghiệp vụ.
 - **Hướng dẫn vận hành:** [setup_guideline](./doc/setup_guideline) — Quy trình triển khai, cấu hình môi trường và quản lý thư viện server.
 - **Cấu trúc Database:** [infra/database/](./infra/database/) — Script SQL khởi tạo, migration và seed data.
+- **Thiết kế & kế hoạch Device Business Data:** [docs/superpowers/](./docs/superpowers/) — Design spec và implementation plan cho kiến trúc `extractBusinessData()` + sealed interface + generic processor.

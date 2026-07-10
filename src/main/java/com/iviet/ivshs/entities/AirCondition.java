@@ -6,6 +6,8 @@ import java.util.Set;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.iviet.ivshs.dto.AirConditionData;
+import com.iviet.ivshs.dto.DeviceSpecificData;
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
 import com.iviet.ivshs.shared.enumeration.ActuatorMode;
 import com.iviet.ivshs.shared.enumeration.ActuatorSwing;
@@ -64,8 +66,9 @@ public class AirCondition extends BaseIoTDevice<AirConditionLan> {
     }
 
     @Override
-    public Object extractBusinessData() {
-        return null;
+    public DeviceSpecificData extractBusinessData() {
+        return new AirConditionData(this.getPower(), this.temperature,
+                                    this.mode, this.fanSpeed, this.swing, this.duration);
     }
 
     @Override
