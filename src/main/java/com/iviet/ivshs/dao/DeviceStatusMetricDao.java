@@ -83,4 +83,17 @@ public class DeviceStatusMetricDao extends BaseEntityDao<DeviceStatusMetric> {
                 .getResultStream()
                 .findFirst();
     }
+
+    public List<DeviceStatusMetric> findAllLatestForEachDevice() {
+        String jpql = """
+                SELECT dsm
+                FROM DeviceStatusMetric dsm
+                WHERE dsm.id IN (
+                    SELECT MAX(d.id)
+                    FROM DeviceStatusMetric d
+                    GROUP BY d.targetCategory, d.targetId
+                )
+                """;
+        return entityManager.createQuery(jpql, DeviceStatusMetric.class).getResultList();
+    }
 }

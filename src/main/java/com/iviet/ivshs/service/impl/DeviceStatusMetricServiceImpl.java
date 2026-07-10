@@ -32,7 +32,7 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
 
     @Override
     public MetricDomain getSupportedDomain() {
-        return MetricDomain.STATUS;
+        return MetricDomain.DEVICE_STATUS;
     }
 
     @Override
@@ -67,6 +67,14 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         log.info("Starting local database device status backup");
         long start = System.currentTimeMillis();
 
+        List<DeviceStatusMetric> latestMetrics = deviceStatusMetricDao.findAllLatestForEachDevice();
+        java.util.Map<String, com.fasterxml.jackson.databind.JsonNode> latestStatusMap = new java.util.HashMap<>();
+        for (DeviceStatusMetric m : latestMetrics) {
+            if (m.getStatusData() != null) {
+                latestStatusMap.put(m.getTargetCategory() + ":" + m.getTargetId(), m.getStatusData());
+            }
+        }
+
         List<DeviceStatusMetric> metricsToSave = new ArrayList<>();
         Instant now = Instant.now();
 
@@ -75,7 +83,12 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
             ObjectNode data = objectMapper.createObjectNode();
             if (light.getPower() != null) data.put("power", light.getPower().name());
             if (light.getLevel() != null) data.put("level", light.getLevel());
-            metricsToSave.add(createMetricEntity(DeviceCategory.LIGHT, light.getId(), now, data));
+
+            String key = DeviceCategory.LIGHT.name() + ":" + light.getId();
+            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
+            if (latest == null || !latest.equals(data)) {
+                metricsToSave.add(createMetricEntity(DeviceCategory.LIGHT, light.getId(), now, data));
+            }
         });
 
         // 2. Process active Fans
@@ -87,7 +100,12 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
             if (fan.getMode() != null) data.put("mode", fan.getMode().name());
             if (fan.getSwing() != null) data.put("swing", fan.getSwing().name());
             if (fan.getLight() != null) data.put("light", fan.getLight().name());
-            metricsToSave.add(createMetricEntity(DeviceCategory.FAN, fan.getId(), now, data));
+
+            String key = DeviceCategory.FAN.name() + ":" + fan.getId();
+            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
+            if (latest == null || !latest.equals(data)) {
+                metricsToSave.add(createMetricEntity(DeviceCategory.FAN, fan.getId(), now, data));
+            }
         });
 
         // 3. Process active ACs
@@ -99,28 +117,43 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
             if (ac.getFanSpeed() != null) data.put("fanSpeed", ac.getFanSpeed());
             if (ac.getSwing() != null) data.put("swing", ac.getSwing().name());
             if (ac.getDuration() != null) data.put("duration", ac.getDuration());
-            metricsToSave.add(createMetricEntity(DeviceCategory.AIR_CONDITION, ac.getId(), now, data));
+
+            String key = DeviceCategory.AIR_CONDITION.name() + ":" + ac.getId();
+            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
+            if (latest == null || !latest.equals(data)) {
+                metricsToSave.add(createMetricEntity(DeviceCategory.AIR_CONDITION, ac.getId(), now, data));
+            }
         });
 
         // 4. Process active Power Consumption sensors
         powerConsumptionDao.findAllActive().forEach(pc -> {
             ObjectNode data = objectMapper.createObjectNode();
             if (pc.getCurrentWatt() != null) data.put("currentWatt", pc.getCurrentWatt());
-            metricsToSave.add(createMetricEntity(DeviceCategory.POWER_CONSUMPTION, pc.getId(), now, data));
+
+            String key = DeviceCategory.POWER_CONSUMPTION.name() + ":" + pc.getId();
+            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
+            if (latest == null || !latest.equals(data)) {
+                metricsToSave.add(createMetricEntity(DeviceCategory.POWER_CONSUMPTION, pc.getId(), now, data));
+            }
         });
 
         // 5. Process active Temperature sensors
         temperatureDao.findAllActive().forEach(temp -> {
             ObjectNode data = objectMapper.createObjectNode();
             if (temp.getCurrentValue() != null) data.put("currentValue", temp.getCurrentValue());
-            metricsToSave.add(createMetricEntity(DeviceCategory.TEMPERATURE, temp.getId(), now, data));
+
+            String key = DeviceCategory.TEMPERATURE.name() + ":" + temp.getId();
+            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
+            if (latest == null || !latest.equals(data)) {
+                metricsToSave.add(createMetricEntity(DeviceCategory.TEMPERATURE, temp.getId(), now, data));
+            }
         });
 
         if (!metricsToSave.isEmpty()) {
             deviceStatusMetricDao.save(metricsToSave);
-            log.info("Successfully backed up {} device statuses in {}ms", metricsToSave.size(), System.currentTimeMillis() - start);
+            log.info("Successfully backed up {} device statuses (skipped duplicates) in {}ms", metricsToSave.size(), System.currentTimeMillis() - start);
         } else {
-            log.warn("No active devices found to backup status");
+            log.info("All device statuses are unchanged. Skipped backup (duration {}ms)", System.currentTimeMillis() - start);
         }
     }
 
