@@ -30,6 +30,9 @@ public class DeviceStatusMetric extends BaseMetricData {
     @Convert(converter = JsonNodeConverter.class)
     private JsonNode statusData;
 
+    @Column(name = "device_version", nullable = false)
+    private Long deviceVersion = 0L;
+
     @Override
     public void setTargetCategory(String targetCategory) {
         if (targetCategory == null || targetCategory.isBlank())

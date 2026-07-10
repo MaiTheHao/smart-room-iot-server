@@ -25,8 +25,8 @@ public class DeviceStatusMetricDao extends BaseEntityDao<DeviceStatusMetric> {
     public List<DeviceStatusMetric> save(List<DeviceStatusMetric> entities) {
         String sql = """
                 INSERT INTO device_status_metrics
-                (target_category, target_id, timestamp, unix_minute, status_data)
-                VALUES (?, ?, ?, ?, ?)
+                (target_category, target_id, timestamp, unix_minute, status_data, device_version)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
         try {
             jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
@@ -38,6 +38,7 @@ public class DeviceStatusMetricDao extends BaseEntityDao<DeviceStatusMetric> {
                     ps.setObject(3, e.getTimestamp());
                     ps.setObject(4, e.getUnixMinute());
                     ps.setString(5, e.getStatusData() != null ? e.getStatusData().toString() : null);
+                    ps.setLong(6, e.getDeviceVersion() != null ? e.getDeviceVersion() : 0L);
                 }
 
                 @Override

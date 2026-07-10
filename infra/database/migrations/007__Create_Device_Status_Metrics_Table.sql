@@ -11,6 +11,7 @@ CREATE TABLE `device_status_metrics` (
   `timestamp` datetime(6) NOT NULL,
   `status_data` text DEFAULT NULL,
   `unix_minute` bigint NOT NULL,
+  `device_version` bigint NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_device_status_metrics_target` (`target_category`, `target_id`, `timestamp`),
   KEY `idx_device_status_metrics_timestamp` (`timestamp`),

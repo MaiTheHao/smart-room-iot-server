@@ -68,11 +68,9 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         long start = System.currentTimeMillis();
 
         List<DeviceStatusMetric> latestMetrics = deviceStatusMetricDao.findAllLatestForEachDevice();
-        java.util.Map<String, com.fasterxml.jackson.databind.JsonNode> latestStatusMap = new java.util.HashMap<>();
+        java.util.Map<String, Long> latestVersionMap = new java.util.HashMap<>();
         for (DeviceStatusMetric m : latestMetrics) {
-            if (m.getStatusData() != null) {
-                latestStatusMap.put(m.getTargetCategory() + ":" + m.getTargetId(), m.getStatusData());
-            }
+            latestVersionMap.put(m.getTargetCategory() + ":" + m.getTargetId(), m.getDeviceVersion());
         }
 
         List<DeviceStatusMetric> metricsToSave = new ArrayList<>();
@@ -80,72 +78,77 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
 
         // 1. Process active Lights
         lightDao.findAllActive().forEach(light -> {
-            ObjectNode data = objectMapper.createObjectNode();
-            if (light.getPower() != null) data.put("power", light.getPower().name());
-            if (light.getLevel() != null) data.put("level", light.getLevel());
-
             String key = DeviceCategory.LIGHT.name() + ":" + light.getId();
-            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
-            if (latest == null || !latest.equals(data)) {
-                metricsToSave.add(createMetricEntity(DeviceCategory.LIGHT, light.getId(), now, data));
+            Long latestVersion = latestVersionMap.get(key);
+            Long currentVersion = light.getVersion() != null ? light.getVersion() : 0L;
+
+            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
+                ObjectNode data = objectMapper.createObjectNode();
+                if (light.getPower() != null) data.put("power", light.getPower().name());
+                if (light.getLevel() != null) data.put("level", light.getLevel());
+                metricsToSave.add(createMetricEntity(DeviceCategory.LIGHT, light.getId(), now, data, currentVersion));
             }
         });
 
         // 2. Process active Fans
         fanDao.findAllActive().forEach(fan -> {
-            ObjectNode data = objectMapper.createObjectNode();
-            if (fan.getPower() != null) data.put("power", fan.getPower().name());
-            if (fan.getSpeed() != null) data.put("speed", fan.getSpeed());
-            if (fan.getDuration() != null) data.put("duration", fan.getDuration());
-            if (fan.getMode() != null) data.put("mode", fan.getMode().name());
-            if (fan.getSwing() != null) data.put("swing", fan.getSwing().name());
-            if (fan.getLight() != null) data.put("light", fan.getLight().name());
-
             String key = DeviceCategory.FAN.name() + ":" + fan.getId();
-            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
-            if (latest == null || !latest.equals(data)) {
-                metricsToSave.add(createMetricEntity(DeviceCategory.FAN, fan.getId(), now, data));
+            Long latestVersion = latestVersionMap.get(key);
+            Long currentVersion = fan.getVersion() != null ? fan.getVersion() : 0L;
+
+            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
+                ObjectNode data = objectMapper.createObjectNode();
+                if (fan.getPower() != null) data.put("power", fan.getPower().name());
+                if (fan.getSpeed() != null) data.put("speed", fan.getSpeed());
+                if (fan.getDuration() != null) data.put("duration", fan.getDuration());
+                if (fan.getMode() != null) data.put("mode", fan.getMode().name());
+                if (fan.getSwing() != null) data.put("swing", fan.getSwing().name());
+                if (fan.getLight() != null) data.put("light", fan.getLight().name());
+                metricsToSave.add(createMetricEntity(DeviceCategory.FAN, fan.getId(), now, data, currentVersion));
             }
         });
 
         // 3. Process active ACs
         airConditionDao.findAllActive().forEach(ac -> {
-            ObjectNode data = objectMapper.createObjectNode();
-            if (ac.getPower() != null) data.put("power", ac.getPower().name());
-            if (ac.getTemperature() != null) data.put("temperature", ac.getTemperature());
-            if (ac.getMode() != null) data.put("mode", ac.getMode().name());
-            if (ac.getFanSpeed() != null) data.put("fanSpeed", ac.getFanSpeed());
-            if (ac.getSwing() != null) data.put("swing", ac.getSwing().name());
-            if (ac.getDuration() != null) data.put("duration", ac.getDuration());
-
             String key = DeviceCategory.AIR_CONDITION.name() + ":" + ac.getId();
-            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
-            if (latest == null || !latest.equals(data)) {
-                metricsToSave.add(createMetricEntity(DeviceCategory.AIR_CONDITION, ac.getId(), now, data));
+            Long latestVersion = latestVersionMap.get(key);
+            Long currentVersion = ac.getVersion() != null ? ac.getVersion() : 0L;
+
+            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
+                ObjectNode data = objectMapper.createObjectNode();
+                if (ac.getPower() != null) data.put("power", ac.getPower().name());
+                if (ac.getTemperature() != null) data.put("temperature", ac.getTemperature());
+                if (ac.getMode() != null) data.put("mode", ac.getMode().name());
+                if (ac.getFanSpeed() != null) data.put("fanSpeed", ac.getFanSpeed());
+                if (ac.getSwing() != null) data.put("swing", ac.getSwing().name());
+                if (ac.getDuration() != null) data.put("duration", ac.getDuration());
+                metricsToSave.add(createMetricEntity(DeviceCategory.AIR_CONDITION, ac.getId(), now, data, currentVersion));
             }
         });
 
         // 4. Process active Power Consumption sensors
         powerConsumptionDao.findAllActive().forEach(pc -> {
-            ObjectNode data = objectMapper.createObjectNode();
-            if (pc.getCurrentWatt() != null) data.put("currentWatt", pc.getCurrentWatt());
-
             String key = DeviceCategory.POWER_CONSUMPTION.name() + ":" + pc.getId();
-            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
-            if (latest == null || !latest.equals(data)) {
-                metricsToSave.add(createMetricEntity(DeviceCategory.POWER_CONSUMPTION, pc.getId(), now, data));
+            Long latestVersion = latestVersionMap.get(key);
+            Long currentVersion = pc.getVersion() != null ? pc.getVersion() : 0L;
+
+            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
+                ObjectNode data = objectMapper.createObjectNode();
+                if (pc.getCurrentWatt() != null) data.put("currentWatt", pc.getCurrentWatt());
+                metricsToSave.add(createMetricEntity(DeviceCategory.POWER_CONSUMPTION, pc.getId(), now, data, currentVersion));
             }
         });
 
         // 5. Process active Temperature sensors
         temperatureDao.findAllActive().forEach(temp -> {
-            ObjectNode data = objectMapper.createObjectNode();
-            if (temp.getCurrentValue() != null) data.put("currentValue", temp.getCurrentValue());
-
             String key = DeviceCategory.TEMPERATURE.name() + ":" + temp.getId();
-            com.fasterxml.jackson.databind.JsonNode latest = latestStatusMap.get(key);
-            if (latest == null || !latest.equals(data)) {
-                metricsToSave.add(createMetricEntity(DeviceCategory.TEMPERATURE, temp.getId(), now, data));
+            Long latestVersion = latestVersionMap.get(key);
+            Long currentVersion = temp.getVersion() != null ? temp.getVersion() : 0L;
+
+            if (latestVersion == null || !latestVersion.equals(currentVersion)) {
+                ObjectNode data = objectMapper.createObjectNode();
+                if (temp.getCurrentValue() != null) data.put("currentValue", temp.getCurrentValue());
+                metricsToSave.add(createMetricEntity(DeviceCategory.TEMPERATURE, temp.getId(), now, data, currentVersion));
             }
         });
 
@@ -157,12 +160,13 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
         }
     }
 
-    private DeviceStatusMetric createMetricEntity(DeviceCategory category, Long id, Instant timestamp, ObjectNode data) {
+    private DeviceStatusMetric createMetricEntity(DeviceCategory category, Long id, Instant timestamp, ObjectNode data, Long version) {
         DeviceStatusMetric metric = new DeviceStatusMetric();
         metric.setTargetCategory(category.name());
         metric.setTargetId(id);
         metric.setTimestamp(timestamp);
         metric.setStatusData(data);
+        metric.setDeviceVersion(version);
         return metric;
     }
 }
