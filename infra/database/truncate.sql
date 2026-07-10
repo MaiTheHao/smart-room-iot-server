@@ -40,6 +40,7 @@ TRUNCATE TABLE `temperature_value`;
 TRUNCATE TABLE `power_consumption`;
 TRUNCATE TABLE `power_consumption_lan`;
 TRUNCATE TABLE `energy_metrics`;
+TRUNCATE TABLE `device_status_metrics`;
 
 -- ----------------------------
 -- Module: Automation & Rules
