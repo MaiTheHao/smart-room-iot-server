@@ -91,6 +91,8 @@ graph TD
     Core -->|Push Notification| FCM
 ```
 
+> **Lưu ý về kiến trúc:** `FESSR` (Frontend SSR - Thymeleaf) và `API` (REST API) chạy trong **hai `DispatcherServlet` riêng biệt** — Web Dispatcher (`webDispatcher`, mapping `/*`) và API Dispatcher (`apiDispatcher`, mapping `/api/*`). Mỗi DispatcherServlet có ApplicationContext riêng (child của Root Context), quản lý các bean Controller độc lập. Xem chi tiết tại [2.4 Cấu hình hệ thống](#24-cấu-hình-hệ-thống).
+
 ---
 
 ## 2. Kiến trúc Backend
@@ -162,9 +164,27 @@ flowchart LR
     DAO <--> DB[(Database)]
 ```
 
+> **Ghi chú:** `Controller` trong sơ đồ trên thực tế được phân tách thành **hai tầng Controller riêng biệt**, mỗi tầng thuộc một `DispatcherServlet` context khác nhau: **API Controller** (`@RestController`, xử lý `/api/*`) thuộc API Dispatcher Context và **View Controller** (`@Controller`, xử lý `/*`) thuộc Web Dispatcher Context — xem chi tiết tại [2.4 Cấu hình hệ thống](#24-cấu-hình-hệ-thống).
+
 ### 2.4 Cấu hình hệ thống
 
-Các file định nghĩa cấu trúc nền tảng chính:
+Hệ thống sử dụng kiến trúc **Double DispatcherServlet Context** — hai `DispatcherServlet` độc lập chạy trong cùng một ứng dụng, chia sẻ `Root ApplicationContext` chung. Cấu trúc này được khai báo tại:
+
+- **`SmrcApplication.java`**: Lớp khởi tạo ứng dụng, implements `WebApplicationInitializer`. Đây là entry point của toàn bộ ứng dụng, chịu trách nhiệm thiết lập hệ thống phân cấp (hierarchical) gồm 3 ApplicationContext:
+
+  | Context | DispatcherServlet | Mapping | Config class | Vai trò |
+  |---------|-------------------|---------|-------------|--------|
+  | **Root Context** | — (không có servlet) | — | `ApplicationConfig`, `AsyncConfig`, `DataSourceConfig`, `WebSecurityConfig`, `QuartzSchedulerConfig`, `RestClientConfig`, `FirebaseSDKConfig` | Chứa các bean chung (Service, DAO, Security, Scheduler, RestClient, Firebase) — được kế thừa bởi cả hai child context |
+  | **API Dispatcher Context** | `apiDispatcher` | `/api/*` | `WebMvcApiConfig` | Xử lý REST API (JSON), `@RestController`, Jackson serialization |
+  | **Web Dispatcher Context** | `webDispatcher` | `/*` | `WebMvcViewConfig` | Xử lý View SSR (Thymeleaf), `@Controller`, multipart upload, resource handler |
+
+  **Cơ chế hoạt động:**
+  - Hai `DispatcherServlet` hoạt động như hai Spring context riêng biệt, mỗi context quản lý các bean Controller riêng.
+  - Cả hai đều là **child context** của `Root Context` — có thể truy cập tất cả bean ở Root (Service, DAO, Security,…).
+  - Bean khai báo trong API Context **không thể** truy cập từ Web Context và ngược lại — giúp cách ly hoàn toàn tầng Controller.
+  - Filters được đăng ký ở cấp `ServletContext`: Encoding (UTF-8), RequestTrace, Spring Security Chain, Rate Limiting — hoạt động trên **mọi request** trước khi đến DispatcherServlet.
+
+  ▸ **File:** `src/main/java/com/iviet/ivshs/SmrcApplication.java`
 
 - **`ApplicationConfig.java`**: Cấu hình gốc của ứng dụng — `@EnableJpaAuditing`, `@EnableAspectJAutoProxy`, `ComponentScan` (loại trừ controller), `ObjectMapper` (UTC timezone, JavaTimeModule), `MessageSource` i18n, JNDI property source cho profile prod.
 - **`WebSecurityConfig.java`**: Khai báo **hai SecurityFilterChain** với `@Order(1)` và `@Order(2)`:
