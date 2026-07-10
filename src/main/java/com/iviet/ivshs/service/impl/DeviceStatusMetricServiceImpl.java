@@ -6,7 +6,6 @@ import com.iviet.ivshs.dao.*;
 import com.iviet.ivshs.dto.DeviceStatusMetricDto;
 import com.iviet.ivshs.entities.*;
 import com.iviet.ivshs.entities.base.BaseIoTDevice;
-import com.iviet.ivshs.entities.base.BaseIoTEntity;
 import com.iviet.ivshs.service.DeviceStatusMetricService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
@@ -37,7 +36,7 @@ public class DeviceStatusMetricServiceImpl implements DeviceStatusMetricService 
 
     @Override
     @Transactional(readOnly = true)
-    public Object getLatest(String category, Long targetId) {
+    public DeviceStatusMetricDto getLatest(String category, Long targetId) {
         return deviceStatusMetricDao.findLatest(category, targetId)
                 .map(DeviceStatusMetricDto::fromEntity)
                 .orElse(null);

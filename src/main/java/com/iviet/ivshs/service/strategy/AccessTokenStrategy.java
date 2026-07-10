@@ -8,7 +8,6 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.service.strategy.TokenStrategy;
 import com.iviet.ivshs.service.impl.JwtProvider;
 import com.iviet.ivshs.shared.enumeration.TokenType;
 
