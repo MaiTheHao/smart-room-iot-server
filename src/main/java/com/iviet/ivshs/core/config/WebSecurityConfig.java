@@ -91,7 +91,8 @@ public class WebSecurityConfig {
         .authorizeHttpRequests(
             auth -> auth.requestMatchers(
                     new AntPathRequestMatcher("/api/v1/auth/signin"),
-                    new AntPathRequestMatcher("/api/v1/auth/signup")
+                    new AntPathRequestMatcher("/api/v1/auth/signup"),
+                    new AntPathRequestMatcher("/api/v1/public/**")
                 )
                 .permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/**"))
