@@ -33,10 +33,12 @@ public class AlertInstanceLog {
     private AlertInstance alert;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "action_type", nullable = false, length = 50)
     private AlertActionType actionType;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "actor_type", nullable = false, length = 50)
     private AlertActorType actorType;
 

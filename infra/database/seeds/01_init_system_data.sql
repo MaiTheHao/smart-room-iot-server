@@ -48,9 +48,9 @@ VALUES
   (11, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ROOM_ALL'),
   (12, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_RULE'),
   (13, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ROLE'),
-  (14, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT_ALL'),
-  (15, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT_GROUP'),
-  (16, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT_OWN');
+  (14, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT'),
+  (15, NOW(), 'system', NOW(), 'system', 0, 'F_HANDLE_ALERT'),
+  (16, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ALERT');
 
 -- ----------------------------
 -- 3. Dữ liệu bảng sys_function_lan
@@ -84,12 +84,12 @@ VALUES
   (24, NULL, NULL, NULL, NULL, 0, 'Manage system rules', 'en', 'Manage Rule', 12),
   (25, NULL, NULL, NULL, NULL, 0, 'Quản lý các vai trò trong hệ thống', 'vi', 'Quản lý Vai Trò', 13),
   (26, NULL, NULL, NULL, NULL, 0, 'Manage roles in system', 'en', 'Manage Role', 13),
-  (27, NULL, NULL, NULL, NULL, 0, 'Xem toàn bộ cảnh báo', 'vi', 'Truy cập Tất cả Cảnh báo', 14),
-  (28, NULL, NULL, NULL, NULL, 0, 'View all alerts', 'en', 'Access All Alerts', 14),
-  (29, NULL, NULL, NULL, NULL, 0, 'Xem cảnh báo của nhóm', 'vi', 'Truy cập Cảnh báo Nhóm', 15),
-  (30, NULL, NULL, NULL, NULL, 0, 'View alerts of group', 'en', 'Access Group Alerts', 15),
-  (31, NULL, NULL, NULL, NULL, 0, 'Chỉ xem cảnh báo cá nhân', 'vi', 'Truy cập Cảnh báo Cá nhân', 16),
-  (32, NULL, NULL, NULL, NULL, 0, 'Only view own alerts', 'en', 'Access Own Alerts', 16);
+  (27, NULL, NULL, NULL, NULL, 0, 'Xem danh sách cảnh báo thuộc phạm vi nhóm của mình', 'vi', 'Xem Cảnh báo', 14),
+  (28, NULL, NULL, NULL, NULL, 0, 'View alerts within own group scope', 'en', 'Access Alerts', 14),
+  (29, NULL, NULL, NULL, NULL, 0, 'Xác nhận và giải quyết cảnh báo (Acknowledge/Resolve)', 'vi', 'Xử lý Cảnh báo', 15),
+  (30, NULL, NULL, NULL, NULL, 0, 'Acknowledge and resolve alerts', 'en', 'Handle Alerts', 15),
+  (31, NULL, NULL, NULL, NULL, 0, 'Quản lý cấu hình cảnh báo', 'vi', 'Quản lý Cảnh báo', 16),
+  (32, NULL, NULL, NULL, NULL, 0, 'Manage alert configuration', 'en', 'Manage Alerts', 16);
 
 -- ----------------------------
 -- 4. Dữ liệu bảng sys_group (G_ADMIN)
@@ -141,7 +141,10 @@ VALUES
   (13, NOW(), 'system', NOW(), 'system', 0, 13, 1),
   (14, NOW(), 'system', NOW(), 'system', 0, 14, 1),
   (15, NOW(), 'system', NOW(), 'system', 0, 15, 1),
-  (16, NOW(), 'system', NOW(), 'system', 0, 16, 1);
+  (16, NOW(), 'system', NOW(), 'system', 0, 16, 1),
+  (17, NOW(), 'system', NOW(), 'system', 0, 14, 4),
+  (18, NOW(), 'system', NOW(), 'system', 0, 14, 2),
+  (19, NOW(), 'system', NOW(), 'system', 0, 15, 4);
 
 -- ----------------------------
 -- 7. Dữ liệu bảng client (Tài khoản admin - username: admin, password: 123456789)

@@ -5,9 +5,6 @@ SET NAMES utf8mb4;
 SET GLOBAL time_zone = '+00:00';
 SET time_zone = '+00:00';
 
--- ----------------------------
--- 1. System & Auth Module
--- ----------------------------
 CREATE TABLE `language` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -145,9 +142,6 @@ CREATE TABLE `persistent_logins` (
   PRIMARY KEY (`series`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------
--- 2. Core Domain Module
--- ----------------------------
 CREATE TABLE `floor` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -225,9 +219,6 @@ CREATE TABLE `hardware_config` (
   CONSTRAINT `fk_hardware_config_room` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------
--- 3. Devices & Sensors Module
--- ----------------------------
 CREATE TABLE `air_condition` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -439,8 +430,8 @@ CREATE TABLE `power_consumption_lan` (
 
 CREATE TABLE `energy_metrics` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `target_category` varchar(50) NOT NULL COMMENT 'Enum: LIGHT, FAN, AC, ROOM',
-  `target_id` bigint NOT NULL COMMENT 'ID of the target (lightId, fanId, acId, roomId depending on category)',
+  `target_category` varchar(50) NOT NULL,
+  `target_id` bigint NOT NULL,
   `timestamp` datetime(6) NOT NULL,
   `voltage` double DEFAULT NULL,
   `current` double DEFAULT NULL,
@@ -469,11 +460,7 @@ CREATE TABLE `device_status_metrics` (
   KEY `idx_dsm_unix_minute` (`unix_minute`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------
--- 4. Automation & Rules Module (RELEASE VERSION)
--- ----------------------------
 
--- Hợp nhất thay đổi từ migration 01: is_active (default 1), is_interval, interval_seconds
 CREATE TABLE `automation` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -508,7 +495,6 @@ CREATE TABLE `automation_action` (
   CONSTRAINT `fk_automation_action_automation` FOREIGN KEY (`automation_id`) REFERENCES `automation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Rule Engine (Standardized from V2)
 CREATE TABLE `rule` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
@@ -535,8 +521,8 @@ CREATE TABLE `rule_condition` (
   `v` bigint NOT NULL,
   `rule_id` bigint NOT NULL,
   `sort_order` int NOT NULL,
-  `data_source` varchar(256) NOT NULL COMMENT 'Enum: SYSTEM, ROOM, DEVICE, SENSOR',
-  `resource_param` text DEFAULT NULL COMMENT 'JSON storage',
+  `data_source` varchar(256) NOT NULL,
+  `resource_param` text DEFAULT NULL,
   `operator` varchar(5) NOT NULL,
   `value_param` varchar(256) NOT NULL,
   `next_logic` varchar(3) DEFAULT NULL,
@@ -555,7 +541,7 @@ CREATE TABLE `rule_action` (
   `rule_id` bigint NOT NULL,
   `execution_order` int DEFAULT NULL,
   `target_device_id` bigint NOT NULL,
-  `target_device_category` varchar(256) NOT NULL COMMENT 'Enum: AIR_CONDITION, LIGHT, FAN',
+  `target_device_category` varchar(256) NOT NULL,
   `action_params` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_rule_action_rule_id` (`rule_id`),
@@ -563,9 +549,6 @@ CREATE TABLE `rule_action` (
   CONSTRAINT `fk_rule_action_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ----------------------------
--- 5. Quartz Scheduler Module
--- ----------------------------
 CREATE TABLE `QRTZ_JOB_DETAILS` (
   `SCHED_NAME` varchar(120) NOT NULL,
   `JOB_NAME` varchar(200) NOT NULL,
@@ -694,32 +677,27 @@ CREATE TABLE `QRTZ_LOCKS` (
   PRIMARY KEY (`SCHED_NAME`,`LOCK_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- =========================================================
--- Alert System Tables (Consolidated Migration 005)
--- =========================================================
 
--- Table: alert_config
-CREATE TABLE IF NOT EXISTS `alert_config` (
+CREATE TABLE `alert_config` (
   `id`               bigint       NOT NULL AUTO_INCREMENT,
   `created_at`       datetime(6)  DEFAULT NULL,
   `created_by`       varchar(256) DEFAULT NULL,
   `updated_at`       datetime(6)  DEFAULT NULL,
   `updated_by`       varchar(256) DEFAULT NULL,
   `v`                bigint       NOT NULL DEFAULT 0,
-  `namespace`        varchar(50)  NOT NULL COMMENT 'Domain phân vùng: RULE | GATEWAY | SYSTEM',
-  `alert_code`       varchar(100) NOT NULL COMMENT 'Mã lỗi cụ thể trong namespace: SENSOR_VIOLATION | OFFLINE',
-  `source_id`        varchar(256) NOT NULL COMMENT 'ID string của entity nguồn (rule_id, gateway_id...)',
+  `namespace`        varchar(50)  NOT NULL,
+  `alert_code`       varchar(100) NOT NULL,
+  `source_id`        varchar(256) NOT NULL,
   `alert_name`       varchar(256) NOT NULL,
-  `severity`         varchar(50)  NOT NULL COMMENT 'Enum: INFO | WARNING | CRITICAL',
-  `channels`         text         DEFAULT NULL COMMENT 'JSON array: ["PUSH","EMAIL","SMS"]',
+  `severity`         varchar(50)  NOT NULL,
+  `channels`         text         DEFAULT NULL,
   `message_template` text         NOT NULL,
   `cooldown_minutes` int          NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_alert_config_polymorphic` (`namespace`, `alert_code`, `source_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: alert_config_group
-CREATE TABLE IF NOT EXISTS `alert_config_group` (
+CREATE TABLE `alert_config_group` (
   `alert_config_id` bigint NOT NULL,
   `group_id`        bigint NOT NULL,
   PRIMARY KEY (`alert_config_id`, `group_id`),
@@ -728,8 +706,7 @@ CREATE TABLE IF NOT EXISTS `alert_config_group` (
   CONSTRAINT `fk_acg_sys_group`    FOREIGN KEY (`group_id`)        REFERENCES `sys_group`    (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: alert_instance
-CREATE TABLE IF NOT EXISTS `alert_instance` (
+CREATE TABLE `alert_instance` (
   `id`               bigint       NOT NULL AUTO_INCREMENT,
   `created_at`       datetime(6)  DEFAULT NULL,
   `created_by`       varchar(256) DEFAULT NULL,
@@ -739,14 +716,14 @@ CREATE TABLE IF NOT EXISTS `alert_instance` (
   `alert_config_id`  bigint       NOT NULL,
   `title`            varchar(256) NOT NULL,
   `body`             text         NOT NULL,
-  `severity`         varchar(50)  NOT NULL COMMENT 'Enum: INFO | WARNING | CRITICAL',
-  `status`           varchar(50)  NOT NULL COMMENT 'Enum: ACTIVE | ACKNOWLEDGED | RESOLVED',
+  `severity`         varchar(50)  NOT NULL,
+  `status`           varchar(50)  NOT NULL,
   `triggered_at`     datetime(6)  NOT NULL,
-  `trigger_count`    int          NOT NULL DEFAULT 1 COMMENT 'Số lần lặp trong cooldown',
+  `trigger_count`    int          NOT NULL DEFAULT 1,
   `acknowledged_at`  datetime(6)  DEFAULT NULL,
-  `acknowledged_by`  bigint       DEFAULT NULL COMMENT 'FK to client.id',
+  `acknowledged_by`  bigint       DEFAULT NULL,
   `resolved_at`      datetime(6)  DEFAULT NULL,
-  `resolved_by`      bigint       DEFAULT NULL COMMENT 'FK to client.id',
+  `resolved_by`      bigint       DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_alert_instance_config_id`   (`alert_config_id`),
   KEY `idx_alert_instance_status`      (`status`),
@@ -757,8 +734,7 @@ CREATE TABLE IF NOT EXISTS `alert_instance` (
   CONSTRAINT `fk_alert_instance_res_by` FOREIGN KEY (`resolved_by`) REFERENCES `client` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: alert_instance_group
-CREATE TABLE IF NOT EXISTS `alert_instance_group` (
+CREATE TABLE `alert_instance_group` (
   `alert_id`  bigint NOT NULL,
   `group_id`  bigint NOT NULL,
   PRIMARY KEY (`alert_id`, `group_id`),
@@ -767,16 +743,15 @@ CREATE TABLE IF NOT EXISTS `alert_instance_group` (
   CONSTRAINT `fk_aig_sys_group` FOREIGN KEY (`group_id`)  REFERENCES `sys_group`      (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: alert_instance_log
-CREATE TABLE IF NOT EXISTS `alert_instance_log` (
+CREATE TABLE `alert_instance_log` (
   `id`          bigint        NOT NULL AUTO_INCREMENT,
   `alert_id`    bigint        NOT NULL,
-  `action_type` varchar(50)   NOT NULL COMMENT 'TRIGGERED|RE_TRIGGERED|ACKNOWLEDGED|RESOLVED|AUTO_RESOLVED',
-  `actor_type`  varchar(50)   NOT NULL COMMENT 'USER|SYSTEM|EXTERNAL_API',
-  `actor_id`    varchar(256)  NOT NULL COMMENT 'Client ID (USER) or process name (RULE_ENGINE)',
-  `message`     varchar(512)  NOT NULL COMMENT 'Timeline UI description',
-  `payload`     text          DEFAULT NULL COMMENT 'JSON telemetry data',
-  `created_at`  datetime(6)   NOT NULL COMMENT 'Precision in ms',
+  `action_type` varchar(50)   NOT NULL,
+  `actor_type`  varchar(50)   NOT NULL,
+  `actor_id`    varchar(256)  NOT NULL,
+  `message`     varchar(512)  NOT NULL,
+  `payload`     text          DEFAULT NULL,
+  `created_at`  datetime(6)   NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_alert_instance_log_alert_id` (`alert_id`),
   KEY `idx_alert_instance_log_action`   (`action_type`),
@@ -784,50 +759,5 @@ CREATE TABLE IF NOT EXISTS `alert_instance_log` (
   CONSTRAINT `fk_ail_alert` FOREIGN KEY (`alert_id`) REFERENCES `alert_instance` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- =========================================================
--- Insert new system groups and functions introduced for Alert System
--- =========================================================
-
--- Insert missing system functions
-INSERT INTO `sys_function` (`created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `function_code`) VALUES
-  (NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ROLE'),
-  (NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT'),
-  (NOW(), 'system', NOW(), 'system', 0, 'F_HANDLE_ALERT');
-
--- Insert translation for the new system functions
-INSERT INTO `sys_function_lan` (`created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `description`, `lang_code`, `name`, `owner_id`) VALUES
-  (NULL, NULL, NULL, NULL, 0, 'Quản lý các vai trò trong hệ thống', 'vi', 'Quản lý Vai Trò', (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_MANAGE_ROLE')),
-  (NULL, NULL, NULL, NULL, 0, 'Manage roles in system', 'en', 'Manage Role', (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_MANAGE_ROLE')),
-  (NULL, NULL, NULL, NULL, 0, 'Xem danh sách cảnh báo thuộc phạm vi nhóm của mình', 'vi', 'Xem Cảnh báo', (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_ACCESS_ALERT')),
-  (NULL, NULL, NULL, NULL, 0, 'View alerts within own group scope', 'en', 'Access Alerts', (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_ACCESS_ALERT')),
-  (NULL, NULL, NULL, NULL, 0, 'Xác nhận và giải quyết cảnh báo (Acknowledge/Resolve)', 'vi', 'Xử lý Cảnh báo', (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_HANDLE_ALERT')),
-  (NULL, NULL, NULL, NULL, 0, 'Acknowledge and resolve alerts', 'en', 'Handle Alerts', (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_HANDLE_ALERT'));
-
--- Insert missing system groups
-INSERT INTO `sys_group` (`created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `group_code`) VALUES
-  (NOW(), 'system', NOW(), 'system', 0, 'G_USER'),
-  (NOW(), 'system', NOW(), 'system', 0, 'G_MANAGER'),
-  (NOW(), 'system', NOW(), 'system', 0, 'G_MAINTENANCE'),
-  (NOW(), 'system', NOW(), 'system', 0, 'G_HARDWARE_GATEWAY');
-
--- Insert translations for the new groups
-INSERT INTO `sys_group_lan` (`created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `description`, `lang_code`, `name`, `owner_id`) VALUES
-  (NULL, NULL, NULL, NULL, 0, 'Người dùng thông thường', 'vi', 'Người dùng', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_USER')),
-  (NULL, NULL, NULL, NULL, 0, 'Regular user', 'en', 'User', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_USER')),
-  (NULL, NULL, NULL, NULL, 0, 'Quản lý hệ thống/tòa nhà', 'vi', 'Quản lý', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_MANAGER')),
-  (NULL, NULL, NULL, NULL, 0, 'System/building manager', 'en', 'Manager', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_MANAGER')),
-  (NULL, NULL, NULL, NULL, 0, 'Xem và xử lý cảnh báo kỹ thuật', 'vi', 'Nhân viên bảo trì', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_MAINTENANCE')),
-  (NULL, NULL, NULL, NULL, 0, 'View and handle technical alerts', 'en', 'Maintenance staff', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_MAINTENANCE')),
-  (NULL, NULL, NULL, NULL, 0, 'Thiết bị gateway phần cứng', 'vi', 'Cổng phần cứng', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_HARDWARE_GATEWAY')),
-  (NULL, NULL, NULL, NULL, 0, 'Hardware gateway devices', 'en', 'Hardware Gateway', (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_HARDWARE_GATEWAY'));
-
--- Assign system roles
-INSERT INTO `sys_role` (`created_at`, `created_by`, `updated_at`, `updated_by`, `v`, `function_id`, `group_id`) VALUES
-  (NOW(), 'system', NOW(), 'system', 0, (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_MANAGE_ROLE'), (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_ADMIN')),
-  (NOW(), 'system', NOW(), 'system', 0, (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_ACCESS_ALERT'), (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_ADMIN')),
-  (NOW(), 'system', NOW(), 'system', 0, (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_ACCESS_ALERT'), (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_MAINTENANCE')),
-  (NOW(), 'system', NOW(), 'system', 0, (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_ACCESS_ALERT'), (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_USER')),
-  (NOW(), 'system', NOW(), 'system', 0, (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_HANDLE_ALERT'), (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_ADMIN')),
-  (NOW(), 'system', NOW(), 'system', 0, (SELECT `id` FROM `sys_function` WHERE `function_code` = 'F_HANDLE_ALERT'), (SELECT `id` FROM `sys_group` WHERE `group_code` = 'G_MAINTENANCE'));
 
 SET FOREIGN_KEY_CHECKS = 1;
