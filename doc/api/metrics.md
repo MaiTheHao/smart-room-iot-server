@@ -77,21 +77,56 @@
 
 ---
 
-## 2. Health Domain (HEALTH)
+## 2. Temperature Domain (TEMPERATURE)
 
 <details>
-<summary><b>GET</b> <code>/api/v1/metrics?domain=HEALTH</code> - Truy vấn chỉ số sức khỏe/môi trường</summary>
+<summary><b>GET</b> <code>/api/v1/metrics?domain=TEMPERATURE</code> - Truy vấn chỉ số nhiệt độ</summary>
 
-> (Đang phát triển) Truy vấn các chỉ số như nhiệt độ, độ ẩm.
+> Lấy dữ liệu nhiệt độ (mới nhất hoặc lịch sử) từ bảng `temperature_metrics`. Dữ liệu được ghi nhận đồng thời với bảng `temperature_value` truyền thống.
 
 ### Query Parameters
 
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
 | :--- | :--- | :--- | :--- |
-| domain | string | Lĩnh vực metric. Giá trị: `HEALTH` | Có |
-| category | string | Loại cảm biến (ví dụ: TEMPERATURE) | Có |
-| targetId | Long | ID của cảm biến/phòng | Có |
+| domain | string | Lĩnh vực metric. Giá trị: `TEMPERATURE` | Có |
+| targetId | Long | ID của cảm biến nhiệt độ | Có |
 | latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
+| from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
+| to | Instant | Thời gian kết thúc (ISO-8601) | Bắt buộc nếu `latest=false` |
+
+### Response Example (Latest Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-14T10:00:00Z",
+        "temperature": 25.5
+    },
+    "timestamp": "2026-07-14T10:00:01Z"
+}
+```
+
+### Response Example (Historical Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": [
+        {
+            "timestamp": "2026-07-14T09:00:00Z",
+            "temperature": 25.0
+        },
+        {
+            "timestamp": "2026-07-14T10:00:00Z",
+            "temperature": 25.5
+        }
+    ],
+    "timestamp": "2026-07-14T10:00:01Z"
+}
+```
 
 </details>
 
@@ -99,7 +134,64 @@
 
 ---
 
-## 3. Device Status Domain (DEVICE_STATUS)
+## 3. Humidity Domain (HUMIDITY)
+
+<details>
+<summary><b>GET</b> <code>/api/v1/metrics?domain=HUMIDITY</code> - Truy vấn chỉ số độ ẩm</summary>
+
+> Lấy dữ liệu độ ẩm (mới nhất hoặc lịch sử) từ bảng `humidity_metrics`. Đây là nơi lưu trữ chính cho dữ liệu độ ẩm.
+
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc / Mặc định |
+| :--- | :--- | :--- | :--- |
+| domain | string | Lĩnh vực metric. Giá trị: `HUMIDITY` | Có |
+| targetId | Long | ID của cảm biến độ ẩm | Có |
+| latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
+| from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
+| to | Instant | Thời gian kết thúc (ISO-8601) | Bắt buộc nếu `latest=false` |
+
+### Response Example (Latest Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-14T10:00:00Z",
+        "humidity": 65.5
+    },
+    "timestamp": "2026-07-14T10:00:01Z"
+}
+```
+
+### Response Example (Historical Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": [
+        {
+            "timestamp": "2026-07-14T09:00:00Z",
+            "humidity": 68.0
+        },
+        {
+            "timestamp": "2026-07-14T10:00:00Z",
+            "humidity": 65.5
+        }
+    ],
+    "timestamp": "2026-07-14T10:00:01Z"
+}
+```
+
+</details>
+
+<br>
+
+---
+
+## 4. Device Status Domain (DEVICE_STATUS)
 
 <details>
 <summary><b>GET</b> <code>/api/v1/metrics?domain=DEVICE_STATUS</code> - Truy vấn trạng thái thiết bị chấp hành</summary>
@@ -251,6 +343,8 @@
 | ENERGY | Các chỉ số liên quan đến năng lượng (điện năng, công suất, điện áp) |
 | HEALTH | Các chỉ số liên quan đến môi trường (nhiệt độ, độ ẩm) |
 | DEVICE_STATUS | Các chỉ số trạng thái thiết bị chấp hành (bật/tắt, mức độ, chế độ) |
+| TEMPERATURE | **(Mới)** Chỉ số nhiệt độ từ cảm biến, lưu trong bảng `temperature_metrics` |
+| HUMIDITY | **(Mới)** Chỉ số độ ẩm từ cảm biến, lưu trong bảng `humidity_metrics` |
 
 ### EnergyMetricCategory
 

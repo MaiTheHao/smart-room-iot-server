@@ -80,7 +80,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 		long start = System.currentTimeMillis();
 		try {
 			List<ClientDto> gateways = clientService.getAllGateways();
-			gateways.forEach(this::processSafeExecution);
+			executeBatchProcessing(gateways, "global");
 			log.info("Finished global telemetry collection in {}ms", System.currentTimeMillis() - start);
 		} catch (Exception e) {
 			log.error("Failed to collect global telemetry: {}", e.getMessage(), e);

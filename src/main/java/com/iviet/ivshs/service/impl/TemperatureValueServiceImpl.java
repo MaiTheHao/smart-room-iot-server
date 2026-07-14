@@ -3,12 +3,14 @@ package com.iviet.ivshs.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.RoomDao;
 import com.iviet.ivshs.dao.TemperatureDao;
+import com.iviet.ivshs.dao.TemperatureMetricDao;
 import com.iviet.ivshs.dao.TemperatureValueDao;
 import com.iviet.ivshs.dto.AverageTemperatureValueDto;
 import com.iviet.ivshs.dto.CreateTemperatureValueDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.dto.TemperatureValueDto;
 import com.iviet.ivshs.entities.Temperature;
+import com.iviet.ivshs.entities.TemperatureMetric;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
@@ -29,6 +31,7 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
   private final RoomDao roomDao;
   private final TemperatureDao temperatureDao;
   private final TemperatureValueDao temperatureValueDao;
+  private final TemperatureMetricDao temperatureMetricDao;
 
   @Override
   public DeviceCategory getSupportedCategory() {
@@ -63,6 +66,14 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
     record.setSensor(sensor);
     temperatureValueDao.save(record);
     sensor.setCurrentValue(record.getTempC());
+
+    // Save to temperature_metrics for metric orchestration
+    TemperatureMetric metric = new TemperatureMetric();
+    metric.setTargetCategory("TEMPERATURE");
+    metric.setTargetId(sensor.getId());
+    metric.setTimestamp(Instant.now());
+    metric.setTemperature(tempC);
+    temperatureMetricDao.save(java.util.Collections.singletonList(metric));
   }
 
   @Override
@@ -86,6 +97,14 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
 
     sensor.setCurrentValue(record.getTempC());
     temperatureDao.save(sensor);
+
+    // Save to temperature_metrics for metric orchestration
+    TemperatureMetric metric = new TemperatureMetric();
+    metric.setTargetCategory("TEMPERATURE");
+    metric.setTargetId(sensor.getId());
+    metric.setTimestamp(Instant.now());
+    metric.setTemperature(dto.tempC());
+    temperatureMetricDao.save(java.util.Collections.singletonList(metric));
   }
 
   @Override
@@ -100,6 +119,13 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
 
     sensor.setCurrentValue(record.getTempC());
     temperatureDao.save(sensor);
+
+    TemperatureMetric metric = new TemperatureMetric();
+    metric.setTargetCategory("TEMPERATURE");
+    metric.setTargetId(sensor.getId());
+    metric.setTimestamp(Instant.now());
+    metric.setTemperature(dto.tempC());
+    temperatureMetricDao.save(java.util.Collections.singletonList(metric));
   }
 
   @Override
@@ -133,5 +159,18 @@ public class TemperatureValueServiceImpl implements TemperatureValueService {
 
     sensor.setCurrentValue(sortedByTimestampLatestFirst.get(0).tempC());
     temperatureDao.save(sensor);
+
+    // Save to temperature_metrics for each record
+    List<TemperatureMetric> metrics = sortedByTimestampLatestFirst.stream()
+            .map(dto -> {
+                TemperatureMetric m = new TemperatureMetric();
+                m.setTargetCategory("TEMPERATURE");
+                m.setTargetId(sensor.getId());
+                m.setTimestamp(dto.timestamp() != null ? dto.timestamp() : Instant.now());
+                m.setTemperature(dto.tempC());
+                return m;
+            })
+            .toList();
+    temperatureMetricDao.save(metrics);
   }
 }

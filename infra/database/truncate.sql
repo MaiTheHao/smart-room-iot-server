@@ -37,10 +37,14 @@ TRUNCATE TABLE `fan_lan`;
 TRUNCATE TABLE `temperature`;
 TRUNCATE TABLE `temperature_lan`;
 TRUNCATE TABLE `temperature_value`;
+TRUNCATE TABLE `humidity_sensor`;
+TRUNCATE TABLE `humidity_sensor_lan`;
 TRUNCATE TABLE `power_consumption`;
 TRUNCATE TABLE `power_consumption_lan`;
 TRUNCATE TABLE `energy_metrics`;
 TRUNCATE TABLE `device_status_metrics`;
+TRUNCATE TABLE `humidity_metrics`;
+TRUNCATE TABLE `temperature_metrics`;
 
 -- ----------------------------
 -- Module: Automation & Rules

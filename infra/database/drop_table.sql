@@ -35,10 +35,14 @@ DROP TABLE IF EXISTS `light_lan`;
 DROP TABLE IF EXISTS `temperature`;
 DROP TABLE IF EXISTS `temperature_lan`;
 DROP TABLE IF EXISTS `temperature_value`;
+DROP TABLE IF EXISTS `humidity_sensor`;
+DROP TABLE IF EXISTS `humidity_sensor_lan`;
 DROP TABLE IF EXISTS `power_consumption`;
 DROP TABLE IF EXISTS `power_consumption_lan`;
 DROP TABLE IF EXISTS `energy_metrics`;
 DROP TABLE IF EXISTS `device_status_metrics`;
+DROP TABLE IF EXISTS `humidity_metrics`;
+DROP TABLE IF EXISTS `temperature_metrics`;
 DROP TABLE IF EXISTS `fan`;
 DROP TABLE IF EXISTS `fan_lan`;
 
