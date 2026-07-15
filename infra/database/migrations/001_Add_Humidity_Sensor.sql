@@ -40,11 +40,6 @@ CREATE TABLE `humidity_sensor_lan` (
 
 CREATE TABLE `humidity_metrics` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `created_by` varchar(256) DEFAULT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
-  `updated_by` varchar(256) DEFAULT NULL,
-  `v` bigint NOT NULL,
   `target_category` varchar(50) NOT NULL,
   `target_id` bigint NOT NULL,
   `timestamp` datetime(6) NOT NULL,
@@ -58,11 +53,6 @@ CREATE TABLE `humidity_metrics` (
 
 CREATE TABLE `temperature_metrics` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `created_at` datetime(6) DEFAULT NULL,
-  `created_by` varchar(256) DEFAULT NULL,
-  `updated_at` datetime(6) DEFAULT NULL,
-  `updated_by` varchar(256) DEFAULT NULL,
-  `v` bigint NOT NULL,
   `target_category` varchar(50) NOT NULL,
   `target_id` bigint NOT NULL,
   `timestamp` datetime(6) NOT NULL,

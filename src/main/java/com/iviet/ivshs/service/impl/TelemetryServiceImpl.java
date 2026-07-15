@@ -137,6 +137,10 @@ public class TelemetryServiceImpl implements TelemetryService {
 
 		for (var deviceData : telemetryData) {
 			try {
+				if (deviceData.getCategory() == null) {
+					log.warn("Skipping device {} with null/unknown category", deviceData.getNaturalId());
+					continue;
+				}
 				TelemetryCRUDServiceStrategy strategy = strategyMap.get(deviceData.getCategory());
 				if (strategy != null) {
 					strategy.create(deviceData);
