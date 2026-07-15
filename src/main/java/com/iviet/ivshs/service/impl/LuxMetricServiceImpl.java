@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.LuxSensorDao;
 import com.iviet.ivshs.dao.LuxMetricDao;
 import com.iviet.ivshs.dto.LuxMetricDto;
+import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.LuxMetric;
+import com.iviet.ivshs.entities.LuxSensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 import com.iviet.ivshs.service.LuxMetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +120,38 @@ public class LuxMetricServiceImpl implements LuxMetricService {
         return luxMetricDao.findHistory(sensor.getId(), limitedFrom, to)
                 .stream()
                 .map(LuxMetricDto::fromEntity)
+                .toList();
+    }
+
+    // ========== SensorMetadataServiceStrategy ==========
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return luxSensorDao.findAllByRoomIdWithTranslations(roomId).stream()
+                .map(entity -> {
+                    LuxSensorLan lan = entity.getTranslations().stream()
+                            .filter(t -> t.getLangCode().equals(langCode))
+                            .findFirst()
+                            .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+                    return SensorMetadataDto.from(entity, lan);
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorMetadataDto> getAllSensor() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return luxSensorDao.findAllWithTranslations().stream()
+                .map(entity -> {
+                    LuxSensorLan lan = entity.getTranslations().stream()
+                            .filter(t -> t.getLangCode().equals(langCode))
+                            .findFirst()
+                            .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+                    return SensorMetadataDto.from(entity, lan);
+                })
                 .toList();
     }
 }

@@ -8,7 +8,7 @@ Tài liệu này ghi nhận các thay đổi ở tầng RESTful API phục vụ 
 
 Ngoài ra, hệ thống ghi nhận telemetry cũng được mở rộng:
 - **Nhiệt độ**: Khi nhận telemetry nhiệt độ qua Gateway, dữ liệu được ghi đồng thời vào bảng `temperature_value` (cũ, giữ nguyên) và `temperature_metrics` (mới).
-- **Độ ẩm**: Khi nhận telemetry độ ẩm qua Gateway, dữ liệu được ghi trực tiếp vào bảng `humidity_metrics` (mới) thông qua `HumidityMetricServiceImpl`.
+- **Độ ẩm**: Khi nhận telemetry độ ẩm qua Gateway, dữ liệu được ghi vào bảng `humidity_metrics` (mới) thông qua `HumidityMetricServiceImpl` (đồng thời cập nhật `currentHumidity` của cảm biến độ ẩm).
 
 ---
 
@@ -208,3 +208,172 @@ GET /api/v1/metrics?domain=HUMIDITY&targetId=1&latest=true
 | Bảng | Lý do |
 | :--- | :---- |
 | `humidity_value` | Thay thế bởi `humidity_metrics`. Entity `HumidityValue.java` đã bị xoá. |
+
+---
+
+# API Changes - CO₂ & Lux Sensor Integration
+
+## Date: 2026-07-16
+
+## 1. Mục tiêu
+
+Tài liệu này ghi nhận các thay đổi phục vụ việc tích hợp hai loại cảm biến mới:
+1. **CO₂ Sensor** (`SENSOR_CO2`): Lưu nồng độ CO₂ (ppm) vào `co2_metrics`. Telemetry field: `"co2"`.
+2. **Lux Sensor** (`SENSOR_LUX`): Lưu cường độ ánh sáng (lx) vào `lux_metrics`. Telemetry field: `"lux"`.
+
+Ngoài ra, `HUMIDITY` được kích hoạt trong `SensorMetadataService` và `SensorTelemetryService` (trước đây chỉ được ghi nhận qua Metric, chưa xuất hiện trong API metadata/telemetry).
+
+---
+
+## 2. Danh sách API thay đổi
+
+| Method | Endpoint | Mô tả thay đổi |
+| :----- | :------- | :------------- |
+| **GET** | `/api/v1/metrics?domain=CO2` | Thêm domain mới `CO2`. Hỗ trợ latest và history cho CO₂ sensor. |
+| **GET** | `/api/v1/metrics?domain=LUX` | Thêm domain mới `LUX`. Hỗ trợ latest và history cho Lux sensor. |
+| **GET** | `/api/v1/rooms/{roomId}/sensors` | Mở rộng `category` filter thêm `SENSOR_CO2`, `SENSOR_LUX`, `HUMIDITY`. |
+| **GET** | `/api/v1/sensors/all` | Mở rộng `category` filter thêm `SENSOR_CO2`, `SENSOR_LUX`, `HUMIDITY`. |
+| **GET** | `/api/v1/rooms/{roomId}/sensors/count` | Count giờ bao gồm cả Co2Sensor + LuxSensor + HumiditySensor. |
+| **GET** | `/api/v1/sensors/{sensorId}/history` | Mở rộng `category` thêm `SENSOR_CO2`, `SENSOR_LUX`, `HUMIDITY`. |
+| **GET** | `/api/v1/sensors/natural/{naturalId}/history` | Mở rộng `category` thêm `SENSOR_CO2`, `SENSOR_LUX`, `HUMIDITY`. |
+
+---
+
+## 3. Chi tiết API Contract
+
+### A. Truy vấn CO₂ (`GET /api/v1/metrics?domain=CO2`)
+
+#### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc / Mặc định |
+| :--- | :--- | :--- | :--- |
+| `domain` | `MetricDomain` | Giá trị: `CO2` | Có |
+| `targetId` | `Long` | ID của CO₂ sensor | Có |
+| `latest` | `boolean` | `true` để lấy mới nhất | Mặc định: `false` |
+| `from` | `Instant` | Thời gian bắt đầu | Bắt buộc nếu `latest=false` |
+| `to` | `Instant` | Thời gian kết thúc | Bắt buộc nếu `latest=false` |
+
+#### Response (Latest - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-16T10:00:00Z",
+        "co2": 420.5
+    }
+}
+```
+
+### B. Truy vấn Lux (`GET /api/v1/metrics?domain=LUX`)
+
+#### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc / Mặc định |
+| :--- | :--- | :--- | :--- |
+| `domain` | `MetricDomain` | Giá trị: `LUX` | Có |
+| `targetId` | `Long` | ID của Lux sensor | Có |
+| `latest` | `boolean` | `true` để lấy mới nhất | Mặc định: `false` |
+| `from` | `Instant` | Thời gian bắt đầu | Bắt buộc nếu `latest=false` |
+| `to` | `Instant` | Thời gian kết thúc | Bắt buộc nếu `latest=false` |
+
+#### Response (Latest - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-16T10:00:00Z",
+        "lux": 850.0
+    }
+}
+```
+
+---
+
+## 4. Kiến trúc xử lý
+
+### A. Luồng ghi nhận Telemetry CO₂
+
+```
+Gateway Telemetry (co2)
+    → Co2MetricServiceImpl.create()
+        ├── Bước 1: Cập nhật currentCo2 trong Co2Sensor
+        └── Bước 2: Ghi vào bảng co2_metrics
+                    thông qua Co2MetricDao
+```
+
+### B. Luồng ghi nhận Telemetry Lux
+
+```
+Gateway Telemetry (lux)
+    → LuxMetricServiceImpl.create()
+        ├── Bước 1: Cập nhật currentLux trong LuxSensor
+        └── Bước 2: Ghi vào bảng lux_metrics
+                    thông qua LuxMetricDao
+```
+
+### C. Luồng truy vấn Metric
+
+```
+GET /api/v1/metrics?domain=CO2&targetId=3&latest=true
+    → MetricOrchestratorService
+        → Co2MetricServiceImpl.getLatest()
+            → Co2MetricDao.findLatest()
+                → Bảng co2_metrics
+
+GET /api/v1/metrics?domain=LUX&targetId=4&latest=true
+    → MetricOrchestratorService
+        → LuxMetricServiceImpl.getLatest()
+            → LuxMetricDao.findLatest()
+                → Bảng lux_metrics
+```
+
+### D. Strategy auto-registration
+
+Cả `Co2MetricServiceImpl` và `LuxMetricServiceImpl` đều implement:
+- `TelemetryCRUDServiceStrategy` → auto-register vào `TelemetryServiceImpl`
+- `MetricServiceStrategy` → auto-register vào `MetricOrchestratorService`
+- `SensorTelemetryServiceStrategy` → auto-register vào `SensorTelemetryServiceImpl`
+- `SensorMetadataServiceStrategy` → auto-register vào `SensorMetadataServiceImpl`
+
+`HumidityMetricServiceImpl` được bổ sung `SensorMetadataServiceStrategy` (đã có 3 strategy kia từ trước).
+
+---
+
+## 5. Cập nhật Database
+
+### Bảng mới
+
+| Bảng | Mục đích |
+| :--- | :------- |
+| `co2_sensor` | Lưu cảm biến CO₂, cột `current_co2 DOUBLE`. |
+| `co2_sensor_lan` | Translation cho `co2_sensor`. |
+| `co2_metrics` | Lưu chỉ số CO₂, cột `co2 DOUBLE NOT NULL`. |
+| `lux_sensor` | Lưu cảm biến ánh sáng, cột `current_lux DOUBLE`. |
+| `lux_sensor_lan` | Translation cho `lux_sensor`. |
+| `lux_metrics` | Lưu chỉ số Lux, cột `lux DOUBLE NOT NULL`. |
+
+### Migration file
+
+`infra/database/migrations/002_Add_CO2_Lux_Sensors.sql`
+
+---
+
+## 6. Cập nhật Enum
+
+### DeviceCategory
+
+| Giá trị | Mô tả |
+| :------ | :---- |
+| `SENSOR_CO2` | **(Mới)** Cảm biến nồng độ CO₂ |
+| `SENSOR_LUX` | **(Mới)** Cảm biến cường độ ánh sáng |
+
+### MetricDomain
+
+| Giá trị | Mô tả |
+| :------ | :---- |
+| `CO2` | **(Mới)** Chỉ số nồng độ CO₂ từ cảm biến |
+| `LUX` | **(Mới)** Chỉ số cường độ ánh sáng từ cảm biến |

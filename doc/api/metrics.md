@@ -333,6 +333,120 @@
 
 ---
 
+## 5. CO₂ Domain (CO2)
+
+<details>
+<summary><b>GET</b> <code>/api/v1/metrics?domain=CO2</code> - Truy vấn chỉ số nồng độ CO₂</summary>
+
+> Lấy dữ liệu nồng độ CO₂ (mới nhất hoặc lịch sử) từ bảng `co2_metrics`. Dữ liệu được ghi nhận mỗi lần telemetry CO2 sensor được collect.
+
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc / Mặc định |
+| :--- | :--- | :--- | :--- |
+| domain | string | Lĩnh vực metric. Giá trị: `CO2` | Có |
+| targetId | Long | ID của cảm biến CO₂ | Có |
+| latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
+| from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
+| to | Instant | Thời gian kết thúc (ISO-8601) | Bắt buộc nếu `latest=false` |
+
+### Response Example (Latest Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-16T10:00:00Z",
+        "co2": 420.5
+    },
+    "timestamp": "2026-07-16T10:00:01Z"
+}
+```
+
+### Response Example (Historical Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": [
+        {
+            "timestamp": "2026-07-16T09:00:00Z",
+            "co2": 410.0
+        },
+        {
+            "timestamp": "2026-07-16T10:00:00Z",
+            "co2": 420.5
+        }
+    ],
+    "timestamp": "2026-07-16T10:00:01Z"
+}
+```
+
+</details>
+
+<br>
+
+---
+
+## 6. Lux Domain (LUX)
+
+<details>
+<summary><b>GET</b> <code>/api/v1/metrics?domain=LUX</code> - Truy vấn chỉ số cường độ ánh sáng</summary>
+
+> Lấy dữ liệu cường độ ánh sáng (mới nhất hoặc lịch sử) từ bảng `lux_metrics`. Dữ liệu được ghi nhận mỗi lần telemetry Lux sensor được collect.
+
+### Query Parameters
+
+| Tên | Loại | Mô tả | Bắt buộc / Mặc định |
+| :--- | :--- | :--- | :--- |
+| domain | string | Lĩnh vực metric. Giá trị: `LUX` | Có |
+| targetId | Long | ID của cảm biến ánh sáng | Có |
+| latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
+| from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
+| to | Instant | Thời gian kết thúc (ISO-8601) | Bắt buộc nếu `latest=false` |
+
+### Response Example (Latest Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-16T10:00:00Z",
+        "lux": 850.0
+    },
+    "timestamp": "2026-07-16T10:00:01Z"
+}
+```
+
+### Response Example (Historical Data - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": [
+        {
+            "timestamp": "2026-07-16T09:00:00Z",
+            "lux": 820.0
+        },
+        {
+            "timestamp": "2026-07-16T10:00:00Z",
+            "lux": 850.0
+        }
+    ],
+    "timestamp": "2026-07-16T10:00:01Z"
+}
+```
+
+</details>
+
+<br>
+
+---
+
 <details>
 <summary>Xem chi tiết các hằng số (Enums)</summary>
 
@@ -343,8 +457,10 @@
 | ENERGY | Các chỉ số liên quan đến năng lượng (điện năng, công suất, điện áp) |
 | HEALTH | Các chỉ số liên quan đến môi trường (nhiệt độ, độ ẩm) |
 | DEVICE_STATUS | Các chỉ số trạng thái thiết bị chấp hành (bật/tắt, mức độ, chế độ) |
-| TEMPERATURE | **(Mới)** Chỉ số nhiệt độ từ cảm biến, lưu trong bảng `temperature_metrics` |
-| HUMIDITY | **(Mới)** Chỉ số độ ẩm từ cảm biến, lưu trong bảng `humidity_metrics` |
+| TEMPERATURE | **(Mới 14-07)** Chỉ số nhiệt độ từ cảm biến, lưu trong bảng `temperature_metrics` |
+| HUMIDITY | **(Mới 14-07)** Chỉ số độ ẩm từ cảm biến, lưu trong bảng `humidity_metrics` |
+| CO2 | **(Mới 16-07)** Chỉ số nồng độ CO₂ từ cảm biến, lưu trong bảng `co2_metrics` |
+| LUX | **(Mới 16-07)** Chỉ số cường độ ánh sáng từ cảm biến, lưu trong bảng `lux_metrics` |
 
 ### EnergyMetricCategory
 
@@ -362,6 +478,8 @@
 | LIGHT | Thiết bị chiếu sáng |
 | FAN | Thiết bị quạt |
 | AIR_CONDITION | Điều hòa nhiệt độ |
+| SENSOR_CO2 | **(Mới 16-07)** Cảm biến nồng độ CO₂ |
+| SENSOR_LUX | **(Mới 16-07)** Cảm biến cường độ ánh sáng |
 
 </details>
 

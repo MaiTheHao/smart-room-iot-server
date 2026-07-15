@@ -2,7 +2,7 @@
 
 ## API thống nhất lấy lịch sử dữ liệu đo đạc từ cảm biến.
 
-Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CONSUMPTION` (điện năng).
+Hỗ trợ năm loại cảm biến: `TEMPERATURE` (nhiệt độ), `POWER_CONSUMPTION` (điện năng), `HUMIDITY` (độ ẩm), `SENSOR_CO2` (nồng độ CO₂), và `SENSOR_LUX` (cường độ ánh sáng).
 
 ### Lưu ý quan trọng
 
@@ -26,11 +26,11 @@ Hỗ trợ hai loại cảm biến: `TEMPERATURE` (nhiệt độ) và `POWER_CON
 
 ### Query Parameters
 
-| Tên      | Loại   | Mô tả                                                              | Bắt buộc |
-| :------- | :----- | :----------------------------------------------------------------- | :------- |
-| category | string | Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`)           | Có       |
-| from     | Instant| Thời điểm bắt đầu (ISO-8601)                                       | Có       |
-| to       | Instant| Thời điểm kết thúc (ISO-8601)                                      | Có       |
+| Tên      | Loại   | Mô tả                                                                                              | Bắt buộc |
+| :------- | :----- | :------------------------------------------------------------------------------------------------- | :------- |
+| category | string | Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`, `HUMIDITY`, `SENSOR_CO2`, `SENSOR_LUX`)  | Có       |
+| from     | Instant| Thời điểm bắt đầu (ISO-8601)                                                                       | Có       |
+| to       | Instant| Thời điểm kết thúc (ISO-8601)                                                                      | Có       |
 
 ### Response (200 OK) - Temperature
 Trả về danh sách `TemperatureValueDto` (raw values):
@@ -86,6 +86,66 @@ Trả về danh sách `EnergyMetricDto` (raw values từ bảng `energy_metrics`
 }
 ```
 
+### Response (200 OK) - CO2 Sensor
+Trả về danh sách `Co2MetricDto` (raw values từ bảng `co2_metrics`):
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"timestamp": "2026-07-16T08:00:00Z",
+			"co2": 415.5
+		},
+		{
+			"timestamp": "2026-07-16T08:01:00Z",
+			"co2": 420.0
+		}
+	],
+	"timestamp": "2026-07-16T09:00:00Z"
+}
+```
+
+### Response (200 OK) - Lux Sensor
+Trả về danh sách `LuxMetricDto` (raw values từ bảng `lux_metrics`):
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"timestamp": "2026-07-16T08:00:00Z",
+			"lux": 820.0
+		},
+		{
+			"timestamp": "2026-07-16T08:01:00Z",
+			"lux": 850.5
+		}
+	],
+	"timestamp": "2026-07-16T09:00:00Z"
+}
+```
+
+### Response (200 OK) - Humidity Sensor
+Trả về danh sách `HumidityMetricDto` (raw values từ bảng `humidity_metrics`):
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"timestamp": "2026-07-14T08:00:00Z",
+			"humidity": 68.0
+		},
+		{
+			"timestamp": "2026-07-14T08:01:00Z",
+			"humidity": 65.5
+		}
+	],
+	"timestamp": "2026-07-14T09:00:00Z"
+}
+```
+
 </details>
 
 
@@ -102,11 +162,11 @@ Trả về danh sách `EnergyMetricDto` (raw values từ bảng `energy_metrics`
 
 ### Query Parameters
 
-| Tên      | Loại   | Mô tả                                                              | Bắt buộc |
-| :------- | :----- | :----------------------------------------------------------------- | :------- |
-| category | string | Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`)           | Có       |
-| from     | Instant| Thời điểm bắt đầu (ISO-8601)                                       | Có       |
-| to       | Instant| Thời điểm kết thúc (ISO-8601)                                      | Có       |
+| Tên      | Loại   | Mô tả                                                                                              | Bắt buộc |
+| :------- | :----- | :------------------------------------------------------------------------------------------------- | :------- |
+| category | string | Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`, `HUMIDITY`, `SENSOR_CO2`, `SENSOR_LUX`)  | Có       |
+| from     | Instant| Thời điểm bắt đầu (ISO-8601)                                                                       | Có       |
+| to       | Instant| Thời điểm kết thúc (ISO-8601)                                                                      | Có       |
 
 ### Response (200 OK) - Temperature
 Trả về danh sách `TemperatureValueDto` (raw values):
@@ -162,6 +222,66 @@ Trả về danh sách `EnergyMetricDto` (raw values từ bảng `energy_metrics`
 }
 ```
 
+### Response (200 OK) - CO2 Sensor
+Trả về danh sách `Co2MetricDto` (raw values từ bảng `co2_metrics`):
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"timestamp": "2026-07-16T08:00:00Z",
+			"co2": 415.5
+		},
+		{
+			"timestamp": "2026-07-16T08:01:00Z",
+			"co2": 420.0
+		}
+	],
+	"timestamp": "2026-07-16T09:00:00Z"
+}
+```
+
+### Response (200 OK) - Lux Sensor
+Trả về danh sách `LuxMetricDto` (raw values từ bảng `lux_metrics`):
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"timestamp": "2026-07-16T08:00:00Z",
+			"lux": 820.0
+		},
+		{
+			"timestamp": "2026-07-16T08:01:00Z",
+			"lux": 850.5
+		}
+	],
+	"timestamp": "2026-07-16T09:00:00Z"
+}
+```
+
+### Response (200 OK) - Humidity Sensor
+Trả về danh sách `HumidityMetricDto` (raw values từ bảng `humidity_metrics`):
+```json
+{
+	"status": 200,
+	"message": "Success",
+	"data": [
+		{
+			"timestamp": "2026-07-14T08:00:00Z",
+			"humidity": 68.0
+		},
+		{
+			"timestamp": "2026-07-14T08:01:00Z",
+			"humidity": 65.5
+		}
+	],
+	"timestamp": "2026-07-14T09:00:00Z"
+}
+```
+
 </details>
 
 <br>
@@ -187,3 +307,5 @@ Trả về danh sách `EnergyMetricDto` (raw values từ bảng `energy_metrics`
 	"timestamp": "2024-06-07T09:00:00Z"
 }
 ```
+
+> **Lưu ý:** `HUMIDITY` cũng được hỗ trợ qua `category=HUMIDITY`. Lịch sử độ ẩm trả về danh sách `HumidityMetricDto` với field `humidity` (% RH). Ngoài ra, có thể dùng `GET /api/v1/metrics?domain=HUMIDITY` để lấy dữ liệu aggregate (time-bucketed).

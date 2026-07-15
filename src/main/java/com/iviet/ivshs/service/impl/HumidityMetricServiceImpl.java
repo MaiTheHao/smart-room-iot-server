@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.HumiditySensorDao;
 import com.iviet.ivshs.dao.HumidityMetricDao;
 import com.iviet.ivshs.dto.HumidityMetricDto;
+import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.HumidityMetric;
+import com.iviet.ivshs.entities.HumiditySensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 import com.iviet.ivshs.service.HumidityMetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +120,38 @@ public class HumidityMetricServiceImpl implements HumidityMetricService {
         return humidityMetricDao.findHistory(sensor.getId(), limitedFrom, to)
                 .stream()
                 .map(HumidityMetricDto::fromEntity)
+                .toList();
+    }
+
+    // ========== SensorMetadataServiceStrategy ==========
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return humiditySensorDao.findAllByRoomIdWithTranslations(roomId).stream()
+                .map(entity -> {
+                    HumiditySensorLan lan = entity.getTranslations().stream()
+                            .filter(t -> t.getLangCode().equals(langCode))
+                            .findFirst()
+                            .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+                    return SensorMetadataDto.from(entity, lan);
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorMetadataDto> getAllSensor() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return humiditySensorDao.findAllWithTranslations().stream()
+                .map(entity -> {
+                    HumiditySensorLan lan = entity.getTranslations().stream()
+                            .filter(t -> t.getLangCode().equals(langCode))
+                            .findFirst()
+                            .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+                    return SensorMetadataDto.from(entity, lan);
+                })
                 .toList();
     }
 }

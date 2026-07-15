@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.Co2SensorDao;
 import com.iviet.ivshs.dao.Co2MetricDao;
 import com.iviet.ivshs.dto.Co2MetricDto;
+import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.Co2Metric;
+import com.iviet.ivshs.entities.Co2SensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.util.LocalContextUtil;
 import com.iviet.ivshs.service.Co2MetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,6 +120,38 @@ public class Co2MetricServiceImpl implements Co2MetricService {
         return co2MetricDao.findHistory(sensor.getId(), limitedFrom, to)
                 .stream()
                 .map(Co2MetricDto::fromEntity)
+                .toList();
+    }
+
+    // ========== SensorMetadataServiceStrategy ==========
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return co2SensorDao.findAllByRoomIdWithTranslations(roomId).stream()
+                .map(entity -> {
+                    Co2SensorLan lan = entity.getTranslations().stream()
+                            .filter(t -> t.getLangCode().equals(langCode))
+                            .findFirst()
+                            .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+                    return SensorMetadataDto.from(entity, lan);
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorMetadataDto> getAllSensor() {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        return co2SensorDao.findAllWithTranslations().stream()
+                .map(entity -> {
+                    Co2SensorLan lan = entity.getTranslations().stream()
+                            .filter(t -> t.getLangCode().equals(langCode))
+                            .findFirst()
+                            .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+                    return SensorMetadataDto.from(entity, lan);
+                })
                 .toList();
     }
 }
