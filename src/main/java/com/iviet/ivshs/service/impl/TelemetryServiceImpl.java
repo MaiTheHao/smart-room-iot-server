@@ -137,10 +137,16 @@ public class TelemetryServiceImpl implements TelemetryService {
 
 		for (var deviceData : telemetryData) {
 			try {
+				if (deviceData == null) {
+					log.warn("Skipping device with null data");
+					continue;
+				}
+
 				if (deviceData.getCategory() == null) {
 					log.warn("Skipping device {} with null/unknown category", deviceData.getNaturalId());
 					continue;
 				}
+				
 				TelemetryCRUDServiceStrategy strategy = strategyMap.get(deviceData.getCategory());
 				if (strategy != null) {
 					strategy.create(deviceData);
@@ -149,7 +155,7 @@ public class TelemetryServiceImpl implements TelemetryService {
 					log.warn("No strategy for category {} at sensor {}", deviceData.getCategory(), deviceData.getNaturalId());
 				}
 			} catch (Exception e) {
-				log.error("Failed to process sensor {} for gateway {}: {}", deviceData.getNaturalId(), gateway.username(), e.getMessage());
+				log.error("Failed to process sensor {} for gateway {}: {}", deviceData != null ? deviceData.getNaturalId() : "Unknown", gateway.username(), e.getMessage());
 			}
 		}
 		log.info("Gateway {}: Processed {}/{} records", gateway.username(), processedCount, telemetryData.size());
