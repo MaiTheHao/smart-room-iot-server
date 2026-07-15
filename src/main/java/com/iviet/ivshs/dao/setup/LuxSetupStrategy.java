@@ -1,0 +1,49 @@
+package com.iviet.ivshs.dao.setup;
+
+import com.iviet.ivshs.dao.LuxSensorDao;
+import com.iviet.ivshs.dto.SetupRequest;
+import com.iviet.ivshs.entities.HardwareConfig;
+import com.iviet.ivshs.entities.Room;
+import com.iviet.ivshs.entities.LuxSensor;
+import com.iviet.ivshs.entities.LuxSensorLan;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class LuxSetupStrategy extends AbstractDeviceSetupStrategy {
+
+    private final LuxSensorDao luxSensorDao;
+
+    @Override
+    public DeviceCategory getSupportedCategory() {
+        return DeviceCategory.SENSOR_LUX;
+    }
+
+    @Override
+    public void persist(
+            SetupRequest.BodyData.DeviceConfig device,
+            Room room,
+            HardwareConfig hardwareConfig) {
+        LuxSensor luxSensor = new LuxSensor();
+        setupBaseIoTProperties(luxSensor, device, room, hardwareConfig);
+        entityManager.persist(luxSensor);
+        entityManager.flush();
+        attachTranslations(luxSensor, device.getTranslations(), LuxSensorLan::new);
+        log.debug("Create: Device created: {}", device.getNaturalId());
+    }
+
+    @Override
+    public void rollback(Long deviceId) {
+        try {
+            luxSensorDao.deleteById(deviceId);
+            log.debug("Rollback: Rolled back: {}", deviceId);
+        } catch (Exception e) {
+            log.error("Rollback: Failed for {}: {}", deviceId, e.getMessage(), e);
+        }
+    }
+}
