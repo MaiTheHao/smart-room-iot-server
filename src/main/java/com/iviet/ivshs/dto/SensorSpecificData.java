@@ -7,8 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
     @JsonSubTypes.Type(TemperatureSensorData.class),
     @JsonSubTypes.Type(PowerConsumptionSensorData.class),
-    @JsonSubTypes.Type(HumiditySensorData.class)
+    @JsonSubTypes.Type(HumiditySensorData.class),
+    @JsonSubTypes.Type(Co2SensorData.class),
+    @JsonSubTypes.Type(LuxSensorData.class)
 })
 public sealed interface SensorSpecificData
-    permits TemperatureSensorData, PowerConsumptionSensorData, HumiditySensorData {
+    permits TemperatureSensorData, PowerConsumptionSensorData, HumiditySensorData, Co2SensorData, LuxSensorData {
 }
