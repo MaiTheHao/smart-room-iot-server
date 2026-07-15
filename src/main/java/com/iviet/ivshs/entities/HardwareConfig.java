@@ -62,6 +62,15 @@ public class HardwareConfig extends BaseAuditEntity {
     @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private AirCondition airCondition;
 
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private HumiditySensor humiditySensor;
+
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Co2Sensor co2Sensor;
+
+    @OneToOne(mappedBy = "hardwareConfig", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private LuxSensor luxSensor;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
