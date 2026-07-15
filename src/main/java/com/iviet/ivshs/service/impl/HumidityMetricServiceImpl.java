@@ -10,9 +10,7 @@ import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.service.strategy.MetricServiceStrategy;
-import com.iviet.ivshs.service.strategy.SensorTelemetryServiceStrategy;
-import com.iviet.ivshs.service.strategy.TelemetryCRUDServiceStrategy;
+import com.iviet.ivshs.service.HumidityMetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +23,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HumidityMetricServiceImpl implements TelemetryCRUDServiceStrategy, MetricServiceStrategy, SensorTelemetryServiceStrategy {
+public class HumidityMetricServiceImpl implements HumidityMetricService {
 
     private final HumiditySensorDao humiditySensorDao;
     private final HumidityMetricDao humidityMetricDao;
