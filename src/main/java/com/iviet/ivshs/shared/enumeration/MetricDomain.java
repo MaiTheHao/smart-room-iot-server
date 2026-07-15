@@ -5,5 +5,7 @@ public enum MetricDomain {
     HEALTH,
     DEVICE_STATUS,
     TEMPERATURE,
-    HUMIDITY
+    HUMIDITY,
+    CO2,
+    LUX
 }

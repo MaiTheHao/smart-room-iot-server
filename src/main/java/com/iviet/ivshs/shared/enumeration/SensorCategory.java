@@ -7,5 +7,7 @@ package com.iviet.ivshs.shared.enumeration;
 public enum SensorCategory {
   TEMPERATURE,
   POWER_CONSUMPTION,
-  HUMIDITY
+  HUMIDITY,
+  SENSOR_CO2,
+  SENSOR_LUX
 }
