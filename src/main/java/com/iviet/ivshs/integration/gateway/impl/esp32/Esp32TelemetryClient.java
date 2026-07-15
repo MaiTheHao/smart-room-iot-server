@@ -1,6 +1,5 @@
 package com.iviet.ivshs.integration.gateway.impl.esp32;
 
-import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

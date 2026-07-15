@@ -52,14 +52,14 @@ public class DeviceSetupOrchestrator {
             SetupRequest.BodyData.DeviceConfig device = devices.get(i);
 
             if (device.getCategory() == null) {
-                log.error("Missing device category: index={}, naturalId={}", i, device.getNaturalId());
-                throw new InternalServerErrorException(String.format("Device at index %d has no category: %s", i, device.getNaturalId()));
+                log.warn("Skipping device because category is null/unknown: index={}, naturalId={}", i, device.getNaturalId());
+                continue;
             }
 
             DeviceSetupStrategy strategy = strategyMap.get(device.getCategory());
             if (strategy == null) {
-                log.error("No setup strategy found for category: category={}, index={}, naturalId={}", device.getCategory(), i, device.getNaturalId());
-                throw new InternalServerErrorException(String.format("Unsupported device category '%s' for device: %s", device.getCategory(), device.getNaturalId()));
+                log.warn("Skipping device because no setup strategy found for category: category={}, index={}, naturalId={}", device.getCategory(), i, device.getNaturalId());
+                continue;
             }
 
             try {
