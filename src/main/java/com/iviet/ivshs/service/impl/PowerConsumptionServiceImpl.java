@@ -277,6 +277,24 @@ public class PowerConsumptionServiceImpl implements PowerConsumptionService {
 				.toList();
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public SensorMetadataDto getSensorById(Long id) {
+		PowerConsumption entity = powerConsumptionDao.findById(id)
+				.orElseThrow(() -> new NotFoundException("Power consumption sensor not found with ID: " + id));
+		PowerConsumptionLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
+		return SensorMetadataDto.from(entity, lan);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public SensorMetadataDto getSensorByNaturalId(String naturalId) {
+		PowerConsumption entity = powerConsumptionDao.findByNaturalId(naturalId)
+				.orElseThrow(() -> new NotFoundException("Power consumption sensor not found with natural ID: " + naturalId));
+		PowerConsumptionLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
+		return SensorMetadataDto.from(entity, lan);
+	}
+
 	private PowerConsumptionLan resolveTranslation(PowerConsumption entity, String langCode) {
 		return entity.getTranslations().stream()
 				.filter(t -> t.getLangCode().equals(langCode))

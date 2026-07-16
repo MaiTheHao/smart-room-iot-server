@@ -154,4 +154,30 @@ public class LuxMetricServiceImpl implements LuxMetricService {
                 })
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SensorMetadataDto getSensorById(Long id) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        var entity = luxSensorDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Lux sensor not found with ID: " + id));
+        LuxSensorLan lan = entity.getTranslations().stream()
+                .filter(t -> t.getLangCode().equals(langCode))
+                .findFirst()
+                .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+        return SensorMetadataDto.from(entity, lan);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SensorMetadataDto getSensorByNaturalId(String naturalId) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        var entity = luxSensorDao.findByNaturalId(naturalId)
+                .orElseThrow(() -> new NotFoundException("Lux sensor not found with natural ID: " + naturalId));
+        LuxSensorLan lan = entity.getTranslations().stream()
+                .filter(t -> t.getLangCode().equals(langCode))
+                .findFirst()
+                .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+        return SensorMetadataDto.from(entity, lan);
+    }
 }

@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.iviet.ivshs.service.PowerConsumptionService;
-import com.iviet.ivshs.service.TemperatureService;
+import com.iviet.ivshs.service.SensorMetadataService;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.service.factory.SensorTelemetryOrchestratorService;
@@ -27,8 +26,7 @@ public class SensorTelemetryController {
 
     private final SensorTelemetryOrchestratorService orchestratorService;
     private final PermissionService permissionService;
-    private final TemperatureService temperatureService;
-    private final PowerConsumptionService powerConsumptionService;
+    private final SensorMetadataService sensorMetadataService;
 
     @GetMapping("/sensors/{sensorId}/history")
     public ResponseEntity<ApiResponse<List<?>>> getHistory(
@@ -63,17 +61,9 @@ public class SensorTelemetryController {
             throw new BadRequestException("Category query parameter is required");
         }
         if (sensorId != null) {
-            return switch (category) {
-                case TEMPERATURE -> temperatureService.getById(sensorId).roomId();
-                case POWER_CONSUMPTION -> powerConsumptionService.getById(sensorId).roomId();
-                default -> throw new BadRequestException("Invalid sensor category: " + category);
-            };
+            return sensorMetadataService.getSensorById(sensorId, category).roomId();
         } else if (naturalId != null) {
-            return switch (category) {
-                case TEMPERATURE -> temperatureService.getByNaturalId(naturalId).roomId();
-                case POWER_CONSUMPTION -> powerConsumptionService.getByNaturalId(naturalId).roomId();
-                default -> throw new BadRequestException("Invalid sensor category: " + category);
-            };
+            return sensorMetadataService.getSensorByNaturalId(naturalId, category).roomId();
         }
         throw new BadRequestException("Sensor identifier is missing");
     }

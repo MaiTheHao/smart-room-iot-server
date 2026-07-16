@@ -9,4 +9,6 @@ public interface SensorMetadataServiceStrategy {
     DeviceCategory getSupportedCategory();
     List<SensorMetadataDto> getSensorByRoomId(Long roomId);
     List<SensorMetadataDto> getAllSensor();
+    SensorMetadataDto getSensorById(Long id);
+    SensorMetadataDto getSensorByNaturalId(String naturalId);
 }

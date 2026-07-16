@@ -234,6 +234,24 @@ public class TemperatureServiceImpl implements TemperatureService {
         .toList();
   }
 
+  @Override
+  @Transactional(readOnly = true)
+  public com.iviet.ivshs.dto.SensorMetadataDto getSensorById(Long id) {
+    Temperature entity = temperatureDao.findById(id)
+        .orElseThrow(() -> new NotFoundException("Temperature sensor not found with ID: " + id));
+    TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
+    return com.iviet.ivshs.dto.SensorMetadataDto.from(entity, lan);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public com.iviet.ivshs.dto.SensorMetadataDto getSensorByNaturalId(String naturalId) {
+    Temperature entity = temperatureDao.findByNaturalId(naturalId)
+        .orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + naturalId));
+    TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
+    return com.iviet.ivshs.dto.SensorMetadataDto.from(entity, lan);
+  }
+
   private TemperatureLan resolveTranslation(Temperature entity, String langCode) {
     return entity.getTranslations().stream()
         .filter(t -> t.getLangCode().equals(langCode))

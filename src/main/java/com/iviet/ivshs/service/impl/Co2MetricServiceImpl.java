@@ -154,4 +154,30 @@ public class Co2MetricServiceImpl implements Co2MetricService {
                 })
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SensorMetadataDto getSensorById(Long id) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        var entity = co2SensorDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("CO2 sensor not found with ID: " + id));
+        Co2SensorLan lan = entity.getTranslations().stream()
+                .filter(t -> t.getLangCode().equals(langCode))
+                .findFirst()
+                .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+        return SensorMetadataDto.from(entity, lan);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SensorMetadataDto getSensorByNaturalId(String naturalId) {
+        String langCode = LocalContextUtil.getCurrentLangCode();
+        var entity = co2SensorDao.findByNaturalId(naturalId)
+                .orElseThrow(() -> new NotFoundException("CO2 sensor not found with natural ID: " + naturalId));
+        Co2SensorLan lan = entity.getTranslations().stream()
+                .filter(t -> t.getLangCode().equals(langCode))
+                .findFirst()
+                .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+        return SensorMetadataDto.from(entity, lan);
+    }
 }

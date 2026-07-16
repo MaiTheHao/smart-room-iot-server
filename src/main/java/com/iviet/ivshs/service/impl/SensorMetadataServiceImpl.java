@@ -56,6 +56,24 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
         return sensorMetadataDao.countByRoomId(roomId);
     }
 
+    @Override
+    public SensorMetadataDto getSensorById(Long id, DeviceCategory category) {
+        if (category == null) {
+            throw new BadRequestException("Category is required");
+        }
+        validateCategory(category);
+        return strategies.get(category).getSensorById(id);
+    }
+
+    @Override
+    public SensorMetadataDto getSensorByNaturalId(String naturalId, DeviceCategory category) {
+        if (category == null) {
+            throw new BadRequestException("Category is required");
+        }
+        validateCategory(category);
+        return strategies.get(category).getSensorByNaturalId(naturalId);
+    }
+
     private void validateCategory(DeviceCategory category) {
         if (category != null && !strategies.containsKey(category)) {
             throw new BadRequestException("Invalid sensor category: " + category);
