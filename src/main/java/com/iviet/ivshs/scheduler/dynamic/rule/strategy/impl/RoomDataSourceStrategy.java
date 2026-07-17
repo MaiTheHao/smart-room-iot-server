@@ -22,6 +22,12 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.iviet.ivshs.dao.HumidityMetricDao;
+import com.iviet.ivshs.dao.LuxMetricDao;
+import com.iviet.ivshs.dao.Co2MetricDao;
+import com.iviet.ivshs.dto.RoomCo2MetricDto;
+import com.iviet.ivshs.shared.util.Calculator;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,12 +36,19 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
   private final TemperatureValueDao temperatureValueDao;
   private final EnergyMetricDao energyMetricDao;
   private final EngineProperties engineProperties;
+  private final HumidityMetricDao humidityMetricDao;
+  private final LuxMetricDao luxMetricDao;
+  private final Co2MetricDao co2MetricDao;
 
   @PersistenceContext
   private EntityManager entityManager;
 
   private static final String PROP_AVG_TEMPERATURE = "avg_temperature";
   private static final String PROP_SUM_WATT = "sum_watt";
+  private static final String PROP_AVG_HUMIDITY = "avg_humidity";
+  private static final String PROP_AVG_LUX = "avg_lux";
+  private static final String PROP_AVG_CO2 = "avg_co2";
+  private static final String PROP_MAX_CO2 = "max_co2";
 
   private int lookbackMinutes;
 
@@ -94,6 +107,30 @@ public class RoomDataSourceStrategy implements RuleDataSourceStrategy {
           List<EnergyMetricDto> history = energyMetricDao.findHistory(EnergyMetricCategory.ROOM, sensorId, startTime, now, divisor);
           log.debug("Fetched {} power records for ROOM {} (sensor {}) in the last {} minutes (Condition: {})", history.size(), roomId, sensorId, lookbackMinutes, condition.getId());
           yield getLastElement(history) != null ? getLastElement(history).getPower() : null;
+        }
+        case PROP_AVG_HUMIDITY -> {
+            List<Double> values = humidityMetricDao.findCurrentValuesByRoomId(roomId);
+            Double result = Calculator.median(values).orElse(null);
+            log.debug("Computed avg_humidity (median) for ROOM {}: {} (from {} sensors)", roomId, result, values.size());
+            yield result;
+        }
+        case PROP_AVG_LUX -> {
+            List<Double> values = luxMetricDao.findCurrentValuesByRoomId(roomId);
+            Double result = Calculator.median(values).orElse(null);
+            log.debug("Computed avg_lux (median) for ROOM {}: {} (from {} sensors)", roomId, result, values.size());
+            yield result;
+        }
+        case PROP_AVG_CO2 -> {
+            var roomMetric = co2MetricDao.findLatestByRoomId(roomId);
+            Double result = roomMetric.map(RoomCo2MetricDto::getAvgCo2).orElse(null);
+            log.debug("Computed avg_co2 (mean) for ROOM {}: {}", roomId, result);
+            yield result;
+        }
+        case PROP_MAX_CO2 -> {
+            var roomMetric = co2MetricDao.findLatestByRoomId(roomId);
+            Double result = roomMetric.map(RoomCo2MetricDto::getMaxCo2).orElse(null);
+            log.debug("Computed max_co2 for ROOM {}: {}", roomId, result);
+            yield result;
         }
         default -> {
           log.warn("Property '{}' not supported for ROOM data source in condition {}", property, condition.getId());

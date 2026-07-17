@@ -19,9 +19,9 @@ import com.iviet.ivshs.shared.exception.BadRequestException;
 public class SensorMetadataServiceImpl implements SensorMetadataService {
 
     private final SensorMetadataDao sensorMetadataDao;
-    private final Map<DeviceCategory, SensorMetadataServiceStrategy> strategies;
+    private final Map<DeviceCategory, SensorMetadataServiceStrategy<?>> strategies;
 
-    public SensorMetadataServiceImpl(SensorMetadataDao sensorMetadataDao, List<SensorMetadataServiceStrategy> strategyList) {
+    public SensorMetadataServiceImpl(SensorMetadataDao sensorMetadataDao, List<SensorMetadataServiceStrategy<?>> strategyList) {
         this.sensorMetadataDao = sensorMetadataDao;
         this.strategies = strategyList.stream()
             .collect(Collectors.toMap(SensorMetadataServiceStrategy::getSupportedCategory, strategy -> strategy));
@@ -31,11 +31,11 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
     public List<SensorMetadataDto> getAllByRoomId(Long roomId, DeviceCategory category) {
         if (category != null) {
             validateCategory(category);
-            return strategies.get(category).getSensorByRoomId(roomId);
+            return strategies.get(category).getSensorMetadataByRoomId(roomId);
         }
 
         return strategies.values().stream()
-            .flatMap(strategy -> strategy.getSensorByRoomId(roomId).stream())
+            .flatMap(strategy -> strategy.getSensorMetadataByRoomId(roomId).stream())
             .collect(Collectors.toList());
     }
 
@@ -43,11 +43,11 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
     public List<SensorMetadataDto> getAll(DeviceCategory category) {
         if (category != null) {
             validateCategory(category);
-            return strategies.get(category).getAllSensor();
+            return strategies.get(category).getAllSensorMetadata();
         }
 
         return strategies.values().stream()
-            .flatMap(strategy -> strategy.getAllSensor().stream())
+            .flatMap(strategy -> strategy.getAllSensorMetadata().stream())
             .collect(Collectors.toList());
     }
 
@@ -62,7 +62,7 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
             throw new BadRequestException("Category is required");
         }
         validateCategory(category);
-        return strategies.get(category).getSensorById(id);
+        return strategies.get(category).getSensorMetadataById(id);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
             throw new BadRequestException("Category is required");
         }
         validateCategory(category);
-        return strategies.get(category).getSensorByNaturalId(naturalId);
+        return strategies.get(category).getSensorMetadataByNaturalId(naturalId);
     }
 
     private void validateCategory(DeviceCategory category) {

@@ -1,9 +1,6 @@
-# Rule Module
+# Smart Room IoT - Rule Engine API Documentation
 
-## Rule API Documentation
 Hệ thống tự động hóa dựa trên chu kỳ giây độc lập, hỗ trợ đa hành động và cấu hình Interval riêng biệt cho từng quy tắc.
-
----
 
 <details>
 <summary><b>POST</b> <code>/api/v1/rules</code> - Tạo mới quy tắc</summary>
@@ -386,17 +383,24 @@ Tham số cấu hình chia làm 2 loại:
 *   `property` (String - Bắt buộc): Thuộc tính cần kiểm tra. Bao gồm:
     *   `avg_temperature`: Nhiệt độ trung bình trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server).
     *   `sum_watt`: Tổng điện năng tiêu thụ trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server).
+    *   `avg_humidity`: Độ ẩm trung vị (Median) trong phòng, tổng hợp từ tất cả cảm biến độ ẩm đang hoạt động.
+    *   `avg_lux`: Cường độ ánh sáng trung vị (Median) trong phòng, tổng hợp từ tất cả cảm biến ánh sáng đang hoạt động.
+    *   `avg_co2`: Nồng độ CO2 trung bình (Mean) trong phòng, tổng hợp từ tất cả cảm biến CO2 đang hoạt động.
+    *   `max_co2`: Nồng độ CO2 lớn nhất (Max) trong phòng, tổng hợp từ tất cả cảm biến CO2 đang hoạt động. Dùng cho Automation kích hoạt thiết bị thông gió.
 
 **Dùng cho Hành động (`actionParams`):**
 *   *(Không hỗ trợ điều khiển)*
 
 ### 3. Data Source: SENSOR (Cảm biến)
 **Dùng cho Điều kiện (`resourceParam`):**
-*   `category` (String - Bắt buộc): Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`).
+*   `category` (String - Bắt buộc): Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`, `HUMIDITY`, `SENSOR_CO2`, `SENSOR_LUX`).
 *   `sensorId` (Long - Bắt buộc): ID của cảm biến.
 *   `property` (String - Bắt buộc): Tùy thuộc vào `category`:
     *   Với `TEMPERATURE`: `temperature` (Nhiệt độ hiện tại).
     *   Với `POWER_CONSUMPTION`: `watt` (Công suất tiêu thụ hiện tại).
+    *   Với `HUMIDITY`: `humidity` (Độ ẩm hiện tại).
+    *   Với `SENSOR_CO2`: `co2` (Nồng độ CO2 hiện tại).
+    *   Với `SENSOR_LUX`: `lux` (Cường độ ánh sáng hiện tại).
 
 **Dùng cho Hành động (`actionParams`):**
 *   *(Không hỗ trợ điều khiển)*
@@ -463,6 +467,9 @@ Tham số cấu hình chia làm 2 loại:
 | FAN | Quạt |
 | TEMPERATURE | Cảm biến nhiệt độ (chỉ đọc) |
 | POWER_CONSUMPTION | Cảm biến điện năng tiêu thụ (chỉ đọc) |
+| HUMIDITY | Cảm biến độ ẩm (chỉ đọc) |
+| SENSOR_CO2 | Cảm biến CO2 (chỉ đọc) |
+| SENSOR_LUX | Cảm biến ánh sáng (chỉ đọc) |
 
 ### ActuatorPower (Trạng thái nguồn điều khiển)
 
@@ -518,3 +525,5 @@ Tham số cấu hình chia làm 2 loại:
 | :--- | :--- |
 | intervalSeconds | Chu kỳ quét lặp lại, giá trị hợp lệ từ 60 đến 86400 (giây) |
 | executionOrder | Thứ tự thực hiện các hành động, giá trị từ 0, 1, 2... |
+
+---

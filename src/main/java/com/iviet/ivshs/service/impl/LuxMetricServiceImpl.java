@@ -8,6 +8,7 @@ import com.iviet.ivshs.dto.RoomLuxMetricDto;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.LuxMetric;
+import com.iviet.ivshs.entities.LuxSensor;
 import com.iviet.ivshs.entities.LuxSensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
@@ -152,7 +153,7 @@ public class LuxMetricServiceImpl implements LuxMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
+    public List<SensorMetadataDto> getSensorMetadataByRoomId(Long roomId) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return luxSensorDao.findAllByRoomIdWithTranslations(roomId).stream()
                 .map(entity -> {
@@ -167,7 +168,7 @@ public class LuxMetricServiceImpl implements LuxMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SensorMetadataDto> getAllSensor() {
+    public List<SensorMetadataDto> getAllSensorMetadata() {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return luxSensorDao.findAllWithTranslations().stream()
                 .map(entity -> {
@@ -182,7 +183,7 @@ public class LuxMetricServiceImpl implements LuxMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public SensorMetadataDto getSensorById(Long id) {
+    public SensorMetadataDto getSensorMetadataById(Long id) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         var entity = luxSensorDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Lux sensor not found with ID: " + id));
@@ -195,7 +196,7 @@ public class LuxMetricServiceImpl implements LuxMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public SensorMetadataDto getSensorByNaturalId(String naturalId) {
+    public SensorMetadataDto getSensorMetadataByNaturalId(String naturalId) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         var entity = luxSensorDao.findByNaturalId(naturalId)
                 .orElseThrow(() -> new NotFoundException("Lux sensor not found with natural ID: " + naturalId));
@@ -204,6 +205,18 @@ public class LuxMetricServiceImpl implements LuxMetricService {
                 .findFirst()
                 .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
         return SensorMetadataDto.from(entity, lan);
+    }
+
+    @Override
+    public LuxSensor getSensorById(Long id) {
+        return luxSensorDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Lux sensor not found with id: " + id));
+    }
+
+    @Override
+    public LuxSensor getSensorByNaturalId(String naturalId) {
+        return luxSensorDao.findByNaturalId(naturalId)
+                .orElseThrow(() -> new NotFoundException("Lux sensor not found with naturalId: " + naturalId));
     }
 
     /**

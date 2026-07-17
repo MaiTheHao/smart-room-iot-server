@@ -166,3 +166,153 @@ Khi `category=ROOM`, tham số `targetId` được hiểu là **roomId**. Kết 
 - `null` / `""` (blank) → `DEFAULT`
 - `"ROOM"` / `"room"` → `ROOM`
 - Giá trị khác → `BadRequestException` với message thân thiện
+---
+
+---
+
+# API / Architecture Changes - Sensor Strategy Integration
+
+## Date: 2026-07-17
+
+## 1. Mục tiêu
+
+Tích hợp 3 loại cảm biến mới (HumiditySensor, Co2Sensor, LuxSensor) vào Dynamic Rule Engine để:
+- Hỗ trợ đọc trạng thái cảm biến trong Rule Condition (dataSource=SENSOR)
+- Hỗ trợ tổng hợp chỉ số phòng (dataSource=ROOM) theo CALC.md
+- Chuẩn hóa `SensorMetadataServiceStrategy` với Generic type và method naming rõ ràng
+
+## 2. Danh sách thay đổi
+
+### 2.1. Chuẩn hóa Interface `SensorMetadataServiceStrategy<T>`
+
+**File:** `service/strategy/SensorMetadataServiceStrategy.java`
+
+| Thay đổi | Chi tiết |
+| :------- | :------- |
+| **Generic type** | Thêm `<T extends BaseIoTSensor<?>>` để type-safe entity access |
+| **Rename methods** | `getSensorByRoomId` → `getSensorMetadataByRoomId` (return DTO) |
+| | `getAllSensor` → `getAllSensorMetadata` (return DTO) |
+| | `getSensorById` → `getSensorMetadataById` (return DTO) |
+| | `getSensorByNaturalId` → `getSensorMetadataByNaturalId` (return DTO) |
+| **New methods** | `T getSensorById(Long id)` — trả về entity thay vì DTO |
+| | `T getSensorByNaturalId(String naturalId)` — trả về entity thay vì DTO |
+
+**Impact:** Cả 5 service implementations phải cập nhật (rename 4 methods + implement 2 new).
+
+### 2.2. Generic Binding trên 5 Service Interfaces
+
+| Interface | Bound to |
+| :-------- | :------- |
+| `TemperatureService` | `SensorMetadataServiceStrategy<Temperature>` |
+| `PowerConsumptionService` | `SensorMetadataServiceStrategy<PowerConsumption>` |
+| `HumidityMetricService` | `SensorMetadataServiceStrategy<HumiditySensor>` |
+| `Co2MetricService` | `SensorMetadataServiceStrategy<Co2Sensor>` |
+| `LuxMetricService` | `SensorMetadataServiceStrategy<LuxSensor>` |
+
+### 2.3. Dispatcher Update
+
+**File:** `service/impl/SensorMetadataServiceImpl.java`
+
+- `Map<DeviceCategory, SensorMetadataServiceStrategy>` → `Map<DeviceCategory, SensorMetadataServiceStrategy<?>>`
+- 6 call sites updated với method names mới
+
+### 2.4. 3 SensorStateStrategy Implementations MỚI
+
+| File | `supports()` | Property | Getter |
+| :--- | :------------ | :------- | :----- |
+| `HumiditySensorStateStrategy.java` | `HUMIDITY` | `"humidity"` | `sensor.getCurrentHumidity()` |
+| `Co2SensorStateStrategy.java` | `SENSOR_CO2` | `"co2"` | `sensor.getCurrentCO2()` |
+| `LuxSensorStateStrategy.java` | `SENSOR_LUX` | `"lux"` | `sensor.getCurrentLux()` |
+
+Các strategy được `@Component` auto-discover bởi `SensorDataSourceStrategy`.
+
+### 2.5. RoomDataSourceStrategy — 4 Property MỚI
+
+**File:** `scheduler/dynamic/rule/strategy/impl/RoomDataSourceStrategy.java`
+
+| Property | Phương pháp | Nguồn | Mô tả |
+| :------- | :---------- | :---- | :---- |
+| `avg_humidity` | **Median** | `HumidityMetricDao.findCurrentValuesByRoomId()` + `Calculator.median()` | Độ ẩm trung vị phòng |
+| `avg_lux` | **Median** | `LuxMetricDao.findCurrentValuesByRoomId()` + `Calculator.median()` | Ánh sáng trung vị phòng |
+| `avg_co2` | **Mean** | `Co2MetricDao.findLatestByRoomId().getAvgCo2()` | CO2 trung bình phòng |
+| `max_co2` | **Max** | `Co2MetricDao.findLatestByRoomId().getMaxCo2()` | CO2 lớn nhất phòng (cho automation) |
+
+### 2.6. Cập nhật API Doc `rule.md`
+
+- Bảng `DeviceCategory`: thêm `HUMIDITY`, `SENSOR_CO2`, `SENSOR_LUX`
+- Mục SENSOR: thêm category + property cho 3 cảm biến mới
+- Mục ROOM: thêm 4 properties `avg_humidity`, `avg_lux`, `avg_co2`, `max_co2`
+
+---
+
+## 3. Files thay đổi / tạo mới
+
+### Files đã sửa (13)
+
+| # | File | Thay đổi |
+|---|------|---------|
+| 1 | `SensorMetadataServiceStrategy.java` | Generic + rename 4 + add 2 methods |
+| 2 | `TemperatureService.java` | Generic binding `<Temperature>` |
+| 3 | `PowerConsumptionService.java` | Generic binding `<PowerConsumption>` |
+| 4 | `HumidityMetricService.java` | Generic binding `<HumiditySensor>` |
+| 5 | `Co2MetricService.java` | Generic binding `<Co2Sensor>` |
+| 6 | `LuxMetricService.java` | Generic binding `<LuxSensor>` |
+| 7 | `TemperatureServiceImpl.java` | Rename 4 methods + add 2 new |
+| 8 | `PowerConsumptionServiceImpl.java` | Rename 4 methods + add 2 new |
+| 9 | `HumidityMetricServiceImpl.java` | Rename 4 methods + add 2 new |
+| 10 | `Co2MetricServiceImpl.java` | Rename 4 methods + add 2 new |
+| 11 | `LuxMetricServiceImpl.java` | Rename 4 methods + add 2 new |
+| 12 | `SensorMetadataServiceImpl.java` | Generic wildcard + 6 call sites |
+| 13 | `RoomDataSourceStrategy.java` | Inject 3 DAOs + 4 properties |
+
+### Files đã tạo mới (3)
+
+| # | File |
+|---|------|
+| 14 | `HumiditySensorStateStrategy.java` |
+| 15 | `Co2SensorStateStrategy.java` |
+| 16 | `LuxSensorStateStrategy.java` |
+
+---
+
+## 4. Rule Engine — Cấu trúc resourceParam mới
+
+### dataSource=SENSOR — bổ sung category
+
+```json
+{
+  "dataSource": "SENSOR",
+  "resourceParam": {
+    "category": "HUMIDITY",
+    "sensorId": 1,
+    "property": "humidity"
+  }
+}
+```
+
+Hỗ trợ các category mới: `HUMIDITY`, `SENSOR_CO2`, `SENSOR_LUX`
+Property tương ứng: `humidity`, `co2`, `lux`
+
+### dataSource=ROOM — bổ sung property
+
+```json
+{
+  "dataSource": "ROOM",
+  "resourceParam": {
+    "roomId": 1,
+    "property": "avg_humidity"
+  }
+}
+```
+
+Hỗ trợ property mới: `avg_humidity`, `avg_lux`, `avg_co2`, `max_co2`
+
+---
+
+## 5. Lưu ý khi migrate / backward compatibility
+
+- `SensorMetadataServiceStrategy` cũ (raw type) sẽ không compile được — tất cả implementations phải được update generic binding
+- Các method cũ `getSensorByRoomId`, `getAllSensor`, `getSensorById`, `getSensorByNaturalId` đã được rename → nếu có code ngoài gọi trực tiếp các method này sẽ bị lỗi compile
+- Các method mới `getSensorById` (entity) và `getSensorByNaturalId` (entity) KHÔNG conflict với method cũ vì method cũ đã được rename
+- `SensorStateStrategy` không thay đổi interface — 3 implementations mới auto-register
+- `RoomDataSourceStrategy` thêm 4 properties — backward compatible (các property cũ vẫn hoạt động)

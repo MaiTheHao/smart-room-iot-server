@@ -214,7 +214,7 @@ public class TemperatureServiceImpl implements TemperatureService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<com.iviet.ivshs.dto.SensorMetadataDto> getSensorByRoomId(Long roomId) {
+  public List<com.iviet.ivshs.dto.SensorMetadataDto> getSensorMetadataByRoomId(Long roomId) {
     return temperatureDao.findAllByRoomIdWithTranslations(roomId).stream()
         .map(entity -> {
           TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
@@ -225,7 +225,7 @@ public class TemperatureServiceImpl implements TemperatureService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<com.iviet.ivshs.dto.SensorMetadataDto> getAllSensor() {
+  public List<com.iviet.ivshs.dto.SensorMetadataDto> getAllSensorMetadata() {
     return temperatureDao.findAllWithTranslations().stream()
         .map(entity -> {
           TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
@@ -236,7 +236,7 @@ public class TemperatureServiceImpl implements TemperatureService {
 
   @Override
   @Transactional(readOnly = true)
-  public com.iviet.ivshs.dto.SensorMetadataDto getSensorById(Long id) {
+  public com.iviet.ivshs.dto.SensorMetadataDto getSensorMetadataById(Long id) {
     Temperature entity = temperatureDao.findById(id)
         .orElseThrow(() -> new NotFoundException("Temperature sensor not found with ID: " + id));
     TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
@@ -245,7 +245,7 @@ public class TemperatureServiceImpl implements TemperatureService {
 
   @Override
   @Transactional(readOnly = true)
-  public com.iviet.ivshs.dto.SensorMetadataDto getSensorByNaturalId(String naturalId) {
+  public com.iviet.ivshs.dto.SensorMetadataDto getSensorMetadataByNaturalId(String naturalId) {
     Temperature entity = temperatureDao.findByNaturalId(naturalId)
         .orElseThrow(() -> new NotFoundException("Temperature sensor not found with natural ID: " + naturalId));
     TemperatureLan lan = resolveTranslation(entity, LocalContextUtil.getCurrentLangCode());
@@ -257,5 +257,17 @@ public class TemperatureServiceImpl implements TemperatureService {
         .filter(t -> t.getLangCode().equals(langCode))
         .findFirst()
         .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
+  }
+
+  @Override
+  public Temperature getSensorById(Long id) {
+    return temperatureDao.findById(id)
+        .orElseThrow(() -> new NotFoundException("Temperature sensor not found with id: " + id));
+  }
+
+  @Override
+  public Temperature getSensorByNaturalId(String naturalId) {
+    return temperatureDao.findByNaturalId(naturalId)
+        .orElseThrow(() -> new NotFoundException("Temperature sensor not found with naturalId: " + naturalId));
   }
 }

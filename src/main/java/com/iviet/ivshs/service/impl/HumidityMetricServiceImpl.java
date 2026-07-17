@@ -8,6 +8,7 @@ import com.iviet.ivshs.dto.RoomHumidityMetricDto;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.HumidityMetric;
+import com.iviet.ivshs.entities.HumiditySensor;
 import com.iviet.ivshs.entities.HumiditySensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
@@ -152,7 +153,7 @@ public class HumidityMetricServiceImpl implements HumidityMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
+    public List<SensorMetadataDto> getSensorMetadataByRoomId(Long roomId) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return humiditySensorDao.findAllByRoomIdWithTranslations(roomId).stream()
                 .map(entity -> {
@@ -167,7 +168,7 @@ public class HumidityMetricServiceImpl implements HumidityMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SensorMetadataDto> getAllSensor() {
+    public List<SensorMetadataDto> getAllSensorMetadata() {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return humiditySensorDao.findAllWithTranslations().stream()
                 .map(entity -> {
@@ -182,7 +183,7 @@ public class HumidityMetricServiceImpl implements HumidityMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public SensorMetadataDto getSensorById(Long id) {
+    public SensorMetadataDto getSensorMetadataById(Long id) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         var entity = humiditySensorDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Humidity sensor not found with ID: " + id));
@@ -195,7 +196,7 @@ public class HumidityMetricServiceImpl implements HumidityMetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public SensorMetadataDto getSensorByNaturalId(String naturalId) {
+    public SensorMetadataDto getSensorMetadataByNaturalId(String naturalId) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         var entity = humiditySensorDao.findByNaturalId(naturalId)
                 .orElseThrow(() -> new NotFoundException("Humidity sensor not found with natural ID: " + naturalId));
@@ -223,5 +224,17 @@ public class HumidityMetricServiceImpl implements HumidityMetricService {
                         .map(median -> mapper.apply(entry.getKey(), median))
                         .stream())
                 .toList();
+    }
+
+    @Override
+    public HumiditySensor getSensorById(Long id) {
+        return humiditySensorDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("Humidity sensor not found with id: " + id));
+    }
+
+    @Override
+    public HumiditySensor getSensorByNaturalId(String naturalId) {
+        return humiditySensorDao.findByNaturalId(naturalId)
+                .orElseThrow(() -> new NotFoundException("Humidity sensor not found with naturalId: " + naturalId));
     }
 }

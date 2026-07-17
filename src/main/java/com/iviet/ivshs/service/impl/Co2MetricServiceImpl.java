@@ -8,6 +8,7 @@ import com.iviet.ivshs.dto.RoomCo2MetricDto;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.Co2Metric;
+import com.iviet.ivshs.entities.Co2Sensor;
 import com.iviet.ivshs.entities.Co2SensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
@@ -135,7 +136,7 @@ public class Co2MetricServiceImpl implements Co2MetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SensorMetadataDto> getSensorByRoomId(Long roomId) {
+    public List<SensorMetadataDto> getSensorMetadataByRoomId(Long roomId) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return co2SensorDao.findAllByRoomIdWithTranslations(roomId).stream()
                 .map(entity -> {
@@ -150,7 +151,7 @@ public class Co2MetricServiceImpl implements Co2MetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<SensorMetadataDto> getAllSensor() {
+    public List<SensorMetadataDto> getAllSensorMetadata() {
         String langCode = LocalContextUtil.getCurrentLangCode();
         return co2SensorDao.findAllWithTranslations().stream()
                 .map(entity -> {
@@ -165,7 +166,7 @@ public class Co2MetricServiceImpl implements Co2MetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public SensorMetadataDto getSensorById(Long id) {
+    public SensorMetadataDto getSensorMetadataById(Long id) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         var entity = co2SensorDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("CO2 sensor not found with ID: " + id));
@@ -178,7 +179,7 @@ public class Co2MetricServiceImpl implements Co2MetricService {
 
     @Override
     @Transactional(readOnly = true)
-    public SensorMetadataDto getSensorByNaturalId(String naturalId) {
+    public SensorMetadataDto getSensorMetadataByNaturalId(String naturalId) {
         String langCode = LocalContextUtil.getCurrentLangCode();
         var entity = co2SensorDao.findByNaturalId(naturalId)
                 .orElseThrow(() -> new NotFoundException("CO2 sensor not found with natural ID: " + naturalId));
@@ -187,5 +188,17 @@ public class Co2MetricServiceImpl implements Co2MetricService {
                 .findFirst()
                 .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
         return SensorMetadataDto.from(entity, lan);
+    }
+
+    @Override
+    public Co2Sensor getSensorById(Long id) {
+        return co2SensorDao.findById(id)
+                .orElseThrow(() -> new NotFoundException("CO2 sensor not found with id: " + id));
+    }
+
+    @Override
+    public Co2Sensor getSensorByNaturalId(String naturalId) {
+        return co2SensorDao.findByNaturalId(naturalId)
+                .orElseThrow(() -> new NotFoundException("CO2 sensor not found with naturalId: " + naturalId));
     }
 }
