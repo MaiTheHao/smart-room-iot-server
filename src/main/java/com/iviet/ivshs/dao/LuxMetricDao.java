@@ -107,4 +107,45 @@ public class LuxMetricDao extends BaseEntityDao<LuxMetric> {
                 .getResultStream()
                 .findFirst();
     }
+
+    /**
+     * [ROOM – getLatest] Lấy danh sách currentLux của tất cả LuxSensor active trong phòng.
+     * Median sẽ được tính ở tầng Service.
+     */
+    public List<Double> findCurrentValuesByRoomId(Long roomId) {
+        String jpql = """
+                SELECT ls.currentLux
+                FROM LuxSensor ls
+                WHERE ls.room.id = :roomId
+                  AND ls.isActive = true
+                  AND ls.currentLux IS NOT NULL
+                """;
+        return entityManager.createQuery(jpql, Double.class)
+                .setParameter("roomId", roomId)
+                .getResultList();
+    }
+
+    /**
+     * [ROOM – getHistory] Raw (bucket, lux) per reading từ tất cả sensor trong phòng.
+     * Median per bucket sẽ được tính ở tầng Service.
+     * Trả về Object[] { Long bucket (unix seconds), Double lux }
+     */
+    public List<Object[]> findRawHistoryByRoomId(Long roomId, Instant from, Instant to, int divisor) {
+        String jpql = """
+                SELECT
+                    (lm.unixMinute - MOD(lm.unixMinute, :divisor)) * 60L,
+                    lm.lux
+                FROM LuxMetric lm
+                JOIN LuxSensor ls ON ls.id = lm.targetId
+                WHERE ls.room.id = :roomId
+                  AND lm.timestamp BETWEEN :from AND :to
+                ORDER BY (lm.unixMinute - MOD(lm.unixMinute, :divisor)) * 60L ASC
+                """;
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("roomId", roomId)
+                .setParameter("from", from)
+                .setParameter("to", to)
+                .setParameter("divisor", divisor)
+                .getResultList();
+    }
 }

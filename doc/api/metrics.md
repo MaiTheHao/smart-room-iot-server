@@ -4,6 +4,13 @@
 
 ---
 
+> **Tham số `category` dùng chung cho các domain cảm biến môi trường (TEMPERATURE, HUMIDITY, CO2, LUX):**
+> - `category = null | "" | "DEFAULT"` → Truy vấn theo cảm biến đơn lẻ (hành vi hiện tại). `targetId` = sensor ID.
+> - `category = "ROOM"` → Tổng hợp từ toàn bộ cảm biến active trong phòng theo thuật toán riêng cho từng domain. `targetId` = room ID.
+> - Giá trị khác → HTTP 400 `BadRequestException`.
+>
+> Xem chi tiết tại [SensorMetricCategory](#sensormetriccategory).
+
 ## 1. Energy Domain (ENERGY)
 
 <details>
@@ -89,6 +96,7 @@
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
 | :--- | :--- | :--- | :--- |
 | domain | string | Lĩnh vực metric. Giá trị: `TEMPERATURE` | Có |
+| category | string | Phạm vi truy vấn: `DEFAULT` \| `ROOM` (xem hướng dẫn chung ở đầu trang) | Không. Mặc định: `DEFAULT` |
 | targetId | Long | ID của cảm biến nhiệt độ | Có |
 | latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
 | from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
@@ -128,6 +136,22 @@
 }
 ```
 
+#### Response Example (ROOM Latest - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-15T10:00:00Z",
+        "avgTemp": 26.3
+    },
+    "timestamp": "2026-07-15T10:00:01Z"
+}
+```
+
+> **Thuật toán ROOM:** AVG(`currentValue`) của tất cả `Temperature` sensor active trong phòng. Với history, AVG per time bucket.
+
 </details>
 
 <br>
@@ -146,6 +170,7 @@
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
 | :--- | :--- | :--- | :--- |
 | domain | string | Lĩnh vực metric. Giá trị: `HUMIDITY` | Có |
+| category | string | Phạm vi truy vấn: `DEFAULT` \| `ROOM` (xem hướng dẫn chung ở đầu trang) | Không. Mặc định: `DEFAULT` |
 | targetId | Long | ID của cảm biến độ ẩm | Có |
 | latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
 | from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
@@ -184,6 +209,22 @@
     "timestamp": "2026-07-14T10:00:01Z"
 }
 ```
+
+#### Response Example (ROOM Latest - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-15T10:00:00Z",
+        "medianHumidity": 64.2
+    },
+    "timestamp": "2026-07-15T10:00:01Z"
+}
+```
+
+> **Thuật toán ROOM:** Median(`currentHumidity`) của tất cả `HumiditySensor` active trong phòng. Với history, Median per time bucket.
 
 </details>
 
@@ -345,6 +386,7 @@
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
 | :--- | :--- | :--- | :--- |
 | domain | string | Lĩnh vực metric. Giá trị: `CO2` | Có |
+| category | string | Phạm vi truy vấn: `DEFAULT` \| `ROOM` (xem hướng dẫn chung ở đầu trang) | Không. Mặc định: `DEFAULT` |
 | targetId | Long | ID của cảm biến CO₂ | Có |
 | latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
 | from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
@@ -384,6 +426,23 @@
 }
 ```
 
+#### Response Example (ROOM Latest - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-15T10:00:00Z",
+        "avgCo2": 420.5,
+        "maxCo2": 520.0
+    },
+    "timestamp": "2026-07-15T10:00:01Z"
+}
+```
+
+> **Thuật toán ROOM:** AVG(`currentCO2`) của tất cả `Co2Sensor` active trong phòng. Với history, AVG per time bucket.
+
 </details>
 
 <br>
@@ -402,6 +461,7 @@
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
 | :--- | :--- | :--- | :--- |
 | domain | string | Lĩnh vực metric. Giá trị: `LUX` | Có |
+| category | string | Phạm vi truy vấn: `DEFAULT` \| `ROOM` (xem hướng dẫn chung ở đầu trang) | Không. Mặc định: `DEFAULT` |
 | targetId | Long | ID của cảm biến ánh sáng | Có |
 | latest | boolean | `true` để lấy giá trị mới nhất, `false` để lấy lịch sử | Mặc định: `false` |
 | from | Instant | Thời gian bắt đầu (ISO-8601) | Bắt buộc nếu `latest=false` |
@@ -440,6 +500,22 @@
     "timestamp": "2026-07-16T10:00:01Z"
 }
 ```
+
+#### Response Example (ROOM Latest - 200 OK)
+
+```json
+{
+    "status": 200,
+    "message": "Success",
+    "data": {
+        "timestamp": "2026-07-15T10:00:00Z",
+        "medianLux": 850.0
+    },
+    "timestamp": "2026-07-15T10:00:01Z"
+}
+```
+
+> **Thuật toán ROOM:** Median(`currentLux`) của tất cả `LuxSensor` active trong phòng. Với history, Median per time bucket.
 
 </details>
 
@@ -480,6 +556,15 @@
 | AIR_CONDITION | Điều hòa nhiệt độ |
 | SENSOR_CO2 | **(Mới 16-07)** Cảm biến nồng độ CO₂ |
 | SENSOR_LUX | **(Mới 16-07)** Cảm biến cường độ ánh sáng |
+
+### SensorMetricCategory (Mới 15-07)
+
+| Giá trị | Mô tả |
+| :--- | :--- |
+| DEFAULT | Truy vấn theo cảm biến đơn lẻ. `targetId` = sensor ID |
+| ROOM | Tổng hợp theo phòng. `targetId` = room ID |
+
+> `SensorMetricCategory.fromString()`: `null`/`""` → `DEFAULT`, `"ROOM"` → `ROOM`, giá trị khác → `BadRequestException` (400).
 
 </details>
 

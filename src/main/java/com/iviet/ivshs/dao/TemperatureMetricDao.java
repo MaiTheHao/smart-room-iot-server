@@ -1,6 +1,7 @@
 package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseEntityDao;
+import com.iviet.ivshs.dto.RoomTemperatureMetricDto;
 import com.iviet.ivshs.dto.TemperatureMetricDto;
 import com.iviet.ivshs.entities.TemperatureMetric;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -106,5 +107,48 @@ public class TemperatureMetricDao extends BaseEntityDao<TemperatureMetric> {
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst();
+    }
+
+    public Optional<RoomTemperatureMetricDto> findLatestByRoomId(Long roomId) {
+        String jpql = """
+                SELECT AVG(t.currentValue)
+                FROM Temperature t
+                WHERE t.room.id = :roomId
+                  AND t.isActive = true
+                """;
+        Double avg = entityManager.createQuery(jpql, Double.class)
+                .setParameter("roomId", roomId)
+                .getSingleResult();
+        if (avg == null) return Optional.empty();
+        return Optional.of(RoomTemperatureMetricDto.builder()
+                .timestamp(Instant.now())
+                .avgTemp(avg)
+                .build());
+    }
+
+    public List<RoomTemperatureMetricDto> findHistoryByRoomId(Long roomId, Instant from, Instant to, int divisor) {
+        String jpql = """
+                SELECT
+                    (tm.unixMinute - MOD(tm.unixMinute, :divisor)) * 60L,
+                    AVG(tm.temperature)
+                FROM TemperatureMetric tm
+                JOIN Temperature t ON t.id = tm.targetId
+                WHERE t.room.id = :roomId
+                  AND tm.timestamp BETWEEN :from AND :to
+                GROUP BY (tm.unixMinute - MOD(tm.unixMinute, :divisor)) * 60L
+                ORDER BY (tm.unixMinute - MOD(tm.unixMinute, :divisor)) * 60L ASC
+                """;
+        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("roomId", roomId)
+                .setParameter("from", from)
+                .setParameter("to", to)
+                .setParameter("divisor", divisor)
+                .getResultList();
+        return results.stream()
+                .map(row -> RoomTemperatureMetricDto.builder()
+                        .timestamp(Instant.ofEpochSecond(((Number) row[0]).longValue()))
+                        .avgTemp(row[1] != null ? ((Number) row[1]).doubleValue() : null)
+                        .build())
+                .toList();
     }
 }

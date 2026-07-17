@@ -4,6 +4,7 @@
 
 - [Auth (Đăng nhập/Đăng ký)](auth.md)
 - [Client (Người dùng/Gateway)](client.md)
+- [Client Device (Thiết bị client/Push notification)](client_device.md)
 
 ## Permission Management (Hệ thống phân quyền)
 
@@ -23,6 +24,7 @@
 - [Device Metadata (Tổng hợp thiết bị)](device_metadata.md)
 - [Air Condition (Quản lý điều hòa)](air_condition.md)
 - [Light (Quản lý đèn)](light.md)
+- [Fan (Quản lý quạt)](fan.md)
 
 ## Telemetry & Monitoring
 
@@ -31,6 +33,8 @@
 - [Telemetry (Thu thập dữ liệu)](telemetry.md)
 - [Temperature (Cảm biến nhiệt độ)](temperature.md)
 - [Power Consumption (Cảm biến điện năng)](power_consumption.md)
+- [Metrics (Chỉ số hệ thống)](metrics.md)
+- [Alert (Cấu hình và lịch sử cảnh báo)](alert.md)
 
 ## Automation & Rules
 
@@ -41,6 +45,7 @@
 
 - [Language (Ngôn ngữ)](language.md)
 - [Health Check (Kiểm tra trạng thái hệ thống)](health_check.md)
+- [Public (API công khai không cần token)](public.md)
 
 ---
 

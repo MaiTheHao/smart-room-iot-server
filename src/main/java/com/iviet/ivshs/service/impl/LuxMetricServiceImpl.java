@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.LuxSensorDao;
 import com.iviet.ivshs.dao.LuxMetricDao;
 import com.iviet.ivshs.dto.LuxMetricDto;
+import com.iviet.ivshs.dto.RoomLuxMetricDto;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.LuxMetric;
@@ -20,8 +21,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+
+import com.iviet.ivshs.shared.enumeration.SensorMetricCategory;
+import com.iviet.ivshs.shared.util.Calculator;
 
 @Slf4j
 @Service
@@ -86,6 +94,15 @@ public class LuxMetricServiceImpl implements LuxMetricService {
     @Override
     @Transactional(readOnly = true)
     public Object getLatest(String category, Long targetId) {
+        if (SensorMetricCategory.fromString(category) == SensorMetricCategory.ROOM) {
+            List<Double> values = luxMetricDao.findCurrentValuesByRoomId(targetId);
+            return Calculator.median(values)
+                    .map(median -> RoomLuxMetricDto.builder()
+                            .timestamp(Instant.now())
+                            .medianLux(median)
+                            .build())
+                    .orElse(null);
+        }
         return luxMetricDao.findLatest(targetId)
                 .map(LuxMetricDto::fromEntity)
                 .orElse(null);
@@ -96,6 +113,14 @@ public class LuxMetricServiceImpl implements LuxMetricService {
     public List<?> getHistory(String category, Long targetId, Instant from, Instant to) {
         Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
         int divisor = TelemetryTimeGroup.getDivisorForRange(limitedFrom, to);
+        if (SensorMetricCategory.fromString(category) == SensorMetricCategory.ROOM) {
+            List<Object[]> raw = luxMetricDao.findRawHistoryByRoomId(targetId, limitedFrom, to, divisor);
+            return aggregateMedianByBucket(raw,
+                    (bucket, median) -> RoomLuxMetricDto.builder()
+                            .timestamp(Instant.ofEpochSecond(bucket))
+                            .medianLux(median)
+                            .build());
+        }
         return luxMetricDao.findHistory(targetId, limitedFrom, to, divisor);
     }
 
@@ -179,5 +204,24 @@ public class LuxMetricServiceImpl implements LuxMetricService {
                 .findFirst()
                 .orElseGet(() -> entity.getTranslations().stream().findFirst().orElse(null));
         return SensorMetadataDto.from(entity, lan);
+    }
+
+    /**
+     * Nhóm raw (bucket, value) theo bucket → tính Median từng bucket → map sang DTO.
+     */
+    private <T> List<T> aggregateMedianByBucket(List<Object[]> raw,
+            BiFunction<Long, Double, T> mapper) {
+        // LinkedHashMap giữ thứ tự bucket đã sort từ query
+        Map<Long, List<Double>> byBucket = new LinkedHashMap<>();
+        for (Object[] row : raw) {
+            long bucket = ((Number) row[0]).longValue();
+            Double value = row[1] != null ? ((Number) row[1]).doubleValue() : null;
+            byBucket.computeIfAbsent(bucket, k -> new ArrayList<>()).add(value);
+        }
+        return byBucket.entrySet().stream()
+                .flatMap(entry -> Calculator.median(entry.getValue())
+                        .map(median -> mapper.apply(entry.getKey(), median))
+                        .stream())
+                .toList();
     }
 }

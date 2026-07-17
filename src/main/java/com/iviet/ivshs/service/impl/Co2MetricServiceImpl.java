@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.Co2SensorDao;
 import com.iviet.ivshs.dao.Co2MetricDao;
 import com.iviet.ivshs.dto.Co2MetricDto;
+import com.iviet.ivshs.dto.RoomCo2MetricDto;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.dto.TelemetryResponseDto;
 import com.iviet.ivshs.entities.Co2Metric;
 import com.iviet.ivshs.entities.Co2SensorLan;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
+import com.iviet.ivshs.shared.enumeration.SensorMetricCategory;
 import com.iviet.ivshs.shared.enumeration.TelemetryTimeGroup;
 import com.iviet.ivshs.shared.exception.NotFoundException;
 import com.iviet.ivshs.shared.util.LocalContextUtil;
@@ -86,6 +88,9 @@ public class Co2MetricServiceImpl implements Co2MetricService {
     @Override
     @Transactional(readOnly = true)
     public Object getLatest(String category, Long targetId) {
+        if (SensorMetricCategory.fromString(category) == SensorMetricCategory.ROOM) {
+            return co2MetricDao.findLatestByRoomId(targetId).orElse(null);
+        }
         return co2MetricDao.findLatest(targetId)
                 .map(Co2MetricDto::fromEntity)
                 .orElse(null);
@@ -96,6 +101,9 @@ public class Co2MetricServiceImpl implements Co2MetricService {
     public List<?> getHistory(String category, Long targetId, Instant from, Instant to) {
         Instant limitedFrom = TelemetryTimeGroup.limitRange(from, to);
         int divisor = TelemetryTimeGroup.getDivisorForRange(limitedFrom, to);
+        if (SensorMetricCategory.fromString(category) == SensorMetricCategory.ROOM) {
+            return co2MetricDao.findHistoryByRoomId(targetId, limitedFrom, to, divisor);
+        }
         return co2MetricDao.findHistory(targetId, limitedFrom, to, divisor);
     }
 

@@ -2,6 +2,7 @@ package com.iviet.ivshs.dao;
 
 import com.iviet.ivshs.dao.base.BaseEntityDao;
 import com.iviet.ivshs.dto.Co2MetricDto;
+import com.iviet.ivshs.dto.RoomCo2MetricDto;
 import com.iviet.ivshs.entities.Co2Metric;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.lang.NonNull;
@@ -106,5 +107,51 @@ public class Co2MetricDao extends BaseEntityDao<Co2Metric> {
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst();
+    }
+
+    public Optional<RoomCo2MetricDto> findLatestByRoomId(Long roomId) {
+        String jpql = """
+                SELECT AVG(cs.currentCO2), MAX(cs.currentCO2)
+                FROM Co2Sensor cs
+                WHERE cs.room.id = :roomId
+                  AND cs.isActive = true
+                """;
+        Object[] result = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("roomId", roomId)
+                .getSingleResult();
+        if (result[0] == null) return Optional.empty();
+        return Optional.of(RoomCo2MetricDto.builder()
+                .timestamp(Instant.now())
+                .avgCo2(((Number) result[0]).doubleValue())
+                .maxCo2(((Number) result[1]).doubleValue())
+                .build());
+    }
+
+    public List<RoomCo2MetricDto> findHistoryByRoomId(Long roomId, Instant from, Instant to, int divisor) {
+        String jpql = """
+                SELECT
+                    (cm.unixMinute - MOD(cm.unixMinute, :divisor)) * 60L,
+                    AVG(cm.co2),
+                    MAX(cm.co2)
+                FROM Co2Metric cm
+                JOIN Co2Sensor cs ON cs.id = cm.targetId
+                WHERE cs.room.id = :roomId
+                  AND cm.timestamp BETWEEN :from AND :to
+                GROUP BY (cm.unixMinute - MOD(cm.unixMinute, :divisor)) * 60L
+                ORDER BY (cm.unixMinute - MOD(cm.unixMinute, :divisor)) * 60L ASC
+                """;
+        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
+                .setParameter("roomId", roomId)
+                .setParameter("from", from)
+                .setParameter("to", to)
+                .setParameter("divisor", divisor)
+                .getResultList();
+        return results.stream()
+                .map(row -> RoomCo2MetricDto.builder()
+                        .timestamp(Instant.ofEpochSecond(((Number) row[0]).longValue()))
+                        .avgCo2(row[1] != null ? ((Number) row[1]).doubleValue() : null)
+                        .maxCo2(row[2] != null ? ((Number) row[2]).doubleValue() : null)
+                        .build())
+                .toList();
     }
 }

@@ -107,4 +107,45 @@ public class HumidityMetricDao extends BaseEntityDao<HumidityMetric> {
                 .getResultStream()
                 .findFirst();
     }
+
+    /**
+     * [ROOM – getLatest] Lấy danh sách currentHumidity của tất cả HumiditySensor active trong phòng.
+     * Median sẽ được tính ở tầng Service.
+     */
+    public List<Double> findCurrentValuesByRoomId(Long roomId) {
+        String jpql = """
+                SELECT hs.currentHumidity
+                FROM HumiditySensor hs
+                WHERE hs.room.id = :roomId
+                  AND hs.isActive = true
+                  AND hs.currentHumidity IS NOT NULL
+                """;
+        return entityManager.createQuery(jpql, Double.class)
+                .setParameter("roomId", roomId)
+                .getResultList();
+    }
+
+    /**
+     * [ROOM – getHistory] Raw (bucket, humidity) per reading từ tất cả sensor trong phòng.
+     * Median per bucket sẽ được tính ở tầng Service.
+     * Trả về Object[] { Long bucket (unix seconds), Double humidity }
+     */
+    public List<Object[]> findRawHistoryByRoomId(Long roomId, Instant from, Instant to, int divisor) {
+        String jpql = """
+                SELECT
+                    (hm.unixMinute - MOD(hm.unixMinute, :divisor)) * 60L,
+                    hm.humidity
+                FROM HumidityMetric hm
+                JOIN HumiditySensor hs ON hs.id = hm.targetId
+                WHERE hs.room.id = :roomId
+                  AND hm.timestamp BETWEEN :from AND :to
+                ORDER BY (hm.unixMinute - MOD(hm.unixMinute, :divisor)) * 60L ASC
+                """;
+        return entityManager.createQuery(jpql, Object[].class)
+                .setParameter("roomId", roomId)
+                .setParameter("from", from)
+                .setParameter("to", to)
+                .setParameter("divisor", divisor)
+                .getResultList();
+    }
 }
