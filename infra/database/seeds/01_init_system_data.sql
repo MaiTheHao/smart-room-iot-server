@@ -49,7 +49,6 @@ VALUES
   (12, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_RULE'),
   (13, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ROLE'),
   (14, NOW(), 'system', NOW(), 'system', 0, 'F_ACCESS_ALERT'),
-  (15, NOW(), 'system', NOW(), 'system', 0, 'F_HANDLE_ALERT'),
   (16, NOW(), 'system', NOW(), 'system', 0, 'F_MANAGE_ALERT');
 
 -- ----------------------------
@@ -86,8 +85,7 @@ VALUES
   (26, NULL, NULL, NULL, NULL, 0, 'Manage roles in system', 'en', 'Manage Role', 13),
   (27, NULL, NULL, NULL, NULL, 0, 'Xem danh sách cảnh báo thuộc phạm vi nhóm của mình', 'vi', 'Xem Cảnh báo', 14),
   (28, NULL, NULL, NULL, NULL, 0, 'View alerts within own group scope', 'en', 'Access Alerts', 14),
-  (29, NULL, NULL, NULL, NULL, 0, 'Xác nhận và giải quyết cảnh báo (Acknowledge/Resolve)', 'vi', 'Xử lý Cảnh báo', 15),
-  (30, NULL, NULL, NULL, NULL, 0, 'Acknowledge and resolve alerts', 'en', 'Handle Alerts', 15),
+
   (31, NULL, NULL, NULL, NULL, 0, 'Quản lý cấu hình cảnh báo', 'vi', 'Quản lý Cảnh báo', 16),
   (32, NULL, NULL, NULL, NULL, 0, 'Manage alert configuration', 'en', 'Manage Alerts', 16);
 
@@ -140,11 +138,9 @@ VALUES
   (12, NOW(), 'system', NOW(), 'system', 0, 12, 1),
   (13, NOW(), 'system', NOW(), 'system', 0, 13, 1),
   (14, NOW(), 'system', NOW(), 'system', 0, 14, 1),
-  (15, NOW(), 'system', NOW(), 'system', 0, 15, 1),
   (16, NOW(), 'system', NOW(), 'system', 0, 16, 1),
   (17, NOW(), 'system', NOW(), 'system', 0, 14, 4),
-  (18, NOW(), 'system', NOW(), 'system', 0, 14, 2),
-  (19, NOW(), 'system', NOW(), 'system', 0, 15, 4);
+  (18, NOW(), 'system', NOW(), 'system', 0, 14, 2);
 
 -- ----------------------------
 -- 7. Dữ liệu bảng client (Tài khoản admin - username: admin, password: 123456789)

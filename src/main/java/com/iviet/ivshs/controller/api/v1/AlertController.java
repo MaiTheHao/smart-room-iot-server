@@ -86,7 +86,7 @@ public class AlertController {
     }
 
     @GetMapping("/instances")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlerts(
             @RequestParam(required = false) AlertStatus status, @RequestParam(required = false) Severity severity,
             @RequestParam(required = false) AlertNamespace namespace,
@@ -99,28 +99,28 @@ public class AlertController {
     }
 
     @GetMapping("/{alertConfigId}/instances")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceDto>>> getAlertsByConfig(
             @PathVariable Long alertConfigId, @Valid AlertInstanceSubFilterDto filter) {
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.getAlertsByConfig(alertConfigId, filter)));
     }
 
     @GetMapping("/{alertConfigId}/instances/count")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<Long>> countAlertsByConfig(
             @PathVariable Long alertConfigId, @Valid AlertInstanceSubFilterDto filter) {
         return ResponseEntity.ok(ApiResponse.ok(alertInstanceService.countAlertsByConfig(alertConfigId, filter)));
     }
 
     @GetMapping("/{alertConfigId}/instances/{instanceId}")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<AlertInstanceDto>> getAlertById(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
         return ResponseEntity.ok(ApiResponse.ok(validateAlertRelation(alertConfigId, instanceId)));
     }
 
     @PostMapping("/{alertConfigId}/instances/{instanceId}/acknowledge")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<AlertInstanceDto>> acknowledgeAlert(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
         validateAlertRelation(alertConfigId, instanceId);
@@ -131,7 +131,7 @@ public class AlertController {
     }
 
     @PostMapping("/{alertConfigId}/instances/{instanceId}/resolve")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<AlertInstanceDto>> resolveAlert(@PathVariable Long alertConfigId,
             @PathVariable Long instanceId) {
         validateAlertRelation(alertConfigId, instanceId);
@@ -142,7 +142,7 @@ public class AlertController {
     }
 
     @GetMapping("/{alertConfigId}/instances/{instanceId}/logs")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<PaginatedResponse<AlertInstanceLogDto>>> getAlertLogs(
             @PathVariable Long alertConfigId, @PathVariable Long instanceId,
             @Valid AlertInstanceLogFilterDto filter) {
@@ -151,7 +151,7 @@ public class AlertController {
     }
 
     @GetMapping("/{alertConfigId}/instances/{instanceId}/logs/count")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public ResponseEntity<ApiResponse<Long>> countAlertLogs(
             @PathVariable Long alertConfigId, @PathVariable Long instanceId,
             @Valid AlertInstanceLogFilterDto filter) {

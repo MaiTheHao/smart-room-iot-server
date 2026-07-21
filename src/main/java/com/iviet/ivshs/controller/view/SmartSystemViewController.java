@@ -63,7 +63,7 @@ public class SmartSystemViewController {
     }
 
     @GetMapping("/alerts")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public String alertsPage() {
         return "pages/smart_system/alert/index.html";
     }
@@ -75,7 +75,7 @@ public class SmartSystemViewController {
     }
 
     @GetMapping("/alerts/{alertConfigId}/instances/{instanceId}")
-    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT', 'F_HANDLE_ALERT')")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ALERT', 'F_ACCESS_ALERT')")
     public String alertDetailPage(@PathVariable Long alertConfigId, @PathVariable Long instanceId, Model model) {
         model.addAttribute("alertConfigId", alertConfigId);
         model.addAttribute("instanceId", instanceId);

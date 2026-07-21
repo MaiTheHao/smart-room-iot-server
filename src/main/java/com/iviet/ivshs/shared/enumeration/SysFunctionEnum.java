@@ -26,8 +26,7 @@ public enum SysFunctionEnum {
 	F_ACCESS_ROOM_ALL("F_ACCESS_ROOM_ALL"),
 
 	// ========== ALERT FUNCTIONS (TINH GỌN) ==========
-	F_ACCESS_ALERT("F_ACCESS_ALERT"),   // Xem alerts thuộc group của mình
-	F_HANDLE_ALERT("F_HANDLE_ALERT");   // Acknowledge/Resolve alerts
+	F_ACCESS_ALERT("F_ACCESS_ALERT");   // Xem và xử lý alerts thuộc group của mình
 
 	private String code;
 

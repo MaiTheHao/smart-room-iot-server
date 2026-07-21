@@ -92,13 +92,13 @@
     {
       type: 'header',
       label: /*[[#{menu.alert_system}]]*/ 'Alert System',
-      visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ALERT", "F_ACCESS_ALERT", "F_HANDLE_ALERT")')}]]*/ true,
+      visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ALERT", "F_ACCESS_ALERT")')}]]*/ true,
     },
     {
       type: 'tree',
       label: /*[[#{menu.alerts}]]*/ 'Alerts',
       icon: 'bell',
-      visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ALERT", "F_ACCESS_ALERT", "F_HANDLE_ALERT")')}]]*/ true,
+      visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ALERT", "F_ACCESS_ALERT")')}]]*/ true,
       children: [
         {
           label: /*[[#{menu.alert_manage}]]*/ 'Quản lý cấu hình',
@@ -110,7 +110,7 @@
           label: /*[[#{menu.alert_list}]]*/ 'Xem sự kiện',
           icon: 'bell-ring',
           link: '/management/smart-system/alerts',
-          visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ALERT", "F_ACCESS_ALERT", "F_HANDLE_ALERT")')}]]*/ true,
+          visible: /*[[${#authorization.expression('hasAnyAuthority("F_MANAGE_ALL", "F_MANAGE_ALERT", "F_ACCESS_ALERT")')}]]*/ true,
         },
       ],
     },

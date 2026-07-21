@@ -226,6 +226,6 @@ public class AlertInstanceServiceImpl implements AlertInstanceService {
     }
 
     private void checkHandleAccess(AlertInstance alert, Long currentClientId) {
-        checkAlertPermission(alert, SysFunctionEnum.F_HANDLE_ALERT.getCode());
+        checkAlertPermission(alert, SysFunctionEnum.F_ACCESS_ALERT.getCode());
     }
 }
