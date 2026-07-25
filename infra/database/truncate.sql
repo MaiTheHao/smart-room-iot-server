@@ -39,6 +39,13 @@ TRUNCATE TABLE `temperature_lan`;
 TRUNCATE TABLE `temperature_value`;
 TRUNCATE TABLE `humidity_sensor`;
 TRUNCATE TABLE `humidity_sensor_lan`;
+TRUNCATE TABLE `co2_sensor`;
+TRUNCATE TABLE `co2_sensor_lan`;
+TRUNCATE TABLE `co2_metrics`;
+TRUNCATE TABLE `lux_sensor`;
+TRUNCATE TABLE `lux_sensor_lan`;
+TRUNCATE TABLE `lux_metrics`;
+
 TRUNCATE TABLE `power_consumption`;
 TRUNCATE TABLE `power_consumption_lan`;
 TRUNCATE TABLE `energy_metrics`;

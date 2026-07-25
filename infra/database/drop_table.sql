@@ -37,6 +37,13 @@ DROP TABLE IF EXISTS `temperature_lan`;
 DROP TABLE IF EXISTS `temperature_value`;
 DROP TABLE IF EXISTS `humidity_sensor`;
 DROP TABLE IF EXISTS `humidity_sensor_lan`;
+DROP TABLE IF EXISTS `co2_sensor`;
+DROP TABLE IF EXISTS `co2_sensor_lan`;
+DROP TABLE IF EXISTS `co2_metrics`;
+DROP TABLE IF EXISTS `lux_sensor`;
+DROP TABLE IF EXISTS `lux_sensor_lan`;
+DROP TABLE IF EXISTS `lux_metrics`;
+
 DROP TABLE IF EXISTS `power_consumption`;
 DROP TABLE IF EXISTS `power_consumption_lan`;
 DROP TABLE IF EXISTS `energy_metrics`;
