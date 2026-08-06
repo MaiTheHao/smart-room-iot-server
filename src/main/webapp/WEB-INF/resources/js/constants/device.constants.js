@@ -1,0 +1,7 @@
+export const DeviceCategory = Object.freeze({
+  LIGHT: 'LIGHT',
+  AIR_CONDITION: 'AIR_CONDITION',
+  TEMPERATURE: 'TEMPERATURE',
+  POWER_CONSUMPTION: 'POWER_CONSUMPTION',
+  FAN: 'FAN'
+});
