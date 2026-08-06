@@ -1,9 +1,8 @@
 import { httpClient } from './http-client.js';
 
 /**
- * Get all devices in a room (unified API)
  * @param {number|string} roomId
- * @param {DeviceCategory} [category] - Optional filter
+ * @param {DeviceCategory} [category]
  * @returns {Promise<[Error|null, ApiResponse<UnifiedDeviceDto[]>]>}
  */
 export const getDevicesByRoom = (roomId, category = null) => {
@@ -15,7 +14,6 @@ export const getDevicesByRoom = (roomId, category = null) => {
 };
 
 /**
- * Get device detail by ID and category
  * @param {number|string} id
  * @param {DeviceCategory} category
  * @returns {Promise<[Error|null, ApiResponse<Object>]>}
@@ -35,7 +33,6 @@ export const getDeviceById = (id, category) => {
 };
 
 /**
- * Control Air Condition
  * @param {string} naturalId
  * @param {AirConditionControlRequestBody} data
  * @returns {Promise<[Error|null, ApiResponse<ControlDeviceResult>]>}
@@ -48,7 +45,6 @@ export const controlAc = (naturalId, data) => {
 };
 
 /**
- * Control Fan
  * @param {string} naturalId
  * @param {FanControlRequestBody} data
  * @returns {Promise<[Error|null, ApiResponse<ControlDeviceResult>]>}
@@ -61,7 +57,6 @@ export const controlFan = (naturalId, data) => {
 };
 
 /**
- * Control Light
  * @param {string} naturalId
  * @param {LightControlRequestBody} data
  * @returns {Promise<[Error|null, ApiResponse<ControlDeviceResult>]>}

@@ -1,12 +1,6 @@
 import { httpClient } from './http-client.js';
 
 /**
- * @file role.api.js
- * @description API service for SysRole operations (Mapping between Group and Function)
- */
-
-/**
- * Batch add functions to a group
  * @param {Object} data
  * @param {number|string} data.groupId
  * @param {string[]} data.functionCodes
@@ -19,7 +13,6 @@ export const batchAddFunctionsToGroup = (data) =>
 	});
 
 /**
- * Batch remove functions from a group
  * @param {Object} data
  * @param {number|string} data.groupId
  * @param {string[]} data.functionCodes
@@ -32,7 +25,6 @@ export const batchRemoveFunctionsFromGroup = (data) =>
 	});
 
 /**
- * Toggle group functions (Add/Remove based on status)
  * @param {Object} data
  * @param {number|string} data.groupId
  * @param {Object.<string, boolean>} data.functionToggles
@@ -45,7 +37,6 @@ export const toggleGroupFunctions = (data) =>
 	});
 
 /**
- * Assign groups to a client
  * @param {Object} data
  * @param {number|string} data.clientId
  * @param {number[]} data.groupIds
@@ -58,7 +49,6 @@ export const assignGroupsToClient = (data) =>
 	});
 
 /**
- * Unassign groups from a client
  * @param {Object} data
  * @param {number|string} data.clientId
  * @param {number[]} data.groupIds

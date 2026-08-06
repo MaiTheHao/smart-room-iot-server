@@ -1,7 +1,6 @@
 import { httpClient } from './http-client.js';
 
 /**
- * Get paginated rules
  * @param {number} page
  * @param {number} size
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<RuleDto>>]>}
@@ -11,7 +10,6 @@ export const getRules = (page = 0, size = 10) => {
 };
 
 /**
- * Get all active rules
  * @returns {Promise<[Error|null, ApiResponse<RuleDto[]>]>}
  */
 export const getAllActiveRules = () => {
@@ -19,7 +17,6 @@ export const getAllActiveRules = () => {
 };
 
 /**
- * Get rule by ID
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<RuleDto>]>}
  */
@@ -28,7 +25,6 @@ export const getRuleById = (id) => {
 };
 
 /**
- * Create new rule
  * @param {CreateRuleDto} data
  * @returns {Promise<[Error|null, ApiResponse<RuleDto>]>}
  */
@@ -40,7 +36,6 @@ export const createRule = (data) => {
 };
 
 /**
- * Update rule (Partial update / Replace arrays)
  * @param {number|string} id
  * @param {UpdateRuleDto} data
  * @returns {Promise<[Error|null, ApiResponse<RuleDto>]>}
@@ -53,7 +48,6 @@ export const updateRule = (id, data) => {
 };
 
 /**
- * Delete rule
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
@@ -64,7 +58,6 @@ export const deleteRule = (id) => {
 };
 
 /**
- * Toggle rule active status
  * @param {number|string} id
  * @param {boolean} isActive
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
@@ -77,7 +70,6 @@ export const toggleRuleStatus = (id, isActive) => {
 };
 
 /**
- * Reload all rules in Quartz from DB
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const reloadRules = () => {
@@ -87,7 +79,6 @@ export const reloadRules = () => {
 };
 
 /**
- * Execute rule immediately
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */

@@ -1,12 +1,11 @@
 import { httpClient } from './http-client.js';
 
 /**
- * Get energy metric history (domain=ENERGY)
- * @param {Object} params - The query parameters
- * @param {EnergyMetricCategory} params.category - The category of the metric (LIGHT, FAN, etc.)
- * @param {number} params.targetId - The ID of the target
- * @param {string} [params.from] - ISO timestamp
- * @param {string} [params.to] - ISO timestamp
+ * @param {Object} params
+ * @param {EnergyMetricCategory} params.category
+ * @param {number} params.targetId
+ * @param {string} [params.from]
+ * @param {string} [params.to]
  * @returns {Promise<[Error|null, ApiResponse<EnergyMetricDto[]>]>}
  */
 export const getEnergyMetricHistory = (params) => {
@@ -19,10 +18,9 @@ export const getEnergyMetricHistory = (params) => {
 };
 
 /**
- * Get latest energy metric (domain=ENERGY)
- * @param {Object} params - The query parameters
- * @param {EnergyMetricCategory} params.category - The category of the metric
- * @param {number} params.targetId - The ID of the target
+ * @param {Object} params
+ * @param {EnergyMetricCategory} params.category
+ * @param {number} params.targetId
  * @returns {Promise<[Error|null, ApiResponse<EnergyMetricDto>]>}
  */
 export const getEnergyMetricLatest = (params) => {

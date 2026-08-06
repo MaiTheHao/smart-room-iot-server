@@ -1,19 +1,12 @@
 import { httpClient } from './http-client.js';
 
 /**
- * @file user.api.js
- * @description API service for Client/User management based on ClientController and AuthController
- */
-
-/**
- * Get current authenticated client info
  * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const getMe = () => httpClient('/api/v1/clients/me');
 
 /**
- * Get all clients with pagination
- * @param {Object} params - { page, size }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<ClientDto>>]>}
  */
 export const getAll = (params = {}) => {
@@ -22,16 +15,14 @@ export const getAll = (params = {}) => {
 };
 
 /**
- * Get client by ID
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
 export const getById = (id) => httpClient(`/api/v1/clients/${id}`);
 
 /**
- * Get clients (Gateways) by room ID
  * @param {number|string} roomId
- * @param {Object} params - { page, size }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<ClientDto>>]>}
  */
 export const getByRoomId = (roomId, params = {}) => {
@@ -40,7 +31,6 @@ export const getByRoomId = (roomId, params = {}) => {
 };
 
 /**
- * Create a new client (Admin)
  * @param {CreateClientDto} data
  * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */
@@ -51,7 +41,6 @@ export const create = (data) =>
 	});
 
 /**
- * Update an existing client
  * @param {number|string} id
  * @param {UpdateClientDto} data
  * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
@@ -63,7 +52,6 @@ export const update = (id, data) =>
 	});
 
 /**
- * Partial update of a client
  * @param {number|string} id
  * @param {Object} data
  * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
@@ -75,7 +63,6 @@ export const patchUpdate = (id, data) =>
 	});
 
 /**
- * Delete a client
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
@@ -85,7 +72,6 @@ export const deleteClient = (id) =>
 	});
 
 /**
- * Delete all device controls of a client
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
@@ -95,7 +81,6 @@ export const deleteAllHardwareConfigs = (id) =>
 	});
 
 /**
- * Sign in (Authentication)
  * @param {LoginDto} data
  * @returns {Promise<[Error|null, ApiResponse<JwtResponse>]>}
  */
@@ -106,7 +91,6 @@ export const signin = (data) =>
 	});
 
 /**
- * Sign up (Public registration)
  * @param {CreateClientDto} data
  * @returns {Promise<[Error|null, ApiResponse<ClientDto>]>}
  */

@@ -1,12 +1,6 @@
 import { httpClient } from './http-client.js';
 
 /**
- * @file floor.api.js
- * @description API service for Floor operations
- */
-
-/**
- * Get paginated list of floors
  * @param {number} [page=0]
  * @param {number} [size=10]
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<FloorDto>>]>}
@@ -15,14 +9,12 @@ export const getFloors = (page = 0, size = 10) =>
 	httpClient(`/api/v1/floors?page=${page}&size=${size}`);
 
 /**
- * Get all floors (non-paginated)
  * @returns {Promise<[Error|null, ApiResponse<FloorDto[]>]>}
  */
 export const getAllFloors = () =>
 	httpClient('/api/v1/floors/all');
 
 /**
- * Get floor details by ID
  * @param {number|string} floorId
  * @returns {Promise<[Error|null, ApiResponse<FloorDto>]>}
  */
@@ -30,7 +22,6 @@ export const getFloorById = (floorId) =>
 	httpClient(`/api/v1/floors/${floorId}`);
 
 /**
- * Get floor version by ID
  * @param {number|string} floorId
  * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
@@ -38,7 +29,6 @@ export const getFloorVersion = (floorId) =>
 	httpClient(`/api/v1/floors/${floorId}/v`);
 
 /**
- * Create a new floor
  * @param {CreateFloorDto} data
  * @returns {Promise<[Error|null, ApiResponse<FloorDto>]>}
  */
@@ -49,7 +39,6 @@ export const createFloor = (data) =>
 	});
 
 /**
- * Update an existing floor
  * @param {number|string} floorId
  * @param {UpdateFloorDto} data
  * @returns {Promise<[Error|null, ApiResponse<FloorDto>]>}
@@ -61,7 +50,6 @@ export const updateFloor = (floorId, data) =>
 	});
 
 /**
- * Patch an existing floor (selective update)
  * @param {number|string} floorId
  * @param {UpdateFloorDto} data
  * @returns {Promise<[Error|null, ApiResponse<FloorDto>]>}
@@ -73,7 +61,6 @@ export const patchFloor = (floorId, data) =>
 	});
 
 /**
- * Delete a floor
  * @param {number|string} floorId
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */

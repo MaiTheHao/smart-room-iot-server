@@ -1,10 +1,9 @@
 import { httpClient } from './http-client.js';
 
 /**
- * Get average temperature history for a room
  * @param {number|string} roomId
- * @param {string} from - ISO timestamp
- * @param {string} to - ISO timestamp
+ * @param {string} from
+ * @param {string} to
  * @returns {Promise<[Error|null, ApiResponse<TemperatureValueDto[]>]>}
  */
 export const getAverageHistory = (roomId, from, to) => {

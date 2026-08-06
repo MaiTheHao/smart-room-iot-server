@@ -1,7 +1,6 @@
 import { httpClient } from './http-client.js';
 
 /**
- * Get paginated automations
  * @param {number} page
  * @param {number} size
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AutomationDto>>]>}
@@ -11,7 +10,6 @@ export const getAutomations = (page = 0, size = 20) => {
 };
 
 /**
- * Get all active automations
  * @returns {Promise<[Error|null, ApiResponse<AutomationDto[]>]>}
  */
 export const getActiveAutomations = () => {
@@ -19,7 +17,6 @@ export const getActiveAutomations = () => {
 };
 
 /**
- * Get automation by ID
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<AutomationDto>]>}
  */
@@ -28,7 +25,6 @@ export const getAutomationById = (id) => {
 };
 
 /**
- * Create new automation
  * @param {CreateAutomationDto} data
  * @returns {Promise<[Error|null, ApiResponse<AutomationDto>]>}
  */
@@ -40,7 +36,6 @@ export const createAutomation = (data) => {
 };
 
 /**
- * Update automation (Full update)
  * @param {number|string} id
  * @param {UpdateAutomationDto} data
  * @returns {Promise<[Error|null, ApiResponse<AutomationDto>]>}
@@ -53,7 +48,6 @@ export const updateAutomation = (id, data) => {
 };
 
 /**
- * Delete automation
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
@@ -64,7 +58,6 @@ export const deleteAutomation = (id) => {
 };
 
 /**
- * Toggle automation active status
  * @param {number|string} id
  * @param {boolean} isActive
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
@@ -76,7 +69,6 @@ export const toggleAutomationStatus = (id, isActive) => {
 };
 
 /**
- * Execute automation immediately (Manual Trigger)
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
@@ -87,7 +79,6 @@ export const executeAutomationNow = (id) => {
 };
 
 /**
- * Reload all automation jobs in Quartz
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const reloadAutomationJobs = () => {
@@ -97,7 +88,6 @@ export const reloadAutomationJobs = () => {
 };
 
 /**
- * Get actions for an automation
  * @param {number|string} automationId
  * @returns {Promise<[Error|null, ApiResponse<AutomationActionDto[]>]>}
  */
@@ -106,7 +96,6 @@ export const getAutomationActions = (automationId) => {
 };
 
 /**
- * Add new action to automation
  * @param {number|string} automationId
  * @param {CreateAutomationActionDto} data
  * @returns {Promise<[Error|null, ApiResponse<AutomationActionDto>]>}
@@ -119,7 +108,6 @@ export const addAutomationAction = (automationId, data) => {
 };
 
 /**
- * Update existing automation action
  * @param {number|string} actionId
  * @param {UpdateAutomationActionDto} data
  * @returns {Promise<[Error|null, ApiResponse<AutomationActionDto>]>}
@@ -132,7 +120,6 @@ export const updateAutomationAction = (actionId, data) => {
 };
 
 /**
- * Delete automation action
  * @param {number|string} actionId
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */

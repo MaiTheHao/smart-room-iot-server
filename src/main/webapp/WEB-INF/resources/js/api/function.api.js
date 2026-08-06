@@ -1,12 +1,6 @@
 import { httpClient } from './http-client.js';
 
 /**
- * @file function.api.js
- * @description API service for SysFunction operations
- */
-
-/**
- * Get paginated list of functions
  * @param {number} page
  * @param {number} size
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<SysFunctionDto>>]>}
@@ -15,14 +9,12 @@ export const getFunctions = (page = 0, size = 10) =>
 	httpClient(`/api/v1/functions?page=${page}&size=${size}`);
 
 /**
- * Get all functions
  * @returns {Promise<[Error|null, ApiResponse<SysFunctionDto[]>]>}
  */
 export const getAllFunctions = () =>
 	httpClient('/api/v1/functions/all');
 
 /**
- * Get function by ID
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<SysFunctionDto>]>}
  */
@@ -30,7 +22,6 @@ export const getFunctionById = (id) =>
 	httpClient(`/api/v1/functions/${id}`);
 
 /**
- * Get function by code
  * @param {string} code
  * @returns {Promise<[Error|null, ApiResponse<SysFunctionDto>]>}
  */
@@ -38,7 +29,6 @@ export const getFunctionByCode = (code) =>
 	httpClient(`/api/v1/functions/code/${code}`);
 
 /**
- * Get functions with group status
  * @param {number|string} groupId
  * @returns {Promise<[Error|null, ApiResponse<SysFunctionWithGroupStatusDto[]>]>}
  */
@@ -46,7 +36,6 @@ export const getFunctionsWithGroupStatus = (groupId) =>
 	httpClient(`/api/v1/functions/with-group-status/${groupId}`);
 
 /**
- * Create a new function
  * @param {CreateSysFunctionDto} data
  * @returns {Promise<[Error|null, ApiResponse<SysFunctionDto>]>}
  */
@@ -57,7 +46,6 @@ export const createFunction = (data) =>
 	});
 
 /**
- * Update a function
  * @param {number|string} id
  * @param {UpdateSysFunctionDto} data
  * @returns {Promise<[Error|null, ApiResponse<SysFunctionDto>]>}
@@ -69,7 +57,6 @@ export const updateFunction = (id, data) =>
 	});
 
 /**
- * Delete a function
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
@@ -79,7 +66,6 @@ export const deleteFunction = (id) =>
 	});
 
 /**
- * Get total count of functions
  * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const countFunctions = () =>

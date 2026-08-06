@@ -1,9 +1,8 @@
 const BASE_URL = '';
 
 /**
- * Common request helper using ErrorFirst pattern [err, data]
- * @param {string} endpoint - API endpoint (e.g., '/api/v1/auth/signin')
- * @param {Object} options - Fetch options
+ * @param {string} endpoint
+ * @param {Object} options
  * @returns {Promise<[Error|null, any]>}
  */
 export const httpClient = async (endpoint, options = {}) => {

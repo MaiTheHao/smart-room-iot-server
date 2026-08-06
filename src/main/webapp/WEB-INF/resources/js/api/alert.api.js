@@ -1,17 +1,11 @@
 import { httpClient } from './http-client.js';
 
-/**
- * @file alert.api.js
- * @description API service for Alert Management based on AlertController
- */
-
 // ==========================================
 // 1. Quản lý cấu hình alert (Alert Configurations)
 // ==========================================
 
 /**
- * Create alert configuration
- * @param {Object} dto - CreateAlertConfigDto
+ * @param {Object} dto
  * @returns {Promise<[Error|null, ApiResponse<AlertConfigDto>]>}
  */
 export const createConfig = (dto) => {
@@ -22,9 +16,8 @@ export const createConfig = (dto) => {
 };
 
 /**
- * Update alert configuration
  * @param {number|string} id
- * @param {Object} dto - UpdateAlertConfigDto
+ * @param {Object} dto
  * @returns {Promise<[Error|null, ApiResponse<AlertConfigDto>]>}
  */
 export const updateConfig = (id, dto) => {
@@ -35,7 +28,6 @@ export const updateConfig = (id, dto) => {
 };
 
 /**
- * Get alert configuration by ID
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<AlertConfigDto>]>}
  */
@@ -44,7 +36,6 @@ export const getConfigById = (id) => {
 };
 
 /**
- * Delete alert configuration
  * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<Void>]>}
  */
@@ -55,9 +46,7 @@ export const deleteConfig = (id) => {
 };
 
 /**
- * Get alert configurations (paginated). If namespace and sourceId are both provided,
- * filters by source. Otherwise returns all configs (for standalone manage page).
- * @param {Object} params - { namespace?, sourceId?, page?, size? }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertConfigDto>>]>}
  */
 export const getConfigs = (params = {}) => {
@@ -72,8 +61,7 @@ export const getConfigs = (params = {}) => {
 // ==========================================
 
 /**
- * Get all alert instances (paginated) with optional namespace + date range filters
- * @param {Object} params - { status, severity, namespace, from, to, page, size }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertInstanceDto>>]>}
  */
 export const getAlerts = (params = {}) => {
@@ -84,9 +72,8 @@ export const getAlerts = (params = {}) => {
 };
 
 /**
- * Get alert instances by configuration ID (paginated)
  * @param {number|string} alertConfigId
- * @param {Object} params - { status, severity, page, size }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertInstanceDto>>]>}
  */
 export const getAlertsByConfig = (alertConfigId, params = {}) => {
@@ -95,7 +82,6 @@ export const getAlertsByConfig = (alertConfigId, params = {}) => {
 };
 
 /**
- * Get detailed alert instance
  * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
@@ -105,7 +91,6 @@ export const getAlertById = (alertConfigId, instanceId) => {
 };
 
 /**
- * Acknowledge alert instance
  * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
@@ -117,7 +102,6 @@ export const acknowledgeAlert = (alertConfigId, instanceId) => {
 };
 
 /**
- * Resolve alert instance
  * @param {number|string} alertConfigId
  * @param {number|string} instanceId
  * @returns {Promise<[Error|null, ApiResponse<AlertInstanceDto>]>}
@@ -129,10 +113,9 @@ export const resolveAlert = (alertConfigId, instanceId) => {
 };
 
 /**
- * Get alert logs of an instance (paginated)
  * @param {number|string} alertConfigId
  * @param {number|string} instanceId
- * @param {Object} params - { actionType, actorType, page, size }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<AlertInstanceLogDto>>]>}
  */
 export const getAlertLogs = (alertConfigId, instanceId, params = {}) => {
@@ -143,8 +126,7 @@ export const getAlertLogs = (alertConfigId, instanceId, params = {}) => {
 };
 
 /**
- * Count alert configurations based on filters
- * @param {Object} params - { namespace, alertCode, sourceId }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const countConfigs = (params = {}) => {
@@ -155,9 +137,8 @@ export const countConfigs = (params = {}) => {
 };
 
 /**
- * Count alert instances based on configuration and filters
  * @param {number|string} alertConfigId
- * @param {Object} params - { status, severity, from, to }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const countAlertsByConfig = (alertConfigId, params = {}) => {
@@ -168,10 +149,9 @@ export const countAlertsByConfig = (alertConfigId, params = {}) => {
 };
 
 /**
- * Count alert instance logs based on filters
  * @param {number|string} alertConfigId
  * @param {number|string} instanceId
- * @param {Object} params - { actionType, actorType }
+ * @param {Object} params
  * @returns {Promise<[Error|null, ApiResponse<number>]>}
  */
 export const countAlertLogs = (alertConfigId, instanceId, params = {}) => {
