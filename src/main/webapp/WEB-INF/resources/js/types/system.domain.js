@@ -1,3 +1,6 @@
+import { Validator } from '../common/validator.js';
+import { DomainValidationError } from './common.domain.js';
+
 export class SysFunctionDto {
   constructor(builder) {
     this.id = builder._id;
@@ -32,7 +35,30 @@ export class CreateSysFunctionDto {
       setName(name) { this._name = name; return this; }
       setDescription(description) { this._description = description; return this; }
       setLangCode(langCode) { this._langCode = langCode; return this; }
-      build() { return new CreateSysFunctionDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.functionCode.isNull(this._functionCode) || !Validator.functionCode.isBlank(this._functionCode)) {
+          errors.functionCode = 'valFunctionCodeRequired';
+        } else if (!Validator.functionCode.isValidFormat(this._functionCode) || !Validator.functionCode.isHigherMax(this._functionCode)) {
+          errors.functionCode = 'valFunctionCodeFormat';
+        }
+        if (!Validator.name.isNull(this._name) || !Validator.name.isBlank(this._name)) {
+          errors.name = 'valNameRequired';
+        } else if (!Validator.name.isLowerMin(this._name) || !Validator.name.isHigherMax(this._name)) {
+          errors.name = 'valNameLen';
+        }
+        if (this._description && !Validator.description.isHigherMax(this._description)) {
+          errors.description = 'valDescriptionLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('CreateSysFunctionDto validation failed', errors);
+        }
+        return new CreateSysFunctionDto(this);
+      }
     }
     return Builder;
   }
@@ -50,7 +76,25 @@ export class UpdateSysFunctionDto {
       setName(name) { this._name = name; return this; }
       setDescription(description) { this._description = description; return this; }
       setLangCode(langCode) { this._langCode = langCode; return this; }
-      build() { return new UpdateSysFunctionDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.name.isNull(this._name) || !Validator.name.isBlank(this._name)) {
+          errors.name = 'valNameRequired';
+        } else if (!Validator.name.isLowerMin(this._name) || !Validator.name.isHigherMax(this._name)) {
+          errors.name = 'valNameLen';
+        }
+        if (this._description && !Validator.description.isHigherMax(this._description)) {
+          errors.description = 'valDescriptionLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('UpdateSysFunctionDto validation failed', errors);
+        }
+        return new UpdateSysFunctionDto(this);
+      }
     }
     return Builder;
   }
@@ -110,11 +154,37 @@ export class CreateSysGroupDto {
 
   static get Builder() {
     class Builder {
-      setGroupCode(groupCode) { this._groupCode = groupCode; return this; }
+      setGroupCode(groupCode) {
+        this._groupCode = (groupCode === null || groupCode === undefined) ? groupCode : String(groupCode).toUpperCase();
+        return this;
+      }
       setName(name) { this._name = name; return this; }
       setDescription(description) { this._description = description; return this; }
       setLangCode(langCode) { this._langCode = langCode; return this; }
-      build() { return new CreateSysGroupDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.groupCode.isNull(this._groupCode) || !Validator.groupCode.isBlank(this._groupCode)) {
+          errors.groupCode = 'valGroupCodeRequired';
+        } else if (!Validator.groupCode.isValidFormat(this._groupCode) || !Validator.groupCode.isHigherMax(this._groupCode)) {
+          errors.groupCode = 'valGroupCodeFormat';
+        }
+        if (!Validator.name.isNull(this._name) || !Validator.name.isBlank(this._name)) {
+          errors.name = 'valNameRequired';
+        } else if (!Validator.name.isLowerMin(this._name) || !Validator.name.isHigherMax(this._name)) {
+          errors.name = 'valNameLen';
+        }
+        if (this._description && !Validator.description.isHigherMax(this._description)) {
+          errors.description = 'valDescriptionLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('CreateSysGroupDto validation failed', errors);
+        }
+        return new CreateSysGroupDto(this);
+      }
     }
     return Builder;
   }
@@ -132,7 +202,25 @@ export class UpdateSysGroupDto {
       setName(name) { this._name = name; return this; }
       setDescription(description) { this._description = description; return this; }
       setLangCode(langCode) { this._langCode = langCode; return this; }
-      build() { return new UpdateSysGroupDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.name.isNull(this._name) || !Validator.name.isBlank(this._name)) {
+          errors.name = 'valNameRequired';
+        } else if (!Validator.name.isLowerMin(this._name) || !Validator.name.isHigherMax(this._name)) {
+          errors.name = 'valNameLen';
+        }
+        if (this._description && !Validator.description.isHigherMax(this._description)) {
+          errors.description = 'valDescriptionLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('UpdateSysGroupDto validation failed', errors);
+        }
+        return new UpdateSysGroupDto(this);
+      }
     }
     return Builder;
   }

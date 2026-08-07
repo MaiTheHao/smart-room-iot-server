@@ -2,6 +2,10 @@ import { getDevicesByRoom, controlAc, controlFan, controlLight } from '../../api
 import { StateManager } from './state_manager.js';
 import { DeviceList } from './component/device_list/device_list.js';
 import { DeviceChart } from './component/device_chart/device_chart.js';
+import { AirConditionControlRequestBody } from '../../types/ac.domain.js';
+import { FanControlRequestBody } from '../../types/fan.domain.js';
+import { LightControlRequestBody } from '../../types/light.domain.js';
+import { DomainValidationError } from '../../types/common.domain.js';
 
 export const DeviceController = {
   bindEvents() {
@@ -92,7 +96,57 @@ export const DeviceController = {
     }
 
     if (Object.keys(payload).length > 0) {
-      await this.handleApiCall(category, naturalId, payload);
+      const built = this.buildControlPayload(category, naturalId, payload);
+      if (!built) return;
+      await this.handleApiCall(category, naturalId, built);
+    }
+  },
+
+  buildControlPayload(category, naturalId, payload) {
+    const device = StateManager.getDevices().find((d) => d.naturalId === naturalId);
+    const currentPower = device ? (device.power === 'ON' ? 'ON' : 'OFF') : 'ON';
+
+    let builder;
+    if (category === 'AIR_CONDITION') {
+      builder = new AirConditionControlRequestBody.Builder()
+        .setPower(payload.power ?? currentPower)
+        .setTemperature(payload.temperature)
+        .setMode(payload.mode)
+        .setFanSpeed(payload.fanSpeed)
+        .setSwing(payload.swing);
+    } else if (category === 'FAN') {
+      builder = new FanControlRequestBody.Builder()
+        .setPower(payload.power ?? currentPower)
+        .setMode(payload.mode)
+        .setSpeed(payload.speed)
+        .setSwing(payload.swing)
+        .setLight(payload.light);
+    } else if (category === 'LIGHT') {
+      builder = new LightControlRequestBody.Builder()
+        .setPower(payload.power ?? currentPower)
+        .setLevel(payload.level);
+    } else {
+      return payload;
+    }
+
+    try {
+      return builder.build();
+    } catch (e) {
+      if (e instanceof DomainValidationError) {
+        const firstField = Object.keys(e.errors)[0];
+        const i18n = StateManager.getI18n();
+        window.Swal?.fire({
+          title: i18n.errorTitle || 'Error',
+          text: i18n[e.errors[firstField]] || i18n.valRequired || i18n.errorControl || 'Invalid value',
+          icon: 'warning',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+        });
+        return null;
+      }
+      throw e;
     }
   },
 
@@ -102,24 +156,28 @@ export const DeviceController = {
     const acBtn = target.closest('.ac-temp-btn, .ac-mode-btn');
     if (acBtn) {
       const item = acBtn.closest('.device-item');
-      const { naturalId } = item.dataset;
+      const { naturalId, category } = item.dataset;
+      let payload;
       if (acBtn.classList.contains('ac-temp-btn')) {
         const valEl = item.querySelector('.ac-temp-value');
         const newVal = parseInt(valEl.textContent) + parseInt(acBtn.dataset.delta);
-        if (newVal >= 16 && newVal <= 32) {
-          await this.handleApiCall('AC', naturalId, { temperature: newVal });
-        }
+        payload = { temperature: newVal };
       } else {
-        await this.handleApiCall('AC', naturalId, { mode: acBtn.dataset.mode });
+        payload = { mode: acBtn.dataset.mode };
       }
+      const built = this.buildControlPayload(category, naturalId, payload);
+      if (!built) return;
+      await this.handleApiCall(category, naturalId, built);
       return;
     }
 
     const fanBtn = target.closest('.fan-mode-btn');
     if (fanBtn) {
       const item = fanBtn.closest('.device-item');
-      const { naturalId } = item.dataset;
-      await this.handleApiCall('FAN', naturalId, { mode: fanBtn.dataset.mode });
+      const { naturalId, category } = item.dataset;
+      const built = this.buildControlPayload(category, naturalId, { mode: fanBtn.dataset.mode });
+      if (!built) return;
+      await this.handleApiCall(category, naturalId, built);
       return;
     }
 

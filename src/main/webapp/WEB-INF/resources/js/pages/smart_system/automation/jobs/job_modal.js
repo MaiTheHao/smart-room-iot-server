@@ -6,7 +6,7 @@ import {
   toggleAutomationStatus,
   executeAutomationNow,
 } from '../../../../api/automation.api.js';
-import { Validator } from '../../../../common/validator.js';
+import { CreateAutomationDto, UpdateAutomationDto } from '../../../../types/automation.domain.js';
 import { CronUtils } from '../../../../common/cron_util.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Toast, Alert } from '../../../../common/notification_util.js';
@@ -150,12 +150,6 @@ export const JobModal = (() => {
 
     clearValidation();
 
-    if (!Validator.name.isBlank(name)) {
-      await Alert.warning(i18n.valRequired.replace('{0}', 'Name'), i18n.error || 'Error');
-      elements.name?.focus();
-      return null;
-    }
-
     const scheduleType = elements.scheduleType.value;
     const hourVal = elements.timeHour.value.trim();
     const minuteVal = elements.timeMinute.value.trim();
@@ -198,6 +192,26 @@ export const JobModal = (() => {
       dayOfMonth,
     });
 
+    const isUpdate = !!elements.id.value;
+    const builder = new (isUpdate ? UpdateAutomationDto : CreateAutomationDto).Builder()
+      .setName(name)
+      .setDescription(description)
+      .setCronExpression(generatedCron);
+
+    const result = builder.validate();
+    if (!result.isValid) {
+      const firstField = Object.keys(result.errors)[0];
+      const msgKey = result.errors[firstField];
+      await Alert.warning(i18n[msgKey] || i18n.valRequired || 'Error', i18n.error || 'Error');
+      const FIELD_ID_MAP = {
+        name: () => elements.name,
+        cronExpression: () => elements.timeHour,
+        description: () => elements.description,
+      };
+      (FIELD_ID_MAP[firstField]?.() || elements[firstField])?.focus();
+      return null;
+    }
+
     return {
       name,
       description,
@@ -217,19 +231,20 @@ export const JobModal = (() => {
     try {
       const isUpdate = !!elements.id.value;
 
-      const payload = {
-        name: data.name,
-        description: data.description,
-        cronExpression: data.cronExpression,
-      };
+      const builder = new (isUpdate ? UpdateAutomationDto : CreateAutomationDto).Builder()
+        .setName(data.name)
+        .setDescription(data.description)
+        .setCronExpression(data.cronExpression);
 
       if (!isUpdate) {
-        payload.isActive = true;
+        builder.setIsActive(true);
       } else {
         const id = elements.id.value;
         const toggle = document.querySelector(`.btn-toggle-status[data-id="${id}"]`);
-        payload.isActive = toggle ? toggle.checked : true;
+        builder.setIsActive(toggle ? toggle.checked : true);
       }
+
+      const payload = builder.build();
 
       const id = elements.id.value;
 

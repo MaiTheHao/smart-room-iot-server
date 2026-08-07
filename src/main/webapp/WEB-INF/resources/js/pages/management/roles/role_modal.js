@@ -1,4 +1,4 @@
-import { Validator } from '../../../common/validator.js';
+import { CreateSysGroupDto, UpdateSysGroupDto } from '../../../types/system.domain.js';
 import { getFunctionsWithGroupStatus } from '../../../api/function.api.js';
 import { toggleGroupFunctions } from '../../../api/role.api.js';
 import { StateManager } from './state_manager.js';
@@ -85,43 +85,27 @@ export const MainForm = (() => {
 
 		clearValidation();
 
-		if (!Validator.name.isBlank(data.name)) {
-			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colName || ''), i18n.error || 'Error');
-			elements.name?.focus();
-			return null;
-		}
-		if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
-			await Alert.warning(i18n.valNameLen || '', i18n.error || 'Error');
-			elements.name?.focus();
-			return null;
-		}
+		const isUpdate = !!data.id;
+		const builder = isUpdate
+			? new UpdateSysGroupDto.Builder()
+				.setName(data.name)
+				.setDescription(data.description)
+			: new CreateSysGroupDto.Builder()
+				.setGroupCode(data.groupCode)
+				.setName(data.name)
+				.setDescription(data.description);
 
-		if (!data.id) {
-			if (!Validator.groupCode.isBlank(data.groupCode)) {
-				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colCode || ''), i18n.error || 'Error');
-				elements.groupCode?.focus();
-				return null;
-			}
-			if (!Validator.groupCode.isHigherMax(data.groupCode)) {
-				await Alert.warning(i18n.valCodeLen || '', i18n.error || 'Error');
-				elements.groupCode?.focus();
-				return null;
-			}
-			if (!Validator.groupCode.isValidFormat(data.groupCode)) {
-				await Alert.warning(i18n.valGroupCodeFormat || '', i18n.error || 'Error');
-				elements.groupCode?.focus();
-				return null;
-			}
-			if (data.groupCode) data.groupCode = data.groupCode.toUpperCase();
-		}
-
-		if (data.description && !Validator.description.isHigherMax(data.description)) {
-			await Alert.warning(i18n.valDescriptionLen || '', i18n.error || 'Error');
-			elements.description?.focus();
+		const result = builder.validate();
+		if (!result.isValid) {
+			const firstField = Object.keys(result.errors)[0];
+			const msgKey = result.errors[firstField];
+			await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+			elements[firstField]?.focus();
 			return null;
 		}
 
-		return data;
+		const payload = builder.build();
+		return isUpdate ? { ...payload, id: data.id } : { ...payload };
 	};
 
 	return {

@@ -3,6 +3,7 @@ import { UiRenderer } from './ui_renderer.js';
 import { getAllRooms } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
+import { CreateAutomationActionDto, UpdateAutomationActionDto } from '../../../../types/automation.domain.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -144,24 +145,36 @@ export const ActionModal = (() => {
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!elements.targetId.value) {
-      await Alert.warning(i18n.selectDevice || 'Please select a device', i18n.error || 'Error');
-      elements.targetId?.focus();
-      return;
-    }
-
     const selectedOption = elements.targetId.options[elements.targetId.selectedIndex];
     const targetName = selectedOption ? selectedOption.textContent : '';
 
-    const data = {
-      executionOrder: parseInt(elements.executionOrder.value, 10),
-      targetId: parseInt(elements.targetId.value, 10),
-      targetType: elements.targetType.value,
-      actionType: elements.actionType.value,
-      targetName: targetName,
-    };
-
     const localId = elements.localId.value;
+    const builder = new (localId ? UpdateAutomationActionDto : CreateAutomationActionDto).Builder()
+      .setTargetType(elements.targetType.value)
+      .setTargetId(elements.targetId.value)
+      .setActionType(elements.actionType.value)
+      .setExecutionOrder(elements.executionOrder.value);
+
+    const result = builder.validate();
+    if (!result.isValid) {
+      const firstField = Object.keys(result.errors)[0];
+      const msgKey = result.errors[firstField];
+      await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+      const FIELD_ID_MAP = {
+        targetType: elements.targetType,
+        targetId: elements.targetId,
+        actionType: elements.actionType,
+        executionOrder: elements.executionOrder,
+      };
+      FIELD_ID_MAP[firstField]?.focus();
+      return;
+    }
+
+    const data = builder.build();
+    data.executionOrder = parseInt(data.executionOrder, 10);
+    data.targetId = parseInt(data.targetId, 10);
+    data.targetName = targetName;
+
     if (localId) {
       StateManager.updateAction(localId, data);
     } else {

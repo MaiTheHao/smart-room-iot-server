@@ -124,6 +124,26 @@ export const Validator = {
 		},
 	}),
 
+	// Integer (numeric whole number)
+	integer: createValidator({
+		formatFn: (val) => {
+			if (val === null || val === undefined || val === '') return false;
+			return !isNaN(parseInt(val)) && Number.isInteger(Number(val));
+		},
+	}),
+
+	// Cron expression (Quartz: 6 or 7 space-separated fields)
+	cron: createValidator({
+		formatFn: (val) => {
+			if (val === null || val === undefined) return false;
+			const s = String(val).trim();
+			if (s === '') return false;
+			const fields = s.split(/\s+/);
+			if (fields.length !== 6 && fields.length !== 7) return false;
+			return fields.every((f) => /^[0-9A-Za-z*/,\-?LW#]+$/.test(f));
+		},
+	}),
+
 	// Common Description: max 255 chars
 	description: createValidator({ max: 255 }),
 

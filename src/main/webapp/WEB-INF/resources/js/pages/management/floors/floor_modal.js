@@ -1,4 +1,5 @@
 import { Validator } from '../../../common/validator.js';
+import { CreateFloorDto, UpdateFloorDto } from '../../../types/floor.domain.js';
 import { StateManager } from './state_manager.js';
 import { Alert } from '../../../common/notification_util.js';
 
@@ -85,14 +86,24 @@ export const FloorModal = (() => {
 
 		clearValidation();
 
-		if (!Validator.name.isBlank(data.name)) {
-			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colName || ''), i18n.error || 'Error');
-			elements.name?.focus();
-			return null;
-		}
-		if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
-			await Alert.warning(i18n.valNameLen || '', i18n.error || 'Error');
-			elements.name?.focus();
+		const isUpdate = !!data.id;
+		const builder = isUpdate
+			? new UpdateFloorDto.Builder()
+				.setName(data.name)
+				.setLevel(data.level)
+				.setDescription(data.description)
+			: new CreateFloorDto.Builder()
+				.setName(data.name)
+				.setCode(data.code)
+				.setLevel(data.level)
+				.setDescription(data.description);
+
+		const result = builder.validate();
+		if (!result.isValid) {
+			const firstField = Object.keys(result.errors)[0];
+			const msgKey = result.errors[firstField];
+			await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+			elements[firstField]?.focus();
 			return null;
 		}
 
@@ -101,25 +112,9 @@ export const FloorModal = (() => {
 			elements.code?.focus();
 			return null;
 		}
-		if (!Validator.code.isHigherMax(data.code)) {
-			await Alert.warning(i18n.valCodeLen || '', i18n.error || 'Error');
-			elements.code?.focus();
-			return null;
-		}
 
-		if (!Validator.level.isValidFormat(data.level)) {
-			await Alert.warning(i18n.valLevelInvalid || '', i18n.error || 'Error');
-			elements.level?.focus();
-			return null;
-		}
-
-		if (data.description && !Validator.description.isHigherMax(data.description)) {
-			await Alert.warning(i18n.valDescriptionLen || '', i18n.error || 'Error');
-			elements.description?.focus();
-			return null;
-		}
-
-		return data;
+		const payload = builder.build();
+		return isUpdate ? { ...payload, id: data.id } : { ...payload };
 	};
 
 	return {

@@ -3,6 +3,8 @@
  */
 
 import { JobTargetType, JobActionType } from '../constants/automation.constants.js';
+import { Validator } from '../common/validator.js';
+import { DomainValidationError } from './common.domain.js';
 
 export { JobTargetType, JobActionType };
 
@@ -46,7 +48,30 @@ export class CreateAutomationDto {
       setDescription(description) { this._description = description; return this; }
       setCronExpression(cronExpression) { this._cronExpression = cronExpression; return this; }
       setIsActive(isActive) { this._isActive = isActive; return this; }
-      build() { return new CreateAutomationDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.name.isNull(this._name) || !Validator.name.isBlank(this._name)) {
+          errors.name = 'valNameRequired';
+        } else if (!Validator.name.isLowerMin(this._name) || !Validator.name.isHigherMax(this._name)) {
+          errors.name = 'valNameLen';
+        }
+        if (!Validator.cron.isNull(this._cronExpression) || !Validator.cron.isValidFormat(this._cronExpression)) {
+          errors.cronExpression = this._cronExpression === null || this._cronExpression === undefined || String(this._cronExpression).trim() === ''
+            ? 'valCronRequired'
+            : 'valCronInvalid';
+        }
+        if (this._description && !Validator.description.isHigherMax(this._description)) {
+          errors.description = 'valDescriptionLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('CreateAutomationDto validation failed', errors);
+        }
+        return new CreateAutomationDto(this);
+      }
     }
     return Builder;
   }
@@ -66,7 +91,30 @@ export class UpdateAutomationDto {
       setDescription(description) { this._description = description; return this; }
       setCronExpression(cronExpression) { this._cronExpression = cronExpression; return this; }
       setIsActive(isActive) { this._isActive = isActive; return this; }
-      build() { return new UpdateAutomationDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.name.isNull(this._name) || !Validator.name.isBlank(this._name)) {
+          errors.name = 'valNameRequired';
+        } else if (!Validator.name.isLowerMin(this._name) || !Validator.name.isHigherMax(this._name)) {
+          errors.name = 'valNameLen';
+        }
+        if (!Validator.cron.isNull(this._cronExpression) || !Validator.cron.isValidFormat(this._cronExpression)) {
+          errors.cronExpression = this._cronExpression === null || this._cronExpression === undefined || String(this._cronExpression).trim() === ''
+            ? 'valCronRequired'
+            : 'valCronInvalid';
+        }
+        if (this._description && !Validator.description.isHigherMax(this._description)) {
+          errors.description = 'valDescriptionLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('UpdateAutomationDto validation failed', errors);
+        }
+        return new UpdateAutomationDto(this);
+      }
     }
     return Builder;
   }
@@ -116,7 +164,30 @@ export class CreateAutomationActionDto {
       setActionType(actionType) { this._actionType = actionType; return this; }
       setParameterValue(parameterValue) { this._parameterValue = parameterValue; return this; }
       setExecutionOrder(executionOrder) { this._executionOrder = executionOrder; return this; }
-      build() { return new CreateAutomationActionDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.generic.isNull(this._targetType) || !Validator.generic.isBlank(this._targetType)) {
+          errors.targetType = 'valTargetTypeRequired';
+        }
+        if (!Validator.generic.isNull(this._targetId) || !Validator.generic.isBlank(this._targetId)) {
+          errors.targetId = 'valTargetRequired';
+        }
+        if (!Validator.generic.isNull(this._actionType) || !Validator.generic.isBlank(this._actionType)) {
+          errors.actionType = 'valActionTypeRequired';
+        }
+        if (this._executionOrder !== null && this._executionOrder !== undefined && this._executionOrder !== ''
+            && !Validator.integer.isValidFormat(this._executionOrder)) {
+          errors.executionOrder = 'valExecutionOrderInvalid';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('CreateAutomationActionDto validation failed', errors);
+        }
+        return new CreateAutomationActionDto(this);
+      }
     }
     return Builder;
   }
@@ -138,7 +209,30 @@ export class UpdateAutomationActionDto {
       setActionType(actionType) { this._actionType = actionType; return this; }
       setParameterValue(parameterValue) { this._parameterValue = parameterValue; return this; }
       setExecutionOrder(executionOrder) { this._executionOrder = executionOrder; return this; }
-      build() { return new UpdateAutomationActionDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.generic.isNull(this._targetType) || !Validator.generic.isBlank(this._targetType)) {
+          errors.targetType = 'valTargetTypeRequired';
+        }
+        if (!Validator.generic.isNull(this._targetId) || !Validator.generic.isBlank(this._targetId)) {
+          errors.targetId = 'valTargetRequired';
+        }
+        if (!Validator.generic.isNull(this._actionType) || !Validator.generic.isBlank(this._actionType)) {
+          errors.actionType = 'valActionTypeRequired';
+        }
+        if (this._executionOrder !== null && this._executionOrder !== undefined && this._executionOrder !== ''
+            && !Validator.integer.isValidFormat(this._executionOrder)) {
+          errors.executionOrder = 'valExecutionOrderInvalid';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('UpdateAutomationActionDto validation failed', errors);
+        }
+        return new UpdateAutomationActionDto(this);
+      }
     }
     return Builder;
   }

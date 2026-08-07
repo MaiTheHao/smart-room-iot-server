@@ -39,3 +39,11 @@ export class PaginatedResponse {
     return Builder;
   }
 }
+
+export class DomainValidationError extends Error {
+  constructor(message, errors = {}) {
+    super(message);
+    this.name = 'DomainValidationError';
+    this.errors = errors;
+  }
+}

@@ -1,4 +1,4 @@
-import { Validator } from '../../../common/validator.js';
+import { CreateSysFunctionDto, UpdateSysFunctionDto } from '../../../types/system.domain.js';
 import { StateManager } from './state_manager.js';
 import { Alert } from '../../../common/notification_util.js';
 
@@ -83,42 +83,27 @@ export const FunctionModal = (() => {
 
     clearValidation();
 
-    if (!Validator.name.isBlank(data.name)) {
-      await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colName || ''), i18n.error || 'Error');
-      elements.name?.focus();
-      return null;
-    }
-    if (!Validator.name.isLowerMin(data.name) || !Validator.name.isHigherMax(data.name)) {
-      await Alert.warning(i18n.valNameLen || '', i18n.error || 'Error');
-      elements.name?.focus();
-      return null;
-    }
+    const isUpdate = !!data.id;
+    const builder = isUpdate
+      ? new UpdateSysFunctionDto.Builder()
+          .setName(data.name)
+          .setDescription(data.description)
+      : new CreateSysFunctionDto.Builder()
+          .setFunctionCode(data.functionCode)
+          .setName(data.name)
+          .setDescription(data.description);
 
-    if (!data.id) {
-      if (!Validator.functionCode.isBlank(data.functionCode)) {
-        await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colCode || ''), i18n.error || 'Error');
-        elements.functionCode?.focus();
-        return null;
-      }
-      if (!Validator.functionCode.isHigherMax(data.functionCode)) {
-        await Alert.warning(i18n.valCodeLen || '', i18n.error || 'Error');
-        elements.functionCode?.focus();
-        return null;
-      }
-      if (!Validator.functionCode.isValidFormat(data.functionCode)) {
-        await Alert.warning(i18n.valFunctionCodeFormat || '', i18n.error || 'Error');
-        elements.functionCode?.focus();
-        return null;
-      }
-    }
-
-    if (data.description && !Validator.description.isHigherMax(data.description)) {
-      await Alert.warning(i18n.valDescriptionLen || '', i18n.error || 'Error');
-      elements.description?.focus();
+    const result = builder.validate();
+    if (!result.isValid) {
+      const firstField = Object.keys(result.errors)[0];
+      const msgKey = result.errors[firstField];
+      await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+      elements[firstField]?.focus();
       return null;
     }
 
-    return data;
+    const payload = builder.build();
+    return isUpdate ? { ...payload, id: data.id } : { ...payload };
   };
 
   return {

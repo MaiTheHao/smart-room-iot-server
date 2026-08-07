@@ -1,5 +1,5 @@
 import { createRule, updateRule } from '../../../../api/rule.api.js';
-import { Validator } from '../../../../common/validator.js';
+import { CreateRuleDto, UpdateRuleDto } from '../../../../types/rule.domain.js';
 import { Toast, Alert } from '../../../../common/notification_util.js';
 
 export const RuleModal = (() => {
@@ -70,29 +70,17 @@ export const RuleModal = (() => {
 
 		clearValidation();
 
-		if (!Validator.name.isBlank(data.name)) {
-			await Alert.warning(i18n.valRequired.replace('{0}', 'Name'), i18n.error || 'Error');
-			elements.name?.focus();
-			return null;
-		}
+		const builder = new CreateRuleDto.Builder()
+			.setName(data.name)
+			.setPriority(data.priority)
+			.setIntervalSeconds(data.intervalSeconds);
 
-		if (!data.priority || isNaN(data.priority)) {
-			await Alert.warning(i18n.valPriorityRequired, i18n.error || 'Error');
-			elements.priority?.focus();
-			return null;
-		} else if (parseInt(data.priority, 10) < 0) {
-			await Alert.warning(i18n.valPriorityMin, i18n.error || 'Error');
-			elements.priority?.focus();
-			return null;
-		}
-
-		if (!data.intervalSeconds || isNaN(data.intervalSeconds)) {
-			await Alert.warning(i18n.valIntervalRequired, i18n.error || 'Error');
-			elements.intervalSeconds?.focus();
-			return null;
-		} else if (parseInt(data.intervalSeconds, 10) < 60) {
-			await Alert.warning(i18n.valIntervalMin, i18n.error || 'Error');
-			elements.intervalSeconds?.focus();
+		const result = builder.validate();
+		if (!result.isValid) {
+			const firstField = Object.keys(result.errors)[0];
+			const msgKey = result.errors[firstField];
+			await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+			elements[firstField]?.focus();
 			return null;
 		}
 
@@ -110,14 +98,14 @@ export const RuleModal = (() => {
 
 		try {
 			const isUpdate = !!data.id;
-			const payload = {
-				name: data.name,
-				priority: parseInt(data.priority, 10),
-				intervalSeconds: parseInt(data.intervalSeconds, 10),
-				conditions: isUpdate ? (currentData?.conditions || []) : [],
-				actions: isUpdate ? (currentData?.actions || []) : []
-			};
+			const builder = new (isUpdate ? UpdateRuleDto : CreateRuleDto).Builder()
+				.setName(data.name)
+				.setPriority(parseInt(data.priority, 10))
+				.setIntervalSeconds(parseInt(data.intervalSeconds, 10))
+				.setConditions(isUpdate ? (currentData?.conditions || []) : [])
+				.setActions(isUpdate ? (currentData?.actions || []) : []);
 
+			const payload = builder.build();
 			if (!isUpdate) {
 				payload.isActive = true;
 			}

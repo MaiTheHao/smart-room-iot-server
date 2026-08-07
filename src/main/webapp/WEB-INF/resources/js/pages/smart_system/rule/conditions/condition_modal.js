@@ -6,6 +6,7 @@ import { getAllTemperaturesByRoom, getAllPowerConsumptionsByRoom } from '../../.
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
+import { CreateRuleConditionDto, UpdateRuleConditionDto } from '../../../../types/rule.domain.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
 
@@ -526,6 +527,22 @@ export const ConditionModal = (() => {
   const submit = async (e) => {
     e.preventDefault();
 
+    const localId = el.localId.value;
+    const builder = new (localId ? UpdateRuleConditionDto : CreateRuleConditionDto).Builder()
+      .setDataSource(el.dataSource.value)
+      .setOperator(el.operator.value)
+      .setSortOrder(el.sortOrder.value);
+
+    const result = builder.validate();
+    if (!result.isValid) {
+      const firstField = Object.keys(result.errors)[0];
+      const msgKey = result.errors[firstField];
+      await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+      const FIELD_ID_MAP = { dataSource: el.dataSource, operator: el.operator, sortOrder: el.sortOrder };
+      FIELD_ID_MAP[firstField]?.focus();
+      return;
+    }
+
     const val = getValue().trim();
 
     if (!val) {
@@ -631,7 +648,6 @@ export const ConditionModal = (() => {
       nextLogic:  nextLogic,
     };
 
-    const localId = el.localId.value;
     if (localId) {
       StateManager.updateCondition(localId, data);
     } else {

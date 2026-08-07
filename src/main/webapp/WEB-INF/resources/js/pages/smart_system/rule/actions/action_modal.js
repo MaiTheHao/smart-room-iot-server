@@ -5,6 +5,7 @@ import { getAllRoomsByFloor, getRoomById } from '../../../../api/room.api.js';
 import { getDevicesByRoom, getDeviceById } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
+import { CreateRuleActionDto, UpdateRuleActionDto } from '../../../../types/rule.domain.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -453,9 +454,19 @@ export const ActionModal = (() => {
     const submit = async (e) => {
         e.preventDefault();
 
-        if (!Validator.id.isBlank(el.targetDeviceId.value)) {
-            await Alert.warning(i18n.selectDevice || 'Please select a device', i18n.error || 'Error');
-            el.targetDeviceId?.focus();
+        const localId = el.localId.value;
+        const builder = new (localId ? UpdateRuleActionDto : CreateRuleActionDto).Builder()
+            .setTargetDeviceId(el.targetDeviceId.value)
+            .setTargetDeviceCategory(el.targetDeviceCategory.value)
+            .setExecutionOrder(el.executionOrder.value);
+
+        const result = builder.validate();
+        if (!result.isValid) {
+            const firstField = Object.keys(result.errors)[0];
+            const msgKey = result.errors[firstField];
+            await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+            const FIELD_ID_MAP = { targetDeviceId: el.targetDeviceId, targetDeviceCategory: el.targetDeviceCategory, executionOrder: el.executionOrder };
+            FIELD_ID_MAP[firstField]?.focus();
             return;
         }
 
@@ -483,7 +494,6 @@ export const ActionModal = (() => {
             targetDeviceName:    targetDeviceName,
         };
 
-        const localId = el.localId.value;
         if (localId) {
             StateManager.updateAction(localId, data);
         } else {

@@ -3,6 +3,8 @@
  */
 
 import { ClientType } from '../constants/client.constants.js';
+import { Validator } from '../common/validator.js';
+import { DomainValidationError } from './common.domain.js';
 
 export { ClientType };
 
@@ -54,7 +56,42 @@ export class CreateClientDto {
       setMacAddress(macAddress) { this._macAddress = macAddress; return this; }
       setAvatarUrl(avatarUrl) { this._avatarUrl = avatarUrl; return this; }
       setGatewayPassword(gatewayPassword) { this._gatewayPassword = gatewayPassword; return this; }
-      build() { return new CreateClientDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.username.isNull(this._username) || !Validator.username.isBlank(this._username)) {
+          errors.username = 'valUsernameRequired';
+        } else if (!Validator.username.isLowerMin(this._username) || !Validator.username.isHigherMax(this._username)) {
+          errors.username = 'valUsernameLen';
+        }
+        if (!Validator.password.isNull(this._password) || !Validator.password.isBlank(this._password)) {
+          errors.password = 'valPasswordRequired';
+        } else if (!Validator.password.isLowerMin(this._password) || !Validator.password.isHigherMax(this._password)) {
+          errors.password = 'valPasswordLen';
+        }
+        if (!Validator.clientType.isNull(this._clientType) || !Validator.clientType.isBlank(this._clientType)) {
+          errors.clientType = 'valClientTypeRequired';
+        }
+        if (this._ipAddress && !Validator.ip.isValidFormat(this._ipAddress)) {
+          errors.ipAddress = 'valIpInvalid';
+        }
+        if (this._macAddress && !Validator.mac.isValidFormat(this._macAddress)) {
+          errors.macAddress = 'valMacInvalid';
+        }
+        if (this._avatarUrl && !Validator.url.isValidFormat(this._avatarUrl)) {
+          errors.avatarUrl = 'valUrlInvalid';
+        }
+        if (this._gatewayPassword && (!Validator.password.isLowerMin(this._gatewayPassword) || !Validator.password.isHigherMax(this._gatewayPassword))) {
+          errors.gatewayPassword = 'valPasswordLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('CreateClientDto validation failed', errors);
+        }
+        return new CreateClientDto(this);
+      }
     }
     return Builder;
   }
@@ -78,7 +115,35 @@ export class UpdateClientDto {
       setMacAddress(macAddress) { this._macAddress = macAddress; return this; }
       setAvatarUrl(avatarUrl) { this._avatarUrl = avatarUrl; return this; }
       setGatewayPassword(gatewayPassword) { this._gatewayPassword = gatewayPassword; return this; }
-      build() { return new UpdateClientDto(this); }
+      validate() {
+        const errors = {};
+        if (this._password && (!Validator.password.isLowerMin(this._password) || !Validator.password.isHigherMax(this._password))) {
+          errors.password = 'valPasswordLen';
+        }
+        if (this._clientType && !Validator.clientType.isBlank(this._clientType)) {
+          errors.clientType = 'valClientTypeRequired';
+        }
+        if (this._ipAddress && !Validator.ip.isValidFormat(this._ipAddress)) {
+          errors.ipAddress = 'valIpInvalid';
+        }
+        if (this._macAddress && !Validator.mac.isValidFormat(this._macAddress)) {
+          errors.macAddress = 'valMacInvalid';
+        }
+        if (this._avatarUrl && !Validator.url.isValidFormat(this._avatarUrl)) {
+          errors.avatarUrl = 'valUrlInvalid';
+        }
+        if (this._gatewayPassword && (!Validator.password.isLowerMin(this._gatewayPassword) || !Validator.password.isHigherMax(this._gatewayPassword))) {
+          errors.gatewayPassword = 'valPasswordLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('UpdateClientDto validation failed', errors);
+        }
+        return new UpdateClientDto(this);
+      }
     }
     return Builder;
   }
@@ -94,7 +159,27 @@ export class LoginDto {
     class Builder {
       setUsername(username) { this._username = username; return this; }
       setPassword(password) { this._password = password; return this; }
-      build() { return new LoginDto(this); }
+      validate() {
+        const errors = {};
+        if (!Validator.username.isNull(this._username) || !Validator.username.isBlank(this._username)) {
+          errors.username = 'valUsernameRequired';
+        } else if (!Validator.username.isLowerMin(this._username) || !Validator.username.isHigherMax(this._username)) {
+          errors.username = 'valUsernameLen';
+        }
+        if (!Validator.password.isNull(this._password) || !Validator.password.isBlank(this._password)) {
+          errors.password = 'valPasswordRequired';
+        } else if (!Validator.password.isLowerMin(this._password) || !Validator.password.isHigherMax(this._password)) {
+          errors.password = 'valPasswordLen';
+        }
+        return { isValid: Object.keys(errors).length === 0, errors };
+      }
+      build() {
+        const { isValid, errors } = this.validate();
+        if (!isValid) {
+          throw new DomainValidationError('LoginDto validation failed', errors);
+        }
+        return new LoginDto(this);
+      }
     }
     return Builder;
   }

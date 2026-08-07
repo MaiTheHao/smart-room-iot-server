@@ -1,4 +1,5 @@
 import { Validator } from '../../../common/validator.js';
+import { CreateClientDto, UpdateClientDto } from '../../../types/client.domain.js';
 import { getGroupsWithClientStatus } from '../../../api/group.api.js';
 import { assignGroupsToClient, unassignGroupsFromClient } from '../../../api/role.api.js';
 import { StateManager } from './state_manager.js';
@@ -16,6 +17,16 @@ export const MainForm = (() => {
 		clientType: null,
 		gatewayField: null,
 		submitBtn: null,
+	};
+
+	const FIELD_ID_MAP = {
+		username: () => elements.username,
+		password: () => elements.password,
+		clientType: () => elements.clientType,
+		ipAddress: () => elements.form?.querySelector('#ipAddress'),
+		macAddress: () => elements.form?.querySelector('#macAddress'),
+		avatarUrl: () => elements.form?.querySelector('#avatarUrl'),
+		gatewayPassword: () => elements.form?.querySelector('#gatewayPassword'),
 	};
 
 	let bootstrapModal = null;
@@ -106,7 +117,6 @@ export const MainForm = (() => {
 
 	const validate = async () => {
 		const i18n = StateManager.getI18n();
-		const constants = StateManager.getConstants();
 		const formData = new FormData(elements.form);
 		const data = Object.fromEntries(formData.entries());
 
@@ -114,70 +124,41 @@ export const MainForm = (() => {
 
 		const isUpdate = !!data.id;
 
-		if (!isUpdate) {
-			if (!Validator.username.isBlank(data.username)) {
-				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colUsername || ''), i18n.error || 'Error');
-				elements.username?.focus();
-				return null;
-			}
-			if (!Validator.username.isLowerMin(data.username) || !Validator.username.isHigherMax(data.username)) {
-				await Alert.warning(i18n.valUsernameLen || '', i18n.error || 'Error');
-				elements.username?.focus();
-				return null;
-			}
+		const builder = isUpdate
+			? new UpdateClientDto.Builder()
+				.setPassword(data.password)
+				.setClientType(data.clientType)
+				.setIpAddress(data.ipAddress)
+				.setMacAddress(data.macAddress)
+				.setAvatarUrl(data.avatarUrl)
+				.setGatewayPassword(data.gatewayPassword)
+			: new CreateClientDto.Builder()
+				.setUsername(data.username)
+				.setPassword(data.password)
+				.setClientType(data.clientType)
+				.setIpAddress(data.ipAddress)
+				.setMacAddress(data.macAddress)
+				.setAvatarUrl(data.avatarUrl)
+				.setGatewayPassword(data.gatewayPassword);
 
-			if (!Validator.password.isBlank(data.password)) {
-				await Alert.warning((i18n.valRequired || '').replace('{0}', 'Password'), i18n.error || 'Error');
-				elements.password?.focus();
-				return null;
-			}
-			if (!Validator.password.isLowerMin(data.password) || !Validator.password.isHigherMax(data.password)) {
-				await Alert.warning(i18n.valPasswordLen || '', i18n.error || 'Error');
-				elements.password?.focus();
-				return null;
-			}
-		}
-
-		if (!Validator.clientType.isBlank(data.clientType)) {
-			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colType || ''), i18n.error || 'Error');
-			elements.clientType?.focus();
+		const result = builder.validate();
+		if (!result.isValid) {
+			const firstField = Object.keys(result.errors)[0];
+			const msgKey = result.errors[firstField];
+			await Alert.warning(i18n[msgKey] || i18n.valRequired || 'Error', i18n.error || 'Error');
+			(FIELD_ID_MAP[firstField]?.() || elements.form?.elements[firstField])?.focus();
 			return null;
 		}
 
-		if (StateManager.isGateway(data.clientType)) {
-			if (!Validator.ip.isBlank(data.ipAddress)) {
-				await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colIp || ''), i18n.error || 'Error');
-				const ipEl = elements.form.querySelector('#ipAddress');
-				ipEl?.focus();
-				return null;
-			}
-		}
-
-		if (data.ipAddress && !Validator.ip.isValidFormat(data.ipAddress)) {
-			await Alert.warning(i18n.valIpInvalid || '', i18n.error || 'Error');
+		if (StateManager.isGateway(data.clientType) && !Validator.ip.isBlank(data.ipAddress)) {
+			await Alert.warning((i18n.valRequired || '').replace('{0}', i18n.colIp || ''), i18n.error || 'Error');
 			const ipEl = elements.form.querySelector('#ipAddress');
 			ipEl?.focus();
 			return null;
 		}
 
-		if (data.macAddress && !Validator.mac.isValidFormat(data.macAddress)) {
-			await Alert.warning(i18n.valMacInvalid || '', i18n.error || 'Error');
-			const macEl = elements.form.querySelector('#macAddress');
-			macEl?.focus();
-			return null;
-		}
-
-		if (data.avatarUrl && !Validator.url.isValidFormat(data.avatarUrl)) {
-			await Alert.warning(i18n.valUrlInvalid || '', i18n.error || 'Error');
-			const avatarEl = elements.form.querySelector('#avatarUrl');
-			avatarEl?.focus();
-			return null;
-		}
-
-		if (!isUpdate && StateManager.isGateway(data.clientType)) {
-			if (!Validator.generic.isBlank(data.gatewayPassword)) {
-				data.gatewayPassword = data.password;
-			}
+		if (!isUpdate && StateManager.isGateway(data.clientType) && !Validator.generic.isBlank(data.gatewayPassword)) {
+			data.gatewayPassword = data.password;
 		}
 
 		return Object.fromEntries(Object.entries(data).filter(([_, v]) => Validator.generic.isBlank(v)));
