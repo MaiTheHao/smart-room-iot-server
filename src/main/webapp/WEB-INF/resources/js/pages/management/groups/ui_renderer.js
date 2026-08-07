@@ -1,5 +1,5 @@
 import { TabulatorFull as Tabulator } from '../../../lib/tabulator_esm.min.js';
-import { getGroups, getClientsCountByGroup } from '../../../api/group.api.js';
+import { getGroups } from '../../../api/group.api.js';
 import { StateManager } from './state_manager.js';
 
 export const UiRenderer = (() => {
@@ -58,30 +58,6 @@ export const UiRenderer = (() => {
 					minWidth: 120,
 					headerFilter: 'input',
 					formatter: (cell) => `<div class="d-flex align-items-center h-100"><span class="badge bg-light text-dark border badge-code">${cell.getValue()}</span></div>`,
-				},
-				{
-					title: i18n.colMembers,
-					field: 'id',
-					width: 120,
-					minWidth: 100,
-					hozAlign: 'center',
-					headerSort: false,
-					formatter: (cell) => {
-						const id = cell.getValue();
-						const container = document.createElement('div');
-						container.className = 'd-flex align-items-center justify-content-center h-100';
-
-						const badge = document.createElement('span');
-						badge.className = 'badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3';
-						badge.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-						getClientsCountByGroup(id).then(([err, res]) => {
-							badge.textContent = !err ? res.data || 0 : '-';
-						});
-
-						container.appendChild(badge);
-						return container;
-					},
 				},
 				{
 					title: i18n.colActions,
