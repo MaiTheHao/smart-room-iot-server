@@ -464,7 +464,8 @@ export const ActionModal = (() => {
         if (!result.isValid) {
             const firstField = Object.keys(result.errors)[0];
             const msgKey = result.errors[firstField];
-            await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+            const fieldLabel = ({ targetDeviceId: i18n.colTargetDevice, targetDeviceCategory: i18n.colType, executionOrder: i18n.colOrder })[firstField] || '';
+            await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
             const FIELD_ID_MAP = { targetDeviceId: el.targetDeviceId, targetDeviceCategory: el.targetDeviceCategory, executionOrder: el.executionOrder };
             FIELD_ID_MAP[firstField]?.focus();
             return;
@@ -472,7 +473,7 @@ export const ActionModal = (() => {
 
         const orderVal = el.executionOrder.value;
         if (orderVal === '' || isNaN(orderVal) || parseInt(orderVal, 10) < 0) {
-            await Alert.warning('Execution order must be a valid non-negative integer', i18n.error || 'Error');
+            await Alert.warning(i18n.valExecutionOrderInvalid || 'Execution order must be a valid number', i18n.error || 'Error');
             el.executionOrder?.focus();
             return;
         }

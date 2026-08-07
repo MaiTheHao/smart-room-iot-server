@@ -537,7 +537,8 @@ export const ConditionModal = (() => {
     if (!result.isValid) {
       const firstField = Object.keys(result.errors)[0];
       const msgKey = result.errors[firstField];
-      await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+      const fieldLabel = ({ dataSource: i18n.colDataSource, operator: i18n.colOperator, sortOrder: i18n.colOrder })[firstField] || '';
+      await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
       const FIELD_ID_MAP = { dataSource: el.dataSource, operator: el.operator, sortOrder: el.sortOrder };
       FIELD_ID_MAP[firstField]?.focus();
       return;

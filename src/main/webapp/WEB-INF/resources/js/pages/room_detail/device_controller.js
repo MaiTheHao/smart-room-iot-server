@@ -137,7 +137,7 @@ export const DeviceController = {
         const i18n = StateManager.getI18n();
         window.Swal?.fire({
           title: i18n.errorTitle || 'Error',
-          text: i18n[e.errors[firstField]] || i18n.valRequired || i18n.errorControl || 'Invalid value',
+          text: (i18n[e.errors[firstField]] || i18n.valRequired || '').replace('{0}', ({ power: i18n.power, temperature: i18n.temp, mode: i18n.mode, fanSpeed: i18n.fanSpeed, swing: i18n.swing, speed: i18n.speed, light: i18n.fanLight, level: i18n.level })[firstField] || '') || i18n.errorControl || 'Invalid value',
           icon: 'warning',
           toast: true,
           position: 'top-end',

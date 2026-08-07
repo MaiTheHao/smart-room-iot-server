@@ -79,7 +79,8 @@ export const RuleModal = (() => {
 		if (!result.isValid) {
 			const firstField = Object.keys(result.errors)[0];
 			const msgKey = result.errors[firstField];
-			await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+			const fieldLabel = ({ name: i18n.colName, priority: i18n.colPriority, intervalSeconds: i18n.colInterval })[firstField] || '';
+			await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
 			elements[firstField]?.focus();
 			return null;
 		}

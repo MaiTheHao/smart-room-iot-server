@@ -98,7 +98,8 @@ export const MainForm = (() => {
 		if (!result.isValid) {
 			const firstField = Object.keys(result.errors)[0];
 			const msgKey = result.errors[firstField];
-			await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+			const fieldLabel = ({ groupCode: i18n.colCode, name: i18n.colName, description: i18n.colDescription })[firstField] || '';
+			await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
 			elements[firstField]?.focus();
 			return null;
 		}

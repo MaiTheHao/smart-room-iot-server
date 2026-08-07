@@ -145,7 +145,8 @@ export const MainForm = (() => {
 		if (!result.isValid) {
 			const firstField = Object.keys(result.errors)[0];
 			const msgKey = result.errors[firstField];
-			await Alert.warning(i18n[msgKey] || i18n.valRequired || 'Error', i18n.error || 'Error');
+			const fieldLabel = ({ username: i18n.colUsername, password: i18n.colPassword, clientType: i18n.colType, ipAddress: i18n.colIp, macAddress: i18n.colMac, avatarUrl: '' })[firstField] || '';
+			await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
 			(FIELD_ID_MAP[firstField]?.() || elements.form?.elements[firstField])?.focus();
 			return null;
 		}

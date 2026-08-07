@@ -102,7 +102,8 @@ export const FloorModal = (() => {
 		if (!result.isValid) {
 			const firstField = Object.keys(result.errors)[0];
 			const msgKey = result.errors[firstField];
-			await Alert.warning(i18n[msgKey] || i18n.valRequired, i18n.error || 'Error');
+			const fieldLabel = ({ name: i18n.colName, code: i18n.colCode, level: i18n.colLevel, description: i18n.colDescription })[firstField] || '';
+			await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
 			elements[firstField]?.focus();
 			return null;
 		}

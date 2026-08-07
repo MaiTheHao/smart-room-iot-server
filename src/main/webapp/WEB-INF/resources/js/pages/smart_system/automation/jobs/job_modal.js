@@ -202,7 +202,8 @@ export const JobModal = (() => {
     if (!result.isValid) {
       const firstField = Object.keys(result.errors)[0];
       const msgKey = result.errors[firstField];
-      await Alert.warning(i18n[msgKey] || i18n.valRequired || 'Error', i18n.error || 'Error');
+      const fieldLabel = ({ name: i18n.colName, cronExpression: i18n.colCron, description: '' })[firstField] || '';
+      await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
       const FIELD_ID_MAP = {
         name: () => elements.name,
         cronExpression: () => elements.timeHour,
