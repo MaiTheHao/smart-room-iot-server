@@ -2,6 +2,7 @@ import { getAverageHistory } from '../../../../api/temperature.api.js';
 import { StateManager } from '../../state_manager.js';
 
 let chartInstance = null;
+let lastRangeKey = '';
 
 export const RoomTempChart = {
   init() {
@@ -58,11 +59,16 @@ export const RoomTempChart = {
     const el = document.querySelector('#tempChart');
     if (!el || !chartInstance) return;
 
+    const rangeKey = `${from}-${to}`;
+    if (rangeKey === lastRangeKey) return;
+
     const roomId = StateManager.getRoomId();
     const i18n = StateManager.getI18n();
 
     const [err, res] = await getAverageHistory(roomId, from, to);
     if (err || !res.data) return;
+
+    lastRangeKey = rangeKey;
 
     const data = res.data;
     if (data.length > 0) {

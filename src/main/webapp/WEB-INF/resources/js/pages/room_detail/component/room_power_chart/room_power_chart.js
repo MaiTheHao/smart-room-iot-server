@@ -2,6 +2,7 @@ import { getEnergyMetricHistory } from '../../../../api/metric.api.js';
 import { StateManager } from '../../state_manager.js';
 
 let chartInstance = null;
+let lastRangeKey = '';
 
 export const RoomPowerChart = {
   init() {
@@ -58,6 +59,9 @@ export const RoomPowerChart = {
     const el = document.querySelector('#powerChart');
     if (!el || !chartInstance) return;
 
+    const rangeKey = `${from}-${to}`;
+    if (rangeKey === lastRangeKey) return;
+
     const roomId = StateManager.getRoomId();
     const i18n = StateManager.getI18n();
 
@@ -68,6 +72,8 @@ export const RoomPowerChart = {
       to,
     });
     if (err || !res.data) return;
+
+    lastRangeKey = rangeKey;
 
     const data = res.data;
     if (data.length > 0) {
