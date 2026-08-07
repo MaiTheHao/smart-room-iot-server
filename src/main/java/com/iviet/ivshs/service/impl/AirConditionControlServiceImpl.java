@@ -70,20 +70,26 @@ public class AirConditionControlServiceImpl implements AirConditionControlServic
     Client gatewayClient = extractClient(ac);
     GatewayAdapter adapter = gatewayAdapterRegistry.get(gatewayClient.getClientType());
     String ip = gatewayClient.getIpAddress();
-    GatewayCommand command = buildCommand(ac, targetOrAutoPower, targetTemp, targetMode, targetSpeed, targetSwing);
 
     ControlDeviceResult result = new ControlDeviceResult();
     boolean hasFailed = false;
 
     if (isPowerChanged) {
-      hasFailed = !executeControl(adapter, ip, command, result, "power");
+      GatewayCommand powerCommand = buildCommand(ac, targetOrAutoPower, null, null, null, null);
+      hasFailed = !executeControl(adapter, ip, powerCommand, result, "power");
       if (ac.getPower() != null && targetOrAutoPower != null) {
         ac.setPower(targetOrAutoPower);
       }
     }
 
     if (!hasFailed && isOtherChanged) {
-      if (executeControl(adapter, ip, command, result, "remote")) {
+      Integer effectiveTemp = targetTemp != null ? targetTemp : ac.getTemperature();
+      ActuatorMode effectiveMode = targetMode != null ? targetMode : ac.getMode();
+      Integer effectiveSpeed = targetSpeed != null ? targetSpeed : ac.getFanSpeed();
+      ActuatorSwing effectiveSwing = targetSwing != null ? targetSwing : ac.getSwing();
+      GatewayCommand remoteCommand =
+          buildCommand(ac, null, effectiveTemp, effectiveMode, effectiveSpeed, effectiveSwing);
+      if (executeControl(adapter, ip, remoteCommand, result, "remote")) {
         if (targetTemp != null) ac.setTemperature(targetTemp);
         if (targetMode != null) ac.setMode(targetMode);
         if (targetSpeed != null) ac.setFanSpeed(targetSpeed);
