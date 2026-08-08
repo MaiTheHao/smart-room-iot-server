@@ -1,0 +1,53 @@
+name: iuhsmrc_compose
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: iusmrc_mariadb
+    command:
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      timeout: 5s
+      interval: 10s
+      retries: 5
+    ports:
+      - '${MARIADB_PORT}:${MARIADB_PORT}'
+    restart: always
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - default
+
+  flyway:
+    image: flyway/flyway:10
+    container_name: iusmrc_flyway
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:mariadb://mariadb:${MARIADB_PORT}/${MARIADB_DATABASE}
+      FLYWAY_USER: root
+      FLYWAY_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    volumes:
+      - ../database/migrations:/flyway/sql:ro
+    command: ["migrate"]
+    restart: 'no'
+    networks:
+      - default
+
+volumes:
+  mariadb_data:
+    name: iuhsmrc_mariadb_data
+  flyway_migrations:
+    name: iuhsmrc_flyway_migrations
+
+networks:
+  default:
+    name: iuhsmrc_network

@@ -60,3 +60,7 @@ skills/
 *.dbdiagram
 .agents/
 docs/
+
+# Environment files
+.env
+!.env.example
