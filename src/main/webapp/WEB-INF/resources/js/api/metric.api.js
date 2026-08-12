@@ -1,5 +1,5 @@
 import { httpClient } from './http-client.js';
-import { METRIC_DOMAIN, SensorMetricCategory, EnergyMetricCategory } from '../constants/telemetry.constants.js';
+import { METRIC_DOMAIN, SensorMetricCategory, EnergyMetricCategory } from '../constants/metric.constants.js';
 
 /**
  * @param {Object} params

@@ -1,4 +1,5 @@
-import { getAverageHistory } from '../../../../api/temperature.api.js';
+import { getTemperatureMetricHistory } from '../../../../api/metric.api.js';
+import { SensorMetricCategory } from '../../../../constants/metric.constants.js';
 import { StateManager } from '../../state_manager.js';
 
 let chartInstance = null;
@@ -65,14 +66,20 @@ export const RoomTempChart = {
     const roomId = StateManager.getRoomId();
     const i18n = StateManager.getI18n();
 
-    const [err, res] = await getAverageHistory(roomId, from, to);
+    const [err, res] = await getTemperatureMetricHistory({
+      category: SensorMetricCategory.ROOM,
+      targetId: roomId,
+      from,
+      to,
+    });
     if (err || !res.data) return;
 
     lastRangeKey = rangeKey;
 
     const data = res.data;
     if (data.length > 0) {
-      const avg = (data.reduce((sum, item) => sum + item.avgTempC, 0) / data.length).toFixed(2);
+      const getVal = (item) => item.avgTemp ?? item.avgTempC ?? item.temperature;
+      const avg = (data.reduce((sum, item) => sum + getVal(item), 0) / data.length).toFixed(2);
       const badge = document.querySelector('#avgTempBadge');
       if (badge) badge.textContent = `Avg: ${avg}°C`;
 
@@ -80,7 +87,7 @@ export const RoomTempChart = {
         series: [
           {
             name: i18n.temp || 'Temperature',
-            data: data.map((item) => ({ x: Date.parse(item.timestamp), y: item.avgTempC })),
+            data: data.map((item) => ({ x: Date.parse(item.timestamp), y: getVal(item) })),
           },
         ],
       });

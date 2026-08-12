@@ -2,7 +2,7 @@
  * Telemetry Domain Types and Builders
  */
 
-import { MetricDomain, EnergyMetricCategory } from '../constants/telemetry.constants.js';
+import { MetricDomain, EnergyMetricCategory } from '../constants/metric.constants.js';
 
 export { MetricDomain, EnergyMetricCategory };
 
