@@ -59,7 +59,7 @@ skills/
 # Other
 *.dbdiagram
 .agents/
-docs/
+docs/brainstorming
 
 # Environment files
 .env
