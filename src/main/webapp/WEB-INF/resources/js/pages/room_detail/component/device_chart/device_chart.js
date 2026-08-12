@@ -1,12 +1,9 @@
 import { getEnergyMetricHistory } from '../../../../api/metric.api.js';
 import { StateManager } from '../../state_manager.js';
+import { ChartFactory } from '../chart/chart_factory.js';
+import { DEVICE_METRIC_CONFIGS } from './device_metric_registry.js';
 
-const METRIC_COLORS = {
-  power: '#f59e0b',
-  voltage: '#3b82f6',
-  current: '#8b5cf6',
-  energy: '#10b981',
-};
+const DEFAULT_RANGE_HOURS = 3;
 
 export const DeviceChart = {
   async init(naturalId) {
@@ -16,137 +13,81 @@ export const DeviceChart = {
     const chartEl = container.querySelector('.device-chart-el');
     const rangeInput = container.querySelector('.device-chart-range');
     const category = container.dataset.category;
-    const targetId = parseInt(container.dataset.id);
+    const targetId = parseInt(container.dataset.id, 10);
 
-    const initialChartState = {
+    const state = {
       chart: null,
       currentType: 'power',
-      category: category,
-      targetId: targetId,
+      category,
+      targetId,
       data: [],
       range: {
-        from: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        from: new Date(Date.now() - DEFAULT_RANGE_HOURS * 60 * 60 * 1000).toISOString(),
         to: new Date().toISOString(),
       },
     };
 
-    StateManager.setDeviceChart(naturalId, initialChartState);
+    StateManager.setDeviceChart(naturalId, state);
 
-    if (window.flatpickr) {
-      flatpickr(rangeInput, {
-        mode: 'range',
-        enableTime: true,
-        time_24hr: true,
-        altInput: true,
-        altFormat: 'd/m/Y H:i',
-        dateFormat: 'Z',
-        defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()],
-        onClose: (dates) => {
-          if (dates.length === 2) {
-            const currentObj = StateManager.getDeviceChart(naturalId);
-            if (currentObj) {
-              currentObj.range = {
-                from: dates[0].toISOString(),
-                to: dates[1].toISOString(),
-              };
-              this.refreshData(naturalId);
-            }
-          }
-        },
-      });
-    }
+    const instance = ChartFactory.createInstance(DEVICE_METRIC_CONFIGS.power, chartEl, {
+      getI18n: () => StateManager.getI18n(),
+      fetchData: async (from, to) => {
+        const [err, res] = await getEnergyMetricHistory({ category, targetId, from, to });
+        return [err, res?.data ?? null];
+      },
+      onData: (chart, data) => {
+        state.data = data;
+      },
+    });
 
-    const options = {
-      chart: {
-        height: 200,
-        type: 'area',
-        toolbar: { show: false },
-        fontFamily: 'inherit',
-        animations: { enabled: true },
-      },
-      dataLabels: { enabled: false },
-      stroke: { curve: 'smooth', width: 2 },
-      series: [{ name: 'Value', data: [] }],
-      xaxis: {
-        type: 'datetime',
-        labels: { 
-          datetimeUTC: false,
-          style: { colors: '#94a3b8', fontSize: '10px' } 
-        },
-      },
-      yaxis: {
-        labels: {
-          formatter: (val) => (val?.toFixed ? val.toFixed(2) : val),
-          style: { colors: '#94a3b8', fontSize: '10px' },
-        },
-      },
-      grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
-      tooltip: {
-        x: { format: 'dd MMM HH:mm' },
-        y: { formatter: (val) => (val?.toFixed ? val.toFixed(2) : val) },
-      },
-      markers: {
-        size: 4,
-        strokeColors: '#fff',
-        strokeWidth: 2,
-        hover: {
-          size: 6,
-        },
-      },
-      fill: {
-        type: 'gradient',
-        gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] },
-      },
-      colors: [METRIC_COLORS.power],
-    };
+    if (!instance) return;
+    state.chart = instance;
 
-    const chartInstance = new ApexCharts(chartEl, options);
-    StateManager.getDeviceChart(naturalId).chart = chartInstance;
-    await chartInstance.render();
+    this.bindRangePicker(naturalId, rangeInput);
 
     await this.refreshData(naturalId);
   },
 
-  async refreshData(naturalId) {
-    const state = StateManager.getDeviceChart(naturalId);
-    if (!state) return;
+  bindRangePicker(naturalId, rangeInput) {
+    if (!window.flatpickr) return;
 
-    const [err, res] = await getEnergyMetricHistory({
-      category: state.category,
-      targetId: state.targetId,
-      from: state.range.from,
-      to: state.range.to,
+    flatpickr(rangeInput, {
+      mode: 'range',
+      enableTime: true,
+      time_24hr: true,
+      altInput: true,
+      altFormat: 'd/m/Y H:i',
+      dateFormat: 'Z',
+      defaultDate: [new Date(Date.now() - 24 * 60 * 60 * 1000), new Date()],
+      onClose: (dates) => {
+        if (dates.length !== 2) return;
+        const state = StateManager.getDeviceChart(naturalId);
+        if (!state?.chart) return;
+        state.range = { from: dates[0].toISOString(), to: dates[1].toISOString() };
+        this.refreshData(naturalId);
+      },
     });
-
-    if (err || !res.data) return;
-
-    state.data = res.data;
-    this.updateChart(naturalId);
   },
 
-  updateChart(naturalId) {
+  async refreshData(naturalId) {
     const state = StateManager.getDeviceChart(naturalId);
-    if (!state || !state.chart) return;
-
-    const i18n = StateManager.getI18n();
-    const type = state.currentType;
-    const color = METRIC_COLORS[type] || '#3b82f6';
-    const metricKey = `metric${type.charAt(0).toUpperCase() + type.slice(1)}`;
-    const seriesData = state.data.map((item) => ({
-      x: Date.parse(item.timestamp),
-      y: item[type] || 0,
-    }));
-
-    state.chart.updateOptions({
-      colors: [color],
-      series: [{ name: i18n[metricKey] || type, data: seriesData }],
-    });
+    if (!state?.chart) return;
+    try {
+      await state.chart.update(state.range.from, state.range.to);
+    } catch (error) {
+      console.error(`[DeviceChart] Refresh failed for ${naturalId}:`, error);
+    }
   },
 
   switchType(naturalId, newType) {
     const state = StateManager.getDeviceChart(naturalId);
-    if (!state) return;
+    const config = DEVICE_METRIC_CONFIGS[newType];
+    if (!state?.chart || !config) return;
+
     state.currentType = newType;
-    this.updateChart(naturalId);
+    state.chart.setConfig(config);
+    state.chart.renderData(state.data).catch((error) => {
+      console.error(`[DeviceChart] Switch type failed for ${naturalId}:`, error);
+    });
   },
 };

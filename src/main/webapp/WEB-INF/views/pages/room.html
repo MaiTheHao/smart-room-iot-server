@@ -88,39 +88,29 @@
           </span>
           <span th:text="#{room.analytics.title}">Phân tích & Thống kê</span>
         </h5>
-        <div class="d-flex gap-2 mt-2 mt-md-0">
+        <div class="d-flex gap-2 mt-2 mt-md-0 align-items-center">
           <div class="input-group shadow-sm" style="width: 370px">
             <span class="input-group-text bg-white border-end-0"><i data-lucide="calendar" class="lucide-sm"></i></span>
             <input type="text" id="analyticsRange" class="form-control border-start-0 fw-medium" style="width: 45ch" readonly />
           </div>
+          <!-- Chart Pagination Controls -->
+          <div class="btn-group shadow-sm d-none" id="chartPaginationControls">
+            <button type="button" class="btn btn-white border text-secondary" id="btnPrevChartPage" title="Previous Page">
+              <i data-lucide="chevron-left" class="lucide-sm"></i>
+            </button>
+            <span class="btn btn-white border text-dark fw-semibold disabled px-3" id="chartPageIndicator" style="opacity: 1;">1 / 1</span>
+            <button type="button" class="btn btn-white border text-secondary" id="btnNextChartPage" title="Next Page">
+              <i data-lucide="chevron-right" class="lucide-sm"></i>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- 3. Real-time Charts -->
-      <div class="row mb-4">
-        <div class="col-lg-6">
-          <div class="card rounded-2 border-1 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-              <h6 class="m-0 flex-grow-1"><i data-lucide="thermometer" class="text-danger me-2 lucide-sm"></i><span th:text="#{room.chart.temp}">Nhiệt độ</span></h6>
-              <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3" id="avgTempBadge">Avg: --</span>
-            </div>
-            <div class="card-body">
-              <div id="tempChart" style="min-height: 300px"></div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card rounded-2 border-1 shadow-sm h-100">
-            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-              <h6 class="m-0 flex-grow-1"><i data-lucide="zap" class="text-warning me-2 lucide-sm"></i><span th:text="#{room.chart.power}">Công suất</span></h6>
-              <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3" id="peakPowerBadge">Peak: --</span>
-            </div>
-            <div class="card-body">
-              <div id="powerChart" style="min-height: 300px"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Mobile Navigation Bar for Charts -->
+      <div class="d-flex d-md-none overflow-auto mb-3 pb-2 gap-2 text-nowrap d-none" id="mobileChartNavBar" style="scrollbar-width: none;"></div>
+
+      <!-- 3. Real-time Charts (Dynamic Grid Container) -->
+      <div class="row mb-4" id="roomChartsContainer"></div>
 
       <!-- 4. Smart Controls Section (Dynamic) -->
       <div id="controls-container">
@@ -157,6 +147,9 @@
           bright: /*[[#{room.controls.bright}]]*/ 'Bright',
           temp: /*[[#{room.chart.temp}]]*/ 'Temperature',
           power: /*[[#{room.chart.power}]]*/ 'Power',
+          humidity: /*[[#{room.chart.humidity}]]*/ 'Humidity',
+          co2: /*[[#{room.chart.co2}]]*/ 'CO2',
+          lux: /*[[#{room.chart.lux}]]*/ 'Lux',
           errorTitle: /*[[#{common.error.title}]]*/ 'Error',
           errorFetch: /*[[#{room.error.fetch_devices}]]*/ 'Failed to fetch devices',
           errorControl: /*[[#{room.error.control_failed}]]*/ 'Failed to control device',
