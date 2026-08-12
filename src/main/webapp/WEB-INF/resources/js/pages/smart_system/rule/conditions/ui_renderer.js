@@ -18,54 +18,57 @@ const formatOperator = (op) => {
   return OPERATOR_MAP[op] ?? op;
 };
 
+const parseResourceParam = (param) => {
+  if (param == null || typeof param === 'object') return param;
+  if (typeof param !== 'string') return undefined;
+  try { return JSON.parse(param) || undefined; } catch { return undefined; }
+};
+
 const formatResourceParam = (ds, param) => {
-  if (!param) return '—';
-  const p = typeof param === 'string' ? JSON.parse(param) : param;
-  const propLabel = formatPropertyLabel(p.property, i18n);
+  const params = parseResourceParam(param);
+  if (!params) return '—';
+  const propLabel = formatPropertyLabel(params.property, i18n);
 
   switch (ds) {
-    case 'SYSTEM':
-      return p.property || '—';
-    case 'ROOM':
-      return `Room #${p.roomId} · ${propLabel}`;
-    case 'DEVICE':
-      return `[${p.category}] Device #${p.deviceId} · ${propLabel}`;
-    case 'SENSOR':
-      return `[${p.category}] Sensor #${p.sensorId} · ${propLabel}`;
-    default:
-      return JSON.stringify(p);
+    case 'SYSTEM': return propLabel;
+    case 'ROOM':   return `Room #${params.roomId} · ${propLabel}`;
+    case 'DEVICE': return `[${params.category}] Device #${params.deviceId} · ${propLabel}`;
+    case 'SENSOR': return `[${params.category}] Sensor #${params.sensorId} · ${propLabel}`;
+    default:       return JSON.stringify(params);
   }
 };
 
+const DAY_OF_WEEK_MAP = {
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+  7: 'Sunday',
+};
+
+const formatTimeValue = (val) => {
+  const num = parseFloat(val);
+  if (isNaN(num) || num < 0 || num >= 24) return val;
+  const utcHour = Math.floor(num);
+  const utcMin = Math.round((num - utcHour) * 60);
+  const local = UTCUtils.utcToLocal(utcHour, utcMin, 0);
+  const hh = String(local.hour).padStart(2, '0');
+  const mm = String(local.minute).padStart(2, '0');
+  return `${hh}:${mm}`;
+};
+
+const formatDayOfWeek = (val) => {
+  const name = DAY_OF_WEEK_MAP[val];
+  return name ? `${val} (${name})` : val;
+};
+
 const formatValue = (row) => {
-  const val = row.value;
-  if (row.dataSource === 'SYSTEM') {
-    const param = typeof row.resourceParam === 'string' ? JSON.parse(row.resourceParam) : row.resourceParam;
-    const prop = param?.property;
-    if (prop === 'current_time') {
-      const num = parseFloat(val);
-      if (!isNaN(num) && num >= 0 && num < 24) {
-        const utcHour = Math.floor(num);
-        const utcMin = Math.round((num - utcHour) * 60);
-        const local = UTCUtils.utcToLocal(utcHour, utcMin, 0);
-        const hh = String(local.hour).padStart(2, '0');
-        const mm = String(local.minute).padStart(2, '0');
-        return `${hh}:${mm}`;
-      }
-    } else if (prop === 'day_of_week') {
-      const map = {
-        1: 'Monday',
-        2: 'Tuesday',
-        3: 'Wednesday',
-        4: 'Thursday',
-        5: 'Friday',
-        6: 'Saturday',
-        7: 'Sunday',
-      };
-      return map[val] ? `${val} (${map[val]})` : val;
-    }
-  }
-  return val;
+  const prop = parseResourceParam(row.resourceParam)?.property;
+  if (row.dataSource === 'SYSTEM' && prop === 'current_time') return formatTimeValue(row.value);
+  if (row.dataSource === 'SYSTEM' && prop === 'day_of_week') return formatDayOfWeek(row.value);
+  return row.value;
 };
 
 export const UiRenderer = (() => {
