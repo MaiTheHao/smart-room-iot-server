@@ -1,6 +1,7 @@
 import { TabulatorFull as Tabulator } from '../../../../lib/tabulator_esm.min.js';
 import { StateManager } from './state_manager.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
+import { formatPropertyLabel } from './property_formatter.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
 
@@ -20,15 +21,17 @@ const formatOperator = (op) => {
 const formatResourceParam = (ds, param) => {
   if (!param) return '—';
   const p = typeof param === 'string' ? JSON.parse(param) : param;
+  const propLabel = formatPropertyLabel(p.property, i18n);
+
   switch (ds) {
     case 'SYSTEM':
       return p.property || '—';
     case 'ROOM':
-      return `Room #${p.roomId} · ${p.property}`;
+      return `Room #${p.roomId} · ${propLabel}`;
     case 'DEVICE':
-      return `[${p.category}] Device #${p.deviceId} · ${p.property}`;
+      return `[${p.category}] Device #${p.deviceId} · ${propLabel}`;
     case 'SENSOR':
-      return `[${p.category}] Sensor #${p.sensorId} · ${p.property}`;
+      return `[${p.category}] Sensor #${p.sensorId} · ${propLabel}`;
     default:
       return JSON.stringify(p);
   }

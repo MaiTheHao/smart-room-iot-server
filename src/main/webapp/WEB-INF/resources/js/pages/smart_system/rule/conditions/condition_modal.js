@@ -7,25 +7,41 @@ import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 import { CreateRuleConditionDto, UpdateRuleConditionDto } from '../../../../types/rule.domain.js';
+import { formatPropertyLabel } from './property_formatter.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
+
+const DEFAULT_PAGE = 0;
+const TARGET_FETCH_SIZE = 100;
+
+const CAT_LABEL_KEYS = {
+  TEMPERATURE: 'catTemperature',
+  POWER_CONSUMPTION: 'catPowerConsumption',
+  HUMIDITY: 'catHumidity',
+  SENSOR_CO2: 'catCo2',
+  SENSOR_LUX: 'catLux',
+};
 
 const DATA_SOURCE_CONFIG = {
   SYSTEM: {
     needsRoom: false,
     needsTarget: false,
     properties: [
-      { value: 'current_time', label: 'current_time' },
-      { value: 'day_of_week',  label: 'day_of_week' },
-      { value: 'day_of_month', label: 'day_of_month' },
+      { value: 'current_time', label: 'current_time', labelKey: 'propCurrentTime' },
+      { value: 'day_of_week',  label: 'day_of_week',  labelKey: 'propDayOfWeek' },
+      { value: 'day_of_month', label: 'day_of_month', labelKey: 'propDayOfMonth' },
     ],
   },
   ROOM: {
     needsRoom: true,
     needsTarget: false,
     properties: [
-      { value: 'avg_temperature', label: 'avg_temperature' },
-      { value: 'sum_watt',        label: 'sum_watt' },
+      { value: 'avg_temperature', label: 'avg_temperature', labelKey: 'propAvgTemp' },
+      { value: 'sum_watt',        label: 'sum_watt',        labelKey: 'propSumWatt' },
+      { value: 'avg_humidity',    label: 'avg_humidity',    labelKey: 'propAvgHumidity' },
+      { value: 'avg_lux',         label: 'avg_lux',         labelKey: 'propAvgLux' },
+      { value: 'avg_co2',         label: 'avg_co2',         labelKey: 'propAvgCo2' },
+      { value: 'max_co2',         label: 'max_co2',         labelKey: 'propMaxCo2' },
     ],
   },
   DEVICE: {
@@ -47,8 +63,11 @@ const DATA_SOURCE_CONFIG = {
     needsTarget: true,
     targetLabel: i18n.labelSensor,
     categories: {
-      TEMPERATURE:       [{ value: 'temperature', label: 'temperature' }],
-      POWER_CONSUMPTION: [{ value: 'watt', label: 'watt' }],
+      TEMPERATURE:       [{ value: 'temperature', label: 'temperature', labelKey: 'propTemp' }],
+      POWER_CONSUMPTION: [{ value: 'watt', label: 'watt', labelKey: 'propWatt' }],
+      HUMIDITY:          [{ value: 'humidity', label: 'humidity', labelKey: 'propHumidity' }],
+      SENSOR_CO2:        [{ value: 'co2', label: 'co2', labelKey: 'propCo2' }],
+      SENSOR_LUX:        [{ value: 'lux', label: 'lux', labelKey: 'propLux' }],
     },
   },
 };
@@ -129,6 +148,24 @@ const CONDITION_PARAMETER_CONFIG = {
       watt: {
         type: 'float',
         placeholder: 'Enter wattage (W)'
+      }
+    },
+    HUMIDITY: {
+      humidity: {
+        type: 'float',
+        placeholder: 'Enter humidity (% RH)'
+      }
+    },
+    SENSOR_CO2: {
+      co2: {
+        type: 'float',
+        placeholder: 'Enter CO₂ level (ppm)'
+      }
+    },
+    SENSOR_LUX: {
+      lux: {
+        type: 'float',
+        placeholder: 'Enter illuminance (lux)'
       }
     }
   }
@@ -226,7 +263,8 @@ export const ConditionModal = (() => {
     el.categoryWrap.classList.toggle('d-none', !hasCat);
     if (hasCat) {
       const cats = Object.keys(cfg.categories);
-      el.category.innerHTML = cats.map((k) => `<option value="${k}">${k}</option>`).join('');
+      const getCatLabel = (k) => i18n[CAT_LABEL_KEYS[k]] || k;
+      el.category.innerHTML = cats.map((k) => `<option value="${k}">${getCatLabel(k)}</option>`).join('');
     }
 
     el.roomWrap.classList.toggle('d-none', !cfg.needsRoom);
@@ -308,7 +346,7 @@ export const ConditionModal = (() => {
         const [err, res] = await getDevicesByRoom(roomId, category);
         if (!err && res?.data) items = res.data;
       } else if (ds === 'SENSOR') {
-        const [err, res] = await getSensorsByRoom(roomId, category);
+        const [err, res] = await getSensorsByRoom(roomId, category, DEFAULT_PAGE, TARGET_FETCH_SIZE);
         if (!err && res?.data?.content) items = res.data.content;
       }
 
@@ -332,7 +370,7 @@ export const ConditionModal = (() => {
   };
 
   const populateProperties = (props) => {
-    el.property.innerHTML = props.map((p) => `<option value="${p.value}">${p.label}</option>`).join('');
+    el.property.innerHTML = props.map((p) => `<option value="${p.value}">${formatPropertyLabel(p.value, i18n)}</option>`).join('');
   };
 
   const getValue = () => {
