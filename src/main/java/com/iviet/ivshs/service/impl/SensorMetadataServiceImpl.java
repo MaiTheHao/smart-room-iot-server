@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.iviet.ivshs.dao.SensorMetadataDao;
+import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.service.SensorMetadataService;
 import com.iviet.ivshs.service.strategy.SensorMetadataServiceStrategy;
@@ -49,6 +50,16 @@ public class SensorMetadataServiceImpl implements SensorMetadataService {
         return strategies.values().stream()
             .flatMap(strategy -> strategy.getAllSensorMetadata().stream())
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public PaginatedResponse<SensorMetadataDto> getAllByRoomId(Long roomId, DeviceCategory category, int page, int size) {
+        return PaginatedResponse.ofList(getAllByRoomId(roomId, category), page, size);
+    }
+
+    @Override
+    public PaginatedResponse<SensorMetadataDto> getAll(DeviceCategory category, int page, int size) {
+        return PaginatedResponse.ofList(getAll(category), page, size);
     }
 
     @Override

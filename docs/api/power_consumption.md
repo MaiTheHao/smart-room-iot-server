@@ -2,6 +2,10 @@
 
 ## Danh sách các API quản lý cảm biến và dữ liệu tiêu thụ điện năng.
 
+> [!WARNING]
+> Tài liệu này **sẽ không còn được cập nhật** và có thể chứa **sai sót nghiêm trọng**.
+> Hãy đọc [Sensor Metadata](sensor_metadata.md) và [Sensor Telemetry](sensor_telemetry.md) để có thông tin API cảm biến mới nhất.
+
 ---
 
 <details>

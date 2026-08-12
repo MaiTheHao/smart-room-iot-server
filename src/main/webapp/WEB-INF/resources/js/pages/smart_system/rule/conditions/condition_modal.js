@@ -2,7 +2,7 @@ import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllRooms } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
-import { getAllTemperaturesByRoom, getAllPowerConsumptionsByRoom } from '../../../../api/sensor-metadata.api.js';
+import { getSensorsByRoom } from '../../../../api/sensor-metadata.api.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
@@ -308,13 +308,8 @@ export const ConditionModal = (() => {
         const [err, res] = await getDevicesByRoom(roomId, category);
         if (!err && res?.data) items = res.data;
       } else if (ds === 'SENSOR') {
-        let err, res;
-        if (category === 'TEMPERATURE') {
-          [err, res] = await getAllTemperaturesByRoom(roomId);
-        } else if (category === 'POWER_CONSUMPTION') {
-          [err, res] = await getAllPowerConsumptionsByRoom(roomId);
-        }
-        if (!err && res?.data) items = res.data;
+        const [err, res] = await getSensorsByRoom(roomId, category);
+        if (!err && res?.data?.content) items = res.data.content;
       }
 
       if (items.length === 0) {

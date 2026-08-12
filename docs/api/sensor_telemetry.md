@@ -10,6 +10,7 @@ Hỗ trợ năm loại cảm biến: `TEMPERATURE` (nhiệt độ), `POWER_CONSU
 - Khoảng thời gian tối đa 365 ngày.
 - Dữ liệu trả về ở dạng **raw values** (bản ghi gốc), không áp dụng time-bucketing hay average.
 - Giới hạn tối đa **10.000 bản ghi** cho mỗi request để tránh quá tải.
+- Để tra cứu thông tin cảm biến (tên, phòng, naturalId...) trước khi truy vấn lịch sử, dùng `GET /api/v1/sensors/{sensorId}?category=` hoặc `GET /api/v1/sensors/natural/{naturalId}?category=` — xem [Sensor Metadata](sensor_metadata.md).
 
 ---
 

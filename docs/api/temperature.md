@@ -2,6 +2,10 @@
 
 ## Quản lý cảm biến nhiệt độ & ghi nhận dữ liệu
 
+> [!WARNING]
+> Tài liệu này **sẽ không còn được cập nhật** và có thể chứa **sai sót nghiêm trọng**.
+> Hãy đọc [Sensor Metadata](sensor_metadata.md) và [Sensor Telemetry](sensor_telemetry.md) để có thông tin API cảm biến mới nhất.
+
 ---
 
 <details>

@@ -2,38 +2,15 @@ import { httpClient } from './http-client.js';
 
 /**
  * @param {number|string} roomId
- * @returns {Promise<[Error|null, ApiResponse<TemperatureDto[]>]>}
- */
-export const getAllTemperaturesByRoom = (roomId) =>
-  httpClient(`/api/v1/rooms/${roomId}/temperatures/all`);
-
-/**
- * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<TemperatureDto>]>}
- */
-export const getTemperatureById = (id) => httpClient(`/api/v1/temperatures/${id}`);
-
-/**
- * @param {number|string} roomId
- * @returns {Promise<[Error|null, ApiResponse<PowerConsumptionDto[]>]>}
- */
-export const getAllPowerConsumptionsByRoom = (roomId) =>
-  httpClient(`/api/v1/rooms/${roomId}/power-consumptions/all`);
-
-/**
- * @param {number|string} id
- * @returns {Promise<[Error|null, ApiResponse<PowerConsumptionDto>]>}
- */
-export const getPowerConsumptionById = (id) => httpClient(`/api/v1/power-consumptions/${id}`);
-
-/**
- * @param {number|string} roomId
  * @param {string} [category]
- * @returns {Promise<[Error|null, ApiResponse<SensorMetadataDto[]>]>}
+ * @param {number} [page]
+ * @param {number} [size]
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<SensorMetadataDto>>]>}
  */
-export const getSensorsByRoom = (roomId, category) => {
-  const query = category ? `?category=${encodeURIComponent(category)}` : '';
-  return httpClient(`/api/v1/rooms/${roomId}/sensors${query}`);
+export const getSensorsByRoom = (roomId, category, page = 0, size = 20) => {
+  const query = new URLSearchParams({ page, size });
+  if (category) query.set('category', category);
+  return httpClient(`/api/v1/rooms/${roomId}/sensors?${query}`);
 };
 
 /**
@@ -45,10 +22,28 @@ export const getSensorCountByRoom = (roomId) =>
 
 /**
  * @param {string} [category]
- * @returns {Promise<[Error|null, ApiResponse<SensorMetadataDto[]>]>}
+ * @param {number} [page]
+ * @param {number} [size]
+ * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<SensorMetadataDto>>]>}
  */
-export const getAllSensors = (category) => {
-  const query = category ? `?category=${encodeURIComponent(category)}` : '';
-  return httpClient(`/api/v1/sensors/all${query}`);
+export const getAllSensors = (category, page = 0, size = 20) => {
+  const query = new URLSearchParams({ page, size });
+  if (category) query.set('category', category);
+  return httpClient(`/api/v1/sensors?${query}`);
 };
 
+/**
+ * @param {number|string} id
+ * @param {string} category
+ * @returns {Promise<[Error|null, ApiResponse<SensorMetadataDto>]>}
+ */
+export const getSensorById = (id, category) =>
+  httpClient(`/api/v1/sensors/${id}?category=${encodeURIComponent(category)}`);
+
+/**
+ * @param {string} naturalId
+ * @param {string} category
+ * @returns {Promise<[Error|null, ApiResponse<SensorMetadataDto>]>}
+ */
+export const getSensorByNaturalId = (naturalId, category) =>
+  httpClient(`/api/v1/sensors/natural/${encodeURIComponent(naturalId)}?category=${encodeURIComponent(category)}`);
