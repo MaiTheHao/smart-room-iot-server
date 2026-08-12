@@ -21,4 +21,8 @@ Hoàn thiện domain **Sensor Metadata** theo hướng API đọc thống nhất
 
 - `docs/api/sensor_metadata.md` — cập nhật theo scheme mới (pagination, by-ID, by-naturalId, alias).
 - `docs/api/sensor_telemetry.md` — thêm cross-reference tới metadata endpoints để tra cứu cảm biến.
-- `docs/api/temperature.md`, `docs/api/power_consumption.md` — **chưa thay đổi**; vẫn còn hiệu lực cho các endpoint CRUD/read per-type hiện tại. Sẽ được dỡ bỏ/gộp khi hệ thống update được triển khai và endpoint per-type bị gỡ.
+- `docs/api/metrics.md` — bổ sung chi tiết **phép tính** cho từng domain theo `CALC.md`:
+  - Bảng tổng hợp phép tính ở đầu tài liệu.
+  - Mỗi domain (`ENERGY`, `TEMPERATURE`, `HUMIDITY`, `DEVICE_STATUS`, `CO2`, `LUX`) có khối **"Phép tính (theo CALC.md)"**: Mean/Median/Max + hành vi `DEFAULT` vs `ROOM`.
+  - Ghi rõ ENERGY **không dùng phép SUM** (`category=ROOM` = thiết bị đo tổng `PowerConsumption`, `energy` là chỉ số tích lũy lấy Max).
+- `docs/api/temperature.md`, `docs/api/power_consumption.md` — gắn GitHub `> [!WARNING]` đánh dấu **không còn được cập nhật**, có thể sai sót nghiêm trọng, khuyến nghị đọc `sensor_metadata.md` / `sensor_telemetry.md`. Chưa xóa vì vẫn còn hiệu lực cho các endpoint CRUD/read per-type hiện tại.

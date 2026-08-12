@@ -11,12 +11,33 @@
 >
 > Xem chi tiết tại [SensorMetricCategory](#sensormetriccategory).
 
+### Tổng hợp phép tính (theo CALC.md)
+
+| Domain | Thông số trả về | Phép tính | Nguồn / Mô tả |
+| :--- | :--- | :--- | :--- |
+| `TEMPERATURE` | `avgTemp` | **Mean (AVG)** | AVG `currentValue` của tất cả `Temperature` sensor active trong phòng |
+| `HUMIDITY` | `medianHumidity` | **Median** | Trung vị `currentHumidity` của các `HumiditySensor` active — loại bỏ outliers |
+| `LUX` | `medianLux` | **Median** | Trung vị `currentLux` của các `LuxSensor` active — giảm nhiễu chói cục bộ |
+| `CO2` | `avgCo2`, `maxCo2` | **Mean + Max** | AVG cho lịch sử/đồ thị; **Max** cho Automation |
+| `ENERGY` | `voltage`, `current`, `power`, `frequency`, `powerFactor` | **Mean (AVG)** | Trung bình cộng các thông số trong bucket |
+| `ENERGY` | `energy` | **Max** | Chỉ số **tích lũy lũy kế** (kWh) → lấy giá trị cuối chu kỳ |
+| `DEVICE_STATUS` | `statusData` | Không tổng hợp | Bản ghi trạng thái gốc (bật/tắt, mức độ, chế độ) |
+
 ## 1. Energy Domain (ENERGY)
 
 <details>
 <summary><b>GET</b> <code>/api/v1/metrics?domain=ENERGY</code> - Truy vấn chỉ số năng lượng</summary>
 
 > Lấy dữ liệu chỉ số năng lượng (mới nhất hoặc lịch sử) cho các thiết bị như Đèn, Điều hòa, Quạt.
+
+### Phép tính (theo CALC.md)
+
+| Thông số | Phép tính | Mô tả |
+| :--- | :--- | :--- |
+| `voltage`, `current`, `power`, `frequency`, `powerFactor` | **Mean (AVG)** | Trung bình cộng các giá trị trong khoảng thời gian gom nhóm (bucket) |
+| `energy` | **Max** | Chỉ số **tích lũy lũy kế** (cumulative kWh) → lấy giá trị lớn nhất cuối chu kỳ |
+
+> **Lưu ý:** Domain ENERGY **không có tổng hợp chéo cảm biến** (cross-sensor). `category=ROOM` là **thiết bị đo tổng của phòng** (`PowerConsumption`) — mỗi phòng có một thiết bị đo, `targetId` = ID cảm biến. **Không áp dụng phép SUM.**
 
 ### Query Parameters
 
@@ -90,6 +111,12 @@
 <summary><b>GET</b> <code>/api/v1/metrics?domain=TEMPERATURE</code> - Truy vấn chỉ số nhiệt độ</summary>
 
 > Lấy dữ liệu nhiệt độ (mới nhất hoặc lịch sử) từ bảng `temperature_metrics`. Dữ liệu được ghi nhận đồng thời với bảng `temperature_value` truyền thống.
+
+### Phép tính (theo CALC.md)
+
+- **Phương pháp:** **Mean (AVG)** — trung bình cộng, phản ánh nhiệt độ chung của không gian phòng.
+- `category=DEFAULT` (cảm biến đơn lẻ): history → `AVG(temperature)` theo time bucket.
+- `category=ROOM` (cả phòng): `AVG(currentValue)` của tất cả `Temperature` sensor **active** trong phòng; history → `AVG` per time bucket.
 
 ### Query Parameters
 
@@ -165,6 +192,12 @@
 
 > Lấy dữ liệu độ ẩm (mới nhất hoặc lịch sử) từ bảng `humidity_metrics`. Đây là nơi lưu trữ chính cho dữ liệu độ ẩm.
 
+### Phép tính (theo CALC.md)
+
+- **Phương pháp:** **Median** (trung vị) — loại bỏ ảnh hưởng của các giá trị dị biệt (outliers) hoặc dữ liệu nhiễu cục bộ từ cảm biến đơn lẻ.
+- `category=DEFAULT` (cảm biến đơn lẻ): history → `AVG(humidity)` theo time bucket (phục vụ vẽ đồ thị).
+- `category=ROOM` (cả phòng): **Median** của `currentHumidity` các `HumiditySensor` active; history → Median per time bucket.
+
 ### Query Parameters
 
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
@@ -238,6 +271,10 @@
 <summary><b>GET</b> <code>/api/v1/metrics?domain=DEVICE_STATUS</code> - Truy vấn trạng thái thiết bị chấp hành</summary>
 
 > Lấy dữ liệu trạng thái (mới nhất hoặc lịch sử) cho các thiết bị chấp hành (Actuator): Đèn, Quạt, Điều hòa.
+
+### Phép tính
+
+- **Không áp dụng phép tổng hợp số học.** Đây là dữ liệu trạng thái (bật/tắt, mức độ, chế độ), trả về **bản ghi gốc** theo timestamp.
 
 ### Query Parameters
 
@@ -381,6 +418,14 @@
 
 > Lấy dữ liệu nồng độ CO₂ (mới nhất hoặc lịch sử) từ bảng `co2_metrics`. Dữ liệu được ghi nhận mỗi lần telemetry CO2 sensor được collect.
 
+### Phép tính (theo CALC.md)
+
+- **Phương pháp:** **Max + Mean (AVG)**.
+  - **Max:** phục vụ **Automation** — kích hoạt quạt thông gió ngay khi phát hiện vùng ngột ngạt cục bộ vượt ngưỡng an toàn.
+  - **Mean:** phục vụ **lịch sử** và vẽ đồ thị xu hướng chất lượng không khí chung của phòng.
+- `category=DEFAULT` (cảm biến đơn lẻ): history → `AVG(co2)` theo time bucket.
+- `category=ROOM` (cả phòng): `AVG(currentCO2)` + `MAX(currentCO2)` của các `Co2Sensor` active; history → `AVG` + `MAX` per time bucket.
+
 ### Query Parameters
 
 | Tên | Loại | Mô tả | Bắt buộc / Mặc định |
@@ -455,6 +500,12 @@
 <summary><b>GET</b> <code>/api/v1/metrics?domain=LUX</code> - Truy vấn chỉ số cường độ ánh sáng</summary>
 
 > Lấy dữ liệu cường độ ánh sáng (mới nhất hoặc lịch sử) từ bảng `lux_metrics`. Dữ liệu được ghi nhận mỗi lần telemetry Lux sensor được collect.
+
+### Phép tính (theo CALC.md)
+
+- **Phương pháp:** **Median** (trung vị) — giảm thiểu ảnh hưởng của hiện tượng chói sáng cục bộ (ví dụ nắng rọi trực tiếp vào cảm biến).
+- `category=DEFAULT` (cảm biến đơn lẻ): history → `AVG(lux)` theo time bucket.
+- `category=ROOM` (cả phòng): **Median** của `currentLux` các `LuxSensor` active; history → Median per time bucket.
 
 ### Query Parameters
 
