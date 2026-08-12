@@ -1,7 +1,5 @@
 export const MetricDomain = Object.freeze({
   ENERGY: 'ENERGY',
-  HEALTH: 'HEALTH',
-  STATUS: 'STATUS',
   DEVICE_STATUS: 'DEVICE_STATUS',
   TEMPERATURE: 'TEMPERATURE',
   HUMIDITY: 'HUMIDITY',

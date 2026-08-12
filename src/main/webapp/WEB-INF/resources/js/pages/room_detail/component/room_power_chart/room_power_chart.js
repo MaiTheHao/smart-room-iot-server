@@ -1,4 +1,5 @@
 import { getEnergyMetricHistory } from '../../../../api/metric.api.js';
+import { EnergyMetricCategory } from '../../../../constants/metric.constants.js';
 import { StateManager } from '../../state_manager.js';
 
 let chartInstance = null;
@@ -66,7 +67,7 @@ export const RoomPowerChart = {
     const i18n = StateManager.getI18n();
 
     const [err, res] = await getEnergyMetricHistory({
-      category: 'ROOM',
+      category: EnergyMetricCategory.ROOM,
       targetId: roomId,
       from,
       to,
