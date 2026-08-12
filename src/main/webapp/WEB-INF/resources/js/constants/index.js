@@ -5,3 +5,4 @@ export * from './client.constants.js';
 export * from './rule.constants.js';
 export * from './automation.constants.js';
 export * from './telemetry.constants.js';
+export * from './sensor.constants.js';

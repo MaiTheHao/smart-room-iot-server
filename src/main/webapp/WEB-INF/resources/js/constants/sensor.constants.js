@@ -1,0 +1,9 @@
+export const SensorCategory = Object.freeze({
+  TEMPERATURE: 'TEMPERATURE',
+  POWER_CONSUMPTION: 'POWER_CONSUMPTION',
+  HUMIDITY: 'HUMIDITY',
+  SENSOR_CO2: 'SENSOR_CO2',
+  SENSOR_LUX: 'SENSOR_LUX'
+});
+
+export const SENSOR_CATEGORY = SensorCategory;

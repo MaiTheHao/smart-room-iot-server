@@ -2,7 +2,7 @@ import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllRooms } from '../../../../api/room.api.js';
 import { getDevicesByRoom } from '../../../../api/device.api.js';
-import { getAllTemperaturesByRoom, getAllPowerConsumptionsByRoom } from '../../../../api/sensor.api.js';
+import { getAllTemperaturesByRoom, getAllPowerConsumptionsByRoom } from '../../../../api/sensor-metadata.api.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
