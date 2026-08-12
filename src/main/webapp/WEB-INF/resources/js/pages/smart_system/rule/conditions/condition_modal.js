@@ -22,6 +22,14 @@ const CAT_LABEL_KEYS = {
   SENSOR_LUX: 'catLux',
 };
 
+const CAT_FALLBACKS = {
+  TEMPERATURE: 'Temperature Sensor',
+  POWER_CONSUMPTION: 'Power Sensor',
+  HUMIDITY: 'Humidity Sensor',
+  SENSOR_CO2: 'CO₂ Sensor',
+  SENSOR_LUX: 'Lux Sensor',
+};
+
 const DATA_SOURCE_CONFIG = {
   SYSTEM: {
     needsRoom: false,
@@ -263,7 +271,11 @@ export const ConditionModal = (() => {
     el.categoryWrap.classList.toggle('d-none', !hasCat);
     if (hasCat) {
       const cats = Object.keys(cfg.categories);
-      const getCatLabel = (k) => i18n[CAT_LABEL_KEYS[k]] || k;
+      const getCatLabel = (k) => {
+        const val = i18n[CAT_LABEL_KEYS[k]];
+        if (val && !val.startsWith('??')) return val;
+        return CAT_FALLBACKS[k] || k;
+      };
       el.category.innerHTML = cats.map((k) => `<option value="${k}">${getCatLabel(k)}</option>`).join('');
     }
 

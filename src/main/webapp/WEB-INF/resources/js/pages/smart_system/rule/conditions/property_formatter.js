@@ -18,5 +18,7 @@ export const PROPERTY_LABEL_CONFIG = Object.freeze({
 export const formatPropertyLabel = (propKey, i18n = {}) => {
   const cfg = PROPERTY_LABEL_CONFIG[propKey];
   if (!cfg) return propKey;
-  return i18n[cfg.i18nKey] || cfg.fallback;
+  const val = i18n[cfg.i18nKey];
+  if (val && !val.startsWith('??')) return val;
+  return cfg.fallback;
 };
