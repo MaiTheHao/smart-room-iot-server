@@ -18,7 +18,7 @@ export const METRIC_CONFIGS = {
     unit: '°C',
     fetchHistory: (targetId, from, to) =>
       getTemperatureMetricHistory({ category: SensorMetricCategory.ROOM, targetId, from, to }),
-    valueExtractor: (item) => item.avgTemp ?? item.avgTempC ?? item.temperature ?? 0,
+    valueExtractor: (item) => item.avgTemp ?? item.temperature ?? 0,
     badgeFormatter: (data, extractor) => {
       if (!data || !data.length) return 'Avg: --';
       const avg = (data.reduce((sum, item) => sum + extractor(item), 0) / data.length).toFixed(1);
@@ -50,7 +50,7 @@ export const METRIC_CONFIGS = {
     unit: '%',
     fetchHistory: (targetId, from, to) =>
       getHumidityMetricHistory({ category: SensorMetricCategory.ROOM, targetId, from, to }),
-    valueExtractor: (item) => item.avgHumidity ?? item.humidity ?? 0,
+    valueExtractor: (item) => item.medianHumidity ?? item.humidity ?? 0,
     badgeFormatter: (data, extractor) => {
       if (!data || !data.length) return 'Avg: --';
       const avg = (data.reduce((sum, item) => sum + extractor(item), 0) / data.length).toFixed(1);
@@ -82,7 +82,7 @@ export const METRIC_CONFIGS = {
     unit: 'lux',
     fetchHistory: (targetId, from, to) =>
       getLuxMetricHistory({ category: SensorMetricCategory.ROOM, targetId, from, to }),
-    valueExtractor: (item) => item.avgLux ?? item.lux ?? 0,
+    valueExtractor: (item) => item.medianLux ?? item.lux ?? 0,
     badgeFormatter: (data, extractor) => {
       if (!data || !data.length) return 'Avg: --';
       const avg = (data.reduce((sum, item) => sum + extractor(item), 0) / data.length).toFixed(0);
