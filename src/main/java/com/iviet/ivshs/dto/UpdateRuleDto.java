@@ -1,21 +1,34 @@
 package com.iviet.ivshs.dto;
 
-import java.util.List;
-import jakarta.validation.Valid;
+import com.iviet.ivshs.entities.Rule;
 import jakarta.validation.constraints.Min;
 import lombok.Builder;
 
 @Builder
 public record UpdateRuleDto(
-		String name,
+    String name,
+    Integer priority,
+    Boolean isActive,
 
-		Integer priority,
+    @Min(value = 60, message = "Interval seconds must be at least 60")
+    Integer intervalSeconds) {
 
-		Boolean isActive,
-
-		@Min(value = 60, message = "Interval seconds must be at least 60") Integer intervalSeconds,
-
-		@Valid List<UpdateRuleConditionDto> conditions,
-
-		@Valid List<UpdateRuleActionDto> actions) {
+  public void updateEntity(Rule entity) {
+    if (entity == null) {
+      return;
+    }
+    if (name != null) {
+      entity.setName(name);
+    }
+    if (priority != null) {
+      entity.setPriority(priority);
+    }
+    if (isActive != null) {
+      entity.setIsActive(isActive);
+    }
+    if (intervalSeconds != null) {
+      entity.setIntervalSeconds(intervalSeconds);
+      entity.setIsInterval(intervalSeconds > 0);
+    }
+  }
 }
