@@ -1,5 +1,3 @@
-USE smart_room_iot;
-
 SET FOREIGN_KEY_CHECKS = 0;
 SET NAMES utf8mb4;
 SET GLOBAL time_zone = '+00:00';

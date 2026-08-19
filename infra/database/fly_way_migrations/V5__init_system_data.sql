@@ -1,24 +1,7 @@
-/**
- * MỤC ĐÍCH & MỤC TIÊU CỦA FILE SEED:
- * 1) Khởi tạo dữ liệu cơ bản vừa đủ để hệ thống có thể vận hành ngay sau khi tạo DB.
- * 2) Thiết lập môi trường dữ liệu nền với các giá trị hard-coded (ngôn ngữ, chức năng, nhóm quyền, tài khoản admin).
- *
- * CHI TIẾT CÁC THÀNH PHẦN:
- * - Languages: Hỗ trợ đa ngôn ngữ (vi, en).
- * - Sys Functions: Danh mục các chức năng hệ thống dựa trên SysFunctionEnum.
- * - Sys Groups: Nhóm quyền quản trị mặc định (G_ADMIN).
- * - Sys Roles: Phân bổ toàn bộ quyền (F_MANAGE_*) cho nhóm G_ADMIN.
- * - Client: Tạo tài khoản quản trị tối cao (admin / 123456789).
- */
-USE smart_room_iot;
-
-SET
-  FOREIGN_KEY_CHECKS = 0;
-
-SET NAMES utf8;
-
-SET
-  TIME_ZONE = '+00:00';
+SET FOREIGN_KEY_CHECKS = 0;
+SET NAMES utf8mb4;
+SET GLOBAL time_zone = '+00:00';
+SET time_zone = '+00:00';
 
 -- ----------------------------
 -- 1. Dữ liệu bảng language
