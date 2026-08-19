@@ -1,0 +1,61 @@
+package com.iviet.ivshs.service.strategy.impl;
+
+import com.iviet.ivshs.entities.Condition;
+import com.iviet.ivshs.service.factory.SensorStateStrategyFactory;
+import com.iviet.ivshs.service.strategy.ConditionDataSourceStrategy;
+import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class SensorConditionDataSourceStrategy implements ConditionDataSourceStrategy {
+
+  private final SensorStateStrategyFactory sensorStateStrategyFactory;
+
+  @Override
+  public ConditionDataSource getSupportedDataSource() {
+    return ConditionDataSource.SENSOR;
+  }
+
+  @Override
+  public Object fetchValue(Condition condition, Long contextId) {
+    if (condition == null
+        || condition.getSourceTargetId() == null
+        || condition.getSourceTargetType() == null
+        || condition.getProperty() == null) {
+      log.debug(
+          "Condition, sourceTargetId, sourceTargetType, or property is null for condition: {}",
+          condition != null ? condition.getId() : null);
+      return null;
+    }
+
+    try {
+      DeviceCategory category = condition.getSourceTargetType();
+      Long sensorId = Long.parseLong(condition.getSourceTargetId());
+      String property = condition.getProperty();
+
+      Object value = sensorStateStrategyFactory.fetchState(category, sensorId, property);
+      log.debug(
+          "Fetched state for condition {}: SENSOR [{}] property '{}' = {}",
+          condition.getId(),
+          sensorId,
+          property,
+          value);
+      return value;
+    } catch (NumberFormatException e) {
+      log.warn(
+          "Invalid sensorId format in condition {}: {}",
+          condition.getId(),
+          condition.getSourceTargetId());
+      return null;
+    } catch (Exception e) {
+      log.error(
+          "Error fetching sensor data for condition {}: {}", condition.getId(), e.getMessage(), e);
+      return null;
+    }
+  }
+}
