@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.scheduler.dynamic.rule.strategy.SensorStateStrategy;
+import com.iviet.ivshs.service.strategy.SensorStateStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 

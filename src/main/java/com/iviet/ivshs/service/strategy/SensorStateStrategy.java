@@ -1,4 +1,4 @@
-package com.iviet.ivshs.scheduler.dynamic.rule.strategy;
+package com.iviet.ivshs.service.strategy;
 
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 

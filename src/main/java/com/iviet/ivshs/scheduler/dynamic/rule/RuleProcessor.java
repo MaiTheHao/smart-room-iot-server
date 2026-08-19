@@ -1,226 +1,121 @@
 package com.iviet.ivshs.scheduler.dynamic.rule;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iviet.ivshs.entities.RuleAction;
-import com.iviet.ivshs.entities.RuleCondition;
-import com.iviet.ivshs.scheduler.dynamic.rule.strategy.RuleDataSourceStrategy;
-import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
-import com.iviet.ivshs.core.properties.EngineProperties;
-import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.entities.AlertConfig;
+import com.iviet.ivshs.dao.ActionDao;
 import com.iviet.ivshs.dao.AlertConfigDao;
-import com.iviet.ivshs.shared.enumeration.AlertNamespace;
-import com.iviet.ivshs.shared.enumeration.ConditionLogic;
-import com.iviet.ivshs.shared.enumeration.ConditionOperator;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.scheduler.dynamic.base.SchedulableJobProcessor;
-import com.iviet.ivshs.scheduler.dynamic.base.JobProcessorType;
+import com.iviet.ivshs.dao.ConditionDao;
 import com.iviet.ivshs.dao.RuleDao;
+import com.iviet.ivshs.dto.ActionResult;
 import com.iviet.ivshs.dto.AlertTriggerRequestDto;
+import com.iviet.ivshs.dto.EvaluationResult;
+import com.iviet.ivshs.entities.Action;
+import com.iviet.ivshs.entities.AlertConfig;
+import com.iviet.ivshs.entities.Condition;
+import com.iviet.ivshs.entities.Rule;
+import com.iviet.ivshs.scheduler.dynamic.base.JobProcessorType;
+import com.iviet.ivshs.scheduler.dynamic.base.SchedulableJobProcessor;
 import com.iviet.ivshs.service.AlertTriggerService;
+import com.iviet.ivshs.service.strategy.ActionExecutionService;
+import com.iviet.ivshs.service.strategy.ConditionEvaluationService;
+import com.iviet.ivshs.shared.enumeration.ActionOwnerCategory;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;
-import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
-import lombok.Data;
+import com.iviet.ivshs.shared.enumeration.AlertNamespace;
+import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
+import com.iviet.ivshs.shared.exception.NotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Component;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class RuleProcessor implements SchedulableJobProcessor {
 
-    private final EngineProperties engineProperties;
-    private final List<RuleDataSourceStrategy> ruleDataSourceStrategies;
-    private final List<DeviceControlServiceStrategy<?>> controlStrategies;
-    private final ObjectMapper objectMapper;
-    private final RuleDao ruleDao;
-    private final AlertConfigDao alertConfigDao;
-    private final AlertTriggerService alertTriggerService;
+  private final RuleDao ruleDao;
+  private final ConditionDao conditionDao;
+  private final ActionDao actionDao;
+  private final ConditionEvaluationService conditionEvaluationService;
+  private final ActionExecutionService actionExecutionService;
+  private final AlertConfigDao alertConfigDao;
+  private final AlertTriggerService alertTriggerService;
+  private final ObjectMapper objectMapper;
 
-    private Map<DeviceCategory, DeviceControlServiceStrategy<?>> strategyMap;
+  @Override
+  public JobProcessorType getProcessorType() {
+    return JobProcessorType.RULE;
+  }
 
-    @PostConstruct
-    private void init() {
-        strategyMap = controlStrategies.stream().collect(
-                Collectors.toUnmodifiableMap(DeviceControlServiceStrategy::getSupportedCategory, Function.identity()));
-        log.info("RuleProcessor initialized with epsilon = {} and categories: {}",
-                engineProperties.getRuleComputeEpsilon(), strategyMap.keySet());
+  @Override
+  @Transactional
+  public void processJob(Long id) {
+    Rule rule =
+        ruleDao.findById(id).orElseThrow(() -> new NotFoundException("Rule not found: " + id));
+
+    if (!Boolean.TRUE.equals(rule.getIsActive())) {
+      return;
     }
 
-    @Override
-    public JobProcessorType getProcessorType() {
-        return JobProcessorType.RULE;
+    String ruleIdStr = String.valueOf(id);
+    List<Condition> conditions = conditionDao.findByOwner(ConditionOwnerCategory.RULE, ruleIdStr);
+
+    if (conditions.isEmpty()) {
+      log.warn("Rule {} has no conditions", rule.getId());
+      return;
     }
 
-    @Override
-    @Transactional
-    public void processJob(Long id) {
-        Rule rule = ruleDao.findByIdWithConditionsAndActions(id)
-                .orElseThrow(() -> new NotFoundException("Rule not found: " + id));
-        if (!Boolean.TRUE.equals(rule.getIsActive())) return;
+    log.info("Evaluating Rule {} with {} conditions", rule.getId(), conditions.size());
 
-        List<RuleCondition> conditions = rule.getConditions();
-        if (conditions == null || conditions.isEmpty()) {
-            log.warn("Rule {} has no conditions", rule.getId());
-            return;
-        }
+    EvaluationResult evalResult = conditionEvaluationService.evaluateAll(conditions, null);
 
-        log.info("Evaluating Rule {} with {} conditions", rule.getId(), conditions.size());
+    if (evalResult.isMatched()) {
+      log.info("Rule {} condition matched. Executing actions...", rule.getId());
 
-        EvaluationContext initCtx = new EvaluationContext();
+      List<Action> actions = actionDao.findByOwner(ActionOwnerCategory.RULE, ruleIdStr);
+      List<ActionResult> actionResults = actionExecutionService.executeAll(actions);
 
-        boolean isMatched = conditions.stream().sorted(Comparator.comparingInt(RuleCondition::getSortOrder))
-                .reduce(initCtx, this::accumulateResult, (a, b) -> a).isFinalResult();
+      long successCount = actionResults.stream().filter(ActionResult::success).count();
+      log.info(
+          "Rule {} executed {}/{} actions successfully",
+          rule.getId(),
+          successCount,
+          actionResults.size());
 
-        List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(AlertNamespace.RULE,
-                String.valueOf(id));
+      triggerAlertsIfConfigured(rule, conditions, evalResult);
+    }
+  }
 
-        if (isMatched) {
-            executeActions(rule);
+  private void triggerAlertsIfConfigured(
+      Rule rule, List<Condition> conditions, EvaluationResult evalResult) {
+    List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(
+        AlertNamespace.RULE, String.valueOf(rule.getId()));
 
-            initCtx.getTemplateData().put("rule_name", rule.getName());
-            initCtx.getTemplateData().put("rule_id", rule.getId());
-            initCtx.getTemplateData().put("total_conditions", conditions.size());
-
-            for (AlertConfig config : alertConfigs) {
-                try {
-                    AlertTriggerRequestDto request = AlertTriggerRequestDto.builder().alertConfig(config)
-                            .actionType(AlertActionType.TRIGGERED).actorType(AlertActorType.RULE_ENGINE)
-                            .actorId(rule.getId().toString()).templateData(initCtx.getTemplateData())
-                            .payload(objectMapper.valueToTree(initCtx.getTemplateData())).build();
-                    alertTriggerService.trigger(request);
-                } catch (Exception e) {
-                    log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
-                }
-            }
-        }
+    if (alertConfigs.isEmpty()) {
+      return;
     }
 
-    private EvaluationContext accumulateResult(EvaluationContext ctx, RuleCondition cond) {
-        RuleCondition tempCond = new RuleCondition();
-        tempCond.setDataSource(cond.getDataSource());
-        tempCond.setResourceParam(cond.getResourceParam());
-        tempCond.setOperator(cond.getOperator());
-        tempCond.setValue(cond.getValue());
+    var templateData = new java.util.HashMap<>(evalResult.templateData());
+    templateData.put("rule_name", rule.getName());
+    templateData.put("rule_id", rule.getId());
+    templateData.put("total_conditions", conditions.size());
 
-        ConditionEvaluationResult evalResult = evaluateCondition(tempCond);
-        boolean isMet = evalResult.isMet();
-
-        if (ctx.isFirst()) {
-            ctx.setFinalResult(isMet);
-            ctx.setFirst(false);
-        } else {
-            ConditionLogic logic = ctx.getPrevLogic();
-            boolean newResult = (logic == ConditionLogic.OR) ? ctx.isFinalResult() || isMet
-                    : ctx.isFinalResult() && isMet;
-            ctx.setFinalResult(newResult);
-        }
-
-        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_value", evalResult.actualValue());
-        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_threshold", cond.getValue());
-        ctx.getTemplateData().put("cond" + cond.getSortOrder() + "_operator", cond.getOperator() != null ? cond.getOperator().getSymbol() : "");
-
-        ctx.setPrevLogic(cond.getNextLogic());
-        return ctx;
+    for (AlertConfig config : alertConfigs) {
+      try {
+        AlertTriggerRequestDto request = AlertTriggerRequestDto.builder()
+            .alertConfig(config)
+            .actionType(AlertActionType.TRIGGERED)
+            .actorType(AlertActorType.RULE_ENGINE)
+            .actorId(rule.getId().toString())
+            .templateData(templateData)
+            .payload(objectMapper.valueToTree(templateData))
+            .build();
+        alertTriggerService.trigger(request);
+      } catch (Exception e) {
+        log.error(
+            "[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
+      }
     }
-
-    private ConditionEvaluationResult evaluateCondition(RuleCondition cond) {
-        return ruleDataSourceStrategies.stream().filter(s -> s.supports(cond.getDataSource())).findFirst()
-                .map(strategy -> {
-                    try {
-                        Object val = strategy.fetchValue(cond, null);
-                        boolean isMet = val != null
-                                && compareValues(val.toString(), cond.getValue(), cond.getOperator());
-                        return new ConditionEvaluationResult(isMet, val);
-                    } catch (Exception e) {
-                        log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
-                        return new ConditionEvaluationResult(false, null);
-                    }
-                }).orElseGet(() -> {
-                    log.warn("No strategy for: {}", cond.getDataSource());
-                    return new ConditionEvaluationResult(false, null);
-                });
-    }
-
-    private boolean compareValues(String actual, String target, ConditionOperator op) {
-        try {
-            double v1 = Double.parseDouble(actual);
-            double v2 = Double.parseDouble(target);
-
-            boolean res = switch (op) {
-            case GT -> v1 > v2;
-            case LT -> v1 < v2;
-            case EQ -> Math.abs(v1 - v2) < engineProperties.getRuleComputeEpsilon();
-            case NEQ -> Math.abs(v1 - v2) >= engineProperties.getRuleComputeEpsilon();
-            case GTE -> v1 >= v2;
-            case LTE -> v1 <= v2;
-            default -> false;
-            };
-            log.debug("Numeric: {} {} {} -> {}", v1, op.getSymbol(), v2, res);
-            return res;
-        } catch (NumberFormatException e) {
-            boolean res = switch (op) {
-            case GT -> actual.compareToIgnoreCase(target) > 0;
-            case LT -> actual.compareToIgnoreCase(target) < 0;
-            case EQ -> actual.equals(target);
-            case NEQ -> !actual.equals(target);
-            case GTE -> actual.compareToIgnoreCase(target) >= 0;
-            case LTE -> actual.compareToIgnoreCase(target) <= 0;
-            default -> {
-                log.warn("Invalid operator for non-numeric: {}", op);
-                yield false;
-            }
-            };
-            log.debug("String: '{}' {} '{}' -> {}", actual, op.getSymbol(), target, res);
-            return res;
-        }
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void executeActions(Rule rule) {
-        List<RuleAction> actions = rule.getActions();
-        if (actions == null || actions.isEmpty()) return;
-
-        actions.stream().sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
-                .forEach(action -> {
-                    DeviceControlServiceStrategy strategy = strategyMap.get(action.getTargetDeviceCategory());
-                    if (strategy == null) {
-                        log.error("Missing strategy for category: {}", action.getTargetDeviceCategory());
-                        return;
-                    }
-
-                    try {
-                        Object controlDto = objectMapper.treeToValue(action.getActionParams(),
-                                strategy.getControlDtoClass());
-                        strategy.control(action.getTargetDeviceId(), controlDto);
-                        log.info("Executed Rule [{}] action for device [{}]", rule.getName(),
-                                action.getTargetDeviceId());
-                    } catch (Exception e) {
-                        log.error("Failed to execute Rule {} action {}: {}", rule.getId(), action.getId(),
-                                e.getMessage());
-                    }
-                });
-    }
-
-    @Data
-    private static class EvaluationContext {
-        private boolean finalResult = true;
-        private boolean isFirst = true;
-        private ConditionLogic prevLogic;
-        private java.util.Map<String, Object> templateData = new java.util.HashMap<>();
-    }
-
-    private record ConditionEvaluationResult(boolean isMet, Object actualValue) {
-    }
+  }
 }

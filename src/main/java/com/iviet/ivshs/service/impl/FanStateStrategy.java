@@ -1,11 +1,12 @@
-package com.iviet.ivshs.scheduler.dynamic.rule.strategy.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dao.FanDao;
 import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.scheduler.dynamic.rule.strategy.DeviceStateStrategy;
+import com.iviet.ivshs.service.strategy.DeviceStateStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,14 +40,9 @@ public class FanStateStrategy implements DeviceStateStrategy {
       return null;
     }
 
-    String lowerProp = property.toLowerCase();
-
-    if (PROP_POWER.equals(lowerProp))
-      return fan.getPower();
-    if (PROP_SPEED.equals(lowerProp))
-      return fan.getSpeed();
-      
-    return switch (lowerProp) {
+    return switch (property.toLowerCase()) {
+      case PROP_POWER -> fan.getPower();
+      case PROP_SPEED -> fan.getSpeed();
       case PROP_MODE -> fan.getMode();
       case PROP_SWING -> fan.getSwing();
       case PROP_LIGHT -> fan.getLight();

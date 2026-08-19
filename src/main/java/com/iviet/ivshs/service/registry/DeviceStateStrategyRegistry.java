@@ -1,15 +1,18 @@
 package com.iviet.ivshs.service.registry;
 
-import com.iviet.ivshs.scheduler.dynamic.rule.strategy.DeviceStateStrategy;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.exception.BadRequestException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
+
+import com.iviet.ivshs.service.strategy.DeviceStateStrategy;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.BadRequestException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component

@@ -1,10 +1,12 @@
-package com.iviet.ivshs.scheduler.dynamic.rule.strategy.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Component;
+
 import com.iviet.ivshs.dao.LightDao;
 import com.iviet.ivshs.entities.Light;
-import com.iviet.ivshs.scheduler.dynamic.rule.strategy.DeviceStateStrategy;
+import com.iviet.ivshs.service.strategy.DeviceStateStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,8 +17,8 @@ public class LightStateStrategy implements DeviceStateStrategy {
 
   private final LightDao lightDao;
 
-  private static final String PROP_LEVEL = "level";
   private static final String PROP_POWER = "power";
+  private static final String PROP_LEVEL = "level";
 
   @Override
   public boolean supports(DeviceCategory category) {
@@ -36,8 +38,8 @@ public class LightStateStrategy implements DeviceStateStrategy {
     }
 
     return switch (property.toLowerCase()) {
-      case PROP_LEVEL -> light.getLevel();
       case PROP_POWER -> light.getPower();
+      case PROP_LEVEL -> light.getLevel();
       default -> {
         log.warn("Property '{}' not supported for LIGHT ID: {}", property, deviceId);
         yield null;
