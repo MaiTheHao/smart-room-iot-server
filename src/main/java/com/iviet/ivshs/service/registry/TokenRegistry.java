@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service;
+package com.iviet.ivshs.service.registry;
 
 import java.util.List;
 import java.util.Map;

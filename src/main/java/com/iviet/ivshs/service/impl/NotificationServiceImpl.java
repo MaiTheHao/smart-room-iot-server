@@ -2,7 +2,7 @@ package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.NotificationRequest;
 import com.iviet.ivshs.service.NotificationService;
-import com.iviet.ivshs.service.strategy.NotificationStrategyRegistry;
+import com.iviet.ivshs.service.registry.NotificationStrategyRegistry;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 
 import lombok.RequiredArgsConstructor;

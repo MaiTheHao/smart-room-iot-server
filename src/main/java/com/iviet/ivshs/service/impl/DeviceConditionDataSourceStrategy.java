@@ -1,10 +1,10 @@
-package com.iviet.ivshs.service.strategy.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dto.ConditionValue;
 import com.iviet.ivshs.entities.Condition;
-import com.iviet.ivshs.service.factory.DeviceStateStrategyFactory;
+import com.iviet.ivshs.service.registry.DeviceStateStrategyRegistry;
 import com.iviet.ivshs.service.strategy.ConditionDataSourceStrategy;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DeviceConditionDataSourceStrategy implements ConditionDataSourceStrategy {
 
-  private final DeviceStateStrategyFactory deviceStateStrategyFactory;
+  private final DeviceStateStrategyRegistry deviceStateStrategyRegistry;
 
   @Override
   public ConditionDataSource getSupportedDataSource() {
@@ -41,7 +41,7 @@ public class DeviceConditionDataSourceStrategy implements ConditionDataSourceStr
       Long deviceId = Long.parseLong(condition.getSourceTargetId());
       String property = condition.getProperty();
 
-      Object value = deviceStateStrategyFactory.fetchState(category, deviceId, property);
+      Object value = deviceStateStrategyRegistry.fetchState(category, deviceId, property);
       log.debug(
           "Fetched state for condition {}: DEVICE [{}] property '{}' = {}",
           condition.getId(),

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.iviet.ivshs.dto.TokenPayload;
-import com.iviet.ivshs.service.TokenRegistry;
 import com.iviet.ivshs.service.TokenService;
+import com.iviet.ivshs.service.registry.TokenRegistry;
 import com.iviet.ivshs.service.strategy.TokenStrategy;
 import com.iviet.ivshs.shared.enumeration.TokenType;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.factory;
+package com.iviet.ivshs.service.registry;
 
 import com.iviet.ivshs.dto.ConditionValue;
 import com.iviet.ivshs.entities.Condition;
@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ConditionDataSourceFactory {
+public class ConditionDataSourceRegistry {
 
   private final Map<ConditionDataSource, ConditionDataSourceStrategy> strategies;
 
-  public ConditionDataSourceFactory(List<ConditionDataSourceStrategy> strategyList) {
+  public ConditionDataSourceRegistry(List<ConditionDataSourceStrategy> strategyList) {
     Map<ConditionDataSource, ConditionDataSourceStrategy> map =
         new EnumMap<>(ConditionDataSource.class);
 
@@ -29,7 +29,7 @@ public class ConditionDataSourceFactory {
 
       if (existing != null) {
         throw new IllegalStateException(
-            "[ConditionDataSourceFactory] Duplicate strategy detected for dataSource '" + dataSource
+            "[ConditionDataSourceRegistry] Duplicate strategy detected for dataSource '" + dataSource
                 + "': "
                 + existing.getClass().getSimpleName() + " vs "
                 + strategy.getClass().getSimpleName()
@@ -37,14 +37,14 @@ public class ConditionDataSourceFactory {
       }
 
       log.info(
-          "[ConditionDataSourceFactory] Registered '{}' -> {}",
+          "[ConditionDataSourceRegistry] Registered '{}' -> {}",
           dataSource,
           strategy.getClass().getSimpleName());
     }
 
     this.strategies = Collections.unmodifiableMap(map);
     log.info(
-        "[ConditionDataSourceFactory] Initialized with {} data sources: {}",
+        "[ConditionDataSourceRegistry] Initialized with {} data sources: {}",
         strategies.size(),
         strategies.keySet());
   }
@@ -63,7 +63,7 @@ public class ConditionDataSourceFactory {
 
   public ConditionValue fetchValue(Condition condition, Long contextId) {
     if (condition == null || condition.getSourceCategory() == null) {
-      log.debug("[ConditionDataSourceFactory] Condition or sourceCategory is null");
+      log.debug("[ConditionDataSourceRegistry] Condition or sourceCategory is null");
       return new ConditionValue.MissingValue();
     }
     return getStrategy(condition.getSourceCategory()).fetchValue(condition, contextId);

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.strategy.impl;
+package com.iviet.ivshs.service.impl;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

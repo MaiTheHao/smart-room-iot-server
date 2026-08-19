@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.strategy;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.dto.NotificationRequest;
 import com.iviet.ivshs.service.strategy.NotificationStrategy;

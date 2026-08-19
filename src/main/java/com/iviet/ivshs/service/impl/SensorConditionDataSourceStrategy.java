@@ -1,10 +1,10 @@
-package com.iviet.ivshs.service.strategy.impl;
+package com.iviet.ivshs.service.impl;
 
 import org.springframework.stereotype.Component;
 
 import com.iviet.ivshs.dto.ConditionValue;
 import com.iviet.ivshs.entities.Condition;
-import com.iviet.ivshs.service.factory.SensorStateStrategyFactory;
+import com.iviet.ivshs.service.registry.SensorStateStrategyRegistry;
 import com.iviet.ivshs.service.strategy.ConditionDataSourceStrategy;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SensorConditionDataSourceStrategy implements ConditionDataSourceStrategy {
 
-  private final SensorStateStrategyFactory sensorStateStrategyFactory;
+  private final SensorStateStrategyRegistry sensorStateStrategyRegistry;
 
   @Override
   public ConditionDataSource getSupportedDataSource() {
@@ -41,7 +41,7 @@ public class SensorConditionDataSourceStrategy implements ConditionDataSourceStr
       Long sensorId = Long.parseLong(condition.getSourceTargetId());
       String property = condition.getProperty();
 
-      Object value = sensorStateStrategyFactory.fetchState(category, sensorId, property);
+      Object value = sensorStateStrategyRegistry.fetchState(category, sensorId, property);
       log.debug(
           "Fetched state for condition {}: SENSOR [{}] property '{}' = {}",
           condition.getId(),

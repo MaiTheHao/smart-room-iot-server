@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.factory;
+package com.iviet.ivshs.service;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,8 +1,9 @@
-package com.iviet.ivshs.service.strategy;
+package com.iviet.ivshs.service.registry;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.iviet.ivshs.service.strategy.NotificationStrategy;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.factory;
+package com.iviet.ivshs.service.impl;
 
 import java.time.Instant;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.iviet.ivshs.service.factory.SensorTelemetryOrchestratorService;
+import com.iviet.ivshs.service.SensorTelemetryOrchestratorService;
 import com.iviet.ivshs.service.strategy.SensorTelemetryServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;

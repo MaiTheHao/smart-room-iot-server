@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.factory;
+package com.iviet.ivshs.service.registry;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -16,11 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class SensorStateStrategyFactory {
+public class SensorStateStrategyRegistry {
 
   private final Map<DeviceCategory, SensorStateStrategy> strategies;
 
-  public SensorStateStrategyFactory(List<SensorStateStrategy> strategyList) {
+  public SensorStateStrategyRegistry(List<SensorStateStrategy> strategyList) {
     Map<DeviceCategory, SensorStateStrategy> map = new EnumMap<>(DeviceCategory.class);
 
     for (SensorStateStrategy strategy : strategyList) {
@@ -29,17 +29,17 @@ public class SensorStateStrategyFactory {
           SensorStateStrategy existing = map.put(category, strategy);
           if (existing != null) {
             throw new IllegalStateException(
-                "[SensorStateStrategyFactory] Duplicate strategy detected for category '" + category + "': "
+                "[SensorStateStrategyRegistry] Duplicate strategy detected for category '" + category + "': "
                     + existing.getClass().getSimpleName() + " vs " + strategy.getClass().getSimpleName());
           }
-          log.info("[SensorStateStrategyFactory] Registered '{}' -> {}", category,
+          log.info("[SensorStateStrategyRegistry] Registered '{}' -> {}", category,
               strategy.getClass().getSimpleName());
         }
       }
     }
 
     this.strategies = Collections.unmodifiableMap(map);
-    log.info("[SensorStateStrategyFactory] Initialized with {} categories: {}", strategies.size(),
+    log.info("[SensorStateStrategyRegistry] Initialized with {} categories: {}", strategies.size(),
         strategies.keySet());
   }
 

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.iviet.ivshs.service.SensorMetadataService;
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.service.PermissionService;
-import com.iviet.ivshs.service.factory.SensorTelemetryOrchestratorService;
+import com.iviet.ivshs.service.SensorTelemetryOrchestratorService;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 

@@ -1,4 +1,4 @@
-package com.iviet.ivshs.service.factory;
+package com.iviet.ivshs.service.impl;
 
 import com.iviet.ivshs.service.strategy.MetricServiceStrategy;
 import com.iviet.ivshs.shared.enumeration.MetricDomain;
