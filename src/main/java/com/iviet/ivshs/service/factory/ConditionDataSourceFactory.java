@@ -1,5 +1,6 @@
 package com.iviet.ivshs.service.factory;
 
+import com.iviet.ivshs.dto.ConditionValue;
 import com.iviet.ivshs.entities.Condition;
 import com.iviet.ivshs.service.strategy.ConditionDataSourceStrategy;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
@@ -60,10 +61,10 @@ public class ConditionDataSourceFactory {
     return Optional.ofNullable(strategies.get(dataSource));
   }
 
-  public Object fetchValue(Condition condition, Long contextId) {
+  public ConditionValue fetchValue(Condition condition, Long contextId) {
     if (condition == null || condition.getSourceCategory() == null) {
       log.debug("[ConditionDataSourceFactory] Condition or sourceCategory is null");
-      return null;
+      return new ConditionValue.MissingValue();
     }
     return getStrategy(condition.getSourceCategory()).fetchValue(condition, contextId);
   }

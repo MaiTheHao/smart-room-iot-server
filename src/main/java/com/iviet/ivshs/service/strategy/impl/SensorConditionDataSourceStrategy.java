@@ -1,13 +1,16 @@
 package com.iviet.ivshs.service.strategy.impl;
 
+import org.springframework.stereotype.Component;
+
+import com.iviet.ivshs.dto.ConditionValue;
 import com.iviet.ivshs.entities.Condition;
 import com.iviet.ivshs.service.factory.SensorStateStrategyFactory;
 import com.iviet.ivshs.service.strategy.ConditionDataSourceStrategy;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -22,7 +25,7 @@ public class SensorConditionDataSourceStrategy implements ConditionDataSourceStr
   }
 
   @Override
-  public Object fetchValue(Condition condition, Long contextId) {
+  public ConditionValue fetchValue(Condition condition, Long contextId) {
     if (condition == null
         || condition.getSourceTargetId() == null
         || condition.getSourceTargetType() == null
@@ -30,7 +33,7 @@ public class SensorConditionDataSourceStrategy implements ConditionDataSourceStr
       log.debug(
           "Condition, sourceTargetId, sourceTargetType, or property is null for condition: {}",
           condition != null ? condition.getId() : null);
-      return null;
+      return new ConditionValue.MissingValue();
     }
 
     try {
@@ -45,17 +48,17 @@ public class SensorConditionDataSourceStrategy implements ConditionDataSourceStr
           sensorId,
           property,
           value);
-      return value;
+      return ConditionValue.of(value);
     } catch (NumberFormatException e) {
       log.warn(
           "Invalid sensorId format in condition {}: {}",
           condition.getId(),
           condition.getSourceTargetId());
-      return null;
+      return new ConditionValue.MissingValue();
     } catch (Exception e) {
       log.error(
           "Error fetching sensor data for condition {}: {}", condition.getId(), e.getMessage(), e);
-      return null;
+      return new ConditionValue.MissingValue();
     }
   }
 }

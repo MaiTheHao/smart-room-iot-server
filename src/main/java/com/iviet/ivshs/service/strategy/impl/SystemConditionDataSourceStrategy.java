@@ -5,6 +5,7 @@ import java.time.ZoneId;
 
 import org.springframework.stereotype.Component;
 
+import com.iviet.ivshs.dto.ConditionValue;
 import com.iviet.ivshs.entities.Condition;
 import com.iviet.ivshs.service.strategy.ConditionDataSourceStrategy;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
@@ -27,10 +28,10 @@ public class SystemConditionDataSourceStrategy implements ConditionDataSourceStr
   }
 
   @Override
-  public Object fetchValue(Condition condition, Long contextId) {
+  public ConditionValue fetchValue(Condition condition, Long contextId) {
     if (condition == null || condition.getProperty() == null) {
       log.debug("Condition or property is null for condition: {}", condition != null ? condition.getId() : null);
-      return null;
+      return new ConditionValue.MissingValue();
     }
 
     try {
@@ -38,16 +39,16 @@ public class SystemConditionDataSourceStrategy implements ConditionDataSourceStr
       Instant now = Instant.now();
       ZoneId utcZone = ZoneId.of("UTC");
 
-      Object value = switch (property.toLowerCase()) {
+      ConditionValue value = switch (property.toLowerCase()) {
         case PROP_CURRENT_TIME -> {
           var zonedDateTime = now.atZone(utcZone);
-          yield zonedDateTime.getHour() + (zonedDateTime.getMinute() / 60.0);
+          yield new ConditionValue.NumericValue(zonedDateTime.getHour() + (zonedDateTime.getMinute() / 60.0));
         }
-        case PROP_DAY_OF_WEEK -> now.atZone(utcZone).getDayOfWeek().getValue();
-        case PROP_DAY_OF_MONTH -> now.atZone(utcZone).getDayOfMonth();
+        case PROP_DAY_OF_WEEK -> new ConditionValue.NumericValue(now.atZone(utcZone).getDayOfWeek().getValue());
+        case PROP_DAY_OF_MONTH -> new ConditionValue.NumericValue(now.atZone(utcZone).getDayOfMonth());
         default -> {
           log.warn("Property '{}' not supported for SYSTEM data source in condition {}", property, condition.getId());
-          yield null;
+          yield new ConditionValue.MissingValue();
         }
       };
 
@@ -56,7 +57,7 @@ public class SystemConditionDataSourceStrategy implements ConditionDataSourceStr
 
     } catch (Exception e) {
       log.error("Failed to provide SYSTEM data for condition {}: {}", condition.getId(), e.getMessage(), e);
-      return null;
+      return new ConditionValue.MissingValue();
     }
   }
 }
