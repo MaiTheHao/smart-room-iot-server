@@ -36,21 +36,7 @@ public class Rule extends BaseSchedulableEntity {
     @Column(name = "priority", nullable = false)
     private Integer priority = 0;
 
-    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<RuleCondition> conditions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<RuleAction> actions = new ArrayList<>();
-
-    public void addCondition(RuleCondition condition) {
-        conditions.add(condition);
-        condition.setRule(this);
-    }
-
-    public void addAction(RuleAction action) {
-        actions.add(action);
-        action.setRule(this);
-    }
 
 
 
