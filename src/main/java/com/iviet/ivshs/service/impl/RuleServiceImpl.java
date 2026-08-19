@@ -1,5 +1,11 @@
 package com.iviet.ivshs.service.impl;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.iviet.ivshs.dao.RuleDao;
 import com.iviet.ivshs.dto.CreateRuleDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
@@ -16,14 +22,9 @@ import com.iviet.ivshs.shared.enumeration.AlertNamespace;
 import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-import java.util.List;
-import java.util.Objects;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
+import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,8 +38,6 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
   @Override
   @Transactional
   public RuleDto create(CreateRuleDto dto) {
-    log.info("Creating rule: name={}", dto.name());
-
     if (ruleDao.existsByName(dto.name())) {
       throw new BadRequestException("Rule name already exists: " + dto.name());
     }
@@ -48,23 +47,20 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
 
     jobScheduleService.sync(rule);
 
-    log.info("Rule created successfully: id={}, name={}", rule.getId(), rule.getName());
     return RuleDto.fromEntity(rule);
   }
 
   @Override
   @Transactional
   public RuleDto update(Long ruleId, UpdateRuleDto dto) {
-    log.info("Updating rule: id={}", ruleId);
-
     Rule rule = ruleDao
         .findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    if (dto.name() != null
-        && !rule.getName().equals(dto.name())
-        && ruleDao.existsByNameAndIdNot(dto.name(), ruleId)) {
-      throw new BadRequestException("Rule name already exists: " + dto.name());
+    if (dto.name() != null && !dto.name().equals(rule.getName())) {
+      if (ruleDao.existsByNameAndIdNot(dto.name(), ruleId)) {
+        throw new BadRequestException("Rule name already exists: " + dto.name());
+      }
     }
 
     dto.updateEntity(rule);
@@ -72,26 +68,27 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
 
     jobScheduleService.sync(rule);
 
-    log.info("Rule updated successfully: id={}, name={}", ruleId, rule.getName());
     return RuleDto.fromEntity(rule);
   }
 
   @Override
   @Transactional
   public void delete(Long ruleId) {
-    log.info("Deleting rule: id={}", ruleId);
     Rule rule = ruleDao
         .findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
     jobScheduleService.delete(rule);
-    alertConfigService.deleteAllBySource(AlertNamespace.RULE, String.valueOf(ruleId));
 
-    // Cascade delete standalone conditions & actions owned by this rule
-    conditionService.deleteByOwner(ConditionOwnerCategory.RULE, String.valueOf(ruleId));
-    actionService.deleteByOwner(ActionOwnerCategory.RULE, String.valueOf(ruleId));
+    try {
+      alertConfigService.deleteAllBySource(AlertNamespace.RULE, String.valueOf(ruleId));
+    } catch (Exception ignored) {
+    }
 
-    ruleDao.deleteById(ruleId);
+    conditionService.deleteByOwner(ConditionOwnerCategory.RULE, ruleId);
+    actionService.deleteByOwner(ActionOwnerCategory.RULE, ruleId);
+
+    ruleDao.delete(rule);
   }
 
   @Override
@@ -117,17 +114,16 @@ public class RuleServiceImpl extends AbstractSchedulableJobService<Rule> impleme
 
   @Override
   @Transactional
-  public void toggleIsActive(Long ruleId, boolean isActive) {
-    log.info("Toggling rule status: id={}, isActive={}", ruleId, isActive);
+  public void updateActiveStatus(Long ruleId, boolean active) {
     Rule rule = ruleDao
         .findById(ruleId)
         .orElseThrow(() -> new NotFoundException("Rule not found: " + ruleId));
 
-    if (Objects.equals(rule.getIsActive(), isActive)) {
+    if (Objects.equals(rule.getIsActive(), active)) {
       return;
     }
 
-    rule.setIsActive(isActive);
+    rule.setIsActive(active);
     ruleDao.update(rule);
     jobScheduleService.sync(rule);
   }

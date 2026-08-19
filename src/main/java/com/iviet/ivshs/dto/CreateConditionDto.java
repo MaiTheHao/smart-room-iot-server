@@ -7,18 +7,28 @@ import com.iviet.ivshs.shared.enumeration.ConditionLogic;
 import com.iviet.ivshs.shared.enumeration.ConditionOperator;
 import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
 public record CreateConditionDto(
-    ConditionOwnerCategory ownerCategory,
-    String ownerId,
-    ConditionDataSource sourceCategory,
-    String sourceTargetId,
+    @NotNull(message = "Owner category cannot be null") ConditionOwnerCategory ownerCategory,
+
+    @NotBlank(message = "Owner id cannot be blank") String ownerId,
+
+    @NotNull(message = "Source category cannot be null") ConditionDataSource sourceCategory,
+
+    @NotBlank(message = "Source target id cannot be blank") String sourceTargetId,
+
     DeviceCategory sourceTargetType,
-    String property,
-    ConditionOperator operator,
-    String value,
+
+    @NotBlank(message = "Property cannot be blank") String property,
+
+    @NotNull(message = "Operator cannot be null") ConditionOperator operator,
+
+    @NotBlank(message = "Value cannot be blank") String value,
+
     JsonNode extraParams,
     Integer sortOrder,
     ConditionLogic nextLogic) {

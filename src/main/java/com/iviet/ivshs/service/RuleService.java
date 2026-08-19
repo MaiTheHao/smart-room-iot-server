@@ -2,12 +2,11 @@ package com.iviet.ivshs.service;
 
 import java.util.List;
 
-import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.CreateRuleDto;
+import com.iviet.ivshs.dto.PaginatedResponse;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.entities.Rule;
-import com.iviet.ivshs.service.SchedulableJobService;
 
 public interface RuleService extends SchedulableJobService<Rule> {
 
@@ -23,5 +22,5 @@ public interface RuleService extends SchedulableJobService<Rule> {
 
 	List<RuleDto> getAllActive();
 
-	void toggleIsActive(Long ruleId, boolean isActive);
+	void updateActiveStatus(Long ruleId, boolean active);
 }

@@ -1,26 +1,5 @@
 package com.iviet.ivshs.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iviet.ivshs.dao.AirConditionDao;
-import com.iviet.ivshs.dao.FanDao;
-import com.iviet.ivshs.dao.LightDao;
-import com.iviet.ivshs.dto.ActionResult;
-import com.iviet.ivshs.dto.ControlDeviceResult;
-import com.iviet.ivshs.entities.Action;
-import com.iviet.ivshs.entities.AirCondition;
-import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.Light;
-import com.iviet.ivshs.service.registry.DeviceControlStrategyRegistry;
-import com.iviet.ivshs.service.strategy.ActionExecutionService;
-import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
-import com.iviet.ivshs.shared.exception.BadRequestException;
-import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
-import jakarta.validation.Validator;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -29,9 +8,33 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iviet.ivshs.dao.AirConditionDao;
+import com.iviet.ivshs.dao.FanDao;
+import com.iviet.ivshs.dao.LightDao;
+import com.iviet.ivshs.dto.ActionResult;
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import com.iviet.ivshs.entities.AirCondition;
+import com.iviet.ivshs.entities.Fan;
+import com.iviet.ivshs.entities.Light;
+import com.iviet.ivshs.entities.Action;
+import com.iviet.ivshs.service.registry.DeviceControlStrategyRegistry;
+import com.iviet.ivshs.service.strategy.ActionExecutionService;
+import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
+import com.iviet.ivshs.shared.exception.BadRequestException;
+import com.iviet.ivshs.shared.exception.NotFoundException;
+import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
+
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -39,29 +42,33 @@ import org.springframework.stereotype.Service;
 public class ActionExecutionServiceImpl implements ActionExecutionService {
 
   private final DeviceControlStrategyRegistry deviceControlStrategyRegistry;
-  private final ObjectMapper objectMapper;
-  private final Validator validator;
   private final FanDao fanDao;
   private final LightDao lightDao;
   private final AirConditionDao airConditionDao;
+  private final Validator validator;
+  private final ObjectMapper objectMapper;
 
   @Override
   public ControlDeviceResult execute(Action action) {
     if (action == null) {
-      throw new BadRequestException("Action cannot be null");
+      return null;
     }
 
     DeviceCategory category = action.getTargetCategory();
     String targetId = action.getTargetId();
     JsonNode params = action.getParams();
 
-    if (category == null || targetId == null) {
-      throw new BadRequestException("Action targetCategory and targetId must not be null");
+    if (category == null || targetId == null || params == null) {
+      log.debug(
+          "Category, targetId, or params is null: category={}, targetId={}",
+          category,
+          targetId);
+      return null;
     }
 
     try {
-      Long deviceId = Long.valueOf(targetId);
-      return deviceControlStrategyRegistry.executeControl(category, deviceId, params);
+      Long id = Long.parseLong(targetId);
+      return deviceControlStrategyRegistry.executeControl(category, id, params);
     } catch (NumberFormatException e) {
       return deviceControlStrategyRegistry.executeControl(category, targetId, params);
     }
@@ -73,31 +80,41 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
       return Collections.emptyList();
     }
 
-    List<Action> sortedActions = actions.stream()
-        .sorted(
-            Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
-        .toList();
+    List<Action> sortedActions = sortByExecutionOrder(actions);
 
     try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      List<Future<ActionResult>> futures = sortedActions.stream()
-          .map(action -> executor.submit(() -> runSingleAction(action)))
-          .toList();
+      List<Future<ActionResult>> futures = submitActions(sortedActions, executor);
+      return awaitAll(futures);
+    }
+  }
 
-      return futures.stream()
-          .map(future -> {
-            try {
-              return future.get();
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-              return ActionResult.failure(
-                  null, null, null, "Execution interrupted: " + e.getMessage());
-            } catch (ExecutionException e) {
-              Throwable cause = e.getCause() != null ? e.getCause() : e;
-              return ActionResult.failure(
-                  null, null, null, "Execution failed: " + cause.getMessage());
-            }
-          })
-          .toList();
+  private List<Action> sortByExecutionOrder(List<Action> actions) {
+    return actions.stream()
+        .sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
+        .toList();
+  }
+
+  private List<Future<ActionResult>> submitActions(List<Action> actions, ExecutorService executor) {
+    return actions.stream()
+        .map(action -> executor.submit(() -> runSingleAction(action)))
+        .toList();
+  }
+
+  private List<ActionResult> awaitAll(List<Future<ActionResult>> futures) {
+    return futures.stream()
+        .map(this::resolveResult)
+        .toList();
+  }
+
+  private ActionResult resolveResult(Future<ActionResult> future) {
+    try {
+      return future.get();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return ActionResult.failure(null, null, null, "Execution interrupted: " + e.getMessage());
+    } catch (ExecutionException e) {
+      Throwable cause = e.getCause() != null ? e.getCause() : e;
+      return ActionResult.failure(null, null, null, "Execution failed: " + cause.getMessage());
     }
   }
 
@@ -113,7 +130,7 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
           action.getId(), action.getTargetCategory(), action.getTargetId(), result);
     } catch (Exception e) {
       log.error(
-          "Action failed: actionId={}, category={}, targetId={}, error={}",
+          "Failed to execute action id={}, category={}, targetId={}: {}",
           action.getId(),
           action.getTargetCategory(),
           action.getTargetId(),
@@ -131,7 +148,9 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
     DeviceSpecificType specificType = getSpecificType(category, targetDeviceId);
 
     validateCapabilities(category, specificType, params);
-    validateDtoConstraints(params, strategy.getControlDtoClass());
+
+    Class<?> dtoClass = strategy.getControlDtoClass();
+    validateDtoConstraints(params, dtoClass);
   }
 
   private DeviceSpecificType getSpecificType(DeviceCategory category, Long targetDeviceId) {
@@ -159,7 +178,7 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
 
   private void validateCapabilities(
       DeviceCategory category, DeviceSpecificType specificType, JsonNode params) {
-    if (params == null || !params.isObject()) {
+    if (params == null || params.isNull()) {
       return;
     }
 
@@ -190,7 +209,7 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
         throw new BadRequestException(errorMsg);
       }
     } catch (JsonProcessingException e) {
-      throw new BadRequestException("Invalid JSON format for action parameters");
+      throw new BadRequestException("Invalid action params format: " + e.getMessage());
     }
   }
 }

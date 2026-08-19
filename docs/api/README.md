@@ -40,6 +40,8 @@
 
 - [Automation (Kịch bản tự động hóa)](automation.md)
 - [Rule (Quy tắc điều khiển)](rule.md)
+- [Condition (Điều kiện đánh giá dùng chung)](condition.md)
+- [Action (Hành động thực thi dùng chung)](action.md)
 
 ## System
 
