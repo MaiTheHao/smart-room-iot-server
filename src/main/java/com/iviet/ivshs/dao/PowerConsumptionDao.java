@@ -138,10 +138,6 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         .findFirst();
   }
 
-  /**
-   * Fetch all active PowerConsumption entities for a given gateway (client).
-   * Used by energy metric collection job to iterate per-gateway devices.
-   */
   public List<PowerConsumption> findAllActiveByClientId(Long clientId) {
     return findAll(
         root -> entityManager.getCriteriaBuilder().and(
@@ -151,5 +147,12 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
           root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
           root.fetch("room", JoinType.LEFT);
         });
+  }
+
+  public List<Long> findActiveIdsByRoomId(Long roomId) {
+    String jpql = "SELECT pc.id FROM PowerConsumption pc WHERE pc.room.id = :roomId AND pc.isActive = true";
+    return entityManager.createQuery(jpql, Long.class)
+        .setParameter("roomId", roomId)
+        .getResultList();
   }
 }
