@@ -3,6 +3,7 @@ package com.iviet.ivshs.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.MotionDetectorDao;
 import com.iviet.ivshs.dao.MotionMetricDao;
+import com.iviet.ivshs.dto.SensorEventRequestDto;
 import com.iviet.ivshs.dto.SensorMetadataDto;
 import com.iviet.ivshs.entities.MotionDetector;
 import com.iviet.ivshs.entities.MotionDetectorLan;
@@ -34,15 +35,21 @@ public class MotionMetricServiceImpl implements MotionMetricService {
     private final MotionMetricDao motionMetricDao;
     private final ApplicationEventPublisher eventPublisher;
 
-    // ========== Sensor Event / Metric Ingest ==========
+    // ========== EventTelemetryStrategy ==========
+
+    @Override
+    public DeviceCategory getSupportedCategory() {
+        return DeviceCategory.MOTION_DETECTOR;
+    }
 
     @Override
     @Transactional
-    public void processMotionData(String naturalId, JsonNode data) {
-        if (data == null) {
-            throw new BadRequestException("Event data cannot be null");
+    public void processData(String naturalId, SensorEventRequestDto request) {
+        if (request == null || request.getData() == null) {
+            throw new BadRequestException("Event request and data cannot be null");
         }
 
+        JsonNode data = request.getData();
         JsonNode motionNode = data.get(FIELD_MOTION_DETECTED);
         if (motionNode == null || !motionNode.isBoolean()) {
             throw new BadRequestException("Field '" + FIELD_MOTION_DETECTED + "' must be a boolean");
@@ -54,12 +61,10 @@ public class MotionMetricServiceImpl implements MotionMetricService {
 
         Instant now = Instant.now();
 
-        // 1. Update sensor state
         sensor.setCurrentMotion(motionDetected);
         sensor.setLastEventAt(now);
         motionDetectorDao.save(sensor);
 
-        // 2. Append time-series metric log
         MotionMetric metric = new MotionMetric();
         metric.setTargetCategory(DeviceCategory.MOTION_DETECTOR.name());
         metric.setTargetId(sensor.getId());
@@ -69,20 +74,14 @@ public class MotionMetricServiceImpl implements MotionMetricService {
         motionMetricDao.save(Collections.singletonList(metric));
         log.info("Saved MotionMetric (motion={}) for sensor {}", motionDetected, naturalId);
 
-        // 3. Publish Room Event if motion detected
         if (motionDetected && sensor.getRoom() != null) {
             Long roomId = sensor.getRoom().getId();
             log.info("Publishing RoomMotionDetectedEvent for roomId={}", roomId);
-            eventPublisher.publishEvent(new RoomMotionDetectedEvent(this, roomId, data, now));
+            eventPublisher.publishEvent(new RoomMotionDetectedEvent(this, naturalId, roomId, data, now));
         }
     }
 
     // ========== SensorMetadataServiceStrategy ==========
-
-    @Override
-    public DeviceCategory getSupportedCategory() {
-        return DeviceCategory.MOTION_DETECTOR;
-    }
 
     @Override
     @Transactional(readOnly = true)

@@ -12,10 +12,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 public class DeviceControlStrategyRegistry {
 
@@ -33,25 +31,16 @@ public class DeviceControlStrategyRegistry {
 
       if (existing != null) {
         throw new IllegalStateException(
-            "[DeviceControlStrategyRegistry] Duplicate strategy detected for category '"
+            "Duplicate strategy detected for category '"
                 + category
                 + "': "
                 + existing.getClass().getSimpleName()
                 + " vs "
                 + strategy.getClass().getSimpleName());
       }
-
-      log.info(
-          "[DeviceControlStrategyRegistry] Registered '{}' -> {}",
-          category,
-          strategy.getClass().getSimpleName());
     }
 
     this.strategies = Collections.unmodifiableMap(map);
-    log.info(
-        "[DeviceControlStrategyRegistry] Initialized with {} categories: {}",
-        strategies.size(),
-        strategies.keySet());
   }
 
   public DeviceControlServiceStrategy<?> getStrategy(DeviceCategory category) {

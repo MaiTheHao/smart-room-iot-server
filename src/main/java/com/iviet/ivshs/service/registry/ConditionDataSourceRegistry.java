@@ -29,24 +29,16 @@ public class ConditionDataSourceRegistry {
 
       if (existing != null) {
         throw new IllegalStateException(
-            "[ConditionDataSourceRegistry] Duplicate strategy detected for dataSource '" + dataSource
+            "Duplicate strategy detected for dataSource '"
+                + dataSource
                 + "': "
                 + existing.getClass().getSimpleName() + " vs "
                 + strategy.getClass().getSimpleName()
                 + ". Only one ConditionDataSourceStrategy per dataSource is allowed.");
       }
-
-      log.info(
-          "[ConditionDataSourceRegistry] Registered '{}' -> {}",
-          dataSource,
-          strategy.getClass().getSimpleName());
     }
 
     this.strategies = Collections.unmodifiableMap(map);
-    log.info(
-        "[ConditionDataSourceRegistry] Initialized with {} data sources: {}",
-        strategies.size(),
-        strategies.keySet());
   }
 
   public ConditionDataSourceStrategy getStrategy(ConditionDataSource dataSource) {

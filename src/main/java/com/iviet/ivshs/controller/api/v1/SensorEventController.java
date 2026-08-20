@@ -2,9 +2,7 @@ package com.iviet.ivshs.controller.api.v1;
 
 import com.iviet.ivshs.dto.ApiResponse;
 import com.iviet.ivshs.dto.SensorEventRequestDto;
-import com.iviet.ivshs.service.MotionMetricService;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.exception.BadRequestException;
+import com.iviet.ivshs.service.registry.EventTelemetryStrategyRegistry;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SensorEventController {
 
-  private final MotionMetricService motionMetricService;
+    private final EventTelemetryStrategyRegistry eventTelemetryStrategyRegistry;
 
-  @PostMapping("/sensors/{naturalId}/event")
-  public ResponseEntity<ApiResponse<Void>> ingestSensorEvent(
-      @PathVariable(name = "naturalId") String naturalId,
-      @Valid @RequestBody SensorEventRequestDto request) {
-    if (request.getCategory() == DeviceCategory.MOTION_DETECTOR) {
-      motionMetricService.processMotionData(naturalId, request.getData());
-    } else {
-      throw new BadRequestException(
-          "Unsupported sensor category for event: " + request.getCategory());
+    @PostMapping("/sensors/{naturalId}/event")
+    public ResponseEntity<ApiResponse<Void>> ingestSensorEvent(
+            @PathVariable(name = "naturalId") String naturalId,
+            @Valid @RequestBody SensorEventRequestDto request
+    ) {
+        eventTelemetryStrategyRegistry.processData(naturalId, request);
+        return ResponseEntity.ok(ApiResponse.ok(null));
     }
-    return ResponseEntity.ok(ApiResponse.ok(null));
-  }
 }

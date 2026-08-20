@@ -1,20 +1,15 @@
 package com.iviet.ivshs.service.registry;
 
+import com.iviet.ivshs.service.strategy.DeviceStateStrategy;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.BadRequestException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.springframework.stereotype.Component;
 
-import com.iviet.ivshs.service.strategy.DeviceStateStrategy;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.exception.BadRequestException;
-
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Component
 public class DeviceStateStrategyRegistry {
 
@@ -28,24 +23,15 @@ public class DeviceStateStrategyRegistry {
         if (strategy.supports(category)) {
           DeviceStateStrategy existing = map.put(category, strategy);
           if (existing != null) {
-            throw new IllegalStateException(
-                "[DeviceStateStrategyRegistry] Duplicate strategy detected for category '" + category
-                    + "': " + existing.getClass().getSimpleName() + " vs "
-                    + strategy.getClass().getSimpleName());
+            throw new IllegalStateException("Duplicate strategy detected for category '" + category
+                + "': " + existing.getClass().getSimpleName() + " vs "
+                + strategy.getClass().getSimpleName());
           }
-          log.info(
-              "[DeviceStateStrategyRegistry] Registered '{}' -> {}",
-              category,
-              strategy.getClass().getSimpleName());
         }
       }
     }
 
     this.strategies = Collections.unmodifiableMap(map);
-    log.info(
-        "[DeviceStateStrategyRegistry] Initialized with {} categories: {}",
-        strategies.size(),
-        strategies.keySet());
   }
 
   public DeviceStateStrategy getStrategy(DeviceCategory category) {
