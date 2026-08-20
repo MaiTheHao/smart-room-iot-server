@@ -129,51 +129,6 @@ export class CreateConditionDto {
 }
 export const CreateRuleConditionDto = CreateConditionDto;
 
-export class UpdateConditionDto {
-  constructor(builder) {
-    this.sourceCategory = builder._sourceCategory;
-    this.sourceTargetId = builder._sourceTargetId;
-    this.sourceTargetType = builder._sourceTargetType;
-    this.property = builder._property;
-    this.operator = builder._operator;
-    this.value = builder._value;
-    this.extraParams = builder._extraParams;
-    this.sortOrder = builder._sortOrder;
-    this.nextLogic = builder._nextLogic;
-  }
-
-  static get Builder() {
-    class Builder {
-      setSourceCategory(sourceCategory) { this._sourceCategory = sourceCategory; return this; }
-      setSourceTargetId(sourceTargetId) { this._sourceTargetId = sourceTargetId; return this; }
-      setSourceTargetType(sourceTargetType) { this._sourceTargetType = sourceTargetType; return this; }
-      setProperty(property) { this._property = property; return this; }
-      setOperator(operator) { this._operator = operator; return this; }
-      setValue(value) { this._value = value; return this; }
-      setExtraParams(extraParams) { this._extraParams = extraParams; return this; }
-      setSortOrder(sortOrder) { this._sortOrder = sortOrder; return this; }
-      setNextLogic(nextLogic) { this._nextLogic = nextLogic; return this; }
-      validate() {
-        const errors = {};
-        if (this._sortOrder !== null && this._sortOrder !== undefined && this._sortOrder !== ''
-            && !Validator.integer.isValidFormat(this._sortOrder)) {
-          errors.sortOrder = 'valSortOrderInvalid';
-        }
-        return { isValid: Object.keys(errors).length === 0, errors };
-      }
-      build() {
-        const { isValid, errors } = this.validate();
-        if (!isValid) {
-          throw new DomainValidationError('UpdateConditionDto validation failed', errors);
-        }
-        return new UpdateConditionDto(this);
-      }
-    }
-    return Builder;
-  }
-}
-export const UpdateRuleConditionDto = UpdateConditionDto;
-
 export class ActionDto {
   constructor(builder) {
     this.id = builder._id;
@@ -254,41 +209,6 @@ export class CreateActionDto {
   }
 }
 export const CreateRuleActionDto = CreateActionDto;
-
-export class UpdateActionDto {
-  constructor(builder) {
-    this.targetCategory = builder._targetCategory;
-    this.targetId = builder._targetId;
-    this.params = builder._params;
-    this.executionOrder = builder._executionOrder;
-  }
-
-  static get Builder() {
-    class Builder {
-      setTargetCategory(targetCategory) { this._targetCategory = targetCategory; return this; }
-      setTargetId(targetId) { this._targetId = targetId; return this; }
-      setParams(params) { this._params = params; return this; }
-      setExecutionOrder(executionOrder) { this._executionOrder = executionOrder; return this; }
-      validate() {
-        const errors = {};
-        if (this._executionOrder !== null && this._executionOrder !== undefined && this._executionOrder !== ''
-            && !Validator.integer.isValidFormat(this._executionOrder)) {
-          errors.executionOrder = 'valExecutionOrderInvalid';
-        }
-        return { isValid: Object.keys(errors).length === 0, errors };
-      }
-      build() {
-        const { isValid, errors } = this.validate();
-        if (!isValid) {
-          throw new DomainValidationError('UpdateActionDto validation failed', errors);
-        }
-        return new UpdateActionDto(this);
-      }
-    }
-    return Builder;
-  }
-}
-export const UpdateRuleActionDto = UpdateActionDto;
 
 export class RuleDto {
   constructor(builder) {

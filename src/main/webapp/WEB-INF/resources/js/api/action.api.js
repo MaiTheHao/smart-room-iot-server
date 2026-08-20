@@ -21,18 +21,6 @@ export const getActionById = (id) => {
 
 /**
  * @param {number|string} id
- * @param {UpdateActionDto} data
- * @returns {Promise<[Error|null, ApiResponse<ActionDto>]>}
- */
-export const updateAction = (id, data) => {
-	return httpClient(`/api/v1/actions/${id}`, {
-		method: 'PATCH',
-		body: JSON.stringify(data),
-	});
-};
-
-/**
- * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const deleteAction = (id) => {

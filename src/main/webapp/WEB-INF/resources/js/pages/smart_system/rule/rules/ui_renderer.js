@@ -84,7 +84,7 @@ export const UiRenderer = (() => {
           title: i18n.colActions,
           hozAlign: 'center',
           headerSort: false,
-          width: 250,
+          width: 270,
           responsive: 0,
           formatter: (cell) => {
             const data = cell.getData();
@@ -95,6 +95,9 @@ export const UiRenderer = (() => {
                 </a>
                 <a href="/management/smart-system/rules/${data.id}/actions" class="btn btn-light btn-sm rounded-pill" title="${i18n.manageActions}">
                   <i data-lucide="settings-2" class="lucide-sm text-info"></i>
+                </a>
+                <a href="/management/smart-system/rules/${data.id}/alert" class="btn btn-light btn-sm rounded-pill" title="${i18n.manageAlerts || 'Manage Alerts'}">
+                  <i data-lucide="bell" class="lucide-sm text-warning"></i>
                 </a>
                 <button class="btn btn-light btn-sm rounded-pill btn-execute" data-id="${data.id}" title="Run Now">
                   <i data-lucide="play" class="lucide-sm text-success"></i>

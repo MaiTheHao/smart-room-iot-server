@@ -5,7 +5,7 @@ import { getAllRoomsByFloor, getRoomById } from '../../../../api/room.api.js';
 import { getDevicesByRoom, getDeviceById } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
-import { CreateActionDto, UpdateActionDto } from '../../../../types/rule.domain.js';
+import { CreateActionDto } from '../../../../types/rule.domain.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -76,11 +76,6 @@ const PARAMETER_CONFIG = {
         swing: {
             type: 'enum',
             labelKey: 'swing',
-            options: ['ON', 'OFF'],
-        },
-        light: {
-            type: 'enum',
-            labelKey: 'fanLight',
             options: ['ON', 'OFF'],
         },
     },
@@ -472,7 +467,7 @@ export const ActionModal = (() => {
         const actionParams = await collectParams(category);
         if (actionParams === null) return;
 
-        const builder = new (localId ? UpdateActionDto : CreateActionDto).Builder()
+        const builder = new CreateActionDto.Builder()
             .setTargetCategory(category)
             .setTargetId(targetId)
             .setParams(actionParams)

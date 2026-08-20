@@ -6,7 +6,7 @@ import { getSensorsByRoom, getSensorById } from '../../../../api/sensor-metadata
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
-import { CreateConditionDto, UpdateConditionDto } from '../../../../types/rule.domain.js';
+import { CreateConditionDto } from '../../../../types/rule.domain.js';
 import { formatPropertyLabel } from './property_formatter.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
@@ -604,7 +604,7 @@ export const ConditionModal = (() => {
 
     const val = getValue().trim();
 
-    const builder = new (localId ? UpdateConditionDto : CreateConditionDto).Builder()
+    const builder = new CreateConditionDto.Builder()
       .setSourceCategory(ds)
       .setSourceTargetId(sourceTargetId)
       .setSourceTargetType(cat)

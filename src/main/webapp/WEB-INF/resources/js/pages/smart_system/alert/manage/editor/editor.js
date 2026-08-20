@@ -49,7 +49,7 @@ export class TemplateEditor {
   }
 
   /**
-   * Updates only tokens and preview definitions.  /**
+   * Updates only tokens and preview definitions.
    * Keeps existing text content and cursor selection intact.
    * @param {Array<{id: string, label: string, value: string}>} tokens
    */

@@ -21,18 +21,6 @@ export const getConditionById = (id) => {
 
 /**
  * @param {number|string} id
- * @param {UpdateConditionDto} data
- * @returns {Promise<[Error|null, ApiResponse<ConditionDto>]>}
- */
-export const updateCondition = (id, data) => {
-	return httpClient(`/api/v1/conditions/${id}`, {
-		method: 'PATCH',
-		body: JSON.stringify(data),
-	});
-};
-
-/**
- * @param {number|string} id
  * @returns {Promise<[Error|null, ApiResponse<void>]>}
  */
 export const deleteCondition = (id) => {

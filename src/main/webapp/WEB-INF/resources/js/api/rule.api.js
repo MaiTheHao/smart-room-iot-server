@@ -6,7 +6,7 @@ import { httpClient } from './http-client.js';
  * @returns {Promise<[Error|null, ApiResponse<PaginatedResponse<RuleDto>>]>}
  */
 export const getRules = (page = 0, size = 10) => {
-	return httpClient(`/api/v1/rules?page=${page}&size=${size}`);
+	return httpClient(`/api/v1/rules?page=${page}&limit=${size}`);
 };
 
 /**
