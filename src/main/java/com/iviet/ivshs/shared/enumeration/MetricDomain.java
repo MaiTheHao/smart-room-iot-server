@@ -7,5 +7,6 @@ public enum MetricDomain {
     TEMPERATURE,
     HUMIDITY,
     CO2,
-    LUX
+    LUX,
+    MOTION
 }

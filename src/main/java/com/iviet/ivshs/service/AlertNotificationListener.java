@@ -9,8 +9,6 @@ import com.iviet.ivshs.entities.AlertConfig;
 import com.iviet.ivshs.entities.AlertInstance;
 import com.iviet.ivshs.entities.Client;
 import com.iviet.ivshs.entities.SysGroup;
-import com.iviet.ivshs.service.AlertNotificationEvent;
-import com.iviet.ivshs.service.NotificationService;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.NotificationChannel;
 import lombok.RequiredArgsConstructor;

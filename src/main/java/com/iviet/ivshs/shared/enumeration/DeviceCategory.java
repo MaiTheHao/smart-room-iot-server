@@ -8,5 +8,6 @@ public enum DeviceCategory {
     FAN,
     HUMIDITY,
     SENSOR_CO2,
-    SENSOR_LUX
+    SENSOR_LUX,
+    MOTION_DETECTOR
 }

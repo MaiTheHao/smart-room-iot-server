@@ -9,5 +9,6 @@ package com.iviet.ivshs.shared.enumeration;
 public enum AlertNamespace {
     RULE,
     GATEWAY,
-    SYSTEM;
+    SYSTEM,
+    ROOM_EVENT;
 }
