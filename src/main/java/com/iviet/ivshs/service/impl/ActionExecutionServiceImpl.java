@@ -37,7 +37,9 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
 
     if (category == null || targetId == null || params == null) {
       log.debug(
-          "Category, targetId, or params is null: category={}, targetId={}", category, targetId);
+          "[ActionExecution] Category, targetId, or params is null: category={}, targetId={}",
+          category,
+          targetId);
       return null;
     }
 
@@ -55,11 +57,25 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
       return Collections.emptyList();
     }
 
+    long startBatchTime = System.currentTimeMillis();
+    log.info("[ActionExecution] Batch execution started: totalActions={}", actions.size());
+
     List<Action> sortedActions = sortByExecutionOrder(actions);
 
     try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
       List<Future<ActionResult>> futures = submitActions(sortedActions, executor);
-      return awaitAll(futures);
+      List<ActionResult> results = awaitAll(futures);
+
+      long successCount = results.stream().filter(ActionResult::success).count();
+      long durationBatch = System.currentTimeMillis() - startBatchTime;
+
+      log.info(
+          "[ActionExecution] Batch execution completed: success={}/{}, duration={}ms",
+          successCount,
+          results.size(),
+          durationBatch);
+
+      return results;
     }
   }
 
@@ -70,7 +86,8 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
         .toList();
   }
 
-  private List<Future<ActionResult>> submitActions(List<Action> actions, ExecutorService executor) {
+  private List<Future<ActionResult>> submitActions(
+      List<Action> actions, ExecutorService executor) {
     return actions.stream()
         .map(action -> executor.submit(() -> runSingleAction(action)))
         .toList();
@@ -93,21 +110,35 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
   }
 
   private ActionResult runSingleAction(Action action) {
+    long startTime = System.currentTimeMillis();
+    log.debug(
+        "[ActionExecution] Starting action: actionId={}, category={}, targetId={}, params={}",
+        action.getId(),
+        action.getTargetCategory(),
+        action.getTargetId(),
+        action.getParams());
+
     try {
       ControlDeviceResult result = execute(action);
+      long duration = System.currentTimeMillis() - startTime;
       log.info(
-          "Action executed successfully: actionId={}, category={}, targetId={}",
-          action.getId(),
-          action.getTargetCategory(),
-          action.getTargetId());
-      return ActionResult.success(
-          action.getId(), action.getTargetCategory(), action.getTargetId(), result);
-    } catch (Exception e) {
-      log.error(
-          "Failed to execute action id={}, category={}, targetId={}: {}",
+          "[ActionExecution] Action executed successfully: actionId={}, category={}, targetId={},"
+              + " duration={}ms",
           action.getId(),
           action.getTargetCategory(),
           action.getTargetId(),
+          duration);
+      return ActionResult.success(
+          action.getId(), action.getTargetCategory(), action.getTargetId(), result);
+    } catch (Exception e) {
+      long duration = System.currentTimeMillis() - startTime;
+      log.error(
+          "[ActionExecution] Action execution failed: actionId={}, category={}, targetId={},"
+              + " duration={}ms, error={}",
+          action.getId(),
+          action.getTargetCategory(),
+          action.getTargetId(),
+          duration,
           e.getMessage(),
           e);
       return ActionResult.failure(

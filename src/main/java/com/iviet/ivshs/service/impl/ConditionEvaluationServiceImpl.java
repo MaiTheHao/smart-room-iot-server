@@ -30,17 +30,50 @@ public class ConditionEvaluationServiceImpl implements ConditionEvaluationServic
     if (condition == null) {
       return false;
     }
+    long startTime = System.currentTimeMillis();
     try {
       ConditionValue conditionValue = conditionDataSourceRegistry.fetchValue(condition, contextId);
-      return switch (conditionValue) {
-        case ConditionValue.NumericValue nv ->
-          compareNumeric(nv.value(), condition.getValue(), condition.getOperator());
-        case ConditionValue.TextValue tv ->
-          compareText(tv.value(), condition.getValue(), condition.getOperator());
-        case ConditionValue.MissingValue mv -> false;
-      };
+      Object actualRaw =
+          switch (conditionValue) {
+            case ConditionValue.NumericValue nv -> nv.value();
+            case ConditionValue.TextValue tv -> tv.value();
+            case ConditionValue.MissingValue mv -> null;
+          };
+
+      boolean isMet =
+          switch (conditionValue) {
+            case ConditionValue.NumericValue nv ->
+              compareNumeric(nv.value(), condition.getValue(), condition.getOperator());
+            case ConditionValue.TextValue tv ->
+              compareText(tv.value(), condition.getValue(), condition.getOperator());
+            case ConditionValue.MissingValue mv -> false;
+          };
+
+      long duration = System.currentTimeMillis() - startTime;
+      log.debug(
+          "[ConditionEvaluation] Single condition evaluated: conditionId={}, contextId={},"
+              + " category={}, actual='{}', op='{}', expected='{}' => isMet={}, duration={}ms",
+          condition.getId(),
+          contextId,
+          condition.getSourceCategory(),
+          actualRaw,
+          condition.getOperator() != null ? condition.getOperator().getSymbol() : "null",
+          condition.getValue(),
+          isMet,
+          duration);
+
+      return isMet;
     } catch (Exception e) {
-      log.error("Error evaluating condition id={}: {}", condition.getId(), e.getMessage(), e);
+      long duration = System.currentTimeMillis() - startTime;
+      log.error(
+          "[ConditionEvaluation] Error evaluating single condition: conditionId={}, contextId={},"
+              + " category={}, duration={}ms: {}",
+          condition.getId(),
+          contextId,
+          condition.getSourceCategory(),
+          duration,
+          e.getMessage(),
+          e);
       return false;
     }
   }
@@ -50,6 +83,13 @@ public class ConditionEvaluationServiceImpl implements ConditionEvaluationServic
     if (conditions == null || conditions.isEmpty()) {
       return EvaluationResult.empty();
     }
+
+    long startBatchTime = System.currentTimeMillis();
+    log.info(
+        "[ConditionEvaluation] Batch condition evaluation started: contextId={},"
+            + " totalConditions={}",
+        contextId,
+        conditions.size());
 
     EvaluationAccumulator ctx = new EvaluationAccumulator();
 
@@ -61,12 +101,21 @@ public class ConditionEvaluationServiceImpl implements ConditionEvaluationServic
       accumulate(ctx, cond, contextId);
     }
 
+    long durationBatch = System.currentTimeMillis() - startBatchTime;
+    log.info(
+        "[ConditionEvaluation] Batch condition evaluation completed: contextId={}, finalResult={},"
+            + " duration={}ms",
+        contextId,
+        ctx.isFinalResult(),
+        durationBatch);
+
     return EvaluationResult.of(ctx.isFinalResult(), ctx.getTemplateData());
   }
 
   private void accumulate(EvaluationAccumulator ctx, Condition cond, Long contextId) {
     Object actualRaw = null;
     boolean isMet = false;
+    long startTime = System.currentTimeMillis();
 
     try {
       ConditionValue conditionValue = conditionDataSourceRegistry.fetchValue(cond, contextId);
@@ -83,8 +132,31 @@ public class ConditionEvaluationServiceImpl implements ConditionEvaluationServic
           compareText(tv.value(), cond.getValue(), cond.getOperator());
         case ConditionValue.MissingValue mv -> false;
       };
+
+      long duration = System.currentTimeMillis() - startTime;
+      log.debug(
+          "[ConditionEvaluation] Condition evaluated: conditionId={}, sortOrder={}, category={},"
+              + " actual='{}', op='{}', expected='{}' => isMet={}, duration={}ms",
+          cond.getId(),
+          cond.getSortOrder(),
+          cond.getSourceCategory(),
+          actualRaw,
+          cond.getOperator() != null ? cond.getOperator().getSymbol() : "null",
+          cond.getValue(),
+          isMet,
+          duration);
+
     } catch (Exception e) {
-      log.error("Error evaluating condition id={}: {}", cond.getId(), e.getMessage());
+      long duration = System.currentTimeMillis() - startTime;
+      log.error(
+          "[ConditionEvaluation] Error evaluating condition: conditionId={}, sortOrder={},"
+              + " category={}, duration={}ms: {}",
+          cond.getId(),
+          cond.getSortOrder(),
+          cond.getSourceCategory(),
+          duration,
+          e.getMessage(),
+          e);
       isMet = false;
     }
 
