@@ -102,9 +102,7 @@ export const RuleModal = (() => {
 			const builder = new (isUpdate ? UpdateRuleDto : CreateRuleDto).Builder()
 				.setName(data.name)
 				.setPriority(parseInt(data.priority, 10))
-				.setIntervalSeconds(parseInt(data.intervalSeconds, 10))
-				.setConditions(isUpdate ? (currentData?.conditions || []) : [])
-				.setActions(isUpdate ? (currentData?.actions || []) : []);
+				.setIntervalSeconds(parseInt(data.intervalSeconds, 10));
 
 			const payload = builder.build();
 			if (!isUpdate) {

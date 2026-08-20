@@ -1,7 +1,6 @@
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllGroups } from '../../../../api/group.api.js';
-import { Toast } from '../../../../common/notification_util.js';
 
 const { i18n } = window.__ALERT_PAGE_CONFIG__;
 
@@ -17,6 +16,7 @@ export const AlertConfigModal = (() => {
     el.localId = document.getElementById('alertLocalId');
     el.id = document.getElementById('alertConfigId');
 
+    el.alertCode = document.getElementById('alertCode');
     el.alertName = document.getElementById('alertName');
     el.severity = document.getElementById('alertSeverity');
     el.cooldownMinutes = document.getElementById('alertCooldownMinutes');
@@ -78,7 +78,7 @@ export const AlertConfigModal = (() => {
 
   const clearValidation = () => {
     const inputs = el.form.querySelectorAll('.form-control, .form-select');
-    inputs.forEach((el) => el.classList.remove('is-invalid'));
+    inputs.forEach((input) => input.classList.remove('is-invalid'));
   };
 
   const open = async (localId = null) => {
@@ -97,16 +97,24 @@ export const AlertConfigModal = (() => {
         el.localId.value = data._localId;
         el.id.value = data.id || '';
 
+        if (el.alertCode) {
+          el.alertCode.value = data.alertCode || '';
+          el.alertCode.disabled = !!data.id;
+        }
         el.alertName.value = data.alertName || '';
         el.severity.value = data.severity || 'INFO';
         el.cooldownMinutes.value = data.cooldownMinutes !== undefined ? data.cooldownMinutes : 10;
         el.messageTemplate.value = data.messageTemplate || '';
 
-        selectedGroups = data.recipientGroups || [];
+        selectedGroups = data.recipientGroupCodes || data.recipientGroups || [];
         selectedChannels = data.channels || [];
       }
     } else {
       el.title.textContent = i18n.addTitle || 'Add Alert Configuration';
+      if (el.alertCode) {
+        el.alertCode.value = '';
+        el.alertCode.disabled = false;
+      }
       el.alertName.value = '';
       el.severity.value = 'WARNING';
       el.cooldownMinutes.value = 10;
@@ -128,14 +136,15 @@ export const AlertConfigModal = (() => {
     e.preventDefault();
     clearValidation();
 
+    const alertCode = el.alertCode ? el.alertCode.value.trim() : '';
     const alertName = el.alertName.value.trim();
     const severity = el.severity.value;
     const cooldownMinutes = el.cooldownMinutes.value;
     const messageTemplate = el.messageTemplate.value.trim();
-    const recipientGroups = [];
+    const recipientGroupCodes = [];
     const groupCheckboxes = el.recipientGroupsContainer.querySelectorAll('input[name="recipientGroups"]:checked');
     groupCheckboxes.forEach((cb) => {
-      recipientGroups.push(cb.value);
+      recipientGroupCodes.push(cb.value);
     });
 
     const channels = [];
@@ -145,6 +154,11 @@ export const AlertConfigModal = (() => {
     });
 
     let isValid = true;
+    if (el.alertCode && !alertCode) {
+      el.alertCode.classList.add('is-invalid');
+      isValid = false;
+    }
+
     if (!alertName) {
       el.alertName.classList.add('is-invalid');
       isValid = false;
@@ -164,9 +178,10 @@ export const AlertConfigModal = (() => {
 
     const data = {
       id: el.id.value ? Number(el.id.value) : null,
+      alertCode,
       alertName,
       severity,
-      recipientGroups,
+      recipientGroupCodes,
       channels,
       messageTemplate,
       cooldownMinutes: parseInt(cooldownMinutes, 10),

@@ -3,14 +3,22 @@ package com.iviet.ivshs.service.impl;
 import com.iviet.ivshs.dao.ConditionDao;
 import com.iviet.ivshs.dto.ConditionDto;
 import com.iviet.ivshs.dto.CreateConditionDto;
-import com.iviet.ivshs.dto.UpdateConditionDto;
+import com.iviet.ivshs.dto.ReplaceConditionDto;
 import com.iviet.ivshs.entities.Condition;
 import com.iviet.ivshs.service.ConditionService;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
 import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,18 +34,6 @@ public class ConditionServiceImpl implements ConditionService {
   public ConditionDto create(CreateConditionDto dto) {
     Condition condition = dto.toEntity();
     conditionDao.save(condition);
-    return ConditionDto.fromEntity(condition);
-  }
-
-  @Override
-  @Transactional
-  public ConditionDto update(Long id, UpdateConditionDto dto) {
-    Condition condition = conditionDao
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Condition not found: " + id));
-
-    dto.updateEntity(condition);
-    conditionDao.update(condition);
     return ConditionDto.fromEntity(condition);
   }
 
@@ -73,6 +69,53 @@ public class ConditionServiceImpl implements ConditionService {
   }
 
   @Override
+  @Transactional(rollbackFor = Exception.class)
+  public List<ConditionDto> replaceByOwner(
+      ConditionOwnerCategory ownerCategory, String ownerId, List<ReplaceConditionDto> items) {
+    List<Condition> existing = conditionDao.findByOwner(ownerCategory, ownerId);
+    if (items == null || items.isEmpty()) {
+      existing.forEach(conditionDao::delete);
+      return List.of();
+    }
+
+    Map<Long, Condition> existingById =
+        existing.stream().collect(Collectors.toMap(Condition::getId, Function.identity()));
+
+    List<Long> requestedIds =
+        items.stream().map(ReplaceConditionDto::id).filter(Objects::nonNull).toList();
+    if (new HashSet<>(requestedIds).size() != requestedIds.size()) {
+      throw new BadRequestException("Duplicate condition id in request");
+    }
+    Set<Long> requestedIdSet = new HashSet<>(requestedIds);
+
+    existing.stream()
+        .filter(e -> !requestedIdSet.contains(e.getId()))
+        .forEach(conditionDao::delete);
+
+    List<ConditionDto> result = new ArrayList<>(items.size());
+    for (ReplaceConditionDto item : items) {
+      if (item.id() != null && existingById.containsKey(item.id())) {
+        Condition managed = existingById.get(item.id());
+        managed.setOwnerCategory(ownerCategory);
+        managed.setOwnerId(ownerId);
+        item.updateEntity(managed);
+        result.add(ConditionDto.fromEntity(managed));
+      } else {
+        result.add(
+            ConditionDto.fromEntity(conditionDao.save(item.toEntity(ownerCategory, ownerId))));
+      }
+    }
+    return result;
+  }
+
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public List<ConditionDto> replaceByOwner(
+      ConditionOwnerCategory ownerCategory, Long ownerId, List<ReplaceConditionDto> items) {
+    return replaceByOwner(ownerCategory, String.valueOf(ownerId), items);
+  }
+
+  @Override
   @Transactional
   public int deleteByOwner(ConditionOwnerCategory ownerCategory, String ownerId) {
     return conditionDao.deleteByOwner(ownerCategory, ownerId);
@@ -93,7 +136,8 @@ public class ConditionServiceImpl implements ConditionService {
   }
 
   @Override
-  public List<ConditionDto> findBySource(ConditionDataSource sourceCategory, Long sourceTargetId) {
+  public List<ConditionDto> findBySource(
+      ConditionDataSource sourceCategory, Long sourceTargetId) {
     return conditionDao.findBySource(sourceCategory, sourceTargetId).stream()
         .map(ConditionDto::fromEntity)
         .toList();

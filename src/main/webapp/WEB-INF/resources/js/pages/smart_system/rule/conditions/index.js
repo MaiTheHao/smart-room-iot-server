@@ -1,4 +1,4 @@
-import { getRuleById, updateRule } from '../../../../api/rule.api.js';
+import { getRuleConditions, replaceRuleConditions } from '../../../../api/rule.api.js';
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { ConditionModal } from './condition_modal.js';
@@ -50,9 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async loadData() {
       try {
-        const [err, res] = await getRuleById(ruleId);
+        const [err, res] = await getRuleConditions(ruleId);
         if (err) throw err;
-        StateManager.init(res.data?.conditions || []);
+        StateManager.init(res.data || []);
         UiRenderer.render();
       } catch (error) {
         Swal.fire(i18n.error, i18n.loadFailed, 'error');
@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${i18n.saving}`;
 
       try {
-        const payload = StateManager.buildPayload();
-        const [err] = await updateRule(ruleId, { conditions: payload });
+        const payload = StateManager.buildPayload(ruleId);
+        const [err] = await replaceRuleConditions(ruleId, payload);
         if (err) throw err;
 
         Swal.fire({

@@ -8,12 +8,16 @@ Tài nguyên `Action` đại diện cho các hành động thực thi điều kh
 
 | Tên trường | Loại | Bắt buộc (Create) | Mô tả |
 | :--- | :--- | :--- | :--- |
+| `id` | long | Không | ID của Action (chỉ dùng khi Bulk Replace: có `id` → update, không có → insert) |
 | `ownerCategory` | string (Enum) | Có | Loại đối tượng sở hữu (`RULE`, `AUTOMATION`, `SYSTEM`, `ROOM_EVENT`) |
 | `ownerId` | string | Có | ID của đối tượng sở hữu (Rule ID, Automation ID...) |
 | `targetCategory` | string (Enum) | Có | Phân loại thiết bị đích (`LIGHT`, `FAN`, `AIR_CONDITION`) |
 | `targetId` | string | Có | ID của thiết bị đích |
 | `params` | Json | Có | Payload tham số điều khiển thiết bị (JSON) |
 | `executionOrder`| integer | Không | Thứ tự thực hiện (Mặc định: `0`) |
+
+> [!NOTE]
+> Khi gọi qua sub-resource helper, các trường `ownerCategory`/`ownerId` trong body sẽ bị backend ghi đè (override) theo path parameter. Với Bulk Replace, body không cần truyền 2 trường này (backend tự gán).
 
 ### Cấu trúc `params` theo `targetCategory`
 * **`LIGHT`**:
@@ -38,7 +42,7 @@ Tài nguyên `Action` đại diện cho các hành động thực thi điều kh
 <details>
 <summary><b>POST</b> <code>/api/v1/actions</code> - Tạo mới Hành động</summary>
 
-> Tự động kiểm tra tính tương thích của thiết bị phần cứng & kiểm tra ràng buộc DTO trước khi lưu.
+> Kiểm tra ràng buộc DTO (`@Valid`) trước khi lưu.
 
 ### Request Body
 ```json
@@ -109,44 +113,6 @@ Tài nguyên `Action` đại diện cho các hành động thực thi điều kh
 <br>
 
 <details>
-<summary><b>PATCH</b> <code>/api/v1/actions/{id}</code> - Cập nhật Hành động</summary>
-
-### Request Body
-```json
-{
-  "params": {
-    "power": "ON",
-    "temperature": 26
-  }
-}
-```
-
-### Response (200 OK)
-```json
-{
-  "status": 200,
-  "message": "Success",
-  "data": {
-    "id": 200,
-    "ownerCategory": "RULE",
-    "ownerId": "10",
-    "targetCategory": "AIR_CONDITION",
-    "targetId": "10",
-    "params": {
-      "power": "ON",
-      "temperature": 26
-    },
-    "executionOrder": 0,
-    "createdAt": "2026-03-26T15:00:00Z",
-    "updatedAt": "2026-03-26T15:40:00Z"
-  }
-}
-```
-</details>
-
-<br>
-
-<details>
 <summary><b>DELETE</b> <code>/api/v1/actions/{id}</code> - Xóa Hành động</summary>
 
 ### Response (204 No Content)
@@ -200,6 +166,79 @@ Tài nguyên `Action` đại diện cho các hành động thực thi điều kh
   "status": 200,
   "message": "Success",
   "data": 1
+}
+```
+</details>
+
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/actions/by-owner</code> - Thay thế toàn bộ Hành động theo Owner (Bulk Replace / Upsert)</summary>
+
+### Query Parameters
+* `ownerCategory` (Bắt buộc): `RULE`, `AUTOMATION`, `SYSTEM`, `ROOM_EVENT`
+* `ownerId` (Bắt buộc): ID của đối tượng
+
+> Upsert theo `id`: item có `id` → cập nhật; không có `id` → tạo mới.
+
+### Request Body
+```json
+[
+  {
+    "id": 200,
+    "targetCategory": "AIR_CONDITION",
+    "targetId": "10",
+    "params": {
+      "power": "ON",
+      "temperature": 26
+    },
+    "executionOrder": 0
+  },
+  {
+    "targetCategory": "LIGHT",
+    "targetId": "5",
+    "params": {
+      "power": "ON",
+      "level": 70
+    },
+    "executionOrder": 1
+  }
+]
+```
+
+### Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 200,
+      "ownerCategory": "RULE",
+      "ownerId": "10",
+      "targetCategory": "AIR_CONDITION",
+      "targetId": "10",
+      "params": {
+        "power": "ON",
+        "temperature": 26
+      },
+      "executionOrder": 0,
+      "createdAt": "2026-03-26T15:00:00Z"
+    },
+    {
+      "id": 204,
+      "ownerCategory": "RULE",
+      "ownerId": "10",
+      "targetCategory": "LIGHT",
+      "targetId": "5",
+      "params": {
+        "power": "ON",
+        "level": 70
+      },
+      "executionOrder": 1,
+      "createdAt": "2026-03-26T15:30:00Z"
+    }
+  ]
 }
 ```
 </details>

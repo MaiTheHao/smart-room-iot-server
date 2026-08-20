@@ -5,7 +5,7 @@ import { getAllRoomsByFloor, getRoomById } from '../../../../api/room.api.js';
 import { getDevicesByRoom, getDeviceById } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
-import { CreateRuleActionDto, UpdateRuleActionDto } from '../../../../types/rule.domain.js';
+import { CreateActionDto, UpdateActionDto } from '../../../../types/rule.domain.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -406,13 +406,15 @@ export const ActionModal = (() => {
                 el.title.textContent = i18n.editTitle;
                 el.localId.value = data._localId;
                 el.executionOrder.value = data.executionOrder;
-                el.targetDeviceCategory.value = data.targetDeviceCategory;
+                const category = data.targetCategory || data.targetDeviceCategory;
+                const targetId = data.targetId || data.targetDeviceId;
+                el.targetDeviceCategory.value = category;
 
-                const params = typeof data.actionParams === 'string'
-                    ? JSON.parse(data.actionParams)
-                    : (data.actionParams || {});
+                const params = typeof (data.params || data.actionParams) === 'string'
+                    ? JSON.parse(data.params || data.actionParams)
+                    : (data.params || data.actionParams || {});
 
-                const [devErr, devRes] = await getDeviceById(data.targetDeviceId, data.targetDeviceCategory);
+                const [devErr, devRes] = await getDeviceById(targetId, category);
                 if (!devErr && devRes?.data) {
                     const device = devRes.data;
                     const [roomErr, roomRes] = await getRoomById(device.roomId);
@@ -421,7 +423,7 @@ export const ActionModal = (() => {
                         el.floorId.value = room.floorId;
                         await loadRooms(room.floorId);
                         el.roomId.value = device.roomId;
-                        await loadDevices(device.roomId, data.targetDeviceCategory, data.targetDeviceId);
+                        await loadDevices(device.roomId, category, targetId);
                     } else {
                         fallbackLoad(data, params);
                     }
@@ -440,12 +442,14 @@ export const ActionModal = (() => {
     };
 
     const fallbackLoad = (data, params) => {
-        renderDynamicParams(data.targetDeviceCategory, null, params);
+        const category = data.targetCategory || data.targetDeviceCategory;
+        const targetId = data.targetId || data.targetDeviceId;
+        renderDynamicParams(category, null, params);
         el.targetDeviceId.innerHTML = '';
         const opt = document.createElement('option');
-        opt.value = data.targetDeviceId;
+        opt.value = targetId;
         opt.textContent = data.targetName || data.targetDeviceName
-            || `Device #${data.targetDeviceId} (${i18n.keptAsIs})`;
+            || `Device #${targetId} (${i18n.keptAsIs})`;
         opt.selected = true;
         el.targetDeviceId.appendChild(opt);
         el.targetDeviceId.disabled = false;
@@ -455,44 +459,45 @@ export const ActionModal = (() => {
         e.preventDefault();
 
         const localId = el.localId.value;
-        const builder = new (localId ? UpdateRuleActionDto : CreateRuleActionDto).Builder()
-            .setTargetDeviceId(el.targetDeviceId.value)
-            .setTargetDeviceCategory(el.targetDeviceCategory.value)
-            .setExecutionOrder(el.executionOrder.value);
-
-        const result = builder.validate();
-        if (!result.isValid) {
-            const firstField = Object.keys(result.errors)[0];
-            const msgKey = result.errors[firstField];
-            const fieldLabel = ({ targetDeviceId: i18n.colTargetDevice, targetDeviceCategory: i18n.colType, executionOrder: i18n.colOrder })[firstField] || '';
-            await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
-            const FIELD_ID_MAP = { targetDeviceId: el.targetDeviceId, targetDeviceCategory: el.targetDeviceCategory, executionOrder: el.executionOrder };
-            FIELD_ID_MAP[firstField]?.focus();
-            return;
-        }
-
+        const category = el.targetDeviceCategory.value;
+        const targetId = el.targetDeviceId.value;
         const orderVal = el.executionOrder.value;
+
         if (orderVal === '' || isNaN(orderVal) || parseInt(orderVal, 10) < 0) {
             await Alert.warning(i18n.valExecutionOrderInvalid || 'Execution order must be a valid number', i18n.error || 'Error');
             el.executionOrder?.focus();
             return;
         }
 
-        const category = el.targetDeviceCategory.value;
         const actionParams = await collectParams(category);
-
         if (actionParams === null) return;
+
+        const builder = new (localId ? UpdateActionDto : CreateActionDto).Builder()
+            .setTargetCategory(category)
+            .setTargetId(targetId)
+            .setParams(actionParams)
+            .setExecutionOrder(orderVal);
+
+        const result = builder.validate();
+        if (!result.isValid) {
+            const firstField = Object.keys(result.errors)[0];
+            const msgKey = result.errors[firstField];
+            const fieldLabel = ({ targetId: i18n.colTargetDevice, targetCategory: i18n.colType, executionOrder: i18n.colOrder, params: i18n.colParams })[firstField] || '';
+            await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
+            const FIELD_ID_MAP = { targetId: el.targetDeviceId, targetCategory: el.targetDeviceCategory, executionOrder: el.executionOrder };
+            FIELD_ID_MAP[firstField]?.focus();
+            return;
+        }
 
         const selectedOption = el.targetDeviceId.options[el.targetDeviceId.selectedIndex];
         const targetDeviceName = selectedOption ? selectedOption.textContent : '';
 
         const data = {
-            executionOrder:      parseInt(el.executionOrder.value, 10),
-            targetDeviceId:      parseInt(el.targetDeviceId.value, 10),
-            targetDeviceCategory: category,
-            actionParams:        actionParams,
-            targetName:          targetDeviceName,
-            targetDeviceName:    targetDeviceName,
+            executionOrder: parseInt(orderVal, 10),
+            targetCategory: category,
+            targetId:       String(targetId),
+            params:         actionParams,
+            targetName:     targetDeviceName,
         };
 
         if (localId) {

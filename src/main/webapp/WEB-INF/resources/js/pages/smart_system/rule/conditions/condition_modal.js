@@ -1,12 +1,12 @@
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { getAllRooms } from '../../../../api/room.api.js';
-import { getDevicesByRoom } from '../../../../api/device.api.js';
-import { getSensorsByRoom } from '../../../../api/sensor-metadata.api.js';
+import { getDevicesByRoom, getDeviceById } from '../../../../api/device.api.js';
+import { getSensorsByRoom, getSensorById } from '../../../../api/sensor-metadata.api.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
-import { CreateRuleConditionDto, UpdateRuleConditionDto } from '../../../../types/rule.domain.js';
+import { CreateConditionDto, UpdateConditionDto } from '../../../../types/rule.domain.js';
 import { formatPropertyLabel } from './property_formatter.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
@@ -512,32 +512,49 @@ export const ConditionModal = (() => {
 
         el.sortOrder.value = data.sortOrder !== undefined ? data.sortOrder : 0;
 
-        el.dataSource.value = data.dataSource;
+        const sourceCategory = data.sourceCategory || data.dataSource || 'SYSTEM';
+        el.dataSource.value = sourceCategory;
         await onDataSourceChange();
 
-        if (data.dataSource === 'DEVICE' || data.dataSource === 'SENSOR') {
-          el.category.value = data.resourceParam?.category || '';
+        if (sourceCategory === 'DEVICE' || sourceCategory === 'SENSOR') {
+          const category = data.sourceTargetType || data.resourceParam?.category || '';
+          el.category.value = category;
           await onCategoryChange();
 
-          const roomId = data.resourceParam?.roomId || data.resourceParam?.roomId;
+          const targetId = data.sourceTargetId || (sourceCategory === 'DEVICE' ? data.resourceParam?.deviceId : data.resourceParam?.sensorId);
+
+          let roomId = data.resourceParam?.roomId;
+          if (!roomId && targetId && category) {
+            try {
+              if (sourceCategory === 'DEVICE') {
+                const [, devRes] = await getDeviceById(targetId, category);
+                roomId = devRes?.data?.roomId;
+              } else {
+                const [, sensRes] = await getSensorById(targetId, category);
+                roomId = sensRes?.data?.roomId;
+              }
+            } catch (e) { console.error('Failed to lookup roomId', e); }
+          }
+
           if (roomId) {
             el.room.value = roomId;
-            const idKey = data.dataSource === 'DEVICE' ? data.resourceParam?.deviceId : data.resourceParam?.sensorId;
-            await loadTargets(data.dataSource, el.category.value, roomId, idKey);
-            if (idKey) el.target.value = idKey;
+            await loadTargets(sourceCategory, category, roomId, targetId);
+            if (targetId) el.target.value = targetId;
           }
-        } else if (data.dataSource === 'ROOM') {
-          if (data.resourceParam?.roomId) el.room.value = data.resourceParam.roomId;
+        } else if (sourceCategory === 'ROOM') {
+          const roomId = data.sourceTargetId || data.resourceParam?.roomId;
+          if (roomId) el.room.value = roomId;
         }
 
-        if (data.resourceParam?.property) {
-          el.property.value = data.resourceParam.property;
+        const prop = data.property || data.resourceParam?.property;
+        if (prop) {
+          el.property.value = prop;
         }
         updateValueInput();
         el.operator.value = data.operator;
 
         let displayVal = data.value;
-        if (data.dataSource === 'SYSTEM' && data.resourceParam?.property === 'current_time') {
+        if (sourceCategory === 'SYSTEM' && prop === 'current_time') {
           const utcNum = parseFloat(data.value);
           if (!isNaN(utcNum)) {
             const utcHour = Math.floor(utcNum);
@@ -573,34 +590,53 @@ export const ConditionModal = (() => {
     e.preventDefault();
 
     const localId = el.localId.value;
-    const builder = new (localId ? UpdateRuleConditionDto : CreateRuleConditionDto).Builder()
-      .setDataSource(el.dataSource.value)
+    const ds = el.dataSource.value;
+    const cfg = DATA_SOURCE_CONFIG[ds];
+    const prop = el.property.value;
+    const cat = (ds === 'DEVICE' || ds === 'SENSOR') ? el.category.value : null;
+
+    let sourceTargetId = '0';
+    if (ds === 'ROOM') {
+      sourceTargetId = String(el.room.value || '');
+    } else if (ds === 'DEVICE' || ds === 'SENSOR') {
+      sourceTargetId = String(el.target.value || '');
+    }
+
+    const val = getValue().trim();
+
+    const builder = new (localId ? UpdateConditionDto : CreateConditionDto).Builder()
+      .setSourceCategory(ds)
+      .setSourceTargetId(sourceTargetId)
+      .setSourceTargetType(cat)
+      .setProperty(prop)
       .setOperator(el.operator.value)
+      .setValue(val)
       .setSortOrder(el.sortOrder.value);
 
     const result = builder.validate();
     if (!result.isValid) {
       const firstField = Object.keys(result.errors)[0];
       const msgKey = result.errors[firstField];
-      const fieldLabel = ({ dataSource: i18n.colDataSource, operator: i18n.colOperator, sortOrder: i18n.colOrder })[firstField] || '';
-      await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Error').replace('{0}', fieldLabel), i18n.error || 'Error');
-      const FIELD_ID_MAP = { dataSource: el.dataSource, operator: el.operator, sortOrder: el.sortOrder };
+      const fieldLabel = ({
+        sourceCategory: i18n.colDataSource,
+        sourceTargetId: (cfg?.needsTarget ? (cfg?.targetLabel || 'Target') : (cfg?.needsRoom ? i18n.room : 'Target')),
+        property: i18n.colResource,
+        operator: i18n.colOperator,
+        value: i18n.colValue,
+        sortOrder: i18n.colOrder
+      })[firstField] || '';
+      await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Validation failed').replace('{0}', fieldLabel), i18n.error || 'Error');
+      const FIELD_ID_MAP = {
+        sourceCategory: el.dataSource,
+        sourceTargetId: cfg?.needsTarget ? el.target : el.room,
+        property: el.property,
+        operator: el.operator,
+        value: el.value,
+        sortOrder: el.sortOrder
+      };
       FIELD_ID_MAP[firstField]?.focus();
       return;
     }
-
-    const val = getValue().trim();
-
-    if (!val) {
-      await Alert.warning(i18n.valRequired || 'Value is required', i18n.error || 'Error');
-      el.value?.focus();
-      return;
-    }
-
-    const ds  = el.dataSource.value;
-    const cfg = DATA_SOURCE_CONFIG[ds];
-    const prop = el.property.value;
-    const cat = el.category.value;
 
     if (cfg?.needsTarget && !el.target.value) {
       await Alert.warning(i18n.valTargetRequired || 'Target is required', i18n.error || 'Error');
@@ -681,17 +717,17 @@ export const ConditionModal = (() => {
       return;
     }
 
-    const resourceParam = buildResourceParam(ds, cfg);
-
     const nextLogic = document.querySelector('input[name="condNextLogicRadio"]:checked')?.value || 'AND';
 
     const data = {
-      sortOrder:  orderVal,
-      dataSource: ds,
-      resourceParam,
-      operator:   el.operator.value,
-      value:      finalValue,
-      nextLogic:  nextLogic,
+      sourceCategory:   ds,
+      sourceTargetId:   sourceTargetId,
+      sourceTargetType: cat,
+      property:         prop,
+      operator:         el.operator.value,
+      value:            finalValue,
+      sortOrder:        orderVal,
+      nextLogic:        nextLogic,
     };
 
     if (localId) {
@@ -702,25 +738,6 @@ export const ConditionModal = (() => {
 
     UiRenderer.render();
     bootstrapModal?.hide();
-  };
-
-  const buildResourceParam = (ds, cfg) => {
-    const property = el.property.value;
-    if (ds === 'SYSTEM') {
-      return { property };
-    }
-    if (ds === 'ROOM') {
-      return { roomId: Number(el.room.value), property };
-    }
-    const category = el.category.value;
-    const targetId = Number(el.target.value);
-    if (ds === 'DEVICE') {
-      return { category, deviceId: targetId, property };
-    }
-    if (ds === 'SENSOR') {
-      return { category, sensorId: targetId, property };
-    }
-    return {};
   };
 
   return { init, open, submit };

@@ -1,15 +1,18 @@
 export const StateManager = (() => {
   /** @type {object[]} */
+  let initialAlerts = [];
+  /** @type {object[]} */
   let currentAlerts = [];
   let isDirty = false;
 
   const generateLocalId = () => 'local_' + Math.random().toString(36).substr(2, 9);
 
   /**
-   * Initialize from API response (rule.data.alertConfigs[])
+   * Initialize from API response (alerts list)
    * @param {object[]} alertsFromApi
    */
   const init = (alertsFromApi) => {
+    initialAlerts = JSON.parse(JSON.stringify(alertsFromApi || []));
     currentAlerts = (alertsFromApi || [])
       .slice()
       .map((a) => ({ ...a, _localId: generateLocalId() }));
@@ -52,20 +55,16 @@ export const StateManager = (() => {
   };
 
   /**
-   * Build the clean payload for PATCH /api/v1/rules/{id} → { alertConfigs: [...] }
-   * - Strips internal _localId
-   * @returns {object[]}
+   * Calculates diff between initial and current state
+   * @returns {{ toCreate: object[], toUpdate: object[], toDelete: (number|string)[] }}
    */
-  const buildPayload = () => {
-    return currentAlerts.map((a) => ({
-      id: typeof a.id === 'string' || typeof a.id === 'number' ? a.id : null,
-      alertName: a.alertName,
-      severity: a.severity,
-      recipientGroups: a.recipientGroups,
-      channels: a.channels,
-      messageTemplate: a.messageTemplate,
-      cooldownMinutes: a.cooldownMinutes,
-    }));
+  const getDiff = () => {
+    const currentIdSet = new Set(currentAlerts.filter((a) => a.id).map((a) => a.id));
+    const toCreate = currentAlerts.filter((a) => !a.id);
+    const toUpdate = currentAlerts.filter((a) => a.id);
+    const toDelete = initialAlerts.filter((a) => a.id && !currentIdSet.has(a.id)).map((a) => a.id);
+
+    return { toCreate, toUpdate, toDelete };
   };
 
   const getIsDirty = () => isDirty;
@@ -81,7 +80,7 @@ export const StateManager = (() => {
     addAlert,
     updateAlert,
     deleteAlert,
-    buildPayload,
+    getDiff,
     getIsDirty,
     subscribe,
   };

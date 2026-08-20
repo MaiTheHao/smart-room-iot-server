@@ -1,62 +1,39 @@
 package com.iviet.ivshs.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.iviet.ivshs.dao.ActionDao;
 import com.iviet.ivshs.dto.ActionDto;
 import com.iviet.ivshs.dto.CreateActionDto;
-import com.iviet.ivshs.dto.UpdateActionDto;
+import com.iviet.ivshs.dto.ReplaceActionDto;
 import com.iviet.ivshs.entities.Action;
 import com.iviet.ivshs.service.ActionService;
-import com.iviet.ivshs.service.strategy.ActionExecutionService;
 import com.iviet.ivshs.shared.enumeration.ActionOwnerCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import com.iviet.ivshs.shared.exception.BadRequestException;
 import com.iviet.ivshs.shared.exception.NotFoundException;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ActionServiceImpl implements ActionService {
 
   private final ActionDao actionDao;
-  private final ActionExecutionService actionExecutionService;
 
   @Override
   @Transactional
   public ActionDto create(CreateActionDto dto) {
-    validateTarget(dto.targetCategory(), dto.targetId(), dto.params());
     Action action = dto.toEntity();
     actionDao.save(action);
     return ActionDto.fromEntity(action);
-  }
-
-  @Override
-  @Transactional
-  public ActionDto update(Long id, UpdateActionDto dto) {
-    Action action =
-        actionDao.findById(id).orElseThrow(() -> new NotFoundException("Action not found: " + id));
-
-    if (dto.targetCategory() != null && dto.targetId() != null && dto.params() != null) {
-      validateTarget(dto.targetCategory(), dto.targetId(), dto.params());
-    }
-
-    dto.updateEntity(action);
-    actionDao.update(action);
-    return ActionDto.fromEntity(action);
-  }
-
-  private void validateTarget(DeviceCategory category, String targetId, JsonNode params) {
-    try {
-      actionExecutionService.validateActionParams(category, Long.parseLong(targetId), params);
-    } catch (NumberFormatException e) {
-      throw new BadRequestException("Invalid targetId format: " + targetId);
-    }
   }
 
   @Override
@@ -88,6 +65,52 @@ public class ActionServiceImpl implements ActionService {
     return actionDao.findByOwner(ownerCategory, ownerId).stream()
         .map(ActionDto::fromEntity)
         .toList();
+  }
+
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public List<ActionDto> replaceByOwner(
+      ActionOwnerCategory ownerCategory, String ownerId, List<ReplaceActionDto> items) {
+    List<Action> existing = actionDao.findByOwner(ownerCategory, ownerId);
+    if (items == null || items.isEmpty()) {
+      existing.forEach(actionDao::delete);
+      return List.of();
+    }
+
+    Map<Long, Action> existingById =
+        existing.stream().collect(Collectors.toMap(Action::getId, Function.identity()));
+
+    List<Long> requestedIds =
+        items.stream().map(ReplaceActionDto::id).filter(Objects::nonNull).toList();
+    if (new HashSet<>(requestedIds).size() != requestedIds.size()) {
+      throw new BadRequestException("Duplicate action id in request");
+    }
+
+    Set<Long> incomingIds = new HashSet<>(requestedIds);
+    existing.stream()
+        .filter((action) -> !incomingIds.contains(action.getId()))
+        .forEach(actionDao::delete);
+
+    List<ActionDto> result = new ArrayList<>(items.size());
+    for (ReplaceActionDto item : items) {
+      if (item.id() != null && existingById.containsKey(item.id())) {
+        Action managed = existingById.get(item.id());
+        managed.setOwnerCategory(ownerCategory);
+        managed.setOwnerId(ownerId);
+        item.updateEntity(managed);
+        result.add(ActionDto.fromEntity(managed));
+      } else {
+        result.add(ActionDto.fromEntity(actionDao.save(item.toEntity(ownerCategory, ownerId))));
+      }
+    }
+    return result;
+  }
+
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public List<ActionDto> replaceByOwner(
+      ActionOwnerCategory ownerCategory, Long ownerId, List<ReplaceActionDto> items) {
+    return replaceByOwner(ownerCategory, String.valueOf(ownerId), items);
   }
 
   @Override

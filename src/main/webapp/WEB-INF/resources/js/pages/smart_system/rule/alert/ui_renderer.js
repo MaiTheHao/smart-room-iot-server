@@ -35,6 +35,16 @@ export const UiRenderer = (() => {
         </div>`,
       columns: [
         {
+          title: 'Code',
+          field: 'alertCode',
+          width: 140,
+          minWidth: 100,
+          formatter: (cell) => {
+            const val = cell.getValue() || '—';
+            return `<div class="d-flex align-items-center h-100 font-monospace small text-muted">${val}</div>`;
+          }
+        },
+        {
           title: i18n.colAlertName || 'Alert Name',
           field: 'alertName',
           minWidth: 150,
@@ -62,10 +72,11 @@ export const UiRenderer = (() => {
         },
         {
           title: i18n.colRecipientGroups || 'Recipients',
-          field: 'recipientGroups',
+          field: 'recipientGroupCodes',
           minWidth: 150,
           formatter: (cell) => {
-            const val = cell.getValue() || [];
+            const rowData = cell.getData();
+            const val = rowData.recipientGroupCodes || rowData.recipientGroups || [];
             return `<div class="d-flex flex-wrap gap-1 align-items-center h-100">
               ${val.map(g => `<span class="badge bg-light text-dark border">${g}</span>`).join('')}
             </div>`;

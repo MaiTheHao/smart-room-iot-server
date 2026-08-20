@@ -18,23 +18,19 @@ const formatOperator = (op) => {
   return OPERATOR_MAP[op] ?? op;
 };
 
-const parseResourceParam = (param) => {
-  if (param == null || typeof param === 'object') return param;
-  if (typeof param !== 'string') return undefined;
-  try { return JSON.parse(param) || undefined; } catch { return undefined; }
-};
-
-const formatResourceParam = (ds, param) => {
-  const params = parseResourceParam(param);
-  if (!params) return '—';
-  const propLabel = formatPropertyLabel(params.property, i18n);
+const formatResourceParam = (row) => {
+  const ds = row.sourceCategory || row.dataSource;
+  const prop = row.property || row.resourceParam?.property;
+  const propLabel = formatPropertyLabel(prop, i18n);
+  const targetId = row.sourceTargetId || row.resourceParam?.deviceId || row.resourceParam?.sensorId || row.resourceParam?.roomId;
+  const targetType = row.sourceTargetType || row.resourceParam?.category;
 
   switch (ds) {
     case 'SYSTEM': return propLabel;
-    case 'ROOM':   return `Room #${params.roomId} · ${propLabel}`;
-    case 'DEVICE': return `[${params.category}] Device #${params.deviceId} · ${propLabel}`;
-    case 'SENSOR': return `[${params.category}] Sensor #${params.sensorId} · ${propLabel}`;
-    default:       return JSON.stringify(params);
+    case 'ROOM':   return `Room #${targetId} · ${propLabel}`;
+    case 'DEVICE': return `[${targetType || 'DEVICE'}] #${targetId} · ${propLabel}`;
+    case 'SENSOR': return `[${targetType || 'SENSOR'}] #${targetId} · ${propLabel}`;
+    default:       return propLabel || '—';
   }
 };
 
@@ -65,9 +61,10 @@ const formatDayOfWeek = (val) => {
 };
 
 const formatValue = (row) => {
-  const prop = parseResourceParam(row.resourceParam)?.property;
-  if (row.dataSource === 'SYSTEM' && prop === 'current_time') return formatTimeValue(row.value);
-  if (row.dataSource === 'SYSTEM' && prop === 'day_of_week') return formatDayOfWeek(row.value);
+  const ds = row.sourceCategory || row.dataSource;
+  const prop = row.property || row.resourceParam?.property;
+  if (ds === 'SYSTEM' && prop === 'current_time') return formatTimeValue(row.value);
+  if (ds === 'SYSTEM' && prop === 'day_of_week') return formatDayOfWeek(row.value);
   return row.value;
 };
 
@@ -109,11 +106,12 @@ export const UiRenderer = (() => {
         },
         {
           title: i18n.colDataSource,
-          field: 'dataSource',
+          field: 'sourceCategory',
           width: 140,
           minWidth: 100,
           formatter: (cell) => {
-            const val = cell.getValue();
+            const row = cell.getData();
+            const val = row.sourceCategory || row.dataSource || '—';
             const cls = DS_BADGE[val] || 'bg-secondary';
             return `<div class="d-flex align-items-center h-100">
                       <span class="badge ${cls}">${val}</span>
@@ -125,7 +123,7 @@ export const UiRenderer = (() => {
           minWidth: 150,
           formatter: (cell) => {
             const row = cell.getData();
-            const text = formatResourceParam(row.dataSource, row.resourceParam);
+            const text = formatResourceParam(row);
             return `<div class="d-flex align-items-center h-100 text-truncate">${text}</div>`;
           },
         },
@@ -170,7 +168,7 @@ export const UiRenderer = (() => {
           title: i18n.colActions,
           hozAlign: 'center',
           headerSort: false,
-          width: 250,
+          width: 120,
           responsive: 0,
           formatter: (cell) => {
             const id = cell.getData()._localId;
@@ -178,6 +176,9 @@ export const UiRenderer = (() => {
               <div class="d-flex align-items-center justify-content-center h-100 gap-1">
                 <button class="btn btn-light btn-sm rounded-pill btn-cond-edit" data-id="${id}">
                   <i data-lucide="edit-3" class="lucide-sm text-primary"></i>
+                </button>
+                <button class="btn btn-light btn-sm rounded-pill btn-cond-delete" data-id="${id}">
+                  <i data-lucide="trash-2" class="lucide-sm text-danger"></i>
                 </button>
               </div>`;
           },

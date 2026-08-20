@@ -13,7 +13,7 @@ export const StateManager = (() => {
   };
 
   /**
-   * Initialize from API response (rule.data.conditions[])
+   * Initialize from API response (rule.data or conditions list)
    * @param {object[]} conditionsFromApi
    */
   const init = (conditionsFromApi) => {
@@ -65,19 +65,23 @@ export const StateManager = (() => {
   };
 
   /**
-   * Build the clean payload for PATCH /api/v1/rules/{id} → { conditions: [...] }
-   * - Strips internal _localId
-   * - Re-assigns sortOrder by position
-   * - Sets nextLogic=null on the last item
+   * Build the clean payload for PUT /api/v1/rules/{id}/conditions
+   * @param {string|number} [ownerId]
    * @returns {object[]}
    */
-  const buildPayload = () => {
+  const buildPayload = (ownerId = '') => {
     return currentConditions.map((c, i) => ({
-      sortOrder: i,
-      dataSource: c.dataSource,
-      resourceParam: c.resourceParam,
+      id: c.id != null ? c.id : undefined,
+      ownerCategory: 'RULE',
+      ownerId: String(ownerId || c.ownerId || ''),
+      sourceCategory: c.sourceCategory,
+      sourceTargetId: String(c.sourceTargetId != null ? c.sourceTargetId : ''),
+      sourceTargetType: c.sourceTargetType || null,
+      property: c.property,
       operator: c.operator,
       value: String(c.value),
+      extraParams: c.extraParams || null,
+      sortOrder: i,
       nextLogic: i < currentConditions.length - 1 ? (c.nextLogic || 'AND') : null,
     }));
   };

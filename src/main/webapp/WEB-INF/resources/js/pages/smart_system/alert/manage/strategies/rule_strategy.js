@@ -1,12 +1,12 @@
 import { BaseStrategy } from './base_strategy.js';
-import { getRuleById } from '../../../../../api/rule.api.js';
+import { getRuleById, getRuleConditions } from '../../../../../api/rule.api.js';
 
 /**
  * Rule Strategy: Fetches rule metadata and defines dynamic condition token schemas.
  */
 export class RuleStrategy extends BaseStrategy {
   /**
-   * Fetches rule details from API.
+   * Fetches rule details from API with conditions merged.
    * @param {string|number} sourceId - The rule ID.
    * @returns {Promise<any>} Rule details.
    */
@@ -17,7 +17,8 @@ export class RuleStrategy extends BaseStrategy {
       console.error('[RuleStrategy] Failed to fetch rule', err);
       return null;
     }
-    return res.data;
+    const [, condRes] = await getRuleConditions(sourceId);
+    return { ...res.data, conditions: condRes?.data || [] };
   }
 
   /**
@@ -35,8 +36,9 @@ export class RuleStrategy extends BaseStrategy {
     if (rule && rule.conditions) {
       rule.conditions.forEach((cond) => {
         const order = cond.sortOrder ?? 0;
+        const prop = cond.property || cond.resourceParam?.property || 'Value';
         tokens.push(
-          { id: `cond${order}_value`, label: `Condition-${order} Value`, value: `[Sensor: ${cond.resourceParam?.property ?? 'Value'}]` },
+          { id: `cond${order}_value`, label: `Condition-${order} Value`, value: `[Sensor: ${prop}]` },
           { id: `cond${order}_threshold`, label: `Condition-${order} Threshold`, value: String(cond.value ?? '') },
           { id: `cond${order}_operator`, label: `Condition-${order} Operator`, value: cond.operator || '' },
         );

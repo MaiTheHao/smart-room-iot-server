@@ -59,4 +59,39 @@ Quản lý toàn bộ vòng đời của Hành động thực thi điều khiể
 - `docs/api/condition.md`: Tạo mới tài liệu chi tiết cho Condition API (chuẩn hóa enum `ConditionOwnerCategory`).
 - `docs/api/action.md`: Tạo mới tài liệu chi tiết cho Action API (chuẩn hóa schema `FanControlRequestBody` và `AirConditionControlRequestBody`).
 - `docs/api/README.md`: Bổ sung liên kết tới `condition.md` và `action.md`.
-- `docs/changes/api-changes-19-08-2026.md`: Ghi nhận toàn bộ thay đổi API ngày 19/08/2026 trung thực và chính xác 100%.
+
+---
+
+## 2026-08-20 — Bổ sung Bulk Replace Endpoints (Condition & Action)
+
+Bổ sung các endpoints `PUT` cho phép thay thế toàn bộ danh sách Condition và Action theo cơ chế atomic (xóa cũ và tạo mới theo payload), tối ưu hóa luồng lưu cấu hình từ giao diện quản trị:
+
+1. **Sub-resource Bulk Replace (`RuleController`)**:
+   - `PUT /api/v1/rules/{id}/conditions` — Thay thế toàn bộ Condition của Rule.
+   - `PUT /api/v1/rules/{id}/actions` — Thay thế toàn bộ Action của Rule.
+
+2. **Standalone Bulk Replace (`ConditionController` & `ActionController`)**:
+   - `PUT /api/v1/conditions/by-owner?ownerCategory&ownerId` — Thay thế Condition theo Owner bất kỳ.
+   - `PUT /api/v1/actions/by-owner?ownerCategory&ownerId` — Thay thế Action theo Owner bất kỳ.
+
+3. **Chuẩn hóa Operator**:
+   - Thống nhất toán tử điều kiện dùng ký hiệu toán học: `=`, `!=`, `>`, `<`, `>=`, `<=`.
+
+4. **Gỡ bỏ Endpoint cập nhật đơn lẻ**:
+   - Xóa `PATCH /api/v1/conditions/{id}` và `PATCH /api/v1/actions/{id}` cùng `UpdateConditionDto`/`UpdateActionDto` (thay thế bằng upsert qua `PUT .../by-owner`).
+
+---
+
+## 2026-08-20 — Upsert thay cho Delete-All-Then-Insert trong Bulk Replace (Condition & Action)
+
+Chuyển cơ chế **Bulk Replace** (`PUT .../by-owner`) từ "xóa sạch rồi insert lại toàn bộ" sang **upsert theo `id`**, giữ nguyên contract endpoint (body vẫn là `List<ReplaceConditionDto>` / `List<ReplaceActionDto>`):
+
+1. **Thêm field `id` (optional)** vào `ReplaceConditionDto` và `ReplaceActionDto`:
+   - Item có `id` hợp lệ **thuộc owner** → **update** (full overwrite field nghiệp vụ, giữ nguyên `id` + `createdAt`, `version` do JPA quản lý).
+   - Item **không có `id`** → **insert** (id tự sinh).
+   - Bản ghi hiện có **không nằm trong request** → **delete**.
+   - `id` lạ/stale/thuộc owner khác → **bỏ qua id**, coi như insert mới (không hijack bản ghi của owner khác).
+   - Trùng `id` trong request → `400 Bad Request`, rollback toàn bộ (`@Transactional(rollbackFor = Exception.class)`).
+2. **Action**: Loại bỏ kiểm tra tương thích phần cứng (`validateActionParams`/`validateTarget`) khỏi luồng ghi — `create()` và `replaceByOwner()` chỉ lưu theo DTO, không còn validate thiết bị trong service layer (trước đây `create()` có gọi `validateTarget`).
+3. **Frontend**: `buildPayload()` của `conditions/state_manager.js` và `actions/state_manager.js` bổ sung field `id` khi item đã có (item mới không có → insert). Builder `CreateConditionDto`/`CreateActionDto` trong `types/rule.domain.js` thêm `setId()` (optional, backward-compatible).
+4. **Thứ tự trả về** theo thứ tự request (khớp `sortOrder`/`executionOrder` mới).

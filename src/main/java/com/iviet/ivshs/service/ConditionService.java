@@ -2,7 +2,7 @@ package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dto.ConditionDto;
 import com.iviet.ivshs.dto.CreateConditionDto;
-import com.iviet.ivshs.dto.UpdateConditionDto;
+import com.iviet.ivshs.dto.ReplaceConditionDto;
 import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
 import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
@@ -12,8 +12,6 @@ public interface ConditionService {
 
   ConditionDto create(CreateConditionDto dto);
 
-  ConditionDto update(Long id, UpdateConditionDto dto);
-
   void delete(Long id);
 
   ConditionDto getById(Long id);
@@ -21,6 +19,12 @@ public interface ConditionService {
   List<ConditionDto> findByOwner(ConditionOwnerCategory ownerCategory, String ownerId);
 
   List<ConditionDto> findByOwner(ConditionOwnerCategory ownerCategory, Long ownerId);
+
+  List<ConditionDto> replaceByOwner(
+      ConditionOwnerCategory ownerCategory, String ownerId, List<ReplaceConditionDto> items);
+
+  List<ConditionDto> replaceByOwner(
+      ConditionOwnerCategory ownerCategory, Long ownerId, List<ReplaceConditionDto> items);
 
   int deleteByOwner(ConditionOwnerCategory ownerCategory, String ownerId);
 

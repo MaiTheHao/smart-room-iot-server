@@ -1,4 +1,4 @@
-import { getRuleById, updateRule } from '../../../../api/rule.api.js';
+import { getConfigs, createConfig, updateConfig, deleteConfig } from '../../../../api/alert.api.js';
 import { StateManager } from './state_manager.js';
 import { UiRenderer } from './ui_renderer.js';
 import { AlertConfigModal } from './alert_modal.js';
@@ -50,9 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async loadData() {
       try {
-        const [err, res] = await getRuleById(ruleId);
+        const [err, res] = await getConfigs({ namespace: 'RULE', sourceId: ruleId, page: 0, size: 1000 });
         if (err) throw err;
-        StateManager.init(res.data?.alertConfigs || []);
+        StateManager.init(res.data?.content || []);
         UiRenderer.render();
       } catch (error) {
         Swal.fire(i18n.error, i18n.errLoadData || 'Failed to load alert configurations', 'error');
@@ -108,9 +108,44 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${i18n.saving || 'Saving...'}`;
 
       try {
-        const payload = StateManager.buildPayload();
-        const [err] = await updateRule(ruleId, { alertConfigs: payload });
-        if (err) throw err;
+        const { toCreate, toUpdate, toDelete } = StateManager.getDiff();
+
+        // 1. Delete removed configs
+        for (const id of toDelete) {
+          const [err] = await deleteConfig(id);
+          if (err) throw err;
+        }
+
+        // 2. Create new configs
+        for (const item of toCreate) {
+          const payload = {
+            namespace: 'RULE',
+            sourceId: String(ruleId),
+            alertCode: item.alertCode,
+            alertName: item.alertName,
+            severity: item.severity,
+            recipientGroupCodes: item.recipientGroupCodes || [],
+            channels: item.channels || [],
+            messageTemplate: item.messageTemplate,
+            cooldownMinutes: item.cooldownMinutes,
+          };
+          const [err] = await createConfig(payload);
+          if (err) throw err;
+        }
+
+        // 3. Update modified configs
+        for (const item of toUpdate) {
+          const payload = {
+            alertName: item.alertName,
+            severity: item.severity,
+            recipientGroupCodes: item.recipientGroupCodes || [],
+            channels: item.channels || [],
+            messageTemplate: item.messageTemplate,
+            cooldownMinutes: item.cooldownMinutes,
+          };
+          const [err] = await updateConfig(item.id, payload);
+          if (err) throw err;
+        }
 
         Swal.fire({
           title: i18n.success,

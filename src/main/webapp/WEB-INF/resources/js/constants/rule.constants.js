@@ -5,6 +5,19 @@ export const RuleDataSource = Object.freeze({
   SENSOR: 'SENSOR'
 });
 
+export const ConditionOwnerCategory = Object.freeze({
+  RULE: 'RULE',
+  AUTOMATION: 'AUTOMATION',
+  SYSTEM: 'SYSTEM'
+});
+
+export const ActionOwnerCategory = Object.freeze({
+  RULE: 'RULE',
+  AUTOMATION: 'AUTOMATION',
+  SYSTEM: 'SYSTEM',
+  ROOM_EVENT: 'ROOM_EVENT'
+});
+
 export const ConditionOperator = Object.freeze({
   EQUALS: '=',
   NOT_EQUALS: '!=',

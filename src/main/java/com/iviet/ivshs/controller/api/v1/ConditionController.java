@@ -1,29 +1,32 @@
 package com.iviet.ivshs.controller.api.v1;
 
-import com.iviet.ivshs.dto.ApiResponse;
-import com.iviet.ivshs.dto.ConditionDto;
-import com.iviet.ivshs.dto.CreateConditionDto;
-import com.iviet.ivshs.dto.UpdateConditionDto;
-import com.iviet.ivshs.service.ConditionService;
-import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
-import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.exception.BadRequestException;
-import jakarta.validation.Valid;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.iviet.ivshs.dto.ApiResponse;
+import com.iviet.ivshs.dto.ConditionDto;
+import com.iviet.ivshs.dto.CreateConditionDto;
+import com.iviet.ivshs.dto.ReplaceConditionDto;
+import com.iviet.ivshs.service.ConditionService;
+import com.iviet.ivshs.shared.enumeration.ConditionDataSource;
+import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import com.iviet.ivshs.shared.exception.BadRequestException;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController("conditionController")
 @RequiredArgsConstructor
@@ -44,13 +47,6 @@ public class ConditionController {
   @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE', 'F_MANAGE_AUTOMATION')")
   public ResponseEntity<ApiResponse<ConditionDto>> getById(@PathVariable(name = "id") Long id) {
     return ResponseEntity.ok(ApiResponse.ok(conditionService.getById(id)));
-  }
-
-  @PatchMapping("/{id}")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE', 'F_MANAGE_AUTOMATION')")
-  public ResponseEntity<ApiResponse<ConditionDto>> update(
-      @PathVariable(name = "id") Long id, @RequestBody @Valid UpdateConditionDto request) {
-    return ResponseEntity.ok(ApiResponse.ok(conditionService.update(id, request)));
   }
 
   @DeleteMapping("/{id}")
@@ -95,5 +91,15 @@ public class ConditionController {
       @RequestParam(name = "ownerId") String ownerId) {
     int deletedCount = conditionService.deleteByOwner(ownerCategory, ownerId);
     return ResponseEntity.ok(ApiResponse.ok(deletedCount));
+  }
+
+  @PutMapping("/by-owner")
+  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE', 'F_MANAGE_AUTOMATION')")
+  public ResponseEntity<ApiResponse<List<ConditionDto>>> replaceByOwner(
+      @RequestParam(name = "ownerCategory") ConditionOwnerCategory ownerCategory,
+      @RequestParam(name = "ownerId") String ownerId,
+      @RequestBody @Valid List<ReplaceConditionDto> request) {
+    return ResponseEntity.ok(
+        ApiResponse.ok(conditionService.replaceByOwner(ownerCategory, ownerId, request)));
   }
 }

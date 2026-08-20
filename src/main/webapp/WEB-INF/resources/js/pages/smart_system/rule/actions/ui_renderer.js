@@ -44,19 +44,20 @@ export const UiRenderer = (() => {
                     field: 'targetName',
                     minWidth: 150,
                     formatter: (cell) => {
-                        const val = cell.getValue();
                         const rowData = cell.getData();
-                        const targetName = rowData.targetName || rowData.targetDeviceName || `Device #${rowData.targetDeviceId}`;
+                        const targetId = rowData.targetId || rowData.targetDeviceId;
+                        const targetName = rowData.targetName || rowData.targetDeviceName || `Device #${targetId}`;
                         return `<div class="d-flex align-items-center h-100 fw-bold">${targetName}</div>`;
                     }
                 },
                 {
                     title: i18n.colType,
-                    field: 'targetDeviceCategory',
+                    field: 'targetCategory',
                     width: 170,
                     minWidth: 120,
                     formatter: (cell) => {
-                        const val = cell.getValue();
+                        const rowData = cell.getData();
+                        const val = rowData.targetCategory || rowData.targetDeviceCategory || cell.getValue();
                         const colorMap = {
                             LIGHT: 'bg-warning text-dark',
                             FAN: 'bg-info text-dark',
@@ -68,10 +69,11 @@ export const UiRenderer = (() => {
                 },
                 {
                     title: i18n.colParams,
-                    field: 'actionParams',
+                    field: 'params',
                     minWidth: 150,
                     formatter: (cell) => {
-                        const val = cell.getValue();
+                        const rowData = cell.getData();
+                        const val = rowData.params || rowData.actionParams || cell.getValue();
                         if (!val || (typeof val === 'object' && Object.keys(val).length === 0)) {
                             return `<div class="d-flex align-items-center h-100 text-muted fst-italic">—</div>`;
                         }

@@ -49,40 +49,13 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
 <br>
 
 <details>
-<summary><b>GET</b> <code>/api/v1/rules/all</code> - Lấy tất cả quy tắc đang hoạt động</summary>
-
-> Danh sách tất cả các Rule có `isActive=true`.
-
-### Response (200 OK)
-```json
-{
-  "status": 200,
-  "message": "Success",
-  "data": [
-    {
-      "id": 10,
-      "name": "Auto AC & Light",
-      "priority": 1,
-      "isActive": true,
-      "intervalSeconds": 120,
-      "createdAt": "2026-03-26T15:00:00Z",
-      "updatedAt": "2026-03-26T15:00:00Z"
-    }
-  ]
-}
-```
-</details>
-
-<br>
-
-<details>
 <summary><b>GET</b> <code>/api/v1/rules</code> - Danh sách quy tắc (Phân trang)</summary>
 
 ### Query Parameters
 | Tên | Loại | Mặc định | Mô tả |
 | :--- | :--- | :--- | :--- |
 | page | int | 0 | Chỉ số trang |
-| size | int | 10 | Kích thước trang |
+| limit | int | 10 | Số lượng bản ghi mỗi trang |
 
 ### Response (200 OK)
 ```json
@@ -104,8 +77,7 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
     "page": 0,
     "size": 10,
     "totalElements": 50,
-    "totalPages": 5,
-    "last": false
+    "totalPages": 5
   }
 }
 ```
@@ -260,7 +232,7 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
       "sourceTargetId": "1",
       "sourceTargetType": "TEMPERATURE",
       "property": "temperature",
-      "operator": "GT",
+      "operator": ">",
       "value": "28",
       "sortOrder": 0,
       "nextLogic": "AND",
@@ -281,11 +253,13 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
 ### Request Body
 ```json
 {
+  "ownerCategory": "RULE",
+  "ownerId": "10",
   "sourceCategory": "SENSOR",
   "sourceTargetId": "1",
   "sourceTargetType": "TEMPERATURE",
   "property": "temperature",
-  "operator": "GT",
+  "operator": ">",
   "value": "28",
   "sortOrder": 0,
   "nextLogic": "AND"
@@ -305,12 +279,61 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
     "sourceTargetId": "1",
     "sourceTargetType": "TEMPERATURE",
     "property": "temperature",
-    "operator": "GT",
+    "operator": ">",
     "value": "28",
     "sortOrder": 0,
     "nextLogic": "AND",
     "createdAt": "2026-03-26T15:00:00Z"
   }
+}
+```
+</details>
+
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/rules/{id}/conditions</code> - Thay thế toàn bộ Điều kiện của Rule (Bulk Replace)</summary>
+
+> Thay thế toàn bộ Condition của Rule (Atomic).
+
+### Request Body
+```json
+[
+  {
+    "id": 100,
+    "sourceCategory": "SENSOR",
+    "sourceTargetId": "1",
+    "sourceTargetType": "TEMPERATURE",
+    "property": "temperature",
+    "operator": ">",
+    "value": "28",
+    "sortOrder": 0,
+    "nextLogic": "AND"
+  }
+]
+```
+
+### Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 102,
+      "ownerCategory": "RULE",
+      "ownerId": "10",
+      "sourceCategory": "SENSOR",
+      "sourceTargetId": "1",
+      "sourceTargetType": "TEMPERATURE",
+      "property": "temperature",
+      "operator": ">",
+      "value": "28",
+      "sortOrder": 0,
+      "nextLogic": "AND",
+      "createdAt": "2026-03-26T15:00:00Z"
+    }
+  ]
 }
 ```
 </details>
@@ -349,11 +372,13 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
 <details>
 <summary><b>POST</b> <code>/api/v1/rules/{id}/actions</code> - Thêm nhanh Hành động cho Rule</summary>
 
-> Tự động gán `ownerCategory = "RULE"` và `ownerId = "{id}"`, đồng thời kiểm tra tính tương thích phần cứng (`validateActionParams`).
+> Tự động gán `ownerCategory = "RULE"` và `ownerId = "{id}"`.
 
 ### Request Body
 ```json
 {
+  "ownerCategory": "RULE",
+  "ownerId": "10",
   "targetCategory": "AIR_CONDITION",
   "targetId": "10",
   "params": {
@@ -382,6 +407,53 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
     "executionOrder": 0,
     "createdAt": "2026-03-26T15:00:00Z"
   }
+}
+```
+</details>
+
+<br>
+
+<details>
+<summary><b>PUT</b> <code>/api/v1/rules/{id}/actions</code> - Thay thế toàn bộ Hành động của Rule (Bulk Replace)</summary>
+
+> Thay thế toàn bộ Action của Rule (Atomic).
+
+### Request Body
+```json
+[
+  {
+    "id": 200,
+    "targetCategory": "AIR_CONDITION",
+    "targetId": "10",
+    "params": {
+      "power": "ON",
+      "temperature": 24
+    },
+    "executionOrder": 0
+  }
+]
+```
+
+### Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 202,
+      "ownerCategory": "RULE",
+      "ownerId": "10",
+      "targetCategory": "AIR_CONDITION",
+      "targetId": "10",
+      "params": {
+        "power": "ON",
+        "temperature": 24
+      },
+      "executionOrder": 0,
+      "createdAt": "2026-03-26T15:00:00Z"
+    }
+  ]
 }
 ```
 </details>

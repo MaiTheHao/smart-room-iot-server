@@ -1,5 +1,12 @@
 package com.iviet.ivshs.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.iviet.ivshs.dto.ActionResult;
+import com.iviet.ivshs.dto.ControlDeviceResult;
+import com.iviet.ivshs.entities.Action;
+import com.iviet.ivshs.service.registry.DeviceControlStrategyRegistry;
+import com.iviet.ivshs.service.strategy.ActionExecutionService;
+import com.iviet.ivshs.shared.enumeration.DeviceCategory;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -7,34 +14,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iviet.ivshs.dao.AirConditionDao;
-import com.iviet.ivshs.dao.FanDao;
-import com.iviet.ivshs.dao.LightDao;
-import com.iviet.ivshs.dto.ActionResult;
-import com.iviet.ivshs.dto.ControlDeviceResult;
-import com.iviet.ivshs.entities.AirCondition;
-import com.iviet.ivshs.entities.Fan;
-import com.iviet.ivshs.entities.Light;
-import com.iviet.ivshs.entities.Action;
-import com.iviet.ivshs.service.registry.DeviceControlStrategyRegistry;
-import com.iviet.ivshs.service.strategy.ActionExecutionService;
-import com.iviet.ivshs.service.strategy.DeviceControlServiceStrategy;
-import com.iviet.ivshs.shared.enumeration.DeviceCategory;
-import com.iviet.ivshs.shared.enumeration.DeviceSpecificType;
-import com.iviet.ivshs.shared.exception.BadRequestException;
-import com.iviet.ivshs.shared.exception.NotFoundException;
-import com.iviet.ivshs.shared.util.DeviceCapabilityRegistry;
-
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -42,11 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ActionExecutionServiceImpl implements ActionExecutionService {
 
   private final DeviceControlStrategyRegistry deviceControlStrategyRegistry;
-  private final FanDao fanDao;
-  private final LightDao lightDao;
-  private final AirConditionDao airConditionDao;
-  private final Validator validator;
-  private final ObjectMapper objectMapper;
 
   @Override
   public ControlDeviceResult execute(Action action) {
@@ -60,9 +37,7 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
 
     if (category == null || targetId == null || params == null) {
       log.debug(
-          "Category, targetId, or params is null: category={}, targetId={}",
-          category,
-          targetId);
+          "Category, targetId, or params is null: category={}, targetId={}", category, targetId);
       return null;
     }
 
@@ -90,7 +65,8 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
 
   private List<Action> sortByExecutionOrder(List<Action> actions) {
     return actions.stream()
-        .sorted(Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
+        .sorted(
+            Comparator.comparingInt(a -> a.getExecutionOrder() != null ? a.getExecutionOrder() : 0))
         .toList();
   }
 
@@ -101,9 +77,7 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
   }
 
   private List<ActionResult> awaitAll(List<Future<ActionResult>> futures) {
-    return futures.stream()
-        .map(this::resolveResult)
-        .toList();
+    return futures.stream().map(this::resolveResult).toList();
   }
 
   private ActionResult resolveResult(Future<ActionResult> future) {
@@ -138,78 +112,6 @@ public class ActionExecutionServiceImpl implements ActionExecutionService {
           e);
       return ActionResult.failure(
           action.getId(), action.getTargetCategory(), action.getTargetId(), e.getMessage());
-    }
-  }
-
-  @Override
-  public void validateActionParams(DeviceCategory category, Long targetDeviceId, JsonNode params) {
-    DeviceControlServiceStrategy<?> strategy = deviceControlStrategyRegistry.getStrategy(category);
-
-    DeviceSpecificType specificType = getSpecificType(category, targetDeviceId);
-
-    validateCapabilities(category, specificType, params);
-
-    Class<?> dtoClass = strategy.getControlDtoClass();
-    validateDtoConstraints(params, dtoClass);
-  }
-
-  private DeviceSpecificType getSpecificType(DeviceCategory category, Long targetDeviceId) {
-    return switch (category) {
-      case null -> DeviceSpecificType.GPIO;
-      case FAN ->
-        fanDao
-            .findById(targetDeviceId)
-            .map(Fan::getSpecificType)
-            .orElseThrow(() -> new NotFoundException("Fan not found with id: " + targetDeviceId));
-      case LIGHT ->
-        lightDao
-            .findById(targetDeviceId)
-            .map(Light::getSpecificType)
-            .orElseThrow(() -> new NotFoundException("Light not found with id: " + targetDeviceId));
-      case AIR_CONDITION ->
-        airConditionDao
-            .findById(targetDeviceId)
-            .map(AirCondition::getSpecificType)
-            .orElseThrow(
-                () -> new NotFoundException("AirCondition not found with id: " + targetDeviceId));
-      default -> DeviceSpecificType.GPIO;
-    };
-  }
-
-  private void validateCapabilities(
-      DeviceCategory category, DeviceSpecificType specificType, JsonNode params) {
-    if (params == null || params.isNull()) {
-      return;
-    }
-
-    params.fields().forEachRemaining(entry -> {
-      String field = entry.getKey();
-      JsonNode valNode = entry.getValue();
-      if (valNode != null && !valNode.isNull()) {
-        if (!DeviceCapabilityRegistry.isSupported(category, specificType, field)) {
-          throw new BadRequestException("Device category "
-              + category
-              + " with type "
-              + specificType
-              + " does not support parameter: "
-              + field);
-        }
-      }
-    });
-  }
-
-  private void validateDtoConstraints(JsonNode params, Class<?> dtoClass) {
-    try {
-      Object dto = objectMapper.treeToValue(params, dtoClass);
-      var violations = validator.validate(dto);
-      if (!violations.isEmpty()) {
-        String errorMsg = violations.stream()
-            .map(v -> v.getPropertyPath() + " " + v.getMessage())
-            .collect(Collectors.joining(", "));
-        throw new BadRequestException(errorMsg);
-      }
-    } catch (JsonProcessingException e) {
-      throw new BadRequestException("Invalid action params format: " + e.getMessage());
     }
   }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +23,8 @@ import com.iviet.ivshs.dto.CreateActionDto;
 import com.iviet.ivshs.dto.CreateConditionDto;
 import com.iviet.ivshs.dto.CreateRuleDto;
 import com.iviet.ivshs.dto.PaginatedResponse;
+import com.iviet.ivshs.dto.ReplaceActionDto;
+import com.iviet.ivshs.dto.ReplaceConditionDto;
 import com.iviet.ivshs.dto.RuleDto;
 import com.iviet.ivshs.dto.UpdateRuleDto;
 import com.iviet.ivshs.dto.UpdateRuleStatusDto;
@@ -50,24 +53,18 @@ public class RuleController {
         .body(ApiResponse.created(ruleService.create(request)));
   }
 
-  @GetMapping("/all")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
-  public ResponseEntity<ApiResponse<List<RuleDto>>> getAll() {
-    return ResponseEntity.ok(ApiResponse.ok(ruleService.getAllActive()));
-  }
-
-  @GetMapping
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
-  public ResponseEntity<ApiResponse<PaginatedResponse<RuleDto>>> getList(
-      @RequestParam(name = "page", defaultValue = "0") int page,
-      @RequestParam(name = "size", defaultValue = "10") int size) {
-    return ResponseEntity.ok(ApiResponse.ok(ruleService.getAll(page, size)));
-  }
-
   @GetMapping("/{id}")
   @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
   public ResponseEntity<ApiResponse<RuleDto>> getById(@PathVariable(name = "id") Long id) {
     return ResponseEntity.ok(ApiResponse.ok(ruleService.getById(id)));
+  }
+
+  @GetMapping
+  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
+  public ResponseEntity<ApiResponse<PaginatedResponse<RuleDto>>> findAll(
+      @RequestParam(name = "page", defaultValue = "1") int page,
+      @RequestParam(name = "limit", defaultValue = "10") int limit) {
+    return ResponseEntity.ok(ApiResponse.ok(ruleService.getAll(page, limit)));
   }
 
   @PatchMapping("/{id}")
@@ -137,11 +134,20 @@ public class RuleController {
         .sortOrder(request.sortOrder())
         .nextLogic(request.nextLogic())
         .build();
+
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(conditionService.create(scopedDto)));
   }
 
-  // --- Sub-Resource Helper Endpoints for Actions ---
+  @PutMapping("/{id}/conditions")
+  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
+  public ResponseEntity<ApiResponse<List<ConditionDto>>> replaceConditions(
+      @PathVariable(name = "id") Long ruleId,
+      @RequestBody @Valid List<ReplaceConditionDto> request) {
+    return ResponseEntity.ok(
+        ApiResponse.ok(
+            conditionService.replaceByOwner(ConditionOwnerCategory.RULE, ruleId, request)));
+  }
 
   @GetMapping("/{id}/actions")
   @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
@@ -166,5 +172,15 @@ public class RuleController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(actionService.create(scopedDto)));
+  }
+
+  @PutMapping("/{id}/actions")
+  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
+  public ResponseEntity<ApiResponse<List<ActionDto>>> replaceActions(
+      @PathVariable(name = "id") Long ruleId,
+      @RequestBody @Valid List<ReplaceActionDto> request) {
+    return ResponseEntity.ok(
+        ApiResponse.ok(
+            actionService.replaceByOwner(ActionOwnerCategory.RULE, ruleId, request)));
   }
 }

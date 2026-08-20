@@ -94,8 +94,17 @@
               <input type="hidden" id="alertLocalId" />
               <input type="hidden" id="alertConfigId" />
               <div class="row g-3">
-                <!-- Alert Name -->
-                <div class="col-12">
+                <!-- Alert Code & Name -->
+                <div class="col-md-6">
+                  <label for="alertCode" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.alert_code}">Alert Code</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
+                    <input type="text" class="form-control bg-light border-0" id="alertCode" name="alertCode" th:placeholder="#{smart_system.alert.placeholder.code}" required />
+                  </div>
+                  <div class="invalid-feedback" id="val-alertCode"></div>
+                </div>
+
+                <div class="col-md-6">
                   <label for="alertName" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.alert.field.alert_name}">Alert Name</label>
                   <div class="input-group">
                     <span class="input-group-text bg-light border-0"><i data-lucide="tag" class="lucide-sm"></i></span>
