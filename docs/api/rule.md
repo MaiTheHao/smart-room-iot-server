@@ -26,6 +26,8 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập, hỗ tr�
 | value | string | Giá trị so sánh |
 | nextLogic | string | `AND`, `OR` (Mặc định: `AND`) |
 
+> **Lưu ý:** Khi `dataSource` là `ROOM` và `property` là `sum_watt`, hệ thống sẽ tính tổng watt từ bảng `energy_metric`. Khi `dataSource` là `SENSOR` và `category` là `POWER_CONSUMPTION`, giá trị `watt` cũng được lấy từ `energy_metric` thay vì trường `currentWatt` của entity `PowerConsumption`.
+
 #### Cấu trúc Action
 | Tên trường | Loại | Mô tả |
 | :--- | :--- | :--- |
@@ -382,7 +384,7 @@ Tham số cấu hình chia làm 2 loại:
 *   `roomId` (Long - Bắt buộc): ID của phòng cần kiểm tra.
 *   `property` (String - Bắt buộc): Thuộc tính cần kiểm tra. Bao gồm:
     *   `avg_temperature`: Nhiệt độ trung bình trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server).
-    *   `sum_watt`: Tổng điện năng tiêu thụ trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server).
+    *   `sum_watt`: Tổng điện năng tiêu thụ trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server) **tính bằng cách sum giá trị `power` từ bảng `energy_metric`**.
     *   `avg_humidity`: Độ ẩm trung vị (Median) trong phòng, tổng hợp từ tất cả cảm biến độ ẩm đang hoạt động.
     *   `avg_lux`: Cường độ ánh sáng trung vị (Median) trong phòng, tổng hợp từ tất cả cảm biến ánh sáng đang hoạt động.
     *   `avg_co2`: Nồng độ CO2 trung bình (Mean) trong phòng, tổng hợp từ tất cả cảm biến CO2 đang hoạt động.
@@ -397,7 +399,7 @@ Tham số cấu hình chia làm 2 loại:
 *   `sensorId` (Long - Bắt buộc): ID của cảm biến.
 *   `property` (String - Bắt buộc): Tùy thuộc vào `category`:
     *   Với `TEMPERATURE`: `temperature` (Nhiệt độ hiện tại).
-    *   Với `POWER_CONSUMPTION`: `watt` (Công suất tiêu thụ hiện tại).
+    *   Với `POWER_CONSUMPTION`: `watt` (Công suất tiêu thụ hiện tại, **được lấy từ bảng `energy_metric`**).
     *   Với `HUMIDITY`: `humidity` (Độ ẩm hiện tại).
     *   Với `SENSOR_CO2`: `co2` (Nồng độ CO2 hiện tại).
     *   Với `SENSOR_LUX`: `lux` (Cường độ ánh sáng hiện tại).
