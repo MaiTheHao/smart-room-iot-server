@@ -76,7 +76,7 @@ public class RuleProcessor implements SchedulableJobProcessor {
             return;
         }
 
-        log.info("Evaluating Rule {} with {} conditions", rule.getId(), conditions.size());
+        log.info("Evaluating Rule {} ('{}') with {} conditions", rule.getId(), rule.getName(), conditions.size());
 
         EvaluationContext initCtx = new EvaluationContext();
 
@@ -87,6 +87,8 @@ public class RuleProcessor implements SchedulableJobProcessor {
                 String.valueOf(id));
 
         if (isMatched) {
+            log.info("Rule {} ('{}') MATCHED -> Executing {} actions", rule.getId(), rule.getName(),
+                    rule.getActions() != null ? rule.getActions().size() : 0);
             executeActions(rule);
 
             initCtx.getTemplateData().put("rule_name", rule.getName());
@@ -104,17 +106,13 @@ public class RuleProcessor implements SchedulableJobProcessor {
                     log.error("[Alert] Failed to trigger alert for config {}: {}", config.getId(), e.getMessage(), e);
                 }
             }
+        } else {
+            log.info("Rule {} ('{}') NOT MATCHED -> Skipping actions", rule.getId(), rule.getName());
         }
     }
 
     private EvaluationContext accumulateResult(EvaluationContext ctx, RuleCondition cond) {
-        RuleCondition tempCond = new RuleCondition();
-        tempCond.setDataSource(cond.getDataSource());
-        tempCond.setResourceParam(cond.getResourceParam());
-        tempCond.setOperator(cond.getOperator());
-        tempCond.setValue(cond.getValue());
-
-        ConditionEvaluationResult evalResult = evaluateCondition(tempCond);
+        ConditionEvaluationResult evalResult = evaluateCondition(cond);
         boolean isMet = evalResult.isMet();
 
         if (ctx.isFirst()) {
@@ -140,15 +138,22 @@ public class RuleProcessor implements SchedulableJobProcessor {
                 .map(strategy -> {
                     try {
                         Object val = strategy.fetchValue(cond, null);
-                        boolean isMet = val != null
-                                && compareValues(val.toString(), cond.getValue(), cond.getOperator());
+                        if (val == null) {
+                            log.debug("Condition [id={}, sortOrder={}, dataSource={}] value is null -> isMet: false",
+                                    cond.getId(), cond.getSortOrder(), cond.getDataSource());
+                            return new ConditionEvaluationResult(false, null);
+                        }
+                        boolean isMet = compareValues(val.toString(), cond.getValue(), cond.getOperator());
+                        log.debug("Condition [id={}, sortOrder={}, dataSource={}] evaluated: actual='{}' {} expected='{}' -> isMet: {}",
+                                cond.getId(), cond.getSortOrder(), cond.getDataSource(), val,
+                                cond.getOperator() != null ? cond.getOperator().getSymbol() : "", cond.getValue(), isMet);
                         return new ConditionEvaluationResult(isMet, val);
                     } catch (Exception e) {
-                        log.error("Error in strategy {}: {}", strategy.getClass().getSimpleName(), e.getMessage());
+                        log.error("Error in strategy {} for condition {}: {}", strategy.getClass().getSimpleName(), cond.getId(), e.getMessage());
                         return new ConditionEvaluationResult(false, null);
                     }
                 }).orElseGet(() -> {
-                    log.warn("No strategy for: {}", cond.getDataSource());
+                    log.warn("No strategy for dataSource: {} in condition {}", cond.getDataSource(), cond.getId());
                     return new ConditionEvaluationResult(false, null);
                 });
     }
