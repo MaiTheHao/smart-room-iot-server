@@ -133,7 +133,7 @@ public class JobScheduleService {
         return builder.withSchedule(
                 CronScheduleBuilder.cronSchedule(entity.getCronExpression())
                         .inTimeZone(TimeZone.getTimeZone("UTC"))
-                        .withMisfireHandlingInstructionFireAndProceed())
+                        .withMisfireHandlingInstructionIgnoreMisfires())
                 .build();
     }
 
