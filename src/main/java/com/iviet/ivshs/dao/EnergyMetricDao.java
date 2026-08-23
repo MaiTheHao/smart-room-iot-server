@@ -4,154 +4,190 @@ import com.iviet.ivshs.dao.base.BaseEntityDao;
 import com.iviet.ivshs.dto.EnergyMetricDto;
 import com.iviet.ivshs.entities.EnergyMetric;
 import com.iviet.ivshs.shared.enumeration.EnergyMetricCategory;
-
+import java.sql.PreparedStatement;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.PreparedStatement;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-
 @Repository
 public class EnergyMetricDao extends BaseEntityDao<EnergyMetric> {
 
-    private static final String DTO_CLASS = EnergyMetricDto.class.getName();
+  private static final String DTO_CLASS = EnergyMetricDto.class.getName();
 
-    public EnergyMetricDao() {
-        super(EnergyMetric.class);
-    }
+  public EnergyMetricDao() {
+    super(EnergyMetric.class);
+  }
 
-    @Override
-    @Transactional
-    public EnergyMetric save(EnergyMetric entity) {
-        return super.save(entity);
-    }
+  @Override
+  @Transactional
+  public EnergyMetric save(EnergyMetric entity) {
+    return super.save(entity);
+  }
 
-    @Override
-    public List<EnergyMetric> save(List<EnergyMetric> entities) {
-        String sql = """
-                INSERT INTO energy_metrics
-                (target_category, target_id, timestamp, unix_minute, voltage, current, power, energy, frequency, power_factor)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
+  @Override
+  public List<EnergyMetric> save(List<EnergyMetric> entities) {
+    String sql = """
+        INSERT INTO energy_metrics
+        (target_category, target_id, timestamp, unix_minute, voltage, current, power, energy, frequency, power_factor)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
 
-        try {
-            jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-                @Override
-                public void setValues(@NonNull PreparedStatement ps, int i) throws java.sql.SQLException {
-                    EnergyMetric e = entities.get(i);
-                    ps.setString(1, e.getTargetCategory());
-                    ps.setLong(2, e.getTargetId());
-                    ps.setObject(3, e.getTimestamp());
-                    ps.setObject(4, e.getUnixMinute());
-                    ps.setObject(5, e.getVoltage());
-                    ps.setObject(6, e.getCurrent());
-                    ps.setObject(7, e.getPower());
-                    ps.setObject(8, e.getEnergy());
-                    ps.setObject(9, e.getFrequency());
-                    ps.setObject(10, e.getPowerFactor());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return entities.size();
-                }
-            });
-            return entities;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to batch insert EnergyMetric entities", e);
+    try {
+      jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+        @Override
+        public void setValues(@NonNull PreparedStatement ps, int i) throws java.sql.SQLException {
+          EnergyMetric e = entities.get(i);
+          ps.setString(1, e.getTargetCategory());
+          ps.setLong(2, e.getTargetId());
+          ps.setObject(3, e.getTimestamp());
+          ps.setObject(4, e.getUnixMinute());
+          ps.setObject(5, e.getVoltage());
+          ps.setObject(6, e.getCurrent());
+          ps.setObject(7, e.getPower());
+          ps.setObject(8, e.getEnergy());
+          ps.setObject(9, e.getFrequency());
+          ps.setObject(10, e.getPowerFactor());
         }
+
+        @Override
+        public int getBatchSize() {
+          return entities.size();
+        }
+      });
+      return entities;
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to batch insert EnergyMetric entities", e);
     }
+  }
 
-    public List<EnergyMetricDto> findHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to,
-            int divisor) {
-        String jpql = """
-                SELECT
-                    (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L,
-                    AVG(e.voltage),
-                    AVG(e.current),
-                    AVG(e.power),
-                    MAX(e.energy),
-                    AVG(e.frequency),
-                    AVG(e.powerFactor)
-                FROM EnergyMetric e
-                WHERE e.targetCategory = :category
-                    AND e.targetId = :targetId
-                    AND e.timestamp BETWEEN :from AND :to
-                GROUP BY (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L
-                ORDER BY (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L ASC
-                """;
+  public List<EnergyMetricDto> findHistory(
+      EnergyMetricCategory category, Long targetId, Instant from, Instant to, int divisor) {
+    String jpql = """
+        SELECT
+            (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L,
+            AVG(e.voltage),
+            AVG(e.current),
+            AVG(e.power),
+            MAX(e.energy),
+            AVG(e.frequency),
+            AVG(e.powerFactor)
+        FROM EnergyMetric e
+        WHERE e.targetCategory = :category
+            AND e.targetId = :targetId
+            AND e.timestamp BETWEEN :from AND :to
+        GROUP BY (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L
+        ORDER BY (e.unixMinute - MOD(e.unixMinute, :divisor)) * 60L ASC
+        """;
 
-        List<Object[]> results = entityManager.createQuery(jpql, Object[].class)
-                .setParameter("category", category.name())
-                .setParameter("targetId", targetId)
-                .setParameter("from", from)
-                .setParameter("to", to)
-                .setParameter("divisor", divisor)
-                .getResultList();
+    List<Object[]> results = entityManager
+        .createQuery(jpql, Object[].class)
+        .setParameter("category", category.name())
+        .setParameter("targetId", targetId)
+        .setParameter("from", from)
+        .setParameter("to", to)
+        .setParameter("divisor", divisor)
+        .getResultList();
 
-        return results.stream()
-                .map(row -> EnergyMetricDto.builder()
-                        .timestamp(Instant.ofEpochSecond(((Number) row[0]).longValue()))
-                        .voltage(row[1] != null ? ((Number) row[1]).doubleValue() : null)
-                        .current(row[2] != null ? ((Number) row[2]).doubleValue() : null)
-                        .power(row[3] != null ? ((Number) row[3]).doubleValue() : null)
-                        .energy(row[4] != null ? ((Number) row[4]).doubleValue() : null)
-                        .frequency(row[5] != null ? ((Number) row[5]).doubleValue() : null)
-                        .powerFactor(row[6] != null ? ((Number) row[6]).doubleValue() : null)
-                        .build())
-                .toList();
-    }
+    return results.stream()
+        .map(row -> EnergyMetricDto.builder()
+            .timestamp(Instant.ofEpochSecond(((Number) row[0]).longValue()))
+            .voltage(row[1] != null ? ((Number) row[1]).doubleValue() : null)
+            .current(row[2] != null ? ((Number) row[2]).doubleValue() : null)
+            .power(row[3] != null ? ((Number) row[3]).doubleValue() : null)
+            .energy(row[4] != null ? ((Number) row[4]).doubleValue() : null)
+            .frequency(row[5] != null ? ((Number) row[5]).doubleValue() : null)
+            .powerFactor(row[6] != null ? ((Number) row[6]).doubleValue() : null)
+            .build())
+        .toList();
+  }
 
-    public List<EnergyMetricDto> findRawHistory(EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
-        String jpql = """
-                SELECT em
-                FROM EnergyMetric em
-                WHERE em.targetCategory = :category
-                    AND em.targetId = :targetId
-                    AND em.timestamp BETWEEN :from AND :to
-                ORDER BY em.timestamp ASC
-                """;
+  public List<EnergyMetricDto> findRawHistory(
+      EnergyMetricCategory category, Long targetId, Instant from, Instant to) {
+    String jpql = """
+        SELECT em
+        FROM EnergyMetric em
+        WHERE em.targetCategory = :category
+            AND em.targetId = :targetId
+            AND em.timestamp BETWEEN :from AND :to
+        ORDER BY em.timestamp ASC
+        """;
 
-        List<EnergyMetric> results = entityManager.createQuery(jpql, EnergyMetric.class)
-                .setParameter("category", category.name())
-                .setParameter("targetId", targetId)
-                .setParameter("from", from)
-                .setParameter("to", to)
-                .setMaxResults(10_000)
-                .getResultList();
+    List<EnergyMetric> results = entityManager
+        .createQuery(jpql, EnergyMetric.class)
+        .setParameter("category", category.name())
+        .setParameter("targetId", targetId)
+        .setParameter("from", from)
+        .setParameter("to", to)
+        .setMaxResults(10_000)
+        .getResultList();
 
-        return results.stream()
-                .map(em -> EnergyMetricDto.builder()
-                        .timestamp(em.getTimestamp())
-                        .voltage(em.getVoltage())
-                        .current(em.getCurrent())
-                        .power(em.getPower())
-                        .energy(em.getEnergy())
-                        .frequency(em.getFrequency())
-                        .powerFactor(em.getPowerFactor())
-                        .build())
-                .toList();
-    }
+    return results.stream()
+        .map(em -> EnergyMetricDto.builder()
+            .timestamp(em.getTimestamp())
+            .voltage(em.getVoltage())
+            .current(em.getCurrent())
+            .power(em.getPower())
+            .energy(em.getEnergy())
+            .frequency(em.getFrequency())
+            .powerFactor(em.getPowerFactor())
+            .build())
+        .toList();
+  }
 
-    public Optional<EnergyMetricDto> findLatest(EnergyMetricCategory category, Long targetId) {
-        String jpql = """
-                SELECT new %s(%s)
-                FROM EnergyMetric em
-                WHERE em.targetCategory = :category
-                    AND em.targetId = :targetId
-                ORDER BY em.timestamp DESC
-                """.formatted(DTO_CLASS, EnergyMetricDto.jpqlProjection("em"));
+  public Optional<Double> sumCurrentWattByRoomId(Long roomId, java.time.Instant threshold) {
+    String jpql = """
+        SELECT SUM(pc.currentWatt)
+        FROM PowerConsumption pc
+        WHERE pc.room.id = :roomId
+          AND pc.isActive = true
+          AND pc.currentWatt IS NOT NULL
+          AND (:threshold IS NULL OR pc.updatedAt >= :threshold)
+        """;
+    Double sum = entityManager
+        .createQuery(jpql, Double.class)
+        .setParameter("roomId", roomId)
+        .setParameter("threshold", threshold)
+        .getSingleResult();
+    return Optional.ofNullable(sum);
+  }
 
-        return entityManager.createQuery(jpql, EnergyMetricDto.class)
-                .setParameter("category", category.name())
-                .setParameter("targetId", targetId)
-                .setMaxResults(1)
-                .getResultList()
-                .stream()
-                .findFirst();
-    }
+  public Optional<Double> sumPowerByRoomId(Long roomId, java.time.Instant threshold) {
+    String jpql = """
+        SELECT SUM(em.power)
+        FROM EnergyMetric em
+        WHERE em.targetCategory = :category
+          AND em.targetId = :roomId
+          AND (:threshold IS NULL OR em.timestamp >= :threshold)
+        """;
+    Double sum = entityManager
+        .createQuery(jpql, Double.class)
+        .setParameter("category", EnergyMetricCategory.ROOM.name())
+        .setParameter("roomId", roomId)
+        .setParameter("threshold", threshold)
+        .getSingleResult();
+    return Optional.ofNullable(sum);
+  }
+
+  public Optional<EnergyMetricDto> findLatest(EnergyMetricCategory category, Long targetId) {
+    String jpql = """
+        SELECT new %s(%s)
+        FROM EnergyMetric em
+        WHERE em.targetCategory = :category
+            AND em.targetId = :targetId
+        ORDER BY em.timestamp DESC
+        """.formatted(DTO_CLASS, EnergyMetricDto.jpqlProjection("em"));
+
+    return entityManager
+        .createQuery(jpql, EnergyMetricDto.class)
+        .setParameter("category", category.name())
+        .setParameter("targetId", targetId)
+        .setMaxResults(1)
+        .getResultList()
+        .stream()
+        .findFirst();
+  }
 }

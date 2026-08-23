@@ -17,7 +17,29 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
 | :--- | :--- | :--- | :--- |
 | name | string | Có | Tên duy nhất, không rỗng |
 | priority | integer | Có | Độ ưu tiên (>= 0) |
-| intervalSeconds | integer | Có | Chu kỳ lặp lại (Min: 60 giây) |
+| intervalSeconds | integer | Có | Chu kỳ lặp lại (Min: 60) |
+| conditions | array | Có | Danh sách điều kiện |
+| actions | array | Có | Danh sách hành động |
+
+#### Cấu trúc Condition
+| Tên trường | Loại | Mô tả |
+| :--- | :--- | :--- |
+| sortOrder | int | Thứ tự đánh giá (0, 1, 2...) |
+| dataSource | string | `SYSTEM`, `ROOM`, `DEVICE`, `SENSOR` |
+| resourceParam | Json | Tham số tài nguyên (JSON) |
+| operator | string | `>`, `<`, `=`, `!=`, `>=`, `<=` |
+| value | string | Giá trị so sánh |
+| nextLogic | string | `AND`, `OR` (Mặc định: `AND`) |
+
+> **Lưu ý:** Khi `dataSource` là `ROOM` và `property` là `sum_watt`, hệ thống sẽ tính tổng watt từ bảng `energy_metric`. Khi `dataSource` là `SENSOR` và `category` là `POWER_CONSUMPTION`, giá trị `watt` cũng được lấy từ `energy_metric` thay vì trường `currentWatt` của entity `PowerConsumption`.
+
+#### Cấu trúc Action
+| Tên trường | Loại | Mô tả |
+| :--- | :--- | :--- |
+| targetDeviceId | Long | ID thiết bị thực thi |
+| targetDeviceCategory | string | Loại thiết bị (LIGHT, AC...) |
+| actionParams | Json | Lệnh điều khiển (JSON) |
+| executionOrder | int | Thứ tự thực hiện (0, 1, 2...) |
 
 ### Request Example
 ```json
@@ -247,6 +269,16 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
 
 <details>
 <summary><b>POST</b> <code>/api/v1/rules/{id}/conditions</code> - Thêm nhanh Điều kiện cho Rule</summary>
+### 2. Data Source: ROOM (Phòng)
+**Dùng cho Điều kiện (`resourceParam`):**
+*   `roomId` (Long - Bắt buộc): ID của phòng cần kiểm tra.
+*   `property` (String - Bắt buộc): Thuộc tính cần kiểm tra. Bao gồm:
+    *   `avg_temperature`: Nhiệt độ trung bình trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server).
+    *   `sum_watt`: Tổng điện năng tiêu thụ trong khoảng thời gian cấu hình hệ thống (`lookbackMinutes`, cấu hình global phía server) **tính bằng cách sum giá trị `power` từ bảng `energy_metric`**.
+    *   `avg_humidity`: Độ ẩm trung vị (Median) trong phòng, tổng hợp từ tất cả cảm biến độ ẩm đang hoạt động.
+    *   `avg_lux`: Cường độ ánh sáng trung vị (Median) trong phòng, tổng hợp từ tất cả cảm biến ánh sáng đang hoạt động.
+    *   `avg_co2`: Nồng độ CO2 trung bình (Mean) trong phòng, tổng hợp từ tất cả cảm biến CO2 đang hoạt động.
+    *   `max_co2`: Nồng độ CO2 lớn nhất (Max) trong phòng, tổng hợp từ tất cả cảm biến CO2 đang hoạt động. Dùng cho Automation kích hoạt thiết bị thông gió.
 
 > Tự động gán `ownerCategory = "RULE"` và `ownerId = "{id}"`.
 
@@ -265,6 +297,16 @@ Hệ thống tự động hóa dựa trên chu kỳ giây độc lập (`Rule`).
   "nextLogic": "AND"
 }
 ```
+### 3. Data Source: SENSOR (Cảm biến)
+**Dùng cho Điều kiện (`resourceParam`):**
+*   `category` (String - Bắt buộc): Loại cảm biến (`TEMPERATURE`, `POWER_CONSUMPTION`, `HUMIDITY`, `SENSOR_CO2`, `SENSOR_LUX`).
+*   `sensorId` (Long - Bắt buộc): ID của cảm biến.
+*   `property` (String - Bắt buộc): Tùy thuộc vào `category`:
+    *   Với `TEMPERATURE`: `temperature` (Nhiệt độ hiện tại).
+    *   Với `POWER_CONSUMPTION`: `watt` (Công suất tiêu thụ hiện tại, **được lấy từ bảng `energy_metric`**).
+    *   Với `HUMIDITY`: `humidity` (Độ ẩm hiện tại).
+    *   Với `SENSOR_CO2`: `co2` (Nồng độ CO2 hiện tại).
+    *   Với `SENSOR_LUX`: `lux` (Cường độ ánh sáng hiện tại).
 
 ### Response (201 Created)
 ```json

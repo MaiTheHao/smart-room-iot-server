@@ -1,15 +1,12 @@
 package com.iviet.ivshs.dao;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Repository;
-
 import com.iviet.ivshs.dao.base.BaseIoTSensorDao;
 import com.iviet.ivshs.dto.PowerConsumptionDto;
 import com.iviet.ivshs.entities.PowerConsumption;
-
 import jakarta.persistence.criteria.JoinType;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
@@ -27,10 +24,10 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.naturalId = :naturalId
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("naturalId", naturalId)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
@@ -44,10 +41,10 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.id = :id
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("id", id)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
@@ -61,10 +58,10 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         ORDER BY pc.createdAt DESC
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
         .setMaxResults(size)
@@ -77,25 +74,26 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         ORDER BY pc.createdAt DESC
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("langCode", langCode)
         .getResultList();
   }
 
-  public List<PowerConsumptionDto> findAllByRoomId(Long roomId, int page, int size, String langCode) {
+  public List<PowerConsumptionDto> findAllByRoomId(
+      Long roomId, int page, int size, String langCode) {
     String jpql = """
         SELECT new %s(%s)
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.room.id = :roomId
         ORDER BY pc.createdAt DESC
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("roomId", roomId)
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
@@ -110,26 +108,27 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.room.id = :roomId
         ORDER BY pc.createdAt DESC
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("roomId", roomId)
         .setParameter("langCode", langCode)
         .getResultList();
   }
 
   @Override
-  public Optional<PowerConsumptionDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+  public Optional<PowerConsumptionDto> findByRoomAndNaturalId(
+      Long roomId, String naturalId, String langCode) {
     String jpql = """
         SELECT new %s(%s)
         FROM PowerConsumption pc
         LEFT JOIN pc.translations pcl ON pcl.langCode = :langCode
         WHERE pc.room.id = :roomId AND pc.naturalId = :naturalId
-        """
-        .formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
+        """.formatted(DTO_CLASS, PowerConsumptionDto.jpqlProjection("pc", "pcl"));
 
-    return entityManager.createQuery(jpql, PowerConsumptionDto.class)
+    return entityManager
+        .createQuery(jpql, PowerConsumptionDto.class)
         .setParameter("roomId", roomId)
         .setParameter("naturalId", naturalId)
         .setParameter("langCode", langCode)
@@ -140,9 +139,13 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
 
   public List<PowerConsumption> findAllActiveByClientId(Long clientId) {
     return findAll(
-        root -> entityManager.getCriteriaBuilder().and(
-            entityManager.getCriteriaBuilder().equal(root.get("hardwareConfig").get("client").get("id"), clientId),
-            entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))),
+        root -> entityManager
+            .getCriteriaBuilder()
+            .and(
+                entityManager
+                    .getCriteriaBuilder()
+                    .equal(root.get("hardwareConfig").get("client").get("id"), clientId),
+                entityManager.getCriteriaBuilder().isTrue(root.get("isActive"))),
         (root, cq) -> {
           root.fetch("hardwareConfig", JoinType.LEFT).fetch("client", JoinType.LEFT);
           root.fetch("room", JoinType.LEFT);
@@ -154,5 +157,22 @@ public class PowerConsumptionDao extends BaseIoTSensorDao<PowerConsumption> {
     return entityManager.createQuery(jpql, Long.class)
         .setParameter("roomId", roomId)
         .getResultList();
+  }
+
+  public Optional<Double> sumCurrentWattByRoomId(Long roomId, java.time.Instant threshold) {
+    String jpql = """
+        SELECT SUM(pc.currentWatt)
+        FROM PowerConsumption pc
+        WHERE pc.room.id = :roomId
+          AND pc.isActive = true
+          AND pc.currentWatt IS NOT NULL
+          AND (:threshold IS NULL OR pc.updatedAt >= :threshold)
+        """;
+    Double sum = entityManager
+        .createQuery(jpql, Double.class)
+        .setParameter("roomId", roomId)
+        .setParameter("threshold", threshold)
+        .getSingleResult();
+    return Optional.ofNullable(sum);
   }
 }

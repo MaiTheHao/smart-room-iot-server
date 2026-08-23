@@ -1,10 +1,15 @@
 package com.iviet.ivshs.service.strategy;
 
 import com.iviet.ivshs.shared.enumeration.DeviceCategory;
+import java.time.Instant;
 
 public interface SensorStateStrategy {
 
   boolean supports(DeviceCategory category);
 
-  Object fetchState(Long sensorId, String property);
+  default Object fetchState(Long sensorId, String property) {
+    return fetchState(sensorId, property, null);
+  }
+
+  Object fetchState(Long sensorId, String property, Instant threshold);
 }

@@ -1,13 +1,12 @@
 package com.iviet.ivshs.dao;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.stereotype.Repository;
-
 import com.iviet.ivshs.dao.base.BaseIoTSensorDao;
 import com.iviet.ivshs.dto.TemperatureDto;
 import com.iviet.ivshs.entities.Temperature;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
@@ -24,10 +23,10 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.id = :id
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("id", id)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
@@ -41,10 +40,10 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         ORDER BY t.id ASC
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
         .setMaxResults(size)
@@ -57,10 +56,10 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         ORDER BY t.id ASC
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("langCode", langCode)
         .getResultList();
   }
@@ -72,10 +71,10 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.room.id = :roomId
         ORDER BY t.id ASC
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("roomId", roomId)
         .setParameter("langCode", langCode)
         .setFirstResult(page * size)
@@ -90,10 +89,10 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.room.id = :roomId
         ORDER BY t.id ASC
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("roomId", roomId)
         .setParameter("langCode", langCode)
         .getResultList();
@@ -106,10 +105,10 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.naturalId = :naturalId
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("naturalId", naturalId)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
@@ -118,21 +117,38 @@ public class TemperatureDao extends BaseIoTSensorDao<Temperature> {
   }
 
   @Override
-  public Optional<TemperatureDto> findByRoomAndNaturalId(Long roomId, String naturalId, String langCode) {
+  public Optional<TemperatureDto> findByRoomAndNaturalId(
+      Long roomId, String naturalId, String langCode) {
     String jpql = """
         SELECT new %s(%s)
         FROM Temperature t
         LEFT JOIN t.translations tl ON tl.langCode = :langCode
         WHERE t.room.id = :roomId AND t.naturalId = :naturalId
-        """
-        .formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
+        """.formatted(DTO_CLASS, TemperatureDto.jpqlProjection("t", "tl"));
 
-    return entityManager.createQuery(jpql, TemperatureDto.class)
+    return entityManager
+        .createQuery(jpql, TemperatureDto.class)
         .setParameter("roomId", roomId)
         .setParameter("naturalId", naturalId)
         .setParameter("langCode", langCode)
         .setMaxResults(1)
         .getResultStream()
         .findFirst();
+  }
+
+  public List<Double> findCurrentValuesByRoomId(Long roomId, Instant threshold) {
+    String jpql = """
+        SELECT t.currentValue
+        FROM Temperature t
+        WHERE t.room.id = :roomId
+          AND t.isActive = true
+          AND t.currentValue IS NOT NULL
+          AND (:threshold IS NULL OR t.updatedAt >= :threshold)
+        """;
+    return entityManager
+        .createQuery(jpql, Double.class)
+        .setParameter("roomId", roomId)
+        .setParameter("threshold", threshold)
+        .getResultList();
   }
 }
