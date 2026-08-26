@@ -2,17 +2,22 @@ package com.iviet.ivshs.service;
 
 import com.iviet.ivshs.dao.ActionDao;
 import com.iviet.ivshs.dao.AlertConfigDao;
+import com.iviet.ivshs.dao.ConditionDao;
 import com.iviet.ivshs.dao.RoomEventConfigDao;
 import com.iviet.ivshs.dto.AlertTriggerRequestDto;
+import com.iviet.ivshs.dto.EvaluationResult;
 import com.iviet.ivshs.entities.Action;
 import com.iviet.ivshs.entities.AlertConfig;
+import com.iviet.ivshs.entities.Condition;
 import com.iviet.ivshs.entities.RoomEventConfig;
 import com.iviet.ivshs.event.RoomEventApplicationEvent;
 import com.iviet.ivshs.service.strategy.ActionExecutionService;
+import com.iviet.ivshs.service.strategy.ConditionEvaluationService;
 import com.iviet.ivshs.shared.enumeration.ActionOwnerCategory;
 import com.iviet.ivshs.shared.enumeration.AlertActionType;
 import com.iviet.ivshs.shared.enumeration.AlertActorType;
 import com.iviet.ivshs.shared.enumeration.AlertNamespace;
+import com.iviet.ivshs.shared.enumeration.ConditionOwnerCategory;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +37,9 @@ public class RoomEventHandler {
   private final RoomEventConfigDao roomEventConfigDao;
   private final ActionDao actionDao;
   private final AlertConfigDao alertConfigDao;
+  private final ConditionDao conditionDao;
   private final ActionExecutionService actionExecutionService;
+  private final ConditionEvaluationService conditionEvaluationService;
   private final AlertTriggerService alertTriggerService;
 
   @Async
@@ -64,6 +71,21 @@ public class RoomEventHandler {
   }
 
   private void processEventConfig(RoomEventConfig config, RoomEventApplicationEvent event) {
+    List<Condition> conditions = conditionDao.findByOwner(ConditionOwnerCategory.ROOM_EVENT, String.valueOf(config.getId()));
+    
+    if (!conditions.isEmpty()) {
+      try {
+        EvaluationResult evalResult = conditionEvaluationService.evaluateAll(conditions, config.getRoom().getId());
+        if (!evalResult.isMatched()) {
+          log.debug("Conditions not matched for RoomEventConfig id={}, skipping execution", config.getId());
+          return;
+        }
+      } catch (Exception e) {
+        log.error("Error evaluating conditions for RoomEventConfig id={}", config.getId(), e);
+        return;
+      }
+    }
+
     config.setLastTriggeredAt(Instant.now());
     roomEventConfigDao.save(config);
 
@@ -72,28 +94,36 @@ public class RoomEventHandler {
   }
 
   private void executeActions(Long configId) {
-    List<Action> actions =
-        actionDao.findByOwner(ActionOwnerCategory.ROOM_EVENT, String.valueOf(configId));
-    if (!actions.isEmpty()) {
-      actionExecutionService.executeAll(actions);
+    try {
+      List<Action> actions =
+          actionDao.findByOwner(ActionOwnerCategory.ROOM_EVENT, String.valueOf(configId));
+      if (!actions.isEmpty()) {
+        actionExecutionService.executeAll(actions);
+      }
+    } catch (Exception e) {
+      log.error("Error executing actions for RoomEventConfig id={}", configId, e);
     }
   }
 
   private void triggerAlerts(Long configId, RoomEventApplicationEvent event) {
-    List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(
-        AlertNamespace.ROOM_EVENT, String.valueOf(configId));
+    try {
+      List<AlertConfig> alertConfigs = alertConfigDao.findAllByNamespaceAndSourceId(
+          AlertNamespace.ROOM_EVENT, String.valueOf(configId));
 
-    alertConfigs.forEach(config -> alertTriggerService.trigger(AlertTriggerRequestDto.builder()
-        .alertConfig(config)
-        .alertConfigId(config.getId())
-        .actionType(AlertActionType.TRIGGERED)
-        .actorType(AlertActorType.ROOM_EVENT)
-        .actorId(event.getRoomId().toString())
-        .templateData(Map.of(
-            "room_id", event.getRoomId(),
-            "event_code", event.getEventCode().name(),
-            "timestamp", event.getEventTimestamp().toString()))
-        .payload(event.getPayload())
-        .build()));
+      alertConfigs.forEach(config -> alertTriggerService.trigger(AlertTriggerRequestDto.builder()
+          .alertConfig(config)
+          .alertConfigId(config.getId())
+          .actionType(AlertActionType.TRIGGERED)
+          .actorType(AlertActorType.ROOM_EVENT)
+          .actorId(event.getRoomId().toString())
+          .templateData(Map.of(
+              "room_id", event.getRoomId(),
+              "event_code", event.getEventCode().name(),
+              "timestamp", event.getEventTimestamp().toString()))
+          .payload(event.getPayload())
+          .build()));
+    } catch (Exception e) {
+      log.error("Error triggering alerts for RoomEventConfig id={}", configId, e);
+    }
   }
 }
