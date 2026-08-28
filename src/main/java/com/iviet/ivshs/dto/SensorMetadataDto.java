@@ -16,8 +16,13 @@ public record SensorMetadataDto(
 ) {
     public static SensorMetadataDto from(BaseIoTSensor<?> entity, BaseTranslation<?> lan) {
         return new SensorMetadataDto(
-            entity.getId(), entity.getNaturalId(), lan.getName(), lan.getDescription(),
-            entity.getIsActive(), entity.getRoom().getId(), entity.getCategory(),
+            entity.getId(),
+            entity.getNaturalId(),
+            lan != null ? lan.getName() : null,
+            lan != null ? lan.getDescription() : null,
+            entity.getIsActive(),
+            entity.getRoom() != null ? entity.getRoom().getId() : null,
+            entity.getCategory(),
             entity.extractBusinessData()
         );
     }

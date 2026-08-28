@@ -17,6 +17,9 @@ public class EngineProperties {
   @Value("${app.engine.rule.telemetryLookbackMinutes}")
   private int ruleTelemetryLookbackMinutes;
 
+  @Value("${app.engine.rule.sensorFreshnessMinutes:15}")
+  private int ruleSensorFreshnessMinutes;
+
   @Value("${app.engine.telemetry.scanIntervalSeconds}")
   private int telemetryScanIntervalSeconds;
 

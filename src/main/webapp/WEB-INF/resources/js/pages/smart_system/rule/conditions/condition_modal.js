@@ -369,7 +369,7 @@ export const ConditionModal = (() => {
         items.forEach((item) => {
           const opt = document.createElement('option');
           opt.value = item.id;
-          opt.textContent = item.name;
+          opt.textContent = item.name || item.naturalId || `#${item.id}`;
           if (selectedId && String(item.id) === String(selectedId)) opt.selected = true;
           el.target.appendChild(opt);
         });
