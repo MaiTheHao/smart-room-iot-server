@@ -22,6 +22,21 @@ public record CreateActionDto(
 
     Integer executionOrder) {
 
+  public CreateActionDto withOwner(ActionOwnerCategory ownerCategory, String ownerId) {
+    return CreateActionDto.builder()
+        .ownerCategory(ownerCategory)
+        .ownerId(ownerId)
+        .targetCategory(targetCategory)
+        .targetId(targetId)
+        .params(params)
+        .executionOrder(executionOrder)
+        .build();
+  }
+
+  public CreateActionDto withOwner(ActionOwnerCategory ownerCategory, Long ownerId) {
+    return withOwner(ownerCategory, String.valueOf(ownerId));
+  }
+
   public Action toEntity() {
     Action entity = new Action();
     entity.setOwnerCategory(ownerCategory);
@@ -33,3 +48,4 @@ public record CreateActionDto(
     return entity;
   }
 }
+

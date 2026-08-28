@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/rooms/{roomId}/events")
+@PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
 public class RoomEventController {
 
   private final RoomEventConfigService roomEventConfigService;
@@ -42,7 +43,6 @@ public class RoomEventController {
   // --- CRUD Config ---
 
   @PostMapping
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<RoomEventConfigDto>> create(
       @PathVariable(name = "roomId") Long roomId,
       @RequestBody @Valid CreateRoomEventConfigDto request) {
@@ -51,14 +51,12 @@ public class RoomEventController {
   }
 
   @GetMapping
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<List<RoomEventConfigDto>>> getAll(
       @PathVariable(name = "roomId") Long roomId) {
     return ResponseEntity.ok(ApiResponse.ok(roomEventConfigService.getAllByRoomId(roomId)));
   }
 
   @GetMapping("/{configId}")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<RoomEventConfigDto>> getById(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId) {
@@ -66,7 +64,6 @@ public class RoomEventController {
   }
 
   @PutMapping("/{configId}")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<RoomEventConfigDto>> update(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId,
@@ -75,7 +72,6 @@ public class RoomEventController {
   }
 
   @DeleteMapping("/{configId}")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<Void>> delete(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId) {
@@ -87,7 +83,6 @@ public class RoomEventController {
   // --- Condition Helpers ---
 
   @GetMapping("/{configId}/conditions")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<List<ConditionDto>>> getConditions(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId) {
@@ -97,31 +92,17 @@ public class RoomEventController {
   }
 
   @PostMapping("/{configId}/conditions")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<ConditionDto>> addCondition(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId,
       @RequestBody @Valid CreateConditionDto request) {
     roomEventConfigService.getById(roomId, configId);
-    CreateConditionDto scopedDto = CreateConditionDto.builder()
-        .ownerCategory(ConditionOwnerCategory.ROOM_EVENT)
-        .ownerId(String.valueOf(configId))
-        .sourceCategory(request.sourceCategory())
-        .sourceTargetId(request.sourceTargetId())
-        .sourceTargetType(request.sourceTargetType())
-        .property(request.property())
-        .operator(request.operator())
-        .value(request.value())
-        .extraParams(request.extraParams())
-        .sortOrder(request.sortOrder())
-        .nextLogic(request.nextLogic())
-        .build();
+    CreateConditionDto scopedDto = request.withOwner(ConditionOwnerCategory.ROOM_EVENT, configId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(conditionService.create(scopedDto)));
   }
 
   @PutMapping("/{configId}/conditions")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<List<ConditionDto>>> replaceConditions(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId,
@@ -134,7 +115,6 @@ public class RoomEventController {
   // --- Action Helpers ---
 
   @GetMapping("/{configId}/actions")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<List<ActionDto>>> getActions(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId) {
@@ -144,26 +124,17 @@ public class RoomEventController {
   }
 
   @PostMapping("/{configId}/actions")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<ActionDto>> addAction(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId,
       @RequestBody @Valid CreateActionDto request) {
     roomEventConfigService.getById(roomId, configId);
-    CreateActionDto scopedDto = CreateActionDto.builder()
-        .ownerCategory(ActionOwnerCategory.ROOM_EVENT)
-        .ownerId(String.valueOf(configId))
-        .targetCategory(request.targetCategory())
-        .targetId(request.targetId())
-        .params(request.params())
-        .executionOrder(request.executionOrder())
-        .build();
+    CreateActionDto scopedDto = request.withOwner(ActionOwnerCategory.ROOM_EVENT, configId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(actionService.create(scopedDto)));
   }
 
   @PutMapping("/{configId}/actions")
-  @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
   public ResponseEntity<ApiResponse<List<ActionDto>>> replaceActions(
       @PathVariable(name = "roomId") Long roomId,
       @PathVariable(name = "configId") Long configId,

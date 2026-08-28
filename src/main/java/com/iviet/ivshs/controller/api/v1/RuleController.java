@@ -121,20 +121,7 @@ public class RuleController {
   @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
   public ResponseEntity<ApiResponse<ConditionDto>> addCondition(
       @PathVariable(name = "id") Long ruleId, @RequestBody @Valid CreateConditionDto request) {
-    CreateConditionDto scopedDto = CreateConditionDto.builder()
-        .ownerCategory(ConditionOwnerCategory.RULE)
-        .ownerId(String.valueOf(ruleId))
-        .sourceCategory(request.sourceCategory())
-        .sourceTargetId(request.sourceTargetId())
-        .sourceTargetType(request.sourceTargetType())
-        .property(request.property())
-        .operator(request.operator())
-        .value(request.value())
-        .extraParams(request.extraParams())
-        .sortOrder(request.sortOrder())
-        .nextLogic(request.nextLogic())
-        .build();
-
+    CreateConditionDto scopedDto = request.withOwner(ConditionOwnerCategory.RULE, ruleId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(conditionService.create(scopedDto)));
   }
@@ -161,15 +148,7 @@ public class RuleController {
   @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_RULE')")
   public ResponseEntity<ApiResponse<ActionDto>> addAction(
       @PathVariable(name = "id") Long ruleId, @RequestBody @Valid CreateActionDto request) {
-    CreateActionDto scopedDto = CreateActionDto.builder()
-        .ownerCategory(ActionOwnerCategory.RULE)
-        .ownerId(String.valueOf(ruleId))
-        .targetCategory(request.targetCategory())
-        .targetId(request.targetId())
-        .params(request.params())
-        .executionOrder(request.executionOrder())
-        .build();
-
+    CreateActionDto scopedDto = request.withOwner(ActionOwnerCategory.RULE, ruleId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.created(actionService.create(scopedDto)));
   }

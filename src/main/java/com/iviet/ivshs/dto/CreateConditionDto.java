@@ -33,6 +33,26 @@ public record CreateConditionDto(
     Integer sortOrder,
     ConditionLogic nextLogic) {
 
+  public CreateConditionDto withOwner(ConditionOwnerCategory ownerCategory, String ownerId) {
+    return CreateConditionDto.builder()
+        .ownerCategory(ownerCategory)
+        .ownerId(ownerId)
+        .sourceCategory(sourceCategory)
+        .sourceTargetId(sourceTargetId)
+        .sourceTargetType(sourceTargetType)
+        .property(property)
+        .operator(operator)
+        .value(value)
+        .extraParams(extraParams)
+        .sortOrder(sortOrder)
+        .nextLogic(nextLogic)
+        .build();
+  }
+
+  public CreateConditionDto withOwner(ConditionOwnerCategory ownerCategory, Long ownerId) {
+    return withOwner(ownerCategory, String.valueOf(ownerId));
+  }
+
   public Condition toEntity() {
     Condition entity = new Condition();
     entity.setOwnerCategory(ownerCategory);
@@ -49,3 +69,4 @@ public record CreateConditionDto(
     return entity;
   }
 }
+
