@@ -3,6 +3,7 @@ package com.iviet.ivshs.dao;
 import com.iviet.ivshs.dao.base.BaseAuditEntityDao;
 import com.iviet.ivshs.entities.RoomEventConfig;
 import com.iviet.ivshs.shared.enumeration.RoomEventCode;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -43,5 +44,22 @@ public class RoomEventConfigDao extends BaseAuditEntityDao<RoomEventConfig> {
         .createQuery(jpql, RoomEventConfig.class)
         .setParameter("roomId", roomId)
         .getResultList();
+  }
+
+  public boolean tryUpdateLastTriggeredAt(Long id, Instant now, Instant cooldownThreshold) {
+    String jpql = """
+        UPDATE RoomEventConfig rec
+        SET rec.lastTriggeredAt = :now
+        WHERE rec.id = :id
+          AND rec.isActive = true
+          AND (rec.lastTriggeredAt IS NULL OR rec.cooldownSeconds <= 0 OR rec.lastTriggeredAt <= :cooldownThreshold)
+        """;
+    int updated = entityManager
+        .createQuery(jpql)
+        .setParameter("now", now)
+        .setParameter("id", id)
+        .setParameter("cooldownThreshold", cooldownThreshold)
+        .executeUpdate();
+    return updated > 0;
   }
 }

@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -43,11 +44,14 @@ public class RoomEventHandler {
   private final AlertTriggerService alertTriggerService;
 
   @Async
+  @Transactional
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleRoomEvent(RoomEventApplicationEvent event) {
     if (event == null || event.getRoomId() == null || event.getEventCode() == null) {
       return;
     }
+
+    final Instant now = Instant.now();
 
     Optional<RoomEventConfig> configOpt =
         roomEventConfigDao.findByRoomIdAndEventCode(event.getRoomId(), event.getEventCode());
@@ -60,17 +64,18 @@ public class RoomEventHandler {
       return;
     }
 
-    if (config.getCooldownSeconds() != null
-        && config.getCooldownSeconds() > 0
+    processEventConfig(config, event, now);
+  }
+
+  private void processEventConfig(RoomEventConfig config, RoomEventApplicationEvent event, Instant now) {
+    int cooldownSeconds = config.getCooldownSeconds() != null ? config.getCooldownSeconds() : 0;
+
+    if (cooldownSeconds > 0
         && config.getLastTriggeredAt() != null
-        && Instant.now().isBefore(config.getLastTriggeredAt().plusSeconds(config.getCooldownSeconds()))) {
+        && now.isBefore(config.getLastTriggeredAt().plusSeconds(cooldownSeconds))) {
       return;
     }
 
-    processEventConfig(config, event);
-  }
-
-  private void processEventConfig(RoomEventConfig config, RoomEventApplicationEvent event) {
     List<Condition> conditions = conditionDao.findByOwner(ConditionOwnerCategory.ROOM_EVENT, String.valueOf(config.getId()));
     
     if (!conditions.isEmpty()) {
@@ -86,8 +91,13 @@ public class RoomEventHandler {
       }
     }
 
-    config.setLastTriggeredAt(Instant.now());
-    roomEventConfigDao.save(config);
+    Instant cooldownThreshold = cooldownSeconds > 0 ? now.minusSeconds(cooldownSeconds) : now;
+
+    boolean acquired = roomEventConfigDao.tryUpdateLastTriggeredAt(config.getId(), now, cooldownThreshold);
+    if (!acquired) {
+      log.debug("RoomEventConfig id={} is in cooldown or recently triggered, skipping execution", config.getId());
+      return;
+    }
 
     executeActions(config.getId());
     triggerAlerts(config.getId(), event);
