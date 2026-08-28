@@ -40,6 +40,7 @@
 
 - [Automation (Kịch bản tự động hóa)](automation.md)
 - [Rule (Quy tắc điều khiển)](rule.md)
+- [Room Event (Sự kiện phòng & Motion Detect)](room_event.md)
 - [Condition (Điều kiện đánh giá dùng chung)](condition.md)
 - [Action (Hành động thực thi dùng chung)](action.md)
 
