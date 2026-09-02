@@ -30,6 +30,7 @@
 
 - [Sensor Metadata (Tổng hợp cảm biến)](sensor_metadata.md)
 - [Sensor Telemetry (Lịch sử đo đạc)](sensor_telemetry.md)
+- [Sensor Event (Gửi sự kiện cảm biến)](sensor_event.md)
 - [Telemetry (Thu thập dữ liệu)](telemetry.md)
 - [Temperature (Cảm biến nhiệt độ)](temperature.md)
 - [Power Consumption (Cảm biến điện năng)](power_consumption.md)
