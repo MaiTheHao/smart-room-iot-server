@@ -867,7 +867,7 @@ CREATE TABLE `alert_config` (
   `updated_at`       datetime(6)  DEFAULT NULL,
   `updated_by`       varchar(256) DEFAULT NULL,
   `v`                bigint       NOT NULL DEFAULT 0,
-  `namespace`        varchar(50)  NOT NULL,
+  `namespace`        varchar(100) NOT NULL,
   `alert_code`       varchar(100) NOT NULL,
   `source_id`        varchar(256) NOT NULL,
   `alert_name`       varchar(256) NOT NULL,

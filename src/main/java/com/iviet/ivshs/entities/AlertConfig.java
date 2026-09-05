@@ -25,7 +25,7 @@ public class AlertConfig extends BaseAuditEntity {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "namespace", nullable = false, length = 50)
+    @Column(name = "namespace", nullable = false, length = 100)
     private AlertNamespace namespace;
 
     @Column(name = "alert_code", nullable = false, length = 100)
