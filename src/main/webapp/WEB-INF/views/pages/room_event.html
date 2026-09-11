@@ -1,0 +1,232 @@
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+  <head>
+    <title th:text="|#{room.event.title} - ${room.name != null ? room.name : '--'}|\">Room Events</title>
+    <style>
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+      .event-tab-btn.active {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+      }
+      .condition-item, .action-item {
+        transition: all 0.2s ease;
+      }
+      .condition-item:hover, .action-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      }
+      .sticky-save-bar {
+        position: sticky;
+        bottom: 1rem;
+        z-index: 100;
+      }
+    </style>
+  </head>
+
+  <div layout:fragment="header-title">
+    <span th:text="#{room.event.title}">Room Events</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid py-2">
+      <!-- ═══ 1. Header Info Card ═══ -->
+      <div class="card shadow-sm border-0 mb-4 rounded-3">
+        <div class="card-body p-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary-subtle text-primary p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px">
+                <i data-lucide="zap" style="width: 24px; height: 24px"></i>
+              </div>
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <h4 class="mb-0 fw-bold text-dark" th:text="${room.name}">Room Name</h4>
+                  <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 small">
+                    #<span th:text="${room.id}">0</span>
+                  </span>
+                  <span class="badge bg-light text-muted border px-2 py-1 small">
+                    <i data-lucide="cpu" style="width: 12px; height: 12px" class="me-1"></i>
+                    <span th:text="${room.code}">--</span>
+                  </span>
+                </div>
+                <div class="text-muted small mt-1" th:text="#{room.event.subtitle}">Cấu hình phản hồi tự động khi phát sinh sự kiện</div>
+              </div>
+            </div>
+            <div>
+              <a th:href="@{/rooms/{id}(id=${room.id})}" class="btn btn-sm btn-back px-3 py-2 rounded-pill d-inline-flex align-items-center shadow-sm">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px" class="me-1"></i>
+                <span th:text="#{error.back}">Back</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 2. Event Types Selector ═══ -->
+      <div class="mb-3 d-flex flex-wrap gap-2 align-items-center" id="eventCodesNav">
+        <!-- Event tabs rendered dynamically -->
+      </div>
+
+      <!-- ═══ 3. Main Content Container ═══ -->
+      <div id="roomEventMainContent">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="text-muted small mt-2">Đang tải cấu hình sự kiện...</p>
+        </div>
+      </div>
+
+      <!-- ═══ 4. Sticky Action Bar ═══ -->
+      <div class="sticky-save-bar mt-4 d-none" id="saveBarContainer">
+        <div class="card bg-white shadow-lg border border-primary-subtle rounded-3">
+          <div class="card-body p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center text-primary">
+              <i data-lucide="info" class="me-2" style="width: 20px; height: 20px"></i>
+              <span class="small fw-medium" id="saveBarStatus">Bạn có thay đổi chưa lưu.</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center" id="btnSaveAll">
+                <i data-lucide="save" class="me-2" style="width: 18px; height: 18px"></i>
+                <span th:text="#{room.event.btn.save_all}">Lưu tất cả cấu hình</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ MODALS ════════════ -->
+
+    <!-- Condition Modal -->
+    <div class="modal fade" id="roomEventConditionModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-bottom-0 pb-0">
+            <h5 class="modal-title fw-bold" id="conditionModalTitle">Thêm điều kiện cảm biến</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="conditionForm">
+            <div class="modal-body">
+              <!-- Nguồn điều kiện -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Nguồn dữ liệu (Source)</label>
+                <select class="form-select" id="condSourceCategory" required>
+                  <option value="SENSOR" selected>Cảm biến trong phòng (SENSOR)</option>
+                  <option value="SYSTEM">Hệ thống / Thời gian (SYSTEM)</option>
+                </select>
+              </div>
+
+              <!-- Cảm biến (chỉ hiện khi SENSOR) -->
+              <div class="mb-3" id="condSensorGroup">
+                <label class="form-label small fw-bold">Thiết bị cảm biến</label>
+                <select class="form-select" id="condSensorId">
+                  <option value="" disabled selected>-- Đang tải cảm biến... --</option>
+                </select>
+              </div>
+
+              <!-- Thuộc tính -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Thuộc tính đo (Property)</label>
+                <select class="form-select" id="condProperty" required>
+                  <option value="" disabled selected>-- Chọn thuộc tính --</option>
+                </select>
+              </div>
+
+              <!-- Toán tử so sánh & Giá trị -->
+              <div class="row g-2 mb-3">
+                <div class="col-5">
+                  <label class="form-label small fw-bold">Toán tử</label>
+                  <select class="form-select" id="condOperator" required>
+                    <option value="<">&lt; (Nhỏ hơn)</option>
+                    <option value="<=">&le; (Nhỏ hơn hoặc bằng)</option>
+                    <option value=">">&gt; (Lớn hơn)</option>
+                    <option value=">=">&ge; (Lớn hơn hoặc bằng)</option>
+                    <option value="=">= (Bằng)</option>
+                    <option value="!=">&ne; (Khác)</option>
+                  </select>
+                </div>
+                <div class="col-7">
+                  <label class="form-label small fw-bold">Giá trị ngưỡng</label>
+                  <input type="text" class="form-control" id="condValue" placeholder="Ví dụ: 50" required />
+                </div>
+              </div>
+
+              <!-- Logic tiếp theo (AND/OR) -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Toán tử liên kết (Next Logic)</label>
+                <select class="form-select" id="condNextLogic">
+                  <option value="AND" selected>AND (Và)</option>
+                  <option value="OR">OR (Hoặc)</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4">Xác nhận</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Modal -->
+    <div class="modal fade" id="roomEventActionModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          <div class="modal-header border-bottom-0 pb-0">
+            <h5 class="modal-title fw-bold" id="actionModalTitle">Thêm hành động điều khiển</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="actionForm">
+            <div class="modal-body">
+              <!-- Chọn thiết bị trong phòng -->
+              <div class="mb-3">
+                <label class="form-label small fw-bold">Thiết bị trong phòng</label>
+                <select class="form-select" id="actDeviceId" required>
+                  <option value="" disabled selected>-- Đang tải thiết bị... --</option>
+                </select>
+              </div>
+
+              <!-- Dynamic Parameters Container -->
+              <div class="mb-3" id="actParamsContainer">
+                <div class="text-muted small">Vui lòng chọn thiết bị trước.</div>
+              </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4">Xác nhận</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ INLINE SCRIPT ════════════ -->
+    <script th:inline="javascript">
+      window.__ROOM_EVENT_PAGE_CONFIG__ = {
+        roomId: /*[[${room.id}]]*/ 0,
+        roomName: /*[[${room.name}]]*/ '',
+        roomCode: /*[[${room.code}]]*/ '',
+        i18n: {
+          confirmDelete: /*[[#{room.event.confirm_delete}]]*/ 'Xác nhận xóa',
+          confirmDeleteText: /*[[#{room.event.confirm_delete_text}]]*/ 'Bạn có chắc chắn muốn xóa cấu hình sự kiện này?',
+          saveSuccess: /*[[#{room.event.save_success}]]*/ 'Đã lưu cấu hình sự kiện phòng thành công!',
+          saveError: /*[[#{room.event.save_error}]]*/ 'Lưu cấu hình thất bại!',
+          conflictError: /*[[#{room.event.conflict_error}]]*/ 'Cấu hình sự kiện đã tồn tại!',
+          requireActionWarning: /*[[#{room.event.actions.require_warning}]]*/ 'Khuyến nghị nên có ít nhất một hành động điều khiển thiết bị.',
+          yesDelete: /*[[#{modal.btn.delete}]]*/ 'Xóa',
+          cancel: /*[[#{modal.btn.cancel}]]*/ 'Hủy',
+        }
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/room_event/index.js}"></script>
+  </div>
+</html>
