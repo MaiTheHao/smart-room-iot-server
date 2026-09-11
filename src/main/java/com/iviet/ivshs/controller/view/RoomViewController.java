@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.iviet.ivshs.service.PermissionService;
 import com.iviet.ivshs.service.RoomViewService;
 import com.iviet.ivshs.service.RoomViewService.RoomDetailCriteria;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class RoomViewController {
 
     private final RoomViewService roomViewService;
+    private final PermissionService permissionService;
 
     @GetMapping("/rooms/{id}")
     @PreAuthorize("@permissionService.canAccessRoom(#id)")
@@ -23,6 +25,15 @@ public class RoomViewController {
         var _model = roomViewService.getRoomDetailModel(RoomDetailCriteria.builder().roomId(id).build());
         model.addAllAttributes(_model.toModelAttributes());
         return "pages/room.html";
+    }
+
+    @GetMapping("/rooms/{id}/events")
+    @PreAuthorize("hasAnyAuthority('F_MANAGE_ALL', 'F_MANAGE_ROOM')")
+    public String roomEvents(@PathVariable("id") Long id, Model model) {
+        permissionService.requireAccessRoom(id);
+        var _model = roomViewService.getRoomDetailModel(RoomDetailCriteria.builder().roomId(id).build());
+        model.addAllAttributes(_model.toModelAttributes());
+        return "pages/room_event.html";
     }
 
     @GetMapping("/js/pages/room_detail/index.js")
