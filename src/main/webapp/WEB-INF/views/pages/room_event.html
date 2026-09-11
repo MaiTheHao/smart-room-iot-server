@@ -3,6 +3,12 @@
   <head>
     <title th:text="|#{room.event.title} - ${room.name != null ? room.name : '--'}|">Room Events</title>
     <style>
+      .transition-all {
+        transition: all 0.2s ease-in-out;
+      }
+      .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.08) !important;
+      }
       .btn-back {
         background: none;
         border: 1px solid #dee2e6;
@@ -13,22 +19,38 @@
         background-color: #f1f3f5;
         color: #343a40;
       }
+      .event-tab-btn {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
       .event-tab-btn.active {
         background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
         color: #fff !important;
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
       }
       .condition-item, .action-item {
         transition: all 0.2s ease;
+        border-radius: 0.75rem;
       }
       .condition-item:hover, .action-item:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
       }
       .sticky-save-bar {
         position: sticky;
-        bottom: 1rem;
-        z-index: 100;
+        bottom: 1.5rem;
+        z-index: 1000;
+      }
+      .glass-bar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+      }
+      .lucide-spin {
+        animation: spin 2s linear infinite;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
     </style>
   </head>
@@ -38,23 +60,23 @@
   </div>
 
   <div layout:fragment="content">
-    <div class="container-fluid py-2">
+    <div class="container-fluid">
       <!-- ═══ 1. Header Info Card ═══ -->
-      <div class="card shadow-sm border-0 mb-4 rounded-3">
-        <div class="card-body p-3">
-          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div class="card shadow-sm border-0 mb-4 rounded-4 transition-all hover-shadow">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center">
-              <div class="bg-primary-subtle text-primary p-3 rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px">
-                <i data-lucide="zap" style="width: 24px; height: 24px"></i>
+              <div class="bg-primary-subtle text-primary p-2 rounded-circle me-3 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px">
+                <i data-lucide="zap" class="lucide-md text-primary"></i>
               </div>
               <div>
                 <div class="d-flex align-items-center gap-2">
                   <h4 class="mb-0 fw-bold text-dark" th:text="${room.name}">Room Name</h4>
-                  <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 small">
+                  <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 small rounded-pill font-monospace">
                     #<span th:text="${room.id}">0</span>
                   </span>
-                  <span class="badge bg-light text-muted border px-2 py-1 small">
-                    <i data-lucide="cpu" style="width: 12px; height: 12px" class="me-1"></i>
+                  <span class="badge bg-light text-muted border px-2 py-1 small rounded-pill font-monospace">
+                    <i data-lucide="cpu" class="lucide-sm me-1"></i>
                     <span th:text="${room.code}">--</span>
                   </span>
                 </div>
@@ -62,39 +84,65 @@
               </div>
             </div>
             <div>
-              <a th:href="@{/rooms/{id}(id=${room.id})}" class="btn btn-sm btn-back px-3 py-2 rounded-pill d-inline-flex align-items-center shadow-sm">
-                <i data-lucide="arrow-left" style="width: 16px; height: 16px" class="me-1"></i>
+              <a th:href="@{/rooms/{id}(id=${room.id})}" class="btn btn-sm btn-back px-3 rounded-pill d-inline-flex align-items-center shadow-sm">
+                <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
                 <span th:text="#{error.back}">Back</span>
               </a>
             </div>
           </div>
         </div>
+        <div class="card-body pt-2 pb-3">
+          <div class="d-flex flex-wrap gap-4 text-muted small">
+            <div>
+              <span class="fw-semibold me-1" th:text="#{smart_system.rule.conditions.ds.room}">Room:</span>
+              <span class="fw-bold text-dark" th:text="${room.name}">Room Name</span>
+            </div>
+            <div>
+              <span class="fw-semibold me-1">ID:</span>
+              <span class="font-monospace text-dark" th:text="'#' + ${room.id}">#0</span>
+            </div>
+            <div>
+              <span class="fw-semibold me-1">Code:</span>
+              <span class="font-monospace text-dark" th:text="${room.code}">--</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- ═══ 2. Event Types Selector ═══ -->
-      <div class="mb-3 d-flex flex-wrap gap-2 align-items-center" id="eventCodesNav">
-        <!-- Event tabs rendered dynamically -->
+      <!-- ═══ 2. Event Types Selector Card ═══ -->
+      <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow mb-4">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center text-muted fw-semibold small text-uppercase">
+              <i data-lucide="radio" class="text-primary me-2 lucide-sm"></i>
+              <span th:text="#{room.event.code.label}">Event Type</span>:
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center" id="eventCodesNav">
+              <!-- Event tabs rendered dynamically -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ═══ 3. Main Content Container ═══ -->
       <div id="roomEventMainContent">
-        <div class="text-center py-5">
-          <div class="spinner-border text-primary" role="status"></div>
-          <p class="text-muted small mt-2">Đang tải cấu hình sự kiện...</p>
+        <div class="card rounded-4 border-0 shadow-sm p-5 text-center text-muted">
+          <div class="spinner-border spinner-border-sm text-primary mb-2 mx-auto" role="status"></div>
+          <p class="small mb-0" th:text="#{common.loading}">Đang tải cấu hình sự kiện...</p>
         </div>
       </div>
 
       <!-- ═══ 4. Sticky Action Bar ═══ -->
       <div class="sticky-save-bar mt-4 d-none" id="saveBarContainer">
-        <div class="card bg-white shadow-lg border border-primary-subtle rounded-3">
-          <div class="card-body p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center text-primary">
-              <i data-lucide="info" class="me-2" style="width: 20px; height: 20px"></i>
-              <span class="small fw-medium" id="saveBarStatus">Bạn có thay đổi chưa lưu.</span>
+        <div class="card shadow-lg border border-primary-subtle rounded-4 glass-bar">
+          <div class="card-body p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center">
+              <i data-lucide="refresh-cw" class="lucide-sm me-2 lucide-spin text-warning"></i>
+              <span class="small fw-semibold text-dark" id="saveBarStatus">Bạn có thay đổi chưa lưu.</span>
             </div>
             <div class="d-flex gap-2">
-              <button type="button" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center" id="btnSaveAll">
-                <i data-lucide="save" class="me-2" style="width: 18px; height: 18px"></i>
+              <button type="button" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm d-inline-flex align-items-center" id="btnSaveAll">
+                <i data-lucide="save" class="lucide-sm me-2"></i>
                 <span th:text="#{room.event.btn.save_all}">Lưu tất cả cấu hình</span>
               </button>
             </div>
@@ -107,70 +155,94 @@
 
     <!-- Condition Modal -->
     <div class="modal fade" id="roomEventConditionModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-          <div class="modal-header border-bottom-0 pb-0">
-            <h5 class="modal-title fw-bold" id="conditionModalTitle">Thêm điều kiện cảm biến</h5>
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0 pt-4 px-4">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <i data-lucide="filter" class="text-warning me-2 lucide-md"></i>
+              <span id="conditionModalTitle" th:text="#{room.event.conditions.title}">Điều kiện cảm biến</span>
+            </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form id="conditionForm">
-            <div class="modal-body">
-              <!-- Nguồn điều kiện -->
-              <div class="mb-3">
-                <label class="form-label small fw-bold">Nguồn dữ liệu (Source)</label>
-                <select class="form-select" id="condSourceCategory" required>
-                  <option value="SENSOR" selected>Cảm biến trong phòng (SENSOR)</option>
-                  <option value="SYSTEM">Hệ thống / Thời gian (SYSTEM)</option>
-                </select>
-              </div>
-
-              <!-- Cảm biến (chỉ hiện khi SENSOR) -->
-              <div class="mb-3" id="condSensorGroup">
-                <label class="form-label small fw-bold">Thiết bị cảm biến</label>
-                <select class="form-select" id="condSensorId">
-                  <option value="" disabled selected>-- Đang tải cảm biến... --</option>
-                </select>
-              </div>
-
-              <!-- Thuộc tính -->
-              <div class="mb-3">
-                <label class="form-label small fw-bold">Thuộc tính đo (Property)</label>
-                <select class="form-select" id="condProperty" required>
-                  <option value="" disabled selected>-- Chọn thuộc tính --</option>
-                </select>
-              </div>
-
-              <!-- Toán tử so sánh & Giá trị -->
-              <div class="row g-2 mb-3">
-                <div class="col-5">
-                  <label class="form-label small fw-bold">Toán tử</label>
-                  <select class="form-select" id="condOperator" required>
-                    <option value="<">&lt; (Nhỏ hơn)</option>
-                    <option value="<=">&le; (Nhỏ hơn hoặc bằng)</option>
-                    <option value=">">&gt; (Lớn hơn)</option>
-                    <option value=">=">&ge; (Lớn hơn hoặc bằng)</option>
-                    <option value="=">= (Bằng)</option>
-                    <option value="!=">&ne; (Khác)</option>
-                  </select>
+          <form id="conditionForm" novalidate>
+            <div class="modal-body py-4 px-4">
+              <div class="row g-3">
+                <!-- Nguồn điều kiện -->
+                <div class="col-12">
+                  <label for="condSourceCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1">Nguồn dữ liệu (Source)</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="database" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="condSourceCategory" required>
+                      <option value="SENSOR" selected>Cảm biến trong phòng (SENSOR)</option>
+                      <option value="SYSTEM">Hệ thống / Thời gian (SYSTEM)</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="col-7">
-                  <label class="form-label small fw-bold">Giá trị ngưỡng</label>
-                  <input type="text" class="form-control" id="condValue" placeholder="Ví dụ: 50" required />
-                </div>
-              </div>
 
-              <!-- Logic tiếp theo (AND/OR) -->
-              <div class="mb-3">
-                <label class="form-label small fw-bold">Toán tử liên kết (Next Logic)</label>
-                <select class="form-select" id="condNextLogic">
-                  <option value="AND" selected>AND (Và)</option>
-                  <option value="OR">OR (Hoặc)</option>
-                </select>
+                <!-- Cảm biến (chỉ hiện khi SENSOR) -->
+                <div class="col-12" id="condSensorGroup">
+                  <label for="condSensorId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Thiết bị cảm biến</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="activity" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="condSensorId">
+                      <option value="" disabled selected>-- Đang tải cảm biến... --</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Thuộc tính -->
+                <div class="col-12">
+                  <label for="condProperty" class="form-label fw-semibold small text-muted text-uppercase mb-1">Thuộc tính đo (Property)</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="sliders" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="condProperty" required>
+                      <option value="" disabled selected>-- Chọn thuộc tính --</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Toán tử so sánh & Giá trị -->
+                <div class="col-md-5">
+                  <label for="condOperator" class="form-label fw-semibold small text-muted text-uppercase mb-1">Toán tử</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="code" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="condOperator" required>
+                      <option value="<">&lt; (Nhỏ hơn)</option>
+                      <option value="<=">&le; (Nhỏ hơn hoặc bằng)</option>
+                      <option value=">">&gt; (Lớn hơn)</option>
+                      <option value=">=">&ge; (Lớn hơn hoặc bằng)</option>
+                      <option value="=">= (Bằng)</option>
+                      <option value="!=">&ne; (Khác)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-7">
+                  <label for="condValue" class="form-label fw-semibold small text-muted text-uppercase mb-1">Giá trị ngưỡng</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="hash" class="lucide-sm"></i></span>
+                    <input type="text" class="form-control bg-light border-0 font-monospace" id="condValue" placeholder="Ví dụ: 50" required />
+                  </div>
+                </div>
+
+                <!-- Logic tiếp theo (AND/OR) -->
+                <div class="col-12">
+                  <label for="condNextLogic" class="form-label fw-semibold small text-muted text-uppercase mb-1">Toán tử liên kết (Next Logic)</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="git-merge" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="condNextLogic">
+                      <option value="AND" selected>AND (Và)</option>
+                      <option value="OR">OR (Hoặc)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="modal-footer border-top-0 pt-0">
-              <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
-              <button type="submit" class="btn btn-primary rounded-pill px-4">Xác nhận</button>
+            <div class="modal-footer border-0 pt-0 pb-4 px-4">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{modal.btn.cancel}">Hủy</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm d-inline-flex align-items-center">
+                <i data-lucide="check" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Xác nhận</span>
+              </button>
             </div>
           </form>
         </div>
@@ -179,37 +251,50 @@
 
     <!-- Action Modal -->
     <div class="modal fade" id="roomEventActionModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-          <div class="modal-header border-bottom-0 pb-0">
-            <h5 class="modal-title fw-bold" id="actionModalTitle">Thêm hành động điều khiển</h5>
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0 pt-4 px-4">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <i data-lucide="zap" class="text-primary me-2 lucide-md"></i>
+              <span id="actionModalTitle" th:text="#{room.event.actions.title}">Hành động điều khiển</span>
+            </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form id="actionForm">
-            <div class="modal-body">
-              <!-- Chọn thiết bị trong phòng -->
-              <div class="mb-3">
-                <label class="form-label small fw-bold">Thiết bị trong phòng</label>
-                <select class="form-select" id="actDeviceId" required>
-                  <option value="" disabled selected>-- Đang tải thiết bị... --</option>
-                </select>
-              </div>
+          <form id="actionForm" novalidate>
+            <div class="modal-body py-4 px-4">
+              <div class="row g-3">
+                <!-- Chọn thiết bị trong phòng -->
+                <div class="col-12">
+                  <label for="actDeviceId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Thiết bị trong phòng</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i data-lucide="power" class="lucide-sm"></i></span>
+                    <select class="form-select bg-light border-0" id="actDeviceId" required>
+                      <option value="" disabled selected>-- Đang tải thiết bị... --</option>
+                    </select>
+                  </div>
+                </div>
 
-              <!-- Dynamic Parameters Container -->
-              <div class="mb-3" id="actParamsContainer">
-                <div class="text-muted small">Vui lòng chọn thiết bị trước.</div>
+                <!-- Dynamic Parameters Container -->
+                <div class="col-12" id="actParamsContainer">
+                  <div class="text-muted small py-2">Vui lòng chọn thiết bị trước.</div>
+                </div>
               </div>
             </div>
-            <div class="modal-footer border-top-0 pt-0">
-              <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">Hủy</button>
-              <button type="submit" class="btn btn-primary rounded-pill px-4">Xác nhận</button>
+            <div class="modal-footer border-0 pt-0 pb-4 px-4">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{modal.btn.cancel}">Hủy</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm d-inline-flex align-items-center">
+                <i data-lucide="check" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Xác nhận</span>
+              </button>
             </div>
           </form>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ════════════ INLINE SCRIPT ════════════ -->
+  <!-- ════════════ SCRIPTS ════════════ -->
+  <th:block layout:fragment="scripts">
     <script th:inline="javascript">
       window.__ROOM_EVENT_PAGE_CONFIG__ = {
         roomId: /*[[${room.id}]]*/ 0,
@@ -228,5 +313,5 @@
       };
     </script>
     <script type="module" th:src="@{/js/pages/room_event/index.js}"></script>
-  </div>
+  </th:block>
 </html>

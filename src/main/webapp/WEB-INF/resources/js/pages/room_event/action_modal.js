@@ -104,13 +104,13 @@ export const ActionModal = (() => {
       col.className = 'col-md-6';
 
       const label = document.createElement('label');
-      label.className = 'form-label small fw-bold';
+      label.className = 'form-label fw-semibold small text-muted text-uppercase mb-1';
       label.textContent = FIELD_LABELS[key] || key;
       col.appendChild(label);
 
       if (field.type === 'enum') {
         const select = document.createElement('select');
-        select.className = 'form-select';
+        select.className = 'form-select bg-light border-0';
         select.id = `param_${key}`;
         select.name = `param_${key}`;
         (field.options || []).forEach((optVal) => {
@@ -124,7 +124,7 @@ export const ActionModal = (() => {
       } else {
         const input = document.createElement('input');
         input.type = 'number';
-        input.className = 'form-control';
+        input.className = 'form-control bg-light border-0 font-monospace';
         input.id = `param_${key}`;
         input.name = `param_${key}`;
         if (field.min != null) input.min = field.min;
