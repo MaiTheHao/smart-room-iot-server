@@ -8,175 +8,48 @@ import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 import { CreateConditionDto } from '../../../../types/rule.domain.js';
 import { formatPropertyLabel } from './property_formatter.js';
+import {
+  SYSTEM_PROPERTIES,
+  ROOM_PROPERTIES,
+  DEVICE_PROPERTIES,
+  SENSOR_PROPERTIES,
+  SENSOR_CATEGORY_LABEL_KEYS,
+  SENSOR_CATEGORY_FALLBACKS,
+  CONDITION_PARAMETER_CONFIG,
+} from '../../../../constants/smart_system.constants.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
 
 const DEFAULT_PAGE = 0;
 const TARGET_FETCH_SIZE = 100;
 
-const CAT_LABEL_KEYS = {
-  TEMPERATURE: 'catTemperature',
-  POWER_CONSUMPTION: 'catPowerConsumption',
-  HUMIDITY: 'catHumidity',
-  SENSOR_CO2: 'catCo2',
-  SENSOR_LUX: 'catLux',
-};
-
-const CAT_FALLBACKS = {
-  TEMPERATURE: 'Temperature Sensor',
-  POWER_CONSUMPTION: 'Power Sensor',
-  HUMIDITY: 'Humidity Sensor',
-  SENSOR_CO2: 'CO₂ Sensor',
-  SENSOR_LUX: 'Lux Sensor',
-};
+const toPropOptions = (keys) => keys.map((value) => ({ value }));
+const toCategoryMap = (map) =>
+  Object.fromEntries(Object.entries(map).map(([cat, keys]) => [cat, toPropOptions(keys)]));
 
 const DATA_SOURCE_CONFIG = {
   SYSTEM: {
     needsRoom: false,
     needsTarget: false,
-    properties: [
-      { value: 'current_time' },
-      { value: 'day_of_week' },
-      { value: 'day_of_month' },
-    ],
+    properties: toPropOptions(SYSTEM_PROPERTIES),
   },
   ROOM: {
     needsRoom: true,
     needsTarget: false,
-    properties: [
-      { value: 'avg_temperature' },
-      { value: 'sum_watt' },
-      { value: 'avg_humidity' },
-      { value: 'avg_lux' },
-      { value: 'avg_co2' },
-      { value: 'max_co2' },
-    ],
+    properties: toPropOptions(ROOM_PROPERTIES),
   },
   DEVICE: {
     needsRoom: true,
     needsTarget: true,
     targetLabel: i18n.labelDevice,
-    categories: {
-      LIGHT:         [{ value: 'power' }, { value: 'level' }],
-      AIR_CONDITION: [{ value: 'power' }, { value: 'temp' },
-                      { value: 'mode' }, { value: 'fan_speed' },
-                      { value: 'swing' }],
-      FAN:           [{ value: 'power' }, { value: 'speed' },
-                      { value: 'mode' }, { value: 'swing' },
-                      { value: 'light' }],
-    },
+    categories: toCategoryMap(DEVICE_PROPERTIES),
   },
   SENSOR: {
     needsRoom: true,
     needsTarget: true,
     targetLabel: i18n.labelSensor,
-    categories: {
-      TEMPERATURE:       [{ value: 'temperature' }],
-      POWER_CONSUMPTION: [{ value: 'watt' }],
-      HUMIDITY:          [{ value: 'humidity' }],
-      SENSOR_CO2:        [{ value: 'co2' }],
-      SENSOR_LUX:        [{ value: 'lux' }],
-    },
+    categories: toCategoryMap(SENSOR_PROPERTIES),
   },
-};
-
-const CONDITION_PARAMETER_CONFIG = {
-  DEVICE: {
-    LIGHT: {
-      power: {
-        type: 'enum',
-        options: ['ON', 'OFF']
-      },
-      level: {
-        type: 'int',
-        min: 0,
-        max: 100,
-        placeholder: '0 – 100'
-      }
-    },
-    AIR_CONDITION: {
-      power: {
-        type: 'enum',
-        options: ['ON', 'OFF']
-      },
-      temp: {
-        type: 'int',
-        min: 16,
-        max: 32,
-        placeholder: '16 – 32 °C'
-      },
-      mode: {
-        type: 'enum',
-        options: ['COOL', 'HEAT', 'DRY', 'FAN', 'AUTO']
-      },
-      fan_speed: {
-        type: 'int',
-        min: 0,
-        max: 5,
-        placeholder: '0 – 5'
-      },
-      swing: {
-        type: 'enum',
-        options: ['ON', 'OFF']
-      }
-    },
-    FAN: {
-      power: {
-        type: 'enum',
-        options: ['ON', 'OFF']
-      },
-      mode: {
-        type: 'enum',
-        options: ['NATURAL', 'SLEEP', 'NORMAL']
-      },
-      speed: {
-        type: 'int',
-        min: 1,
-        max: 3,
-        placeholder: '1 – 3'
-      },
-      swing: {
-        type: 'enum',
-        options: ['ON', 'OFF']
-      },
-      light: {
-        type: 'enum',
-        options: ['ON', 'OFF']
-      }
-    }
-  },
-  SENSOR: {
-    TEMPERATURE: {
-      temperature: {
-        type: 'float',
-        placeholder: 'Enter temperature (°C)'
-      }
-    },
-    POWER_CONSUMPTION: {
-      watt: {
-        type: 'float',
-        placeholder: 'Enter wattage (W)'
-      }
-    },
-    HUMIDITY: {
-      humidity: {
-        type: 'float',
-        placeholder: 'Enter humidity (% RH)'
-      }
-    },
-    SENSOR_CO2: {
-      co2: {
-        type: 'float',
-        placeholder: 'Enter CO₂ level (ppm)'
-      }
-    },
-    SENSOR_LUX: {
-      lux: {
-        type: 'float',
-        placeholder: 'Enter illuminance (lux)'
-      }
-    }
-  }
 };
 
 export const ConditionModal = (() => {
@@ -272,9 +145,9 @@ export const ConditionModal = (() => {
     if (hasCat) {
       const cats = Object.keys(cfg.categories);
       const getCatLabel = (k) => {
-        const val = i18n[CAT_LABEL_KEYS[k]];
+        const val = i18n[SENSOR_CATEGORY_LABEL_KEYS[k]];
         if (val && !val.startsWith('??')) return val;
-        return CAT_FALLBACKS[k] || k;
+        return SENSOR_CATEGORY_FALLBACKS[k] || k;
       };
       el.category.innerHTML = cats.map((k) => `<option value="${k}">${getCatLabel(k)}</option>`).join('');
     }
@@ -647,9 +520,9 @@ export const ConditionModal = (() => {
     if (ds === 'DEVICE' || ds === 'SENSOR') {
       const config = CONDITION_PARAMETER_CONFIG[ds]?.[cat]?.[prop];
       if (config) {
-        const propLabel = i18n[prop] || 
-                          (prop === 'temp' ? i18n.temperature : 
-                          (prop === 'fan_speed' ? i18n.fanSpeed : 
+        const propLabel = i18n[prop] ||
+                          (prop === 'temp' ? i18n.temperature :
+                          (prop === 'fan_speed' ? i18n.fanSpeed :
                           (prop === 'watt' ? 'Wattage' : prop)));
 
         if (config.type === 'enum') {

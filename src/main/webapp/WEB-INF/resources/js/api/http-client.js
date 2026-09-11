@@ -1,10 +1,5 @@
 const BASE_URL = '';
 
-/**
- * @param {string} endpoint
- * @param {Object} options
- * @returns {Promise<[Error|null, any]>}
- */
 export const httpClient = async (endpoint, options = {}) => {
 	const config = {
 		...options,
@@ -24,7 +19,10 @@ export const httpClient = async (endpoint, options = {}) => {
 
 		if (!response.ok) {
 			const errorMessage = result?.message || `HTTP error! status: ${response.status}`;
-			return [new Error(errorMessage), null];
+			const error = new Error(errorMessage);
+			error.status = response.status;
+			error.data = result;
+			return [error, null];
 		}
 
 		return [null, result];

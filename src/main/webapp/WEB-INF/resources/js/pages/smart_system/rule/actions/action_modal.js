@@ -6,98 +6,10 @@ import { getDevicesByRoom, getDeviceById } from '../../../../api/device.api.js';
 import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 import { CreateActionDto } from '../../../../types/rule.domain.js';
+import { ACTION_PARAM_SCHEMA } from '../../../../constants/smart_system.constants.js';
+import { getAllowedActionParamKeys } from '../../../../common/smart_system_util.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
-
-const PARAMETER_CONFIG = {
-    LIGHT: {
-        power: {
-            type: 'enum',
-            labelKey: 'power',
-            options: ['ON', 'OFF'],
-        },
-        level: {
-            type: 'int',
-            labelKey: 'brightnessLevel',
-            min: 0,
-            max: 100,
-            placeholder: '0 – 100',
-        },
-    },
-    AIR_CONDITION: {
-        power: {
-            type: 'enum',
-            labelKey: 'power',
-            options: ['ON', 'OFF'],
-        },
-        temperature: {
-            type: 'int',
-            labelKey: 'temperature',
-            min: 16,
-            max: 32,
-            placeholder: '16 – 32 °C',
-        },
-        mode: {
-            type: 'enum',
-            labelKey: 'mode',
-            options: ['COOL', 'HEAT', 'DRY', 'FAN', 'AUTO'],
-        },
-        fanSpeed: {
-            type: 'int',
-            labelKey: 'fanSpeed',
-            min: 0,
-            max: 5,
-            placeholder: '0 – 5',
-        },
-        swing: {
-            type: 'enum',
-            labelKey: 'swing',
-            options: ['ON', 'OFF'],
-        },
-    },
-    FAN: {
-        power: {
-            type: 'enum',
-            labelKey: 'power',
-            options: ['ON', 'OFF'],
-        },
-        mode: {
-            type: 'enum',
-            labelKey: 'mode',
-            options: ['NATURAL', 'SLEEP', 'NORMAL'],
-        },
-        speed: {
-            type: 'int',
-            labelKey: 'speed',
-            min: 1,
-            max: 3,
-            placeholder: '1 – 3',
-        },
-        swing: {
-            type: 'enum',
-            labelKey: 'swing',
-            options: ['ON', 'OFF'],
-        },
-    },
-};
-
-const DEVICE_CAPABILITIES = {
-    FAN: {
-        GPIO: ['power', 'speed'],
-        IRSEND: ['power', 'speed', 'mode', 'swing'],
-        IR_CTL: ['power', 'speed', 'mode', 'swing']
-    },
-    LIGHT: {
-        GPIO: ['power', 'level'],
-        IRSEND: ['power', 'level'],
-        IR_CTL: ['power', 'level']
-    },
-    AIR_CONDITION: {
-        GPIO: ['power'],
-        IRSEND: ['power', 'temperature', 'mode', 'fanSpeed', 'swing'],
-        IR_CTL: ['power', 'temperature', 'mode', 'fanSpeed', 'swing']
-    }
-};
 
 export const ActionModal = (() => {
     let bootstrapModal = null;
@@ -209,7 +121,7 @@ export const ActionModal = (() => {
     };
 
     const getEnteredParams = (category) => {
-        const config = PARAMETER_CONFIG[category];
+        const config = ACTION_PARAM_SCHEMA[category];
         if (!config) return {};
         const params = {};
         for (const [key, schema] of Object.entries(config)) {
@@ -226,7 +138,7 @@ export const ActionModal = (() => {
 
     const renderDynamicParams = (category, specificType = null, currentParams = {}) => {
         el.dynamicParamsContainer.innerHTML = '';
-        const config = PARAMETER_CONFIG[category];
+        const config = ACTION_PARAM_SCHEMA[category];
         if (!config) return;
 
         if (!specificType) {
@@ -234,9 +146,7 @@ export const ActionModal = (() => {
             specificType = selectedOpt?.dataset?.specificType || null;
         }
 
-        const allowedKeys = (specificType && DEVICE_CAPABILITIES[category]?.[specificType])
-            ? DEVICE_CAPABILITIES[category][specificType]
-            : null;
+        const allowedKeys = getAllowedActionParamKeys(category, specificType);
 
         Object.entries(config).forEach(([key, schema]) => {
             if (allowedKeys && !allowedKeys.includes(key)) {
@@ -298,7 +208,7 @@ export const ActionModal = (() => {
     };
 
     const collectParams = async (category) => {
-        const config = PARAMETER_CONFIG[category];
+        const config = ACTION_PARAM_SCHEMA[category];
         if (!config) return {};
 
         const params = {};

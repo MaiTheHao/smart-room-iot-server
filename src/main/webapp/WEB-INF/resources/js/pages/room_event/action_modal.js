@@ -1,5 +1,24 @@
 import { StateManager } from './state_manager.js';
 import { getDevicesByRoom } from '../../api/device.api.js';
+import { Alert } from '../../common/notification_util.js';
+import { ACTION_PARAM_SCHEMA } from '../../constants/smart_system.constants.js';
+import { getAllowedActionParamKeys } from '../../common/smart_system_util.js';
+
+const FIELD_LABELS = {
+  power: 'Nguồn (Power)',
+  level: 'Độ sáng (Level: 0 - 100)',
+  temperature: 'Nhiệt độ (°C: 16 - 32)',
+  mode: 'Chế độ (Mode)',
+  fanSpeed: 'Tốc độ quạt (0 - 5)',
+  speed: 'Tốc độ gió (Speed: 1 - 3)',
+  swing: 'Đảo gió (Swing)',
+};
+
+const FIELD_DEFAULTS = {
+  LIGHT: { power: 'ON', level: 80 },
+  FAN: { power: 'ON', speed: 1, mode: 'NORMAL', swing: 'OFF' },
+  AIR_CONDITION: { power: 'ON', temperature: 24, mode: 'COOL', fanSpeed: 2, swing: 'OFF' },
+};
 
 export const ActionModal = (() => {
   let modalInstance = null;
@@ -13,14 +32,12 @@ export const ActionModal = (() => {
     if (!modalEl) return;
     modalInstance = new bootstrap.Modal(modalEl);
 
-    // Form submission
     const form = getEl('actionForm');
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       handleSubmit();
     });
 
-    // Device selection change -> render appropriate control params
     getEl('actDeviceId')?.addEventListener('change', (e) => {
       handleDeviceSelect(e.target.value);
     });
@@ -51,6 +68,7 @@ export const ActionModal = (() => {
       opt.value = dev.id;
       opt.textContent = `${dev.name || 'Device #' + dev.id} (${dev.category || 'Unknown'})`;
       opt.dataset.category = dev.category;
+      opt.dataset.specificType = dev.specificType || '';
       if (selectedDeviceId && String(dev.id) === String(selectedDeviceId)) {
         opt.selected = true;
       }
@@ -58,106 +76,74 @@ export const ActionModal = (() => {
     });
   };
 
-  const renderParamsUi = (category, currentParams = {}) => {
+  const renderParamsUi = (category, currentParams = {}, specificType = null) => {
     const container = getEl('actParamsContainer');
     if (!container) return;
     container.innerHTML = '';
-
     if (!category) return;
 
-    if (category === 'LIGHT') {
-      container.innerHTML = `
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Nguồn (Power)</label>
-            <select class="form-select" id="param_power" required>
-              <option value="ON" ${currentParams.power !== 'OFF' ? 'selected' : ''}>BẬT (ON)</option>
-              <option value="OFF" ${currentParams.power === 'OFF' ? 'selected' : ''}>TẮT (OFF)</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Độ sáng (Level: 0 - 100)</label>
-            <input type="number" class="form-control" id="param_level" min="0" max="100" value="${currentParams.level ?? 80}" required>
-          </div>
-        </div>
-      `;
-    } else if (category === 'FAN') {
-      container.innerHTML = `
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Nguồn (Power)</label>
-            <select class="form-select" id="param_power" required>
-              <option value="ON" ${currentParams.power !== 'OFF' ? 'selected' : ''}>BẬT (ON)</option>
-              <option value="OFF" ${currentParams.power === 'OFF' ? 'selected' : ''}>TẮT (OFF)</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Tốc độ gió (Speed: 1 - 3)</label>
-            <input type="number" class="form-control" id="param_speed" min="1" max="3" value="${currentParams.speed ?? 1}" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Chế độ (Mode)</label>
-            <select class="form-select" id="param_mode">
-              <option value="NORMAL" ${currentParams.mode === 'NORMAL' ? 'selected' : ''}>NORMAL</option>
-              <option value="NATURAL" ${currentParams.mode === 'NATURAL' ? 'selected' : ''}>NATURAL</option>
-              <option value="SLEEP" ${currentParams.mode === 'SLEEP' ? 'selected' : ''}>SLEEP</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Đảo gió (Swing)</label>
-            <select class="form-select" id="param_swing">
-              <option value="OFF" ${currentParams.swing !== 'ON' ? 'selected' : ''}>TẮT (OFF)</option>
-              <option value="ON" ${currentParams.swing === 'ON' ? 'selected' : ''}>BẬT (ON)</option>
-            </select>
-          </div>
-        </div>
-      `;
-    } else if (category === 'AIR_CONDITION') {
-      container.innerHTML = `
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Nguồn (Power)</label>
-            <select class="form-select" id="param_power" required>
-              <option value="ON" ${currentParams.power !== 'OFF' ? 'selected' : ''}>BẬT (ON)</option>
-              <option value="OFF" ${currentParams.power === 'OFF' ? 'selected' : ''}>TẮT (OFF)</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-bold">Nhiệt độ (°C: 16 - 32)</label>
-            <input type="number" class="form-control" id="param_temperature" min="16" max="32" value="${currentParams.temperature ?? 24}" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label small fw-bold">Chế độ (Mode)</label>
-            <select class="form-select" id="param_mode">
-              <option value="COOL" ${currentParams.mode === 'COOL' || !currentParams.mode ? 'selected' : ''}>COOL</option>
-              <option value="HEAT" ${currentParams.mode === 'HEAT' ? 'selected' : ''}>HEAT</option>
-              <option value="DRY" ${currentParams.mode === 'DRY' ? 'selected' : ''}>DRY</option>
-              <option value="FAN" ${currentParams.mode === 'FAN' ? 'selected' : ''}>FAN</option>
-              <option value="AUTO" ${currentParams.mode === 'AUTO' ? 'selected' : ''}>AUTO</option>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label small fw-bold">Tốc độ quạt (0 - 5)</label>
-            <input type="number" class="form-control" id="param_fanSpeed" min="0" max="5" value="${currentParams.fanSpeed ?? 2}">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label small fw-bold">Đảo gió (Swing)</label>
-            <select class="form-select" id="param_swing">
-              <option value="OFF" ${currentParams.swing !== 'ON' ? 'selected' : ''}>TẮT (OFF)</option>
-              <option value="ON" ${currentParams.swing === 'ON' ? 'selected' : ''}>BẬT (ON)</option>
-            </select>
-          </div>
-        </div>
-      `;
-    } else {
+    const schema = ACTION_PARAM_SCHEMA[category];
+    if (!schema) {
       container.innerHTML = `<div class="text-muted small">Loại thiết bị ${category} chưa hỗ trợ cấu hình tham số.</div>`;
+      return;
     }
+
+    const allowedKeys = getAllowedActionParamKeys(category, specificType);
+    const defaults = FIELD_DEFAULTS[category] || {};
+    const row = document.createElement('div');
+    row.className = 'row g-3';
+
+    Object.entries(schema).forEach(([key, field]) => {
+      if (allowedKeys && !allowedKeys.includes(key)) return;
+
+      const current = (currentParams[key] !== undefined && currentParams[key] !== null)
+        ? currentParams[key]
+        : defaults[key];
+
+      const col = document.createElement('div');
+      col.className = 'col-md-6';
+
+      const label = document.createElement('label');
+      label.className = 'form-label small fw-bold';
+      label.textContent = FIELD_LABELS[key] || key;
+      col.appendChild(label);
+
+      if (field.type === 'enum') {
+        const select = document.createElement('select');
+        select.className = 'form-select';
+        select.id = `param_${key}`;
+        select.name = `param_${key}`;
+        (field.options || []).forEach((optVal) => {
+          const opt = document.createElement('option');
+          opt.value = optVal;
+          opt.textContent = optVal;
+          if (current !== undefined && String(current) === optVal) opt.selected = true;
+          select.appendChild(opt);
+        });
+        col.appendChild(select);
+      } else {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'form-control';
+        input.id = `param_${key}`;
+        input.name = `param_${key}`;
+        if (field.min != null) input.min = field.min;
+        if (field.max != null) input.max = field.max;
+        input.placeholder = field.placeholder || '';
+        if (current !== undefined && current !== null && current !== '') input.value = current;
+        col.appendChild(input);
+      }
+
+      row.appendChild(col);
+    });
+
+    container.appendChild(row);
   };
 
   const handleDeviceSelect = (deviceId) => {
     const dev = (cachedDevices || []).find((d) => String(d.id) === String(deviceId));
     if (dev) {
-      renderParamsUi(dev.category);
+      renderParamsUi(dev.category, {}, dev.specificType || null);
     }
   };
 
@@ -179,9 +165,11 @@ export const ActionModal = (() => {
     if (localId) {
       const act = StateManager.getActions().find((a) => a._localId === localId);
       if (act) {
-        populateDeviceSelect(act.targetId || act.targetDeviceId);
+        const targetId = act.targetId || act.targetDeviceId;
+        populateDeviceSelect(targetId);
+        const dev = (cachedDevices || []).find((d) => String(d.id) === String(targetId));
         const category = act.targetCategory || act.targetDeviceCategory;
-        renderParamsUi(category, act.params || {});
+        renderParamsUi(category, act.params || {}, dev?.specificType || null);
       }
     } else {
       populateDeviceSelect();
@@ -192,41 +180,40 @@ export const ActionModal = (() => {
     modalInstance?.show();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const deviceSelect = getEl('actDeviceId');
     const deviceId = deviceSelect?.value;
     if (!deviceId) {
-      alert('Vui lòng chọn thiết bị điều khiển!');
+      await Alert.warning('Vui lòng chọn thiết bị điều khiển!', 'Thiếu thông tin');
       return;
     }
 
     const selectedOpt = deviceSelect.options[deviceSelect.selectedIndex];
     const targetCategory = selectedOpt?.dataset?.category;
     const targetDisplay = selectedOpt?.textContent || `Device #${deviceId}`;
+    const schema = ACTION_PARAM_SCHEMA[targetCategory] || {};
 
     const params = {};
-    const power = getEl('param_power')?.value;
-    if (power) params.power = power;
+    for (const [key, field] of Object.entries(schema)) {
+      const input = getEl(`param_${key}`);
+      if (!input) continue;
+      const val = input.value;
+      if (val === '' || val === null || val === undefined) continue;
 
-    if (targetCategory === 'LIGHT') {
-      const level = getEl('param_level')?.value;
-      if (level !== undefined && level !== '') params.level = parseInt(level, 10);
-    } else if (targetCategory === 'FAN') {
-      const speed = getEl('param_speed')?.value;
-      if (speed !== undefined && speed !== '') params.speed = parseInt(speed, 10);
-      const mode = getEl('param_mode')?.value;
-      if (mode) params.mode = mode;
-      const swing = getEl('param_swing')?.value;
-      if (swing) params.swing = swing;
-    } else if (targetCategory === 'AIR_CONDITION') {
-      const temp = getEl('param_temperature')?.value;
-      if (temp !== undefined && temp !== '') params.temperature = parseInt(temp, 10);
-      const mode = getEl('param_mode')?.value;
-      if (mode) params.mode = mode;
-      const fanSpeed = getEl('param_fanSpeed')?.value;
-      if (fanSpeed !== undefined && fanSpeed !== '') params.fanSpeed = parseInt(fanSpeed, 10);
-      const swing = getEl('param_swing')?.value;
-      if (swing) params.swing = swing;
+      if (field.type === 'int') {
+        const num = parseInt(val, 10);
+        if (Number.isNaN(num) || (field.min != null && num < field.min) || (field.max != null && num > field.max)) {
+          await Alert.warning(
+            `${FIELD_LABELS[key] || key}: giá trị phải trong khoảng ${field.min} – ${field.max}`,
+            'Giá trị không hợp lệ',
+          );
+          input.focus();
+          return;
+        }
+        params[key] = num;
+      } else {
+        params[key] = val;
+      }
     }
 
     const payload = {

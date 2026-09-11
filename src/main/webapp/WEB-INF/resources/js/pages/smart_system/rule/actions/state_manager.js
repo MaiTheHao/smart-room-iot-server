@@ -1,3 +1,5 @@
+import { mapActionsForReplace } from '../../../../common/smart_system_util.js';
+
 export const StateManager = (() => {
     let currentActions = [];
     let isDirty = false;
@@ -50,24 +52,7 @@ export const StateManager = (() => {
         triggerListeners();
     };
 
-    /**
-     * Build clean payload for PUT /api/v1/rules/{id}/actions
-     * @param {string|number} [ownerId]
-     * @returns {object[]}
-     */
-    const buildPayload = (ownerId = '') => {
-        return currentActions.map((a, i) => ({
-            id: a.id != null ? a.id : undefined,
-            ownerCategory: 'RULE',
-            ownerId: String(ownerId || a.ownerId || ''),
-            targetCategory: a.targetCategory || a.targetDeviceCategory,
-            targetId: String(a.targetId != null ? a.targetId : a.targetDeviceId),
-            params: typeof (a.params || a.actionParams) === 'string'
-                ? JSON.parse(a.params || a.actionParams)
-                : (a.params || a.actionParams || {}),
-            executionOrder: i,
-        }));
-    };
+    const buildPayload = () => mapActionsForReplace(currentActions);
 
     const getIsDirty = () => isDirty;
 

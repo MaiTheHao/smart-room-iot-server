@@ -6,3 +6,4 @@ export * from './rule.constants.js';
 export * from './automation.constants.js';
 export * from './metric.constants.js';
 export * from './sensor.constants.js';
+export * from './smart_system.constants.js';

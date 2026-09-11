@@ -1,10 +1,15 @@
+import {
+  mapConditionsForReplace,
+  mapActionsForReplace,
+} from '../../common/smart_system_util.js';
+
 export const StateManager = (() => {
   let roomId = null;
   let availableCodes = [];
-  let configsMap = {}; // eventCode -> configDto
+  let configsMap = {};
   let selectedCode = null;
 
-  let currentConfig = null; // configDto | null
+  let currentConfig = null;
   let initialConfigDraft = { isActive: true, cooldownSeconds: 60 };
   let currentConfigDraft = { isActive: true, cooldownSeconds: 60 };
 
@@ -18,6 +23,9 @@ export const StateManager = (() => {
   const listeners = [];
 
   const generateLocalId = () => 'local_' + Math.random().toString(36).substring(2, 11);
+
+  const stripForCompare = (list) =>
+    list.map(({ _localId, targetDisplay, ...rest }) => rest);
 
   const init = (pRoomId, pAvailableCodes, pConfigs) => {
     roomId = pRoomId;
@@ -84,44 +92,32 @@ export const StateManager = (() => {
     notify();
   };
 
-  const computeDirty = () => {
-    // 1. Check config draft dirty
-    const isConfigDirty =
+  const recomputeDirty = () => {
+    const configDirty =
       currentConfigDraft.isActive !== initialConfigDraft.isActive ||
       Number(currentConfigDraft.cooldownSeconds) !== Number(initialConfigDraft.cooldownSeconds);
 
-    if (isConfigDirty) {
-      isDirty = true;
-      return;
-    }
+    const conditionsDirty =
+      JSON.stringify(stripForCompare(currentConditions)) !==
+      JSON.stringify(stripForCompare(initialConditions));
 
-    // 2. Check conditions length or content
-    if (currentConditions.length !== initialConditions.length) {
-      isDirty = true;
-      return;
-    }
+    const actionsDirty =
+      JSON.stringify(stripForCompare(currentActions)) !==
+      JSON.stringify(stripForCompare(initialActions));
 
-    // 3. Check actions length or content
-    if (currentActions.length !== initialActions.length) {
-      isDirty = true;
-      return;
-    }
-
-    isDirty = false;
+    isDirty = configDirty || conditionsDirty || actionsDirty;
   };
 
   const updateConfigDraft = (changes) => {
     currentConfigDraft = { ...currentConfigDraft, ...changes };
-    isDirty = true;
+    recomputeDirty();
     notify();
   };
-
-  // --- Conditions CRUD ---
 
   const addCondition = (cond) => {
     cond._localId = generateLocalId();
     currentConditions.push(cond);
-    isDirty = true;
+    recomputeDirty();
     notify();
   };
 
@@ -129,23 +125,21 @@ export const StateManager = (() => {
     const idx = currentConditions.findIndex((c) => c._localId === localId);
     if (idx !== -1) {
       currentConditions[idx] = { ...currentConditions[idx], ...updated };
-      isDirty = true;
+      recomputeDirty();
       notify();
     }
   };
 
   const deleteCondition = (localId) => {
     currentConditions = currentConditions.filter((c) => c._localId !== localId);
-    isDirty = true;
+    recomputeDirty();
     notify();
   };
-
-  // --- Actions CRUD ---
 
   const addAction = (act) => {
     act._localId = generateLocalId();
     currentActions.push(act);
-    isDirty = true;
+    recomputeDirty();
     notify();
   };
 
@@ -153,47 +147,20 @@ export const StateManager = (() => {
     const idx = currentActions.findIndex((a) => a._localId === localId);
     if (idx !== -1) {
       currentActions[idx] = { ...currentActions[idx], ...updated };
-      isDirty = true;
+      recomputeDirty();
       notify();
     }
   };
 
   const deleteAction = (localId) => {
     currentActions = currentActions.filter((a) => a._localId !== localId);
-    isDirty = true;
+    recomputeDirty();
     notify();
   };
 
-  // --- Payload builders ---
+  const buildConditionsPayload = () => mapConditionsForReplace(currentConditions);
 
-  const buildConditionsPayload = (configId) => {
-    return currentConditions.map((c, i) => ({
-      id: c.id != null ? c.id : undefined,
-      ownerCategory: 'ROOM_EVENT',
-      ownerId: String(configId),
-      sourceCategory: c.sourceCategory,
-      sourceTargetId: String(c.sourceTargetId != null ? c.sourceTargetId : ''),
-      sourceTargetType: c.sourceTargetType || null,
-      property: c.property,
-      operator: c.operator,
-      value: String(c.value),
-      extraParams: c.extraParams || null,
-      sortOrder: i,
-      nextLogic: i < currentConditions.length - 1 ? (c.nextLogic || 'AND') : null,
-    }));
-  };
-
-  const buildActionsPayload = (configId) => {
-    return currentActions.map((a, i) => ({
-      id: a.id != null ? a.id : undefined,
-      ownerCategory: 'ROOM_EVENT',
-      ownerId: String(configId),
-      targetCategory: a.targetCategory || a.targetDeviceCategory,
-      targetId: String(a.targetId != null ? a.targetId : a.targetDeviceId),
-      params: typeof a.params === 'string' ? JSON.parse(a.params) : (a.params || {}),
-      executionOrder: i,
-    }));
-  };
+  const buildActionsPayload = () => mapActionsForReplace(currentActions);
 
   const onSavedSuccess = (savedConfig) => {
     if (savedConfig && savedConfig.eventCode) {

@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${i18n.saving}`;
 
       try {
-        const payload = StateManager.buildPayload(ruleId);
+        const payload = StateManager.buildPayload();
         const [err] = await replaceRuleConditions(ruleId, payload);
         if (err) throw err;
 
