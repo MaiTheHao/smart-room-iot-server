@@ -15,16 +15,44 @@ import {
   ROOM_PROPERTIES,
   DEVICE_PROPERTIES,
   SENSOR_PROPERTIES,
+  SENSOR_CATEGORY_LABEL_KEYS,
+  SENSOR_CATEGORY_FALLBACKS,
   CONDITION_PARAMETER_CONFIG,
   DAY_OF_WEEK_OPTIONS,
 } from '../../../constants/smart_system.constants.js';
 
 const { roomId, i18n } = window.__ROOM_EVENT_CONDITIONS_CONFIG__;
 
+const DEFAULT_PAGE = 0;
+const TARGET_FETCH_SIZE = 100;
+
+const toPropOptions = (keys) => keys.map((value) => ({ value }));
+const toCategoryMap = (map) =>
+  Object.fromEntries(Object.entries(map).map(([cat, keys]) => [cat, toPropOptions(keys)]));
+
+const DATA_SOURCE_CONFIG = {
+  SYSTEM: {
+    needsTarget: false,
+    properties: toPropOptions(SYSTEM_PROPERTIES),
+  },
+  ROOM: {
+    needsTarget: false,
+    properties: toPropOptions(ROOM_PROPERTIES),
+  },
+  DEVICE: {
+    needsTarget: true,
+    targetLabel: i18n.labelDevice,
+    categories: toCategoryMap(DEVICE_PROPERTIES),
+  },
+  SENSOR: {
+    needsTarget: true,
+    targetLabel: i18n.labelSensor,
+    categories: toCategoryMap(SENSOR_PROPERTIES),
+  },
+};
+
 export const ConditionModal = (() => {
   let bootstrapModal = null;
-  let cachedDevices = null;
-  let cachedSensors = null;
   const el = {};
 
   const init = () => {
@@ -32,7 +60,6 @@ export const ConditionModal = (() => {
     el.form = document.getElementById('conditionForm');
     el.title = document.getElementById('conditionModalTitle');
     el.localId = document.getElementById('conditionLocalId');
-    el.targetType = document.getElementById('condTargetType');
 
     el.dataSource = document.getElementById('condDataSource');
     el.categoryWrap = document.getElementById('condCategoryWrap');
@@ -91,8 +118,114 @@ export const ConditionModal = (() => {
   const bindEvents = () => {
     el.form?.addEventListener('submit', (e) => submit(e));
     el.dataSource?.addEventListener('change', () => onDataSourceChange());
-    el.target?.addEventListener('change', () => onTargetChange());
+    el.category?.addEventListener('change', () => onCategoryChange());
     el.property?.addEventListener('change', () => onPropertyChange());
+  };
+
+  const getCatLabel = (k) => {
+    const val = i18n[SENSOR_CATEGORY_LABEL_KEYS[k]];
+    if (val && !val.startsWith('??')) return val;
+    return SENSOR_CATEGORY_FALLBACKS[k] || k;
+  };
+
+  const onDataSourceChange = async (preservedData = null) => {
+    const ds = el.dataSource.value;
+    const cfg = DATA_SOURCE_CONFIG[ds];
+    if (!cfg) return;
+
+    const hasCat = !!cfg.categories;
+    el.categoryWrap.classList.toggle('d-none', !hasCat);
+    if (hasCat) {
+      const cats = Object.keys(cfg.categories);
+      el.category.innerHTML = cats.map((k) => `<option value="${k}">${getCatLabel(k)}</option>`).join('');
+      if (preservedData?.sourceTargetType) {
+        el.category.value = preservedData.sourceTargetType;
+      }
+    }
+
+    el.targetWrap.classList.toggle('d-none', !cfg.needsTarget);
+    el.target.disabled = true;
+    el.target.innerHTML = '';
+
+    if (cfg.properties) {
+      populateProperties(cfg.properties);
+      el.propertyWrap.classList.remove('d-none');
+      if (preservedData?.property) {
+        el.property.value = preservedData.property;
+      }
+      onPropertyChange(preservedData?.value);
+    } else {
+      el.property.innerHTML = '';
+      el.propertyWrap.classList.add('d-none');
+    }
+
+    if (hasCat) {
+      await onCategoryChange(preservedData);
+    }
+  };
+
+  const onCategoryChange = async (preservedData = null) => {
+    const ds = el.dataSource.value;
+    const cat = el.category.value;
+    const cfg = DATA_SOURCE_CONFIG[ds];
+
+    const props = cfg?.categories?.[cat];
+    if (props) {
+      populateProperties(props);
+      el.propertyWrap.classList.remove('d-none');
+      if (preservedData?.property) {
+        el.property.value = preservedData.property;
+      }
+      onPropertyChange(preservedData?.value);
+    }
+
+    if (cfg?.needsTarget) {
+      await loadTargets(ds, cat, preservedData?.sourceTargetId);
+    }
+  };
+
+  const loadTargets = async (ds, category, selectedId = null) => {
+    if (!category) return;
+
+    el.target.disabled = true;
+    el.target.innerHTML = `<option value="" disabled selected>${i18n.loading || 'Loading...'}</option>`;
+    el.targetWrap.classList.remove('d-none');
+
+    if (el.targetLabel) {
+      el.targetLabel.textContent = DATA_SOURCE_CONFIG[ds]?.targetLabel || 'Target';
+    }
+
+    let items = [];
+    if (ds === 'DEVICE') {
+      const [err, res] = await getDevicesByRoom(roomId, category);
+      if (err) {
+        Alert.error(i18n.error, i18n.errorLoading || 'Failed to load devices');
+      } else {
+        items = extractItems(res);
+      }
+    } else if (ds === 'SENSOR') {
+      const [err, res] = await getSensorsByRoom(roomId, category, DEFAULT_PAGE, TARGET_FETCH_SIZE);
+      if (err) {
+        Alert.error(i18n.error, i18n.errorLoading || 'Failed to load sensors');
+      } else {
+        items = extractItems(res);
+      }
+    }
+
+    if (items.length === 0) {
+      el.target.innerHTML = `<option value="" disabled selected>${i18n.noTargets || 'No targets found'}</option>`;
+      return;
+    }
+
+    el.target.innerHTML = `<option value="" disabled selected>${i18n.selectTarget}</option>`;
+    items.forEach((item) => {
+      const opt = document.createElement('option');
+      opt.value = item.id;
+      opt.textContent = `${item.name || item.naturalId || item.code || '#' + item.id} (${category})`;
+      if (selectedId && String(item.id) === String(selectedId)) opt.selected = true;
+      el.target.appendChild(opt);
+    });
+    el.target.disabled = false;
   };
 
   const extractItems = (res) => {
@@ -101,111 +234,10 @@ export const ConditionModal = (() => {
     return [];
   };
 
-  const fetchDevices = async () => {
-    if (!cachedDevices) {
-      const [err, res] = await getDevicesByRoom(roomId);
-      if (err) {
-        Alert.error(i18n.error, i18n.errorLoading || 'Failed to load devices');
-        return [];
-      }
-      cachedDevices = extractItems(res);
-    }
-    return cachedDevices;
-  };
-
-  const fetchSensors = async () => {
-    if (!cachedSensors) {
-      const [err, res] = await getSensorsByRoom(roomId, undefined, 0, 100);
-      if (err) {
-        Alert.error(i18n.error, i18n.errorLoading || 'Failed to load sensors');
-        return [];
-      }
-      cachedSensors = extractItems(res);
-    }
-    return cachedSensors;
-  };
-
-  const fetchTargets = async (ds) => {
-    if (ds === 'DEVICE') return fetchDevices();
-    if (ds === 'SENSOR') return fetchSensors();
-    return [];
-  };
-
-  const setupFixedSource = (ds, properties, preservedData) => {
-    el.categoryWrap.classList.add('d-none');
-    el.targetWrap.classList.add('d-none');
-    el.targetType.value = ds;
-    renderProperties(properties);
-    if (preservedData?.property) {
-      el.property.value = preservedData.property;
-    }
-    onPropertyChange(preservedData?.value);
-  };
-
-  const setupDeviceOrSensorSource = async (ds, preservedData) => {
-    el.targetWrap.classList.remove('d-none');
-    el.targetLabel.textContent = ds === 'DEVICE' ? i18n.labelDevice : i18n.labelSensor;
-    el.target.disabled = true;
-    el.target.innerHTML = `<option value="" disabled selected>${i18n.loading || 'Loading...'}</option>`;
-
-    const targets = await fetchTargets(ds);
-    populateTargetDropdown(targets, ds, preservedData?.sourceTargetId);
-
-    onTargetChange(preservedData);
-  };
-
-  const onDataSourceChange = async (preservedData = null) => {
-    const ds = el.dataSource.value;
-    if (ds === 'SYSTEM') return setupFixedSource('SYSTEM', SYSTEM_PROPERTIES, preservedData);
-    if (ds === 'ROOM') return setupFixedSource('ROOM', ROOM_PROPERTIES, preservedData);
-    await setupDeviceOrSensorSource(ds, preservedData);
-  };
-
-  const populateTargetDropdown = (targets, ds, selectedId = null) => {
-    const items = Array.isArray(targets) ? targets : [];
-    if (items.length === 0) {
-      el.target.innerHTML = `<option value="" disabled selected>${i18n.noTargets || 'No targets found'}</option>`;
-      return;
-    }
-    el.target.innerHTML = `<option value="" disabled selected>${i18n.selectTarget}</option>`;
-    items.forEach((item) => {
-      const opt = document.createElement('option');
-      opt.value = item.id;
-      const category = item.category || (ds === 'DEVICE' ? item.deviceCategory : item.sensorCategory) || '';
-      opt.dataset.category = category;
-      opt.textContent = `${item.name || item.naturalId || item.code || '#' + item.id} (${category || ds})`;
-      if (selectedId && String(item.id) === String(selectedId)) opt.selected = true;
-      el.target.appendChild(opt);
-    });
-    el.target.disabled = false;
-  };
-
-  const onTargetChange = (preservedData = null) => {
-    const ds = el.dataSource.value;
-    const selectedOpt = el.target.options[el.target.selectedIndex];
-    const category = selectedOpt?.dataset?.category || '';
-    el.targetType.value = category || ds;
-
-    const props = ds === 'DEVICE' ? (DEVICE_PROPERTIES[category] || []) : (SENSOR_PROPERTIES[category] || []);
-    renderProperties(props);
-
-    if (preservedData?.property) {
-      el.property.value = preservedData.property;
-    }
-    onPropertyChange(preservedData?.value);
-  };
-
-  const renderProperties = (props = []) => {
-    el.property.innerHTML = `<option value="">${i18n.placeholderValue || 'Select property'}</option>`;
-    (props || []).forEach((prop) => {
-      const opt = document.createElement('option');
-      opt.value = prop;
-      opt.textContent = formatPropertyLabel(prop, i18n);
-      el.property.appendChild(opt);
-    });
-    if (props && props.length > 0) {
-      el.property.value = props[0];
-    }
+  const populateProperties = (props = []) => {
+    el.property.innerHTML = (props || [])
+      .map((p) => `<option value="${p.value ?? p}">${formatPropertyLabel(p.value ?? p, i18n)}</option>`)
+      .join('');
   };
 
   const resetValueControls = () => {
@@ -219,7 +251,7 @@ export const ConditionModal = (() => {
   const onPropertyChange = (preservedValue = null) => {
     const prop = el.property.value;
     const ds = el.dataSource.value;
-    const cat = el.targetType.value;
+    const cat = el.category.value;
     resetValueControls();
 
     if (ds === 'SYSTEM') return handleSystemProperty(prop, preservedValue);
@@ -347,21 +379,21 @@ export const ConditionModal = (() => {
     window.renderIcons?.();
   };
 
-  const resolveTargetId = (ds) => {
-    if (ds === 'ROOM') return String(roomId);
-    if (ds === 'SYSTEM') return '0';
-    return el.target.value;
-  };
-
   const submit = async (e) => {
     e.preventDefault();
 
     const localId = el.localId.value;
     const ds = el.dataSource.value;
     const prop = el.property.value;
-    const cat = el.targetType.value || ds;
+    const cat = (ds === 'DEVICE' || ds === 'SENSOR') ? el.category.value : ds;
 
-    const sourceTargetId = resolveTargetId(ds);
+    let sourceTargetId = '0';
+    if (ds === 'DEVICE' || ds === 'SENSOR') {
+      sourceTargetId = String(el.target.value || '');
+    } else if (ds === 'ROOM') {
+      sourceTargetId = String(roomId);
+    }
+
     const val = getValue().trim();
 
     const builder = new CreateConditionDto.Builder()
