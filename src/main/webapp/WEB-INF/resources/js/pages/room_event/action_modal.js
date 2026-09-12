@@ -1,225 +1,287 @@
+/**
+ * Action Modal cho Quản lý Sự kiện Phòng (Room Event)
+ * Tuân thủ Clean Code: Tái sử dụng constants & utils, không hardcode labels/defaults
+ */
+
+import { TabulatorFull as Tabulator } from '../../../../lib/tabulator_esm.min.js';
 import { StateManager } from './state_manager.js';
 import { getDevicesByRoom } from '../../api/device.api.js';
-import { Alert } from '../../common/notification_util.js';
-import { ACTION_PARAM_SCHEMA } from '../../constants/smart_system.constants.js';
-import { getAllowedActionParamKeys } from '../../common/smart_system_util.js';
-
-const FIELD_LABELS = {
-  power: 'Nguồn (Power)',
-  level: 'Độ sáng (Level: 0 - 100)',
-  temperature: 'Nhiệt độ (°C: 16 - 32)',
-  mode: 'Chế độ (Mode)',
-  fanSpeed: 'Tốc độ quạt (0 - 5)',
-  speed: 'Tốc độ gió (Speed: 1 - 3)',
-  swing: 'Đảo gió (Swing)',
-};
-
-const FIELD_DEFAULTS = {
-  LIGHT: { power: 'ON', level: 80 },
-  FAN: { power: 'ON', speed: 1, mode: 'NORMAL', swing: 'OFF' },
-  AIR_CONDITION: { power: 'ON', temperature: 24, mode: 'COOL', fanSpeed: 2, swing: 'OFF' },
-};
+import {
+  ACTION_FIELD_DEFAULTS,
+} from '../../constants/smart_system.constants.js';
+import {
+  renderActionParamFields,
+  collectActionParamsFromContainer,
+  validateActionParams,
+} from '../../common/smart_system_util.js';
+import { Toast } from '../../common/notification_util.js';
 
 export const ActionModal = (() => {
   let modalInstance = null;
+  let table = null;
   let cachedDevices = null;
   let editingLocalId = null;
+  let onSaveCallback = null;
 
   const getEl = (id) => document.getElementById(id);
 
-  const init = () => {
+  const init = (onSaveActions) => {
+    onSaveCallback = onSaveActions;
     const modalEl = getEl('roomEventActionModal');
     if (!modalEl) return;
     modalInstance = new bootstrap.Modal(modalEl);
 
-    const form = getEl('actionForm');
-    form?.addEventListener('submit', (e) => {
+    bindEvents();
+    initTable();
+  };
+
+  const bindEvents = () => {
+    getEl('actionForm')?.addEventListener('submit', (e) => {
       e.preventDefault();
-      handleSubmit();
+      handleSubmitForm();
+    });
+
+    getEl('targetDeviceCategory')?.addEventListener('change', (e) => {
+      handleCategoryChange(e.target.value);
     });
 
     getEl('actDeviceId')?.addEventListener('change', (e) => {
       handleDeviceSelect(e.target.value);
     });
+
+    getEl('btnAddNewAct')?.addEventListener('click', () => {
+      resetForm();
+    });
+
+    getEl('btnCancelEditAct')?.addEventListener('click', () => {
+      resetForm();
+    });
+
+    getEl('btnSaveActionsBatch')?.addEventListener('click', () => {
+      handleSaveBatch();
+    });
   };
 
-  const loadRoomDevices = async (roomId) => {
-    if (cachedDevices) return cachedDevices;
-    try {
+  const initTable = () => {
+    const tableContainer = getEl('actionsTableInModal');
+    if (!tableContainer) return;
+
+    table = new Tabulator('#actionsTableInModal', {
+      height: '180px',
+      layout: 'fitColumns',
+      placeholder: '<div class="text-center py-3 text-muted small">Chưa có hành động nào. Khuyến nghị thêm ít nhất 1 lệnh điều khiển thiết bị.</div>',
+      columns: [
+        {
+          title: 'Thứ tự',
+          field: 'executionOrder',
+          width: 70,
+          hozAlign: 'center',
+          formatter: (cell) => `<span class="badge bg-light text-dark border">#${(cell.getValue() ?? cell.getRow().getPosition()) + 1}</span>`,
+        },
+        {
+          title: 'Loại',
+          field: 'targetCategory',
+          width: 90,
+          hozAlign: 'center',
+          formatter: (cell) => {
+            const cat = cell.getValue() || cell.getData().targetDeviceCategory;
+            let cls = 'bg-secondary';
+            if (cat === 'LIGHT') cls = 'bg-warning text-dark';
+            else if (cat === 'FAN') cls = 'bg-info text-dark';
+            else if (cat === 'AIR_CONDITION') cls = 'bg-primary';
+            return `<span class="badge ${cls} font-monospace">${cat}</span>`;
+          },
+        },
+        {
+          title: 'Thiết bị mục tiêu',
+          field: 'targetDisplay',
+          minWidth: 140,
+          formatter: (cell) => {
+            const row = cell.getData();
+            return `<strong>${cell.getValue() || `Thiết bị #${row.targetId || row.targetDeviceId}`}</strong>`;
+          },
+        },
+        {
+          title: 'Tham số lệnh',
+          field: 'params',
+          minWidth: 140,
+          formatter: (cell) => {
+            const p = cell.getValue() || {};
+            const parts = [];
+            if (p.power) parts.push(`Nguồn: ${p.power}`);
+            if (p.level !== undefined) parts.push(`Sáng: ${p.level}%`);
+            if (p.temperature !== undefined) parts.push(`Nhiệt: ${p.temperature}°C`);
+            if (p.speed !== undefined) parts.push(`Tốc độ: ${p.speed}`);
+            if (p.mode) parts.push(`Chế độ: ${p.mode}`);
+            return `<span class="badge bg-light text-dark border font-monospace">${parts.join(' | ') || '—'}</span>`;
+          },
+        },
+        {
+          title: 'Thao tác',
+          width: 90,
+          hozAlign: 'center',
+          headerSort: false,
+          formatter: (cell) => {
+            const localId = cell.getData()._localId;
+            return `
+              <div class="d-flex justify-content-center gap-1">
+                <button type="button" class="btn btn-sm btn-light rounded-circle p-1 text-primary btn-edit-act" data-id="${localId}" title="Sửa">
+                  <i data-lucide="edit-3" class="lucide-sm"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-light rounded-circle p-1 text-danger btn-del-act" data-id="${localId}" title="Xóa">
+                  <i data-lucide="trash-2" class="lucide-sm"></i>
+                </button>
+              </div>`;
+          },
+        },
+      ],
+    });
+
+    table.on('renderComplete', () => {
+      tableContainer.querySelectorAll('.btn-edit-act').forEach((btn) => {
+        btn.addEventListener('click', () => handleEditRow(btn.dataset.id));
+      });
+      tableContainer.querySelectorAll('.btn-del-act').forEach((btn) => {
+        btn.addEventListener('click', () => handleDeleteRow(btn.dataset.id));
+      });
+      if (window.lucide) window.lucide.createIcons();
+    });
+  };
+
+  const open = async (configId, eventCode) => {
+    editingLocalId = null;
+    getEl('actionModalTitle').textContent = `Quản lý hành động sự kiện: ${eventCode}`;
+    resetForm();
+
+    await loadRoomDevices();
+    refreshTable();
+    handleCategoryChange('LIGHT');
+
+    modalInstance?.show();
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  const loadRoomDevices = async () => {
+    const roomId = StateManager.getRoomId();
+    if (!cachedDevices) {
       const [err, res] = await getDevicesByRoom(roomId);
-      if (!err && res?.data) {
-        cachedDevices = res.data;
-      } else {
-        cachedDevices = [];
-      }
-    } catch (e) {
-      cachedDevices = [];
+      cachedDevices = (!err && res?.data) ? res.data : [];
     }
-    return cachedDevices;
   };
 
-  const populateDeviceSelect = (selectedDeviceId = null) => {
-    const select = getEl('actDeviceId');
-    if (!select) return;
-    select.innerHTML = '<option value="" disabled selected>-- Chọn thiết bị trong phòng --</option>';
+  const refreshTable = () => {
+    if (table) {
+      table.setData(StateManager.getActions());
+    }
+  };
 
-    (cachedDevices || []).forEach((dev) => {
+  const handleCategoryChange = (category, currentValues = null) => {
+    populateDevices(category);
+    const container = getEl('actParamsContainer');
+    const defaultVals = currentValues || ACTION_FIELD_DEFAULTS[category] || { power: 'ON' };
+
+    renderActionParamFields({
+      container,
+      category,
+      values: defaultVals,
+      requireAll: true,
+    });
+  };
+
+  const populateDevices = (category) => {
+    const select = getEl('actDeviceId');
+    select.innerHTML = '';
+
+    const filtered = (cachedDevices || []).filter((d) => d.category === category);
+    if (filtered.length === 0) {
+      select.innerHTML = '<option value="" disabled selected>-- Không có thiết bị thuộc loại này trong phòng --</option>';
+      return;
+    }
+
+    filtered.forEach((d) => {
       const opt = document.createElement('option');
-      opt.value = dev.id;
-      opt.textContent = `${dev.name || 'Device #' + dev.id} (${dev.category || 'Unknown'})`;
-      opt.dataset.category = dev.category;
-      opt.dataset.specificType = dev.specificType || '';
-      if (selectedDeviceId && String(dev.id) === String(selectedDeviceId)) {
-        opt.selected = true;
-      }
+      opt.value = d.id;
+      opt.textContent = `${d.name} (#${d.id})`;
       select.appendChild(opt);
     });
   };
 
-  const renderParamsUi = (category, currentParams = {}, specificType = null) => {
-    const container = getEl('actParamsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    if (!category) return;
-
-    const schema = ACTION_PARAM_SCHEMA[category];
-    if (!schema) {
-      container.innerHTML = `<div class="text-muted small">Loại thiết bị ${category} chưa hỗ trợ cấu hình tham số.</div>`;
-      return;
-    }
-
-    const allowedKeys = getAllowedActionParamKeys(category, specificType);
-    const defaults = FIELD_DEFAULTS[category] || {};
-    const row = document.createElement('div');
-    row.className = 'row g-3';
-
-    Object.entries(schema).forEach(([key, field]) => {
-      if (allowedKeys && !allowedKeys.includes(key)) return;
-
-      const current = (currentParams[key] !== undefined && currentParams[key] !== null)
-        ? currentParams[key]
-        : defaults[key];
-
-      const col = document.createElement('div');
-      col.className = 'col-md-6';
-
-      const label = document.createElement('label');
-      label.className = 'form-label fw-semibold small text-muted text-uppercase mb-1';
-      label.textContent = FIELD_LABELS[key] || key;
-      col.appendChild(label);
-
-      if (field.type === 'enum') {
-        const select = document.createElement('select');
-        select.className = 'form-select bg-light border-0';
-        select.id = `param_${key}`;
-        select.name = `param_${key}`;
-        (field.options || []).forEach((optVal) => {
-          const opt = document.createElement('option');
-          opt.value = optVal;
-          opt.textContent = optVal;
-          if (current !== undefined && String(current) === optVal) opt.selected = true;
-          select.appendChild(opt);
-        });
-        col.appendChild(select);
-      } else {
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.className = 'form-control bg-light border-0 font-monospace';
-        input.id = `param_${key}`;
-        input.name = `param_${key}`;
-        if (field.min != null) input.min = field.min;
-        if (field.max != null) input.max = field.max;
-        input.placeholder = field.placeholder || '';
-        if (current !== undefined && current !== null && current !== '') input.value = current;
-        col.appendChild(input);
-      }
-
-      row.appendChild(col);
-    });
-
-    container.appendChild(row);
-  };
-
   const handleDeviceSelect = (deviceId) => {
-    const dev = (cachedDevices || []).find((d) => String(d.id) === String(deviceId));
-    if (dev) {
-      renderParamsUi(dev.category, {}, dev.specificType || null);
-    }
-  };
-
-  const open = async (localId = null) => {
-    editingLocalId = localId;
-    const form = getEl('actionForm');
-    form?.reset();
-
-    const titleEl = getEl('actionModalTitle');
-    if (titleEl) {
-      titleEl.textContent = localId ? 'Chỉnh sửa hành động điều khiển' : 'Thêm hành động điều khiển';
-    }
-
-    const currentRoomId = StateManager.getCurrentConfig()?.roomId;
-    if (currentRoomId) {
-      await loadRoomDevices(currentRoomId);
-    }
-
-    if (localId) {
-      const act = StateManager.getActions().find((a) => a._localId === localId);
-      if (act) {
-        const targetId = act.targetId || act.targetDeviceId;
-        populateDeviceSelect(targetId);
-        const dev = (cachedDevices || []).find((d) => String(d.id) === String(targetId));
-        const category = act.targetCategory || act.targetDeviceCategory;
-        renderParamsUi(category, act.params || {}, dev?.specificType || null);
+    const device = (cachedDevices || []).find((d) => String(d.id) === String(deviceId));
+    if (device && device.category) {
+      const cat = device.category;
+      if (getEl('targetDeviceCategory').value !== cat) {
+        getEl('targetDeviceCategory').value = cat;
+        handleCategoryChange(cat);
       }
-    } else {
-      populateDeviceSelect();
-      const container = getEl('actParamsContainer');
-      if (container) container.innerHTML = '<div class="text-muted small">Chọn thiết bị để thiết lập trạng thái mong muốn.</div>';
     }
-
-    modalInstance?.show();
   };
 
-  const handleSubmit = async () => {
-    const deviceSelect = getEl('actDeviceId');
-    const deviceId = deviceSelect?.value;
+  const handleEditRow = (localId) => {
+    const act = StateManager.getActions().find((a) => a._localId === localId);
+    if (!act) return;
+
+    editingLocalId = localId;
+    getEl('actionLocalId').value = localId;
+    getEl('actFormHeading').textContent = `✏️ Chỉnh sửa hành động #${(act.executionOrder ?? 0) + 1}`;
+    getEl('btnCancelEditAct').classList.remove('d-none');
+    getEl('btnSubmitAct').innerHTML = '<i data-lucide="check" class="lucide-sm me-1"></i> Cập nhật hành động';
+
+    getEl('executionOrder').value = act.executionOrder ?? 0;
+    const cat = act.targetCategory || act.targetDeviceCategory || 'LIGHT';
+    getEl('targetDeviceCategory').value = cat;
+
+    handleCategoryChange(cat, act.params || {});
+    if (act.targetId || act.targetDeviceId) {
+      getEl('actDeviceId').value = act.targetId || act.targetDeviceId;
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  const handleDeleteRow = (localId) => {
+    StateManager.deleteAction(localId);
+    refreshTable();
+    if (editingLocalId === localId) resetForm();
+  };
+
+  const resetForm = () => {
+    editingLocalId = null;
+    getEl('actionForm')?.reset();
+    getEl('actionLocalId').value = '';
+    getEl('executionOrder').value = StateManager.getActions().length;
+    getEl('actFormHeading').textContent = '+ Thêm hành động';
+    getEl('btnCancelEditAct').classList.add('d-none');
+    getEl('btnSubmitAct').innerHTML = '<i data-lucide="check" class="lucide-sm me-1"></i> Lưu hành động vào danh sách';
+    handleCategoryChange('LIGHT');
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  const handleSubmitForm = () => {
+    const deviceId = getEl('actDeviceId').value;
+    const category = getEl('targetDeviceCategory').value;
+
     if (!deviceId) {
-      await Alert.warning('Vui lòng chọn thiết bị điều khiển!', 'Thiếu thông tin');
+      Toast.warning('Vui lòng chọn thiết bị điều khiển.');
       return;
     }
 
-    const selectedOpt = deviceSelect.options[deviceSelect.selectedIndex];
-    const targetCategory = selectedOpt?.dataset?.category;
-    const targetDisplay = selectedOpt?.textContent || `Device #${deviceId}`;
-    const schema = ACTION_PARAM_SCHEMA[targetCategory] || {};
+    const container = getEl('actParamsContainer');
+    const params = collectActionParamsFromContainer(container, category);
+    const validation = validateActionParams({ category, params });
 
-    const params = {};
-    for (const [key, field] of Object.entries(schema)) {
-      const input = getEl(`param_${key}`);
-      if (!input) continue;
-      const val = input.value;
-      if (val === '' || val === null || val === undefined) continue;
-
-      if (field.type === 'int') {
-        const num = parseInt(val, 10);
-        if (Number.isNaN(num) || (field.min != null && num < field.min) || (field.max != null && num > field.max)) {
-          await Alert.warning(
-            `${FIELD_LABELS[key] || key}: giá trị phải trong khoảng ${field.min} – ${field.max}`,
-            'Giá trị không hợp lệ',
-          );
-          input.focus();
-          return;
-        }
-        params[key] = num;
-      } else {
-        params[key] = val;
-      }
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      Toast.warning(firstError || 'Tham số hành động không hợp lệ.');
+      return;
     }
 
+    const selectedDevice = (cachedDevices || []).find((d) => String(d.id) === String(deviceId));
     const payload = {
-      targetCategory,
-      targetId: String(deviceId),
-      targetDisplay,
+      executionOrder: parseInt(getEl('executionOrder').value || '0', 10),
+      targetCategory: category,
+      targetId: deviceId,
+      targetDisplay: selectedDevice ? selectedDevice.name : `Thiết bị #${deviceId}`,
       params,
     };
 
@@ -229,7 +291,19 @@ export const ActionModal = (() => {
       StateManager.addAction(payload);
     }
 
-    modalInstance?.hide();
+    refreshTable();
+    resetForm();
+  };
+
+  const handleSaveBatch = async () => {
+    const configId = StateManager.getActiveConfigId();
+    if (!configId) return;
+
+    const payload = StateManager.buildActionsPayload();
+    if (onSaveCallback) {
+      await onSaveCallback(configId, payload);
+      modalInstance?.hide();
+    }
   };
 
   return {

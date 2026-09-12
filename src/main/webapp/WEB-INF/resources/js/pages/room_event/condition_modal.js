@@ -1,207 +1,329 @@
+/**
+ * Condition Modal cho Quản lý Sự kiện Phòng (Room Event)
+ * Tuân thủ Clean Code: Tái sử dụng constants & utils, không hardcode labels
+ */
+
+import { TabulatorFull as Tabulator } from '../../../../lib/tabulator_esm.min.js';
 import { StateManager } from './state_manager.js';
 import { getSensorsByRoom } from '../../api/sensor-metadata.api.js';
-import { Alert } from '../../common/notification_util.js';
-import { SENSOR_PROPERTIES, SYSTEM_PROPERTIES } from '../../constants/smart_system.constants.js';
-import { conditionValueToUtc, conditionValueFromUtc } from '../../common/smart_system_util.js';
-
-const PROPERTY_LABELS_VI = {
-  temperature: 'Nhiệt độ (°C)',
-  watt: 'Công suất (W)',
-  humidity: 'Độ ẩm (%)',
-  lux: 'Cường độ sáng (Lux)',
-  co2: 'Nồng độ CO₂ (ppm)',
-  current_time: 'Thời gian trong ngày (HH:mm)',
-  day_of_week: 'Ngày trong tuần (1-7)',
-  day_of_month: 'Ngày trong tháng (1-31)',
-  power: 'Nguồn',
-  level: 'Độ sáng',
-  temp: 'Nhiệt độ',
-  mode: 'Chế độ',
-  fan_speed: 'Tốc độ quạt',
-  swing: 'Đảo gió',
-  speed: 'Tốc độ',
-  light: 'Đèn quạt',
-};
-
-const labelOf = (key) => PROPERTY_LABELS_VI[key] || key;
+import { getDevicesByRoom } from '../../api/device.api.js';
+import {
+  SENSOR_PROPERTIES,
+  DEVICE_PROPERTIES,
+  SYSTEM_PROPERTIES,
+  ROOM_PROPERTIES,
+} from '../../constants/smart_system.constants.js';
+import {
+  formatPropertyLabel,
+  conditionValueToUtc,
+  conditionValueFromUtc,
+} from '../../common/smart_system_util.js';
+import { Toast } from '../../common/notification_util.js';
 
 export const ConditionModal = (() => {
   let modalInstance = null;
+  let table = null;
   let cachedSensors = null;
+  let cachedDevices = null;
   let editingLocalId = null;
+  let onSaveCallback = null;
 
   const getEl = (id) => document.getElementById(id);
 
-  const init = () => {
+  const init = (onSaveConditions) => {
+    onSaveCallback = onSaveConditions;
     const modalEl = getEl('roomEventConditionModal');
     if (!modalEl) return;
     modalInstance = new bootstrap.Modal(modalEl);
 
-    const form = getEl('conditionForm');
-    form?.addEventListener('submit', (e) => {
+    bindEvents();
+    initTable();
+  };
+
+  const bindEvents = () => {
+    getEl('conditionForm')?.addEventListener('submit', (e) => {
       e.preventDefault();
-      handleSubmit();
+      handleSubmitForm();
     });
 
-    getEl('condSourceCategory')?.addEventListener('change', (e) => {
-      handleSourceCategoryChange(e.target.value);
+    getEl('condDataSource')?.addEventListener('change', (e) => {
+      handleDataSourceChange(e.target.value);
     });
 
-    getEl('condSensorId')?.addEventListener('change', (e) => {
-      handleSensorChange(e.target.value);
+    getEl('condCategory')?.addEventListener('change', () => {
+      handleCategoryChange();
+    });
+
+    getEl('btnAddNewCond')?.addEventListener('click', () => {
+      resetForm();
+    });
+
+    getEl('btnCancelEditCond')?.addEventListener('click', () => {
+      resetForm();
+    });
+
+    getEl('btnSaveConditionsBatch')?.addEventListener('click', () => {
+      handleSaveBatch();
     });
   };
 
-  const loadRoomSensors = async (roomId) => {
-    if (cachedSensors) return cachedSensors;
-    try {
+  const initTable = () => {
+    const tableContainer = getEl('conditionsTableInModal');
+    if (!tableContainer) return;
+
+    table = new Tabulator('#conditionsTableInModal', {
+      height: '180px',
+      layout: 'fitColumns',
+      placeholder: '<div class="text-center py-3 text-muted small">Chưa có điều kiện nào. Hành động sẽ luôn thực thi khi có sự kiện.</div>',
+      columns: [
+        {
+          title: 'STT',
+          field: 'sortOrder',
+          width: 60,
+          hozAlign: 'center',
+          formatter: (cell) => `<span class="badge bg-light text-dark border">#${(cell.getValue() ?? cell.getRow().getPosition()) + 1}</span>`,
+        },
+        {
+          title: 'Nguồn',
+          field: 'sourceCategory',
+          width: 90,
+          hozAlign: 'center',
+          formatter: (cell) => `<span class="badge bg-secondary-subtle text-secondary border font-monospace">${cell.getValue()}</span>`,
+        },
+        {
+          title: 'Thuộc tính',
+          field: 'property',
+          minWidth: 120,
+          formatter: (cell) => `<strong>${formatPropertyLabel(cell.getValue())}</strong>`,
+        },
+        {
+          title: 'Toán tử',
+          field: 'operator',
+          width: 70,
+          hozAlign: 'center',
+          formatter: (cell) => `<span class="font-monospace fw-bold">${cell.getValue()}</span>`,
+        },
+        {
+          title: 'Giá trị',
+          field: 'value',
+          minWidth: 80,
+          formatter: (cell) => `<span class="badge bg-light text-dark border font-monospace">${cell.getValue()}</span>`,
+        },
+        {
+          title: 'Liên kết',
+          field: 'nextLogic',
+          width: 80,
+          hozAlign: 'center',
+          formatter: (cell) => {
+            const val = cell.getValue();
+            if (!val) return '—';
+            return `<span class="badge ${val === 'AND' ? 'bg-primary-subtle text-primary border' : 'bg-warning-subtle text-warning border'} fw-bold">${val}</span>`;
+          },
+        },
+        {
+          title: 'Thao tác',
+          width: 90,
+          hozAlign: 'center',
+          headerSort: false,
+          formatter: (cell) => {
+            const localId = cell.getData()._localId;
+            return `
+              <div class="d-flex justify-content-center gap-1">
+                <button type="button" class="btn btn-sm btn-light rounded-circle p-1 text-primary btn-edit-cond" data-id="${localId}" title="Sửa">
+                  <i data-lucide="edit-3" class="lucide-sm"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-light rounded-circle p-1 text-danger btn-del-cond" data-id="${localId}" title="Xóa">
+                  <i data-lucide="trash-2" class="lucide-sm"></i>
+                </button>
+              </div>`;
+          },
+        },
+      ],
+    });
+
+    table.on('renderComplete', () => {
+      tableContainer.querySelectorAll('.btn-edit-cond').forEach((btn) => {
+        btn.addEventListener('click', () => handleEditRow(btn.dataset.id));
+      });
+      tableContainer.querySelectorAll('.btn-del-cond').forEach((btn) => {
+        btn.addEventListener('click', () => handleDeleteRow(btn.dataset.id));
+      });
+      if (window.lucide) window.lucide.createIcons();
+    });
+  };
+
+  const open = async (configId, eventCode) => {
+    editingLocalId = null;
+    getEl('conditionModalTitle').textContent = `Quản lý điều kiện sự kiện: ${eventCode}`;
+    resetForm();
+
+    await loadSensorsAndDevices();
+    refreshTable();
+    handleDataSourceChange('SENSOR');
+
+    modalInstance?.show();
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  const loadSensorsAndDevices = async () => {
+    const roomId = StateManager.getRoomId();
+    if (!cachedSensors) {
       const [err, res] = await getSensorsByRoom(roomId, undefined, 0, 100);
-      if (!err && res?.data?.content) {
-        cachedSensors = res.data.content;
-      } else {
-        cachedSensors = [];
-      }
-    } catch (e) {
-      cachedSensors = [];
+      cachedSensors = (!err && res?.data?.content) ? res.data.content : [];
     }
-    return cachedSensors;
+    if (!cachedDevices) {
+      const [err, res] = await getDevicesByRoom(roomId);
+      cachedDevices = (!err && res?.data) ? res.data : [];
+    }
   };
 
-  const populatePropertyOptions = (keys, selected = '') => {
-    const propSelect = getEl('condProperty');
-    if (!propSelect) return;
-    propSelect.innerHTML = '<option value="" disabled selected>-- Chọn thuộc tính --</option>';
-    (keys || []).forEach((key) => {
+  const refreshTable = () => {
+    if (table) {
+      table.setData(StateManager.getConditions());
+    }
+  };
+
+  const handleDataSourceChange = (source) => {
+    const catWrap = getEl('condCategoryWrap');
+    const targetWrap = getEl('condTargetWrap');
+    const catSelect = getEl('condCategory');
+
+    if (source === 'SENSOR' || source === 'DEVICE') {
+      catWrap.classList.remove('d-none');
+      targetWrap.classList.remove('d-none');
+      catSelect.innerHTML = '';
+
+      const keys = source === 'SENSOR'
+        ? Object.keys(SENSOR_PROPERTIES)
+        : Object.keys(DEVICE_PROPERTIES);
+
+      keys.forEach((cat) => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        catSelect.appendChild(opt);
+      });
+      handleCategoryChange();
+    } else {
+      catWrap.classList.add('d-none');
+      targetWrap.classList.add('d-none');
+      populateProperties(source);
+    }
+  };
+
+  const handleCategoryChange = () => {
+    const source = getEl('condDataSource').value;
+    const category = getEl('condCategory').value;
+    populateTargets(source, category);
+    populateProperties(source, category);
+  };
+
+  const populateTargets = (source, category) => {
+    const targetSelect = getEl('condTarget');
+    targetSelect.innerHTML = '';
+
+    const list = source === 'SENSOR' ? cachedSensors : cachedDevices;
+    const filtered = (list || []).filter((item) => !category || item.category === category || item.sensorType === category);
+
+    if (filtered.length === 0) {
+      targetSelect.innerHTML = '<option value="" disabled selected>-- Không tìm thấy thiết bị nào --</option>';
+      return;
+    }
+
+    filtered.forEach((item) => {
       const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = labelOf(key);
-      if (selected && selected === key) opt.selected = true;
+      opt.value = item.id;
+      opt.textContent = `${item.name} (#${item.id})`;
+      targetSelect.appendChild(opt);
+    });
+  };
+
+  const populateProperties = (source, category) => {
+    const propSelect = getEl('condProperty');
+    propSelect.innerHTML = '';
+
+    let props = [];
+    if (source === 'SYSTEM') props = [...SYSTEM_PROPERTIES];
+    else if (source === 'ROOM') props = [...ROOM_PROPERTIES];
+    else if (source === 'SENSOR') props = SENSOR_PROPERTIES[category] || [];
+    else if (source === 'DEVICE') props = DEVICE_PROPERTIES[category] || [];
+
+    props.forEach((prop) => {
+      const opt = document.createElement('option');
+      opt.value = prop;
+      opt.textContent = `${formatPropertyLabel(prop)} (${prop})`;
       propSelect.appendChild(opt);
     });
   };
 
-  const handleSourceCategoryChange = (cat) => {
-    const sensorGroup = getEl('condSensorGroup');
+  const handleEditRow = (localId) => {
+    const cond = StateManager.getConditions().find((c) => c._localId === localId);
+    if (!cond) return;
 
-    if (cat === 'SYSTEM') {
-      sensorGroup?.classList.add('d-none');
-      populatePropertyOptions(SYSTEM_PROPERTIES);
-    } else {
-      sensorGroup?.classList.remove('d-none');
-      populateSensorSelect();
-
-      populatePropertyOptions([]);
-    }
-  };
-
-  const populateSensorSelect = () => {
-    const select = getEl('condSensorId');
-    if (!select) return;
-    select.innerHTML = '<option value="" disabled selected>-- Chọn cảm biến trong phòng --</option>';
-    (cachedSensors || []).forEach((s) => {
-      const opt = document.createElement('option');
-      opt.value = s.id;
-      opt.textContent = `${s.name || s.naturalId || 'Sensor #' + s.id} (${s.category})`;
-      opt.dataset.category = s.category;
-      select.appendChild(opt);
-    });
-  };
-
-  const handleSensorChange = (sensorId) => {
-    const sensor = (cachedSensors || []).find((s) => String(s.id) === String(sensorId));
-    const keys = sensor ? SENSOR_PROPERTIES[sensor.category] : [];
-    populatePropertyOptions(keys || []);
-  };
-
-  const open = async (localId = null) => {
     editingLocalId = localId;
-    const form = getEl('conditionForm');
-    form?.reset();
+    getEl('conditionLocalId').value = localId;
+    getEl('condFormHeading').textContent = `✏️ Chỉnh sửa điều kiện #${(cond.sortOrder ?? 0) + 1}`;
+    getEl('btnCancelEditCond').classList.remove('d-none');
+    getEl('btnSubmitCond').innerHTML = '<i data-lucide="check" class="lucide-sm me-1"></i> Cập nhật điều kiện';
 
-    const titleEl = getEl('conditionModalTitle');
-    if (titleEl) {
-      titleEl.textContent = localId ? 'Chỉnh sửa điều kiện cảm biến' : 'Thêm điều kiện cảm biến';
-    }
+    getEl('condSortOrder').value = cond.sortOrder ?? 0;
+    getEl('condDataSource').value = cond.sourceCategory || 'SENSOR';
+    handleDataSourceChange(cond.sourceCategory || 'SENSOR');
 
-    const currentRoomId = StateManager.getCurrentConfig()?.roomId;
-    if (currentRoomId) {
-      await loadRoomSensors(currentRoomId);
-    }
+    if (cond.sourceTargetType) getEl('condCategory').value = cond.sourceTargetType;
+    handleCategoryChange();
 
-    if (localId) {
-      const cond = StateManager.getConditions().find((c) => c._localId === localId);
-      if (cond) {
-        const sourceCategory = cond.sourceCategory || 'SENSOR';
-        if (getEl('condSourceCategory')) getEl('condSourceCategory').value = sourceCategory;
+    if (cond.sourceTargetId) getEl('condTarget').value = cond.sourceTargetId;
+    if (cond.property) getEl('condProperty').value = cond.property;
+    getEl('condOperator').value = cond.operator || '>=';
+    getEl('condValue').value = conditionValueFromUtc(cond.sourceCategory, cond.property, cond.value);
 
-        if (sourceCategory === 'SENSOR') {
-          handleSourceCategoryChange('SENSOR');
-          if (getEl('condSensorId')) getEl('condSensorId').value = cond.sourceTargetId || '';
-          handleSensorChange(cond.sourceTargetId);
-        } else {
-          handleSourceCategoryChange('SYSTEM');
-        }
-
-        if (getEl('condProperty')) getEl('condProperty').value = cond.property || '';
-        if (getEl('condOperator')) getEl('condOperator').value = cond.operator || '<';
-        if (getEl('condValue')) {
-          getEl('condValue').value = conditionValueFromUtc(sourceCategory, cond.property, cond.value ?? '');
-        }
-        if (getEl('condNextLogic')) getEl('condNextLogic').value = cond.nextLogic || 'AND';
-      }
+    if (cond.nextLogic === 'OR') {
+      getEl('condNextLogicOr').checked = true;
     } else {
-      if (getEl('condSourceCategory')) getEl('condSourceCategory').value = 'SENSOR';
-      handleSourceCategoryChange('SENSOR');
-      if (getEl('condOperator')) getEl('condOperator').value = '<';
-      if (getEl('condNextLogic')) getEl('condNextLogic').value = 'AND';
+      getEl('condNextLogicAnd').checked = true;
     }
 
-    modalInstance?.show();
+    if (window.lucide) window.lucide.createIcons();
   };
 
-  const handleSubmit = async () => {
-    const sourceCategory = getEl('condSourceCategory')?.value;
-    const sensorSelect = getEl('condSensorId');
-    const sensorId = sensorSelect?.value;
-    const property = getEl('condProperty')?.value;
-    const operator = getEl('condOperator')?.value;
-    const rawValue = getEl('condValue')?.value?.trim();
-    const nextLogic = getEl('condNextLogic')?.value || 'AND';
+  const handleDeleteRow = (localId) => {
+    StateManager.deleteCondition(localId);
+    refreshTable();
+    if (editingLocalId === localId) resetForm();
+  };
 
-    if (!sourceCategory || !property || !operator || rawValue === '' || rawValue === undefined) {
-      await Alert.warning('Vui lòng điền đầy đủ thông tin điều kiện!', 'Thiếu thông tin');
+  const resetForm = () => {
+    editingLocalId = null;
+    getEl('conditionForm')?.reset();
+    getEl('conditionLocalId').value = '';
+    getEl('condSortOrder').value = StateManager.getConditions().length;
+    getEl('condFormHeading').textContent = '+ Thêm điều kiện';
+    getEl('btnCancelEditCond').classList.add('d-none');
+    getEl('btnSubmitCond').innerHTML = '<i data-lucide="check" class="lucide-sm me-1"></i> Lưu điều kiện vào danh sách';
+    handleDataSourceChange('SENSOR');
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  const handleSubmitForm = () => {
+    const source = getEl('condDataSource').value;
+    const property = getEl('condProperty').value;
+    const rawVal = getEl('condValue').value.trim();
+
+    if (!property || rawVal === '') {
+      Toast.warning('Vui lòng chọn thuộc tính và nhập giá trị.');
       return;
     }
 
-    let sourceTargetType = null;
-    let sourceTargetId = '';
-    let targetDisplay = '';
-
-    if (sourceCategory === 'SENSOR') {
-      if (!sensorId) {
-        await Alert.warning('Vui lòng chọn cảm biến trong phòng!', 'Thiếu thông tin');
-        return;
-      }
-      const selectedOpt = sensorSelect.options[sensorSelect.selectedIndex];
-      sourceTargetType = selectedOpt?.dataset?.category || null;
-      sourceTargetId = String(sensorId);
-      targetDisplay = selectedOpt?.textContent || `Sensor #${sensorId}`;
-    } else {
-      sourceTargetId = 'SYSTEM';
-      targetDisplay = 'Hệ thống';
-    }
-
-    const value = conditionValueToUtc(sourceCategory, property, rawValue);
-
     const payload = {
-      sourceCategory,
-      sourceTargetId,
-      sourceTargetType,
-      targetDisplay,
+      sortOrder: parseInt(getEl('condSortOrder').value || '0', 10),
+      sourceCategory: source,
+      sourceTargetType: (source === 'SENSOR' || source === 'DEVICE') ? getEl('condCategory').value : null,
+      sourceTargetId: (source === 'SENSOR' || source === 'DEVICE') ? getEl('condTarget').value : null,
       property,
-      operator,
-      value,
-      nextLogic,
+      operator: getEl('condOperator').value,
+      value: conditionValueToUtc(source, property, rawVal),
+      nextLogic: getEl('condNextLogicOr').checked ? 'OR' : 'AND',
     };
 
     if (editingLocalId) {
@@ -210,7 +332,19 @@ export const ConditionModal = (() => {
       StateManager.addCondition(payload);
     }
 
-    modalInstance?.hide();
+    refreshTable();
+    resetForm();
+  };
+
+  const handleSaveBatch = async () => {
+    const configId = StateManager.getActiveConfigId();
+    if (!configId) return;
+
+    const payload = StateManager.buildConditionsPayload();
+    if (onSaveCallback) {
+      await onSaveCallback(configId, payload);
+      modalInstance?.hide();
+    }
   };
 
   return {

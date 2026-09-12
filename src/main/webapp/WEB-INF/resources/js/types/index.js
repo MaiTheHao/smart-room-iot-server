@@ -11,3 +11,4 @@ export * from './system.domain.js';
 export * from './telemetry.domain.js';
 export * from './health.domain.js';
 export * from './common.domain.js';
+export * from './room_event.domain.js';

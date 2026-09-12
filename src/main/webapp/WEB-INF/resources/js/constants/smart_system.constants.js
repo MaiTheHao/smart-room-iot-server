@@ -135,3 +135,19 @@ export const PROPERTY_LABEL_CONFIG = Object.freeze({
   speed: { i18nKey: 'propSpeed', fallback: 'Speed' },
   light: { i18nKey: 'propFanLight', fallback: 'Fan Light' },
 });
+
+export const ACTION_FIELD_LABELS = Object.freeze({
+  power: 'Nguồn (Power)',
+  level: 'Độ sáng (Level: 0 - 100)',
+  temperature: 'Nhiệt độ (°C: 16 - 32)',
+  mode: 'Chế độ (Mode)',
+  fanSpeed: 'Tốc độ quạt (0 - 5)',
+  speed: 'Tốc độ gió (Speed: 1 - 3)',
+  swing: 'Đảo gió (Swing)',
+});
+
+export const ACTION_FIELD_DEFAULTS = Object.freeze({
+  LIGHT: Object.freeze({ power: 'ON', level: 80 }),
+  FAN: Object.freeze({ power: 'ON', speed: 1, mode: 'NORMAL', swing: 'OFF' }),
+  AIR_CONDITION: Object.freeze({ power: 'ON', temperature: 24, mode: 'COOL', fanSpeed: 2, swing: 'OFF' }),
+});

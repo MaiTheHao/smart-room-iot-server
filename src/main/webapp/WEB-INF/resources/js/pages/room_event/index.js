@@ -1,3 +1,9 @@
+/**
+ * Room Event Controller
+ * Điều phối vòng đời trang Quản lý Sự kiện Phòng
+ * Tuân thủ Clean Code & phong cách smart_system/rule
+ */
+
 import {
   getEventCodes,
   getConfigsByRoom,
@@ -14,6 +20,10 @@ import { UiRenderer } from './ui_renderer.js';
 import { ConditionModal } from './condition_modal.js';
 import { ActionModal } from './action_modal.js';
 import { Alert, Toast } from '../../common/notification_util.js';
+import {
+  CreateRoomEventConfigDto,
+  UpdateRoomEventConfigDto,
+} from '../../types/room_event.domain.js';
 
 const config = window.__ROOM_EVENT_PAGE_CONFIG__ || {};
 const { roomId, i18n = {} } = config;
@@ -25,124 +35,116 @@ const RoomEventController = {
       return;
     }
 
-    ConditionModal.init();
-    ActionModal.init();
-
-    // Subscribe UiRenderer to StateManager updates
-    StateManager.subscribe((state) => {
-      UiRenderer.renderEventTabs(
-        state.availableCodes,
-        state.selectedCode,
-        (code) => this.handleSelectEventCode(code)
-      );
-      UiRenderer.renderMainContent(state, {
-        onCreateConfig: (data) => this.handleCreateConfig(data),
-        onDeleteConfig: () => this.handleDeleteConfig(),
-        onUpdateDraft: (changes) => StateManager.updateConfigDraft(changes),
-        onOpenConditionModal: (localId) => ConditionModal.open(localId),
-        onDeleteCondition: (localId) => StateManager.deleteCondition(localId),
-        onOpenActionModal: (localId) => ActionModal.open(localId),
-        onDeleteAction: (localId) => StateManager.deleteAction(localId),
-      });
-      UiRenderer.updateSaveBar(state.isDirty);
+    UiRenderer.init({
+      onSaveConfig: (args) => this.handleSaveConfig(args),
+      onOpenConditions: (configId, eventCode) => this.handleOpenConditions(configId, eventCode),
+      onOpenActions: (configId, eventCode) => this.handleOpenActions(configId, eventCode),
+      onOpenEditConfig: (configId) => this.handleOpenEditConfig(configId),
+      onDeleteConfig: (configId, eventCode) => this.handleDeleteConfig(configId, eventCode),
+      onToggleStatus: (configId, isActive) => this.handleToggleStatus(configId, isActive),
     });
 
-    // Bind save button
-    document.getElementById('btnSaveAll')?.addEventListener('click', () => this.handleSaveAll());
+    ConditionModal.init((configId, payload) => this.handleSaveConditions(configId, payload));
+    ActionModal.init((configId, payload) => this.handleSaveActions(configId, payload));
 
+    StateManager.subscribe((state) => {
+      UiRenderer.renderTable(state.configs);
+    });
+
+    this.bindHeaderButtons();
     await this.loadInitialData();
+  },
+
+  bindHeaderButtons() {
+    document.getElementById('btnReload')?.addEventListener('click', () => {
+      this.loadInitialData();
+    });
+
+    document.getElementById('btnAddConfig')?.addEventListener('click', () => {
+      const unconfigured = StateManager.getUnconfiguredCodes();
+      UiRenderer.openCreateConfigModal(unconfigured);
+    });
   },
 
   async loadInitialData() {
     try {
-      const [errCodes, resCodes] = await getEventCodes();
-      if (errCodes) throw errCodes;
-      const eventCodes = resCodes?.data || [];
+      const [[errCodes, resCodes], [errConfigs, resConfigs]] = await Promise.all([
+        getEventCodes(),
+        getConfigsByRoom(roomId),
+      ]);
 
-      const [errConfigs, resConfigs] = await getConfigsByRoom(roomId);
+      if (errCodes) throw errCodes;
       if (errConfigs) throw errConfigs;
+
+      const eventCodes = resCodes?.data || [];
       const configs = resConfigs?.data || [];
 
       StateManager.init(roomId, eventCodes, configs);
-
-      // Load sub-resources for initial selected config if present
-      const initialConfig = StateManager.getCurrentConfig();
-      if (initialConfig?.id) {
-        await this.loadSubResources(initialConfig.id);
-      }
     } catch (err) {
       console.error('Failed to load initial room event data', err);
-      Alert.error(err.message || 'Không thể tải cấu hình sự kiện phòng.', 'Lỗi tải dữ liệu');
+      Alert.error(err.message || 'Không thể tải dữ liệu sự kiện phòng.', 'Lỗi');
     }
   },
 
-  async handleSelectEventCode(code) {
-    StateManager.selectEventCode(code);
-    const cfg = StateManager.getCurrentConfig();
-    if (cfg?.id) {
-      await this.loadSubResources(cfg.id);
-    }
-  },
-
-  async loadSubResources(configId) {
+  async handleSaveConfig({ isEdit, configId, data }) {
     try {
-      const [[errCond, resCond], [errAct, resAct]] = await Promise.all([
-        getConditions(roomId, configId),
-        getActions(roomId, configId),
-      ]);
+      if (isEdit) {
+        const dto = UpdateRoomEventConfigDto.fromForm(data);
+        dto.validate();
 
-      if (errCond) throw errCond;
-      if (errAct) throw errAct;
+        const [err, res] = await updateConfig(roomId, configId, {
+          isActive: dto.isActive,
+          cooldownSeconds: dto.cooldownSeconds,
+        });
+        if (err) throw err;
 
-      StateManager.setLoadedSubResources(resCond?.data || [], resAct?.data || []);
+        StateManager.updateConfig(res?.data);
+        Toast.success('Cập nhật cấu hình sự kiện thành công!');
+      } else {
+        const dto = CreateRoomEventConfigDto.fromForm(data);
+        dto.validate();
+
+        const [err, res] = await createConfig(roomId, {
+          eventCode: dto.eventCode,
+          isActive: dto.isActive,
+          cooldownSeconds: dto.cooldownSeconds,
+        });
+        if (err) throw err;
+
+        StateManager.addConfig(res?.data);
+        Toast.success('Tạo cấu hình sự kiện mới thành công!');
+      }
     } catch (err) {
-      console.error('Failed to load conditions/actions', err);
-      Toast.error('Không thể tải danh sách điều kiện hoặc hành động.');
+      console.error('Failed to save event config', err);
+      Alert.error(err.message || i18n.saveError || 'Lưu cấu hình thất bại!', 'Lỗi');
     }
   },
 
-  async handleCreateConfig(draftData) {
-    const btn = document.getElementById('btnCreateConfig');
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang tạo...';
-    }
-
+  async handleToggleStatus(configId, isActive) {
     try {
-      const [err, res] = await createConfig(roomId, draftData);
-      if (err) {
-        // Handle 409 Conflict if already exists
-        if (err.status === 409) {
-          Toast.warning(i18n.conflictError || 'Cấu hình sự kiện đã tồn tại.');
-          await this.loadInitialData();
-          return;
-        }
-        throw err;
-      }
+      const [err, res] = await updateConfig(roomId, configId, { isActive });
+      if (err) throw err;
 
-      const created = res?.data;
-      Toast.success('Khởi tạo cấu hình sự kiện thành công!');
-      StateManager.onSavedSuccess(created);
-      await this.loadSubResources(created.id);
+      StateManager.updateConfig(res?.data);
+      Toast.success(`Đã ${isActive ? 'bật' : 'tắt'} sự kiện thành công!`);
     } catch (err) {
-      console.error('Failed to create config', err);
-      Alert.error(err.message || i18n.saveError || 'Tạo cấu hình thất bại!', 'Lỗi');
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="plus-circle" class="me-2" style="width: 18px; height: 18px"></i><span>Khởi tạo cấu hình sự kiện</span>';
-        if (window.lucide) window.lucide.createIcons();
-      }
+      console.error('Failed to toggle event active status', err);
+      Toast.error('Không thể thay đổi trạng thái sự kiện.');
+      await this.loadInitialData();
     }
   },
 
-  async handleDeleteConfig() {
-    const currentConfig = StateManager.getCurrentConfig();
-    if (!currentConfig?.id) return;
+  handleOpenEditConfig(configId) {
+    const cfg = StateManager.getConfigById(configId);
+    if (cfg) {
+      UiRenderer.openEditConfigModal(cfg);
+    }
+  },
 
+  async handleDeleteConfig(configId, eventCode) {
     const confirmResult = await Alert.confirm({
       title: i18n.confirmDelete || 'Xác nhận xóa',
-      text: i18n.confirmDeleteText || 'Bạn có chắc chắn muốn xóa cấu hình sự kiện này cùng tất cả điều kiện và hành động liên quan?',
+      text: i18n.confirmDeleteText || `Bạn có chắc chắn muốn xóa cấu hình sự kiện ${eventCode}?`,
       confirmText: i18n.yesDelete || 'Xóa',
       cancelText: i18n.cancel || 'Hủy',
     });
@@ -150,69 +152,66 @@ const RoomEventController = {
     if (!confirmResult.isConfirmed) return;
 
     try {
-      const [err] = await deleteConfig(roomId, currentConfig.id);
+      const [err] = await deleteConfig(roomId, configId);
       if (err) throw err;
 
+      StateManager.removeConfig(configId);
       Toast.success('Đã xóa cấu hình sự kiện thành công!');
-      StateManager.onDeletedSuccess(currentConfig.eventCode);
     } catch (err) {
       console.error('Failed to delete config', err);
       Alert.error(err.message || 'Xóa cấu hình thất bại!', 'Lỗi');
     }
   },
 
-  async handleSaveAll() {
-    const currentConfig = StateManager.getCurrentConfig();
-    if (!currentConfig?.id) return;
-
-    const actions = StateManager.getActions();
-    // UI Validation Warning if no actions
-    if (actions.length === 0) {
-      const confirmWarning = await Alert.confirm({
-        title: 'Chưa có hành động nào',
-        text: i18n.requireActionWarning || 'Cấu hình sự kiện chưa có hành động điều khiển thiết bị nào. Bạn có chắc chắn muốn tiếp tục lưu?',
-        confirmText: 'Vẫn lưu',
-        cancelText: 'Quay lại thêm hành động',
-      });
-      if (!confirmWarning.isConfirmed) return;
-    }
-
-    const btn = document.getElementById('btnSaveAll');
-    const originalHtml = btn ? btn.innerHTML : '';
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu cấu hình...';
-    }
-
+  async handleOpenConditions(configId, eventCode) {
     try {
-      const draft = StateManager.getConfigDraft();
-      // 1. Update config if changed
-      const [errCfg, resCfg] = await updateConfig(roomId, currentConfig.id, {
-        isActive: draft.isActive,
-        cooldownSeconds: draft.cooldownSeconds,
-      });
-      if (errCfg) throw errCfg;
+      const [err, res] = await getConditions(roomId, configId);
+      if (err) throw err;
 
-      // 2. Replace conditions
-      const conditionsPayload = StateManager.buildConditionsPayload(currentConfig.id);
-      const [errCond] = await replaceConditions(roomId, currentConfig.id, conditionsPayload);
-      if (errCond) throw errCond;
-
-      // 3. Replace actions
-      const actionsPayload = StateManager.buildActionsPayload(currentConfig.id);
-      const [errAct] = await replaceActions(roomId, currentConfig.id, actionsPayload);
-      if (errAct) throw errAct;
-
-      Alert.success(i18n.saveSuccess || 'Đã lưu cấu hình sự kiện phòng thành công!');
-      StateManager.onSavedSuccess(resCfg?.data || currentConfig);
+      const conditions = res?.data || [];
+      StateManager.setActiveConfig(configId, eventCode, conditions, []);
+      ConditionModal.open(configId, eventCode);
     } catch (err) {
-      console.error('Failed to save all changes', err);
-      Alert.error(err.message || i18n.saveError || 'Lưu cấu hình thất bại!', 'Lỗi');
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-      }
+      console.error('Failed to load conditions', err);
+      Toast.error('Không thể tải danh sách điều kiện của sự kiện.');
+    }
+  },
+
+  async handleSaveConditions(configId, payload) {
+    try {
+      const [err] = await replaceConditions(roomId, configId, payload);
+      if (err) throw err;
+
+      Toast.success('Đã lưu danh sách điều kiện thành công!');
+    } catch (err) {
+      console.error('Failed to save conditions', err);
+      Alert.error(err.message || 'Lưu điều kiện thất bại!', 'Lỗi');
+    }
+  },
+
+  async handleOpenActions(configId, eventCode) {
+    try {
+      const [err, res] = await getActions(roomId, configId);
+      if (err) throw err;
+
+      const actions = res?.data || [];
+      StateManager.setActiveConfig(configId, eventCode, [], actions);
+      ActionModal.open(configId, eventCode);
+    } catch (err) {
+      console.error('Failed to load actions', err);
+      Toast.error('Không thể tải danh sách hành động của sự kiện.');
+    }
+  },
+
+  async handleSaveActions(configId, payload) {
+    try {
+      const [err] = await replaceActions(roomId, configId, payload);
+      if (err) throw err;
+
+      Toast.success('Đã lưu danh sách hành động thành công!');
+    } catch (err) {
+      console.error('Failed to save actions', err);
+      Alert.error(err.message || 'Lưu hành động thất bại!', 'Lỗi');
     }
   },
 };
