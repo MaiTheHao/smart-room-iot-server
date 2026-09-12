@@ -131,10 +131,9 @@
                 </div>
 
                 <!-- Target Device Category -->
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-8">
                   <label for="targetDeviceCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.actions.target_category}">Target Category</label>
                   <select class="form-select bg-light border-0" id="targetDeviceCategory" name="targetDeviceCategory">
-                    <option value="">-- All Categories --</option>
                     <option value="LIGHT" th:text="#{smart_system.rule.actions.light}">Light</option>
                     <option value="FAN" th:text="#{smart_system.rule.actions.fan}">Fan</option>
                     <option value="AIR_CONDITION" th:text="#{smart_system.rule.actions.air_conditioner}">Air Conditioner</option>
@@ -143,21 +142,18 @@
 
                 <!-- Target Device -->
                 <div class="col-12 col-md-4">
-                  <label for="targetDeviceId" class="form-label fw-semibold small text-muted text-uppercase mb-1">
-                    <span th:text="#{smart_system.rule.actions.target_device}">Target Device</span>
-                    <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-select bg-light border-0" id="targetDeviceId" name="targetDeviceId" required>
+                  <label for="targetDeviceId" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.actions.target_device}">Target Device</label>
+                  <select class="form-select bg-light border-0" id="targetDeviceId" name="targetDeviceId" disabled>
                     <option value="" disabled selected th:text="#{smart_system.rule.actions.select_device}">Select device</option>
                   </select>
-                  <div class="invalid-feedback" id="val-targetDeviceId" th:text="#{smart_system.rule.conditions.val.target_required}">Target device is required</div>
+                  <div class="invalid-feedback" id="val-targetDeviceId"></div>
                 </div>
 
                 <!-- Dynamic Parameters Container -->
                 <div class="col-12">
                   <div class="border-top pt-3 mt-1">
                     <h6 class="fw-bold mb-3 small text-muted text-uppercase d-flex align-items-center gap-2">
-                      <i data-lucide="sliders-horizontal" class="lucide-sm text-primary"></i>
+                      <i data-lucide="sliders-horizontal" class="lucide-sm"></i>
                       <span th:text="#{smart_system.rule.actions.action_params}">Action Parameters</span>
                     </h6>
                     <div id="dynamicParamsContainer" class="row g-3">
