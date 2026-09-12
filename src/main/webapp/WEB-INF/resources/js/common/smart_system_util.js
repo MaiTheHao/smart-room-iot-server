@@ -94,7 +94,7 @@ export const mapConditionsForReplace = (conditions = []) =>
     id: c.id != null ? c.id : undefined,
     sourceCategory: c.sourceCategory,
     sourceTargetId: String(c.sourceTargetId != null ? c.sourceTargetId : ''),
-    sourceTargetType: c.sourceTargetType || '',
+    sourceTargetType: c.sourceTargetType ?? null,
     property: c.property,
     operator: c.operator,
     value: String(c.value),

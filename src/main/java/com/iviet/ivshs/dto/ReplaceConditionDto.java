@@ -50,9 +50,7 @@ public record ReplaceConditionDto(
     if (sourceTargetId != null) {
       entity.setSourceTargetId(sourceTargetId);
     }
-    if (sourceTargetType != null) {
-      entity.setSourceTargetType(sourceTargetType);
-    }
+    entity.setSourceTargetType(sourceTargetType);
     if (property != null) {
       entity.setProperty(property);
     }

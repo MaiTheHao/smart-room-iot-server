@@ -53,7 +53,7 @@ public class Condition extends BaseAuditEntity {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "source_target_type", nullable = false, length = 50)
+    @Column(name = "source_target_type", length = 50)
     private DeviceCategory sourceTargetType;
 
     @Column(name = "property", nullable = false, length = 100)
