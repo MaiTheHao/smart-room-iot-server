@@ -38,7 +38,6 @@ export const ActionModal = (() => {
   };
 
   const bindEvents = () => {
-    el.form?.addEventListener('submit', (e) => submit(e));
     el.category?.addEventListener('change', () => onCategoryChange());
     el.deviceId?.addEventListener('change', () => onDeviceChange());
   };

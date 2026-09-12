@@ -116,7 +116,6 @@ export const ConditionModal = (() => {
   };
 
   const bindEvents = () => {
-    el.form?.addEventListener('submit', (e) => submit(e));
     el.dataSource?.addEventListener('change', () => onDataSourceChange());
     el.category?.addEventListener('change', () => onCategoryChange());
     el.property?.addEventListener('change', () => onPropertyChange());
@@ -385,7 +384,7 @@ export const ConditionModal = (() => {
     const localId = el.localId.value;
     const ds = el.dataSource.value;
     const prop = el.property.value;
-    const cat = (ds === 'DEVICE' || ds === 'SENSOR') ? el.category.value : ds;
+    const cat = (ds === 'DEVICE' || ds === 'SENSOR') ? el.category.value : null;
 
     let sourceTargetId = '0';
     if (ds === 'DEVICE' || ds === 'SENSOR') {
