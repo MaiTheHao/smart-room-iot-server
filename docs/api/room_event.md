@@ -1,13 +1,50 @@
 # Smart Room IoT - Room Event API Documentation
 
-## 1. Cấu trúc dữ liệu RoomEventConfig
+---
 
-### RoomEventConfigDto
+## 1. Xác thực & Phân quyền (Authentication & Authorization)
+
+- **Cơ chế xác thực:** JWT Bearer Token qua Header:
+  ```http
+  Authorization: Bearer <token>
+  ```
+- **Quyền hạn truy cập (Authorities):** Người dùng cần có ít nhất một trong hai quyền sau:
+  - `F_MANAGE_ALL` (Quản trị toàn quyền hệ thống)
+  - `F_MANAGE_ROOM` (Quản lý phòng)
+- **Kiểm soát phạm vi phòng:** Đối với các API thuộc `/api/v1/rooms/{roomId}/...`, người dùng bắt buộc phải có quyền truy cập vào `roomId` được chỉ định (được kiểm tra qua `permissionService.requireAccessRoom(roomId)`).
+
+---
+
+## 2. Cấu trúc Response chuẩn (ApiResponse Envelope)
+
+Tất cả các API đều bọc dữ liệu trong cấu trúc chuẩn `ApiResponse<T>`:
+
+| Tên trường | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `status` | Integer | HTTP Status code tương ứng |
+| `message` | String | Thông điệp kết quả |
+| `data` | `T` | Dữ liệu trả về (Object, List, hoặc `null`) |
+| `timestamp` | String (ISO-8601) | Thời điểm xử lý phản hồi |
+| `traceId` | String | Mã định danh truy vết log hệ thống (nếu có) |
+| `scenarioId` | String | Mã ngữ cảnh kiểm thử/kịch bản (nếu có) |
+
+---
+
+## 3. Cấu trúc Dữ liệu
+
+### 3.1. RoomEventCodeDto
+| Tên trường | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `id` | Long | ID của loại sự kiện |
+| `code` | String (Enum) | Mã sự kiện phòng (Ví dụ: `MOTION_DETECTED`) |
+| `description` | String | Mô tả loại sự kiện phòng |
+
+### 3.2. RoomEventConfigDto
 | Tên trường | Loại | Mô tả |
 | :--- | :--- | :--- |
 | `id` | Long | ID của cấu hình sự kiện phòng |
 | `roomId` | Long | ID phòng sở hữu |
-| `roomName` | String | Mã / Tên phòng |
+| `roomName` | String | Mã phòng sở hữu (`room.code`) |
 | `roomEventId` | Long | ID định danh loại sự kiện phòng |
 | `eventCode` | String (Enum) | Mã sự kiện phòng (`MOTION_DETECTED`) |
 | `eventDescription` | String | Mô tả sự kiện |
@@ -17,11 +54,68 @@
 | `createdAt` | String (ISO-8601) | Thời điểm tạo |
 | `updatedAt` | String (ISO-8601) | Thời điểm cập nhật cuối |
 
+### 3.3. ConditionDto
+| Tên trường | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `id` | Long | ID của điều kiện |
+| `ownerCategory` | String (Enum) | Danh mục sở hữu (`ROOM_EVENT`) |
+| `ownerId` | String | ID của thực thể sở hữu (ví dụ: `configId`) |
+| `sourceCategory` | String (Enum) | Nguồn dữ liệu kiểm tra (`SENSOR`, `DEVICE`, ...) |
+| `sourceTargetId` | String | Định danh nguồn dữ liệu |
+| `sourceTargetType` | String (Enum) | Loại thiết bị / cảm biến (`SENSOR_LUX`, `SENSOR_PIR`, ...) |
+| `property` | String | Thuộc tính cần so sánh (ví dụ: `lux`, `state`) |
+| `operator` | String (Enum) | Toán tử (`<`, `<=`, `>`, `>=`, `=`, `!=`) |
+| `value` | String | Giá trị ngưỡng so sánh |
+| `extraParams` | Object (JSON) | Tham số bổ sung nếu có |
+| `sortOrder` | Integer | Thứ tự đánh giá điều kiện (Mặc định: `0`) |
+| `nextLogic` | String (Enum) | Toán tử logic kết nối với điều kiện kế tiếp (`AND`, `OR`) |
+| `createdAt` | String (ISO-8601) | Thời điểm tạo |
+| `updatedAt` | String (ISO-8601) | Thời điểm cập nhật |
+
+### 3.4. ActionDto
+| Tên trường | Loại | Mô tả |
+| :--- | :--- | :--- |
+| `id` | Long | ID của hành động |
+| `ownerCategory` | String (Enum) | Danh mục sở hữu (`ROOM_EVENT`) |
+| `ownerId` | String | ID của thực thể sở hữu (ví dụ: `configId`) |
+| `targetCategory` | String (Enum) | Danh mục thiết bị đích (`LIGHT`, `AIR_CONDITION`, ...) |
+| `targetId` | String | ID định danh thiết bị thực thi |
+| `params` | Object (JSON) | Tham số điều khiển (ví dụ: `{"state": true, "brightness": 80}`) |
+| `executionOrder` | Integer | Thứ tự thực thi hành động (Mặc định: `0`) |
+| `createdAt` | String (ISO-8601) | Thời điểm tạo |
+| `updatedAt` | String (ISO-8601) | Thời điểm cập nhật |
+
 ---
 
-## 2. Danh sách Endpoints
+## 4. Danh sách Endpoints
 
-### 2.1. Quản lý Cấu hình Sự kiện (CRUD Config)
+### 4.1. Danh mục Mã Sự kiện Phòng (Master Data)
+
+<details open>
+<summary><b>GET</b> <code>/api/v1/room-events/codes</code> - Lấy danh sách các mã sự kiện phòng khả dụng</summary>
+
+> Lấy toàn bộ danh sách các loại sự kiện phòng được cấu hình sẵn trong hệ thống.
+
+#### Response (200 OK)
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": [
+    {
+      "id": 1,
+      "code": "MOTION_DETECTED",
+      "description": "Phát hiện chuyển động trong phòng"
+    }
+  ],
+  "timestamp": "2026-09-12T07:00:00Z"
+}
+```
+</details>
+
+---
+
+### 4.2. Quản lý Cấu hình Sự kiện (CRUD Config)
 
 <details>
 <summary><b>POST</b> <code>/api/v1/rooms/{roomId}/events</code> - Tạo cấu hình sự kiện mới cho phòng</summary>
@@ -65,7 +159,8 @@
     "lastTriggeredAt": null,
     "createdAt": "2026-08-29T02:00:00Z",
     "updatedAt": "2026-08-29T02:00:00Z"
-  }
+  },
+  "timestamp": "2026-08-29T02:00:00Z"
 }
 ```
 </details>
@@ -99,7 +194,8 @@
       "createdAt": "2026-08-29T02:00:00Z",
       "updatedAt": "2026-08-29T02:15:00Z"
     }
-  ]
+  ],
+  "timestamp": "2026-08-29T02:15:00Z"
 }
 ```
 </details>
@@ -132,7 +228,8 @@
     "lastTriggeredAt": "2026-08-29T02:15:00Z",
     "createdAt": "2026-08-29T02:00:00Z",
     "updatedAt": "2026-08-29T02:15:00Z"
-  }
+  },
+  "timestamp": "2026-08-29T02:15:00Z"
 }
 ```
 </details>
@@ -149,10 +246,10 @@
 | `configId` | Long | Có | ID của cấu hình sự kiện |
 
 #### Request Body
-| Tên trường | Loại | Bắt buộc | Mô tả |
-| :--- | :--- | :--- | :--- |
-| `isActive` | Boolean | Không | Trạng thái kích hoạt |
-| `cooldownSeconds` | Integer | Không | Thời gian cooldown (giây, >= 0) |
+| Tên trường | Loại | Bắt buộc | Mặc định | Mô tả |
+| :--- | :--- | :--- | :--- | :--- |
+| `isActive` | Boolean | Không | - | Trạng thái kích hoạt |
+| `cooldownSeconds` | Integer | Không | - | Thời gian cooldown (giây, >= 0) |
 
 ```json
 {
@@ -178,7 +275,8 @@
     "lastTriggeredAt": "2026-08-29T02:15:00Z",
     "createdAt": "2026-08-29T02:00:00Z",
     "updatedAt": "2026-08-29T02:20:00Z"
-  }
+  },
+  "timestamp": "2026-08-29T02:20:00Z"
 }
 ```
 </details>
@@ -188,7 +286,7 @@
 <details>
 <summary><b>DELETE</b> <code>/api/v1/rooms/{roomId}/events/{configId}</code> - Xóa cấu hình sự kiện</summary>
 
-> Xóa cấu hình sự kiện phòng, đồng thời tự động xóa toàn bộ các `Condition` và `Action` phụ thuộc.
+> Xóa cấu hình sự kiện phòng, đồng thời tự động xóa toàn bộ các `Condition` và `Action` phụ thuộc (`ConditionOwnerCategory.ROOM_EVENT` và `ActionOwnerCategory.ROOM_EVENT`).
 
 #### Path Parameters
 | Tên | Loại | Bắt buộc | Mô tả |
@@ -201,17 +299,24 @@
 {
   "status": 204,
   "message": "Room event config deleted successfully",
-  "data": null
+  "data": null,
+  "timestamp": "2026-08-29T02:22:00Z"
 }
 ```
 </details>
 
 ---
 
-### 2.2. Quản lý Điều kiện lọc (Conditions Sub-resource)
+### 4.3. Quản lý Điều kiện lọc (Conditions Sub-resource)
 
 <details>
 <summary><b>GET</b> <code>/api/v1/rooms/{roomId}/events/{configId}/conditions</code> - Danh sách điều kiện</summary>
+
+#### Path Parameters
+| Tên | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `roomId` | Long | Có | ID của phòng |
+| `configId` | Long | Có | ID của cấu hình sự kiện |
 
 #### Response (200 OK)
 ```json
@@ -235,7 +340,8 @@
       "createdAt": "2026-08-29T02:00:00Z",
       "updatedAt": "2026-08-29T02:00:00Z"
     }
-  ]
+  ],
+  "timestamp": "2026-08-29T02:00:00Z"
 }
 ```
 </details>
@@ -245,9 +351,33 @@
 <details>
 <summary><b>POST</b> <code>/api/v1/rooms/{roomId}/events/{configId}/conditions</code> - Thêm điều kiện mới</summary>
 
+> **Lưu ý về validation (`CreateConditionDto`):** Mặc dù Controller sẽ tự động gán lại `ownerCategory = ROOM_EVENT` và `ownerId = configId`, tầng Validation của Spring Boot yêu cầu 2 trường này không được để trống (`@NotNull` và `@NotBlank`). Client nên truyền giá trị tương ứng (`ownerCategory: "ROOM_EVENT"` và `ownerId: "<configId>"`).
+
+#### Path Parameters
+| Tên | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `roomId` | Long | Có | ID của phòng |
+| `configId` | Long | Có | ID của cấu hình sự kiện |
+
 #### Request Body
+| Tên trường | Loại | Bắt buộc | Mặc định | Mô tả |
+| :--- | :--- | :--- | :--- | :--- |
+| `ownerCategory` | String (Enum) | Có | - | Cố định: `"ROOM_EVENT"` |
+| `ownerId` | String | Có | - | ID của cấu hình sự kiện (`configId`) |
+| `sourceCategory` | String (Enum) | Có | - | Nguồn dữ liệu: `SENSOR`, `DEVICE`, ... |
+| `sourceTargetId` | String | Có | - | ID nguồn dữ liệu |
+| `sourceTargetType` | String (Enum) | Không | - | Loại thiết bị / cảm biến |
+| `property` | String | Có | - | Tên thuộc tính đo lường (`lux`, ...) |
+| `operator` | String (Enum) | Có | - | Toán tử: `<`, `<=`, `>`, `>=`, `=`, `!=` |
+| `value` | String | Có | - | Giá trị ngưỡng |
+| `extraParams` | Object (JSON) | Không | `null` | Tham số bổ sung |
+| `sortOrder` | Integer | Không | `0` | Thứ tự ưu tiên |
+| `nextLogic` | String (Enum) | Không | `null` | Toán tử logic kế tiếp (`AND`, `OR`) |
+
 ```json
 {
+  "ownerCategory": "ROOM_EVENT",
+  "ownerId": "1",
   "sourceCategory": "SENSOR",
   "sourceTargetId": "5",
   "sourceTargetType": "SENSOR_LUX",
@@ -279,7 +409,8 @@
     "nextLogic": "AND",
     "createdAt": "2026-08-29T02:00:00Z",
     "updatedAt": "2026-08-29T02:00:00Z"
-  }
+  },
+  "timestamp": "2026-08-29T02:00:00Z"
 }
 ```
 </details>
@@ -289,7 +420,30 @@
 <details>
 <summary><b>PUT</b> <code>/api/v1/rooms/{roomId}/events/{configId}/conditions</code> - Thay thế toàn bộ danh sách điều kiện (Bulk Replace)</summary>
 
+> Thay thế toàn bộ danh sách điều kiện hiện có của cấu hình bằng danh sách mới. Với API này (`ReplaceConditionDto`), client không cần truyền `ownerCategory` hay `ownerId`. Nếu phần tử có trường `id`, hệ thống sẽ cập nhật điều kiện tương ứng; nếu không có `id`, hệ thống sẽ tạo mới.
+
+#### Path Parameters
+| Tên | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `roomId` | Long | Có | ID của phòng |
+| `configId` | Long | Có | ID của cấu hình sự kiện |
+
 #### Request Body
+Mảng danh sách các đối tượng điều kiện (`List<ReplaceConditionDto>`):
+
+| Tên trường | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `id` | Long | Không | ID điều kiện hiện có (nếu muốn cập nhật) |
+| `sourceCategory` | String (Enum) | Có | Nguồn dữ liệu (`SENSOR`, `DEVICE`, ...) |
+| `sourceTargetId` | String | Có | ID nguồn dữ liệu |
+| `sourceTargetType` | String (Enum) | Không | Loại thiết bị / cảm biến |
+| `property` | String | Có | Thuộc tính so sánh |
+| `operator` | String (Enum) | Có | Toán tử so sánh |
+| `value` | String | Có | Giá trị ngưỡng |
+| `extraParams` | Object (JSON) | Không | Tham số bổ sung |
+| `sortOrder` | Integer | Không | Thứ tự ưu tiên |
+| `nextLogic` | String (Enum) | Không | Toán tử logic kế tiếp (`AND`, `OR`) |
+
 ```json
 [
   {
@@ -328,17 +482,24 @@
       "createdAt": "2026-08-29T02:00:00Z",
       "updatedAt": "2026-08-29T02:25:00Z"
     }
-  ]
+  ],
+  "timestamp": "2026-08-29T02:25:00Z"
 }
 ```
 </details>
 
 ---
 
-### 2.3. Quản lý Hành động (Actions Sub-resource)
+### 4.4. Quản lý Hành động (Actions Sub-resource)
 
 <details>
 <summary><b>GET</b> <code>/api/v1/rooms/{roomId}/events/{configId}/actions</code> - Danh sách hành động</summary>
+
+#### Path Parameters
+| Tên | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `roomId` | Long | Có | ID của phòng |
+| `configId` | Long | Có | ID của cấu hình sự kiện |
 
 #### Response (200 OK)
 ```json
@@ -360,7 +521,8 @@
       "createdAt": "2026-08-29T02:00:00Z",
       "updatedAt": "2026-08-29T02:00:00Z"
     }
-  ]
+  ],
+  "timestamp": "2026-08-29T02:00:00Z"
 }
 ```
 </details>
@@ -370,9 +532,28 @@
 <details>
 <summary><b>POST</b> <code>/api/v1/rooms/{roomId}/events/{configId}/actions</code> - Thêm hành động mới</summary>
 
+> **Lưu ý về validation (`CreateActionDto`):** Tương tự điều kiện, Controller yêu cầu DTO hợp lệ với `ownerCategory` (`@NotNull`) và `ownerId` (`@NotBlank`). Client cần truyền giá trị `ownerCategory: "ROOM_EVENT"` và `ownerId: "<configId>"` trong body để vượt qua bước xác thực dữ liệu đầu vào.
+
+#### Path Parameters
+| Tên | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `roomId` | Long | Có | ID của phòng |
+| `configId` | Long | Có | ID của cấu hình sự kiện |
+
 #### Request Body
+| Tên trường | Loại | Bắt buộc | Mặc định | Mô tả |
+| :--- | :--- | :--- | :--- | :--- |
+| `ownerCategory` | String (Enum) | Có | - | Cố định: `"ROOM_EVENT"` |
+| `ownerId` | String | Có | - | ID của cấu hình sự kiện (`configId`) |
+| `targetCategory` | String (Enum) | Có | - | Danh mục thiết bị (`LIGHT`, ...) |
+| `targetId` | String | Có | - | ID thiết bị đích |
+| `params` | Object (JSON) | Có | - | Dữ liệu cấu hình thực thi (không được `null`) |
+| `executionOrder` | Integer | Không | `0` | Thứ tự thực thi |
+
 ```json
 {
+  "ownerCategory": "ROOM_EVENT",
+  "ownerId": "1",
   "targetCategory": "LIGHT",
   "targetId": "12",
   "params": {
@@ -401,7 +582,8 @@
     "executionOrder": 0,
     "createdAt": "2026-08-29T02:00:00Z",
     "updatedAt": "2026-08-29T02:00:00Z"
-  }
+  },
+  "timestamp": "2026-08-29T02:00:00Z"
 }
 ```
 </details>
@@ -411,7 +593,25 @@
 <details>
 <summary><b>PUT</b> <code>/api/v1/rooms/{roomId}/events/{configId}/actions</code> - Thay thế toàn bộ danh sách hành động (Bulk Replace)</summary>
 
+> Thay thế toàn bộ danh sách hành động hiện tại bằng danh sách mới. Với API này (`ReplaceActionDto`), client không cần gửi kèm `ownerCategory` hay `ownerId`. Nếu phần tử có `id`, hệ thống cập nhật hành động; nếu không có `id`, hệ thống tạo mới hành động.
+
+#### Path Parameters
+| Tên | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `roomId` | Long | Có | ID của phòng |
+| `configId` | Long | Có | ID của cấu hình sự kiện |
+
 #### Request Body
+Mảng danh sách các đối tượng hành động (`List<ReplaceActionDto>`):
+
+| Tên trường | Loại | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- |
+| `id` | Long | Không | ID hành động hiện có (nếu cập nhật) |
+| `targetCategory` | String (Enum) | Không | Danh mục thiết bị (`LIGHT`, ...) |
+| `targetId` | String | Có | ID thiết bị đích |
+| `params` | Object (JSON) | Có | Dữ liệu cấu hình thực thi (không được `null`) |
+| `executionOrder` | Integer | Không | Thứ tự thực thi |
+
 ```json
 [
   {
@@ -447,7 +647,8 @@
       "createdAt": "2026-08-29T02:00:00Z",
       "updatedAt": "2026-08-29T02:30:00Z"
     }
-  ]
+  ],
+  "timestamp": "2026-08-29T02:30:00Z"
 }
 ```
 </details>
