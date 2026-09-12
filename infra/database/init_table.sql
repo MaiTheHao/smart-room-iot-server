@@ -952,7 +952,6 @@ CREATE TABLE `motion_detector` (
   `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
   `natural_id` varchar(256) NOT NULL,
   `specific_type` varchar(256) DEFAULT NULL,
-  `code` varchar(256) NULL,
   `current_motion` BOOLEAN DEFAULT NULL,
   `last_event_at` datetime(6) DEFAULT NULL,
   `hardware_config_id` bigint DEFAULT NULL,

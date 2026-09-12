@@ -19,10 +19,7 @@ import lombok.Setter;
     uniqueConstraints = {
       @UniqueConstraint(
           name = "uq_motion_detector_natural_id",
-          columnNames = {"natural_id"}),
-      @UniqueConstraint(
-          name = "uq_motion_detector_room_code",
-          columnNames = {"room_id", "code"})
+          columnNames = {"natural_id"})
     },
     indexes = {
       @Index(name = "idx_motion_detector_room_id", columnList = "room_id"),
