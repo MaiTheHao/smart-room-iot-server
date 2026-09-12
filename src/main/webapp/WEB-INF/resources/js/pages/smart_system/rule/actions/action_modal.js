@@ -7,7 +7,12 @@ import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 import { CreateActionDto } from '../../../../types/rule.domain.js';
 import { ACTION_PARAM_SCHEMA } from '../../../../constants/smart_system.constants.js';
-import { getAllowedActionParamKeys } from '../../../../common/smart_system_util.js';
+import {
+    getAllowedActionParamKeys,
+    renderActionParamFields,
+    collectActionParamsFromContainer,
+    validateActionParams,
+} from '../../../../common/smart_system_util.js';
 
 const { i18n } = window.__ACTIONS_CONFIG__;
 
@@ -137,119 +142,29 @@ export const ActionModal = (() => {
     };
 
     const renderDynamicParams = (category, specificType = null, currentParams = {}) => {
-        el.dynamicParamsContainer.innerHTML = '';
-        const config = ACTION_PARAM_SCHEMA[category];
-        if (!config) return;
-
         if (!specificType) {
             const selectedOpt = el.targetDeviceId.options[el.targetDeviceId.selectedIndex];
             specificType = selectedOpt?.dataset?.specificType || null;
         }
-
         const allowedKeys = getAllowedActionParamKeys(category, specificType);
-
-        Object.entries(config).forEach(([key, schema]) => {
-            if (allowedKeys && !allowedKeys.includes(key)) {
-                return;
-            }
-            const col = document.createElement('div');
-            col.className = 'col-12 col-md-6';
-
-            const label = document.createElement('label');
-            label.className = 'form-label fw-semibold small text-muted text-uppercase mb-1';
-            label.textContent = i18n[schema.labelKey] || schema.labelKey;
-            col.appendChild(label);
-
-            const currentVal = (currentParams && currentParams[key] !== undefined)
-                ? String(currentParams[key])
-                : '';
-
-            if (schema.type === 'enum') {
-                const select = document.createElement('select');
-                select.className = 'form-select bg-light border-0';
-                select.name = `param_${key}`;
-
-                const defaultOpt = document.createElement('option');
-                defaultOpt.value = '';
-                defaultOpt.textContent = `— ${i18n.unchanged} —`;
-                select.appendChild(defaultOpt);
-
-                schema.options.forEach((val) => {
-                    const opt = document.createElement('option');
-                    opt.value = val;
-                    opt.textContent = val;
-                    if (currentVal === val) opt.selected = true;
-                    select.appendChild(opt);
-                });
-
-                col.appendChild(select);
-            } else {
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'form-control bg-light border-0';
-                input.name = `param_${key}`;
-                input.placeholder = schema.placeholder || '';
-                input.min = schema.min;
-                input.max = schema.max;
-                if (currentVal !== '') input.value = currentVal;
-
-                const feedback = document.createElement('div');
-                feedback.className = 'invalid-feedback';
-                feedback.textContent = `Must be between ${schema.min} and ${schema.max}`;
-
-                col.appendChild(input);
-                col.appendChild(feedback);
-            }
-
-            el.dynamicParamsContainer.appendChild(col);
+        renderActionParamFields({
+            container: el.dynamicParamsContainer,
+            category,
+            values: currentParams,
+            allowedKeys,
+            i18n,
         });
-
         window.renderIcons?.();
     };
 
     const collectParams = async (category) => {
-        const config = ACTION_PARAM_SCHEMA[category];
-        if (!config) return {};
-
-        const params = {};
-
-        for (const [key, schema] of Object.entries(config)) {
-            const inputEl = el.dynamicParamsContainer.querySelector(`[name="param_${key}"]`);
-            if (!inputEl) continue;
-
-            const val = inputEl.value;
-
-            if (val === '' || val === null || val === undefined) {
-                continue;
-            }
-
-            const categoryValidators = Validator[category];
-            const validatorKey = key === 'temperature' ? 'temp' : (key === 'fanSpeed' ? 'fan_speed' : key);
-            const validator = categoryValidators ? categoryValidators[validatorKey] : null;
-
-            if (validator && !validator.isValidFormat(val)) {
-                if (schema.type === 'int') {
-                    await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Must be between ${schema.min} and ${schema.max}`, i18n.error || 'Error');
-                } else {
-                    await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Invalid value`, i18n.error || 'Error');
-                }
-                inputEl.focus();
-                return null;
-            }
-
-            if (schema.type === 'int') {
-                const num = parseInt(val, 10);
-                if (!validator && (isNaN(num) || num < schema.min || num > schema.max)) {
-                    await Alert.warning(`${i18n[schema.labelKey] || schema.labelKey}: Must be between ${schema.min} and ${schema.max}`, i18n.error || 'Error');
-                    inputEl.focus();
-                    return null;
-                }
-                params[key] = num;
-            } else {
-                params[key] = val;
-            }
+        const params = collectActionParamsFromContainer(el.dynamicParamsContainer, category);
+        const validation = validateActionParams({ category, params });
+        if (!validation.isValid) {
+            const firstErr = Object.values(validation.errors)[0] || 'Invalid parameter';
+            await Alert.warning(firstErr, i18n.error || 'Error');
+            return null;
         }
-
         return params;
     };
 

@@ -18,11 +18,11 @@ export class RoomEventCodeDto {
   }
 
   static fromApi(data = {}) {
-    if (!data) return null;
+    const payload = data || {};
     return new RoomEventCodeDto.Builder()
-      .setId(data.id)
-      .setCode(data.code)
-      .setDescription(data.description)
+      .setId(payload.id)
+      .setCode(payload.code)
+      .setDescription(payload.description)
       .build();
   }
 }
@@ -37,9 +37,9 @@ export class RoomEventConfigDto {
     this.eventDescription = builder._eventDescription;
     this.isActive = builder._isActive !== false;
     this.cooldownSeconds = Number(builder._cooldownSeconds ?? 60);
-    this.lastTriggeredAt = builder._lastTriggeredAt || null;
-    this.createdAt = builder._createdAt || null;
-    this.updatedAt = builder._updatedAt || null;
+    this.lastTriggeredAt = builder._lastTriggeredAt || '';
+    this.createdAt = builder._createdAt || '';
+    this.updatedAt = builder._updatedAt || '';
   }
 
   static get Builder() {
@@ -61,19 +61,19 @@ export class RoomEventConfigDto {
   }
 
   static fromApi(data = {}) {
-    if (!data) return null;
+    const payload = data || {};
     return new RoomEventConfigDto.Builder()
-      .setId(data.id)
-      .setRoomId(data.roomId)
-      .setRoomName(data.roomName)
-      .setRoomEventId(data.roomEventId)
-      .setEventCode(data.eventCode)
-      .setEventDescription(data.eventDescription)
-      .setIsActive(data.isActive)
-      .setCooldownSeconds(data.cooldownSeconds)
-      .setLastTriggeredAt(data.lastTriggeredAt)
-      .setCreatedAt(data.createdAt)
-      .setUpdatedAt(data.updatedAt)
+      .setId(payload.id)
+      .setRoomId(payload.roomId)
+      .setRoomName(payload.roomName)
+      .setRoomEventId(payload.roomEventId)
+      .setEventCode(payload.eventCode)
+      .setEventDescription(payload.eventDescription)
+      .setIsActive(payload.isActive)
+      .setCooldownSeconds(payload.cooldownSeconds)
+      .setLastTriggeredAt(payload.lastTriggeredAt)
+      .setCreatedAt(payload.createdAt)
+      .setUpdatedAt(payload.updatedAt)
       .build();
   }
 }
@@ -109,6 +109,14 @@ export class CreateRoomEventConfigDto {
     return true;
   }
 
+  toApi() {
+    return {
+      eventCode: this.eventCode,
+      isActive: this.isActive,
+      cooldownSeconds: this.cooldownSeconds,
+    };
+  }
+
   static fromForm(form = {}) {
     return new CreateRoomEventConfigDto.Builder()
       .setEventCode(form.eventCode)
@@ -142,6 +150,13 @@ export class UpdateRoomEventConfigDto {
       throw new DomainValidationError('Invalid UpdateRoomEventConfigDto data', errors);
     }
     return true;
+  }
+
+  toApi() {
+    return {
+      isActive: this.isActive,
+      cooldownSeconds: this.cooldownSeconds,
+    };
   }
 
   static fromForm(form = {}) {

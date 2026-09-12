@@ -4,6 +4,18 @@
     <title th:text="|#{room.event.title} - ${room.name != null ? room.name : '--'}|">Room Events</title>
     <!-- Tabulator CSS -->
     <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+    </style>
   </head>
 
   <div layout:fragment="header-title">
@@ -17,9 +29,6 @@
         <div class="card-header bg-white border-0 pt-3 pb-0">
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center">
-              <div class="bg-primary-subtle text-primary p-2 rounded-circle me-3 d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px">
-                <i data-lucide="radio-tower" class="lucide-md text-primary"></i>
-              </div>
               <div>
                 <div class="d-flex align-items-center gap-2">
                   <h4 class="mb-0 fw-bold text-dark" th:text="${room.name}">Room Name</h4>
@@ -35,7 +44,7 @@
               </div>
             </div>
             <div>
-              <a th:href="@{/rooms/{id}(id=${room.id})}" class="btn btn-sm btn-outline-secondary px-3 rounded-pill d-inline-flex align-items-center shadow-sm">
+              <a th:href="@{/rooms/{id}(id=${room.id})}" class="btn btn-sm btn-back px-3 rounded-pill d-inline-flex align-items-center shadow-sm">
                 <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
                 <span th:text="#{error.back}">Back</span>
               </a>
@@ -47,13 +56,10 @@
             <div>
               <span class="fw-semibold me-1" th:text="#{smart_system.rule.conditions.ds.room}">Room:</span>
               <span class="fw-bold text-dark" th:text="${room.name}">Room Name</span>
+              <input type="hidden" id="roomId" th:value="${room.id}" />
             </div>
             <div>
-              <span class="fw-semibold me-1">ID:</span>
-              <span class="font-monospace text-dark" th:text="'#' + ${room.id}">#0</span>
-            </div>
-            <div>
-              <span class="fw-semibold me-1">Code:</span>
+              <span class="fw-semibold me-1">Room Code:</span>
               <span class="font-monospace text-dark" th:text="${room.code}">--</span>
             </div>
           </div>
@@ -73,9 +79,13 @@
                 <i data-lucide="refresh-cw" class="lucide-sm me-1"></i>
                 <span th:text="#{common.reload}">Reload</span>
               </button>
+              <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" id="btnDeleteSelected" disabled>
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
               <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" id="btnAddConfig">
                 <i data-lucide="plus" class="lucide-sm me-1"></i>
-                <span th:text="#{common.add}">Thêm cấu hình sự kiện</span>
+                <span th:text="#{common.add}">Thêm sự kiện</span>
               </button>
             </div>
           </div>
@@ -86,9 +96,7 @@
       </div>
     </div>
 
-    <!-- ════════════ MODALS ════════════ -->
-
-    <!-- Modal 1: Cài Đặt Sự Kiện (General Config Modal: Tạo mới hoặc sửa Cooldown, IsActive) -->
+    <!-- ════════════ Config Modal: Thêm / Sửa Cấu hình Sự kiện ════════════ -->
     <div class="modal fade" id="roomEventConfigModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
@@ -103,18 +111,20 @@
             <div class="modal-body py-4 px-4">
               <input type="hidden" id="cfgConfigId" />
               <div class="row g-3">
-                <!-- Mã sự kiện (Select khi tạo mới, text khi sửa) -->
+                <!-- Mã sự kiện -->
                 <div class="col-12" id="cfgEventCodeGroup">
                   <label for="cfgEventCode" class="form-label fw-semibold small text-muted text-uppercase mb-1">Mã sự kiện</label>
                   <select class="form-select bg-light border-0" id="cfgEventCode" required>
-                    <option value="" disabled selected>-- Chọn loại sự kiện --</option>
+                    <option value="" disabled selected>-- Chọn mã sự kiện --</option>
                   </select>
+                  <div class="invalid-feedback" id="val-cfgEventCode">Vui lòng chọn mã sự kiện.</div>
                 </div>
 
                 <!-- Cooldown -->
                 <div class="col-12">
                   <label for="cfgCooldown" class="form-label fw-semibold small text-muted text-uppercase mb-1">Thời gian giãn cách (Cooldown: giây)</label>
                   <input type="number" class="form-control bg-light border-0 font-monospace" id="cfgCooldown" min="0" value="60" required />
+                  <div class="invalid-feedback" id="val-cfgCooldown">Thời gian cooldown phải lớn hơn hoặc bằng 0.</div>
                 </div>
 
                 <!-- IsActive Switch -->
@@ -127,7 +137,7 @@
               </div>
             </div>
             <div class="modal-footer border-0 pt-0 pb-4 px-4">
-              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{modal.btn.cancel}">Hủy</button>
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Hủy</button>
               <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm d-inline-flex align-items-center">
                 <i data-lucide="check" class="lucide-sm me-1"></i>
                 <span th:text="#{index.scene.trigger.confirm}">Xác nhận</span>
@@ -137,221 +147,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal 2: Quản lý & Thêm/Sửa Điều kiện (Condition Modal - Khớp 100% Rule Condition) -->
-    <div class="modal fade" id="roomEventConditionModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-          <div class="modal-header border-0 pb-0 pt-4 px-4">
-            <h5 class="modal-title fw-bold d-flex align-items-center">
-              <i data-lucide="filter" class="text-warning me-2 lucide-md"></i>
-              <span id="conditionModalTitle">Quản lý điều kiện cảm biến</span>
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body py-4 px-4">
-            <!-- Bảng danh sách điều kiện hiện tại -->
-            <div class="mb-4 border rounded-3 overflow-hidden">
-              <div class="p-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-                <span class="small fw-bold text-muted text-uppercase">Danh sách điều kiện hiện có</span>
-                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="btnAddNewCond">
-                  <i data-lucide="plus" class="lucide-sm me-1"></i> Thêm điều kiện mới
-                </button>
-              </div>
-              <div id="conditionsTableInModal"></div>
-            </div>
-
-            <!-- Form thêm / cập nhật điều kiện (Khớp 100% rule/conditions.html) -->
-            <form id="conditionForm" novalidate class="p-3 bg-light rounded-3 border">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold m-0 small text-uppercase text-dark" id="condFormHeading">+ Thêm điều kiện</h6>
-                <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none d-none" id="btnCancelEditCond">Hủy sửa</button>
-              </div>
-              <input type="hidden" id="conditionLocalId" />
-              <div class="row g-3">
-                <!-- Sort Order -->
-                <div class="col-md-4">
-                  <label for="condSortOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1">Order (Thứ tự)</label>
-                  <input type="number" class="form-control bg-white border-0" id="condSortOrder" name="condSortOrder" min="0" value="0" placeholder="0" required />
-                </div>
-
-                <!-- Data Source -->
-                <div class="col-md-8">
-                  <label for="condDataSource" class="form-label fw-semibold small text-muted text-uppercase mb-1">Data Source (Nguồn)</label>
-                  <select class="form-select bg-white border-0" id="condDataSource" name="condDataSource">
-                    <option value="SENSOR" selected>SENSOR (Cảm biến trong phòng)</option>
-                    <option value="DEVICE">DEVICE (Thiết bị trong phòng)</option>
-                    <option value="ROOM">ROOM (Thông số phòng)</option>
-                    <option value="SYSTEM">SYSTEM (Hệ thống / Thời gian)</option>
-                  </select>
-                </div>
-
-                <!-- Category (Khi SENSOR hoặc DEVICE) -->
-                <div class="col-md-6" id="condCategoryWrap">
-                  <label for="condCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1">Category (Phân loại)</label>
-                  <select class="form-select bg-white border-0" id="condCategory" name="condCategory">
-                    <!-- Populated dynamically -->
-                  </select>
-                </div>
-
-                <!-- Target Device / Sensor -->
-                <div class="col-md-6" id="condTargetWrap">
-                  <label for="condTarget" class="form-label fw-semibold small text-muted text-uppercase mb-1">
-                    <span id="condTargetLabel">Target Sensor</span>
-                  </label>
-                  <select class="form-select bg-white border-0" id="condTarget" name="condTarget">
-                    <!-- Populated dynamically -->
-                  </select>
-                </div>
-
-                <!-- Property -->
-                <div class="col-12" id="condPropertyWrap">
-                  <label for="condProperty" class="form-label fw-semibold small text-muted text-uppercase mb-1">Property (Thuộc tính đo)</label>
-                  <select class="form-select bg-white border-0" id="condProperty" name="condProperty" required>
-                    <!-- Populated dynamically -->
-                  </select>
-                </div>
-
-                <!-- Operator + Value -->
-                <div class="col-md-5">
-                  <label for="condOperator" class="form-label fw-semibold small text-muted text-uppercase mb-1">Operator (Toán tử)</label>
-                  <select class="form-select bg-white border-0 font-monospace" id="condOperator" name="condOperator">
-                    <option value="=">=</option>
-                    <option value="!=">≠ (!=)</option>
-                    <option value=">">&gt;</option>
-                    <option value="<">&lt;</option>
-                    <option value=">=" selected>&gt;=</option>
-                    <option value="<=">&lt;=</option>
-                  </select>
-                </div>
-                <div class="col-md-7">
-                  <label for="condValue" class="form-label fw-semibold small text-muted text-uppercase mb-1">Value (Giá trị ngưỡng)</label>
-                  <input type="text" class="form-control bg-white border-0 font-monospace" id="condValue" name="condValue" placeholder="Nhập giá trị..." required />
-                </div>
-
-                <!-- Next Logic (Radio buttons) -->
-                <div class="col-12" id="condNextLogicWrap">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">Logic liên kết tiếp theo</label>
-                  <div class="d-flex gap-4 pt-1">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="condNextLogicRadio" id="condNextLogicAnd" value="AND" checked />
-                      <label class="form-check-label fw-semibold text-primary" for="condNextLogicAnd">AND (Và)</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="condNextLogicRadio" id="condNextLogicOr" value="OR" />
-                      <label class="form-check-label fw-semibold text-warning" for="condNextLogicOr">OR (Hoặc)</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 text-end pt-2">
-                  <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm" id="btnSubmitCond">
-                    <i data-lucide="check" class="lucide-sm me-1"></i> Lưu điều kiện vào danh sách
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer border-0 pt-0 pb-4 px-4">
-            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{modal.btn.cancel}">Đóng</button>
-            <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm d-inline-flex align-items-center" id="btnSaveConditionsBatch">
-              <i data-lucide="save" class="lucide-sm me-1"></i> Lưu thay đổi điều kiện lên hệ thống
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal 3: Quản lý & Thêm/Sửa Hành Động (Action Modal - Khớp 100% Rule Action) -->
-    <div class="modal fade" id="roomEventActionModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-          <div class="modal-header border-0 pb-0 pt-4 px-4">
-            <h5 class="modal-title fw-bold d-flex align-items-center">
-              <i data-lucide="settings-2" class="text-info me-2 lucide-md"></i>
-              <span id="actionModalTitle">Quản lý hành động thiết bị</span>
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body py-4 px-4">
-            <!-- Bảng danh sách hành động hiện tại -->
-            <div class="mb-4 border rounded-3 overflow-hidden">
-              <div class="p-2 px-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-                <span class="small fw-bold text-muted text-uppercase">Danh sách lệnh thiết bị</span>
-                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" id="btnAddNewAct">
-                  <i data-lucide="plus" class="lucide-sm me-1"></i> Thêm hành động mới
-                </button>
-              </div>
-              <div id="actionsTableInModal"></div>
-            </div>
-
-            <!-- Form thêm / cập nhật hành động (Khớp 100% rule/actions.html) -->
-            <form id="actionForm" novalidate class="p-3 bg-light rounded-3 border">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold m-0 small text-uppercase text-dark" id="actFormHeading">+ Thêm hành động</h6>
-                <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none d-none" id="btnCancelEditAct">Hủy sửa</button>
-              </div>
-              <input type="hidden" id="actionLocalId" />
-              <div class="row g-3">
-                <!-- Execution Order -->
-                <div class="col-md-4">
-                  <label for="executionOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1">Execution Order (Thứ tự)</label>
-                  <input type="number" class="form-control bg-white border-0" id="executionOrder" name="executionOrder" min="0" value="0" />
-                </div>
-
-                <!-- Target Device Category -->
-                <div class="col-md-4">
-                  <label for="targetDeviceCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Category (Loại)</label>
-                  <select class="form-select bg-white border-0" id="targetDeviceCategory" name="targetDeviceCategory">
-                    <option value="LIGHT" selected>LIGHT (Đèn)</option>
-                    <option value="FAN">FAN (Quạt)</option>
-                    <option value="AIR_CONDITION">AIR_CONDITION (Điều hòa)</option>
-                  </select>
-                </div>
-
-                <!-- Target Device Selection -->
-                <div class="col-md-4">
-                  <label for="actDeviceId" class="form-label fw-semibold small text-muted text-uppercase mb-1">Target Device (Thiết bị)</label>
-                  <select class="form-select bg-white border-0" id="actDeviceId" required>
-                    <option value="" disabled selected>-- Chọn thiết bị --</option>
-                  </select>
-                </div>
-
-                <!-- Dynamic Action Parameters Container -->
-                <div class="col-12">
-                  <div class="border-top pt-3 mt-1">
-                    <h6 class="fw-bold mb-3 small text-muted text-uppercase d-flex align-items-center gap-2">
-                      <i data-lucide="sliders-horizontal" class="lucide-sm"></i>
-                      <span>Action Parameters (Tham số hành động)</span>
-                    </h6>
-                    <div id="actParamsContainer" class="row g-2">
-                      <!-- Render dynamically via smart_system_util -->
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 text-end pt-2">
-                  <button type="submit" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm" id="btnSubmitAct">
-                    <i data-lucide="check" class="lucide-sm me-1"></i> Lưu hành động vào danh sách
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          <div class="modal-footer border-0 pt-0 pb-4 px-4">
-            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{modal.btn.cancel}">Đóng</button>
-            <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm d-inline-flex align-items-center" id="btnSaveActionsBatch">
-              <i data-lucide="save" class="lucide-sm me-1"></i> Lưu thay đổi hành động lên hệ thống
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- ════════════ SCRIPTS ════════════ -->
@@ -362,7 +157,7 @@
         roomName: /*[[${room.name}]]*/ '',
         roomCode: /*[[${room.code}]]*/ '',
         i18n: {
-          colCode: 'Mã sự kiện',
+          colCode: 'Sự kiện',
           colCooldown: 'Cooldown (s)',
           colStatus: 'Trạng thái',
           colActions: 'Thao tác',
@@ -372,8 +167,26 @@
           saveSuccess: /*[[#{room.event.save_success}]]*/ 'Đã lưu cấu hình sự kiện phòng thành công!',
           saveError: /*[[#{room.event.save_error}]]*/ 'Lưu cấu hình thất bại!',
           conflictError: /*[[#{room.event.conflict_error}]]*/ 'Cấu hình sự kiện đã tồn tại!',
-          yesDelete: /*[[#{modal.btn.delete}]]*/ 'Xóa',
-          cancel: /*[[#{modal.btn.cancel}]]*/ 'Hủy',
+          yesDelete: /*[[#{common.yes_delete}]]*/ 'Xóa',
+          cancel: /*[[#{logout.cancel.button}]]*/ 'Hủy',
+          editTitle: /*[[#{room.event.modal.edit_title}]]*/ 'Cập nhật cấu hình sự kiện',
+          addTitle: /*[[#{room.event.modal.add_title}]]*/ 'Thêm cấu hình sự kiện',
+          selectEventCode: /*[[#{room.event.modal.select_code}]]*/ '-- Chọn mã sự kiện --',
+          createSuccess: /*[[#{room.event.modal.create_success}]]*/ 'Đã tạo mới cấu hình sự kiện',
+          updateSuccess: /*[[#{room.event.modal.update_success}]]*/ 'Đã cập nhật cấu hình sự kiện',
+          createError: /*[[#{room.event.modal.create_error}]]*/ 'Tạo cấu hình thất bại',
+          updateError: /*[[#{room.event.modal.update_error}]]*/ 'Cập nhật cấu hình thất bại',
+          deleteSuccess: /*[[#{room.event.delete_success}]]*/ 'Đã xóa cấu hình sự kiện',
+          deleteError: /*[[#{room.event.delete_error}]]*/ 'Xóa cấu hình sự kiện thất bại',
+          updateStatusError: /*[[#{room.event.update_status_error}]]*/ 'Không thể cập nhật trạng thái',
+          batchDeleteSuccess: /*[[#{room.event.batch_delete_success}]]*/ 'Đã xóa các cấu hình sự kiện đã chọn',
+          batchDeleteConfirm: /*[[#{room.event.batch_delete_confirm}]]*/ 'Xóa {0} cấu hình sự kiện đã chọn?',
+          titleConditions: /*[[#{room.event.action.conditions}]]*/ 'Điều kiện',
+          titleActions: /*[[#{room.event.action.actions}]]*/ 'Hành động',
+          titleSettings: /*[[#{room.event.action.settings}]]*/ 'Cài đặt',
+          titleDelete: /*[[#{room.event.action.delete}]]*/ 'Xóa',
+          error: /*[[#{smart_system.rule.error}]]*/ 'Lỗi',
+          success: /*[[#{smart_system.rule.success}]]*/ 'Thành công',
         }
       };
     </script>

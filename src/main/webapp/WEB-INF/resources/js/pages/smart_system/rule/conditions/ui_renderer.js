@@ -1,6 +1,7 @@
 import { TabulatorFull as Tabulator } from '../../../../lib/tabulator_esm.min.js';
 import { StateManager } from './state_manager.js';
 import { UTCUtils } from '../../../../common/utc_util.js';
+import { formatDayOfWeek, conditionValueFromUtc } from '../../../../common/smart_system_util.js';
 import { formatPropertyLabel } from './property_formatter.js';
 
 const { i18n } = window.__CONDITIONS_CONFIG__;
@@ -34,36 +35,10 @@ const formatResourceParam = (row) => {
   }
 };
 
-const DAY_OF_WEEK_MAP = {
-  1: 'Monday',
-  2: 'Tuesday',
-  3: 'Wednesday',
-  4: 'Thursday',
-  5: 'Friday',
-  6: 'Saturday',
-  7: 'Sunday',
-};
-
-const formatTimeValue = (val) => {
-  const num = parseFloat(val);
-  if (isNaN(num) || num < 0 || num >= 24) return val;
-  const utcHour = Math.floor(num);
-  const utcMin = Math.round((num - utcHour) * 60);
-  const local = UTCUtils.utcToLocal(utcHour, utcMin, 0);
-  const hh = String(local.hour).padStart(2, '0');
-  const mm = String(local.minute).padStart(2, '0');
-  return `${hh}:${mm}`;
-};
-
-const formatDayOfWeek = (val) => {
-  const name = DAY_OF_WEEK_MAP[val];
-  return name ? `${val} (${name})` : val;
-};
-
 const formatValue = (row) => {
   const ds = row.sourceCategory || row.dataSource;
   const prop = row.property || row.resourceParam?.property;
-  if (ds === 'SYSTEM' && prop === 'current_time') return formatTimeValue(row.value);
+  if (ds === 'SYSTEM' && prop === 'current_time') return conditionValueFromUtc(ds, prop, row.value);
   if (ds === 'SYSTEM' && prop === 'day_of_week') return formatDayOfWeek(row.value);
   return row.value;
 };

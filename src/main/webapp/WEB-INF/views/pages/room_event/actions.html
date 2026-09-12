@@ -1,0 +1,218 @@
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+  <head>
+    <title th:text="|#{room.event.actions.title} - ${eventConfig.eventCode} (${room.name != null ? room.name : '--'})|">Room Event Actions</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .dirty-indicator {
+        display: none;
+      }
+      .dirty-indicator.visible {
+        display: inline-flex;
+      }
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+    </style>
+  </head>
+  <div layout:fragment="header-title">
+    <span th:text="#{room.event.title}">Room Events</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid">
+      <!-- ═══ 1. Header Info Card ═══ -->
+      <div class="card shadow-sm border-0 mb-4 rounded-4">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center">
+              <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <h4 class="mb-0 fw-bold text-dark" th:text="${eventConfig.eventCode}">EVENT_CODE</h4>
+                  <span class="badge ms-2" th:classappend="${eventConfig.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${eventConfig.isActive ? #messages.msg('common.active') : #messages.msg('common.inactive')}">Active</span>
+                  <span class="badge bg-light text-muted border px-2 py-1 small rounded-pill font-monospace">
+                    <i data-lucide="timer" class="lucide-sm me-1"></i>
+                    <span th:text="${eventConfig.cooldownSeconds} + 's'">0s</span>
+                  </span>
+                </div>
+                <div class="text-muted small mt-1" th:text="#{room.event.actions.subtitle}">Cấu hình hành động tự động khi sự kiện phát sinh trong phòng</div>
+              </div>
+            </div>
+            <div>
+              <a th:href="@{/rooms/{id}/events(id=${room.id})}" class="btn btn-sm btn-back px-3 rounded-pill d-inline-flex align-items-center shadow-sm">
+                <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
+                <span th:text="#{error.back}">Back</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-2 pb-3">
+          <div class="d-flex flex-wrap gap-4 text-muted small">
+            <div>
+              <span class="fw-semibold me-1" th:text="#{smart_system.rule.conditions.ds.room}">Room:</span>
+              <span class="fw-bold text-dark" th:text="${room.name}">Room Name</span>
+              <input type="hidden" id="roomId" th:value="${room.id}" />
+            </div>
+            <div>
+              <span class="fw-semibold me-1">Room Code:</span>
+              <span class="font-monospace text-dark" th:text="${room.code}">--</span>
+            </div>
+            <div>
+              <span class="fw-semibold me-1">Config ID:</span>
+              <span class="font-monospace text-dark" th:text="'#' + ${eventConfig.id}">#0</span>
+              <input type="hidden" id="configId" th:value="${eventConfig.id}" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 2. Actions Data Table Card ═══ -->
+      <div class="card rounded-4 border-0 shadow-sm transition-all hover-shadow">
+        <div class="card-header bg-white border-bottom-0 py-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="fw-bold m-0 d-flex align-items-center">
+              <i data-lucide="settings-2" class="text-info me-2 lucide-sm"></i>
+              <span th:text="#{smart_system.rule.actions.list}">Actions List</span>
+            </h6>
+            <div class="card-tools d-flex align-items-center gap-2">
+              <div id="unsavedStatus" class="dirty-indicator align-items-center text-warning me-2 small fw-bold">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1 lucide-spin"></i>
+                <span th:text="#{smart_system.rule.actions.unsaved}">Unsaved changes</span>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" id="btnAddAction">
+                <i data-lucide="plus" class="lucide-sm me-1"></i>
+                <span th:text="#{smart_system.rule.actions.add}">Add Action</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" id="btnDeleteSelected" disabled>
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
+              <button type="button" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm d-none" id="btnSaveAll" disabled>
+                <i data-lucide="check-circle-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.save_changes}">Save Changes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <div id="actionsTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 3. Action Form Modal ═══ -->
+    <div class="modal fade" id="actionModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <i data-lucide="git-branch" class="text-primary me-2 lucide-md"></i>
+              <span id="modalTitle" th:text="#{smart_system.rule.actions.add_title}">Add Action</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="actionForm" novalidate>
+            <div class="modal-body py-4">
+              <input type="hidden" id="actionLocalId" />
+              <div class="row g-3">
+                <!-- Execution Order -->
+                <div class="col-12 col-md-4">
+                  <label for="executionOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.actions.execution_order}">Execution Order</label>
+                  <input type="number" class="form-control bg-light border-0" id="executionOrder" name="executionOrder" min="0" value="0" />
+                </div>
+
+                <!-- Target Device Category -->
+                <div class="col-12 col-md-4">
+                  <label for="targetDeviceCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.actions.target_category}">Target Category</label>
+                  <select class="form-select bg-light border-0" id="targetDeviceCategory" name="targetDeviceCategory">
+                    <option value="">-- All Categories --</option>
+                    <option value="LIGHT" th:text="#{smart_system.rule.actions.light}">Light</option>
+                    <option value="FAN" th:text="#{smart_system.rule.actions.fan}">Fan</option>
+                    <option value="AIR_CONDITION" th:text="#{smart_system.rule.actions.air_conditioner}">Air Conditioner</option>
+                  </select>
+                </div>
+
+                <!-- Target Device -->
+                <div class="col-12 col-md-4">
+                  <label for="targetDeviceId" class="form-label fw-semibold small text-muted text-uppercase mb-1">
+                    <span th:text="#{smart_system.rule.actions.target_device}">Target Device</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select bg-light border-0" id="targetDeviceId" name="targetDeviceId" required>
+                    <option value="" disabled selected th:text="#{smart_system.rule.actions.select_device}">Select device</option>
+                  </select>
+                  <div class="invalid-feedback" id="val-targetDeviceId" th:text="#{smart_system.rule.conditions.val.target_required}">Target device is required</div>
+                </div>
+
+                <!-- Dynamic Parameters Container -->
+                <div class="col-12">
+                  <div class="border-top pt-3 mt-1">
+                    <h6 class="fw-bold mb-3 small text-muted text-uppercase d-flex align-items-center gap-2">
+                      <i data-lucide="sliders-horizontal" class="lucide-sm text-primary"></i>
+                      <span th:text="#{smart_system.rule.actions.action_params}">Action Parameters</span>
+                    </h6>
+                    <div id="dynamicParamsContainer" class="row g-3">
+                      <!-- Rendered dynamically by JS based on selected category -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+              <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitAction">
+                <i data-lucide="check" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+      window.__ROOM_EVENT_ACTIONS_CONFIG__ = {
+        roomId: /*[[${room.id}]]*/ 0,
+        configId: /*[[${eventConfig.id}]]*/ 0,
+        eventCode: /*[[${eventConfig.eventCode}]]*/ '',
+        i18n: {
+          colOrder: /*[[#{smart_system.rule.actions.col.order}]]*/ 'Order',
+          colTargetDevice: /*[[#{smart_system.rule.actions.col.target_device}]]*/ 'Target Device',
+          colType: /*[[#{smart_system.rule.actions.col.type}]]*/ 'Type',
+          colParams: /*[[#{smart_system.rule.actions.col.params}]]*/ 'Params',
+          colActions: /*[[#{smart_system.rule.actions.col.actions}]]*/ 'Actions',
+          noData: /*[[#{rule.action.table.no_data}]]*/ 'No actions yet.',
+          addTitle: /*[[#{smart_system.rule.actions.add_title}]]*/ 'Add Action',
+          editTitle: /*[[#{smart_system.rule.actions.edit_title}]]*/ 'Edit Action',
+          confirmDelete: /*[[#{smart_system.rule.actions.delete_confirm_title}]]*/ 'Delete action?',
+          confirmDeleteText: /*[[#{smart_system.rule.actions.delete_confirm_text}]]*/ 'This action will be removed.',
+          yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+          cancel: /*[[#{logout.cancel.button}]]*/ 'Cancel',
+          noChanges: /*[[#{common.mapping.no_changes}]]*/ 'No changes to save.',
+          saving: /*[[#{common.processing}]]*/ 'Saving...',
+          saveSuccess: /*[[#{smart_system.rule.actions.save_success}]]*/ 'Actions saved successfully.',
+          loadFailed: /*[[#{smart_system.rule.actions.load_failed}]]*/ 'Failed to load actions.',
+          success: /*[[#{common.success}]]*/ 'Success',
+          error: /*[[#{common.error.title}]]*/ 'Error',
+          info: /*[[#{common.info}]]*/ 'Information',
+          selectDevice: /*[[#{smart_system.rule.actions.select_device}]]*/ 'Select device',
+          noDevicesFound: /*[[#{smart_system.automation.actions.no_devices}]]*/ 'No devices found',
+          errorLoading: /*[[#{smart_system.automation.actions.error_devices}]]*/ 'Error loading devices',
+          unchanged: 'Mặc định',
+        },
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/room_event/actions/index.js}"></script>
+  </th:block>
+</html>

@@ -8,6 +8,7 @@ import { Alert } from '../../../../common/notification_util.js';
 import { Validator } from '../../../../common/validator.js';
 import { CreateConditionDto } from '../../../../types/rule.domain.js';
 import { formatPropertyLabel } from './property_formatter.js';
+import { conditionValueFromUtc, conditionValueToUtc } from '../../../../common/smart_system_util.js';
 import {
   SYSTEM_PROPERTIES,
   ROOM_PROPERTIES,
@@ -428,13 +429,10 @@ export const ConditionModal = (() => {
 
         let displayVal = data.value;
         if (sourceCategory === 'SYSTEM' && prop === 'current_time') {
-          const utcNum = parseFloat(data.value);
-          if (!isNaN(utcNum)) {
-            const utcHour = Math.floor(utcNum);
-            const utcMin = Math.round((utcNum - utcHour) * 60);
-            const local = UTCUtils.utcToLocal(utcHour, utcMin, 0);
-            displayVal = (local.hour + local.minute / 60.0).toFixed(2);
-            displayVal = parseFloat(displayVal).toString();
+          const hhmm = conditionValueFromUtc(sourceCategory, prop, data.value);
+          const [h, m] = hhmm.split(':').map(Number);
+          if (!Number.isNaN(h) && !Number.isNaN(m)) {
+            displayVal = parseFloat((h + m / 60.0).toFixed(2)).toString();
           }
         }
         setValue(displayVal);
@@ -576,11 +574,9 @@ export const ConditionModal = (() => {
 
     let finalValue = val;
     if (ds === 'SYSTEM' && prop === 'current_time') {
-      const h = parseInt(el.valueHour.value, 10);
-      const m = parseInt(el.valueMinute.value, 10);
-      const utc = UTCUtils.localToUTC(h, m, 0);
-      finalValue = (utc.hour + utc.minute / 60.0).toFixed(2);
-      finalValue = parseFloat(finalValue).toString();
+      const h = el.valueHour.value;
+      const m = el.valueMinute.value;
+      finalValue = conditionValueToUtc(ds, prop, `${h}:${m}`);
     }
 
     let orderVal = parseInt(el.sortOrder.value, 10);

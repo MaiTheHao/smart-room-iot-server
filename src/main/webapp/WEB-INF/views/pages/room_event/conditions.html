@@ -1,0 +1,342 @@
+<!doctype html>
+<html th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout.html}">
+  <head>
+    <title th:text="|#{room.event.conditions.title} - ${eventConfig.eventCode} (${room.name != null ? room.name : '--'})|">Room Event Conditions</title>
+    <!-- Tabulator CSS -->
+    <link rel="stylesheet" th:href="@{/css/lib/tabulator.min.css}" />
+    <style>
+      .dirty-indicator {
+        display: none;
+      }
+      .dirty-indicator.visible {
+        display: inline-flex;
+      }
+      .btn-back {
+        background: none;
+        border: 1px solid #dee2e6;
+        color: #6c757d;
+        transition: all 0.2s;
+      }
+      .btn-back:hover {
+        background-color: #f1f3f5;
+        color: #343a40;
+      }
+      .cond-section {
+        animation: fadeSlideIn 0.18s ease;
+      }
+      @keyframes fadeSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <div layout:fragment="header-title">
+    <span th:text="#{room.event.title}">Room Events</span>
+  </div>
+
+  <div layout:fragment="content">
+    <div class="container-fluid">
+      <!-- ═══ 1. Header Info Card ═══ -->
+      <div class="card shadow-sm border-0 mb-4 rounded-4">
+        <div class="card-header bg-white border-0 pt-3 pb-0">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center">
+              <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <h4 class="mb-0 fw-bold text-dark" th:text="${eventConfig.eventCode}">EVENT_CODE</h4>
+                  <span class="badge ms-2" th:classappend="${eventConfig.isActive ? 'bg-success' : 'bg-secondary'}" th:text="${eventConfig.isActive ? #messages.msg('common.active') : #messages.msg('common.inactive')}">Active</span>
+                  <span class="badge bg-light text-muted border px-2 py-1 small rounded-pill font-monospace">
+                    <i data-lucide="timer" class="lucide-sm me-1"></i>
+                    <span th:text="${eventConfig.cooldownSeconds} + 's'">0s</span>
+                  </span>
+                </div>
+                <div class="text-muted small mt-1" th:text="#{room.event.conditions.subtitle}">Cấu hình điều kiện kích hoạt cho sự kiện trong phòng</div>
+              </div>
+            </div>
+            <div>
+              <a th:href="@{/rooms/{id}/events(id=${room.id})}" class="btn btn-sm btn-back px-3 rounded-pill d-inline-flex align-items-center shadow-sm">
+                <i data-lucide="arrow-left" class="lucide-sm me-1"></i>
+                <span th:text="#{error.back}">Back</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-2 pb-3">
+          <div class="d-flex flex-wrap gap-4 text-muted small">
+            <div>
+              <span class="fw-semibold me-1" th:text="#{smart_system.rule.conditions.ds.room}">Room:</span>
+              <span class="fw-bold text-dark" th:text="${room.name}">Room Name</span>
+              <input type="hidden" id="roomId" th:value="${room.id}" />
+            </div>
+            <div>
+              <span class="fw-semibold me-1">Room Code:</span>
+              <span class="font-monospace text-dark" th:text="${room.code}">--</span>
+            </div>
+            <div>
+              <span class="fw-semibold me-1">Config ID:</span>
+              <span class="font-monospace text-dark" th:text="'#' + ${eventConfig.id}">#0</span>
+              <input type="hidden" id="configId" th:value="${eventConfig.id}" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ 2. Conditions Table Card ═══ -->
+      <div class="card rounded-4 border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom-0 py-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="fw-bold m-0 d-flex align-items-center">
+              <i data-lucide="filter" class="text-warning me-2 lucide-sm"></i>
+              <span th:text="#{smart_system.rule.conditions.list}">Conditions List</span>
+            </h6>
+            <div class="card-tools d-flex align-items-center gap-2">
+              <div id="unsavedStatus" class="dirty-indicator align-items-center text-warning me-2 small fw-bold">
+                <i data-lucide="refresh-cw" class="lucide-sm me-1 lucide-spin"></i>
+                <span th:text="#{smart_system.rule.actions.unsaved}">Unsaved changes</span>
+              </div>
+              <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm" id="btnAddCondition">
+                <i data-lucide="plus" class="lucide-sm me-1"></i>
+                <span th:text="#{common.add}">Add Condition</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm" id="btnDeleteSelected" disabled>
+                <i data-lucide="trash-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.delete}">Delete</span>
+              </button>
+              <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm d-none" id="btnSaveAll" disabled>
+                <i data-lucide="check-circle-2" class="lucide-sm me-1"></i>
+                <span th:text="#{common.save_changes}">Save Changes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <div id="conditionsTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ 3. Condition Form Modal ═══ -->
+    <div class="modal fade" id="conditionModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-bold d-flex align-items-center">
+              <i data-lucide="filter" class="text-warning me-2 lucide-md"></i>
+              <span id="conditionModalTitle" th:text="#{smart_system.rule.conditions.add_title}">Add Condition</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <form id="conditionForm" novalidate>
+            <input type="hidden" id="conditionLocalId" />
+            <input type="hidden" id="condTargetType" />
+
+            <div class="modal-body pt-3 pb-2">
+              <!-- Row 1: Data Source & Category -->
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
+                    <span th:text="#{smart_system.rule.conditions.data_source}">Data Source</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select bg-light border-0" id="condDataSource" required>
+                    <option value="SENSOR" th:text="#{smart_system.rule.conditions.ds.sensor}">Sensor</option>
+                    <option value="DEVICE" th:text="#{smart_system.rule.conditions.ds.device}">Device</option>
+                    <option value="ROOM" th:text="#{smart_system.rule.conditions.ds.room}">Room</option>
+                    <option value="SYSTEM" th:text="#{smart_system.rule.conditions.ds.system}">System</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-6 cond-section" id="condCategoryWrap">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" id="condCategoryLabel">
+                    <span th:text="#{smart_system.rule.conditions.category}">Category</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select bg-light border-0" id="condCategory">
+                    <option value="" th:text="#{smart_system.rule.conditions.category}">Select category</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 2: Target (Device or Sensor in this room) -->
+              <div class="row g-3 mb-3 cond-section" id="condTargetWrap">
+                <div class="col-12">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" id="condTargetLabel">
+                    <span th:text="#{smart_system.rule.conditions.target_device}">Device</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select bg-light border-0" id="condTarget">
+                    <option value="" th:text="#{smart_system.rule.conditions.select_target}">Select target</option>
+                  </select>
+                  <div class="invalid-feedback" id="val-condTarget" th:text="#{smart_system.rule.conditions.val.target_required}">Target is required</div>
+                </div>
+              </div>
+
+              <!-- Row 3: Property & Operator -->
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6 cond-section" id="condPropertyWrap">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
+                    <span th:text="#{smart_system.rule.conditions.property}">Property</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select bg-light border-0" id="condProperty" required>
+                    <option value="" th:text="#{smart_system.rule.conditions.property}">Select property</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
+                    <span th:text="#{smart_system.rule.conditions.operator}">Operator</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <select class="form-select bg-light border-0" id="condOperator" required>
+                    <option value="=">=</option>
+                    <option value="!=">!=</option>
+                    <option value="&gt;">&gt;</option>
+                    <option value="&lt;">&lt;</option>
+                    <option value="&gt;=">&gt;=</option>
+                    <option value="&lt;=">&lt;=</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Row 4: Value Input (Dynamic Text, Select, or Time) -->
+              <div class="row g-3 mb-3">
+                <div class="col-12">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
+                    <span th:text="#{smart_system.rule.conditions.value}">Value</span>
+                    <span class="text-danger">*</span>
+                  </label>
+
+                  <!-- Standard text/number input -->
+                  <input type="text" class="form-control bg-light border-0" id="condValue" th:placeholder="#{smart_system.rule.conditions.placeholder.value}" />
+
+                  <!-- Dropdown input (for Day of Week, State, etc.) -->
+                  <select class="form-select bg-light border-0 d-none" id="condValueSelect">
+                    <option value="">-- Select value --</option>
+                  </select>
+
+                  <!-- Time input (Hour + Minute for current_time) -->
+                  <div class="d-none" id="condValueTimeGroup">
+                    <div class="input-group">
+                      <select class="form-select bg-light border-0" id="condValueHour" style="max-width: 100px">
+                        <!-- 00 to 23 -->
+                        <option th:each="h : ${#numbers.sequence(0, 23)}" th:value="${h}" th:text="${h < 10 ? '0' + h : h}"></option>
+                      </select>
+                      <span class="input-group-text bg-light border-0 fw-bold">:</span>
+                      <select class="form-select bg-light border-0" id="condValueMinute" style="max-width: 100px">
+                        <!-- 00 to 59 -->
+                        <option th:each="m : ${#numbers.sequence(0, 59)}" th:value="${m}" th:text="${m < 10 ? '0' + m : m}"></option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="invalid-feedback" id="val-condValue" th:text="#{smart_system.rule.conditions.placeholder.value}">Value is required</div>
+                  <div class="form-text small text-muted" id="condValueHelp"></div>
+                </div>
+              </div>
+
+              <!-- Row 5: Next Logic & Sort Order -->
+              <div class="row g-3">
+                <div class="col-12 col-md-6 cond-section" id="condNextLogicWrap">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.next_logic}">Next Logic</label>
+                  <select class="form-select bg-light border-0" id="condNextLogic">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                  </select>
+                  <div class="form-text small text-muted" th:text="#{smart_system.rule.conditions.next_logic_hint}">Logic with the next condition</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.automation.actions.col.order}">Sort Order</label>
+                  <input type="number" class="form-control bg-light border-0" id="condSortOrder" min="0" value="0" />
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer border-0 pt-0 pb-3">
+              <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
+              <button type="submit" class="btn btn-warning rounded-pill px-4 text-dark fw-bold" id="btnSaveCondition">
+                <i data-lucide="check" class="lucide-sm me-1"></i>
+                <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+      window.__ROOM_EVENT_CONDITIONS_CONFIG__ = {
+        roomId: /*[[${room.id}]]*/ 0,
+        configId: /*[[${eventConfig.id}]]*/ 0,
+        eventCode: /*[[${eventConfig.eventCode}]]*/ '',
+        i18n: {
+          colDataSource: /*[[#{smart_system.rule.conditions.data_source}]]*/ 'Data Source',
+          colProperty: /*[[#{smart_system.rule.conditions.property}]]*/ 'Property',
+          colOperator: /*[[#{smart_system.rule.conditions.operator}]]*/ 'Operator',
+          colValue: /*[[#{smart_system.rule.conditions.value}]]*/ 'Value',
+          colLogic: /*[[#{smart_system.rule.conditions.next_logic}]]*/ 'Logic',
+          colActions: /*[[#{smart_system.rule.actions.col.actions}]]*/ 'Actions',
+          colOrder: /*[[#{smart_system.automation.actions.col.order}]]*/ 'Order',
+          noData: /*[[#{rule.condition.table.no_data}]]*/ 'No conditions yet.',
+          labelDevice: /*[[#{smart_system.rule.conditions.target_device}]]*/ 'Device',
+          labelSensor: /*[[#{smart_system.rule.conditions.target_sensor}]]*/ 'Sensor',
+          selectRoom: /*[[#{smart_system.automation.actions.select_room}]]*/ 'Select a room',
+          selectTarget: /*[[#{smart_system.rule.conditions.select_target}]]*/ 'Select target',
+          loading: /*[[#{smart_system.automation.actions.loading_devices}]]*/ 'Loading...',
+          noTargets: /*[[#{smart_system.rule.conditions.no_targets}]]*/ 'No targets found',
+          errorLoading: /*[[#{smart_system.automation.actions.error_devices}]]*/ 'Error loading',
+          placeholderValue: /*[[#{smart_system.rule.conditions.placeholder.value}]]*/ 'Enter value',
+          propCurrentTime: /*[[#{smart_system.rule.conditions.prop.current_time}]]*/ 'Current Time (UTC)',
+          propDayOfWeek: /*[[#{smart_system.rule.conditions.prop.day_of_week}]]*/ 'Day of Week',
+          propDayOfMonth: /*[[#{smart_system.rule.conditions.prop.day_of_month}]]*/ 'Day of Month',
+          propAvgTemp: /*[[#{smart_system.rule.conditions.prop.avg_temperature}]]*/ 'Avg Temperature (°C)',
+          propSumWatt: /*[[#{smart_system.rule.conditions.prop.sum_watt}]]*/ 'Total Power (W)',
+          propAvgHumidity: /*[[#{smart_system.rule.conditions.prop.avg_humidity}]]*/ 'Avg Humidity (% RH)',
+          propAvgLux: /*[[#{smart_system.rule.conditions.prop.avg_lux}]]*/ 'Avg Illuminance (Lux)',
+          propAvgCo2: /*[[#{smart_system.rule.conditions.prop.avg_co2}]]*/ 'Avg CO₂ Level (ppm)',
+          propMaxCo2: /*[[#{smart_system.rule.conditions.prop.max_co2}]]*/ 'Max CO₂ Level (ppm)',
+          propTemp: /*[[#{smart_system.rule.conditions.prop.temperature}]]*/ 'Temperature (°C)',
+          propWatt: /*[[#{smart_system.rule.conditions.prop.watt}]]*/ 'Power (W)',
+          propHumidity: /*[[#{smart_system.rule.conditions.prop.humidity}]]*/ 'Humidity (% RH)',
+          propCo2: /*[[#{smart_system.rule.conditions.prop.co2}]]*/ 'CO₂ Level (ppm)',
+          propLux: /*[[#{smart_system.rule.conditions.prop.lux}]]*/ 'Illuminance (Lux)',
+          catTemperature: /*[[#{smart_system.rule.conditions.cat.temperature}]]*/ 'Temperature Sensor',
+          catPowerConsumption: /*[[#{smart_system.rule.conditions.cat.power_consumption}]]*/ 'Power Sensor',
+          catHumidity: /*[[#{smart_system.rule.conditions.cat.humidity}]]*/ 'Humidity Sensor',
+          catCo2: /*[[#{smart_system.rule.conditions.cat.co2}]]*/ 'CO₂ Sensor',
+          catLux: /*[[#{smart_system.rule.conditions.cat.lux}]]*/ 'Lux Sensor',
+          confirmDelete: /*[[#{smart_system.rule.conditions.delete_confirm_title}]]*/ 'Delete condition?',
+          confirmDeleteText: /*[[#{smart_system.rule.conditions.delete_confirm_text}]]*/ 'This condition will be removed.',
+          yesDelete: /*[[#{common.yes_delete}]]*/ 'Yes, delete',
+          cancel: /*[[#{logout.cancel.button}]]*/ 'Cancel',
+          noChanges: /*[[#{common.mapping.no_changes}]]*/ 'No changes to save.',
+          saving: /*[[#{common.processing}]]*/ 'Saving...',
+          saveSuccess: /*[[#{smart_system.rule.conditions.save_success}]]*/ 'Conditions saved successfully.',
+          loadFailed: /*[[#{smart_system.rule.conditions.load_failed}]]*/ 'Failed to load conditions.',
+          success: /*[[#{common.success}]]*/ 'Success',
+          error: /*[[#{common.error.title}]]*/ 'Error',
+          info: /*[[#{common.info}]]*/ 'Information',
+          valRequired: /*[[#{common.val.required}]]*/ 'Required',
+          valTimeRange: /*[[#{smart_system.rule.conditions.val.time_range}]]*/ 'Must be a number between 0.0 and <24.0',
+          valDayMonthRange: /*[[#{smart_system.rule.conditions.val.day_month_range}]]*/ 'Must be an integer between 1 and 31',
+          valTargetRequired: /*[[#{smart_system.rule.conditions.val.target_required}]]*/ 'Target is required',
+          valDataSourceRequired: /*[[#{val.dataSource.required}]]*/ 'Data source is required',
+          valOperatorRequired: /*[[#{val.operator.required}]]*/ 'Operator is required',
+          valSortOrderInvalid: /*[[#{val.sortOrder.invalid}]]*/ 'Sort order must be a valid number',
+        },
+      };
+    </script>
+    <script type="module" th:src="@{/js/pages/room_event/conditions/index.js}"></script>
+  </th:block>
+</html>

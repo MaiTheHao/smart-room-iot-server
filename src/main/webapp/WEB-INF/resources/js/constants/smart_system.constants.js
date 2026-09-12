@@ -146,8 +146,24 @@ export const ACTION_FIELD_LABELS = Object.freeze({
   swing: 'Đảo gió (Swing)',
 });
 
-export const ACTION_FIELD_DEFAULTS = Object.freeze({
-  LIGHT: Object.freeze({ power: 'ON', level: 80 }),
-  FAN: Object.freeze({ power: 'ON', speed: 1, mode: 'NORMAL', swing: 'OFF' }),
-  AIR_CONDITION: Object.freeze({ power: 'ON', temperature: 24, mode: 'COOL', fanSpeed: 2, swing: 'OFF' }),
+
+
+export const DAY_OF_WEEK_MAP = Object.freeze({
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday',
+  7: 'Sunday',
 });
+
+export const DAY_OF_WEEK_OPTIONS = Object.freeze([
+  { value: '1', label: '1 - Monday' },
+  { value: '2', label: '2 - Tuesday' },
+  { value: '3', label: '3 - Wednesday' },
+  { value: '4', label: '4 - Thursday' },
+  { value: '5', label: '5 - Friday' },
+  { value: '6', label: '6 - Saturday' },
+  { value: '7', label: '7 - Sunday' },
+]);
