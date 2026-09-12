@@ -67,7 +67,7 @@ graph TD
     subgraph ServerLayer [Smart Room Server - Monolith]
         direction TB
         FESSR(Frontend SSR - Thymeleaf)
-        API(REST API - 27 Endpoints)
+        API(REST API - 32 Controllers)
         Core(Service Layer - Business Logic)
         Sch(Quartz Scheduler)
         FESSR <--> Core
@@ -123,33 +123,37 @@ Hệ thống sử dụng **Spring Framework 6.2.17 (Custom Spring — Non Boot)*
 | `core/component` | Component hỗ trợ: AutowiringSpringBeanJobFactory, SpringSecurityAuditorAware |
 | `core/properties` | Application properties binding: Database, Engine, Firebase, Gateway, HttpClient, Jwt, Security, Token |
 | `core/startup` | Khởi tạo dữ liệu và scheduler khi Servlet khởi động |
-| `controller/api/v1` | **27 REST Controller** (Auth, Rule, Room, Floor, Light, Fan, AirCondition, Temperature, PowerConsumption, Client, SysGroup, SysFunction, SysRole, Alert, Automation, Setup, Telemetry, SensorTelemetry, SensorMetadata, DeviceMetadata, HardwareConfig, Metric, Language, ClientDevice, HealthCheck,...) |
+| `controller/api/v1` | **32 REST Controller** (Action, AirCondition, Alert, Auth, Automation, Client, ClientDevice, Condition, DeviceMetadata, Fan, Floor, HardwareConfig, HealthCheck, Language, Light, Metric, PowerConsumption, PublicApi, Room, RoomEvent, RoomEventMaster, Rule, SensorEvent, SensorMetadata, SensorTelemetry, Setup, SysFunction, SysGroup, SysRole, Telemetry, Temperature, TemperatureValue) |
 | `controller/view` | **6 View Controller** (Index, Login, Management, Room, SmartSystem, ViewJS) |
-| `service/*` | Xử lý logic nghiệp vụ: aircondition, alert, auth, automation, base, client, clientdevice, control, fan, floor, hardwareconfig, language, light, metric, notification, permission, powerconsumption, role, room, rule, schedule, setup, system, telemetry, temperature, token |
-| `dao` | 26 DAO interface tương tác database qua Spring Data JPA |
-| `dao/base` | Base DAO hierarchy: BaseDao → BaseEntityDao → (BaseAuditEntityDao, BaseTranslatableEntityDao, BaseIoTEntityDao, BaseTelemetryDao) |
-| `dao/setup` | Device Setup Strategy Pattern: AbstractDeviceSetupStrategy, DeviceSetupOrchestrator, + 5 implementations |
-| `entities` | 37+ Entity classes, base classes, composite keys, JPA converters |
-| `dto` | 80+ DTO classes: Request/Response, ViewModel, ApiResponse, PaginatedResponse, sealed interfaces (`SensorSpecificData`, `DeviceSpecificData`) và data records (`TemperatureSensorData`, `PowerConsumptionSensorData`, `LightData`, `FanData`, `AirConditionData`) |
-| `mapper` | MapStruct interfaces: RuleMapper, RuleConditionMapper, RuleActionMapper, CreateMapper, UpdateMapper |
-| `integration/gateway` | Gateway Adapter Pattern: GatewayAdapter interface, GatewayAdapterRegistry, GatewayCommand, GatewayFetchResult |
-| `integration/gateway/impl/esp32` | ESP32 Gateway implementation: Esp32GatewayAdapter, Esp32AuthClient, Esp32LightControlClient, Esp32FanControlClient, Esp32AcControlClient, Esp32SystemClient |
+| `service/*` | Xử lý logic nghiệp vụ (57 interface + 68 implementation): device control (light, fan, aircondition), sensor & metric (temperature, powerconsumption, co2, humidity, lux, motion), alert & notification, automation, rule/condition/action, room/floor/roomevent, client/clientdevice, system (sysgroup, sysfunction, sysrole, permission), telemetry, metric, auth/token, view (index, login, room), i18n, setup, hardwareconfig |
+| `service/registry` | Registry tra cứu strategy: ConditionDataSourceRegistry, DeviceControlStrategyRegistry, DeviceStateStrategyRegistry, SensorStateStrategyRegistry, NotificationStrategyRegistry, EventTelemetryStrategyRegistry, TelemetryCRUDStrategyRegistry, TokenRegistry |
+| `service/strategy` | Strategy interface: DeviceControlServiceStrategy, ConditionDataSourceStrategy, ConditionEvaluationService, ActionExecutionService, DeviceStateStrategy, SensorStateStrategy, NotificationStrategy, MetricServiceStrategy, TelemetryCRUDServiceStrategy, TokenStrategy, ... |
+| `dao` | 38 DAO interface tương tác database qua Spring Data JPA |
+| `dao/base` | Base DAO hierarchy: BaseDao → BaseEntityDao → (BaseAuditEntityDao, BaseTranslatableEntityDao, BaseIoTEntityDao, BaseIoTActuatorDao, BaseIoTSensorDao, BaseTelemetryDao) |
+| `dao/setup` | Device Setup Strategy Pattern: AbstractDeviceSetupStrategy, DeviceSetupOrchestrator, + 9 implementations (Light, Fan, AirCondition, Temperature, PowerConsumption, Co2, Humidity, Lux, MotionDetector) |
+| `entities` | 53+ Entity classes, base classes, composite keys, JPA converters |
+| `dto` | 136+ DTO classes: Request/Response, ViewModel, ApiResponse, PaginatedResponse, sealed interfaces (`SensorSpecificData`, `DeviceSpecificData`) và data records (`TemperatureSensorData`, `PowerConsumptionSensorData`, `Co2SensorData`, `HumiditySensorData`, `LuxSensorData`, `MotionDetectorData`, `LightData`, `FanData`, `AirConditionData`) |
+| `mapper` | MapStruct interfaces: CreateMapper, UpdateMapper, BaseMapper (`mapper/base`) |
+| `integration/gateway` | Gateway Adapter Pattern: GatewayAdapter interface, GatewayAdapterRegistry, GatewayCommand, GatewayFetchResult, GatewayOperationResult |
+| `integration/gateway/base` | BaseGatewayClient — logic HTTP client dùng chung cho các Gateway |
+| `integration/gateway/impl/esp32` | ESP32 Gateway implementation: Esp32GatewayAdapter, Esp32BaseClient, Esp32AuthClient, Esp32TelemetryClient, Esp32LightControlClient, Esp32FanControlClient, Esp32AcControlClient, Esp32SystemClient |
 | `integration/gateway/impl/raspi` | Raspberry Pi Gateway implementation: RaspiGatewayAdapter, RaspiAuthClient, RaspiTelemetryClient, RaspiDeviceControlClient, RaspiLightControlClient, RaspiFanControlClient, RaspiAcControlClient, RaspiSystemClient, RaspiMaintenanceClient |
 | `integration/gateway/interceptor` | GatewayAuthInterceptor, TraceForwardingInterceptor |
 | `scheduler/system/telemetry` | TelemetryJob, TelemetryProcessor — thu thập dữ liệu định kỳ |
-| `scheduler/system/metric` | Metric system: EnergyMetricTelemetryJob, EnergyMetricResetJob, DeviceStatusMetricJob |
+| `scheduler/system/metric` | Metric system: `energy/` (EnergyMetricTelemetryJob, EnergyMetricResetJob, EnergyMetricJobProvider), `status/` (DeviceStatusMetricJob, DeviceStatusMetricJobProvider), MetricJobProvider, MetricJobRegistration |
 | `scheduler/dynamic/base` | Generic job framework: GenericSchedulableJob, SchedulableJobProcessor, JobProcessorFactory, JobProcessorType |
-| `scheduler/dynamic/rule` | RuleProcessor — xử lý đánh giá Rule Condition → Action |
-| `scheduler/dynamic/rule/strategy` | RuleDataSourceStrategy (9 implementations: Sensor, Device, Room, System, TemperatureSensor, PowerConsumptionSensor, Light, Fan, AirCondition state strategies) |
+| `scheduler/dynamic/rule` | RuleProcessor — xử lý đánh giá Condition → Action (dùng `service/strategy` + `service/registry`) |
 | `scheduler/dynamic/automation` | AutomationProcessor — xử lý tác vụ tự động hóa theo cron |
 | `scheduler/dynamic/automation/strategy` | AutomationActionStrategy + 3 impl (Light, Fan, AirCondition) |
+| `scheduler` | TraceJobListener — gắn Trace ID vào Quartz job |
+| `event` | Application event: EventTelemetryApplicationEvent, RoomEventApplicationEvent, RoomMotionDetectedEvent |
 | `shared/constant` | Hằng số hệ thống: AppConstant, I18nMessageConstant |
-| `shared/enumeration` | 25+ Enum classes: DeviceCategory, ConditionOperator, ConditionLogic, RuleDataSource, AlertActionType, AlertNamespace, AlertStatus, NotificationChannel, MetricDomain, TokenType, ClientType, Platform, Severity, GatewayCommand, ActuatorMode, ActuatorPower, ActuatorSwing, DeviceControlType, DeviceSpecificType, EnergyMetricCategory,... |
-| `shared/exception` | 12+ Custom exceptions + Global exception handlers (API, Web, Integration, Persistence) |
+| `shared/enumeration` | 32 Enum classes: DeviceCategory, SensorCategory, ConditionOperator, ConditionLogic, ConditionDataSource, RuleDataSource, ConditionOwnerCategory, ActionOwnerCategory, AlertActionType, AlertActorType, AlertNamespace, AlertStatus, NotificationChannel, MetricDomain, TokenType, ClientType, Platform, Severity, GatewayCommand, ActuatorMode, ActuatorPower, ActuatorSwing, DeviceControlType, DeviceSpecificType, EnergyMetricCategory, JobActionType, JobTargetType, RoomEventCode, TelemetryTimeGroup,... |
+| `shared/exception` | 13 Custom exceptions + Global exception handlers (Api, Web, Integration, Persistence, RestTemplateResponseErrorHandler) |
 | `shared/filter` | JwtAuthenticationFilter, RateLimitingFilter (Bucket4j), RequestTraceFilter |
 | `shared/security` | AuthEntryPointJwt, AuthErrorHandler, AuthenticationSuccessListener, JwtUtils |
 | `shared/logging` | RestRequestLoggingAspect, ViewRequestLoggingAspect, TraceLogger |
-| `shared/util` | Utilities: CronExpressionUtil, DeviceCapabilityRegistry, FunctionCodeHelper, JsonUtil, LocalContextUtil, MdcTaskWrapper, RequestContextUtil, SecurityContextUtil |
+| `shared/util` | Utilities: Calculator, CronExpressionUtil, DeviceCapabilityRegistry, FunctionCodeHelper, JsonUtil, LocalContextUtil, MdcTaskWrapper, RequestContextUtil, SecurityContextUtil |
 | `shared/web` | GlobalModelAttributes — attributes gắn vào mọi View |
 
 ### 2.3 Luồng kiến trúc lõi
@@ -210,8 +214,8 @@ Mã nguồn Frontend (HTML, JS, CSS) được tích hợp trong cùng môi trư�
 | :--- | :--- |
 | **Template Engine** | ![Thymeleaf 3.1](https://img.shields.io/badge/Thymeleaf-3.1.3-005F0F?style=flat-square&logo=thymeleaf&logoColor=white) |
 | **Layout & UI** | ![AdminLTE 4.0](https://img.shields.io/badge/AdminLTE-4.0.0-blueviolet?style=flat-square) ![Bootstrap 5.3](https://img.shields.io/badge/Bootstrap-5.3.2-563D7C?style=flat-square&logo=bootstrap&logoColor=white) ![Lucide Icons](https://img.shields.io/badge/Lucide_Icons-lightgrey?style=flat-square) ![OverlayScrollbars](https://img.shields.io/badge/OverlayScrollbars-blue?style=flat-square) |
-| **Interactivity** | ![SweetAlert2 11.2](https://img.shields.io/badge/SweetAlert2-11.2-F8BB86?style=flat-square) ![Flatpickr](https://img.shields.io/badge/Flatpickr-4.6-orange?style=flat-square) |
-| **Visualization** | ![ApexCharts](https://img.shields.io/badge/ApexCharts-FF6384?style=flat-square) ![Tabulator](https://img.shields.io/badge/Tabulator-6.3-F5F5F5?style=flat-square) |
+| **Interactivity** | ![SweetAlert2 11.26](https://img.shields.io/badge/SweetAlert2-11.26-F8BB86?style=flat-square) ![Flatpickr 4.6.13](https://img.shields.io/badge/Flatpickr-4.6.13-orange?style=flat-square) |
+| **Visualization** | ![ApexCharts 5.11](https://img.shields.io/badge/ApexCharts-5.11-FF6384?style=flat-square) ![Tabulator 6.4](https://img.shields.io/badge/Tabulator-6.4-F5F5F5?style=flat-square) |
 
 **Lưu ý:** Hệ thống **KHÔNG** sử dụng jQuery, Chart.js hay DataTables như phiên bản tài liệu cũ. Toàn bộ JavaScript được viết bằng **Vanilla JS** với cú pháp **ES Module** (`import`/`export`).
 
@@ -230,7 +234,7 @@ Hệ thống cung cấp cơ chế bảo mật khép kín thông qua mô hình ph
 
 **A. Cơ cấu Security FilterChains**
 Hệ thống cấu hình **hai luồng Security FilterChain độc lập** (đánh thứ tự bằng `@Order`):
-- **RESTful API (`apiFilterChain`)** — `@Order(1)`: Định tuyến Request có tiền tố `/api/**`. Middleware `JwtAuthenticationFilter` bóc tách JSON Web Token qua Header `Authorization`. Đặc tính Stateless (`SessionCreationPolicy.IF_REQUIRED`), vô hiệu hóa CSRF, bật CORS. Các endpoint `/api/v1/auth/signin` và `/api/v1/auth/signup` được public. Ngoài ra còn có `RateLimitingFilter` (Bucket4j) và `RequestTraceFilter` hoạt động ở tầng filter.
+- **RESTful API (`apiFilterChain`)** — `@Order(1)`: Định tuyến Request có tiền tố `/api/**`. Middleware `JwtAuthenticationFilter` bóc tách JSON Web Token qua Header `Authorization`. Session policy `SessionCreationPolicy.IF_REQUIRED` (JWT không lưu server-side nhưng vẫn cho phép session khi cần), vô hiệu hóa CSRF, bật CORS. Các endpoint `/api/v1/auth/signin`, `/api/v1/auth/signup` và `/api/v1/public/**` được public. Ngoài ra còn có `RateLimitingFilter` (Bucket4j) và `RequestTraceFilter` hoạt động ở tầng filter.
 - **SSR Web (`webFilterChain`)** — `@Order(2)`: Stateful cho Web Admin Dashboard. Xác thực qua Spring Form Login (`/login` → `/loginAction`), quản lý session qua Cookie `JSESSIONID`. Hỗ trợ Remember-Me với `JdbcTokenRepositoryImpl` lưu token dưới Database.
 
 **B. Mô hình phân quyền RBAC (Role-Based Access Control)**
@@ -363,44 +367,45 @@ sequenceDiagram
 
 Hệ thống Rule Engine đóng vai trò nòng cốt xử lý công việc tự động qua nguyên tắc quét **Điều kiện (Condition)** và gọi **Hành động (Action)**.
 
-- **Khối đối chiếu Condition:** `RuleProcessor` sử dụng `RuleDataSourceStrategy` để `fetchValue()` (nhiệt độ, độ ẩm, trạng thái thiết bị, giờ hệ thống...). So sánh dùng hằng số `EPSILON` cho số thập phân. Hỗ trợ kết hợp AND/OR.
-- **Khối kết xuất Action:** Khi thỏa mãn, `DeviceControlServiceStrategy` biến đổi Param thành Object payload động để gọi lệnh điều khiển phần cứng. Ngoài ra còn có thể kích hoạt Alert qua `AlertTriggerService`.
+- **Khối đối chiếu Condition:** `RuleProcessor` ủy quyền cho `ConditionEvaluationService.evaluateAll()`; service này tra `ConditionDataSourceRegistry` để lấy `ConditionDataSourceStrategy` tương ứng và gọi `fetchValue()` (nhiệt độ, độ ẩm, trạng thái thiết bị, giờ hệ thống...). Các datasource hiện có: Device, Room, Sensor, System. So sánh số thập phân dùng ngưỡng cấu hình `app.engine.rule.computeEpsilon` (mặc định 0.05). Hỗ trợ kết hợp AND/OR.
+- **Khối kết xuất Action:** Khi thỏa mãn, `ActionExecutionService` thực thi các action qua `DeviceControlServiceStrategy` để biến đổi Param thành Object payload động gọi lệnh điều khiển phần cứng. Ngoài ra `RuleProcessor` có thể kích hoạt Alert qua `AlertTriggerService` cho các `AlertConfig` gắn với Rule.
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant Job as GenericSchedulableJob (Quartz)
-    participant Svc as RuleServiceImpl
+    participant Factory as JobProcessorFactory
     participant Processor as RuleProcessor
-    participant DataStrategy as RuleDataSourceStrategy
-    participant ActionStrategy as DeviceControlServiceStrategy
+    participant Eval as ConditionEvaluationService
+    participant Registry as ConditionDataSourceRegistry
+    participant Action as ActionExecutionService
     participant AlertSvc as AlertTriggerService
-    
-    Job->>Svc: executeRuleLogic(ruleId)
-    activate Svc
-    Svc->>Svc: Load Rule + Conditions + Actions từ DB
-    Svc->>Processor: process(rule) if isActive
+
+    Job->>Factory: getProcessor(RULE)
+    Factory->>Processor: RuleProcessor
+    Job->>Processor: processJob(ruleId)
     activate Processor
-
-    loop Xử lý Conditions (sortOrder tăng dần)
-        Processor->>DataStrategy: fetchValue()
-        DataStrategy-->>Processor: Giá trị thực tế
-        Processor->>Processor: So sánh với threshold (EPSILON)
-    end
-
-    alt isMatched == true
-        loop Thực thi Actions (executionOrder)
-            Processor->>ActionStrategy: control(deviceId, params)
-            activate ActionStrategy
-            ActionStrategy->>ActionStrategy: ObjectMapper parse JSON → controlDto
-            ActionStrategy-->>Processor: Done
-            deactivate ActionStrategy
+    Processor->>Processor: Load Rule + Conditions + Actions từ DB
+    alt Rule isActive
+        Processor->>Eval: evaluateAll(conditions, null)
+        activate Eval
+        loop Xử lý Conditions
+            Eval->>Registry: getStrategy(sourceCategory)
+            Registry-->>Eval: ConditionDataSourceStrategy
+            Eval->>Eval: fetchValue() + so sánh (computeEpsilon)
         end
-        Processor->>AlertSvc: Trigger alert (nếu có config)
+        Eval-->>Processor: EvaluationResult
+        deactivate Eval
+        alt isMatched == true
+            Processor->>Action: executeAll(actions)
+            activate Action
+            Action->>Action: DeviceControlServiceStrategy control(deviceId, params)
+            Action-->>Processor: List<ActionResult>
+            deactivate Action
+            Processor->>AlertSvc: Trigger alert (nếu có AlertConfig)
+        end
     end
-
     deactivate Processor
-    deactivate Svc
 ```
 
 ### 4.7 Luồng Alert System
@@ -446,7 +451,7 @@ sequenceDiagram
     participant Proc as AutomationProcessor
     participant Auto as Automation + Actions
     participant Strategy as AutomationActionStrategy
-    participant Ctrl as DeviceControlService
+    participant Ctrl as DeviceControlServiceStrategy
     
     Job->>Proc: processJob(id)
     activate Proc
@@ -467,21 +472,25 @@ Hệ thống theo dõi điện năng tiêu thụ với hai tác vụ Quartz:
 | Job | Mô tả | Cron |
 |:---|:---|:---|
 | `EnergyMetricTelemetryJob` | Thu thập chỉ số điện năng từ Gateway, tính toán consumption (kW/h) | Mỗi 5 phút |
-| `EnergyMetricResetJob` | Reset chỉ số hàng ngày, lưu snapshot vào bảng `energy_metric` | 00:00 hàng ngày |
+| `EnergyMetricResetJob` | Reset chỉ số hàng ngày, lưu snapshot vào bảng `energy_metrics` | 00:00 hàng ngày |
 
 #### 4.9.2 Device Status Backup
 
-`DeviceStatusMetricJob` (Quartz, chạy mỗi 15 phút) thu thập trạng thái hoạt động của tất cả thiết bị và cảm biến (đèn, quạt, điều hòa, nhiệt độ, điện năng) và lưu vào bảng `device_status_metrics` dưới dạng JsonNode.
+`DeviceStatusMetricJob` (Quartz, chạy mỗi **200 giây** — cấu hình `app.engine.metric_status.intervalSeconds`) thu thập trạng thái hoạt động của các thiết bị actuator (đèn, quạt, điều hòa) và lưu vào bảng `device_status_metrics` dưới dạng JsonNode. Job chỉ backup các thiết bị actuator, không bao gồm cảm biến.
 
 **Kiến trúc xử lý dữ liệu business:**
 
-Hệ thống sử dụng sealed interface hierarchy để đồng bộ hóa cách trích xuất dữ liệu business từ entity:
+Hệ thống sử dụng sealed interface hierarchy để đồng bộ hóa cách trích xuất dữ liệu business từ entity (Job hiện chỉ dùng nhánh `DeviceSpecificData`):
 
 ```
 BaseIoTEntity.extractBusinessData() → Object
 ├── BaseIoTSensor.extractBusinessData() → SensorSpecificData (sealed)
 │   ├── Temperature          → TemperatureSensorData(currentValue)
-│   └── PowerConsumption    → PowerConsumptionSensorData(currentWatt)
+│   ├── PowerConsumption    → PowerConsumptionSensorData(currentWatt)
+│   ├── Co2Sensor           → Co2SensorData(currentCo2)
+│   ├── HumiditySensor      → HumiditySensorData(currentHumidity)
+│   ├── LuxSensor           → LuxSensorData(currentLux)
+│   └── MotionDetector      → MotionDetectorData(motionDetected)
 └── BaseIoTDevice.extractBusinessData() → DeviceSpecificData (sealed)
     ├── Light               → LightData(power, level)
     ├── Fan                 → FanData(power, speed, duration, mode, swing, light)
@@ -494,21 +503,21 @@ BaseIoTEntity.extractBusinessData() → Object
 sequenceDiagram
     participant Job as DeviceStatusMetricJob (Quartz)
     participant Svc as DeviceStatusMetricServiceImpl
-    participant Entity as BaseIoTEntity (Light/Fan/AC/...)
+    participant Entity as BaseIoTDevice (Light/Fan/AC)
     participant DTO as DeviceStatusMetricDto
     participant Dao as DeviceStatusMetricDao
 
     Job->>Svc: backupDeviceStatuses()
     activate Svc
 
-    loop For each category (LIGHT, FAN, AIR_CONDITION, POWER_CONSUMPTION, TEMPERATURE)
+    loop For each category (LIGHT, FAN, AIR_CONDITION)
         Svc->>Dao: findAllLatestForEachDevice()
         Dao-->>Svc: Latest version map
 
         Svc->>Entity: findAllActive()
         activate Entity
         Svc->>Entity: extractBusinessData()
-        Entity-->>Svc: DeviceSpecificData / SensorSpecificData (typed record)
+        Entity-->>Svc: DeviceSpecificData (typed record)
         deactivate Entity
 
         Svc->>DTO: businessDataToJsonNode(businessData, objectMapper)
@@ -526,7 +535,7 @@ sequenceDiagram
 
 **Điểm nổi bật của kiến trúc:**
 
-- **Generic processor**: Một method `processCategory()` duy nhất xử lý tất cả 5 category, loại bỏ hoàn toàn code hardcode build ObjectNode thủ công.
+- **Generic processor**: Một method `processCategory()` duy nhất xử lý tất cả category thiết bị, loại bỏ hoàn toàn code hardcode build ObjectNode thủ công.
 - **Type safety**: Mỗi entity trả về đúng kiểu dữ liệu business của nó thông qua sealed interface (compile-time check).
 - **DTO chịu trách nhiệm convert**: `DeviceStatusMetricDto.businessDataToJsonNode()` dùng `ObjectMapper.valueToTree()` để chuyển đổi POJO → JsonNode — tách biệt hoàn toàn khỏi entity và service.
 - **Dễ mở rộng**: Thêm device type mới chỉ cần tạo record implement `DeviceSpecificData` + implement `extractBusinessData()` — không cần sửa service.
@@ -541,27 +550,32 @@ Hệ thống sử dụng **Adapter Pattern** để trừu tượng hóa giao ti�
 classDiagram
     class GatewayAdapter {
         <<interface>>
-        +getType() GatewayType
-        +fetchTelemetry() GatewayFetchResult
-        +sendCommand(DeviceCommand) GatewayOperationResult
-        +authenticate() boolean
+        +getSupportedType() ClientType
+        +login(ip, LoginDto) ResponseEntity
+        +fetchSetup(ip) ResponseEntity
+        +fetchHealthCheck(ip) GatewayOperationResult
+        +controlDevice(ip, GatewayCommand) GatewayOperationResult
+        +fetchEnergyMetric(ip, GatewayCommand) GatewayFetchResult
+        +fetchGlobalTelemetry(ip) GatewayFetchResult
+        +resetEnergy(ip, GatewayCommand) GatewayOperationResult
     }
     
     class Esp32GatewayAdapter {
         +esp32HttpClient
-        +fetchTelemetry()
-        +sendCommand()
+        +getSupportedType()
+        +controlDevice()
+        +fetchGlobalTelemetry()
     }
     
     class RaspiGatewayAdapter {
         +raspiHttpClient
-        +fetchTelemetry()
-        +sendCommand()
+        +getSupportedType()
+        +controlDevice()
+        +fetchGlobalTelemetry()
     }
     
     class GatewayAdapterRegistry {
-        +register(GatewayAdapter)
-        +getAdapter(GatewayType) GatewayAdapter
+        +get(ClientType) GatewayAdapter
     }
     
     GatewayAdapter <|.. Esp32GatewayAdapter
@@ -570,7 +584,7 @@ classDiagram
 ```
 
 Mỗi Gateway Adapter triển khai các client con riêng:
-- **ESP32**: AuthClient, LightControlClient, FanControlClient, AcControlClient, SystemClient
+- **ESP32**: BaseClient, AuthClient, TelemetryClient, LightControlClient, FanControlClient, AcControlClient, SystemClient
 - **Raspberry Pi**: AuthClient, TelemetryClient, DeviceControlClient, LightControlClient, FanControlClient, AcControlClient, MaintenanceClient, SystemClient
 
 ---
@@ -586,37 +600,42 @@ Toàn bộ entity được tổ chức theo nhóm nghiệp vụ:
 ### 5.2 Phân nhóm dữ liệu nghiệp vụ (Business Grouping)
 
 **1. Nhóm Địa điểm (Locations):**
-- **Bảng:** `floor`, `room` + bảng đa ngôn ngữ `_lan`
+- **Bảng:** `floor`, `floor_lan`, `room`, `room_lan`
 - **Nghiệp vụ:** Xây dựng sơ đồ cây không gian Tầng → Phòng
 
 **2. Nhóm Thiết bị điều khiển (Devices):**
-- **Bảng:** `device_metadata`, `light`, `fan`, `air_condition`, `temperature`, `power_consumption` + bảng `_lan`
-- **Nghiệp vụ:** `device_metadata` đóng vai trò "Cổng kết nối logic". Mọi lệnh điều khiển đều qua bảng này.
+- **Bảng:** `light`, `light_lan`, `fan`, `fan_lan`, `air_condition`, `air_condition_lan`
+- **Nghiệp vụ:** Mỗi thiết bị actuator có bảng riêng; liên kết vật lý (GPIO, BLE MAC, API endpoint) nằm ở `hardware_config`. Không còn bảng `device_metadata` — `DeviceMetadataDao` chỉ là DAO tổng hợp đếm thiết bị theo phòng.
 - **Các thực thể thiết bị chuyên biệt:** `Light`, `Fan`, `AirCondition` kế thừa `BaseIoTDevice`
 
 **3. Nhóm Cảm biến & Dữ liệu (Sensors & Logs):**
-- **Bảng:** `temperature`, `power_consumption`, `temperature_value`, `energy_metric`, `device_status_metrics`
-- **Nghiệp vụ:** `device_status_metrics` lưu trạng thái thiết bị dạng JsonNode theo thời gian, phục vụ giám sát lịch sử hoạt động.
+- **Bảng cảm biến:** `temperature`, `temperature_lan`, `power_consumption`, `power_consumption_lan`, `co2_sensor`, `co2_sensor_lan`, `humidity_sensor`, `humidity_sensor_lan`, `lux_sensor`, `lux_sensor_lan`, `motion_detector`, `motion_detector_lan`
+- **Bảng dữ liệu đo:** `temperature_value`, `temperature_metrics`, `energy_metrics`, `device_status_metrics`, `co2_metrics`, `humidity_metrics`, `lux_metrics`, `motion_metrics`
+- **Nghiệp vụ:** `device_status_metrics` lưu trạng thái thiết bị actuator dạng JsonNode theo thời gian, phục vụ giám sát lịch sử hoạt động.
 - **Nghiệp vụ:** Tách biệt "Trạng thái hiện tại" và "Lịch sử dữ liệu". Dữ liệu lịch sử dạng **Append-only**.
 
 **4. Nhóm Tự động hóa (Rules & Automation):**
-- **Bảng:** `rule`, `rule_condition`, `rule_action`, `automation`, `automation_action`
-- **Nghiệp vụ:** Rule: Condition + Action (dựa trên sự kiện). Automation: cron-scheduled actions.
+- **Bảng:** `rule`, `condition`, `action`, `automation`, `automation_action`
+- **Nghiệp vụ:** Từ migration `V6`, hai bảng `rule_condition`/`rule_action` được thay bằng bảng polymorphic `condition`/`action` (dùng chung cho nhiều owner, phân biệt qua `owner_category`).
 
 **5. Nhóm Alert & Notification:**
 - **Bảng:** `alert_config`, `alert_config_group`, `alert_instance`, `alert_instance_group`, `alert_instance_log`
 - **Nghiệp vụ:** Quản lý vòng đời cảnh báo: Config (ngưỡng) → Instance (sự kiện) → Log (nhật ký). Nhóm `_group` phục vụ phân quyền alert.
 
-**6. Nhóm Metadata & Hardware:**
-- **Bảng:** `sensor_metadata`, `device_metadata`, `hardware_config`, `client_device`
-- **Nghiệp vụ:** Cấu hình chi tiết cho sensor, device, thông số phần cứng Gateway, thiết bị client đã đăng ký.
+**6. Nhóm Room Event:**
+- **Bảng:** `room_event`, `room_event_config`
+- **Nghiệp vụ:** Cấu hình và nhật ký sự kiện theo phòng (ví dụ phát hiện chuyển động), liên kết với cảm biến.
 
-**7. Nhóm Người dùng & Bảo mật (Users & RBAC):**
-- **Bảng:** `client`, `sys_group`, `sys_function`, `sys_role`, `persistent_logins`
+**7. Nhóm Metadata & Hardware:**
+- **Bảng:** `hardware_config`, `client_device`, `client_group`
+- **Nghiệp vụ:** Cấu hình phần cứng Gateway/thiết bị và thiết bị client đã đăng ký. Sensor/Device metadata hiện là DTO tổng hợp (`SensorMetadataDao`, `DeviceMetadataDao`), không phải bảng riêng.
+
+**8. Nhóm Người dùng & Bảo mật (Users & RBAC):**
+- **Bảng:** `client`, `client_group`, `sys_group`, `sys_group_lan`, `sys_function`, `sys_function_lan`, `sys_role`, `persistent_logins`
 - **Nghiệp vụ:** `client` dùng chung cho tài khoản người dùng và định danh Gateway. Phân quyền Group → Function → Role.
 
-**8. Nhóm Hệ thống hỗ trợ (Support & Infrastructure):**
-- **Bảng:** `language`, `persistent_logins`, `QRTZ_*` (Quartz Scheduler tables)
-- **Nghiệp vụ:** Đa ngôn ngữ UI, duy trì đăng nhập (Remember-Me), lịch trình Quartz.
+**9. Nhóm Hệ thống hỗ trợ (Support & Infrastructure):**
+- **Bảng:** `language`, `QRTZ_*` (Quartz Scheduler tables)
+- **Nghiệp vụ:** Đa ngôn ngữ UI, lịch trình Quartz. `persistent_logins` (Remember-Me) nằm ở nhóm Người dùng & Bảo mật.
 
 **Chi tiết cấu trúc bảng và migration:** Xem các file SQL tại [infra/database/](./infra/database/) bao gồm init, migration và seed scripts.

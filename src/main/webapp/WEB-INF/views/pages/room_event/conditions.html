@@ -135,135 +135,103 @@
           </div>
 
           <form id="conditionForm" novalidate>
-            <input type="hidden" id="conditionLocalId" />
-            <input type="hidden" id="condTargetType" />
+            <div class="modal-body py-4">
+              <input type="hidden" id="conditionLocalId" />
+              <input type="hidden" id="condTargetType" />
+              <div class="row g-3">
+                <!-- ── Sort Order ── -->
+                <div class="col-12 cond-section">
+                  <label for="condSortOrder" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.automation.actions.col.order}">Order</label>
+                  <input type="number" class="form-control bg-light border-0" id="condSortOrder" name="condSortOrder" min="0" placeholder="0" required />
+                </div>
 
-            <div class="modal-body pt-3 pb-2">
-              <!-- Row 1: Data Source & Category -->
-              <div class="row g-3 mb-3">
-                <div class="col-12 col-md-6">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
-                    <span th:text="#{smart_system.rule.conditions.data_source}">Data Source</span>
-                    <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-select bg-light border-0" id="condDataSource" required>
-                    <option value="SENSOR" th:text="#{smart_system.rule.conditions.ds.sensor}">Sensor</option>
-                    <option value="DEVICE" th:text="#{smart_system.rule.conditions.ds.device}">Device</option>
-                    <option value="ROOM" th:text="#{smart_system.rule.conditions.ds.room}">Room</option>
+                <!-- ── 1. Data Source ── -->
+                <div class="col-12 cond-section">
+                  <label for="condDataSource" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.data_source}">Data Source</label>
+                  <select class="form-select bg-light border-0" id="condDataSource" name="condDataSource">
                     <option value="SYSTEM" th:text="#{smart_system.rule.conditions.ds.system}">System</option>
+                    <option value="ROOM" th:text="#{smart_system.rule.conditions.ds.room}">Room</option>
+                    <option value="DEVICE" th:text="#{smart_system.rule.conditions.ds.device}">Device</option>
+                    <option value="SENSOR" th:text="#{smart_system.rule.conditions.ds.sensor}">Sensor</option>
                   </select>
                 </div>
 
-                <div class="col-12 col-md-6 cond-section" id="condCategoryWrap">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" id="condCategoryLabel">
-                    <span th:text="#{smart_system.rule.conditions.category}">Category</span>
-                    <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-select bg-light border-0" id="condCategory">
-                    <option value="" th:text="#{smart_system.rule.conditions.category}">Select category</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Row 2: Target (Device or Sensor in this room) -->
-              <div class="row g-3 mb-3 cond-section" id="condTargetWrap">
-                <div class="col-12">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" id="condTargetLabel">
-                    <span th:text="#{smart_system.rule.conditions.target_device}">Device</span>
-                    <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-select bg-light border-0" id="condTarget">
-                    <option value="" th:text="#{smart_system.rule.conditions.select_target}">Select target</option>
-                  </select>
-                  <div class="invalid-feedback" id="val-condTarget" th:text="#{smart_system.rule.conditions.val.target_required}">Target is required</div>
-                </div>
-              </div>
-
-              <!-- Row 3: Property & Operator -->
-              <div class="row g-3 mb-3">
-                <div class="col-12 col-md-6 cond-section" id="condPropertyWrap">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
-                    <span th:text="#{smart_system.rule.conditions.property}">Property</span>
-                    <span class="text-danger">*</span>
-                  </label>
-                  <select class="form-select bg-light border-0" id="condProperty" required>
-                    <option value="" th:text="#{smart_system.rule.conditions.property}">Select property</option>
+                <!-- ── 2. Category (DEVICE / SENSOR only) ── -->
+                <div class="col-12 d-none cond-section" id="condCategoryWrap">
+                  <label for="condCategory" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.category}">Category</label>
+                  <select class="form-select bg-light border-0" id="condCategory" name="condCategory">
+                    <!-- populated by JS -->
                   </select>
                 </div>
 
-                <div class="col-12 col-md-6">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
-                    <span th:text="#{smart_system.rule.conditions.operator}">Operator</span>
-                    <span class="text-danger">*</span>
+                <!-- ── 3. Target device / sensor (DEVICE / SENSOR in this room) ── -->
+                <div class="col-12 d-none cond-section" id="condTargetWrap">
+                  <label for="condTarget" class="form-label fw-semibold small text-muted text-uppercase mb-1">
+                    <span id="condTargetLabel" th:text="#{smart_system.rule.conditions.target}">Target</span>
                   </label>
-                  <select class="form-select bg-light border-0" id="condOperator" required>
+                  <select class="form-select bg-light border-0" id="condTarget" name="condTarget" disabled>
+                    <option value="" disabled selected th:text="#{smart_system.rule.conditions.select_target}">Select target</option>
+                  </select>
+                </div>
+
+                <!-- ── 4. Property ── -->
+                <div class="col-12 d-none cond-section" id="condPropertyWrap">
+                  <label for="condProperty" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.property}">Property</label>
+                  <select class="form-select bg-light border-0" id="condProperty" name="condProperty">
+                    <!-- populated by JS -->
+                  </select>
+                </div>
+
+                <!-- ── 5. Operator + Value (side by side) ── -->
+                <div class="col-5 cond-section">
+                  <label for="condOperator" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.operator}">Operator</label>
+                  <select class="form-select bg-light border-0 font-monospace" id="condOperator" name="condOperator">
                     <option value="=">=</option>
-                    <option value="!=">!=</option>
-                    <option value="&gt;">&gt;</option>
-                    <option value="&lt;">&lt;</option>
-                    <option value="&gt;=">&gt;=</option>
-                    <option value="&lt;=">&lt;=</option>
+                    <option value="!=">≠</option>
+                    <option value=">">&gt;</option>
+                    <option value="<">&lt;</option>
+                    <option value=">=">&gt;=</option>
+                    <option value="<=">&lt;=</option>
                   </select>
                 </div>
-              </div>
+                <div class="col-7 cond-section">
+                  <label for="condValue" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.value}">Value</label>
+                  <input type="text" class="form-control bg-light border-0" id="condValue" name="condValue" th:placeholder="#{smart_system.rule.conditions.placeholder.value}" />
+                  <select class="form-select bg-light border-0 d-none" id="condValueSelect" name="condValueSelect"></select>
 
-              <!-- Row 4: Value Input (Dynamic Text, Select, or Time) -->
-              <div class="row g-3 mb-3">
-                <div class="col-12">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1">
-                    <span th:text="#{smart_system.rule.conditions.value}">Value</span>
-                    <span class="text-danger">*</span>
-                  </label>
-
-                  <!-- Standard text/number input -->
-                  <input type="text" class="form-control bg-light border-0" id="condValue" th:placeholder="#{smart_system.rule.conditions.placeholder.value}" />
-
-                  <!-- Dropdown input (for Day of Week, State, etc.) -->
-                  <select class="form-select bg-light border-0 d-none" id="condValueSelect">
-                    <option value="">-- Select value --</option>
-                  </select>
-
-                  <!-- Time input (Hour + Minute for current_time) -->
-                  <div class="d-none" id="condValueTimeGroup">
+                  <div id="condValueTimeGroup" class="d-none">
                     <div class="input-group">
-                      <select class="form-select bg-light border-0" id="condValueHour" style="max-width: 100px">
-                        <!-- 00 to 23 -->
-                        <option th:each="h : ${#numbers.sequence(0, 23)}" th:value="${h}" th:text="${h < 10 ? '0' + h : h}"></option>
-                      </select>
-                      <span class="input-group-text bg-light border-0 fw-bold">:</span>
-                      <select class="form-select bg-light border-0" id="condValueMinute" style="max-width: 100px">
-                        <!-- 00 to 59 -->
-                        <option th:each="m : ${#numbers.sequence(0, 59)}" th:value="${m}" th:text="${m < 10 ? '0' + m : m}"></option>
-                      </select>
+                      <input type="text" class="form-control bg-light border-0 text-center font-monospace" id="condValueHour" name="condValueHour" placeholder="HH" maxlength="2" />
+                      <span class="input-group-text border-0 bg-light fw-bold">:</span>
+                      <input type="text" class="form-control bg-light border-0 text-center font-monospace" id="condValueMinute" name="condValueMinute" placeholder="MM" maxlength="2" />
                     </div>
                   </div>
 
-                  <div class="invalid-feedback" id="val-condValue" th:text="#{smart_system.rule.conditions.placeholder.value}">Value is required</div>
-                  <div class="form-text small text-muted" id="condValueHelp"></div>
-                </div>
-              </div>
-
-              <!-- Row 5: Next Logic & Sort Order -->
-              <div class="row g-3">
-                <div class="col-12 col-md-6 cond-section" id="condNextLogicWrap">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.next_logic}">Next Logic</label>
-                  <select class="form-select bg-light border-0" id="condNextLogic">
-                    <option value="AND">AND</option>
-                    <option value="OR">OR</option>
-                  </select>
-                  <div class="form-text small text-muted" th:text="#{smart_system.rule.conditions.next_logic_hint}">Logic with the next condition</div>
+                  <div class="form-text text-muted small mt-1 d-none" id="condValueHelp"></div>
                 </div>
 
-                <div class="col-12 col-md-6">
-                  <label class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.automation.actions.col.order}">Sort Order</label>
-                  <input type="number" class="form-control bg-light border-0" id="condSortOrder" min="0" value="0" />
+                <!-- ── 6. Next Logic (radio, styled like rule) ── -->
+                <div class="col-12 cond-section" id="condNextLogicWrap">
+                  <label for="condNextLogic" class="form-label fw-semibold small text-muted text-uppercase mb-1" th:text="#{smart_system.rule.conditions.next_logic}">Logic to Next</label>
+                  <div class="d-flex gap-3">
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="condNextLogicRadio" id="condNextLogic" value="AND" checked />
+                      <label class="form-check-label fw-semibold text-primary" for="condNextLogic">AND</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="condNextLogicRadio" id="condNextLogicOr" value="OR" />
+                      <label class="form-check-label fw-semibold text-warning" for="condNextLogicOr">OR</label>
+                    </div>
+                  </div>
+                  <div class="text-muted small mt-1" th:text="#{smart_system.rule.conditions.next_logic_hint}">Logic connecting this condition to the next one.</div>
                 </div>
               </div>
             </div>
+            <!-- /modal-body -->
 
-            <div class="modal-footer border-0 pt-0 pb-3">
+            <div class="modal-footer border-0 pt-0">
               <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal" th:text="#{logout.cancel.button}">Cancel</button>
-              <button type="submit" class="btn btn-warning rounded-pill px-4 text-dark fw-bold" id="btnSaveCondition">
+              <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitCondition">
                 <i data-lucide="check" class="lucide-sm me-1"></i>
                 <span th:text="#{index.scene.trigger.confirm}">Confirm</span>
               </button>

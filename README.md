@@ -27,7 +27,7 @@ Hệ thống hỗ trợ đa dạng giao thức Gateway qua mô hình **Adapter P
 | :--- | :--- |
 | **Backend Runtime** | ![Java 21](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk&logoColor=white) ![Spring 6.2](https://img.shields.io/badge/Spring-6.2.17-green?style=flat-square&logo=spring&logoColor=white) ![Hibernate 6.4](https://img.shields.io/badge/Hibernate-6.4.4-59666C?style=flat-square&logo=hibernate&logoColor=white) ![Spring Security 6.4](https://img.shields.io/badge/Security-6.4.13-70B060?style=flat-square&logo=springsecurity&logoColor=white) ![Quartz 2.5](https://img.shields.io/badge/Quartz-2.5.2-white?style=flat-square&logo=quartz&logoColor=black) |
 | **API & Serialization** | ![Jackson 2.18](https://img.shields.io/badge/Jackson-2.18.2-blue?style=flat-square) ![JJWT 0.11](https://img.shields.io/badge/JJWT-0.11.5-blueviolet?style=flat-square) ![Bucket4j 8.10](https://img.shields.io/badge/Bucket4j-8.10.1-red?style=flat-square) ![HttpClient5](https://img.shields.io/badge/HttpClient5-5.2.3-green?style=flat-square) |
-| **Frontend** | ![Thymeleaf 3.1](https://img.shields.io/badge/Thymeleaf-3.1.3-005F0F?style=flat-square&logo=thymeleaf&logoColor=white) ![AdminLTE 4.0](https://img.shields.io/badge/AdminLTE-4.0.0-blueviolet?style=flat-square) ![Bootstrap 5.3](https://img.shields.io/badge/Bootstrap-5.3.2-563D7C?style=flat-square&logo=bootstrap&logoColor=white) ![ApexCharts](https://img.shields.io/badge/ApexCharts-FF6384?style=flat-square) ![Tabulator](https://img.shields.io/badge/Tabulator-F5F5F5?style=flat-square) ![SweetAlert2](https://img.shields.io/badge/SweetAlert2-11.2-F8BB86?style=flat-square) |
+| **Frontend** | ![Thymeleaf 3.1](https://img.shields.io/badge/Thymeleaf-3.1.3-005F0F?style=flat-square&logo=thymeleaf&logoColor=white) ![AdminLTE 4.0](https://img.shields.io/badge/AdminLTE-4.0.0-blueviolet?style=flat-square) ![Bootstrap 5.3](https://img.shields.io/badge/Bootstrap-5.3.2-563D7C?style=flat-square&logo=bootstrap&logoColor=white) ![ApexCharts](https://img.shields.io/badge/ApexCharts-FF6384?style=flat-square) ![Tabulator](https://img.shields.io/badge/Tabulator-F5F5F5?style=flat-square) ![SweetAlert2](https://img.shields.io/badge/SweetAlert2-11.26-F8BB86?style=flat-square) |
 | **Build & Server** | ![Maven](https://img.shields.io/badge/Maven-C71A36?style=flat-square&logo=apachemaven&logoColor=white) ![Tomcat 10.1](https://img.shields.io/badge/Tomcat-10.1-F8DC75?style=flat-square&logo=apachetomcat&logoColor=black) ![Log4j 2.25](https://img.shields.io/badge/Log4j-2.25.4-orange?style=flat-square) ![Lombok](https://img.shields.io/badge/Lombok-1.18.30-blue?style=flat-square) ![MapStruct](https://img.shields.io/badge/MapStruct-1.5.5-orange?style=flat-square) |
 | **Integration** | ![Firebase](https://img.shields.io/badge/Firebase_Admin-9.9.0-FFCA28?style=flat-square&logo=firebase&logoColor=black) ![Caffeine](https://img.shields.io/badge/Caffeine-3.1.8-yellow?style=flat-square) ![AspectJ](https://img.shields.io/badge/AspectJ-1.9.21-purple?style=flat-square) |
 | **Hạ tầng** | ![MySQL 8.0](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white) |
@@ -48,7 +48,7 @@ graph TD
     subgraph Server [Smart Room Server - Monolith]
         direction TB
         View[View Controllers<br/>Thymeleaf SSR]
-        API[REST API Controllers<br/>27 Endpoints]
+        API[REST API Controllers<br/>32 Controllers]
         Core[Service Layer<br/>Business Logic]
         Sch[Quartz Scheduler<br/>Telemetry · Rule · Automation · Metric]
         View --> Core
@@ -80,15 +80,15 @@ Hệ thống cung cấp nền tảng vận hành IoT ổn định và dễ mở 
 
 ### Quản lý Hạ tầng & Thiết bị (Infrastructure Management)
 - **Quản lý phân cấp**: Tổ chức hạ tầng theo cấu trúc **Tòa nhà → Tầng → Phòng**.
-- **Định nghĩa thiết bị linh hoạt**: Hỗ trợ đa dạng chủng loại (Đèn, Quạt, Điều hòa, Cảm biến nhiệt độ, Cảm biến điện năng) với cơ chế cấu hình qua **Device Metadata**.
+- **Định nghĩa thiết bị linh hoạt**: Hỗ trợ đa dạng chủng loại (Đèn, Quạt, Điều hòa, Cảm biến nhiệt độ, Cảm biến điện năng, Cảm biến CO2, Cảm biến độ ẩm, Cảm biến ánh sáng, Cảm biến chuyển động) với cơ chế cấu hình phần cứng qua **HardwareConfig**.
 - **Đa dạng Gateway**: Tích hợp sẵn **ESP32** và **Raspberry Pi** qua mô hình Adapter Pattern, dễ dàng mở rộng thêm nền tảng phần cứng mới.
-- **Device Setup**: Cơ chế tự động thiết lập thiết bị mới qua **Orchestrator + Strategy Pattern** (Temperature, PowerConsumption, Light, Fan, AirCondition).
+- **Device Setup**: Cơ chế tự động thiết lập thiết bị mới qua **Orchestrator + Strategy Pattern** (Temperature, PowerConsumption, Light, Fan, AirCondition, Co2, Humidity, Lux, MotionDetector).
 
 ### Giám sát & Thu thập dữ liệu (Telemetry & Monitoring)
 - **Thu thập tự động**: Quartz Job Scheduler tự động quét và thu thập dữ liệu từ các Gateway định kỳ.
 - **Biểu đồ thời gian thực**: Theo dõi biến động nhiệt độ, độ ẩm và điện năng tiêu thụ qua biểu đồ **ApexCharts**.
 - **Energy Metric**: Hệ thống thu thập và tính toán điện năng tiêu thụ theo ngày, tự động reset chỉ số.
-- **Device Status Backup**: Quartz Job `DeviceStatusMetricJob` tự động thu thập trạng thái hoạt động của thiết bị (đèn, quạt, điều hòa, cảm biến) định kỳ, sử dụng cơ chế `extractBusinessData()` thống nhất qua sealed interface hierarchy (`DeviceSpecificData` / `SensorSpecificData`), chuyển đổi sang JsonNode tại tầng DTO.
+- **Device Status Backup**: Quartz Job `DeviceStatusMetricJob` tự động thu thập trạng thái hoạt động của thiết bị actuator (đèn, quạt, điều hòa) định kỳ, sử dụng cơ chế `extractBusinessData()` thống nhất qua sealed interface hierarchy (`DeviceSpecificData`), chuyển đổi sang JsonNode tại tầng DTO.
 
 ### Điều khiển & Tự động hóa (Control & Automation)
 - **Điều khiển từ xa**: Gửi lệnh bật/tắt và điều chỉnh thông số thiết bị tức thì qua REST API với **Strategy Pattern** (FanControl, LightControl, AirConditionControl).
@@ -111,6 +111,8 @@ Hệ thống cung cấp nền tảng vận hành IoT ổn định và dễ mở 
 ## 4. Tài liệu liên quan (Reference Files)
 
 - **Chi tiết kỹ thuật:** [SYSTEM.md](./SYSTEM.md) — Phân tích đặc tả kiến trúc, sơ đồ thực thể và quy trình nghiệp vụ.
-- **Hướng dẫn vận hành:** [setup_guideline](./doc/setup_guideline) — Quy trình triển khai, cấu hình môi trường và quản lý thư viện server.
+- **Tài liệu API:** [docs/api/](./docs/api/) — Đặc tả REST API theo từng nhóm chức năng (auth, room, rule, alert, telemetry, …).
+- **Nhật ký thay đổi:** [docs/changes/](./docs/changes/) — Change log API và các thay đổi schema.
+- **Yêu cầu nghiệp vụ:** [docs/requirement/](./docs/requirement/) — Luồng nghiệp vụ và đặc tả task.
+- **Đặc tả Gateway ESP32:** [docs/esp32_api_doc/](./docs/esp32_api_doc/) — Hợp đồng API phía firmware.
 - **Cấu trúc Database:** [infra/database/](./infra/database/) — Script SQL khởi tạo, migration và seed data.
-- **Thiết kế & kế hoạch Device Business Data:** [docs/superpowers/](./docs/superpowers/) — Design spec và implementation plan cho kiến trúc `extractBusinessData()` + sealed interface + generic processor.

@@ -3,6 +3,8 @@ import { UiRenderer } from './ui_renderer.js';
 import { getDevicesByRoom } from '../../../api/device.api.js';
 import { getSensorsByRoom } from '../../../api/sensor-metadata.api.js';
 import { Alert } from '../../../common/notification_util.js';
+import { Validator } from '../../../common/validator.js';
+import { CreateConditionDto } from '../../../types/rule.domain.js';
 import {
   formatPropertyLabel,
   conditionValueToUtc,
@@ -50,12 +52,38 @@ export const ConditionModal = (() => {
     el.valueMinute = document.getElementById('condValueMinute');
     el.valueTimeGroup = document.getElementById('condValueTimeGroup');
     el.valueHelp = document.getElementById('condValueHelp');
-    el.nextLogic = document.getElementById('condNextLogic');
+    el.nextLogicWrap = document.getElementById('condNextLogicWrap');
     el.sortOrder = document.getElementById('condSortOrder');
 
     if (el.modal && typeof bootstrap !== 'undefined') {
       bootstrapModal = new bootstrap.Modal(el.modal);
     }
+
+    el.sortOrder?.addEventListener('blur', () => {
+      let v = parseInt(el.sortOrder.value, 10);
+      if (isNaN(v) || v < 0) el.sortOrder.value = 0;
+    });
+
+    const handleInput = (input) => {
+      input.value = input.value.replace(/[^0-9]/g, '');
+      if (input.value.length > 2) {
+        input.value = input.value.slice(0, 2);
+      }
+    };
+    const padAndClamp = (input, min, max) => {
+      let val = parseInt(input.value, 10);
+      if (isNaN(val)) {
+        input.value = '00';
+      } else {
+        val = Math.min(Math.max(val, min), max);
+        input.value = val.toString().padStart(2, '0');
+      }
+    };
+
+    el.valueHour?.addEventListener('input', () => handleInput(el.valueHour));
+    el.valueMinute?.addEventListener('input', () => handleInput(el.valueMinute));
+    el.valueHour?.addEventListener('blur', () => padAndClamp(el.valueHour, 0, 23));
+    el.valueMinute?.addEventListener('blur', () => padAndClamp(el.valueMinute, 0, 59));
 
     bindEvents();
   };
@@ -117,36 +145,39 @@ export const ConditionModal = (() => {
   const setupDeviceOrSensorSource = async (ds, preservedData) => {
     el.targetWrap.classList.remove('d-none');
     el.targetLabel.textContent = ds === 'DEVICE' ? i18n.labelDevice : i18n.labelSensor;
-    el.target.innerHTML = `<option value="">${i18n.loading || 'Loading...'}</option>`;
+    el.target.disabled = true;
+    el.target.innerHTML = `<option value="" disabled selected>${i18n.loading || 'Loading...'}</option>`;
 
     const targets = await fetchTargets(ds);
-    populateTargetDropdown(targets, ds);
+    populateTargetDropdown(targets, ds, preservedData?.sourceTargetId);
 
-    if (preservedData?.sourceTargetId) {
-      el.target.value = String(preservedData.sourceTargetId);
-    }
     onTargetChange(preservedData);
   };
 
   const onDataSourceChange = async (preservedData = null) => {
     const ds = el.dataSource.value;
-    clearValidation();
     if (ds === 'SYSTEM') return setupFixedSource('SYSTEM', SYSTEM_PROPERTIES, preservedData);
     if (ds === 'ROOM') return setupFixedSource('ROOM', ROOM_PROPERTIES, preservedData);
     await setupDeviceOrSensorSource(ds, preservedData);
   };
 
-  const populateTargetDropdown = (targets, ds) => {
-    el.target.innerHTML = `<option value="">${i18n.selectTarget}</option>`;
+  const populateTargetDropdown = (targets, ds, selectedId = null) => {
     const items = Array.isArray(targets) ? targets : [];
+    if (items.length === 0) {
+      el.target.innerHTML = `<option value="" disabled selected>${i18n.noTargets || 'No targets found'}</option>`;
+      return;
+    }
+    el.target.innerHTML = `<option value="" disabled selected>${i18n.selectTarget}</option>`;
     items.forEach((item) => {
       const opt = document.createElement('option');
       opt.value = item.id;
       const category = item.category || (ds === 'DEVICE' ? item.deviceCategory : item.sensorCategory) || '';
       opt.dataset.category = category;
       opt.textContent = `${item.name || item.naturalId || item.code || '#' + item.id} (${category || ds})`;
+      if (selectedId && String(item.id) === String(selectedId)) opt.selected = true;
       el.target.appendChild(opt);
     });
+    el.target.disabled = false;
   };
 
   const onTargetChange = (preservedData = null) => {
@@ -181,6 +212,7 @@ export const ConditionModal = (() => {
     el.value.classList.add('d-none');
     el.valueSelect.classList.add('d-none');
     el.valueTimeGroup.classList.add('d-none');
+    el.valueHelp.classList.add('d-none');
     el.valueHelp.textContent = '';
   };
 
@@ -200,13 +232,14 @@ export const ConditionModal = (() => {
       el.valueTimeGroup.classList.remove('d-none');
       if (preservedValue !== null && preservedValue !== undefined && preservedValue !== '') {
         const hhmm = conditionValueFromUtc('SYSTEM', prop, preservedValue);
-        const [h, m] = hhmm.split(':');
-        if (h !== undefined && m !== undefined) {
-          el.valueHour.value = String(parseInt(h, 10));
-          el.valueMinute.value = String(parseInt(m, 10));
+        const [h, m] = hhmm.split(':').map(Number);
+        if (!Number.isNaN(h) && !Number.isNaN(m)) {
+          el.valueHour.value = String(h).padStart(2, '0');
+          el.valueMinute.value = String(m).padStart(2, '0');
         }
       }
       el.valueHelp.textContent = i18n.valTimeRange || 'Giờ hệ thống (Local time sẽ chuyển thành UTC)';
+      el.valueHelp.classList.remove('d-none');
       return;
     }
     if (prop === 'day_of_week') {
@@ -224,6 +257,7 @@ export const ConditionModal = (() => {
       el.value.placeholder = '1 - 31';
       el.value.value = preservedValue !== null && preservedValue !== undefined ? preservedValue : '1';
       el.valueHelp.textContent = 'Ngày trong tháng (1 - 31)';
+      el.valueHelp.classList.remove('d-none');
       return;
     }
     el.value.classList.remove('d-none');
@@ -263,68 +297,43 @@ export const ConditionModal = (() => {
     renderNumericProperty(config, preservedValue);
   };
 
-  const getComputedValue = () => {
+  const getValue = () => {
     const ds = el.dataSource.value;
     const prop = el.property.value;
     if (ds === 'SYSTEM' && prop === 'current_time') {
-      const hh = el.valueHour.value;
-      const mm = el.valueMinute.value;
-      return conditionValueToUtc(ds, prop, `${hh}:${mm}`);
+      const h = parseInt(el.valueHour.value, 10);
+      const m = parseInt(el.valueMinute.value, 10);
+      if (isNaN(h) || isNaN(m)) return '';
+      const localVal = h + m / 60.0;
+      return localVal.toFixed(2);
     }
     if (!el.valueSelect.classList.contains('d-none')) {
       return el.valueSelect.value;
     }
-    return el.value.value.trim();
-  };
-
-  const clearValidation = () => {
-    [el.target, el.property, el.value, el.operator, el.sortOrder].forEach((input) => {
-      if (input) input.classList.remove('is-invalid');
-    });
-  };
-
-  const getValidationResult = () => {
-    const ds = el.dataSource.value;
-    const errors = {};
-    if ((ds === 'DEVICE' || ds === 'SENSOR') && !el.target.value) {
-      errors.target = true;
-    }
-    if (!el.property.value) {
-      errors.property = true;
-    }
-    const val = getComputedValue();
-    if (val === '' || val === undefined) {
-      errors.value = true;
-    }
-    return { isValid: Object.keys(errors).length === 0, errors };
-  };
-
-  const applyValidationErrors = (errors = {}) => {
-    clearValidation();
-    if (errors.target) el.target.classList.add('is-invalid');
-    if (errors.property) el.property.classList.add('is-invalid');
-    if (errors.value) el.value.classList.add('is-invalid');
+    return el.value.value;
   };
 
   const populateEditCondition = async (existing) => {
-    el.dataSource.value = existing.sourceCategory || existing.dataSource || 'SENSOR';
+    el.dataSource.value = existing.sourceCategory || existing.dataSource || 'SYSTEM';
     el.operator.value = existing.operator || '=';
     el.sortOrder.value = existing.sortOrder !== undefined ? existing.sortOrder : 0;
-    el.nextLogic.value = existing.nextLogic || 'AND';
+    const nl = existing.nextLogic || 'AND';
+    const radio = document.querySelector(`input[name="condNextLogicRadio"][value="${nl}"]`);
+    if (radio) radio.checked = true;
     await onDataSourceChange(existing);
   };
 
   const populateNewCondition = async (order) => {
-    el.dataSource.value = 'SENSOR';
+    el.dataSource.value = 'SYSTEM';
     el.operator.value = '=';
     el.sortOrder.value = order;
-    el.nextLogic.value = 'AND';
+    const radio = document.querySelector('input[name="condNextLogicRadio"][value="AND"]');
+    if (radio) radio.checked = true;
     await onDataSourceChange();
   };
 
   const open = async (localId = null) => {
     el.form.reset();
-    clearValidation();
     const isEdit = Boolean(localId);
     el.localId.value = localId || '';
     el.title.textContent = isEdit ? (i18n.editTitle || 'Chỉnh sửa điều kiện') : (i18n.addTitle || 'Thêm điều kiện');
@@ -335,6 +344,7 @@ export const ConditionModal = (() => {
       await populateNewCondition(StateManager.getConditions().length);
     }
     bootstrapModal?.show();
+    window.renderIcons?.();
   };
 
   const resolveTargetId = (ds) => {
@@ -343,30 +353,144 @@ export const ConditionModal = (() => {
     return el.target.value;
   };
 
-  const buildConditionPayload = () => ({
-    sourceCategory: el.dataSource.value,
-    sourceTargetId: resolveTargetId(el.dataSource.value),
-    sourceTargetType: el.targetType.value || el.dataSource.value,
-    property: el.property.value,
-    operator: el.operator.value,
-    value: getComputedValue(),
-    nextLogic: el.nextLogic.value || 'AND',
-    sortOrder: parseInt(el.sortOrder.value, 10) || 0,
-  });
-
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    const validation = getValidationResult();
-    applyValidationErrors(validation.errors);
-    if (!validation.isValid) return;
 
     const localId = el.localId.value;
-    const payload = buildConditionPayload();
-    if (localId) {
-      StateManager.updateCondition(localId, payload);
-    } else {
-      StateManager.addCondition(payload);
+    const ds = el.dataSource.value;
+    const prop = el.property.value;
+    const cat = el.targetType.value || ds;
+
+    const sourceTargetId = resolveTargetId(ds);
+    const val = getValue().trim();
+
+    const builder = new CreateConditionDto.Builder()
+      .setSourceCategory(ds)
+      .setSourceTargetId(sourceTargetId)
+      .setSourceTargetType(cat)
+      .setProperty(prop)
+      .setOperator(el.operator.value)
+      .setValue(val)
+      .setSortOrder(el.sortOrder.value);
+
+    const result = builder.validate();
+    if (!result.isValid) {
+      const firstField = Object.keys(result.errors)[0];
+      const msgKey = result.errors[firstField];
+      const fieldLabel = ({
+        sourceCategory: i18n.colDataSource,
+        sourceTargetId: (ds === 'DEVICE' || ds === 'SENSOR') ? (el.targetLabel.textContent || 'Target') : i18n.colDataSource,
+        property: i18n.colProperty,
+        operator: i18n.colOperator,
+        value: i18n.colValue,
+        sortOrder: i18n.colOrder,
+      })[firstField] || '';
+      await Alert.warning((i18n[msgKey] || i18n.valRequired || 'Validation failed').replace('{0}', fieldLabel), i18n.error || 'Error');
+      const FIELD_ID_MAP = {
+        sourceCategory: el.dataSource,
+        sourceTargetId: el.target,
+        property: el.property,
+        operator: el.operator,
+        value: el.value,
+        sortOrder: el.sortOrder,
+      };
+      FIELD_ID_MAP[firstField]?.focus();
+      return;
     }
+
+    if ((ds === 'DEVICE' || ds === 'SENSOR') && !el.target.value) {
+      await Alert.warning(i18n.valTargetRequired || 'Target is required', i18n.error || 'Error');
+      el.target?.focus();
+      return;
+    }
+
+    if (ds === 'DEVICE' || ds === 'SENSOR') {
+      const config = CONDITION_PARAMETER_CONFIG[ds]?.[cat]?.[prop];
+      if (config) {
+        const propLabel = formatPropertyLabel(prop, i18n);
+
+        if (config.type === 'enum') {
+          const categoryValidators = Validator[cat];
+          const validator = categoryValidators ? categoryValidators[prop] : null;
+          if (validator && !validator.isValidFormat(val)) {
+            await Alert.warning(`Invalid value for ${propLabel}`, i18n.error || 'Error');
+            return;
+          }
+        } else if (config.type === 'int') {
+          const categoryValidators = Validator[cat];
+          const validator = categoryValidators ? categoryValidators[prop] : null;
+          const isValid = validator
+            ? validator.isValidFormat(val)
+            : (!isNaN(parseInt(val, 10)) && parseInt(val, 10) >= config.min && parseInt(val, 10) <= config.max);
+
+          if (!isValid) {
+            await Alert.warning(`${propLabel}: Must be between ${config.min} and ${config.max}`, i18n.error || 'Error');
+            el.value?.focus();
+            return;
+          }
+        } else if (config.type === 'float') {
+          const num = parseFloat(val);
+          if (isNaN(num)) {
+            await Alert.warning(`${propLabel}: Must be a valid float number`, i18n.error || 'Error');
+            el.value?.focus();
+            return;
+          }
+        }
+      }
+    }
+
+    if (ds === 'SYSTEM') {
+      if (prop === 'current_time') {
+        const h = parseInt(el.valueHour.value, 10);
+        const m = parseInt(el.valueMinute.value, 10);
+        if (isNaN(h) || h < 0 || h > 23 || isNaN(m) || m < 0 || m > 59) {
+          await Alert.warning(i18n.valTimeRange || 'Hour must be 0-23 and Minute must be 0-59', i18n.error || 'Error');
+          el.valueHour?.focus();
+          return;
+        }
+      } else if (prop === 'day_of_month') {
+        const num = parseInt(val, 10);
+        if (isNaN(num) || num < 1 || num > 31 || String(num) !== val) {
+          await Alert.warning(i18n.valDayMonthRange || 'Must be an integer between 1 and 31', i18n.error || 'Error');
+          el.value?.focus();
+          return;
+        }
+      }
+    }
+
+    let finalValue = val;
+    if (ds === 'SYSTEM' && prop === 'current_time') {
+      const h = el.valueHour.value;
+      const m = el.valueMinute.value;
+      finalValue = conditionValueToUtc(ds, prop, `${h}:${m}`);
+    }
+
+    let orderVal = parseInt(el.sortOrder.value, 10);
+    if (isNaN(orderVal) || orderVal < 0) {
+      await Alert.warning('Order must be a positive integer', i18n.error || 'Error');
+      el.sortOrder?.focus();
+      return;
+    }
+
+    const nextLogic = document.querySelector('input[name="condNextLogicRadio"]:checked')?.value || 'AND';
+
+    const data = {
+      sourceCategory:   ds,
+      sourceTargetId:   sourceTargetId,
+      sourceTargetType: cat,
+      property:         prop,
+      operator:         el.operator.value,
+      value:            finalValue,
+      sortOrder:        orderVal,
+      nextLogic:        nextLogic,
+    };
+
+    if (localId) {
+      StateManager.updateCondition(localId, data);
+    } else {
+      StateManager.addCondition(data);
+    }
+
     UiRenderer.render();
     bootstrapModal?.hide();
   };
