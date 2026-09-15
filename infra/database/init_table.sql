@@ -210,7 +210,7 @@ CREATE TABLE `hardware_config` (
   `v` bigint NOT NULL,
   `api_endpoint` varchar(256) DEFAULT NULL,
   `ble_mac_address` varchar(100) DEFAULT NULL,
-  `control_type` varchar(256) NOT NULL,
+  `control_type` varchar(256) DEFAULT NULL,
   `gpio_pin` int NOT NULL,
   `client_id` bigint NOT NULL,
   `room_id` bigint NOT NULL,

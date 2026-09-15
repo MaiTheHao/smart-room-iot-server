@@ -31,7 +31,7 @@ public class HardwareConfig extends BaseAuditEntity {
     private static final long serialVersionUID = 1L;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "control_type", length = 256, nullable = false)
+    @Column(name = "control_type", length = 256, nullable = true)
     private DeviceControlType controlType;
 
     @Column(name = "gpio_pin", nullable = false)
