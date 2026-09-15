@@ -52,6 +52,11 @@ DROP TABLE IF EXISTS `humidity_metrics`;
 DROP TABLE IF EXISTS `temperature_metrics`;
 DROP TABLE IF EXISTS `fan`;
 DROP TABLE IF EXISTS `fan_lan`;
+DROP TABLE IF EXISTS `motion_detector`;
+DROP TABLE IF EXISTS `motion_detector_lan`;
+DROP TABLE IF EXISTS `motion_metrics`;
+DROP TABLE IF EXISTS `room_event_config`;
+DROP TABLE IF EXISTS `room_event`;
 
 -- ----------------------------
 -- Module: Automation & Rules
@@ -59,8 +64,8 @@ DROP TABLE IF EXISTS `fan_lan`;
 DROP TABLE IF EXISTS `automation`;
 DROP TABLE IF EXISTS `automation_action`;
 DROP TABLE IF EXISTS `rule`;
-DROP TABLE IF EXISTS `rule_condition`;
-DROP TABLE IF EXISTS `rule_action`;
+DROP TABLE IF EXISTS `condition`;
+DROP TABLE IF EXISTS `action`;
 DROP TABLE IF EXISTS `alert_instance_log`;
 DROP TABLE IF EXISTS `alert_instance_group`;
 DROP TABLE IF EXISTS `alert_instance`;

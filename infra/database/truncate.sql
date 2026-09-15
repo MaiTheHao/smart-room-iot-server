@@ -52,6 +52,11 @@ TRUNCATE TABLE `energy_metrics`;
 TRUNCATE TABLE `device_status_metrics`;
 TRUNCATE TABLE `humidity_metrics`;
 TRUNCATE TABLE `temperature_metrics`;
+TRUNCATE TABLE `motion_detector`;
+TRUNCATE TABLE `motion_detector_lan`;
+TRUNCATE TABLE `motion_metrics`;
+TRUNCATE TABLE `room_event_config`;
+TRUNCATE TABLE `room_event`;
 
 -- ----------------------------
 -- Module: Automation & Rules
@@ -59,8 +64,8 @@ TRUNCATE TABLE `temperature_metrics`;
 TRUNCATE TABLE `automation`;
 TRUNCATE TABLE `automation_action`;
 TRUNCATE TABLE `rule`;
-TRUNCATE TABLE `rule_condition`;
-TRUNCATE TABLE `rule_action`;
+TRUNCATE TABLE `condition`;
+TRUNCATE TABLE `action`;
 TRUNCATE TABLE `alert_config`;
 TRUNCATE TABLE `alert_config_group`;
 TRUNCATE TABLE `alert_instance`;

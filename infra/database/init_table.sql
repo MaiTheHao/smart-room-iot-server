@@ -694,41 +694,45 @@ CREATE TABLE `rule` (
   KEY `idx_rule_status` (`is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `rule_condition` (
+CREATE TABLE `condition` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `updated_by` varchar(256) DEFAULT NULL,
-  `v` bigint NOT NULL,
-  `rule_id` bigint NOT NULL,
-  `sort_order` int NOT NULL,
-  `data_source` varchar(256) NOT NULL,
-  `resource_param` text DEFAULT NULL,
-  `operator` varchar(5) NOT NULL,
-  `value_param` varchar(256) NOT NULL,
-  `next_logic` varchar(3) DEFAULT NULL,
+  `v` bigint NOT NULL DEFAULT 0,
+  `owner_category` varchar(50) NOT NULL,
+  `owner_id` varchar(256) NOT NULL,
+  `source_category` varchar(50) NOT NULL,
+  `source_target_id` varchar(256) DEFAULT NULL,
+  `source_target_type` varchar(50) DEFAULT NULL,
+  `property` varchar(100) NOT NULL,
+  `operator` varchar(10) NOT NULL,
+  `value` varchar(256) NOT NULL,
+  `extra_params` text DEFAULT NULL,
+  `sort_order` int NOT NULL DEFAULT 0,
+  `next_logic` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_rule_condition_rule_id` (`rule_id`),
-  CONSTRAINT `fk_rule_condition_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`) ON DELETE CASCADE
+  KEY `idx_condition_owner` (`owner_category`, `owner_id`),
+  KEY `idx_condition_source` (`source_category`, `source_target_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `rule_action` (
+CREATE TABLE `action` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `created_at` datetime(6) DEFAULT NULL,
   `created_by` varchar(256) DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `updated_by` varchar(256) DEFAULT NULL,
-  `v` bigint NOT NULL,
-  `rule_id` bigint NOT NULL,
-  `execution_order` int DEFAULT NULL,
-  `target_device_id` bigint NOT NULL,
-  `target_device_category` varchar(256) NOT NULL,
-  `action_params` text DEFAULT NULL,
+  `v` bigint NOT NULL DEFAULT 0,
+  `owner_category` varchar(50) NOT NULL,
+  `owner_id` varchar(256) NOT NULL,
+  `target_category` varchar(50) NOT NULL,
+  `target_id` varchar(256) NOT NULL,
+  `params` text DEFAULT NULL,
+  `execution_order` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  KEY `idx_rule_action_rule_id` (`rule_id`),
-  KEY `idx_rule_action_target_device` (`target_device_id`),
-  CONSTRAINT `fk_rule_action_rule` FOREIGN KEY (`rule_id`) REFERENCES `rule` (`id`) ON DELETE CASCADE
+  KEY `idx_action_owner` (`owner_category`, `owner_id`),
+  KEY `idx_action_target` (`target_category`, `target_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `QRTZ_JOB_DETAILS` (
